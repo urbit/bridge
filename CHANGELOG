@@ -1,0 +1,56 @@
+# Changelog
+
+- 0.5.0 (2019-01-14)
+    This release adds a bunch of additional features and last-mile polish,
+    and also makes a number of bugfixes.
+
+    * Improved validation and style throughout.
+    * Improved error handling and presentation to the user.
+    * Enables mainnet!
+    * Adds Trezor support.
+    * Adds ability to generate Arvo keyfiles.
+    * Displays points for additional proxy rights in the 'Points' view.
+    * Allows authentication with sharded master tickets.
+    * Provides name suggestions when spawning children.
+    * And more!
+
+- 0.4.0 (2018-12-28)
+    This release largely focuses on UX:
+
+    * Improved information rendering in Point details view.  Actions now
+      better-respect permissions, and addresses/keys are only displayed if
+      set.
+    * Adds a point's spawned children to its details view.
+    * Supplements the Points view with a list of outgoing transfers, and adds
+      an action to the Point details view for cancelling such transfers.
+    * Misc bugfixes, style enhancements, and minor improvements.
+
+- 0.3.0 (2018-12-21)
+    Adds the following features:
+
+    * Ledger support for authentication and transaction signing.
+    * Style overhaul from reactstrap to base.
+    * Final Azimuth contracts support.
+    * Custom HD path support when authenticating via BIP39.
+    * Offline mode, complete with offline transaction signing.
+    * Ability to lookup/view the details of an arbitrary point.
+    * Basic push/pull point transfer flow.
+    * Ropsten support.
+
+- 0.2.1 (2018-11-26)
+    * Use updated urbit-constitution-js dependency that fixes a webpack build
+      issue.
+
+- 0.2.0 (2018-11-20)
+    Initial release of the refactored Bridge series.  A basic application that
+    supports:
+
+    * A local testnet running Ganache.
+    * Authentication with both BIP39 mnemonics (i.e. UP8 seeds) and UP8 master
+      tickets.
+    * Setting of transfer/management/spawn proxies.
+    * Setting of Urbit network keys.
+    * Creation of galaxies (for the constitution owner).
+    * Transfer of ships.
+    * And probably some other stuff.
+

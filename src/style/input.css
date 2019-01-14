@@ -1,0 +1,51 @@
+@-webkit-keyframes autofill {
+    to {
+        color: #000;
+        background: transparent;
+    }
+}
+
+input {
+  width: 100%;
+  outline: none;
+}
+
+input:-webkit-autofill {
+    -webkit-animation-name: autofill;
+    -webkit-animation-fill-mode: both;
+}
+
+input[prop-size='lg'] {
+  height: 18rem;
+  font-size: 5rem;
+  padding-left: 4rem;
+  padding-right: 4rem;
+}
+
+input[prop-size='md'] {
+  height: 10rem;
+  font-size: 4rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+input[prop-size='sm'] {
+  height: 8rem;
+  font-size: 4rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+input[prop-format*='innerLabel'] {
+  padding-top: 8rem;
+  height: 20rem;
+  padding-left: 4rem;
+  padding-right: 4rem;
+}
+
+input[prop-format*='innerLabel'][prop-size='md'] {
+  height: 16rem;
+  font-size: 4rem;
+  padding-left: 4rem;
+  padding-right: 4rem;
+}
