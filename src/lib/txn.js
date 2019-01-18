@@ -111,7 +111,7 @@ const signTransaction = async config => {
   const stx = new Tx(utx)
 
   if (walletType === WALLET_NAMES.LEDGER) {
-    await ledgerSignTransaction(stx)
+    await ledgerSignTransaction(stx, walletHdPath)
   } else if (walletType === WALLET_NAMES.TREZOR) {
     await trezorSignTransaction(stx, walletHdPath)
   } else {
