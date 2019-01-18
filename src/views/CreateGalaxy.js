@@ -371,7 +371,6 @@ class CreateGalaxy extends React.Component {
             className='mono'
             prop-size='lg'
             prop-format='innerLabel'
-            autoFocus
             placeholder='e.g. ~zod'
             value={state.galaxyName}
             onChange={v => this.handleGalaxyInput(v)}>

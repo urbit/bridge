@@ -134,7 +134,6 @@ class Shards extends React.Component {
             prop-size='lg'
             prop-format='innerLabel'
             type='text'
-            autoFocus
             placeholder={ `e.g. ${phPoint}` }
             value={ state.pointName }
             onChange={ this.handlePointNameInput }>

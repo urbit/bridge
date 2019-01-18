@@ -94,7 +94,6 @@ class Ticket extends React.Component {
             prop-size='lg'
             prop-format='innerLabel'
             type='text'
-            autoFocus
             placeholder={ `e.g. ${this.pointPlaceholder}` }
             value={ state.pointName }
             onChange={ this.handlePointNameInput }>

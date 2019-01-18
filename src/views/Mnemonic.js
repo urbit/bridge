@@ -86,8 +86,7 @@ class Mnemonic extends React.Component {
               placeholder={ `e.g. ${state.exampleMnemonic}` }
               onChange={ this.handleMnemonicInput }
               value={ state.mnemonic }
-              autocomplete='off'
-              autoFocus>
+              autocomplete='off'>
               <InnerLabel>{'Mnemonic'}</InnerLabel>
             </MnemonicInput>
 
