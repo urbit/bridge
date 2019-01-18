@@ -23,13 +23,11 @@ const Textarea = props => {
     ? `${props.valClassname} ${props.className}`
     : `br-gray-50 f-br-blue outline-blue ${props.className}`
 
-
-
-
   return (
     <div className={'relative'}>
       <ProtoTextarea
         {...props}
+        style={{height: '32rem'}}
         // prop-focussed={props.focussed.toString()}
         className={`p-3 b-2 b-solid flex ${_disabled} ${className}`}
         onChange={e => props.onChange(e.target.value)} />

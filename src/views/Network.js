@@ -25,6 +25,7 @@ class Network extends React.Component {
 
     this.toggle = this.toggle.bind(this);
     this.close = this.close.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
     this.handleNetworkChange = this.handleNetworkChange.bind(this);
   }
 
@@ -114,51 +115,51 @@ class Network extends React.Component {
     this.setState({ dropdownOpen: false })
   }
 
+  handleSubmit() {
+    const { props } = this
+    props.pushRoute(ROUTE_NAMES.WALLET)
+  }
+
   render() {
-    const { dropdownOpen } = this.state
-    const { networkType, pushRoute } = this.props
+    const { props, state } = this
 
     return (
-        <Row>
-          <Col>
-            <H1>{ 'Select Network' }</H1>
-
+      <Row>
+        <Col className={'measure-md'}>
+          <H1>{ 'Select Network' }</H1>
 
           <P>
           {
-            "Please select the Ethereum node you'd like to send " +
-            "transactions to.  If you don't know, the default should be " +
-            "fine.  For sensitive transactions, please select offline mode."
+            `Please select the Ethereum Node you would like to send transactions
+            to. The default Main Network connects to Infura and is adequate for
+            most uses, but for sensitive transactions, please select offline
+            mode.`
           }
           </P>
 
 
           <InnerLabelDropdown
-            className={'mt-6'}
+            className={'mt-8'}
             handleToggle={this.toggle}
             handleClose={this.close}
-            isOpen={dropdownOpen}
+            isOpen={state.dropdownOpen}
             title={'Node:'}
-            currentSelectionTitle={renderNetworkType(networkType)}
-          >
+            currentSelectionTitle={renderNetworkType(props.networkType)}>
 
               <DropdownItem
                 isSelected={ false }
                 onClick={
                   () => this.selectClose(() => this.handleNetworkChange(NETWORK_NAMES.MAINNET))
-                }
-              >
-                { 'Main Network (default)' }
+                }>
+                { 'Main Network' }
               </DropdownItem>
 
               <DropdownItem
                 isSelected={false}
                 onClick={
                   () => this.selectClose(() => this.handleNetworkChange(NETWORK_NAMES.LOCAL))
-                }
-              >
-                { //'Ganache Node @ Port 8545 (Default)'
-                }
+                }>
+
                 {'Local Node'}
               </DropdownItem>
 
@@ -167,8 +168,7 @@ class Network extends React.Component {
                 isSelected={ false }
                 onClick={
                   () => this.selectClose(() => this.handleNetworkChange(NETWORK_NAMES.ROPSTEN))
-                }
-              >
+                }>
                 { 'Ropsten' }
               </DropdownItem>
 
@@ -179,19 +179,26 @@ class Network extends React.Component {
                 isSelected={ false }
                 onClick={
                   () => this.selectClose(() => this.handleNetworkChange(NETWORK_NAMES.OFFLINE))
-                }
-              >
+                }>
                 { 'Offline' }
               </DropdownItem>
 
           </InnerLabelDropdown>
 
-          <Button
-            className={'mt-10'}
-            onClick={ () => pushRoute(ROUTE_NAMES.WALLET) }
-          >
-            { 'Continue  →' }
-          </Button>
+          <Row className={'mt-16'}>
+            <Button
+              prop-size={'lg wide'}
+              onClick={ this.handleSubmit }>
+              { 'Connect →' }
+            </Button>
+
+            <Button
+              prop-type={'link'}
+              className={'mt-8'}
+              onClick={ () => props.popRoute() }>
+              { '← Back' }
+            </Button>
+          </Row>
 
         </Col>
       </Row>

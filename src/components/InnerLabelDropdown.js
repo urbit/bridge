@@ -13,26 +13,27 @@ const InnerLabelDropdown = props => {
     : 'br-gray-50';
 
   return (
-    <div className={'rel table'}>
+    <div className={`rel flex ${props.className}`}>
     <div
       className={`fix full o-0 ${menuVisibility}`}
       onClick={props.handleClose}
     />
 
       <button
-        className={`h-10 mp-0 bg-white outline-blue sans ${props.className}`}
+        className={`h-16 mp-0 bg-white outline-blue sans`}
+        style={{width: '100%'}}
         onClick={props.handleToggle}
         disabled={props.disabled}>
         <div className={'flex'}>
-          <div className={`ph-4 flex-center-all b-2 br-0 b-solid h-10 ${selectedClasses}`}>
+          <div style={{width: '100%'}} className={`ph-4 flex items-center b-2 br-0 b-solid h-16 ${selectedClasses}`}>
             <div className={'text-400 mr-2'}>{props.title}</div>
             <div className={'text-600'}>{props.currentSelectionTitle}</div>
           </div>
-          <div className={'white bg-blue s-10 flex-center-all text-sm'}>{'▼'}</div>
+          <div className={'white bg-blue h-16 w-18 flex-center-all text-sm'}>{'▼'}</div>
         </div>
       </button>
 
-      <div className={`abs flex-column bg-white t-12 l-0 w-100 ${menuVisibility}`}>
+      <div className={`abs flex-column bg-white t-18 l-0 w-100 ${menuVisibility}`}>
         <div className={'pv-1 b-solid b-gray-50 b-2 bb-0'} />
 
         { props.children }

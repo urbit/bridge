@@ -11,7 +11,6 @@ import { TREZOR_BASE_PATH } from '../lib/trezor'
 import { ROUTE_NAMES } from '../lib/router'
 
 class Trezor extends React.Component {
-
   constructor(props) {
     super(props)
 
@@ -21,6 +20,7 @@ class Trezor extends React.Component {
 
     this.handleHdPathInput = this.handleHdPathInput.bind(this)
     this.pollDevice = this.pollDevice.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   handleHdPathInput(hdpath) {
@@ -47,9 +47,14 @@ class Trezor extends React.Component {
       })
   }
 
+  handleSubmit() {
+    const { props } = this
+    props.popRoute()
+    props.pushRoute(ROUTE_NAMES.SHIPS)
+  }
+
   render() {
-    const { pushRoute, popRoute, wallet } = this.props
-    const { hdpath } = this.state
+    const { props, state } = this
 
     return (
         <Row>
@@ -67,7 +72,7 @@ class Trezor extends React.Component {
               prop-size='md'
               prop-format='innerLabel'
               name='hdpath'
-              value={ hdpath }
+              value={ state.hdpath }
               autocomplete='off'
               onChange={ this.handleHdPathInput }>
               <InnerLabel>{'HD Path'}</InnerLabel>
@@ -80,18 +85,21 @@ class Trezor extends React.Component {
               { 'Authenticate →' }
             </Button>
 
-            <Button
-              className={'mt-8'}
-              prop-size={'wide lg'}
-              disabled={ Maybe.Nothing.hasInstance(wallet) }
-              onClick={
-                () => {
-                  popRoute()
-                  pushRoute(ROUTE_NAMES.SHIPS)
-                }
-              }>
-              { 'Continue →' }
-            </Button>
+            <Row className={'mt-8 '}>
+              <Button
+                prop-size={'lg wide'}
+                disabled={ Maybe.Nothing.hasInstance(props.wallet) }
+                onClick={ this.handleSubmit }>
+                { 'Continue →' }
+              </Button>
+
+              <Button
+                prop-type={'link'}
+                className={'mt-8'}
+                onClick={ () => props.popRoute() }>
+                { '← Back' }
+              </Button>
+            </Row>
 
         </Col>
       </Row>

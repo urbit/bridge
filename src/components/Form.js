@@ -2,14 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 
-const Form = ({
-  className,
-  children,
-  style,
-}) => {
+const Form = (props) => {
   return (
-    <form className={`${className}`} style={style}>
-      { children }
+    <form className={`measure-lg ${props.className}`} style={props.style}>
+      { props.children }
     </form>
   )
 };

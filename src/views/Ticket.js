@@ -33,6 +33,7 @@ class Ticket extends React.Component {
 
     this.handleTicketInput = this.handleTicketInput.bind(this)
     this.handlePointNameInput = this.handlePointNameInput.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   handleTicketInput(ticket) {
@@ -63,12 +64,21 @@ class Ticket extends React.Component {
     setUrbitWallet(Maybe.Just(urbitWallet))
   }
 
-  render() {
-    const { popRoute, pushRoute, wallet } = this.props
-    const { ticket, pointName } = this.state
+  handleSubmit() {
+    const { props, state } = this
+    this.walletFromTicket(state.ticket, state.pointName).then(() => {
+      props.popRoute()
+      props.pushRoute(ROUTE_NAMES.SHIPS)
+    })
+  }
 
-    const phPoint = this.pointPlaceholder
-    const phTick = this.ticketPlaceholder
+  render() {
+    const { props, state } = this
+
+    const validTicket = true
+    const validShip = true
+    const canSubmit = validTicket === true && validShip === true
+
 
     return (
         <Row>
@@ -85,17 +95,16 @@ class Ticket extends React.Component {
             prop-format='innerLabel'
             type='text'
             autoFocus
-            placeholder={ `e.g. ${phPoint}` }
-            value={ pointName }
+            placeholder={ `e.g. ${this.pointPlaceholder}` }
+            value={ state.pointName }
             onChange={ this.handlePointNameInput }>
             <InnerLabel>{ 'Point' }</InnerLabel>
             <ValidatedSigil
               className={'tr-0 mt-05 mr-0 abs'}
-              patp={pointName}
-              size={68}
+              patp={state.pointName}
+              size={76}
               margin={8} />
-            </PointInput>
-
+          </PointInput>
 
           <TicketInput
             className='mono mt-8'
@@ -103,32 +112,27 @@ class Ticket extends React.Component {
             prop-format='innerLabel'
             type='text'
             name='ticket'
-            placeholder={ `e.g. ${phTick}` }
-            value={ ticket }
+            placeholder={ `e.g. ${this.ticketPlaceholder}` }
+            value={ state.ticket }
             onChange={ this.handleTicketInput }>
             <InnerLabel>{ 'Ticket' }</InnerLabel>
           </TicketInput>
 
-          <Button
-            className={'mt-8'}
-            prop-size={'lg wide'}
-            // prop-color={this.buttonTriState(wallet)}
-            onClick={() => this.walletFromTicket(ticket, pointName)}>
-            {'Unlock Wallet →'}
-          </Button>
+          <Row className={'mt-8 '}>
+            <Button
+              prop-size={'lg wide'}
+              disabled={ !canSubmit }
+              onClick={ this.handleSubmit }>
+              { 'Unlock →' }
+            </Button>
 
-          <Button
-            className={'mt-4'}
-            prop-size={'xl wide'}
-            disabled={ Maybe.Nothing.hasInstance(wallet) }
-            onClick={ () => {
-                popRoute()
-                pushRoute(ROUTE_NAMES.SHIPS)
-              }
-            }
-          >
-            { 'Continue →' }
-          </Button>
+            <Button
+              prop-type={'link'}
+              className={'mt-8'}
+              onClick={ () => props.popRoute() }>
+              { '← Back' }
+            </Button>
+          </Row>
 
         </Col>
       </Row>

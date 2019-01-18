@@ -22,6 +22,7 @@ class Wallet extends React.Component {
 
     this.toggle = this.toggle.bind(this)
     this.close = this.close.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
 
   }
 
@@ -45,12 +46,29 @@ class Wallet extends React.Component {
     this.setState({ dropdownOpen: false })
   }
 
+  handleSubmit() {
+    const { props } = this
+    props.pushRoute(
+        props.walletType === WALLET_NAMES.MNEMONIC
+      ? ROUTE_NAMES.MNEMONIC
+      : props.walletType === WALLET_NAMES.TICKET
+      ? ROUTE_NAMES.TICKET
+      : props.walletType === WALLET_NAMES.SHARDS
+      ? ROUTE_NAMES.SHARDS
+      : props.walletType === WALLET_NAMES.LEDGER
+      ? ROUTE_NAMES.LEDGER
+      : props.walletType === WALLET_NAMES.TREZOR
+      ? ROUTE_NAMES.TREZOR
+      : ROUTE_NAMES.DEFAULT
+    )
+  }
+
   render() {
     const { props, state } = this
 
     return (
       <Row>
-        <Col>
+        <Col className={'measure-md'}>
           <H1>{ 'Unlock a Wallet' }</H1>
 
             <P>
@@ -62,7 +80,7 @@ class Wallet extends React.Component {
             </P>
 
           <InnerLabelDropdown
-            className={'mb-10 mt-6'}
+            className={'mt-8'}
             handleToggle={this.toggle}
             handleClose={this.close}
             isOpen={state.dropdownOpen}
@@ -70,14 +88,12 @@ class Wallet extends React.Component {
             currentSelectionTitle={renderWalletType(props.walletType)}>
 
             <DropdownItem
-              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.TICKET)) }
-            >
+              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.TICKET)) }>
               { 'Urbit Master Ticket' }
             </DropdownItem>
 
             <DropdownItem
-              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.SHARDS)) }
-            >
+              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.SHARDS)) }>
               { 'Urbit Master Ticket (Shards)' }
             </DropdownItem>
 
@@ -96,8 +112,7 @@ class Wallet extends React.Component {
                   Nothing: () => true,
                   Just: () => false
                 })
-              }
-            >
+              }>
               { 'Trezor' }
             </DropdownItem>
 
@@ -121,7 +136,20 @@ class Wallet extends React.Component {
               { 'Ethereum Keystore File' }
             </DropdownItem>
 
+          <Row className={'mt-16'}>
+            <Button
+              prop-size={'lg wide'}
+              onClick={this.handleSubmit}>
+              { 'Continue →' }
+            </Button>
 
+            <Button
+              prop-type={'link'}
+              className={'mt-8'}
+              onClick={ () => props.popRoute() }>
+              { '← Back' }
+            </Button>
+          </Row>
 
           </InnerLabelDropdown>
 

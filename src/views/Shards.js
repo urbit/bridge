@@ -41,6 +41,7 @@ class Shards extends React.Component {
 
     this.handleShardInput = this.handleShardInput.bind(this)
     this.handlePointNameInput = this.handlePointNameInput.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   handleShardInput(shard, input) {
@@ -91,14 +92,27 @@ class Shards extends React.Component {
     }
   }
 
+  handleSubmit() {
+    const { props, state } = this
+    this.walletFromShards(
+      state.shard1,
+      state.shard2,
+      state.shard3,
+      state.pointName
+    ).then(() => {
+      props.popRoute()
+      props.pushRoute(ROUTE_NAMES.SHIPS)
+    })
+  }
+
   render() {
-    const { popRoute, pushRoute, wallet } = this.props
-    const { shard1, shard2, shard3, pointName } = this.state
+
+    const { props, state } = this
 
     const phPoint = this.pointPlaceholder
     const phTick = this.ticketPlaceholder
 
-    const shards = [shard1, shard2, shard3]
+    const shards = [state.shard1, state.shard2, state.shard3]
     const ready = shards.filter(x => x !== '').length > 1
 
     return (
@@ -122,15 +136,15 @@ class Shards extends React.Component {
             type='text'
             autoFocus
             placeholder={ `e.g. ${phPoint}` }
-            value={ pointName }
+            value={ state.pointName }
             onChange={ this.handlePointNameInput }>
             <InnerLabel>{ 'Point' }</InnerLabel>
             <ValidatedSigil
               className={'tr-0 mt-05 mr-0 abs'}
-              patp={pointName}
-              size={68}
+              patp={state.pointName}
+              size={76}
               margin={8} />
-            </PointInput>
+          </PointInput>
 
 
           <ShardInput
@@ -140,7 +154,7 @@ class Shards extends React.Component {
             type='text'
             name='shard1'
             placeholder={ `e.g. ${phTick}` }
-            value={ shard1 }
+            value={ state.shard1 }
             onChange={ inp => this.handleShardInput(SHARDS.SHARD1, inp) }>
             <InnerLabel>{ 'Shard 1' }</InnerLabel>
           </ShardInput>
@@ -152,7 +166,7 @@ class Shards extends React.Component {
             type='text'
             name='shard2'
             placeholder={ `e.g. ${phTick}` }
-            value={ shard2 }
+            value={ state.shard2 }
             onChange={ inp => this.handleShardInput(SHARDS.SHARD2, inp) }>
             <InnerLabel>{ 'Shard 2' }</InnerLabel>
           </ShardInput>
@@ -164,34 +178,26 @@ class Shards extends React.Component {
             type='text'
             name='shard3'
             placeholder={ `e.g. ${phTick}` }
-            value={ shard3 }
+            value={ state.shard3 }
             onChange={ inp => this.handleShardInput(SHARDS.SHARD3, inp) }>
             <InnerLabel>{ 'Shard 3' }</InnerLabel>
           </ShardInput>
 
-          <Button
-            disabled={ !ready }
-            className={'mt-8'}
-            prop-size={'lg wide'}
-            // prop-color={this.buttonTriState(wallet)}
-            onClick={() =>
-              this.walletFromShards(shard1, shard2, shard3, pointName)
-            }>
-            {'Unlock Wallet →'}
-          </Button>
+          <Row className={'mt-8 '}>
+            <Button
+              disabled={ !ready }
+              prop-size={'lg wide'}
+              onClick={ this.handleSubmit }>
+              { 'Unlock →' }
+            </Button>
 
-          <Button
-            className={'mt-4'}
-            prop-size={'xl wide'}
-            disabled={ Maybe.Nothing.hasInstance(wallet) }
-            onClick={ () => {
-                popRoute()
-                pushRoute(ROUTE_NAMES.SHIPS)
-              }
-            }
-          >
-            { 'Continue →' }
-          </Button>
+            <Button
+              prop-type={'link'}
+              className={'mt-8'}
+              onClick={ () => props.popRoute() }>
+              { '← Back' }
+            </Button>
+          </Row>
 
         </Col>
       </Row>

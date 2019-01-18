@@ -1,5 +1,6 @@
+/* 100vh - footerHeight - footerVerticalMargin - headerHeight */
 .wrapper {
-  min-height: calc(100vh - 52px - 106px - 80px);
+  min-height: calc(100vh - 64px - 32px - 40px);
 }
 
 /* p {
@@ -8,19 +9,17 @@
 
 header {
   width: 100%;
-  height: 106px;
 }
 
-footer,
-.push {
-  height: 52px;
+footer {
+  /* padding-top: 12px;
+  border-top: 2px solid #aaa; */
 }
 
 .row {
   display: flex;
   flex-wrap: wrap;
-  margin-right: 0.0rem;
-  margin-left: 0.0rem; }
+}
 
 .h-bg-blue:hover {
   background-color: #4330FC;
@@ -314,6 +313,15 @@ footer,
   height: 8rem;
 }
 
+.t-18 {
+  top: 18rem;
+}
+
+.s-16 {
+  width: 16rem;
+  height: 16rem;
+}
+
 .abs {
   position: absolute;
 }
@@ -362,16 +370,20 @@ footer,
   border-style: solid;
 }
 
+.measure-narrow { max-width: 80rem; }
+.measure { max-width: 120rem; }
+.measure-wide { max-width: 136rem; }
+
 .measure-sm {
-  max-width: 20em;
+  max-width: 80rem;
 }
 
 .measure-md {
-  max-width: 420px;
+  max-width: 108rem;
 }
 
 .measure-lg {
-  max-width: 34em;
+  max-width: 136rem;
 }
 
 .sans {
@@ -438,4 +450,8 @@ code {
 
 .pointer:hover {
   cursor: pointer;
+}
+
+.mt-auto {
+  margin-top: 100%;
 }

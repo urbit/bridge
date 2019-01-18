@@ -1,7 +1,7 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
 
-import { Code, H3 } from './Base'
+import { Code, H3, Row } from './Base'
 import { Button } from './Base'
 import { CheckboxButton, Input, InnerLabel }  from './Base'
 
@@ -54,7 +54,7 @@ const StatelessTransaction = props => {
 
 
         <Input
-          className='mono mt-4'
+          className='mono mt-8'
           prop-size='md'
           prop-format='innerLabel'
           value={ props.gasPrice }
@@ -65,7 +65,7 @@ const StatelessTransaction = props => {
         </Input>
 
         <Input
-          className='mono mt-4'
+          className='mono mt-8'
           prop-size='md'
           prop-format='innerLabel'
           value={ props.gasLimit }
@@ -81,7 +81,7 @@ const StatelessTransaction = props => {
             Nothing: () =>
               <React.Fragment>
                 <Input
-                  className='mono mt-4'
+                  className='mono mt-8'
                   prop-size='md'
                   prop-format='innerLabel'
                   value={ props.nonce }
@@ -92,7 +92,7 @@ const StatelessTransaction = props => {
                 </Input>
 
                 <Input
-                  className='mono mt-4 mb-8'
+                  className='mono mt-8'
                   prop-size='md'
                   prop-format='innerLabel'
                   value={ props.chainId }
@@ -156,13 +156,23 @@ const StatelessTransaction = props => {
                       { `I approve this transaction and wish to send.` }
                     </div>
                   </CheckboxButton>
-                  <Button
-                    prop-size={'xl wide'}
-                    className={'mt-8'}
-                    disabled={ !props.canSend }
-                    onClick={ () => props.handleSubmit() }>
-                    { 'Send Transaction' }
-                  </Button>
+                  <Row className={'flex mt-8 '}>
+                    <Button
+                      prop-size={'xl half'}
+                      prop-type={'outline'}
+                      className={'mr-4'}
+                      disabled={ !props.canSend }
+                      onClick={ () => props.handleSubmit() }>
+                      { '← Cancel and Return' }
+                    </Button>
+                    <Button
+                      prop-size={'xl half'}
+                      className={'ml-4'}
+                      disabled={ !props.canSend }
+                      onClick={ () => props.handleSubmit() }>
+                      { 'Send Transaction →' }
+                    </Button>
+                  </Row>
                 </React.Fragment>
               )
             }

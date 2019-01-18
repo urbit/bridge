@@ -3,7 +3,7 @@ import React from 'react'
 import { version } from '../../package.json'
 
 const Footer = (props) =>
-  <footer className={'row h-13 mt-20'}>
+  <footer className={'row h-16 mt-8 items-center'}>
 
     <div className={'col-md-3'}>
       { 'v' + version }

@@ -15,6 +15,7 @@ const ProtoInput = props => {
       className={props.className}
       onChange={e => props.onChange(e)}
       onKeyPress={e => props.onKeyPress(e)}
+      // onKeyUp={e => e.preventDefault()}
       onFocus={e => props.onFocus(e)}
       onBlur={e => props.onBlur(e)}
       placeholder={props.placeholder}

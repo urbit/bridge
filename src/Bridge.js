@@ -43,7 +43,7 @@ class Bridge extends React.Component {
       web3: Maybe.Nothing(),
       contracts: Maybe.Nothing(),
       // wallet
-      walletType: WALLET_NAMES.MNEMONIC,
+      walletType: WALLET_NAMES.TICKET,
       wallet: Maybe.Nothing(),
       walletHdPath: DEFAULT_HD_PATH,
       // urbit wallet-related
@@ -131,7 +131,7 @@ class Bridge extends React.Component {
   popRoute() {
     this.setState((state, _) => ({
       routeCrumbs: state.routeCrumbs.shift()
-    }))3
+    }))
   }
 
   setNetworkType(symbol) {
@@ -194,71 +194,55 @@ class Bridge extends React.Component {
   }
 
   render() {
-    const {
-      routeCrumbs,
-      networkType,
-      walletType,
-      walletHdPath,
-      wallet,
-      urbitWallet,
-      authMnemonic,
-      pointCursor,
-      pointCache,
-      txnCursor,
-      web3,
-      contracts
-    } = this.state
+    const { state } = this
 
-    const View = router(routeCrumbs.peek())
+    const View = router(state.routeCrumbs.peek())
 
     return (
       <Container>
-      <Row>
-        <Col className='col-md-1' />
-          <Col className='col-md-10' style={{maxWidth: '620px'}}>
-            <Header
-              routeCrumbs={ routeCrumbs }
-              skipRoute={ this.skipRoute }
-              networkType={ networkType }
-              wallet={ wallet }
-              pointCursor={ pointCursor } />
+      <Row className='ph-4 md-ph-0'>
+        <Col>
+          <Header
+            routeCrumbs={ state.routeCrumbs }
+            skipRoute={ this.skipRoute }
+            networkType={ state.networkType }
+            wallet={ state.wallet }
+            pointCursor={ state.pointCursor } />
 
-            <Row className={ 'row wrapper' }>
+          <Row className={ 'row wrapper' }>
 
-              <View
-                // router
-                pushRoute={ this.pushRoute }
-                popRoute={ this.popRoute }
-                // network
-                setNetworkType={ this.setNetworkType }
-                setNetwork={ this.setNetwork }
-                networkType={ networkType }
-                web3={ web3 }
-                contracts={ contracts }
-                // wallet
-                setWalletType={ this.setWalletType }
-                setWalletHdPath={ this.setWalletHdPath }
-                setWallet={ this.setWallet }
-                walletType={ walletType }
-                walletHdPath={ walletHdPath }
-                wallet={ wallet }
-                // urbit wallet
-                urbitWallet={ urbitWallet }
-                setUrbitWallet={ this.setUrbitWallet }
-                authMnemonic={ authMnemonic }
-                setAuthMnemonic={ this.setAuthMnemonic }
-                // point
-                setPointCursor={ this.setPointCursor }
-                addToPointCache={ this.addToPointCache }
-                pointCursor={ pointCursor }
-                pointCache={ pointCache }
-                // txn
-                setTxnCursor={ this.setTxnCursor }
-                txnCursor={ txnCursor } />
+            <View
+              // router
+              pushRoute={ this.pushRoute }
+              popRoute={ this.popRoute }
+              // network
+              setNetworkType={ this.setNetworkType }
+              setNetwork={ this.setNetwork }
+              networkType={ state.networkType }
+              web3={ state.web3 }
+              contracts={ state.contracts }
+              // wallet
+              setWalletType={ this.setWalletType }
+              setWalletHdPath={ this.setWalletHdPath }
+              setWallet={ this.setWallet }
+              walletType={ state.walletType }
+              walletHdPath={ state.walletHdPath }
+              wallet={ state.wallet }
+              // urbit wallet
+              urbitWallet={ state.urbitWallet }
+              setUrbitWallet={ this.setUrbitWallet }
+              authMnemonic={ state.authMnemonic }
+              setAuthMnemonic={ this.setAuthMnemonic }
+              // point
+              setPointCursor={ this.setPointCursor }
+              addToPointCache={ this.addToPointCache }
+              pointCursor={ state.pointCursor }
+              pointCache={ state.pointCache }
+              // txn
+              setTxnCursor={ this.setTxnCursor }
+              txnCursor={ state.txnCursor } />
 
-              <div className={'push'} />
-
-            </Row>
+          </Row>
 
             <Footer />
           </Col>

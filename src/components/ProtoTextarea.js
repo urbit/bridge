@@ -19,7 +19,7 @@ const ProtoTextarea = props => {
       onBlur={e => props.onBlur(e)}
       placeholder={props.placeholder}
       name={props.name}
-      style={props.style}
+      style={{...props.style, resize:'vertical'}}
       value={props.value}
       autoFocus={props.autoFocus}
       readOnly={props.readOnly}

@@ -36,10 +36,25 @@ button.solid {
 button[prop-type='solid'][prop-color='blue'] {
   background-color: #4330FC;
   border-color: #4330FC;
+  border-width: 2px;
+  border-style: solid;
   color: white;
 }
 
+button[prop-type='outline'][prop-color='blue'] {
+  background-color: white;
+  border-color: #4330FC;
+  border-width: 2px;
+  border-style: solid;
+  color: #4330FC;
+}
+
+
 button[prop-type='solid'][prop-color='blue']:focus {
+  box-shadow: 0 0 0 3px #DAD6FF;
+}
+
+button[prop-type='outline'][prop-color='blue']:focus {
   box-shadow: 0 0 0 3px #DAD6FF;
 }
 
@@ -75,16 +90,34 @@ button[prop-type='solid'][prop-size*='md'] {
   font-size: 3.5rem;
 }
 
+button[prop-type='outline'][prop-size*='md'] {
+  height: 9rem;
+  padding: 0 4rem 0 4rem;
+  font-size: 3.5rem;
+}
+
 button[prop-type='solid'][prop-size*='lg'] {
   height: 11rem;
   padding: 0 6rem 0 6rem;
-  font-size: 4rem;
+  font-size: 3.5rem;
+}
+
+button[prop-type='outline'][prop-size*='lg'] {
+  height: 11rem;
+  padding: 0 6rem 0 6rem;
+  font-size: 3.5rem;
 }
 
 button[prop-type='solid'][prop-size*='xl'] {
   height: 16rem;
   padding: 0 6rem 0 6rem;
-  font-size: 4.5rem;
+  font-size: 3.5rem;
+}
+
+button[prop-type='outline'][prop-size*='xl'] {
+  height: 16rem;
+  padding: 0 6rem 0 6rem;
+  font-size: 3.5rem;
 }
 
 button[prop-type='solid']:disabled {
@@ -92,6 +125,10 @@ button[prop-type='solid']:disabled {
   border-color: #B3B3B3;
 }
 
-button[prop-type='solid'][prop-size*='wide'] {
+button[prop-size*='wide'] {
   width: 100%;
+}
+
+button[prop-size*='half'] {
+  flex: 0.5;
 }
