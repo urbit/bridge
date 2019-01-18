@@ -9,7 +9,7 @@ import { Container, Row, Col } from './components/Base'
 
 import { ROUTE_NAMES, router } from './lib/router'
 import { NETWORK_NAMES } from './lib/network'
-import { WALLET_NAMES } from './lib/wallet'
+import { WALLET_NAMES, DEFAULT_HD_PATH } from './lib/wallet'
 import { BRIDGE_ERROR } from './lib/error'
 
 class Bridge extends React.Component {
@@ -27,6 +27,7 @@ class Bridge extends React.Component {
       // wallet
       walletType: WALLET_NAMES.MNEMONIC,
       wallet: Maybe.Nothing(),
+      walletHdPath: DEFAULT_HD_PATH,
       // urbit wallet-related
       urbitWallet: Maybe.Nothing(),
       authMnemonic: Maybe.Nothing(),
@@ -44,6 +45,7 @@ class Bridge extends React.Component {
     this.setNetwork = this.setNetwork.bind(this)
     this.setWalletType = this.setWalletType.bind(this)
     this.setWallet = this.setWallet.bind(this)
+    this.setWalletHdPath = this.setWalletHdPath.bind(this)
     this.setUrbitWallet = this.setUrbitWallet.bind(this)
     this.setAuthMnemonic = this.setAuthMnemonic.bind(this)
     this.setPointCursor = this.setPointCursor.bind(this)
@@ -142,9 +144,11 @@ class Bridge extends React.Component {
   }
 
   setWallet(wallet) {
-    this.setState({
-      wallet: wallet
-    })
+    this.setState({ wallet })
+  }
+
+  setWalletHdPath(walletHdPath) {
+    this.setState({ walletHdPath })
   }
 
   setUrbitWallet(urbitWallet) {
@@ -176,6 +180,7 @@ class Bridge extends React.Component {
       routeCrumbs,
       networkType,
       walletType,
+      walletHdPath,
       wallet,
       urbitWallet,
       authMnemonic,
@@ -214,8 +219,10 @@ class Bridge extends React.Component {
                 contracts={ contracts }
                 // wallet
                 setWalletType={ this.setWalletType }
+                setWalletHdPath={ this.setWalletHdPath }
                 setWallet={ this.setWallet }
                 walletType={ walletType }
+                walletHdPath={ walletHdPath }
                 wallet={ wallet }
                 // urbit wallet
                 urbitWallet={ urbitWallet }

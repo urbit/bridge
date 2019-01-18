@@ -7,7 +7,7 @@ const formatChainId = val =>
   ? val
   : parseInt(val.slice(2), 16) // assume 0x-prefixed hex string
 
-const trezorSignTransaction = async txn => {
+const trezorSignTransaction = async (txn, hdpath) => {
   const trezorFormattedTxn = {
     to: txn.to.toString('hex'),
     value: txn.value.toString('hex'),
@@ -19,7 +19,7 @@ const trezorSignTransaction = async txn => {
   }
 
   const sig = await TrezorConnect.ethereumSignTransaction({
-    path: TREZOR_BASE_PATH,
+    path: hdpath,
     transaction: trezorFormattedTxn
   })
 

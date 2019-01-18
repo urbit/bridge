@@ -59,10 +59,11 @@ class Mnemonic extends React.Component {
   }
 
   attemptWalletDerivation(mnemonic, hdpath) {
-    const { setWallet, setAuthMnemonic } = this.props
+    const { setWallet, setAuthMnemonic, setWalletHdPath } = this.props
     const wallet = walletFromMnemonic(mnemonic, hdpath)
     setWallet(wallet)
     setAuthMnemonic(Maybe.Just(mnemonic))
+    setWalletHdPath(hdpath)
   }
 
   render() {
