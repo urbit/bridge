@@ -6,6 +6,7 @@ import Web3 from 'web3'
 
 import { BRIDGE_ERROR } from '../lib/error'
 import { ledgerSignTransaction } from '../lib/ledger'
+import { trezorSignTransaction } from '../lib/trezor'
 import {
   WALLET_NAMES,
   addHexPrefix
@@ -76,6 +77,7 @@ const signTransaction = async config => {
   let {
     wallet,
     walletType,
+    walletHdPath,
     txn,
     setStx,
     nonce,
@@ -109,7 +111,9 @@ const signTransaction = async config => {
   const stx = new Tx(utx)
 
   if (walletType === WALLET_NAMES.LEDGER) {
-    await ledgerSignTransaction(stx)
+    await ledgerSignTransaction(stx, walletHdPath)
+  } else if (walletType === WALLET_NAMES.TREZOR) {
+    await trezorSignTransaction(stx, walletHdPath)
   } else {
     stx.sign(sec)
   }

@@ -3,12 +3,18 @@ import Eth from '@ledgerhq/hw-app-eth'
 
 const LEDGER_BASE_PATH = "44'/60'/0'/0/0"
 
-const ledgerSignTransaction = async txn => {
+const chopHdPrefix = str =>
+    str.slice(0, 2) === "m/"
+  ? str.slice(2)
+  : str
+
+const ledgerSignTransaction = async (txn, hdpath) => {
   const transport = await Transport.create()
   const eth = new Eth(transport)
+  const path = chopHdPrefix(hdpath)
 
   const serializedTx = txn.serialize().toString('hex')
-  const sig = await eth.signTransaction(LEDGER_BASE_PATH, serializedTx)
+  const sig = await eth.signTransaction(path, serializedTx)
 
   txn.v = Buffer.from(sig.v, 'hex')
   txn.r = Buffer.from(sig.r, 'hex')

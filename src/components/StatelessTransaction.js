@@ -113,6 +113,7 @@ const StatelessTransaction = props => {
           onClick={ () => signTransaction({
             wallet: props.wallet,
             walletType: props.walletType,
+            walletHdPath: props.walletHdPath,
             txn: props.txn,
             setStx: props.setStx,
             nonce: props.nonce,

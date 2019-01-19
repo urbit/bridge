@@ -76,7 +76,8 @@ class Signer extends React.Component {
   }
 
   async signTransaction(signingArgs) {
-    const { wallet, walletType, txn, setSignedTransaction } = this.props
+    const { wallet, walletType, txn, walletHdPath } = this.props
+    const { setSignedTransaction } = this.props
 
     let { nonce, chainId, gasPrice, gasLimit } = signingArgs
     nonce = this.toHex(nonce)
@@ -104,9 +105,9 @@ class Signer extends React.Component {
     const stx = new Tx(utx)
 
     if (walletType === WALLET_NAMES.LEDGER) {
-      await ledgerSignTransaction(stx)
+      await ledgerSignTransaction(stx, walletHdPath)
     } else if (walletType === WALLET_NAMES.TREZOR) {
-      await trezorSignTransaction(stx)
+      await trezorSignTransaction(stx, walletHdPath)
     } else {
       stx.sign(sec)
     }

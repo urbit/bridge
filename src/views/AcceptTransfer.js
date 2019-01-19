@@ -303,6 +303,7 @@ class AcceptTransfer extends React.Component {
             contracts={props.contracts}
             wallet={props.wallet}
             walletType={props.walletType}
+            walletHdPath={props.walletHdPath}
             // Tx
             txn={state.txn}
             stx={state.stx}
