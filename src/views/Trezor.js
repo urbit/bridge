@@ -53,7 +53,7 @@ class Trezor extends React.Component {
 
     return (
         <Row>
-          <Col>
+          <Col className={'measure-md'}>
             <H1>{ 'Authenticate With Your Trezor' }</H1>
 
             <P>
@@ -76,12 +76,14 @@ class Trezor extends React.Component {
 
               <Button
                 className={'mt-8'}
+                prop-size={'wide lg'}
                 onClick={ this.pollDevice }>
                 { 'Authenticate →' }
               </Button>
 
               <Button
                 className={'mt-8'}
+                prop-size={'wide lg'}
                 disabled={ Maybe.Nothing.hasInstance(wallet) }
                 onClick={
                   () => {
@@ -101,4 +103,3 @@ class Trezor extends React.Component {
 }
 
 export default Trezor
-

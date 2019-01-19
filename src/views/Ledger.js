@@ -65,7 +65,7 @@ class Ledger extends React.Component {
     return (
 
         <Row>
-          <Col>
+          <Col className={'measure-md'}>
             <H1>{ 'Authenticate With Your Ledger' }</H1>
 
             <H2>{'Running on HTTPS?'}</H2>
@@ -101,7 +101,7 @@ class Ledger extends React.Component {
 
             <Form>
               <Input
-                className='pt-8'
+                className='pt-8 mt-8'
                 prop-size='md'
                 prop-format='innerLabel'
                 name='hdpath'
@@ -112,6 +112,7 @@ class Ledger extends React.Component {
               </Input>
 
               <Button
+                prop-size={'wide lg'}
                 className={'mt-8'}
                 onClick={ this.pollDevice }>
                 { 'Authenticate →' }
@@ -119,6 +120,7 @@ class Ledger extends React.Component {
 
               <Button
                 className={'mt-8'}
+                prop-size={'wide lg'}
                 disabled={ Maybe.Nothing.hasInstance(wallet) }
                 onClick={
                   () => {
