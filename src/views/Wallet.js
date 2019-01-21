@@ -109,6 +109,13 @@ class Wallet extends React.Component {
               { 'Trezor' }
             </DropdownItem>
 
+            <DropdownDivider />
+
+            <DropdownItem
+              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.PRIVATE_KEY)) }
+            >
+              { 'Ethereum Private Key' }
+            </DropdownItem>
 
 
 
@@ -128,6 +135,8 @@ class Wallet extends React.Component {
                 ? ROUTE_NAMES.LEDGER
                 : props.walletType === WALLET_NAMES.TREZOR
                 ? ROUTE_NAMES.TREZOR
+                : props.walletType === WALLET_NAMES.PRIVATE_KEY
+                ? ROUTE_NAMES.PRIVATE_KEY
                 : ROUTE_NAMES.DEFAULT
               )
             }

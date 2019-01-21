@@ -10,6 +10,7 @@ import Network from '../views/Network'
 import Mnemonic from '../views/Mnemonic'
 import Ledger from '../views/Ledger'
 import Trezor from '../views/Trezor'
+import PrivateKey from '../views/PrivateKey'
 import ViewPoint from '../views/ViewPoint'
 import SentTransaction from '../views/SentTransaction'
 import SetKeys from '../views/SetKeys'
@@ -25,7 +26,7 @@ import Ticket from '../views/Ticket'
 import Transfer from '../views/Transfer'
 import Wallet from '../views/Wallet'
 
-import { addressFromSecp256k1Public } from './wallet'
+import { addressFromSecp256k1Public, EthereumWallet } from './wallet'
 import { renderNetworkType } from './network'
 import { BRIDGE_ERROR } from './error'
 
@@ -40,6 +41,7 @@ const ROUTE_NAMES = {
   SHARDS: Symbol('SHARDS'),
   LEDGER: Symbol('LEDGER'),
   TREZOR: Symbol('TREZOR'),
+  PRIVATE_KEY: Symbol('PRIVATE_KEY'),
   VIEW_SHIP: Symbol('VIEW_SHIP'),
   SHIPS: Symbol('SHIPS'),
   SHIP: Symbol('SHIP'),
@@ -68,6 +70,7 @@ const createRoutes = () => {
   routes[ROUTE_NAMES.SHARDS] = Shards
   routes[ROUTE_NAMES.LEDGER] = Ledger
   routes[ROUTE_NAMES.TREZOR] = Trezor
+  routes[ROUTE_NAMES.PRIVATE_KEY] = PrivateKey
   routes[ROUTE_NAMES.SHIPS] = Points
   routes[ROUTE_NAMES.SHIP] = Point
   routes[ROUTE_NAMES.SET_MANAGEMENT_PROXY] = SetManagementProxy
@@ -98,7 +101,9 @@ const renderRoute = (props, route) => {
     ? wallet.matchWith({
         Nothing: () => 'Wallet',
         Just: (wal) =>
-          addressFromSecp256k1Public(wal.value.publicKey)
+            wal.value instanceof EthereumWallet
+          ? wal.value.address
+          : addressFromSecp256k1Public(wal.value.publicKey)
       })
 
     : route === ROUTE_NAMES.MNEMONIC
@@ -115,6 +120,9 @@ const renderRoute = (props, route) => {
 
     : route === ROUTE_NAMES.TREZOR
     ? 'Trezor'
+
+    : route === ROUTE_NAMES.PRIVATE_KEY
+    ? 'Private Key'
 
     : route === ROUTE_NAMES.SHIPS
     ? 'Points'

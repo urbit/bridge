@@ -15,7 +15,16 @@ const WALLET_NAMES = {
   TICKET: Symbol('TICKET'),
   SHARDS: Symbol('SHARDS'),
   LEDGER: Symbol('LEDGER'),
-  TREZOR: Symbol('TREZOR')
+  TREZOR: Symbol('TREZOR'),
+  PRIVATE_KEY: Symbol('PRIVATE_KEY')
+}
+
+function EthereumWallet(privateKey) {
+  const sec = Buffer.from(privateKey, 'hex')
+  this.privateKey = sec
+  this.publicKey = secp256k1.publicKeyCreate(sec)
+  const pub = this.publicKey.toString('hex')
+  this.address = addressFromSecp256k1Public(pub)
 }
 
 const renderWalletType = (wallet) =>
@@ -29,6 +38,8 @@ const renderWalletType = (wallet) =>
   ? 'Ledger'
   : wallet === WALLET_NAMES.TREZOR
   ? 'Trezor'
+  : wallet === WALLET_NAMES.PRIVATE_KEY
+  ? 'Private Key'
   : 'Wallet'
 
 const addressFromSecp256k1Public = pub => {
@@ -105,5 +116,6 @@ export {
   addressFromSecp256k1Public,
   eqAddr,
   walletFromMnemonic,
-  addHexPrefix
+  addHexPrefix,
+  EthereumWallet
 }

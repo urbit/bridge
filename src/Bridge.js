@@ -17,11 +17,29 @@ class Bridge extends React.Component {
   constructor(props) {
     super(props)
 
+    const networkType =
+        process.env.NODE_ENV === 'development'
+      ? NETWORK_NAMES.LOCAL
+      : NETWORK_NAMES.MAINNET
+
+    // NB (jtobin):
+    //
+    // Note that the 'wallet' prop has type depending on the 'walletType' prop.
+    // These could be bound together in a single structure (so that
+    // 'walletType' acted more explicitly as a data constructor of sorts) but
+    // it doesn't necessarily help us much, since we branch on 'walletType'
+    // before setting 'wallet'.
+    //
+    // Wallets are always wrapped in Maybe.  For most authentication
+    // mechanisms, Maybe wraps a BIP32 HD wallet; for Ethereum private keys,
+    // JSON keystore files, and Metamask authentication, it wraps an
+    // 'EthereumWallet'.
+
     this.state = {
       // routes
       routeCrumbs: Stack([ ROUTE_NAMES.LANDING ]),
       // network
-      networkType: NETWORK_NAMES.MAINNET,
+      networkType: networkType,
       web3: Maybe.Nothing(),
       contracts: Maybe.Nothing(),
       // wallet
