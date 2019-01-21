@@ -16,7 +16,8 @@ const WALLET_NAMES = {
   SHARDS: Symbol('SHARDS'),
   LEDGER: Symbol('LEDGER'),
   TREZOR: Symbol('TREZOR'),
-  PRIVATE_KEY: Symbol('PRIVATE_KEY')
+  PRIVATE_KEY: Symbol('PRIVATE_KEY'),
+  KEYSTORE: Symbol('KEYSTORE')
 }
 
 function EthereumWallet(privateKey) {
@@ -39,6 +40,8 @@ const renderWalletType = (wallet) =>
   ? 'Trezor'
   : wallet === WALLET_NAMES.PRIVATE_KEY
   ? 'Private Key'
+  : wallet === WALLET_NAMES.KEYSTORE
+  ? 'Keystore File'
   : 'Wallet'
 
 const addressFromSecp256k1Public = pub => {

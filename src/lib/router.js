@@ -11,6 +11,7 @@ import Mnemonic from '../views/Mnemonic'
 import Ledger from '../views/Ledger'
 import Trezor from '../views/Trezor'
 import PrivateKey from '../views/PrivateKey'
+import Keystore from '../views/Keystore'
 import ViewPoint from '../views/ViewPoint'
 import SentTransaction from '../views/SentTransaction'
 import SetKeys from '../views/SetKeys'
@@ -42,6 +43,7 @@ const ROUTE_NAMES = {
   LEDGER: Symbol('LEDGER'),
   TREZOR: Symbol('TREZOR'),
   PRIVATE_KEY: Symbol('PRIVATE_KEY'),
+  KEYSTORE: Symbol('KEYSTORE'),
   VIEW_SHIP: Symbol('VIEW_SHIP'),
   SHIPS: Symbol('SHIPS'),
   SHIP: Symbol('SHIP'),
@@ -71,6 +73,7 @@ const createRoutes = () => {
   routes[ROUTE_NAMES.LEDGER] = Ledger
   routes[ROUTE_NAMES.TREZOR] = Trezor
   routes[ROUTE_NAMES.PRIVATE_KEY] = PrivateKey
+  routes[ROUTE_NAMES.KEYSTORE] = Keystore
   routes[ROUTE_NAMES.SHIPS] = Points
   routes[ROUTE_NAMES.SHIP] = Point
   routes[ROUTE_NAMES.SET_MANAGEMENT_PROXY] = SetManagementProxy
@@ -123,6 +126,9 @@ const renderRoute = (props, route) => {
 
     : route === ROUTE_NAMES.PRIVATE_KEY
     ? 'Private Key'
+
+    : route === ROUTE_NAMES.KEYSTORE
+    ? 'Keystore File'
 
     : route === ROUTE_NAMES.SHIPS
     ? 'Points'

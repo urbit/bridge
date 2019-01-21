@@ -117,6 +117,12 @@ class Wallet extends React.Component {
               { 'Ethereum Private Key' }
             </DropdownItem>
 
+            <DropdownItem
+              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.KEYSTORE)) }
+            >
+              { 'Ethereum Keystore File' }
+            </DropdownItem>
+
 
 
           </InnerLabelDropdown>
@@ -137,6 +143,8 @@ class Wallet extends React.Component {
                 ? ROUTE_NAMES.TREZOR
                 : props.walletType === WALLET_NAMES.PRIVATE_KEY
                 ? ROUTE_NAMES.PRIVATE_KEY
+                : props.walletType === WALLET_NAMES.KEYSTORE
+                ? ROUTE_NAMES.KEYSTORE
                 : ROUTE_NAMES.DEFAULT
               )
             }
