@@ -29,6 +29,7 @@
     "folktale": "^2.3.1",
     "immutable": "^4.0.0-rc.12",
     "keccak": "^1.4.0",
+    "keythereum": "^1.0.4",
     "lodash": "^4.17.11",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
