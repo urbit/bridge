@@ -29,7 +29,8 @@ class PrivateKey extends React.Component {
   constructWallet(privateKey) {
     const { setWallet } = this.props
     if (secre.test(privateKey) === true) {
-      const wallet = new EthereumWallet(privateKey)
+      const sec = Buffer.from(privateKey, 'hex')
+      const wallet = new EthereumWallet(sec)
       setWallet(Maybe.Just(wallet))
     } else {
       setWallet(Maybe.Nothing())

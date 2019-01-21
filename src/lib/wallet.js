@@ -20,9 +20,8 @@ const WALLET_NAMES = {
 }
 
 function EthereumWallet(privateKey) {
-  const sec = Buffer.from(privateKey, 'hex')
-  this.privateKey = sec
-  this.publicKey = secp256k1.publicKeyCreate(sec)
+  this.privateKey = privateKey
+  this.publicKey = secp256k1.publicKeyCreate(this.privateKey)
   const pub = this.publicKey.toString('hex')
   this.address = addressFromSecp256k1Public(pub)
 }
