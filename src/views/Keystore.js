@@ -7,6 +7,7 @@ import { Row, Col, H1, Form } from '../components/Base'
 
 import { ROUTE_NAMES } from '../lib/router'
 import { EthereumWallet } from '../lib/wallet'
+import UploadButton from '../components/UploadButton'
 
 class Keystore extends React.Component {
 
@@ -45,9 +46,40 @@ class Keystore extends React.Component {
     }
   }
 
+  handleKeystoreUpload = (event) => {
+    const file = event.files.item(0)
+    const reader = new FileReader()
+
+    reader.readAsText(file)
+
+    console.log(reader.readyState)
+
+    // const loop = arg =>
+    //     arg.readyState === 2
+    //   ? arg.result
+    //   : loop(arg)
+
+    // const keystore = loop(reader)
+    // this.setState({ keystore })
+  }
+
   render() {
     const { pushRoute, popRoute, wallet } = this.props
     const { keystore, password } = this.state
+
+    const keystoreInput =
+      <Input
+        className='pt-8 mt-8'
+        prop-size='md'
+        prop-format='innerLabel'
+        type='text'
+        name='keystore'
+        onChange={ this.handleKeystoreInput }
+        value={ keystore }
+        autocomplete='off'
+        autoFocus>
+        <InnerLabel>{'Keystore File'}</InnerLabel>
+      </Input>
 
     return (
         <Row>
@@ -60,18 +92,12 @@ class Keystore extends React.Component {
                that below.` }
             </InputCaption>
 
-            <Input
-              className='pt-8 mt-8'
-              prop-size='md'
-              prop-format='innerLabel'
-              type='text'
-              name='keystore'
-              onChange={ this.handleKeystoreInput }
-              value={ keystore }
-              autocomplete='off'
-              autoFocus>
-              <InnerLabel>{'Keystore File'}</InnerLabel>
-            </Input>
+            <UploadButton
+              className={ `btn btn-primary table mt-4` }
+              onChange={ this.handleKeystoreUpload }
+            >
+              { 'Upload Keystore file' }
+            </UploadButton>
 
             <Input
               className='pt-8 mt-8'
