@@ -16,7 +16,7 @@ class Keystore extends React.Component {
     super(props)
 
     this.state = {
-      keystore: Nothing(), // Maybe<Result<String>>
+      keystore: Nothing(), // Maybe<Result<String, String>>
       password: ''
     }
 
