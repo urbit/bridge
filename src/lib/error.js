@@ -4,6 +4,7 @@ const BRIDGE_ERROR = {
   MISSING_WALLET: new Error('no wallet found'),
   MISSING_TXN: new Error('no transaction found'),
   MISSING_CONTRACTS: new Error('no contracts found'),
+  MISSING_KEYSTORE: new Error('no keystore text found'),
   MISSING_MNEMONIC: new Error('no authentication mnemonic found'),
   MISSING_URBIT_WALLET: new Error('no urbit wallet found'),
   MISSING_POINT: new Error('no point found'),
