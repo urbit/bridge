@@ -85,10 +85,10 @@ class Keystore extends React.Component {
     const { keystore, password } = this.state
 
     const uploadButtonClass = keystore.matchWith({
-      Nothing: _ => 'btn-primary',
+      Nothing: _ => 'bg-blue white',
       Just: ks => ks.value.matchWith({
-        Ok: _ => 'btn-success',
-        Error: _ => 'shape-orange'
+        Ok: _ => 'bg-green white',
+        Error: _ => 'bg-yellow black'
       })
     })
 
