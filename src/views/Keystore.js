@@ -107,7 +107,7 @@ class Keystore extends React.Component {
               className={ `btn ${uploadButtonClass} mt-10` }
               onChange={ this.handleKeystoreUpload }
             >
-              { 'Upload Keystore file' }
+              <div className={'flex-center-all fs-4 h-11 pointer'}>{ 'Upload Keystore file' }</div>
             </UploadButton>
 
             <Input

@@ -14,7 +14,7 @@ class UploadButton extends React.Component {
     return (
         <label className={this.props.className}>
           <input
-            className={ 'hidden' }
+            className={ 'hidden h-0 w-0 abs' }
             ref={(ref) => { this.input = ref; }}
             onChange={this.onChange}
             disabled={this.props.disabled}
@@ -27,4 +27,3 @@ class UploadButton extends React.Component {
 }
 
 export default UploadButton;
-
