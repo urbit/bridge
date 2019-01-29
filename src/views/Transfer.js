@@ -265,6 +265,7 @@ class Transfer extends React.Component {
             You may cancel the transfer until the transfer is accepted.`
           }
           </P>
+
           <AddressInput
             className={'mono mt-8'}
             prop-size='lg'
@@ -292,6 +293,7 @@ class Transfer extends React.Component {
             wallet={props.wallet}
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
+            networkType={props.networkType}
             // Tx
             txn={state.txn}
             stx={state.stx}

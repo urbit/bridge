@@ -293,6 +293,7 @@ class SetProxy extends React.Component {
             'Generator to generate a keypair.'
           }
           </P>
+
           <AddressInput
             className='mono mt-8'
             prop-size='lg'
@@ -320,6 +321,7 @@ class SetProxy extends React.Component {
             wallet={props.wallet}
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
+            networkType={props.networkType}
             // Tx
             txn={state.txn}
             stx={state.stx}

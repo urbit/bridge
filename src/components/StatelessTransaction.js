@@ -114,6 +114,7 @@ const StatelessTransaction = props => {
             wallet: props.wallet,
             walletType: props.walletType,
             walletHdPath: props.walletHdPath,
+            networkType: props.networkType,
             txn: props.txn,
             setStx: props.setStx,
             nonce: props.nonce,

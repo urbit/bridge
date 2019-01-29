@@ -5,6 +5,7 @@ import Tx from 'ethereumjs-tx'
 import Web3 from 'web3'
 
 import { BRIDGE_ERROR } from '../lib/error'
+import { NETWORK_NAMES } from '../lib/network'
 import { ledgerSignTransaction } from '../lib/ledger'
 import { trezorSignTransaction } from '../lib/trezor'
 import {
@@ -48,6 +49,7 @@ const signTransaction = async config => {
     wallet,
     walletType,
     walletHdPath,
+    networkType,
     txn,
     setStx,
     nonce,
@@ -61,6 +63,52 @@ const signTransaction = async config => {
   gasPrice = toHex(toWei(gasPrice, 'gwei'))
   gasLimit = toHex(gasLimit)
 
+  const txParams = { nonce, chainId, gasPrice, gasLimit }
+
+  // NB (jtobin)
+  //
+  // Ledger does not seem to handle EIP-155 automatically.  When using a Ledger,
+  // if the block number is at least FORK_BLKNUM = 2675000, one needs to
+  // pre-set the ECDSA signature parameters with r = 0, s = 0, and v = chainId
+  // prior to signing.
+  //
+  // The easiest way to handle this is to just branch on the network, since
+  // mainnet and Ropsten have obviously passed FORK_BLKNUM.  This is somewhat
+  // awkward when dealing with offline transactions, since we might want to
+  // test them on a local network as well.
+  //
+  // The best thing to do is probably to add an 'advanced' tab to offline
+  // transaction generation where one can disable the defaulted-on EIP-155
+  // settings in this case.  This is pretty low-priority, but is a
+  // comprehensive solution.
+  //
+  // See:
+  //
+  // See https://github.com/LedgerHQ/ledgerjs/issues/43#issuecomment-366984725
+  //
+  // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
+
+  const eip155Params = {
+    r: '0x00',
+    s: '0x00',
+    v: chainId
+  }
+
+  const defaultEip155Networks = [
+    NETWORK_NAMES.MAINNET,
+    NETWORK_NAMES.ROPSTEN,
+    NETWORK_NAMES.OFFLINE
+  ]
+
+  const needEip155Params =
+    walletType === WALLET_NAMES.LEDGER &&
+    defaultEip155Networks.includes(networkType)
+
+  const signingParams =
+      needEip155Params
+    ? Object.assign(txParams, eip155Params)
+    : txParams
+
   const wal = wallet.matchWith({
     Just: (w) => w.value,
     Nothing: () => { throw BRIDGE_ERROR.MISSING_WALLET }
@@ -70,7 +118,7 @@ const signTransaction = async config => {
 
   const utx = txn.matchWith({
     Just: (tx) =>
-      Object.assign(tx.value, { nonce, chainId, gasPrice, gasLimit }),
+      Object.assign(tx.value, signingParams),
     Nothing: () => {
       throw BRIDGE_ERROR.MISSING_TXN
     }

@@ -249,6 +249,7 @@ class CreateGalaxy extends React.Component {
             wallet={props.wallet}
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
+            networkType={props.networkType}
             // Tx
             txApproval={state.txApproval}
             txn={state.txn}
