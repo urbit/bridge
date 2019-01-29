@@ -12,7 +12,6 @@ import {
   addHexPrefix
   } from '../lib/wallet'
 
-
 const TXN_PURPOSE = {
   SET_MANAGEMENT_PROXY: Symbol('SET_MANAGEMENT_PROXY'),
   SET_TRANSFER_PROXY: Symbol('SET_TRANSFER_PROXY'),
@@ -43,35 +42,6 @@ const renderTxnPurpose = (purpose) =>
   ? 'cancel this transfer'
   : 'perform this transaction'
 
-
-
-
-
-// const createUnsignedTxn = config => {
-//   const {
-//     contracts,
-//     galaxyName,
-//     add,
-//     setTxn
-//   } = config
-//
-//   const ctrcs = contracts.matchWith({
-//     Just: (cs) => cs.value,
-//     Nothing: () => {
-//       throw BRIDGE_ERROR.MISSING_CONTRACTS
-//     }
-//   })
-//
-//   const galaxy = parseInt(ob.patp2dec(galaxyName), 10)
-//
-//   const txn = isValidGalaxy(galaxyName) && isValidAddress(galaxyOwner)
-//     ? Maybe.Just(azimuth.ecliptic.createGalaxy(ctrcs, galaxy, galaxyOwner))
-//     : Maybe.Nothing()
-//
-//   setTxn(txn)
-// }
-
-
 const signTransaction = async config => {
 
   let {
@@ -93,9 +63,7 @@ const signTransaction = async config => {
 
   const wal = wallet.matchWith({
     Just: (w) => w.value,
-    Nothing: () => {
-      throw BRIDGE_ERROR.MISSING_WALLET
-    }
+    Nothing: () => { throw BRIDGE_ERROR.MISSING_WALLET }
   })
 
   const sec = wal.privateKey
@@ -120,8 +88,6 @@ const signTransaction = async config => {
 
   setStx(Maybe.Just(stx))
 }
-
-
 
 const sendSignedTransaction = (web3, stx) => {
   const txn = stx.matchWith({
@@ -170,28 +136,6 @@ const toHex = dummy.utils.toHex
 const toWei = dummy.utils.toWei
 const fromWei = dummy.utils.fromWei
 
-
-// const confirmShipAvailability = (point, contracts) => {
-//
-//   if (canDecodePatp(point) === true) {
-//
-//     const pointDec = ob.patp2dec(point)
-//
-//     contracts.matchWith({
-//       Nothing: () => {
-//         throw BRIDGE_ERROR.MISSING_CONTRACTS
-//       },
-//       Just: async (contracts) => {
-//         const owner = await azimuth.azimuth.getOwner(contracts.value, point)
-//         if (eqAddr(owner, ETH_ZERO_ADDR)) return true
-//         return false
-//       }
-//     })
-//   }
-//   return false
-// }
-
-
 const canDecodePatp = p => {
   try {
     ob.patp2dec(p)
@@ -200,21 +144,6 @@ const canDecodePatp = p => {
     return false
   }
 }
-
-
-
-
-
-// const bridgeAPI = {
-//   shipAvailability: {
-//     planet: planet => {},
-//     star: star => {},
-//     galaxy: galaxy => {},
-//   },
-//   // dummyWeb3: {
-//   //
-//   // }
-// }
 
 export {
   signTransaction,
@@ -228,5 +157,4 @@ export {
   toWei,
   fromWei,
   canDecodePatp,
-  // confirmShipAvailability,
 }
