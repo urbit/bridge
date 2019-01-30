@@ -4,7 +4,7 @@ import React from 'react'
 import * as keythereum from 'keythereum'
 import { Button, UploadButton } from '../components/Base'
 import { Input, InnerLabel, InputCaption } from '../components/Base'
-import { Row, Col, H1, Form } from '../components/Base'
+import { Row, Col, H1, H3, Form, Warning } from '../components/Base'
 
 import { BRIDGE_ERROR } from '../lib/error'
 import { ROUTE_NAMES } from '../lib/router'
@@ -17,7 +17,8 @@ class Keystore extends React.Component {
 
     this.state = {
       keystore: Nothing(), // Maybe<Result<String, String>>
-      password: ''
+      password: '',
+      decryptionProblem: false
     }
 
     this.handleKeystoreUpload = this.handleKeystoreUpload.bind(this)
@@ -47,14 +48,12 @@ class Keystore extends React.Component {
       const privateKey = keythereum.recover(password, json)
 
       const wallet = new EthereumWallet(privateKey)
+      this.setState({ decryptionProblem: false })
       setWallet(Just(wallet))
 
     } catch (err) {
 
-      const message = 'There was a problem decrypting your Keystore file'
-      this.setState({
-        keystore: Just(Error(message))
-      })
+      this.setState({ decryptionProblem: true })
       setWallet(Nothing())
 
     }
@@ -82,7 +81,7 @@ class Keystore extends React.Component {
 
   render() {
     const { pushRoute, popRoute, wallet } = this.props
-    const { keystore, password } = this.state
+    const { keystore, password, decryptionProblem } = this.state
 
     const uploadButtonClass = keystore.matchWith({
       Nothing: _ => 'bg-blue white',
@@ -91,6 +90,18 @@ class Keystore extends React.Component {
         Error: _ => 'bg-yellow black'
       })
     })
+
+    const decryptMessage =
+        decryptionProblem === false
+      ? <div />
+      : <Warning className={'mt-8'}>
+          <H3 style={{marginTop: 0, paddingTop: 0}}>
+            {
+              "Couldn't decrypt wallet."
+            }
+          </H3>
+          { 'You may have entered an incorrect password.' }
+        </Warning>
 
     return (
         <Row>
@@ -124,13 +135,15 @@ class Keystore extends React.Component {
             </Input>
 
             <Button
-              className={'mt-10'}
+              className={` mt-10`}
               prop-size={ 'wide lg' }
               disabled={ Nothing.hasInstance(keystore) }
               onClick={ this.constructWallet }
             >
               { 'Decrypt' }
             </Button>
+
+            { decryptMessage }
 
             <Button
               className={'mt-10'}
