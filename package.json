@@ -16,7 +16,7 @@
   "dependencies": {
     "@ledgerhq/hw-app-eth": "^4.24.0",
     "@ledgerhq/hw-transport-u2f": "^4.28.0",
-    "azimuth-js": "0.8.3",
+    "azimuth-js": "^0.10.0",
     "azimuth-solidity": "1.0.2",
     "babel-polyfill": "^6.26.0",
     "bip32": "^1.0.2",
@@ -29,6 +29,7 @@
     "folktale": "^2.3.1",
     "immutable": "^4.0.0-rc.12",
     "keccak": "^1.4.0",
+    "keythereum": "^1.0.4",
     "lodash": "^4.17.11",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",

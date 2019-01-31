@@ -4,7 +4,7 @@ import * as ob from 'urbit-ob'
 
 import { Button } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
-import { InnerLabel, PointInput, ValidatedSigil, Form } from '../components/Base'
+import { InnerLabel, PointInput, ValidatedSigil } from '../components/Base'
 
 import { ROUTE_NAMES } from '../lib/router'
 
@@ -48,38 +48,36 @@ class ViewPoint extends React.Component {
           { "Enter a point name to view its public information." }
           </P>
 
-          <Form>
-            <PointInput
-              autoFocus
-              prop-size='lg'
-              prop-format='innerLabel'
-              className='mono'
-              placeholder='e.g. ~zod'
-              onChange={ this.handlePointInput }
-              value={pointName}>
-              <InnerLabel>{'Point Name'}</InnerLabel>
-              <ValidatedSigil
-                className={'tr-0 mt-05 mr-0 abs'}
-                patp={pointName}
-                show
-                size={68}
-                margin={8} />
-            </PointInput>
+          <PointInput
+            autoFocus
+            prop-size='lg'
+            prop-format='innerLabel'
+            className='mono'
+            placeholder='e.g. ~zod'
+            onChange={ this.handlePointInput }
+            value={pointName}>
+            <InnerLabel>{'Point Name'}</InnerLabel>
+            <ValidatedSigil
+              className={'tr-0 mt-05 mr-0 abs'}
+              patp={pointName}
+              show
+              size={68}
+              margin={8} />
+          </PointInput>
 
-            <Button
-              className={'mt-8'}
-              disabled={ valid === false }
-              onClick={
-                () => {
-                  setPointCursor(Maybe.Just(ob.patp2dec(pointName)))
-                  popRoute()
-                  pushRoute(ROUTE_NAMES.SHIP)
-                }
+          <Button
+            className={'mt-8'}
+            disabled={ valid === false }
+            onClick={
+              () => {
+                setPointCursor(Maybe.Just(ob.patp2dec(pointName)))
+                popRoute()
+                pushRoute(ROUTE_NAMES.SHIP)
               }
-            >
-              { 'Continue  →' }
-            </Button>
-          </Form>
+            }
+          >
+            { 'Continue  →' }
+          </Button>
         </Col>
       </Row>
     )

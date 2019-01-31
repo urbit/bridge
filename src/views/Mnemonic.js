@@ -3,7 +3,7 @@ import Maybe from 'folktale/maybe'
 import React from 'react'
 import { Button } from '../components/Base'
 import { Input, MnemonicInput, InnerLabel, InputCaption } from '../components/Base'
-import { Row, Col, H1, Form } from '../components/Base'
+import { Row, Col, H1 } from '../components/Base'
 
 import { ROUTE_NAMES } from '../lib/router'
 import { DEFAULT_HD_PATH, walletFromMnemonic } from '../lib/wallet'
@@ -78,7 +78,6 @@ class Mnemonic extends React.Component {
         <Row>
           <Col>
             <H1 className={'mb-4'}>{ 'Enter Your Mnemonic' }</H1>
-            <Form>
             <InputCaption>
             { "Please enter your BIP39 mnemonic here." }
             </InputCaption>
@@ -124,7 +123,6 @@ class Mnemonic extends React.Component {
             >
               { 'Continue →' }
             </Button>
-            </Form>
           </Col>
         </Row>
 

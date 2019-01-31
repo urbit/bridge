@@ -5,7 +5,7 @@ import * as ob from 'urbit-ob'
 
 import { Row, Col, H1, H3, P, Anchor, Warning } from '../components/Base'
 import { Button, ShowBlockie, ValidatedSigil } from '../components/Base'
-import { PointInput, AddressInput, Form, InnerLabel } from '../components/Base'
+import { PointInput, AddressInput, InnerLabel } from '../components/Base'
 
 import StatelessTransaction from '../components/StatelessTransaction'
 
@@ -402,92 +402,89 @@ class IssueChild extends React.Component {
           { '.' }
           </P>
 
-          <Form>
-            <PointInput
-              prop-size='lg'
-              prop-format='innerLabel'
-              className={'mono mt-8'}
-              placeholder={ `e.g. ${state.suggestions[3]}` }
-              value={ state.desiredPoint }
-              onChange={ this.handlePointInput }>
-              <InnerLabel>{ 'Point to Issue' }</InnerLabel>
-              <ValidatedSigil
-                className={'tr-0 mt-05 mr-0 abs'}
-                patp={state.desiredPoint}
-                size={76}
-                margin={8}
-                validator={() => this.validatePoint(state.desiredPoint)} />
-            </PointInput>
+          <PointInput
+            prop-size='lg'
+            prop-format='innerLabel'
+            className={'mono mt-8'}
+            placeholder={ `e.g. ${state.suggestions[3]}` }
+            value={ state.desiredPoint }
+            onChange={ this.handlePointInput }>
+            <InnerLabel>{ 'Point to Issue' }</InnerLabel>
+            <ValidatedSigil
+              className={'tr-0 mt-05 mr-0 abs'}
+              patp={state.desiredPoint}
+              size={76}
+              margin={8}
+              validator={() => this.validatePoint(state.desiredPoint)} />
+          </PointInput>
 
-            <AddressInput
-              className='text-mono mt-8'
-              prop-size='lg'
-              prop-format='innerLabel'
-              placeholder={ `e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f` }
-              value={ state.receivingAddress }
-              disabled={ !state.available }
-              onChange={ v => this.handleAddressInput(v) }>
-              <InnerLabel>{ 'Receiving Address' }</InnerLabel>
-              <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
-            </AddressInput>
+          <AddressInput
+            className='text-mono mt-8'
+            prop-size='lg'
+            prop-format='innerLabel'
+            placeholder={ `e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f` }
+            value={ state.receivingAddress }
+            disabled={ !state.available }
+            onChange={ v => this.handleAddressInput(v) }>
+            <InnerLabel>{ 'Receiving Address' }</InnerLabel>
+            <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
+          </AddressInput>
 
-            <Anchor
-              className={'mt-1'}
-              prop-size={'sm'}
-              prop-disabled={!isValidAddress(state.receivingAddress)}
-              target={'_blank'}
-              href={`https://etherscan.io/address/${state.receivingAddress}`}>
-                {'View on Etherscan ↗'}
-            </Anchor>
+          <Anchor
+            className={'mt-1'}
+            prop-size={'sm'}
+            prop-disabled={!isValidAddress(state.receivingAddress)}
+            target={'_blank'}
+            href={`https://etherscan.io/address/${state.receivingAddress}`}>
+              {'View on Etherscan ↗'}
+          </Anchor>
 
-            {
-              props.web3.matchWith({
-                Nothing: _ => <div />,
-                Just: _ =>
-                <Button
-                  prop-size='lg wide'
-                  prop-color={this.buttonTriState()}
-                  className={'mt-8'}
-                  disabled={!validPoint}
-                  onClick={this.handleConfirmAvailability}>
-                  {this.buttonTriStateText()}
-                </Button>
-              })
-            }
+          {
+            props.web3.matchWith({
+              Nothing: _ => <div />,
+              Just: _ =>
+              <Button
+                prop-size='lg wide'
+                prop-color={this.buttonTriState()}
+                className={'mt-8'}
+                disabled={!validPoint}
+                onClick={this.handleConfirmAvailability}>
+                {this.buttonTriStateText()}
+              </Button>
+            })
+          }
 
-            <StatelessTransaction
-              // Upper scope
-              web3={props.web3}
-              contracts={props.contracts}
-              wallet={props.wallet}
-              walletType={props.walletType}
-              walletHdPath={props.walletHdPath}
-              // Tx
-              txn={state.txn}
-              stx={state.stx}
-              // Tx details
-              nonce={state.nonce}
-              gasPrice={state.gasPrice}
-              chainId={state.chainId}
-              gasLimit={state.gasLimit}
-              // Checks
-              userApproval={state.userApproval}
-              canGenerate={ canGenerate }
-              canSign={ canSign }
-              canApprove={ canApprove }
-              canSend={ canSend }
-              // Methods
-              createUnsignedTxn={this.handleCreateUnsignedTxn}
-              setUserApproval={this.handleSetUserApproval}
-              setTxn={this.handleSetTxn}
-              setStx={this.handleSetStx}
-              setNonce={this.handleSetNonce}
-              setChainId={this.handleSetChainId}
-              setGasPrice={this.handleSetGasPrice}
-              setGasLimit={this.handleSetGasLimit}
-              handleSubmit={this.handleSubmit} />
-
-          </Form>
+          <StatelessTransaction
+            // Upper scope
+            web3={props.web3}
+            contracts={props.contracts}
+            wallet={props.wallet}
+            walletType={props.walletType}
+            walletHdPath={props.walletHdPath}
+            // Tx
+            txn={state.txn}
+            stx={state.stx}
+            // Tx details
+            nonce={state.nonce}
+            gasPrice={state.gasPrice}
+            chainId={state.chainId}
+            gasLimit={state.gasLimit}
+            // Checks
+            userApproval={state.userApproval}
+            canGenerate={ canGenerate }
+            canSign={ canSign }
+            canApprove={ canApprove }
+            canSend={ canSend }
+            // Methods
+            createUnsignedTxn={this.handleCreateUnsignedTxn}
+            setUserApproval={this.handleSetUserApproval}
+            setTxn={this.handleSetTxn}
+            setStx={this.handleSetStx}
+            setNonce={this.handleSetNonce}
+            setChainId={this.handleSetChainId}
+            setGasPrice={this.handleSetGasPrice}
+            setGasLimit={this.handleSetGasLimit}
+            handleSubmit={this.handleSubmit} />
 
           {
             Maybe.Nothing.hasInstance(state.txError)

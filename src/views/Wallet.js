@@ -84,14 +84,6 @@ class Wallet extends React.Component {
             <DropdownDivider />
 
             <DropdownItem
-              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.MNEMONIC)) }
-            >
-              { 'BIP39 Mnemonic' }
-            </DropdownItem>
-
-            <DropdownDivider />
-
-            <DropdownItem
               onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.LEDGER)) }
             >
               { 'Ledger' }
@@ -109,6 +101,25 @@ class Wallet extends React.Component {
               { 'Trezor' }
             </DropdownItem>
 
+            <DropdownDivider />
+
+            <DropdownItem
+              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.MNEMONIC)) }
+            >
+              { 'BIP39 Mnemonic' }
+            </DropdownItem>
+
+            <DropdownItem
+              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.PRIVATE_KEY)) }
+            >
+              { 'Ethereum Private Key' }
+            </DropdownItem>
+
+            <DropdownItem
+              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.KEYSTORE)) }
+            >
+              { 'Ethereum Keystore File' }
+            </DropdownItem>
 
 
 
@@ -128,6 +139,10 @@ class Wallet extends React.Component {
                 ? ROUTE_NAMES.LEDGER
                 : props.walletType === WALLET_NAMES.TREZOR
                 ? ROUTE_NAMES.TREZOR
+                : props.walletType === WALLET_NAMES.PRIVATE_KEY
+                ? ROUTE_NAMES.PRIVATE_KEY
+                : props.walletType === WALLET_NAMES.KEYSTORE
+                ? ROUTE_NAMES.KEYSTORE
                 : ROUTE_NAMES.DEFAULT
               )
             }

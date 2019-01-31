@@ -3,7 +3,7 @@ import React from 'react'
 import { Button } from '../components/Base'
 import { RequiredInput, InnerLabel } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
-import { Form, Code } from '../components/Base'
+import { Code } from '../components/Base'
 
 import * as ob from 'urbit-ob'
 import * as kg from '../../node_modules/urbit-key-generation/dist/index'
@@ -124,32 +124,30 @@ class GenKeyfile extends React.Component {
           }
           </P>
 
-          <Form>
-            <RequiredInput
-              className='mono'
-              prop-size='lg'
-              prop-format='innerLabel'
-              autoFocus
-              value={ networkSeed }
-              onChange={ this.handleNetworkSeedInput }>
-              <InnerLabel>{ 'Network seed' }</InnerLabel>
-            </RequiredInput>
+          <RequiredInput
+            className='mono'
+            prop-size='lg'
+            prop-format='innerLabel'
+            autoFocus
+            value={ networkSeed }
+            onChange={ this.handleNetworkSeedInput }>
+            <InnerLabel>{ 'Network seed' }</InnerLabel>
+          </RequiredInput>
 
-            <Button
-              className={'mt-8'}
-              color={'blue'}
-              onClick={
-                () => {
-                  if (hexRegExp.test(networkSeed)) {
-                    const keyfile = genKey(networkSeed, point, revision)
-                    this.setState({ keyfile })
-                  }
+          <Button
+            className={'mt-8'}
+            color={'blue'}
+            onClick={
+              () => {
+                if (hexRegExp.test(networkSeed)) {
+                  const keyfile = genKey(networkSeed, point, revision)
+                  this.setState({ keyfile })
                 }
               }
-            >
-              { 'Generate  →' }
-            </Button>
-          </Form>
+            }
+          >
+            { 'Generate  →' }
+          </Button>
 
           <Code>
             { keyfile }

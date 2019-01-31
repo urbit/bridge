@@ -435,3 +435,7 @@ footer,
 code {
   padding: 2px;
 }
+
+.pointer:hover {
+  cursor: pointer;
+}

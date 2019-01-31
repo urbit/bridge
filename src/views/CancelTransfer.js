@@ -1,6 +1,6 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
-import { Row, Col, H1, P, Form, Warning, H3 } from '../components/Base'
+import { Row, Col, H1, P, Warning, H3 } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
 
@@ -227,53 +227,51 @@ class CancelTransfer extends React.Component {
               `This action will cancel the transfer to ${proxy}.`
             }
             </P>
-            <Form>
-              <StatelessTransaction
-                // Upper scope
-                web3={props.web3}
-                contracts={props.contracts}
-                wallet={props.wallet}
-                walletType={props.walletType}
-                walletHdPath={props.walletHdPath}
-                // Tx
-                txn={state.txn}
-                stx={state.stx}
-                // Tx details
-                nonce={state.nonce}
-                gasPrice={state.gasPrice}
-                chainId={state.chainId}
-                gasLimit={state.gasLimit}
-                // Checks
-                userApproval={state.userApproval}
-                canGenerate={ canGenerate }
-                canSign={ canSign }
-                canApprove={ canApprove }
-                canSend={ canSend }
-                // Methods
-                createUnsignedTxn={this.handleCreateUnsignedTxn}
-                setUserApproval={this.handleSetUserApproval}
-                setTxn={this.handleSetTxn}
-                setStx={this.handleSetStx}
-                setNonce={this.handleSetNonce}
-                setChainId={this.handleSetChainId}
-                setGasPrice={this.handleSetGasPrice}
-                setGasLimit={this.handleSetGasLimit}
-                handleSubmit={this.handleSubmit} />
+            <StatelessTransaction
+              // Upper scope
+              web3={props.web3}
+              contracts={props.contracts}
+              wallet={props.wallet}
+              walletType={props.walletType}
+              walletHdPath={props.walletHdPath}
+              // Tx
+              txn={state.txn}
+              stx={state.stx}
+              // Tx details
+              nonce={state.nonce}
+              gasPrice={state.gasPrice}
+              chainId={state.chainId}
+              gasLimit={state.gasLimit}
+              // Checks
+              userApproval={state.userApproval}
+              canGenerate={ canGenerate }
+              canSign={ canSign }
+              canApprove={ canApprove }
+              canSend={ canSend }
+              // Methods
+              createUnsignedTxn={this.handleCreateUnsignedTxn}
+              setUserApproval={this.handleSetUserApproval}
+              setTxn={this.handleSetTxn}
+              setStx={this.handleSetStx}
+              setNonce={this.handleSetNonce}
+              setChainId={this.handleSetChainId}
+              setGasPrice={this.handleSetGasPrice}
+              setGasLimit={this.handleSetGasLimit}
+              handleSubmit={this.handleSubmit} />
 
-                {
-                  Maybe.Nothing.hasInstance(state.txError)
-                    ? ''
-                    : <Warning className={'mt-8'}>
-                        <H3 style={{marginTop: 0, paddingTop: 0}}>
-                          {
-                            'There was an error sending your transaction.'
-                          }
-                        </H3>
-                        { state.txError.value }
-                    </Warning>
-                }
+              {
+                Maybe.Nothing.hasInstance(state.txError)
+                  ? ''
+                  : <Warning className={'mt-8'}>
+                      <H3 style={{marginTop: 0, paddingTop: 0}}>
+                        {
+                          'There was an error sending your transaction.'
+                        }
+                      </H3>
+                      { state.txError.value }
+                  </Warning>
+              }
 
-          </Form>
         </Col>
       </Row>
     )

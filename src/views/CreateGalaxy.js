@@ -5,7 +5,7 @@ import * as ob from 'urbit-ob'
 
 import { Button, } from '../components/Base'
 import { Row, Col, H1, P, Anchor } from '../components/Base'
-import { InnerLabel, GalaxyInput, AddressInput, ValidatedSigil, ShowBlockie, Form } from '../components/Base'
+import { InnerLabel, GalaxyInput, AddressInput, ValidatedSigil, ShowBlockie } from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
 
 import { BRIDGE_ERROR } from '../lib/error'
@@ -192,93 +192,90 @@ class CreateGalaxy extends React.Component {
           }
           </P>
 
-          <Form>
+          <GalaxyInput
+            className='mono'
+            prop-size='lg'
+            prop-format='innerLabel'
+            autoFocus
+            placeholder='e.g. ~zod'
+            value={state.galaxyName}
+            onChange={v => this.handleGalaxyNameInput(v)}>
+            <InnerLabel>{ 'Galaxy Name' }</InnerLabel>
+            <ValidatedSigil
+              className='tr-0 mt-05 mr-0 abs'
+              patp={state.galaxyName}
+              size={76}
+              margin={8} />
+          </GalaxyInput>
 
-            <GalaxyInput
-              className='mono'
-              prop-size='lg'
-              prop-format='innerLabel'
-              autoFocus
-              placeholder='e.g. ~zod'
-              value={state.galaxyName}
-              onChange={v => this.handleGalaxyNameInput(v)}>
-              <InnerLabel>{ 'Galaxy Name' }</InnerLabel>
-              <ValidatedSigil
-                className='tr-0 mt-05 mr-0 abs'
-                patp={state.galaxyName}
-                size={76}
-                margin={8} />
-            </GalaxyInput>
-
-            <AddressInput
-              className='mono mt-8'
-              prop-size='lg'
-              prop-format='innerLabel'
-              value={ state.galaxyOwner }
-              onChange={ v => this.handleAddressInput(v) }>
-              <InnerLabel>
-                { 'Address that will own this galaxy' }
-              </InnerLabel>
-              <ShowBlockie
-                className={'mt-1'}
-                address={state.galaxyOwner} />
-            </AddressInput>
-
-            <Anchor
+          <AddressInput
+            className='mono mt-8'
+            prop-size='lg'
+            prop-format='innerLabel'
+            value={ state.galaxyOwner }
+            onChange={ v => this.handleAddressInput(v) }>
+            <InnerLabel>
+              { 'Address that will own this galaxy' }
+            </InnerLabel>
+            <ShowBlockie
               className={'mt-1'}
-              prop-size={'sm'}
-              prop-disabled={!validAddress}
-              target={'_blank'}
-              href={`https://etherscan.io/address/${state.galaxyOwner}`}>
-                {'View on Etherscan ↗'}
-            </Anchor>
+              address={state.galaxyOwner} />
+          </AddressInput>
 
-            <Button
-              prop-size='lg wide'
-              className='mt-8'
-              prop-color={buttonTriState(state.isAvailable)}
-              disabled={!validGalaxy}
-              onClick={() => this.confirmAvailability()}>
-              {buttonTriStateText(state.isAvailable)}
-            </Button>
+          <Anchor
+            className={'mt-1'}
+            prop-size={'sm'}
+            prop-disabled={!validAddress}
+            target={'_blank'}
+            href={`https://etherscan.io/address/${state.galaxyOwner}`}>
+              {'View on Etherscan ↗'}
+          </Anchor>
 
-            <StatelessTransaction
-              address={state.galaxyOwner}
-              shipName={state.galaxyName}
-              isAvailable={state.isAvailable}
-              web3={props.web3}
-              contracts={props.contracts}
-              wallet={props.wallet}
-              walletType={props.walletType}
-              walletHdPath={props.walletHdPath}
-              // Tx
-              txApproval={state.txApproval}
-              txn={state.txn}
-              stx={state.stx}
-              nonce={state.nonce}
-              gasPrice={state.gasPrice}
-              chainId={state.chainId}
-              gasLimit={state.gasLimit}
-              canGenerate={
-                validAddress === true &&
-                validGalaxy === true &&
-                state.isAvailable === true
-              }
-              canSign={!Maybe.Nothing.hasInstance(state.txn)}
-              canSend={!Maybe.Nothing.hasInstance(state.stx)}
-              // Methods
-              createUnsignedTxn={() => this.createUnsignedTxn()}
-              clearTransaction={() => this.clearTransaction()}
-              setApproval={() => this.setState({txApproval: !state.txApproval})}
-              setTxn={txn => this.setState({txn})}
-              setStx={stx => this.setState({stx})}
-              setNonce={nonce => this.setState({nonce})}
-              setChainId={chainId => this.setState({chainId})}
-              setGasPrice={gasPrice => this.setState({gasPrice})}
-              setGasLimit={gasLimit => this.setState({gasLimit})}
-              handleSubmit={this.handleSubmit} />
+          <Button
+            prop-size='lg wide'
+            className='mt-8'
+            prop-color={buttonTriState(state.isAvailable)}
+            disabled={!validGalaxy}
+            onClick={() => this.confirmAvailability()}>
+            {buttonTriStateText(state.isAvailable)}
+          </Button>
 
-          </Form>
+          <StatelessTransaction
+            address={state.galaxyOwner}
+            shipName={state.galaxyName}
+            isAvailable={state.isAvailable}
+            web3={props.web3}
+            contracts={props.contracts}
+            wallet={props.wallet}
+            walletType={props.walletType}
+            walletHdPath={props.walletHdPath}
+            // Tx
+            txApproval={state.txApproval}
+            txn={state.txn}
+            stx={state.stx}
+            nonce={state.nonce}
+            gasPrice={state.gasPrice}
+            chainId={state.chainId}
+            gasLimit={state.gasLimit}
+            canGenerate={
+              validAddress === true &&
+              validGalaxy === true &&
+              state.isAvailable === true
+            }
+            canSign={!Maybe.Nothing.hasInstance(state.txn)}
+            canSend={!Maybe.Nothing.hasInstance(state.stx)}
+            // Methods
+            createUnsignedTxn={() => this.createUnsignedTxn()}
+            clearTransaction={() => this.clearTransaction()}
+            setApproval={() => this.setState({txApproval: !state.txApproval})}
+            setTxn={txn => this.setState({txn})}
+            setStx={stx => this.setState({stx})}
+            setNonce={nonce => this.setState({nonce})}
+            setChainId={chainId => this.setState({chainId})}
+            setGasPrice={gasPrice => this.setState({gasPrice})}
+            setGasLimit={gasLimit => this.setState({gasLimit})}
+            handleSubmit={this.handleSubmit} />
+
         </Col>
       </Row>
     )

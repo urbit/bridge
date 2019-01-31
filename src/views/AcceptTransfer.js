@@ -1,6 +1,6 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
-import { Row, Col, H1, H3, P, Form, Warning } from '../components/Base'
+import { Row, Col, H1, H3, P, Warning } from '../components/Base'
 import { InnerLabel, AddressInput, ShowBlockie, Anchor } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
@@ -277,7 +277,6 @@ class AcceptTransfer extends React.Component {
             "as.  But you can transfer to any address you like."
           }
           </P>
-          <Form>
           <AddressInput
             className='mono mt-8'
             prop-size='lg'
@@ -328,8 +327,6 @@ class AcceptTransfer extends React.Component {
             setGasPrice={this.handleSetGasPrice}
             setGasLimit={this.handleSetGasLimit}
             handleSubmit={this.handleSubmit} />
-
-          </Form>
 
           {
             Maybe.Nothing.hasInstance(state.txError)

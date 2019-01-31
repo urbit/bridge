@@ -4,7 +4,7 @@ import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
 
 import { Row, Col, H1, InnerLabel, ShowBlockie, P, Anchor } from '../components/Base'
-import { AddressInput, Form, Warning, H3 } from '../components/Base'
+import { AddressInput, Warning, H3 } from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
 
 import { BRIDGE_ERROR } from '../lib/error'
@@ -265,60 +265,57 @@ class Transfer extends React.Component {
             You may cancel the transfer until the transfer is accepted.`
           }
           </P>
-          <Form>
-            <AddressInput
-              className={'mono mt-8'}
-              prop-size='lg'
-              prop-format='innerLabel'
-              value={ state.receivingAddress }
-              placeholder={ `e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f` }
-              onChange={ v => this.handleAddressInput(v) }>
-              <InnerLabel>{ 'New ownership address' }</InnerLabel>
-              <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
-            </AddressInput>
+          <AddressInput
+            className={'mono mt-8'}
+            prop-size='lg'
+            prop-format='innerLabel'
+            value={ state.receivingAddress }
+            placeholder={ `e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f` }
+            onChange={ v => this.handleAddressInput(v) }>
+            <InnerLabel>{ 'New ownership address' }</InnerLabel>
+            <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
+          </AddressInput>
 
-            <Anchor
-              className={'mt-1'}
-              prop-size={'s'}
-              disabled={!isValidAddress(state.receivingAddress)}
-              target={'_blank'}
-              href={`https://etherscan.io/address/${state.receivingAddress}`}>
-                {'View on Etherscan ↗'}
-            </Anchor>
+          <Anchor
+            className={'mt-1'}
+            prop-size={'s'}
+            disabled={!isValidAddress(state.receivingAddress)}
+            target={'_blank'}
+            href={`https://etherscan.io/address/${state.receivingAddress}`}>
+              {'View on Etherscan ↗'}
+          </Anchor>
 
-            <StatelessTransaction
-              // Upper scope
-              web3={props.web3}
-              contracts={props.contracts}
-              wallet={props.wallet}
-              walletType={props.walletType}
-              walletHdPath={props.walletHdPath}
-              // Tx
-              txn={state.txn}
-              stx={state.stx}
-              // Tx details
-              nonce={state.nonce}
-              gasPrice={state.gasPrice}
-              chainId={state.chainId}
-              gasLimit={state.gasLimit}
-              // Checks
-              userApproval={state.userApproval}
-              canGenerate={ canGenerate }
-              canSign={ canSign }
-              canApprove={ canApprove }
-              canSend={ canSend }
-              // Methods
-              createUnsignedTxn={this.handleCreateUnsignedTxn}
-              setUserApproval={this.handleSetUserApproval}
-              setTxn={this.handleSetTxn}
-              setStx={this.handleSetStx}
-              setNonce={this.handleSetNonce}
-              setChainId={this.handleSetChainId}
-              setGasPrice={this.handleSetGasPrice}
-              setGasLimit={this.handleSetGasLimit}
-              handleSubmit={this.handleSubmit} />
-
-          </Form>
+          <StatelessTransaction
+            // Upper scope
+            web3={props.web3}
+            contracts={props.contracts}
+            wallet={props.wallet}
+            walletType={props.walletType}
+            walletHdPath={props.walletHdPath}
+            // Tx
+            txn={state.txn}
+            stx={state.stx}
+            // Tx details
+            nonce={state.nonce}
+            gasPrice={state.gasPrice}
+            chainId={state.chainId}
+            gasLimit={state.gasLimit}
+            // Checks
+            userApproval={state.userApproval}
+            canGenerate={ canGenerate }
+            canSign={ canSign }
+            canApprove={ canApprove }
+            canSend={ canSend }
+            // Methods
+            createUnsignedTxn={this.handleCreateUnsignedTxn}
+            setUserApproval={this.handleSetUserApproval}
+            setTxn={this.handleSetTxn}
+            setStx={this.handleSetStx}
+            setNonce={this.handleSetNonce}
+            setChainId={this.handleSetChainId}
+            setGasPrice={this.handleSetGasPrice}
+            setGasLimit={this.handleSetGasLimit}
+            handleSubmit={this.handleSubmit} />
 
           {
             Maybe.Nothing.hasInstance(state.txError)

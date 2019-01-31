@@ -17,6 +17,7 @@ import {
 
 // Buttons
 import Button from './Button';
+import UploadButton from './UploadButton';
 // import Checkbox from './Checkbox';
 import CheckboxButton from './CheckboxButton';
 import Anchor from './Anchor';
@@ -153,6 +154,7 @@ const ShardInput = advancedInput({
 export {
   Button,
   CheckboxButton,
+  UploadButton,
   Anchor,
   InputCaption,
 
