@@ -3,7 +3,7 @@ import React from 'react'
 import Maybe from 'folktale/maybe'
 import { Button } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
-import { Form, InnerLabel, Input } from '../components/Base'
+import { InnerLabel, Input } from '../components/Base'
 import TrezorConnect from 'trezor-connect'
 import * as secp256k1 from 'secp256k1'
 
@@ -62,39 +62,36 @@ class Trezor extends React.Component {
               }
             </P>
 
-            <Form>
-              <Input
-                className='pt-8'
-                prop-size='md'
-                prop-format='innerLabel'
-                name='hdpath'
-                value={ hdpath }
-                autocomplete='off'
-                onChange={ this.handleHdPathInput }>
-                <InnerLabel>{'HD Path'}</InnerLabel>
-              </Input>
+            <Input
+              className='pt-8'
+              prop-size='md'
+              prop-format='innerLabel'
+              name='hdpath'
+              value={ hdpath }
+              autocomplete='off'
+              onChange={ this.handleHdPathInput }>
+              <InnerLabel>{'HD Path'}</InnerLabel>
+            </Input>
 
-              <Button
-                className={'mt-8'}
-                prop-size={'wide lg'}
-                onClick={ this.pollDevice }>
-                { 'Authenticate →' }
-              </Button>
+            <Button
+              className={'mt-8'}
+              prop-size={'wide lg'}
+              onClick={ this.pollDevice }>
+              { 'Authenticate →' }
+            </Button>
 
-              <Button
-                className={'mt-8'}
-                prop-size={'wide lg'}
-                disabled={ Maybe.Nothing.hasInstance(wallet) }
-                onClick={
-                  () => {
-                    popRoute()
-                    pushRoute(ROUTE_NAMES.SHIPS)
-                  }
-                }>
-                { 'Continue →' }
-              </Button>
-
-            </Form>
+            <Button
+              className={'mt-8'}
+              prop-size={'wide lg'}
+              disabled={ Maybe.Nothing.hasInstance(wallet) }
+              onClick={
+                () => {
+                  popRoute()
+                  pushRoute(ROUTE_NAMES.SHIPS)
+                }
+              }>
+              { 'Continue →' }
+            </Button>
 
         </Col>
       </Row>

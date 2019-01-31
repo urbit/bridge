@@ -3,7 +3,7 @@ import React from 'react'
 import Maybe from 'folktale/maybe'
 import { Button } from '../components/Base'
 import { Row, Col, H1, P, H2 } from '../components/Base'
-import { Form, Input, InnerLabel } from '../components/Base'
+import { Input, InnerLabel } from '../components/Base'
 import Transport from '@ledgerhq/hw-transport-u2f'
 import Eth from '@ledgerhq/hw-app-eth'
 import * as secp256k1 from 'secp256k1'
@@ -99,38 +99,36 @@ class Ledger extends React.Component {
               <li className={'mt-4'}>{'Run '}<code>{'python bridge-https.py'}</code></li>
             </ol>
 
-            <Form>
-              <Input
-                className='pt-8 mt-8'
-                prop-size='md'
-                prop-format='innerLabel'
-                name='hdpath'
-                value={ addHdPrefix(hdpath) }
-                autocomplete='off'
-                onChange={ this.handleHdPathInput }>
-                <InnerLabel>{'HD Path'}</InnerLabel>
-              </Input>
+            <Input
+              className='pt-8 mt-8'
+              prop-size='md'
+              prop-format='innerLabel'
+              name='hdpath'
+              value={ addHdPrefix(hdpath) }
+              autocomplete='off'
+              onChange={ this.handleHdPathInput }>
+              <InnerLabel>{'HD Path'}</InnerLabel>
+            </Input>
 
-              <Button
-                prop-size={'wide lg'}
-                className={'mt-8'}
-                onClick={ this.pollDevice }>
-                { 'Authenticate →' }
-              </Button>
+            <Button
+              prop-size={'wide lg'}
+              className={'mt-8'}
+              onClick={ this.pollDevice }>
+              { 'Authenticate →' }
+            </Button>
 
-              <Button
-                className={'mt-8'}
-                prop-size={'wide lg'}
-                disabled={ Maybe.Nothing.hasInstance(wallet) }
-                onClick={
-                  () => {
-                    popRoute()
-                    pushRoute(ROUTE_NAMES.SHIPS)
-                  }
-                }>
-                { 'Continue →' }
-              </Button>
-            </Form>
+            <Button
+              className={'mt-8'}
+              prop-size={'wide lg'}
+              disabled={ Maybe.Nothing.hasInstance(wallet) }
+              onClick={
+                () => {
+                  popRoute()
+                  pushRoute(ROUTE_NAMES.SHIPS)
+                }
+              }>
+              { 'Continue →' }
+            </Button>
 
         </Col>
       </Row>

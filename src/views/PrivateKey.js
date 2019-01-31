@@ -2,7 +2,7 @@ import Maybe from 'folktale/maybe'
 import React from 'react'
 import { Button } from '../components/Base'
 import { RequiredInput, InnerLabel, InputCaption } from '../components/Base'
-import { Row, Col, H1, Form } from '../components/Base'
+import { Row, Col, H1 } from '../components/Base'
 
 import { ROUTE_NAMES } from '../lib/router'
 import { EthereumWallet } from '../lib/wallet'
@@ -45,7 +45,6 @@ class PrivateKey extends React.Component {
         <Row>
           <Col className={'measure-md'}>
             <H1 className={'mb-4'}>{ 'Enter Your Private Key' }</H1>
-            <Form>
             <InputCaption>
             { `Please enter your raw Ethereum private key here.` }
             </InputCaption>
@@ -54,7 +53,7 @@ class PrivateKey extends React.Component {
               className='pt-8 mt-8'
               prop-size='md'
               prop-format='innerLabel'
-              type='text'
+              type='password'
               name='privateKey'
               onChange={ this.handlePrivateKeyInput }
               value={ privateKey }
@@ -75,7 +74,6 @@ class PrivateKey extends React.Component {
             >
               { 'Continue →' }
             </Button>
-            </Form>
           </Col>
         </Row>
 

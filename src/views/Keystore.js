@@ -4,7 +4,7 @@ import React from 'react'
 import * as keythereum from 'keythereum'
 import { Button, UploadButton } from '../components/Base'
 import { Input, InnerLabel, InputCaption } from '../components/Base'
-import { Row, Col, H1, H3, Form, Warning } from '../components/Base'
+import { Row, Col, H1, H3, Warning } from '../components/Base'
 
 import { BRIDGE_ERROR } from '../lib/error'
 import { ROUTE_NAMES } from '../lib/router'
@@ -107,58 +107,56 @@ class Keystore extends React.Component {
         <Row>
           <Col className={'measure-md'}>
             <H1 className={'mb-4'}>{ 'Upload Your Keystore File' }</H1>
-            <Form>
-            <InputCaption>
-            { `Please upload your Ethereum keystore file.  If your keystore
-               file is encrypted with a password, you'll also need to enter
-               that below.` }
-            </InputCaption>
+          <InputCaption>
+          { `Please upload your Ethereum keystore file.  If your keystore
+             file is encrypted with a password, you'll also need to enter
+             that below.` }
+          </InputCaption>
 
-            <UploadButton
-              className={ `btn ${uploadButtonClass} mt-10` }
-              onChange={ this.handleKeystoreUpload }
-            >
-              <div className={'flex-center-all fs-4 h-11 pointer'}>{ 'Upload Keystore file' }</div>
-            </UploadButton>
+          <UploadButton
+            className={ `btn ${uploadButtonClass} mt-10` }
+            onChange={ this.handleKeystoreUpload }
+          >
+            <div className={'flex-center-all fs-4 h-11 pointer'}>{ 'Upload Keystore file' }</div>
+          </UploadButton>
 
-            <Input
-              className='pt-8 mt-8'
-              prop-size='md'
-              prop-format='innerLabel'
-              type='password'
-              name='password'
-              onChange={ this.handlePasswordInput }
-              value={ password }
-              autocomplete='off'
-              autoFocus>
-              <InnerLabel>{'Password'}</InnerLabel>
-            </Input>
+          <Input
+            className='pt-8 mt-8'
+            prop-size='md'
+            prop-format='innerLabel'
+            type='password'
+            name='password'
+            onChange={ this.handlePasswordInput }
+            value={ password }
+            autocomplete='off'
+            autoFocus>
+            <InnerLabel>{'Password'}</InnerLabel>
+          </Input>
 
-            <Button
-              className={` mt-10`}
-              prop-size={ 'wide lg' }
-              disabled={ Nothing.hasInstance(keystore) }
-              onClick={ this.constructWallet }
-            >
-              { 'Decrypt' }
-            </Button>
+          <Button
+            className={` mt-10`}
+            prop-size={ 'wide lg' }
+            disabled={ Nothing.hasInstance(keystore) }
+            onClick={ this.constructWallet }
+          >
+            { 'Decrypt' }
+          </Button>
 
-            { decryptMessage }
+          { decryptMessage }
 
-            <Button
-              className={'mt-10'}
-              prop-size={ 'wide lg' }
-              disabled={ Nothing.hasInstance(wallet) }
-              onClick={ () => {
-                  popRoute()
-                  pushRoute(ROUTE_NAMES.SHIPS)
-                }
+          <Button
+            className={'mt-10'}
+            prop-size={ 'wide lg' }
+            disabled={ Nothing.hasInstance(wallet) }
+            onClick={ () => {
+                popRoute()
+                pushRoute(ROUTE_NAMES.SHIPS)
               }
-            >
-              { 'Continue →' }
-            </Button>
+            }
+          >
+            { 'Continue →' }
+          </Button>
 
-            </Form>
           </Col>
         </Row>
 
