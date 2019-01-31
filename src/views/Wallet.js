@@ -84,14 +84,6 @@ class Wallet extends React.Component {
             <DropdownDivider />
 
             <DropdownItem
-              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.MNEMONIC)) }
-            >
-              { 'BIP39 Mnemonic' }
-            </DropdownItem>
-
-            <DropdownDivider />
-
-            <DropdownItem
               onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.LEDGER)) }
             >
               { 'Ledger' }
@@ -110,6 +102,12 @@ class Wallet extends React.Component {
             </DropdownItem>
 
             <DropdownDivider />
+
+            <DropdownItem
+              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.MNEMONIC)) }
+            >
+              { 'BIP39 Mnemonic' }
+            </DropdownItem>
 
             <DropdownItem
               onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.PRIVATE_KEY)) }
