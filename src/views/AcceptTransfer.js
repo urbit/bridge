@@ -7,6 +7,7 @@ import * as ob from 'urbit-ob'
 
 import StatelessTransaction from '../components/StatelessTransaction'
 import { BRIDGE_ERROR } from '../lib/error'
+import { NETWORK_NAMES } from '../lib/network'
 import { ROUTE_NAMES } from '../lib/router'
 
 import {
@@ -263,6 +264,14 @@ class AcceptTransfer extends React.Component {
     const canApprove = !Maybe.Nothing.hasInstance(state.stx)
     const canSend = !Maybe.Nothing.hasInstance(state.stx) && state.userApproval === true
 
+    const esvisible =
+        props.networkType === NETWORK_NAMES.ROPSTEN ||
+        props.networkType === NETWORK_NAMES.MAINNET
+
+    const esdomain =
+        props.networkType === NETWORK_NAMES.ROPSTEN
+      ? "ropsten.etherscan.io"
+      : "etherscan.io"
 
     return (
       <Row>
@@ -290,9 +299,9 @@ class AcceptTransfer extends React.Component {
           <Anchor
             className={'mt-1 sm'}
             prop-size='sm'
-            prop-disabled={!isValidAddress(state.receivingAddress)}
+            prop-disabled={!isValidAddress(state.receivingAddress) || !esvisible}
             target={'_blank'}
-            href={`https://etherscan.io/address/${state.receivingAddress}`}>
+            href={`https://${esdomain}/address/${state.receivingAddress}`}>
               {'View on Etherscan ↗'}
           </Anchor>
 
@@ -303,6 +312,7 @@ class AcceptTransfer extends React.Component {
             wallet={props.wallet}
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
+            networkType={props.networkType}
             // Tx
             txn={state.txn}
             stx={state.stx}

@@ -234,6 +234,7 @@ class CancelTransfer extends React.Component {
               wallet={props.wallet}
               walletType={props.walletType}
               walletHdPath={props.walletHdPath}
+              networkType={props.networkType}
               // Tx
               txn={state.txn}
               stx={state.stx}

@@ -8,6 +8,7 @@ import { AddressInput, Warning, H3 } from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
 
 import { BRIDGE_ERROR } from '../lib/error'
+import { NETWORK_NAMES } from '../lib/network'
 import { ROUTE_NAMES } from '../lib/router'
 
 import {
@@ -250,6 +251,15 @@ class Transfer extends React.Component {
     const canApprove = !Maybe.Nothing.hasInstance(state.stx)
     const canSend = !Maybe.Nothing.hasInstance(state.stx) && state.userApproval === true
 
+    const esvisible =
+        props.networkType === NETWORK_NAMES.ROPSTEN ||
+        props.networkType === NETWORK_NAMES.MAINNET
+
+    const esdomain =
+        props.networkType === NETWORK_NAMES.ROPSTEN
+      ? "ropsten.etherscan.io"
+      : "etherscan.io"
+
     return (
       <Row>
         <Col>
@@ -265,6 +275,7 @@ class Transfer extends React.Component {
             You may cancel the transfer until the transfer is accepted.`
           }
           </P>
+
           <AddressInput
             className={'mono mt-8'}
             prop-size='lg'
@@ -279,9 +290,9 @@ class Transfer extends React.Component {
           <Anchor
             className={'mt-1'}
             prop-size={'s'}
-            disabled={!isValidAddress(state.receivingAddress)}
+            prop-disabled={!isValidAddress(state.receivingAddress) || !esvisible}
             target={'_blank'}
-            href={`https://etherscan.io/address/${state.receivingAddress}`}>
+            href={`https://${esdomain}/address/${state.receivingAddress}`}>
               {'View on Etherscan ↗'}
           </Anchor>
 
@@ -292,6 +303,7 @@ class Transfer extends React.Component {
             wallet={props.wallet}
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
+            networkType={props.networkType}
             // Tx
             txn={state.txn}
             stx={state.stx}

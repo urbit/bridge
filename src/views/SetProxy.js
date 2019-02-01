@@ -8,6 +8,8 @@ import * as ob from 'urbit-ob'
 import { PROXY_TYPE, renderProxyType } from '../lib/proxy'
 import { BRIDGE_ERROR } from '../lib/error'
 
+import { NETWORK_NAMES } from '../lib/network'
+
 import StatelessTransaction from '../components/StatelessTransaction'
 
 import { ROUTE_NAMES } from '../lib/router'
@@ -274,6 +276,14 @@ class SetProxy extends React.Component {
     const canApprove = !Maybe.Nothing.hasInstance(state.stx)
     const canSend = !Maybe.Nothing.hasInstance(state.stx) && state.userApproval === true
 
+    const esvisible =
+        props.networkType === NETWORK_NAMES.ROPSTEN ||
+        props.networkType === NETWORK_NAMES.MAINNET
+
+    const esdomain =
+        props.networkType === NETWORK_NAMES.ROPSTEN
+      ? "ropsten.etherscan.io"
+      : "etherscan.io"
 
     const ucFirst = w => w.charAt(0).toUpperCase() + w.slice(1);
 
@@ -293,6 +303,7 @@ class SetProxy extends React.Component {
             'Generator to generate a keypair.'
           }
           </P>
+
           <AddressInput
             className='mono mt-8'
             prop-size='lg'
@@ -307,9 +318,9 @@ class SetProxy extends React.Component {
           <Anchor
             className={'mt-1'}
             prop-size={'sm'}
-            disabled={!isValidAddress(state.proxyAddress)}
+            prop-disabled={!isValidAddress(state.proxyAddress) || !esvisible}
             target={'_blank'}
-            href={`https://etherscan.io/address/${state.proxyAddress}`}>
+            href={`https://${esdomain}/address/${state.proxyAddress}`}>
               {'View on Etherscan ↗'}
           </Anchor>
 
@@ -320,6 +331,7 @@ class SetProxy extends React.Component {
             wallet={props.wallet}
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
+            networkType={props.networkType}
             // Tx
             txn={state.txn}
             stx={state.stx}

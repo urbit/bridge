@@ -329,6 +329,8 @@ class SetKeys extends React.Component {
             contracts={props.contracts}
             wallet={props.wallet}
             walletType={props.walletType}
+            walletHdPath={props.walletHdPath}
+            networkType={props.networkType}
             // Tx
             txn={state.txn}
             stx={state.stx}

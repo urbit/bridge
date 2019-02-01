@@ -10,6 +10,7 @@ import { PointInput, AddressInput, InnerLabel } from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
 
 import { ROUTE_NAMES } from '../lib/router'
+import { NETWORK_NAMES } from '../lib/network'
 import { BRIDGE_ERROR } from '../lib/error'
 import { getSpawnCandidate } from '../lib/child'
 import {
@@ -337,8 +338,6 @@ class IssueChild extends React.Component {
   render() {
     const { props, state } = this
 
-
-
     const validAddress = isValidAddress(state.receivingAddress)
     const validPoint = canDecodePatp(state.desiredPoint)
 
@@ -354,10 +353,18 @@ class IssueChild extends React.Component {
       }
     })
 
-
     const canSign = !Maybe.Nothing.hasInstance(state.txn)
     const canApprove = !Maybe.Nothing.hasInstance(state.stx)
     const canSend = !Maybe.Nothing.hasInstance(state.stx) && state.userApproval === true
+
+    const esvisible =
+        props.networkType === NETWORK_NAMES.ROPSTEN ||
+        props.networkType === NETWORK_NAMES.MAINNET
+
+    const esdomain =
+        props.networkType === NETWORK_NAMES.ROPSTEN
+      ? "ropsten.etherscan.io"
+      : "etherscan.io"
 
     return (
       <Row>
@@ -433,9 +440,9 @@ class IssueChild extends React.Component {
           <Anchor
             className={'mt-1'}
             prop-size={'sm'}
-            prop-disabled={!isValidAddress(state.receivingAddress)}
+            prop-disabled={!isValidAddress(state.receivingAddress) || !esvisible}
             target={'_blank'}
-            href={`https://etherscan.io/address/${state.receivingAddress}`}>
+            href={`https://${esdomain}/address/${state.receivingAddress}`}>
               {'View on Etherscan ↗'}
           </Anchor>
 
@@ -461,6 +468,7 @@ class IssueChild extends React.Component {
             wallet={props.wallet}
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
+            networkType={props.networkType}
             // Tx
             txn={state.txn}
             stx={state.stx}
@@ -498,6 +506,7 @@ class IssueChild extends React.Component {
                   { state.txError.value }
               </Warning>
           }
+
         </Col>
       </Row>
     )
