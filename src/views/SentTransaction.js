@@ -4,7 +4,36 @@ import { Button } from '../components/Base'
 
 import { BRIDGE_ERROR, renderTxnError } from '../lib/error'
 
-const Success = (props) =>
+import { NETWORK_NAMES } from '../lib/network'
+
+const Success = (props) => {
+
+  const esvisible =
+      props.networkType === NETWORK_NAMES.ROPSTEN ||
+      props.networkType === NETWORK_NAMES.MAINNET
+
+  const esdomain =
+      props.networkType === NETWORK_NAMES.ROPSTEN
+    ? "ropsten.etherscan.io"
+    : "etherscan.io"
+
+  const esmessage =
+      esvisible === true
+    ? "If you’d like to keep track of it, click the Etherscan link below."
+    : ''
+
+  const esanchor =
+      esvisible === false
+    ? <div />
+    : <Anchor
+        className={'mb-4 mt-1'}
+        prop-size={'sm'}
+        target={'_blank'}
+        href={`https://${esdomain}/tx/${props.hash}`}>
+          {'View on Etherscan ↗'}
+      </Anchor>
+
+  return (
     <Row>
       <Col>
         <H1>{ 'Your Transaction was Sent' }</H1>
@@ -12,8 +41,7 @@ const Success = (props) =>
         <P>
           {
             `We sent your transaction to the chain. It can take some time to
-            execute, especially if the network is busy. If you’d like to keep
-            track of it, click the Etherscan link below.`
+            execute, especially if the network is busy. ${esmessage}`
           }
         </P>
 
@@ -21,15 +49,13 @@ const Success = (props) =>
         <P>
           { props.hash }
         </P>
-        <Anchor
-          className={'mb-4 mt-1'}
-          prop-size={'sm'}
-          target={'_blank'}
-          href={`https://etherscan.io/tx/${props.hash}`}>
-            {'View on Etherscan ↗'}
-        </Anchor>
+
+        { esanchor }
+
       </Col>
     </Row>
+  )
+}
 
 const Failure = (props) =>
 
@@ -50,7 +76,7 @@ const Failure = (props) =>
     </Row>
 
 const SentTransaction = (props) => {
-  const { web3, txnCursor, popRoute } = props
+  const { web3, txnCursor, networkType, popRoute } = props
   const { setPointCursor, pointCursor } = props
 
   const w3 = web3.matchWith({
@@ -65,7 +91,11 @@ const SentTransaction = (props) => {
 
   const body = result.matchWith({
     Error: message => <Failure web3={ w3 } message={ message.value } />,
-    Ok: txn => <Success hash={ txn.value.transactionHash } />
+    Ok: txn =>
+      <Success
+        hash={ txn.value.transactionHash }
+        networkType={ networkType }
+      />
   })
 
   const ok =

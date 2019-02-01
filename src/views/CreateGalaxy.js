@@ -10,6 +10,8 @@ import StatelessTransaction from '../components/StatelessTransaction'
 
 import { BRIDGE_ERROR } from '../lib/error'
 
+import { NETWORK_NAMES } from '../lib/network'
+
 import {
   sendSignedTransaction,
   getTxnInfo,
@@ -179,6 +181,14 @@ class CreateGalaxy extends React.Component {
     const validAddress = isValidAddress(state.galaxyOwner)
     const validGalaxy = isValidGalaxy(state.galaxyName)
 
+    const esvisible =
+        props.networkType === NETWORK_NAMES.ROPSTEN ||
+        props.networkType === NETWORK_NAMES.MAINNET
+
+    const esdomain =
+        props.networkType === NETWORK_NAMES.ROPSTEN
+      ? "ropsten.etherscan.io"
+      : "etherscan.io"
 
     return (
       <Row>
@@ -225,9 +235,9 @@ class CreateGalaxy extends React.Component {
           <Anchor
             className={'mt-1'}
             prop-size={'sm'}
-            prop-disabled={!validAddress}
+            prop-disabled={!validAddress || !esvisible}
             target={'_blank'}
-            href={`https://etherscan.io/address/${state.galaxyOwner}`}>
+            href={`https://${esdomain}/address/${state.galaxyOwner}`}>
               {'View on Etherscan ↗'}
           </Anchor>
 
