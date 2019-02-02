@@ -1,0 +1,16 @@
+
+# Changelog
+
+- 1.1.0 (2019-02-01)
+    This release adds more authentication options and fixes bugs:
+    
+    * Add options for authenticating with private keys, keystore files
+    * Fix Ledger EIP-155 issue
+    * Styling and small bug fixes
+
+- 1.0.1 (2019-01-18)
+    This release makes a few bugfixes:
+
+    * Add option for setting Trezor and Ledger custom derivation path
+      (instead of defaulting to 0 index address)
+    * Fixes Trezor transaction signing bug
