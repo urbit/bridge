@@ -1,7 +1,14 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
 import { Button } from '../components/Base'
-import { InnerLabel, ValidatedSigil, PointInput, ShardInput } from '../components/Base'
+import {
+  InnerLabel,
+  ValidatedSigil,
+  PointInput,
+  ShardInput,
+  Input,
+  InputCaption,
+  } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
 import * as kg from '../../node_modules/urbit-key-generation/dist/index'
 import * as ob from 'urbit-ob'
@@ -33,6 +40,7 @@ class Shards extends React.Component {
       shard1: '',
       shard2: '',
       shard3: '',
+      passphrase: '',
       pointName: ''
     }
 
@@ -41,6 +49,7 @@ class Shards extends React.Component {
 
     this.handleShardInput = this.handleShardInput.bind(this)
     this.handlePointNameInput = this.handlePointNameInput.bind(this)
+    this.handlePassphrase = this.handlePassphrase.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
@@ -52,6 +61,10 @@ class Shards extends React.Component {
     } else if (shard === SHARDS.SHARD3) {
       this.setState({ shard3: input })
     }
+  }
+
+  handlePassphrase(passphrase) {
+    this.setState({ passphrase })
   }
 
   handlePointNameInput(pointName) {
@@ -66,7 +79,7 @@ class Shards extends React.Component {
   //   if (Maybe.Nothing.hasInstance(wallet)) return 'green'
   // }
 
-  async walletFromShards(shard1, shard2, shard3, pointName) {
+  async walletFromShards(shard1, shard2, shard3, pointName, passphrase) {
     const { setWallet, setUrbitWallet } = this.props
 
     const s1 = shard1 === '' ? undefined : shard1
@@ -83,10 +96,11 @@ class Shards extends React.Component {
     if (ticket !== undefined) {
       const urbitWallet = await kg.generateWallet({
         ticket: ticket,
-        ship: ob.patp2dec(pointName)
+        ship: ob.patp2dec(pointName),
+        passphrase: passphrase
       })
       const mnemonic = urbitWallet.ownership.seed
-      const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH)
+      const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH, passphrase)
       setWallet(wallet)
       setUrbitWallet(Maybe.Just(urbitWallet))
     }
@@ -98,7 +112,8 @@ class Shards extends React.Component {
       state.shard1,
       state.shard2,
       state.shard3,
-      state.pointName
+      state.pointName,
+      state.passphrase
     ).then(() => {
       props.popRoute()
       props.pushRoute(ROUTE_NAMES.SHIPS)
@@ -181,6 +196,22 @@ class Shards extends React.Component {
             onChange={ inp => this.handleShardInput(SHARDS.SHARD3, inp) }>
             <InnerLabel>{ 'Shard 3' }</InnerLabel>
           </ShardInput>
+
+          <InputCaption>
+          {`If your wallet requires a passphrase you may enter it below.`}
+          </InputCaption>
+
+          <Input
+            className='pt-8'
+            prop-size='md'
+            prop-format='innerLabel'
+            name='passphrase'
+            type='password'
+            value={ state.passphrase }
+            autocomplete='off'
+            onChange={ this.handlePassphrase }>
+            <InnerLabel>{'Passphrase'}</InnerLabel>
+          </Input>
 
           <Row className={'mt-8 '}>
             <Button
