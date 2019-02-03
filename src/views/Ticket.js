@@ -1,7 +1,14 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
 import { Button } from '../components/Base'
-import { InnerLabel, ValidatedSigil, PointInput, TicketInput } from '../components/Base'
+import {
+  InnerLabel,
+  ValidatedSigil,
+  PointInput,
+  TicketInput,
+  Input,
+  InputCaption
+  } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
 import * as kg from '../../node_modules/urbit-key-generation/dist/index'
 import * as ob from 'urbit-ob'
@@ -25,6 +32,7 @@ class Ticket extends React.Component {
 
     this.state = {
       ticket: '',
+      passphrase: '',
       pointName: ''
     }
 
@@ -33,11 +41,16 @@ class Ticket extends React.Component {
 
     this.handleTicketInput = this.handleTicketInput.bind(this)
     this.handlePointNameInput = this.handlePointNameInput.bind(this)
+    this.handlePassphrase = this.handlePassphrase.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   handleTicketInput(ticket) {
     this.setState({ ticket })
+  }
+
+  handlePassphrase(passphrase) {
+    this.setState({ passphrase })
   }
 
   handlePointNameInput(pointName) {
@@ -52,24 +65,27 @@ class Ticket extends React.Component {
   //   if (Maybe.Nothing.hasInstance(wallet)) return 'green'
   // }
 
-  async walletFromTicket(ticket, pointName) {
+  async walletFromTicket(ticket, pointName, passphrase) {
     const { setWallet, setUrbitWallet } = this.props
     const urbitWallet = await kg.generateWallet({
       ticket: ticket,
-      ship: ob.patp2dec(pointName)
+      ship: ob.patp2dec(pointName),
+      passphrase: passphrase
     })
     const mnemonic = urbitWallet.ownership.seed
-    const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH)
+    const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH, passphrase)
+    console.log(wallet)
     setWallet(wallet)
     setUrbitWallet(Maybe.Just(urbitWallet))
   }
 
   handleSubmit() {
     const { props, state } = this
-    this.walletFromTicket(state.ticket, state.pointName).then(() => {
-      props.popRoute()
-      props.pushRoute(ROUTE_NAMES.SHIPS)
-    })
+    this.walletFromTicket(state.ticket, state.pointName, state.passphrase)
+      .then(() => {
+        props.popRoute()
+        props.pushRoute(ROUTE_NAMES.SHIPS)
+      })
   }
 
   render() {
@@ -116,6 +132,22 @@ class Ticket extends React.Component {
             onChange={ this.handleTicketInput }>
             <InnerLabel>{ 'Ticket' }</InnerLabel>
           </TicketInput>
+
+          <InputCaption>
+          {`If your wallet requires a passphrase you may enter it below.`}
+          </InputCaption>
+
+          <Input
+            className='pt-8'
+            prop-size='md'
+            prop-format='innerLabel'
+            name='passphrase'
+            type='password'
+            value={ state.passphrase }
+            autocomplete='off'
+            onChange={ this.handlePassphrase }>
+            <InnerLabel>{'Passphrase'}</InnerLabel>
+          </Input>
 
           <Row className={'mt-8 '}>
             <Button
