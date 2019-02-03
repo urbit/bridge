@@ -86,10 +86,10 @@ const toChecksumAddress = (address) => {
 const eqAddr = (addr0, addr1) =>
   toChecksumAddress(addr0) === toChecksumAddress(addr1)
 
-const walletFromMnemonic = (mnemonic, hdpath) => {
+const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
   const seed =
       bip39.validateMnemonic(mnemonic)
-    ? Maybe.Just(bip39.mnemonicToSeed(mnemonic))
+    ? Maybe.Just(bip39.mnemonicToSeed(mnemonic, passphrase))
     : Maybe.Nothing()
 
   const toWallet = (sd, path) => {

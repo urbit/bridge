@@ -40,20 +40,13 @@ class Mnemonic extends React.Component {
     this.setState({ passphrase })
   }
 
-  attemptWalletDerivation(mnemonic, hdpath) {
-    const { setWallet, setAuthMnemonic, setWalletHdPath } = this.props
-    const wallet = walletFromMnemonic(mnemonic, hdpath)
-    setWallet(wallet)
-    setAuthMnemonic(Maybe.Just(mnemonic))
-    setWalletHdPath(hdpath)
-  }
-
   handleSubmit() {
     const { state, props } = this
 
     const wallet = walletFromMnemonic(
       state.mnemonic,
-      state.hdpath === '' ? DEFAULT_HD_PATH : state.hdpath
+      state.hdpath === '' ? DEFAULT_HD_PATH : state.hdpath,
+      state.passphrase
     )
     props.setWallet(wallet)
     props.setAuthMnemonic(Maybe.Just(state.mnemonic))
@@ -99,6 +92,7 @@ class Mnemonic extends React.Component {
               prop-size='md'
               prop-format='innerLabel'
               name='passphrase'
+              type='password'
               value={ state.passphrase }
               autocomplete='off'
               onChange={ this.handlePassphrase }>
