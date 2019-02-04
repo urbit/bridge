@@ -26,7 +26,7 @@ build` to create an optimised static build (serve it with e.g. [serve][serv]).
 
 ### General notes
 
-For devleopment, use `npm run pilot` to get going after a `npm install`.  This
+For development, use `npm run pilot` to get going after a `npm install`.  This
 will boot up a Ganache node in the background, deploy the Azimuth contracts to
 it, and fire up a local webserver.  Bridge will be served on `localhost:3000`.
 
