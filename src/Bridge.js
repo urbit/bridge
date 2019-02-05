@@ -12,6 +12,11 @@ import { NETWORK_NAMES } from './lib/network'
 import { WALLET_NAMES, DEFAULT_HD_PATH } from './lib/wallet'
 import { BRIDGE_ERROR } from './lib/error'
 
+import * as azimuth from 'azimuth-js'
+import Web3 from 'web3'
+import { CONTRACT_ADDRESSES } from './lib/contracts'
+import { walletFromMnemonic } from './lib/wallet'
+
 class Bridge extends React.Component {
 
   constructor(props) {
@@ -78,34 +83,34 @@ class Bridge extends React.Component {
   // If running in development, the following can be tweaked to get you set
   // up with a desirable initial state.
 
-  // if (process.env.NODE_ENV === 'development') {
-  //
-  //   const socket = 'ws://localhost:8545'
-  //   const provider = new Web3.providers.WebsocketProvider(socket)
-  //   const web3 = new Web3(provider)
-  //   const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.DEV)
-  //
-  //   const mnemonic = process.env.REACT_APP_DEV_MNEMONIC
-  //   const hdpath = process.env.REACT_APP_HD_PATH
-  //
-  //   this.setState({
-  //     routeCrumbs: Stack([
-  //       ROUTE_NAMES.CREATE_GALAXY,
-  //       ROUTE_NAMES.SHIPS,
-  //       // ROUTE_NAMES.MNEMONIC,
-  //       ROUTE_NAMES.WALLET,
-  //       ROUTE_NAMES.NETWORK,
-  //       ROUTE_NAMES.LANDING
-  //     ]),
-  //     networkType: NETWORK_NAMES.LOCAL,
-  //     web3: Maybe.Just(web3),
-  //     contracts: Maybe.Just(contracts),
-  //     walletType: WALLET_NAMES.MNEMONIC,
-  //     wallet: walletFromMnemonic(mnemonic, hdpath),
-  //     urbitWallet: Maybe.Nothing(),
-  //     authMnemonic: Maybe.Nothing()
-  //   })
-  // }
+  if (process.env.NODE_ENV === 'development') {
+
+    const socket = 'ws://localhost:8545'
+    const provider = new Web3.providers.WebsocketProvider(socket)
+    const web3 = new Web3(provider)
+    const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.DEV)
+
+    const mnemonic = process.env.REACT_APP_DEV_MNEMONIC
+    const hdpath = process.env.REACT_APP_HD_PATH
+
+    this.setState({
+      routeCrumbs: Stack([
+        // ROUTE_NAMES.CREATE_GALAXY,
+        // ROUTE_NAMES.SHIPS,
+        // ROUTE_NAMES.MNEMONIC,
+        ROUTE_NAMES.WALLET,
+        ROUTE_NAMES.NETWORK,
+        ROUTE_NAMES.LANDING
+      ]),
+      networkType: NETWORK_NAMES.LOCAL,
+      web3: Maybe.Just(web3),
+      contracts: Maybe.Just(contracts),
+      walletType: WALLET_NAMES.MNEMONIC,
+      wallet: walletFromMnemonic(mnemonic, hdpath),
+      urbitWallet: Maybe.Nothing(),
+      authMnemonic: Maybe.Nothing()
+    })
+  }
 }
 
   pushRoute(symbol) {

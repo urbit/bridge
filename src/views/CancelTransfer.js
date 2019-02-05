@@ -217,7 +217,7 @@ class CancelTransfer extends React.Component {
 
     return (
         <Row>
-          <Col>
+          <Col className={'measure-lg'}>
             <H1>
               { 'Cancel Transfer of '} <code>{ ` ${ob.patp(state.pointInTransfer)} ` }</code>
             </H1>
@@ -258,6 +258,7 @@ class CancelTransfer extends React.Component {
               setChainId={this.handleSetChainId}
               setGasPrice={this.handleSetGasPrice}
               setGasLimit={this.handleSetGasLimit}
+              handleCancel={this.props.popRoute}
               handleSubmit={this.handleSubmit} />
 
               {

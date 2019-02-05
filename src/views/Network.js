@@ -5,8 +5,9 @@ import {
   DropdownItem,
   InnerLabelDropdown,
   DropdownDivider,
+  RadioSelection
 } from '../components/Base'
-import { Row, Col, H1, P } from '../components/Base'
+import { Row, Col, H1, P, H2 } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 import Web3 from 'web3'
 
@@ -20,11 +21,9 @@ class Network extends React.Component {
     super(props)
 
     this.state = {
-      dropdownOpen: false
+      network: false
     };
 
-    this.toggle = this.toggle.bind(this);
-    this.close = this.close.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleNetworkChange = this.handleNetworkChange.bind(this);
   }
@@ -105,15 +104,6 @@ class Network extends React.Component {
     }
   }
 
-  selectClose(f) {
-    f()
-    this.setState({ dropdownOpen: false })
-  }
-
-
-  close () {
-    this.setState({ dropdownOpen: false })
-  }
 
   handleSubmit() {
     const { props } = this
@@ -125,67 +115,52 @@ class Network extends React.Component {
 
     return (
       <Row>
-        <Col className={'measure-md'}>
-          <H1>{ 'Select Network' }</H1>
+        <Col className={'measure-lg'}>
+          <H1>{ 'Network' }</H1>
 
           <P>
           {
             `Please select the Ethereum Node you would like to send transactions
-            to. The default Main Network connects to Infura and is adequate for
-            most uses, but for sensitive transactions, please select offline
-            mode.`
+            to. The default Main Network is adequate for most uses.`
           }
           </P>
 
+          <H2>Select a Node</H2>
 
-          <InnerLabelDropdown
-            className={'mt-8'}
-            handleToggle={this.toggle}
-            handleClose={this.close}
-            isOpen={state.dropdownOpen}
-            title={'Node:'}
-            currentSelectionTitle={renderNetworkType(props.networkType)}>
+          <RadioSelection
+            onClick={() => this.handleNetworkChange(NETWORK_NAMES.MAINNET)}
+            autoFocus
+            isSelected={props.networkType === NETWORK_NAMES.MAINNET}>
+            <h3>Main Network</h3>
+            <p>Connects to Infura and is adequate for most uses.</p>
+          </RadioSelection>
 
-              <DropdownItem
-                isSelected={ false }
-                onClick={
-                  () => this.selectClose(() => this.handleNetworkChange(NETWORK_NAMES.MAINNET))
-                }>
-                { 'Main Network' }
-              </DropdownItem>
+          <RadioSelection
+            className={'mt-4'}
+            onClick={() => this.handleNetworkChange(NETWORK_NAMES.LOCAL)}
+            isSelected={props.networkType === NETWORK_NAMES.LOCAL}>
+            <h3>Local Node</h3>
+            <p>If you are running your own node on your local machine.</p>
+          </RadioSelection>
 
-              <DropdownItem
-                isSelected={false}
-                onClick={
-                  () => this.selectClose(() => this.handleNetworkChange(NETWORK_NAMES.LOCAL))
-                }>
+          <RadioSelection
+            className={'mt-4'}
+            onClick={() => this.handleNetworkChange(NETWORK_NAMES.ROPSTEN)}
+            isSelected={props.networkType === NETWORK_NAMES.ROPSTEN}>
+            <h3>Ropsten</h3>
+            <p>If you would like to use he Ropsten testnet.</p>
+          </RadioSelection>
 
-                {'Local Node'}
-              </DropdownItem>
+          <RadioSelection
+            className={'mt-4'}
+            onClick={() => this.handleNetworkChange(NETWORK_NAMES.OFFLINE)}
+            isSelected={props.networkType === NETWORK_NAMES.OFFLINE}>
+            <h3>Offline</h3>
+            <p>Use this option to generate offline or sensitive transactions.</p>
+          </RadioSelection>
 
-              <DropdownItem
-                // disabled={ true }
-                isSelected={ false }
-                onClick={
-                  () => this.selectClose(() => this.handleNetworkChange(NETWORK_NAMES.ROPSTEN))
-                }>
-                { 'Ropsten' }
-              </DropdownItem>
 
-              <DropdownDivider />
-
-              <DropdownItem
-                // disabled={ true }
-                isSelected={ false }
-                onClick={
-                  () => this.selectClose(() => this.handleNetworkChange(NETWORK_NAMES.OFFLINE))
-                }>
-                { 'Offline' }
-              </DropdownItem>
-
-          </InnerLabelDropdown>
-
-          <Row className={'mt-16'}>
+          <Row className={'mt-8'}>
             <Button
               prop-size={'lg wide'}
               onClick={ this.handleSubmit }>

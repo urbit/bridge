@@ -283,7 +283,7 @@ class SetKeys extends React.Component {
 
     return (
       <Row>
-        <Col>
+        <Col className={'measure-lg'}>
           <H1>
             { 'Set Network Keys For ' } <code>{ `${ob.patp(state.point)}` }</code>
           </H1>
@@ -352,6 +352,7 @@ class SetKeys extends React.Component {
             setChainId={this.handleSetChainId}
             setGasPrice={this.handleSetGasPrice}
             setGasLimit={this.handleSetGasLimit}
+            handleCancel={this.props.popRoute}
             handleSubmit={this.handleSubmit} />
 
             {

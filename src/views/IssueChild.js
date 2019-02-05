@@ -368,7 +368,7 @@ class IssueChild extends React.Component {
 
     return (
       <Row>
-        <Col>
+        <Col className={'measure-lg'}>
           <H1>
             { 'Issue a Child From ' } <code>{ `${ob.patp(state.issuingPoint)}` }</code>
           </H1>
@@ -492,6 +492,7 @@ class IssueChild extends React.Component {
             setChainId={this.handleSetChainId}
             setGasPrice={this.handleSetGasPrice}
             setGasLimit={this.handleSetGasLimit}
+            handleCancel={this.props.popRoute}
             handleSubmit={this.handleSubmit} />
 
           {

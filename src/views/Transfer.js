@@ -262,7 +262,7 @@ class Transfer extends React.Component {
 
     return (
       <Row>
-        <Col>
+        <Col className={'measure-lg'}>
           <H1>
             { 'Transfer'} <code>{ ` ${ob.patp(state.issuingPoint)} ` }</code>
             { 'To a New Owner' }
@@ -327,6 +327,7 @@ class Transfer extends React.Component {
             setChainId={this.handleSetChainId}
             setGasPrice={this.handleSetGasPrice}
             setGasLimit={this.handleSetGasLimit}
+            handleCancel={this.props.popRoute}
             handleSubmit={this.handleSubmit} />
 
           {

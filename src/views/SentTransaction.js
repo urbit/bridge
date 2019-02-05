@@ -35,7 +35,7 @@ const Success = (props) => {
 
   return (
     <Row>
-      <Col>
+      <Col className={'measure-lg'}>
         <H1>{ 'Your Transaction was Sent' }</H1>
 
         <P>

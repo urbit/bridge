@@ -43,7 +43,7 @@ class PrivateKey extends React.Component {
 
     return (
         <Row>
-          <Col className={'measure-md'}>
+          <Col className={'measure-lg'}>
             <H1 className={'mb-4'}>{ 'Enter Your Private Key' }</H1>
             <InputCaption>
             { `Please enter your raw Ethereum private key here.` }

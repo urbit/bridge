@@ -275,7 +275,7 @@ class AcceptTransfer extends React.Component {
 
     return (
       <Row>
-        <Col>
+        <Col className={'measure-lg'}>
           <H1>
             { 'Accept Transfer of '} <code>{ ` ${ob.patp(state.incomingPoint)} ` }</code>
           </H1>
@@ -336,6 +336,7 @@ class AcceptTransfer extends React.Component {
             setChainId={this.handleSetChainId}
             setGasPrice={this.handleSetGasPrice}
             setGasLimit={this.handleSetGasLimit}
+            handleCancel={this.props.popRoute}
             handleSubmit={this.handleSubmit} />
 
           {

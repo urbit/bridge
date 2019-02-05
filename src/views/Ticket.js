@@ -98,7 +98,7 @@ class Ticket extends React.Component {
 
     return (
         <Row>
-          <Col>
+          <Col className={'measure-lg'}>
             <H1>{ 'Authenticate' }</H1>
 
             <P>

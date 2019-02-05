@@ -105,7 +105,7 @@ class Keystore extends React.Component {
 
     return (
         <Row>
-          <Col className={'measure-md'}>
+          <Col className={'measure-lg'}>
             <H1 className={'mb-4'}>{ 'Upload Your Keystore File' }</H1>
           <InputCaption>
           { `Please upload your Ethereum keystore file.  If your keystore

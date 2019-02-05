@@ -7,7 +7,7 @@ import { ROUTE_NAMES } from '../lib/router'
 
 const Landing = (props) =>
     <Row>
-      <Col>
+      <Col className={'measure-lg'}>
         <H1>{ 'Welcome' }</H1>
 
 

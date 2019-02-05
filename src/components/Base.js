@@ -20,6 +20,7 @@ import Button from './Button';
 import UploadButton from './UploadButton';
 // import Checkbox from './Checkbox';
 import CheckboxButton from './CheckboxButton';
+import RadioSelection from './RadioSelection';
 import Anchor from './Anchor';
 // import ToggleButton from './ToggleButton';
 
@@ -157,6 +158,7 @@ export {
   UploadButton,
   Anchor,
   InputCaption,
+  RadioSelection,
 
   Form,
   Label,

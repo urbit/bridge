@@ -161,8 +161,7 @@ const StatelessTransaction = props => {
                       prop-size={'xl half'}
                       prop-type={'outline'}
                       className={'mr-4'}
-                      disabled={ !props.canSend }
-                      onClick={ () => props.handleSubmit() }>
+                      onClick={ () => props.handleCancel() }>
                       { '← Cancel and Return' }
                     </Button>
                     <Button

@@ -103,7 +103,7 @@ class GenKeyfile extends React.Component {
 
     return (
       <Row>
-        <Col className={'col-md-8'}>
+        <Col className={'measure-lg'}>
           <H1>{ 'Generate keyfile' }</H1>
 
           <P>

@@ -63,7 +63,7 @@ class Mnemonic extends React.Component {
 
     return (
         <Row>
-          <Col>
+          <Col className={'measure-lg'}>
             <H1 className={'mb-4'}>{ 'Enter Your Mnemonic' }</H1>
 
             <InputCaption>

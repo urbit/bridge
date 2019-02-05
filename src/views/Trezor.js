@@ -58,7 +58,7 @@ class Trezor extends React.Component {
 
     return (
         <Row>
-          <Col className={'measure-md'}>
+          <Col className={'measure-lg'}>
             <H1>{ 'Authenticate With Your Trezor' }</H1>
 
             <P>

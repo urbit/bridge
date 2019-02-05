@@ -64,7 +64,7 @@ class Ledger extends React.Component {
 
     return (
       <Row>
-        <Col className={'measure-md'}>
+        <Col className={'measure-lg'}>
           <H1>{ 'Authenticate With Your Ledger' }</H1>
 
           <H2>{'Running on HTTPS?'}</H2>
