@@ -2,18 +2,46 @@
 
 An application for interacting with Azimuth.
 
-## Install
-
-Clone the repo, and use a simple `npm install`.
-
-## Build
-
-You can use a `npm run build` to create an optimised static build.
-
 ## Usage
 
-The build directory needs to be served with a static server; you can use the
-`bridge` script to start serving the site at localhost:5000.
+From the [latest release][rele]:
+
+* Download and unzip `bridge-$VERSION.zip`
+* Open up your command line interface (Terminal on OS X, Command Prompt on
+  Windows).
+* Navigate to the `bridge-$VERSION` directory.
+* Run this command:
+
+      python3 -m http.server 5000 --bind 127.0.0.1 --directory build
+
+* You can then use the Bridge app by navigating to `http://localhost:5000` on
+  your internet browser.
+
+## Development Notes
+
+### Install / Build
+
+Clone the repo, and use a simple `npm install`.  You can then use a `npm run
+build` to create an optimised static build (serve it with e.g. [serve][serv]).
+
+### General notes
+
+For development, use `npm run pilot` to get going after a `npm install`.  This
+will boot up a Ganache node in the background, deploy the Azimuth contracts to
+it, and fire up a local webserver.  Bridge will be served on `localhost:3000`.
+
+Note that one of our dependencies itself depends on a library called
+`handle-thing` which breaks under the Ledger support requirements (see below)
+on node 11.1.0, so make sure you're using some other node version.
+
+You can use [nvm](https://github.com/creationix/nvm), for example, and do:
+
+```
+$ nvm install 11.0.0
+$ nvm use v11.0.0
+```
+
+before running `npm run pilot`.
 
 ### Ledger support
 
@@ -29,27 +57,6 @@ this via the following:
 * Run `python bridge-https.py`
 
 Bridge will serve to localhost over HTTPS on port 4443
-
-## Development
-
-### General notes
-
-Use `npm run pilot` to get going.  This will boot up a Ganache node in
-the background, deploy the Azimuth contracts to it, and fire up a local
-webserver.  Bridge will be served on `localhost:3000`.
-
-Note that one of our dependencies itself depends on a library called
-`handle-thing` which breaks under the Ledger support requirements (see below)
-on node 11.1.0, so make sure you're using some other node version.
-
-You can use [nvm](https://github.com/creationix/nvm), for example, and do:
-
-```
-$ nvm install 11.0.0
-$ nvm use v11.0.0
-```
-
-before running `npm run pilot`.
 
 ### Useful Accounts
 
@@ -115,8 +122,9 @@ Additionally you need to run with the `HTTPS` environment variable set to
 
 To generate a release `.tar.gz` file, use a simple `npm run release`.
 
-This will pack the build directory together with the `bridge` and
-`bridge-https.py` scripts, and also generate a set of checksums for the build
-directory.  You can verify the checksums on e.g. OS X via `shasum -c
-checksums.txt`.
+This will pack the build directory together with the `bridge-https.py` script,
+and also generate a set of checksums for the build directory.  You can verify
+the checksums on e.g. OS X via `shasum -c checksums.txt`.
 
+[rele]: https://github.com/urbit/bridge/releases/latest
+[serv]: http://npmjs.com/package/serve
