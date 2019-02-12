@@ -14,6 +14,9 @@ From the [latest release][rele]:
 
       python3 -m http.server 5000 --bind 127.0.0.1 --directory build
 
+  (note that your Python version must be at least 3.7 to support the
+  `--directory` option)
+
 * You can then use the Bridge app by navigating to `http://localhost:5000` on
   your internet browser.
 
