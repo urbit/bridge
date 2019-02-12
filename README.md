@@ -123,11 +123,12 @@ Additionally you need to run with the `HTTPS` environment variable set to
 
 ### Releases
 
-To generate a release `.tar.gz` file, use a simple `npm run release`.
+To generate a release `bridge-$VERSION.zip` file, use a simple `npm run
+release`.
 
-This will pack the build directory together with the `bridge-https.py` script,
-and also generate a set of checksums for the build directory.  You can verify
-the checksums on e.g. OS X via `shasum -c checksums.txt`.
+This will pack the build directory together with the README, `bridge-https.py`
+script, and also generate a set of checksums for the build directory.  You can
+verify the checksums on e.g. OS X via `shasum -c checksums.txt`.
 
 [rele]: https://github.com/urbit/bridge/releases/latest
 [serv]: http://npmjs.com/package/serve
