@@ -1,24 +1,10 @@
-# bridge
+# Bridge
 
 An application for interacting with Azimuth.
 
 ## Usage
 
-From the [latest release][rele]:
-
-* Download and unzip `bridge-$VERSION.zip`
-* Open up your command line interface (Terminal on OS X, Command Prompt on
-  Windows).
-* Navigate to the `bridge-$VERSION` directory.
-* Run this command:
-
-      python3 -m http.server 5000 --bind 127.0.0.1 --directory build
-
-  (note that your Python version must be at least 3.7 to support the
-  `--directory` option)
-
-* You can then use the Bridge app by navigating to `http://localhost:5000` on
-  your internet browser.
+To run Bridge, follow the instructions on the [latest release][rele] page.
 
 ## Development Notes
 
