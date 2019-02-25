@@ -97,28 +97,6 @@ class AcceptTransfer extends React.Component {
         })
       }
     });
-
-    // const validPoint = props.pointCursor.matchWith({
-    //   Just: (shp) => shp.value,
-    //   Nothing: () => {
-    //     throw BRIDGE_ERROR.MISSING_POINT
-    //   }
-    // })
-
-    // NB (jtobin):
-    //
-    // We need to get the point's owner, so it's not possible to perform this
-    // transaction offline.
-    //
-    // Perhaps we could add an 'owner' input in the offline case, if necessary.
-
-    // const owner = props.pointCache[validPoint].owner
-    //
-    // const txn = Maybe.Just(this.createUnsignedTxn(
-    //   owner,
-    // state.receivingAddress))
-    //
-    // this.setState({ txn })
   }
 
 
