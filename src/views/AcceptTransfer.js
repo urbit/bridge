@@ -1,4 +1,4 @@
-import Maybe from 'folktale/maybe'
+import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { Row, Col, H1, H3, P, Warning } from '../components/Base'
 import { InnerLabel, AddressInput, ShowBlockie, Anchor } from '../components/Base'
@@ -41,15 +41,15 @@ class AcceptTransfer extends React.Component {
 
     this.state = {
       receivingAddress: receivingAddress,
-      txn: Maybe.Nothing(),
-      txError: Maybe.Nothing(),
+      txn: Nothing(),
+      txError: Nothing(),
       incomingPoint: incomingPoint,
       userApproval: false,
       nonce: '',
       gasPrice: '5',
       chainId: '',
       gasLimit: '600000',
-      stx: Maybe.Nothing(),
+      stx: Nothing(),
     }
     this.handleAddressInput = this.handleAddressInput.bind(this)
     // Transaction
@@ -188,7 +188,7 @@ class AcceptTransfer extends React.Component {
   handleClearStx() {
     this.setState({
       userApproval: false,
-      stx: Maybe.Nothing(),
+      stx: Nothing(),
     })
   }
 
@@ -197,8 +197,8 @@ class AcceptTransfer extends React.Component {
   handleClearTxn() {
     this.setState({
       userApproval: false,
-      txn: Maybe.Nothing(),
-      stx: Maybe.Nothing(),
+      txn: Nothing(),
+      stx: Nothing(),
     })
   }
 
@@ -207,8 +207,8 @@ class AcceptTransfer extends React.Component {
   handleClearTransaction() {
     this.setState({
       userApproval: false,
-      txn: Maybe.Nothing(),
-      stx: Maybe.Nothing(),
+      txn: Nothing(),
+      stx: Nothing(),
     })
   }
 
@@ -223,8 +223,7 @@ class AcceptTransfer extends React.Component {
         props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
       })
       .catch(err => {
-        // Note that value.value is due to wrapped Maybe.Just + Result.Error
-        this.setState({ txError: Maybe.Just(err.value.value) })
+        this.setState({ txError: err.map(val => val.merge()) })
       })
   }
 
@@ -247,7 +246,7 @@ class AcceptTransfer extends React.Component {
 
     const owner = props.pointCache[validPoint].owner
 
-    return Maybe.Just(azimuth.ecliptic.transferFrom(
+    return Just(azimuth.ecliptic.transferFrom(
       validContracts,
       owner,
       state.receivingAddress,
@@ -260,9 +259,11 @@ class AcceptTransfer extends React.Component {
     const { state, props } = this
     const validAddress = isValidAddress(state.receivingAddress)
     const canGenerate = validAddress === true
-    const canSign = !Maybe.Nothing.hasInstance(state.txn)
-    const canApprove = !Maybe.Nothing.hasInstance(state.stx)
-    const canSend = !Maybe.Nothing.hasInstance(state.stx) && state.userApproval === true
+    const canSign = Just.hasInstance(state.txn)
+    const canApprove = Just.hasInstance(state.stx)
+    const canSend =
+      Just.hasInstance(state.stx)
+      && state.userApproval === true
 
     const esvisible =
         props.networkType === NETWORK_NAMES.ROPSTEN ||
@@ -339,7 +340,7 @@ class AcceptTransfer extends React.Component {
             handleSubmit={this.handleSubmit} />
 
           {
-            Maybe.Nothing.hasInstance(state.txError)
+            Nothing.hasInstance(state.txError)
               ? ''
               : <Warning className={'mt-8'}>
                   <H3 style={{marginTop: 0, paddingTop: 0}}>
