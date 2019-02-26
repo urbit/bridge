@@ -1,4 +1,4 @@
-import Maybe from 'folktale/maybe'
+import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { Row, Col, H1, H3, P, Warning } from '../components/Base'
 import { InnerLabel, AddressInput, ShowBlockie, Anchor } from '../components/Base'
@@ -9,17 +9,8 @@ import StatelessTransaction from '../components/StatelessTransaction'
 import { BRIDGE_ERROR } from '../lib/error'
 import { NETWORK_NAMES } from '../lib/network'
 import { ROUTE_NAMES } from '../lib/router'
-
-import {
-  sendSignedTransaction,
-  fromWei,
- } from '../lib/txn'
-
-import {
-  isValidAddress,
-  addressFromSecp256k1Public,
-} from '../lib/wallet'
-
+import { sendSignedTransaction, fromWei } from '../lib/txn'
+import { isValidAddress, addressFromSecp256k1Public } from '../lib/wallet'
 
 class AcceptTransfer extends React.Component {
   constructor(props) {
@@ -41,18 +32,18 @@ class AcceptTransfer extends React.Component {
 
     this.state = {
       receivingAddress: receivingAddress,
-      txn: Maybe.Nothing(),
-      txError: Maybe.Nothing(),
+      txn: Nothing(),
+      txError: Nothing(),
       incomingPoint: incomingPoint,
       userApproval: false,
       nonce: '',
       gasPrice: '5',
       chainId: '',
       gasLimit: '600000',
-      stx: Maybe.Nothing(),
+      stx: Nothing(),
     }
+
     this.handleAddressInput = this.handleAddressInput.bind(this)
-    // Transaction
     this.handleCreateUnsignedTxn = this.handleCreateUnsignedTxn.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleSetUserApproval = this.handleSetUserApproval.bind(this)
@@ -97,56 +88,26 @@ class AcceptTransfer extends React.Component {
         })
       }
     });
-
-    // const validPoint = props.pointCursor.matchWith({
-    //   Just: (shp) => shp.value,
-    //   Nothing: () => {
-    //     throw BRIDGE_ERROR.MISSING_POINT
-    //   }
-    // })
-
-    // NB (jtobin):
-    //
-    // We need to get the point's owner, so it's not possible to perform this
-    // transaction offline.
-    //
-    // Perhaps we could add an 'owner' input in the offline case, if necessary.
-
-    // const owner = props.pointCache[validPoint].owner
-    //
-    // const txn = Maybe.Just(this.createUnsignedTxn(
-    //   owner,
-    // state.receivingAddress))
-    //
-    // this.setState({ txn })
   }
-
-
 
   handleAddressInput(proxyAddress) {
     this.setState({ proxyAddress })
     this.handleClearTxn()
   }
 
-
   handleCreateUnsignedTxn() {
     const txn = this.createUnsignedTxn()
     this.setState({ txn })
   }
-
 
   handleSetUserApproval(){
     const {state} = this
     this.setState({ userApproval: !state.userApproval })
   }
 
-
-
   handleSetTxn(txn){
     this.setState({ txn })
   }
-
-
 
   handleSetStx(stx){
     this.setState({
@@ -155,64 +116,40 @@ class AcceptTransfer extends React.Component {
     })
   }
 
-
-
   handleSetNonce(nonce){
     this.setState({ nonce })
     this.handleClearStx()
   }
-
-
 
   handleSetChainId(chainId){
     this.setState({ chainId })
     this.handleClearStx()
   }
 
-
-
   handleSetGasPrice(gasPrice){
     this.setState({ gasPrice })
     this.handleClearStx()
   }
-
-
 
   handleSetGasLimit(gasLimit){
     this.setState({ gasLimit })
     this.handleClearStx()
   }
 
-
-
   handleClearStx() {
     this.setState({
       userApproval: false,
-      stx: Maybe.Nothing(),
+      stx: Nothing(),
     })
   }
-
-
 
   handleClearTxn() {
     this.setState({
       userApproval: false,
-      txn: Maybe.Nothing(),
-      stx: Maybe.Nothing(),
+      txn: Nothing(),
+      stx: Nothing(),
     })
   }
-
-
-
-  handleClearTransaction() {
-    this.setState({
-      userApproval: false,
-      txn: Maybe.Nothing(),
-      stx: Maybe.Nothing(),
-    })
-  }
-
-
 
   handleSubmit() {
     const { props, state } = this
@@ -223,8 +160,7 @@ class AcceptTransfer extends React.Component {
         props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
       })
       .catch(err => {
-        // Note that value.value is due to wrapped Maybe.Just + Result.Error
-        this.setState({ txError: Maybe.Just(err.value.value) })
+        this.setState({ txError: err.map(val => val.merge()) })
       })
   }
 
@@ -247,7 +183,7 @@ class AcceptTransfer extends React.Component {
 
     const owner = props.pointCache[validPoint].owner
 
-    return Maybe.Just(azimuth.ecliptic.transferFrom(
+    return Just(azimuth.ecliptic.transferFrom(
       validContracts,
       owner,
       state.receivingAddress,
@@ -260,9 +196,11 @@ class AcceptTransfer extends React.Component {
     const { state, props } = this
     const validAddress = isValidAddress(state.receivingAddress)
     const canGenerate = validAddress === true
-    const canSign = !Maybe.Nothing.hasInstance(state.txn)
-    const canApprove = !Maybe.Nothing.hasInstance(state.stx)
-    const canSend = !Maybe.Nothing.hasInstance(state.stx) && state.userApproval === true
+    const canSign = Just.hasInstance(state.txn)
+    const canApprove = Just.hasInstance(state.stx)
+    const canSend =
+      Just.hasInstance(state.stx)
+      && state.userApproval === true
 
     const esvisible =
         props.networkType === NETWORK_NAMES.ROPSTEN ||
@@ -286,6 +224,7 @@ class AcceptTransfer extends React.Component {
             "as.  But you can transfer to any address you like."
           }
           </P>
+
           <AddressInput
             className='mono mt-8'
             prop-size='lg'
@@ -339,7 +278,7 @@ class AcceptTransfer extends React.Component {
             handleSubmit={this.handleSubmit} />
 
           {
-            Maybe.Nothing.hasInstance(state.txError)
+            Nothing.hasInstance(state.txError)
               ? ''
               : <Warning className={'mt-8'}>
                   <H3 style={{marginTop: 0, paddingTop: 0}}>
@@ -350,6 +289,7 @@ class AcceptTransfer extends React.Component {
                   { state.txError.value }
               </Warning>
           }
+
         </Col>
       </Row>
     )
