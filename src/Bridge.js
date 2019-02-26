@@ -53,7 +53,7 @@ class Bridge extends React.Component {
       pointCursor: Maybe.Nothing(),
       pointCache: {},
       // txn
-      txnCursor: Maybe.Nothing()
+      txnHashCursor: Maybe.Nothing()
     }
 
     this.pushRoute = this.pushRoute.bind(this)
@@ -67,7 +67,7 @@ class Bridge extends React.Component {
     this.setUrbitWallet = this.setUrbitWallet.bind(this)
     this.setAuthMnemonic = this.setAuthMnemonic.bind(this)
     this.setPointCursor = this.setPointCursor.bind(this)
-    this.setTxnCursor = this.setTxnCursor.bind(this)
+    this.setTxnHashCursor = this.setTxnHashCursor.bind(this)
     this.addToPointCache = this.addToPointCache.bind(this)
   }
 
@@ -187,10 +187,8 @@ class Bridge extends React.Component {
     }))
   }
 
-  setTxnCursor(txn) {
-    this.setState({
-      txnCursor: txn
-    })
+  setTxnHashCursor(txnHashCursor) {
+    this.setState({ txnHashCursor })
   }
 
   render() {
@@ -204,7 +202,7 @@ class Bridge extends React.Component {
       authMnemonic,
       pointCursor,
       pointCache,
-      txnCursor,
+      txnHashCursor,
       web3,
       contracts
     } = this.state
@@ -253,8 +251,8 @@ class Bridge extends React.Component {
                 pointCursor={ pointCursor }
                 pointCache={ pointCache }
                 // txn
-                setTxnCursor={ this.setTxnCursor }
-                txnCursor={ txnCursor } />
+                setTxnHashCursor={ this.setTxnHashCursor }
+                txnHashCursor={ txnHashCursor } />
 
               <div className={'push'} />
 

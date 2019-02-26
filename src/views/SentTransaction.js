@@ -3,7 +3,6 @@ import { Row, Col, H1, H3, P, Warning, Anchor } from '../components/Base'
 import { Button } from '../components/Base'
 
 import { BRIDGE_ERROR, renderTxnError } from '../lib/error'
-
 import { NETWORK_NAMES } from '../lib/network'
 
 const Success = (props) => {
@@ -76,7 +75,7 @@ const Failure = (props) =>
     </Row>
 
 const SentTransaction = (props) => {
-  const { web3, txnCursor, networkType, popRoute } = props
+  const { web3, txnHashCursor, networkType, popRoute } = props
   const { setPointCursor, pointCursor } = props
 
   const w3 = web3.matchWith({
@@ -84,16 +83,16 @@ const SentTransaction = (props) => {
     Just: res => res.value
   })
 
-  const result = txnCursor.matchWith({
+  const result = txnHashCursor.matchWith({
     Nothing: _ => { throw BRIDGE_ERROR.MISSING_TXN },
     Just: res => res.value
   })
 
   const body = result.matchWith({
     Error: message => <Failure web3={ w3 } message={ message.value } />,
-    Ok: txn =>
+    Ok: hash =>
       <Success
-        hash={ txn.value.transactionHash }
+        hash={ hash.value }
         networkType={ networkType }
       />
   })

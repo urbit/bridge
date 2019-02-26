@@ -149,9 +149,12 @@ const sendSignedTransaction = (web3, stx) => {
 
   return new Promise((resolve, reject) => {
     web3.eth.sendSignedTransaction(serializedTx)
-      .on('receipt', txn =>
-        resolve(Just(Ok(txn)))
+      .on('transactionHash', hash =>
+        resolve(Just(Ok(hash)))
       )
+      .on('receipt', txn => {
+        resolve(Just(Ok(txn.transactionHash)))
+      })
       .on('error', err => {
         reject(Just(Error(err.message)))
       })

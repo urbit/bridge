@@ -161,13 +161,12 @@ class CancelTransfer extends React.Component {
     const { props, state } = this
     sendSignedTransaction(props.web3.value, state.stx)
       .then(sent => {
-        props.setTxnCursor(sent)
+        props.setTxnHashCursor(sent)
         props.popRoute()
         props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
       })
       .catch(err => {
-        // Note that value.value is due to wrapped Maybe.Just + Result.Error
-        this.setState({ txError: Maybe.Just(err.value.value) })
+        this.setState({ txError: err.map(val => val.merge()) })
       })
   }
 
