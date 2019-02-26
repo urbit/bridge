@@ -306,8 +306,8 @@ class SetKeys extends React.Component {
             ? <Warning>
                 <h3 className={'mb-2'}>{'Warning'}</h3>
                 {
-                  'Once these keys have been set, your Urbit is considered ' +
-                  "'Linked'.  This operation cannot be undone."
+                  'Once these keys have been set, your point is considered ' +
+                  "'linked'.  This operation cannot be undone."
                 }
               </Warning>
             : <div /> }

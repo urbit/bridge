@@ -162,8 +162,8 @@ class Points extends React.Component {
       ? <React.Fragment>
           <H2>{ 'You Are a Management Proxy For' }</H2>
           <P>
-          { `You can configure or set Urbit networking keys and conduct
-            sponsorship related operations for these points.` }
+          { `You can configure or set public keys and conduct sponsorship
+             related operations for these points.` }
           </P>
           <PointList
             setPointCursor={ setPointCursor }

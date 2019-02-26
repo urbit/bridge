@@ -242,7 +242,7 @@ class Point extends React.Component {
             {
               displayReminder
                 ? <P>{`Before you can issue child points or generate your Arvo
-                  keyfile, you need to set your Urbit networking keys.`}</P>
+                  keyfile, you need to set your public keys.`}</P>
                 : ''
             }
 
@@ -336,7 +336,7 @@ class Point extends React.Component {
                   pushRoute(ROUTE_NAMES.SET_KEYS)
                 }}
               >
-                { 'Set Urbit networking keys' }
+                { 'Set public keys' }
               </Button>
 
               </Col>

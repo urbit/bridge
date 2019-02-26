@@ -171,7 +171,7 @@ const UrbitNetworking = props => {
 
   return (
     <div>
-      <H2>{ 'Urbit Networking' }</H2>
+      <H2>{ 'Public Keys' }</H2>
 
       { body }
     </div>
