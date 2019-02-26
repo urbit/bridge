@@ -133,7 +133,7 @@ class CreateGalaxy extends React.Component {
     const { props, state } = this
     sendSignedTransaction(props.web3.value, state.stx)
       .then(sent => {
-        props.setTxnCursor(sent)
+        props.setTxnHashCursor(sent)
         props.popRoute()
         props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
       })
