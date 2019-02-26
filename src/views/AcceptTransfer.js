@@ -9,17 +9,8 @@ import StatelessTransaction from '../components/StatelessTransaction'
 import { BRIDGE_ERROR } from '../lib/error'
 import { NETWORK_NAMES } from '../lib/network'
 import { ROUTE_NAMES } from '../lib/router'
-
-import {
-  sendSignedTransaction,
-  fromWei,
- } from '../lib/txn'
-
-import {
-  isValidAddress,
-  addressFromSecp256k1Public,
-} from '../lib/wallet'
-
+import { sendSignedTransaction, fromWei } from '../lib/txn'
+import { isValidAddress, addressFromSecp256k1Public } from '../lib/wallet'
 
 class AcceptTransfer extends React.Component {
   constructor(props) {
@@ -51,8 +42,8 @@ class AcceptTransfer extends React.Component {
       gasLimit: '600000',
       stx: Nothing(),
     }
+
     this.handleAddressInput = this.handleAddressInput.bind(this)
-    // Transaction
     this.handleCreateUnsignedTxn = this.handleCreateUnsignedTxn.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleSetUserApproval = this.handleSetUserApproval.bind(this)
@@ -99,32 +90,24 @@ class AcceptTransfer extends React.Component {
     });
   }
 
-
-
   handleAddressInput(proxyAddress) {
     this.setState({ proxyAddress })
     this.handleClearTxn()
   }
-
 
   handleCreateUnsignedTxn() {
     const txn = this.createUnsignedTxn()
     this.setState({ txn })
   }
 
-
   handleSetUserApproval(){
     const {state} = this
     this.setState({ userApproval: !state.userApproval })
   }
 
-
-
   handleSetTxn(txn){
     this.setState({ txn })
   }
-
-
 
   handleSetStx(stx){
     this.setState({
@@ -133,35 +116,25 @@ class AcceptTransfer extends React.Component {
     })
   }
 
-
-
   handleSetNonce(nonce){
     this.setState({ nonce })
     this.handleClearStx()
   }
-
-
 
   handleSetChainId(chainId){
     this.setState({ chainId })
     this.handleClearStx()
   }
 
-
-
   handleSetGasPrice(gasPrice){
     this.setState({ gasPrice })
     this.handleClearStx()
   }
 
-
-
   handleSetGasLimit(gasLimit){
     this.setState({ gasLimit })
     this.handleClearStx()
   }
-
-
 
   handleClearStx() {
     this.setState({
@@ -170,8 +143,6 @@ class AcceptTransfer extends React.Component {
     })
   }
 
-
-
   handleClearTxn() {
     this.setState({
       userApproval: false,
@@ -179,18 +150,6 @@ class AcceptTransfer extends React.Component {
       stx: Nothing(),
     })
   }
-
-
-
-  handleClearTransaction() {
-    this.setState({
-      userApproval: false,
-      txn: Nothing(),
-      stx: Nothing(),
-    })
-  }
-
-
 
   handleSubmit() {
     const { props, state } = this
@@ -265,6 +224,7 @@ class AcceptTransfer extends React.Component {
             "as.  But you can transfer to any address you like."
           }
           </P>
+
           <AddressInput
             className='mono mt-8'
             prop-size='lg'
@@ -329,6 +289,7 @@ class AcceptTransfer extends React.Component {
                   { state.txError.value }
               </Warning>
           }
+
         </Col>
       </Row>
     )

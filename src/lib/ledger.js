@@ -11,8 +11,8 @@ const chopHdPrefix = str =>
 const ledgerSignTransaction = async (txn, hdpath) => {
   const transport = await Transport.create()
   const eth = new Eth(transport)
-  const path = chopHdPrefix(hdpath)
 
+  const path = chopHdPrefix(hdpath)
   const serializedTx = txn.serialize().toString('hex')
   const sig = await eth.signTransaction(path, serializedTx)
 

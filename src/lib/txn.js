@@ -1,6 +1,6 @@
 import * as ob from 'urbit-ob'
-import Maybe from 'folktale/maybe'
-import Result from 'folktale/result'
+import { Just } from 'folktale/maybe'
+import { Ok, Error } from 'folktale/result'
 import Tx from 'ethereumjs-tx'
 import Web3 from 'web3'
 
@@ -134,7 +134,7 @@ const signTransaction = async config => {
     stx.sign(sec)
   }
 
-  setStx(Maybe.Just(stx))
+  setStx(Just(stx))
 }
 
 const sendSignedTransaction = (web3, stx) => {
@@ -150,10 +150,10 @@ const sendSignedTransaction = (web3, stx) => {
   return new Promise((resolve, reject) => {
     web3.eth.sendSignedTransaction(serializedTx)
       .on('receipt', txn =>
-        resolve(Maybe.Just(Result.Ok(txn)))
+        resolve(Just(Ok(txn)))
       )
       .on('error', err => {
-        reject(Maybe.Just(Result.Error(err.message)))
+        reject(Just(Error(err.message)))
       })
   })
 }
