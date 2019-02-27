@@ -1,6 +1,6 @@
-import Maybe from 'folktale/maybe'
+import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
-import * as azimuth from 'azimuth-js'
+import { azimuth, ecliptic } from 'azimuth-js'
 import * as ob from 'urbit-ob'
 
 import { Row, Col, H1, H3, P, Anchor, Warning } from '../components/Base'
@@ -13,11 +13,7 @@ import { ROUTE_NAMES } from '../lib/router'
 import { NETWORK_NAMES } from '../lib/network'
 import { BRIDGE_ERROR } from '../lib/error'
 import { getSpawnCandidate } from '../lib/child'
-import {
-  canDecodePatp,
-  sendSignedTransaction,
-  fromWei,
- } from '../lib/txn'
+import { canDecodePatp, sendSignedTransaction, fromWei } from '../lib/txn'
 
 import {
   ETH_ZERO_ADDR,
@@ -29,7 +25,6 @@ import {
 class IssueChild extends React.Component {
   constructor(props) {
     super(props)
-
 
     const issuingPoint = props.pointCursor.matchWith({
       Just: (pt) => parseInt(pt.value, 10),
@@ -48,25 +43,24 @@ class IssueChild extends React.Component {
     ]
 
     this.state = {
-      txError: Maybe.Nothing(),
+      txError: Nothing(),
       receivingAddress: '',
       issuingPoint: issuingPoint,
       desiredPoint: '',
-      isAvailable: Maybe.Nothing(), // allow attempt when offline
+      isAvailable: Nothing(), // use Nothing to allow attempt when offline
       userApproval: false,
       nonce: '',
       gasPrice: '5',
       chainId: '',
       gasLimit: '600000',
-      txn: Maybe.Nothing(),
-      stx: Maybe.Nothing(),
+      txn: Nothing(),
+      stx: Nothing(),
       suggestions: suggestions,
     }
 
     this.handlePointInput = this.handlePointInput.bind(this)
     this.handleAddressInput = this.handleAddressInput.bind(this)
     this.handleConfirmAvailability = this.handleConfirmAvailability.bind(this)
-    // Transaction
     this.handleCreateUnsignedTxn = this.handleCreateUnsignedTxn.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleSetUserApproval = this.handleSetUserApproval.bind(this)
@@ -97,20 +91,20 @@ class IssueChild extends React.Component {
           validWeb3.eth.getTransactionCount(addr),
           validWeb3.eth.net.getId(),
           validWeb3.eth.getGasPrice()
-        ];
+        ]
 
         Promise.all(getTxMetadata).then(r => {
           const txMetadata = {
             nonce: r[0],
             chainId: r[1],
             gasPrice: fromWei(r[2], 'gwei'),
-          };
+          }
 
           this.setState({...txMetadata})
 
         })
       }
-    });
+    })
 
   }
 
@@ -127,7 +121,7 @@ class IssueChild extends React.Component {
     if (desiredPoint.length < 15) {
       this.setState({
         desiredPoint,
-        isAvailable: Maybe.Nothing()
+        isAvailable: Nothing()
       })
       this.handleClearTxn()
     }
@@ -205,7 +199,7 @@ class IssueChild extends React.Component {
   handleClearStx() {
     this.setState({
       userApproval: false,
-      stx: Maybe.Nothing(),
+      stx: Nothing(),
     })
   }
 
@@ -214,8 +208,8 @@ class IssueChild extends React.Component {
   handleClearTxn() {
     this.setState({
       userApproval: false,
-      txn: Maybe.Nothing(),
-      stx: Maybe.Nothing(),
+      txn: Nothing(),
+      stx: Nothing(),
     })
   }
 
@@ -224,8 +218,8 @@ class IssueChild extends React.Component {
   handleClearTransaction() {
     this.setState({
       userApproval: false,
-      txn: Maybe.Nothing(),
-      stx: Maybe.Nothing(),
+      txn: Nothing(),
+      stx: Nothing(),
     })
   }
 
@@ -244,46 +238,48 @@ class IssueChild extends React.Component {
       })
   }
 
-
-
   async confirmPointAvailability() {
-    const { state, props } = this
+    const { contracts } = this.props
+    const { desiredPoint } = this.state
 
-    if (canDecodePatp(state.desiredPoint) === false) return Maybe.Just(false)
-
-    const validContracts = props.contracts.matchWith({
-      Just: (cs) => cs.value,
-      Nothing: () => {
+    const validContracts = contracts.matchWith({
+      Just: cs => cs.value,
+      Nothing: _ => {
         throw BRIDGE_ERROR.MISSING_CONTRACTS
       }
     })
 
-    const pointDec = ob.patp2dec(state.desiredPoint)
+    if (canDecodePatp(desiredPoint) === false) {
+      return Just(false)
+    }
 
-    // This check prevents galaxies from creating planets, bc right now it results in a failed tx
-    // The intention is for the Azimuth contract to allow this in the future someday soon
-    // This size check will need to be removed at that time
-    const prefixSize = azimuth.azimuth.getPointSize(azimuth.azimuth.getPrefix(pointDec))
-    if (prefixSize + 1 !== azimuth.azimuth.getPointSize(pointDec)) return Maybe.Just(false)
+    const point = ob.patp2dec(desiredPoint)
+    const pointSize = azimuth.getPointSize(point)
 
-    const owner = await azimuth.azimuth.getOwner(
-      validContracts,
-      pointDec
-    )
+    const prefix = azimuth.getPrefix(point)
+    const prefixSize = azimuth.getPointSize(prefix)
 
-    if (eqAddr(owner, ETH_ZERO_ADDR)) return Maybe.Just(true)
+    // NB (jtobin): this prevents galaxies from attempting to spawn planets
+    //
+    if (pointSize !== prefixSize + 1) {
+      return Just(false)
+    }
 
-    return Maybe.Just(false)
+    const owner = await azimuth.getOwner(validContracts, point)
+
+    if (eqAddr(owner, ETH_ZERO_ADDR)) {
+      return Just(true)
+    }
+
+    return Just(false)
   }
-
-
 
   createUnsignedTxn() {
     const { state, props } = this
 
-    if (isValidAddress(state.receivingAddress) === false) return Maybe.Nothing()
-    if (state.isAvailable === false) return Maybe.Nothing()
-    if (canDecodePatp(state.desiredPoint) === false) return Maybe.Nothing()
+    if (isValidAddress(state.receivingAddress) === false) return Nothing()
+    if (state.isAvailable === false) return Nothing()
+    if (canDecodePatp(state.desiredPoint) === false) return Nothing()
 
     const validContracts = props.contracts.matchWith({
       Just: (cs) => cs.value,
@@ -294,20 +290,20 @@ class IssueChild extends React.Component {
 
     const pointDec = ob.patp2dec(state.desiredPoint)
 
-    const txn = azimuth.ecliptic.spawn(
+    const txn = ecliptic.spawn(
       validContracts,
       pointDec,
       state.receivingAddress
     )
 
-    return Maybe.Just(txn)
+    return Just(txn)
   }
 
 
 
   buttonTriState() {
     const a = this.state.isAvailable
-    if (Maybe.Nothing.hasInstance(a)) return 'blue'
+    if (Nothing.hasInstance(a)) return 'blue'
     if (a.value === false) return 'yellow'
     if (a.value === true) return 'green'
   }
@@ -316,7 +312,7 @@ class IssueChild extends React.Component {
 
   buttonTriStateText() {
     const a = this.state.isAvailable
-    if (Maybe.Nothing.hasInstance(a)) return 'Confirm Availablility'
+    if (Nothing.hasInstance(a)) return 'Confirm Availablility'
     if (a.value === false) return 'Point is Not Available'
     if (a.value === true) return 'Available'
   }
@@ -358,9 +354,11 @@ class IssueChild extends React.Component {
       }
     })
 
-    const canSign = !Maybe.Nothing.hasInstance(state.txn)
-    const canApprove = !Maybe.Nothing.hasInstance(state.stx)
-    const canSend = !Maybe.Nothing.hasInstance(state.stx) && state.userApproval === true
+    const canSign = Just.hasInstance(state.txn)
+    const canApprove = Just.hasInstance(state.stx)
+    const canSend =
+         Just.hasInstance(state.stx)
+      && state.userApproval === true
 
     const esvisible =
         props.networkType === NETWORK_NAMES.ROPSTEN ||
@@ -500,7 +498,7 @@ class IssueChild extends React.Component {
             handleSubmit={this.handleSubmit} />
 
           {
-            Maybe.Nothing.hasInstance(state.txError)
+            Nothing.hasInstance(state.txError)
               ? ''
               : <Warning className={'mt-8'}>
                   <H3 style={{marginTop: 0, paddingTop: 0}}>
