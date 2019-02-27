@@ -260,6 +260,12 @@ class IssueChild extends React.Component {
 
     const pointDec = ob.patp2dec(state.desiredPoint)
 
+    // This check prevents galaxies from creating planets, bc right now it results in a failed tx
+    // The intention is for the Azimuth contract to allow this in the future someday soon
+    // This size check will need to be removed at that time
+    const prefixSize = azimuth.azimuth.getPointSize(azimuth.azimuth.getPrefix(pointDec))
+    if (prefixSize + 1 !== azimuth.azimuth.getPointSize(pointDec)) return Maybe.Just(false)
+
     const owner = await azimuth.azimuth.getOwner(
       validContracts,
       pointDec
