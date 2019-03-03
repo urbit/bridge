@@ -59,7 +59,7 @@ const ROUTES = [
 
 const TOTAL_STEPS = 7;
 
-class App extends React.Component {
+class Walletgen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -147,4 +147,4 @@ class App extends React.Component {
   };
 };
 
-export default App
+export default Walletgen
