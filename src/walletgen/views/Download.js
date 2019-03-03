@@ -9,12 +9,6 @@ import CheckBox from '../components/CheckBox'
 const NEXT_STEP_NUM = 7;
 
 class Download extends React.Component {
-
-  constructor(props) {
-    super(props)
-    // this.handleSave = this.handleSave.bind(this)
-  }
-
   handleSave = (event) => {
     const { props } = this
 
@@ -84,7 +78,6 @@ class Download extends React.Component {
 
     const { props } = this
 
-    const wallets = props['wallets.value']
     const downloaded = props['downloaded']
     const didClickDownload = props['didClickDownload']
 

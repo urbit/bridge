@@ -6,8 +6,6 @@ import Footer from './components/Footer'
 
 import { NETWORK_STATES, PROFILE_STATES, GEN_STATES } from './lib/constants'
 
-import BrowserWarning from './views/BrowserWarning'
-import NetworkWarning from './views/NetworkWarning'
 import PrivacyPolicy from './views/PrivacyPolicy'
 import Welcome from './views/Welcome'
 import Eula from './views/Eula'
@@ -117,7 +115,7 @@ class Walletgen extends React.Component {
 
 
   render() {
-    const { network, route, currentStep, stepCount, lastRoute } = this.state;
+    const { network, route, currentStep, lastRoute } = this.state;
 
     const routed = this.router(network, route)           // hacky prod
     // const routed = this.router(NETWORK_STATES.OFFLINE, true, route) // hacky dev

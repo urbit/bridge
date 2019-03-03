@@ -3,9 +3,6 @@ import React from 'react'
 import EulaText from '../components/EulaText'
 import Button from '../components/Button'
 
-const NEXT_STEP_NUM = 2
-
-
 class EulaView extends React.Component {
   render() {
     let { setGlobalState, lastRoute } = this.props;

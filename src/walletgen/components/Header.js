@@ -1,5 +1,4 @@
 import React from 'react'
-import { map } from 'lodash'
 import { seq } from '../lib/lib'
 
 import { NETWORK_STATES } from '../lib/constants'

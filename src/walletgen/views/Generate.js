@@ -292,7 +292,7 @@ class Generate extends React.Component {
       throw new Error('no ship information provided')
     } else {
       let throwawayEntry = enyTable[0]
-      // eslint-disable-next-lines
+      // eslint-disable-next-line
       let throwaway = await genWallet(throwawayEntry.ship, throwawayEntry.ticket, () => {})
     };
   }
@@ -380,8 +380,8 @@ class Generate extends React.Component {
     };
 
     const getGenButtonText = () => {
-      const N = props['wallets.genCounter'] + 1;
-      const X = props['eny.value'].length;
+      // const N = props['wallets.genCounter'] + 1;
+      // const X = props['eny.value'].length;
       let r = '';
       if (NONE_START === true) r = 'Generate All';
       if (es === ENY_PENDING) r = 'Generating Entropy';

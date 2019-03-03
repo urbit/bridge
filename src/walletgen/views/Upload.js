@@ -1,11 +1,6 @@
 import React, { Component } from 'react'
-import * as lodash from 'lodash'
-import * as sigil from 'sigil-js'
-import ob from 'urbit-ob'
 
 import Button from '../components/Button'
-import InputBox from '../components/InputBox'
-import ReactSVGComponents from '../components/ReactSVGComponents'
 import UploadButton from '../components/UploadButton'
 
 import { compose } from '../lib/lib'
@@ -80,50 +75,49 @@ const validateObject = ({ data, pass, error }) => {
   return { data: data, pass: didPass, error: err }
 }
 
-
-const preview = ship => {
-  const name = ob.patp(ship)
-  const sig = sigil.pour({
-    patp: name,
-    colorway: ['black', 'white'],
-    renderer: ReactSVGComponents,
-    size: 64
-  })
-
-  return (
-    <div className={'col-md-8'}>
-      <div className={'flex items-center bg-white black'} key={ ship }>
-        <div className={'col-md-5 pt-2 pl-5'}>
-          { sig }
-        </div>
-        <div className={'col-md-5'}>
-          <h4 className={'text-mono text-500 mb-0'}>
-            { name }
-          </h4>
-        </div>
-      </div>
-    </div>
+// const preview = ship => {
+//   const name = ob.patp(ship)
+//   const sig = sigil.pour({
+//     patp: name,
+//     colorway: ['black', 'white'],
+//     renderer: ReactSVGComponents,
+//     size: 64
+//   })
+//
+//   return (
+//     <div className={'col-md-8'}>
+//       <div className={'flex items-center bg-white black'} key={ ship }>
+//         <div className={'col-md-5 pt-2 pl-5'}>
+//           { sig }
+//         </div>
+//         <div className={'col-md-5'}>
+//           <h4 className={'text-mono text-500 mb-0'}>
+//             { name }
+//           </h4>
+//         </div>
+//       </div>
+//     </div>
     // <div className={'flex h-16 w-60 bg-white black items-center'} key={ ship }>
     //   { sig }
     //   <div className={'pl-4 text-mono text-500'}>
     //     { name }
     //   </div>
     // </div>
-  )
-}
+//   )
+// }
 
-const shipList = profile => {
-  const ships = Object.keys(profile)
-  return(
-    <div>
-      <h2>Total Ships: { ships.length }</h2>
-
-      <div className={''}>
-        { ships.map(preview) }
-      </div>
-    </div>
-  )
-}
+// const shipList = profile => {
+//   const ships = Object.keys(profile)
+//   return(
+//     <div>
+//       <h2>Total Ships: { ships.length }</h2>
+//
+//       <div className={''}>
+//         { ships.map(preview) }
+//       </div>
+//     </div>
+//   )
+// }
 
 class Upload extends Component {
   constructor(props) {
@@ -242,17 +236,17 @@ class Upload extends Component {
   }
 }
 
-const ShipList = (ships, title) => {
-  if (ships.length > 0) {
-    return (
-      <div>
-        <h2>{ title }</h2>
-        { ships.map(ship => preview(ship)) }
-      </div>
-    )
-  } else {
-    return <div />
-  }
-}
+// const ShipList = (ships, title) => {
+//   if (ships.length > 0) {
+//     return (
+//       <div>
+//         <h2>{ title }</h2>
+//         { ships.map(ship => preview(ship)) }
+//       </div>
+//     )
+//   } else {
+//     return <div />
+//   }
+// }
 
 export default Upload

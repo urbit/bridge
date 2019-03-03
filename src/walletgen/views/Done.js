@@ -1,17 +1,7 @@
 import React from 'react'
 
-import Button from '../components/Button'
-import CheckBox from '../components/CheckBox'
-
 class Done extends React.Component {
   render() {
-
-    const { setGlobalState, understand } = this.props
-
-    const nextButtonClass = understand
-      ? 'btn btn-primary'
-      : 'btn shape-gray-10'
-
     return(
       <div className={'col-md-7'}>
 
