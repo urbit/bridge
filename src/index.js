@@ -4,6 +4,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import Bridge from './Bridge'
+import App from './walletgen/App'
 
 import './style/index.css'
 
