@@ -211,8 +211,8 @@ class Bridge extends React.Component {
 
     return (
       <Container>
-      <Row>
-        <Col className='col-md-1' />
+        <Row>
+          <Col className='col-md-1' />
           <Col className='col-md-10' style={{maxWidth: '620px'}}>
             <Header
               routeCrumbs={ routeCrumbs }

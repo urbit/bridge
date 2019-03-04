@@ -102,7 +102,7 @@ class Mnemonic extends React.Component {
             </InputCaption>
 
             <Input
-              className='pt-8'
+              className='pt-8 text-mono'
               prop-size='md'
               prop-format='innerLabel'
               name='hdpath'
