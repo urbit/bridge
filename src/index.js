@@ -6,8 +6,6 @@ import ReactDOM from 'react-dom'
 import Bridge from './Bridge'
 // import Walletgen from './walletgen/Walletgen'
 
-import './style/index.css'
-
 ReactDOM.render(
   // <Walletgen />,
   <Bridge />,
