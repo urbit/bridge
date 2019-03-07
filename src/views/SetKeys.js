@@ -292,7 +292,7 @@ class SetKeys extends React.Component {
           {
             `Please enter a network seed for generating and setting your public
              network authentication and encryption keys.  Your network seed
-             must be a 32-byte-long hexadecimal string.`
+             must be a string of 64 characters (containing 0-9, A-Z, a-z).`
           }
           </P>
           <P>

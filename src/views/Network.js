@@ -127,8 +127,8 @@ class Network extends React.Component {
           <P>
           {
             "Please select the Ethereum node you'd like to send " +
-            "transactions to.  If you don't know, the default should be " +
-            "fine.  For sensitive transactions, please select offline mode."
+            "transactions to.  For sensitive transactions, please select " +
+            "offline mode."
           }
           </P>
 
