@@ -1,5 +1,7 @@
 import * as ob from 'urbit-ob'
 
+import React from 'react';
+
 import AcceptTransfer from '../views/AcceptTransfer'
 import CancelTransfer from '../views/CancelTransfer'
 import CreateGalaxy from '../views/CreateGalaxy'
@@ -105,8 +107,8 @@ const renderRoute = (props, route) => {
         Nothing: () => 'Wallet',
         Just: (wal) =>
             wal.value instanceof EthereumWallet
-          ? wal.value.address
-          : addressFromSecp256k1Public(wal.value.publicKey)
+          ? (<span className="text-mono">{wal.value.address}</span>)
+          : (<span className="text-mono">{addressFromSecp256k1Public(wal.value.publicKey)}</span>)
       })
 
     : route === ROUTE_NAMES.MNEMONIC
