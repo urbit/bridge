@@ -111,7 +111,7 @@ class Ticket extends React.Component {
             className='mono mt-8'
             prop-size='lg'
             prop-format='innerLabel'
-            type='text'
+            type='password'
             name='ticket'
             placeholder={ `e.g. ${phTick}` }
             value={ ticket }
