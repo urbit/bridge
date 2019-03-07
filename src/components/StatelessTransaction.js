@@ -15,6 +15,11 @@ const StatelessTransaction = props => {
   const { setUserApproval, userApproval } = props
   const { canSend, handleSubmit } = props
 
+  const sendTxn = (e) => {
+    e.target.setAttribute("disabled", true);
+    handleSubmit()
+  }
+
   const generateButtonColor =
       Nothing.hasInstance(txn)
     ? 'blue'
@@ -150,7 +155,7 @@ const StatelessTransaction = props => {
       prop-size={ 'xl wide' }
       className={ 'mt-8' }
       disabled={ !canSend }
-      onClick={ handleSubmit }
+      onClick={ sendTxn }
     >
       { 'Send Transaction' }
     </Button>
