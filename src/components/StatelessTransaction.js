@@ -15,8 +15,13 @@ const StatelessTransaction = props => {
   const { setUserApproval, userApproval } = props
   const { canSend, handleSubmit } = props
 
+  // setState doesn't seem to work in SetProxy/handleSubmit, so just
+  // modifying the DOM manually here. (https://imgur.com/a/i0Qsyq1)
+
   const sendTxn = (e) => {
     e.target.setAttribute("disabled", true);
+    let spinner = e.target.querySelectorAll('.btn-spinner')[0];
+    spinner.classList.remove('hide');
     handleSubmit()
   }
 
@@ -157,7 +162,10 @@ const StatelessTransaction = props => {
       disabled={ !canSend }
       onClick={ sendTxn }
     >
-      { 'Send Transaction' }
+      <span className="relative">
+        <span className="btn-spinner hide"></span>
+        { 'Send Transaction' }
+      </span>
     </Button>
 
   const sendDialogue = web3.matchWith({
