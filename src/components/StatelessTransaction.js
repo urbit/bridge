@@ -65,7 +65,7 @@ const StatelessTransaction = props => {
 
   const gasPriceRangeDialogue = (
     <React.Fragment>
-      <div className="mt-8">Gas Price: <span className="ml-4 text-700 text-sm">{gasPrice} gwei</span></div>
+      <div className="mt-8">Gas Price: <span className="ml-4 text-700 text-sm">{(gasPrice / 1000000000).toFixed('9')} eth</span></div>
 
       <input
         className="mt-4"
