@@ -25,7 +25,8 @@ class Ticket extends React.Component {
 
     this.state = {
       ticket: '',
-      pointName: ''
+      pointName: '',
+      isUnlocking: false
     }
 
     this.pointPlaceholder = placeholder(4)
@@ -53,6 +54,11 @@ class Ticket extends React.Component {
 
   async walletFromTicket(ticket, pointName) {
     const { setWallet, setUrbitWallet } = this.props
+
+    this.setState({
+      isUnlocking: true
+    });
+
     const urbitWallet = await kg.generateWallet({
       ticket: ticket,
       ship: ob.patp2dec(pointName)
@@ -61,6 +67,10 @@ class Ticket extends React.Component {
     const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH)
     setWallet(wallet)
     setUrbitWallet(Maybe.Just(urbitWallet))
+
+    this.setState({
+      isUnlocking: false
+    });
   }
 
   render() {
@@ -99,9 +109,9 @@ class Ticket extends React.Component {
 
           <TicketInput
             className='mono mt-8'
-            prop-size='md'
+            prop-size='lg'
             prop-format='innerLabel'
-            type='text'
+            type='password'
             name='ticket'
             placeholder={ `e.g. ${phTick}` }
             value={ ticket }
@@ -112,9 +122,16 @@ class Ticket extends React.Component {
           <Button
             className={'mt-8'}
             prop-size={'lg wide'}
+            disabled={this.state.isUnlocking || !Maybe.Nothing.hasInstance(wallet)}
             // prop-color={this.buttonTriState(wallet)}
             onClick={() => this.walletFromTicket(ticket, pointName)}>
-            {'Unlock Wallet →'}
+
+            <span className="relative">
+              {this.state.isUnlocking &&
+                <span className="btn-spinner"></span>
+              }
+              {'Unlock Wallet →'}
+            </span>
           </Button>
 
           <Button

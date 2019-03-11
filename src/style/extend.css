@@ -439,3 +439,30 @@ code {
 .pointer:hover {
   cursor: pointer;
 }
+
+.hide {
+  display: none !important;
+}
+
+.btn-spinner {
+  position: absolute;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  left: -35px;
+}
+
+.btn-spinner::after {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  bottom: 0;
+  content: "◠";
+  animation: spin linear 1s infinite;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }

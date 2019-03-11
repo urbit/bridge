@@ -23,7 +23,7 @@ const Crumbs = (props) => {
             prop-size={'sm'}
             key={ `history-button-${idx}` }
             onClick={ () => skipRoute(history.size - idx - 1) }>
-            { `${renderRoute(props, route)}` }
+            { renderRoute(props, route) }
           </Button>
 
           {
