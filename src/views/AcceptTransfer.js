@@ -269,7 +269,7 @@ class AcceptTransfer extends React.Component {
             chainId={state.chainId}
             gasLimit={state.gasLimit}
             showGasDetails={state.showGasDetails}
-            toggleGasDetails={state.toggleGasDetails}
+            toggleGasDetails={this.toggleGasDetails}
             // Checks
             userApproval={state.userApproval}
             canGenerate={ canGenerate }

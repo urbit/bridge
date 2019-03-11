@@ -487,7 +487,7 @@ class IssueChild extends React.Component {
             nonce={state.nonce}
             gasPrice={state.gasPrice}
             showGasDetails={state.showGasDetails}
-            toggleGasDetails={state.toggleGasDetails}
+            toggleGasDetails={this.toggleGasDetails}
             chainId={state.chainId}
             gasLimit={state.gasLimit}
             // Checks
