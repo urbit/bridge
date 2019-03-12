@@ -65,12 +65,12 @@ const StatelessTransaction = props => {
 
   const gasPriceRangeDialogue = (
     <React.Fragment>
-      <div className="mt-8">Gas Price: <span className="ml-4 text-700 text-sm">{(gasPrice / 1000000000).toFixed('9')} eth</span></div>
+      <div className="mt-8">Gas Price: <span className="ml-4 text-700 text-sm">{gasPrice} gwei</span></div>
 
       <input
         className="mt-4"
         type="range"
-        min="4"
+        min="2"
         max="20"
         list="gweiVals"
         value={gasPrice}
@@ -112,6 +112,12 @@ const StatelessTransaction = props => {
         { 'Gas Limit' }
       </InnerLabel>
     </Input>
+
+  const maxTxnPriceInEth = (
+    <div className="mt-8">
+      Max transaction price: <span className="text-700">{(gasPrice * gasLimit) / 1000000000} eth</span>
+    </div>
+  )
 
   const nonceDialogue =
     <Input
@@ -218,6 +224,7 @@ const StatelessTransaction = props => {
         <div>
           { gasPriceDialogue }
           { gasLimitDialogue }
+          { maxTxnPriceInEth }
         </div>
       }
       { onlineParamsDialogue }
