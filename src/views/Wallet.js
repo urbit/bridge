@@ -91,12 +91,6 @@ class Wallet extends React.Component {
 
             <DropdownItem
               onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.TREZOR)) }
-              disabled={
-                props.web3.matchWith({
-                  Nothing: () => true,
-                  Just: () => false
-                })
-              }
             >
               { 'Trezor' }
             </DropdownItem>
