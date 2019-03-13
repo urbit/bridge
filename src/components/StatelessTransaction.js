@@ -15,8 +15,10 @@ const StatelessTransaction = props => {
   const { setUserApproval, userApproval } = props
   const { canSend, handleSubmit } = props
 
-  // setState doesn't seem to work in SetProxy/handleSubmit, so just
-  // modifying the DOM manually here. (https://imgur.com/a/i0Qsyq1)
+  // TODO: Investigate
+  // setState doesn't seem to work in SetProxy/handleSubmit; 
+  //   - TypeError: Cannot read property 'updater' of undefined
+  // so just modifying the DOM manually here. (https://imgur.com/a/i0Qsyq1)
 
   const sendTxn = (e) => {
     e.target.setAttribute("disabled", true);
