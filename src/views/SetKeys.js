@@ -44,6 +44,7 @@ class SetKeys extends React.Component {
       continuity: false,
       txn: Maybe.Nothing(),
       txError: Maybe.Nothing(),
+      isManagementSeed: false,
       userApproval: false,
       nonce: '',
       gasPrice: '5',
@@ -65,7 +66,6 @@ class SetKeys extends React.Component {
     this.handleSetGasLimit = this.handleSetGasLimit.bind(this)
   }
 
-
   componentDidMount() {
     const { props } = this
 
@@ -77,6 +77,8 @@ class SetKeys extends React.Component {
         throw BRIDGE_ERROR.MISSING_WALLET
       }
     })
+
+    this.determineManagementSeed(props.contracts.value, addr)
 
     props.web3.matchWith({
       Nothing: () => {},
@@ -101,9 +103,16 @@ class SetKeys extends React.Component {
         })
       }
     });
-
   }
 
+  async determineManagementSeed(ctrcs, addr) {
+    const managing =
+      await azimuth.azimuth.getManagerFor(ctrcs, addr)
+
+    this.setState({
+      isManagementSeed: managing.length !== 0
+    })
+  }
 
   async deriveSeed() {
     const next = true
@@ -282,6 +291,16 @@ class SetKeys extends React.Component {
       ? props.pointCache[state.point]
       : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
 
+    const isManagementMnemonic =
+      this.state.isManagementSeed &&
+      props.walletType === WALLET_NAMES.MNEMONIC
+
+    const isMasterTicket =
+      props.walletType === WALLET_NAMES.TICKET ||
+      props.walletType === WALLET_NAMES.SHARD
+
+    const networkSeedDisabled = isManagementMnemonic || isMasterTicket;
+
     return (
       <Row>
         <Col>
@@ -318,7 +337,7 @@ class SetKeys extends React.Component {
             prop-size='lg'
             prop-format='innerLabel'
             autoFocus
-            disabled= { props.walletType === WALLET_NAMES.TICKET || props.walletType === WALLET_NAMES.SHARD}
+            disabled= { networkSeedDisabled }
             value={ state.networkSeed }
             onChange={ this.handleNetworkSeedInput }>
             <InnerLabel>{ 'Network seed' }</InnerLabel>
