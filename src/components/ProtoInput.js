@@ -18,6 +18,7 @@ const ProtoInput = props => {
       onFocus={e => props.onFocus(e)}
       onBlur={e => props.onBlur(e)}
       placeholder={props.placeholder}
+      disabled={props.disabled}
       type={props.type}
       name={props.name}
       style={props.style}

@@ -10,6 +10,8 @@ import { BRIDGE_ERROR } from '../lib/error'
 import { ROUTE_NAMES } from '../lib/router'
 import { attemptSeedDerivation } from '../lib/keys'
 
+import { WALLET_NAMES } from '../lib/wallet'
+
 import * as kg from '../../node_modules/urbit-key-generation/dist/index'
 
 import {
@@ -280,7 +282,6 @@ class SetKeys extends React.Component {
       ? props.pointCache[state.point]
       : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
 
-
     return (
       <Row>
         <Col>
@@ -317,6 +318,7 @@ class SetKeys extends React.Component {
             prop-size='lg'
             prop-format='innerLabel'
             autoFocus
+            disabled= { props.walletType === WALLET_NAMES.TICKET || props.walletType === WALLET_NAMES.SHARD}
             value={ state.networkSeed }
             onChange={ this.handleNetworkSeedInput }>
             <InnerLabel>{ 'Network seed' }</InnerLabel>
