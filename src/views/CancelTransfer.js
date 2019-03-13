@@ -209,9 +209,9 @@ class CancelTransfer extends React.Component {
     // const canGenerate = validAddress === true
 
     const canGenerate = true
-    const canSign = !Maybe.Nothing.hasInstance(state.txn)
-    const canApprove = !Maybe.Nothing.hasInstance(state.stx)
-    const canSend = !Maybe.Nothing.hasInstance(state.stx) && state.userApproval === true
+    const canSign = Maybe.Just.hasInstance(state.txn)
+    const canApprove = Maybe.Just.hasInstance(state.stx)
+    const canSend = Maybe.Just.hasInstance(state.stx) && state.userApproval === true
 
 
     return (

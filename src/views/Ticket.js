@@ -122,7 +122,7 @@ class Ticket extends React.Component {
           <Button
             className={'mt-8'}
             prop-size={'lg wide'}
-            disabled={this.state.isUnlocking || !Maybe.Nothing.hasInstance(wallet)}
+            disabled={this.state.isUnlocking || Maybe.Just.hasInstance(wallet)}
             // prop-color={this.buttonTriState(wallet)}
             onClick={() => this.walletFromTicket(ticket, pointName)}>
 

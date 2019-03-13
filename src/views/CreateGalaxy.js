@@ -273,8 +273,8 @@ class CreateGalaxy extends React.Component {
               validGalaxy === true &&
               state.isAvailable === true
             }
-            canSign={!Maybe.Nothing.hasInstance(state.txn)}
-            canSend={!Maybe.Nothing.hasInstance(state.stx)}
+            canSign={Maybe.Just.hasInstance(state.txn)}
+            canSend={Maybe.Just.hasInstance(state.stx)}
             // Methods
             createUnsignedTxn={() => this.createUnsignedTxn()}
             clearTransaction={() => this.clearTransaction()}
