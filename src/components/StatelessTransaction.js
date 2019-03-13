@@ -9,7 +9,7 @@ import { renderSignedTx, signTransaction } from '../lib/txn'
 
 const StatelessTransaction = props => {
   const { web3, gasPrice, gasLimit, nonce, chainId } = props
-  const { setNonce, setChainId, setGasLimit, setGasPrice } = props
+  const { setNonce, setChainId, setGasLimit, setGasPrice, showGasDetails, toggleGasDetails } = props
   const { txn, stx, createUnsignedTxn } = props
   const { canSign, canGenerate, canApprove } = props
   const { setUserApproval, userApproval } = props
@@ -19,6 +19,10 @@ const StatelessTransaction = props => {
   // setState doesn't seem to work in SetProxy/handleSubmit; 
   //   - TypeError: Cannot read property 'updater' of undefined
   // so just modifying the DOM manually here. (https://imgur.com/a/i0Qsyq1)
+
+  const handleRangeChange = (e) => {
+    setGasPrice(e.target.value);
+  }
 
   const sendTxn = (e) => {
     e.target.setAttribute("disabled", true);
@@ -60,6 +64,40 @@ const StatelessTransaction = props => {
         </Code>
       </React.Fragment>
   })
+
+  const gasPriceRangeDialogue = (
+    <React.Fragment>
+      <div className="mt-12 flex space-between align-baseline">
+        <div>
+          <span>Gas Price:</span>
+          <span className="ml-4 text-700 text-sm">{gasPrice} gwei</span>
+        </div>
+        <div className="text-sm">
+          <span>Max transaction fee: </span>
+          <span className="text-700">{(gasPrice * gasLimit) / 1000000000} eth</span>
+        </div>
+      </div>
+
+      <input
+        className="mt-4"
+        type="range"
+        min="2"
+        max="20"
+        list="gweiVals"
+        value={gasPrice}
+        onChange={handleRangeChange}
+        />
+
+      <div className="flex space-between text-sm mb-8">
+        <div>Cheap</div>
+        <div>Fast</div>
+      </div>
+    </React.Fragment>
+  )
+
+  const toggleGasDetailsDialogue = (
+    <a href="javascript:void(0)" onClick={toggleGasDetails}>Gas Details</a>
+  )
 
   const gasPriceDialogue =
     <Input
@@ -184,8 +222,15 @@ const StatelessTransaction = props => {
       { generateTxnButton }
       { unsignedTxnDisplay }
 
-      { gasPriceDialogue }
-      { gasLimitDialogue }
+      { gasPriceRangeDialogue }
+      { toggleGasDetailsDialogue }
+
+      { showGasDetails &&
+        <div>
+          { gasPriceDialogue }
+          { gasLimitDialogue }
+        </div>
+      }
       { onlineParamsDialogue }
 
       { signTxnButton }
