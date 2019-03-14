@@ -82,7 +82,7 @@ class Bridge extends React.Component {
 
   // if (process.env.NODE_ENV === 'development') {
   //
-  //   const socket = 'ws://localhost:8545'
+  //   const socket = 'wss://localhost:8545'
   //   const provider = new Web3.providers.WebsocketProvider(socket)
   //   const web3 = new Web3(provider)
   //   const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.DEV)
