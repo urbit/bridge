@@ -113,7 +113,7 @@ class GenKeyfile extends React.Component {
           <P>
           {
             `Enter a network seed below for generating your key file.  Your
-             network seed must be a 32-byte-long hexadecimal string.`
+             network seed must be a string of 64 characters (containing 0-9, A-Z, a-z)`
           }
           </P>
           <P>

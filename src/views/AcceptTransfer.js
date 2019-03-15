@@ -38,6 +38,7 @@ class AcceptTransfer extends React.Component {
       userApproval: false,
       nonce: '',
       gasPrice: '5',
+      showGasDetails: false,
       chainId: '',
       gasLimit: '600000',
       stx: Nothing(),
@@ -53,6 +54,13 @@ class AcceptTransfer extends React.Component {
     this.handleSetChainId = this.handleSetChainId.bind(this)
     this.handleSetGasPrice = this.handleSetGasPrice.bind(this)
     this.handleSetGasLimit = this.handleSetGasLimit.bind(this)
+    this.toggleGasDetails = this.toggleGasDetails.bind(this)
+  }
+
+  toggleGasDetails() {
+    this.setState({
+      showGasDetails: !this.state.showGasDetails
+    })
   }
 
   componentDidMount() {
@@ -260,6 +268,8 @@ class AcceptTransfer extends React.Component {
             gasPrice={state.gasPrice}
             chainId={state.chainId}
             gasLimit={state.gasLimit}
+            showGasDetails={state.showGasDetails}
+            toggleGasDetails={this.toggleGasDetails}
             // Checks
             userApproval={state.userApproval}
             canGenerate={ canGenerate }

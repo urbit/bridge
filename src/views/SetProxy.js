@@ -58,6 +58,7 @@ class SetProxy extends React.Component {
       txn: Maybe.Nothing(),
       txError: Maybe.Nothing(),
       issuingPoint: issuingPoint,
+      showGasDetails: false,
       userApproval: false,
       nonce: '',
       gasPrice: '5',
@@ -77,6 +78,13 @@ class SetProxy extends React.Component {
     this.handleSetChainId = this.handleSetChainId.bind(this)
     this.handleSetGasPrice = this.handleSetGasPrice.bind(this)
     this.handleSetGasLimit = this.handleSetGasLimit.bind(this)
+    this.toggleGasDetails = this.toggleGasDetails.bind(this)
+  }
+
+  toggleGasDetails() {
+    this.setState({
+      showGasDetails: !this.state.showGasDetails
+    })
   }
 
   componentDidMount() {
@@ -271,9 +279,9 @@ class SetProxy extends React.Component {
 
     const canGenerate = validAddress === true
 
-    const canSign = !Maybe.Nothing.hasInstance(state.txn)
-    const canApprove = !Maybe.Nothing.hasInstance(state.stx)
-    const canSend = !Maybe.Nothing.hasInstance(state.stx) && state.userApproval === true
+    const canSign = Maybe.Just.hasInstance(state.txn)
+    const canApprove = Maybe.Just.hasInstance(state.stx)
+    const canSend = Maybe.Just.hasInstance(state.stx) && state.userApproval === true
 
     const esvisible =
         props.networkType === NETWORK_NAMES.ROPSTEN ||
@@ -339,6 +347,8 @@ class SetProxy extends React.Component {
             gasPrice={state.gasPrice}
             chainId={state.chainId}
             gasLimit={state.gasLimit}
+            showGasDetails={state.showGasDetails}
+            toggleGasDetails={this.toggleGasDetails}
             // Checks
             userApproval={state.userApproval}
             canGenerate={ canGenerate }

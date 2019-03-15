@@ -12,6 +12,8 @@ import { NETWORK_NAMES } from './lib/network'
 import { WALLET_NAMES, DEFAULT_HD_PATH } from './lib/wallet'
 import { BRIDGE_ERROR } from './lib/error'
 
+import './style/index.css'
+
 class Bridge extends React.Component {
 
   constructor(props) {
@@ -211,8 +213,8 @@ class Bridge extends React.Component {
 
     return (
       <Container>
-      <Row>
-        <Col className='col-md-1' />
+        <Row>
+          <Col className='col-md-1' />
           <Col className='col-md-10' style={{maxWidth: '620px'}}>
             <Header
               routeCrumbs={ routeCrumbs }

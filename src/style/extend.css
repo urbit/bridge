@@ -439,3 +439,19 @@ code {
 .pointer:hover {
   cursor: pointer;
 }
+
+.hide {
+  display: none !important;
+}
+
+.flex {
+  display: flex;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.align-baseline {
+  align-items: baseline;
+}

@@ -63,7 +63,7 @@ class Trezor extends React.Component {
             </P>
 
             <Input
-              className='pt-8'
+              className='pt-8 text-mono'
               prop-size='md'
               prop-format='innerLabel'
               name='hdpath'

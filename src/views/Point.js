@@ -296,17 +296,6 @@ class Point extends React.Component {
               <Col className={'flex flex-column items-start col-md-4'}>
 
               <Button
-                disabled={ online && !canSetTransferProxy }
-                prop-size={'sm'}
-                prop-type={'link'}
-                onClick={ () => {
-                  pushRoute(ROUTE_NAMES.SET_TRANSFER_PROXY)
-                }}
-              >
-                { 'Set transfer proxy' }
-              </Button>
-
-              <Button
                 disabled={ online && !canSetSpawnProxy }
                 prop-size={'sm'}
                 prop-type={'link'}
@@ -339,10 +328,6 @@ class Point extends React.Component {
                 { 'Set public keys' }
               </Button>
 
-              </Col>
-
-              <Col className={'flex flex-column items-start col-md-4'}>
-
               <Button
                 disabled={ online && !canTransfer }
                 prop-size={'sm'}
@@ -355,7 +340,6 @@ class Point extends React.Component {
               </Button>
 
               </Col>
-
               </Row>
 
 

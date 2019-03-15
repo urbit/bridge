@@ -51,6 +51,7 @@ class IssueChild extends React.Component {
       userApproval: false,
       nonce: '',
       gasPrice: '5',
+      showGasDetails: false,
       chainId: '',
       gasLimit: '600000',
       txn: Nothing(),
@@ -70,6 +71,13 @@ class IssueChild extends React.Component {
     this.handleSetChainId = this.handleSetChainId.bind(this)
     this.handleSetGasPrice = this.handleSetGasPrice.bind(this)
     this.handleSetGasLimit = this.handleSetGasLimit.bind(this)
+    this.toggleGasDetails = this.toggleGasDetails.bind(this)
+  }
+
+  toggleGasDetails() {
+    this.setState({
+      showGasDetails: !this.state.showGasDetails
+    })
   }
 
   componentDidMount() {
@@ -478,6 +486,8 @@ class IssueChild extends React.Component {
             // Tx details
             nonce={state.nonce}
             gasPrice={state.gasPrice}
+            showGasDetails={state.showGasDetails}
+            toggleGasDetails={this.toggleGasDetails}
             chainId={state.chainId}
             gasLimit={state.gasLimit}
             // Checks
