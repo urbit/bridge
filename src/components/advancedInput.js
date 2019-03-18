@@ -118,6 +118,7 @@ const advancedInput = ({
           didPass={ report.pass }
           value={props.value}
           className={ props.className }
+          disabled={ props.disabled }
           valClassname={valClassname}
           advanced={true} />
       )
@@ -147,7 +148,5 @@ const styleSelector = (pass, fail) => {
   if (pass === true) return 'br-green outline-green f-br-green';
   return 'br-gray-50 f-br-blue outline-blue'
 }
-
-
 
 export default advancedInput;
