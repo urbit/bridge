@@ -42,7 +42,7 @@
     "react-scripts": "^2.1.1",
     "secp256k1": "^3.5.2",
     "sigil-js": "github:urbit/sigil-js#f7f29c5",
-    "trezor-connect": "^6.0.3",
+    "trezor-connect": "^7.0.1",
     "urbit-key-generation": "0.12.1",
     "urbit-ob": "^3.1.0",
     "web3": "1.0.0-beta.33"
