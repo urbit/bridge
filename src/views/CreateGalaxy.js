@@ -64,6 +64,7 @@ class CreateGalaxy extends React.Component {
       txApproval: false,
       nonce: '',
       gasPrice: '5',
+      showGasDetails: false,
       chainId: '',
       txInfo: '',
       gasLimit: '600000',
@@ -75,6 +76,13 @@ class CreateGalaxy extends React.Component {
     this.handleGalaxyNameInput = this.handleGalaxyNameInput.bind(this)
     this.confirmAvailability = this.confirmAvailability.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.toggleGasDetails = this.toggleGasDetails.bind(this)
+  }
+
+  toggleGasDetails() {
+    this.setState({
+      showGasDetails: !this.state.showGasDetails
+    })
   }
 
   componentDidMount() {
@@ -266,6 +274,8 @@ class CreateGalaxy extends React.Component {
             stx={state.stx}
             nonce={state.nonce}
             gasPrice={state.gasPrice}
+            showGasDetails={state.showGasDetails}
+            toggleGasDetails={this.toggleGasDetails}
             chainId={state.chainId}
             gasLimit={state.gasLimit}
             canGenerate={
@@ -273,8 +283,8 @@ class CreateGalaxy extends React.Component {
               validGalaxy === true &&
               state.isAvailable === true
             }
-            canSign={!Maybe.Nothing.hasInstance(state.txn)}
-            canSend={!Maybe.Nothing.hasInstance(state.stx)}
+            canSign={Maybe.Just.hasInstance(state.txn)}
+            canSend={Maybe.Just.hasInstance(state.stx)}
             // Methods
             createUnsignedTxn={() => this.createUnsignedTxn()}
             clearTransaction={() => this.clearTransaction()}

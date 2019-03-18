@@ -15,6 +15,13 @@ input:-webkit-autofill {
     -webkit-animation-fill-mode: both;
 }
 
+input[prop-format*='innerLabel'] {
+  padding-top: 8rem;
+  height: 20rem;
+  padding-left: 4rem;
+  padding-right: 4rem;
+}
+
 input[prop-size='lg'] {
   height: 18rem;
   font-size: 5rem;
@@ -34,13 +41,6 @@ input[prop-size='sm'] {
   font-size: 4rem;
   padding-left: 1rem;
   padding-right: 1rem;
-}
-
-input[prop-format*='innerLabel'] {
-  padding-top: 8rem;
-  height: 20rem;
-  padding-left: 4rem;
-  padding-right: 4rem;
 }
 
 input[prop-format*='innerLabel'][prop-size='md'] {

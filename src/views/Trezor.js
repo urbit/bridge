@@ -31,6 +31,10 @@ class Trezor extends React.Component {
     const { setWallet, setWalletHdPath } = this.props
     const { hdpath } = this.state
 
+    TrezorConnect.manifest({
+      email: 'bridge-trezor@urbit.org',
+      appUrl: 'https://github.com/urbit/bridge'
+    });
     TrezorConnect.getPublicKey({ path: hdpath })
       .then(info => {
         if (info.success === true) {
@@ -63,7 +67,7 @@ class Trezor extends React.Component {
             </P>
 
             <Input
-              className='pt-8'
+              className='pt-8 text-mono'
               prop-size='md'
               prop-format='innerLabel'
               name='hdpath'

@@ -4,10 +4,10 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import Bridge from './Bridge'
-
-import './style/index.css'
+// import Walletgen from './walletgen/Walletgen'
 
 ReactDOM.render(
+  // <Walletgen />,
   <Bridge />,
   document.getElementById('root')
 )

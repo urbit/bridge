@@ -38,6 +38,7 @@ class CancelTransfer extends React.Component {
       userApproval: false,
       nonce: '',
       gasPrice: '5',
+      showGasDetails: false,
       chainId: '',
       gasLimit: '600000',
       stx: Maybe.Nothing(),
@@ -52,6 +53,13 @@ class CancelTransfer extends React.Component {
     this.handleSetChainId = this.handleSetChainId.bind(this)
     this.handleSetGasPrice = this.handleSetGasPrice.bind(this)
     this.handleSetGasLimit = this.handleSetGasLimit.bind(this)
+    this.toggleGasDetails = this.toggleGasDetails.bind(this)
+  }
+
+  toggleGasDetails() {
+    this.setState({
+      showGasDetails: !this.state.showGasDetails
+    })
   }
 
   componentDidMount() {
@@ -209,9 +217,9 @@ class CancelTransfer extends React.Component {
     // const canGenerate = validAddress === true
 
     const canGenerate = true
-    const canSign = !Maybe.Nothing.hasInstance(state.txn)
-    const canApprove = !Maybe.Nothing.hasInstance(state.stx)
-    const canSend = !Maybe.Nothing.hasInstance(state.stx) && state.userApproval === true
+    const canSign = Maybe.Just.hasInstance(state.txn)
+    const canApprove = Maybe.Just.hasInstance(state.stx)
+    const canSend = Maybe.Just.hasInstance(state.stx) && state.userApproval === true
 
 
     return (
@@ -242,6 +250,8 @@ class CancelTransfer extends React.Component {
               gasPrice={state.gasPrice}
               chainId={state.chainId}
               gasLimit={state.gasLimit}
+              showGasDetails={state.showGasDetails}
+              toggleGasDetails={this.toggleGasDetails}
               // Checks
               userApproval={state.userApproval}
               canGenerate={ canGenerate }

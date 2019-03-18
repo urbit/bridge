@@ -100,7 +100,7 @@ class Ledger extends React.Component {
             </ol>
 
             <Input
-              className='pt-8 mt-8'
+              className='pt-8 mt-8 text-mono'
               prop-size='md'
               prop-format='innerLabel'
               name='hdpath'
