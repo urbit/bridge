@@ -4,12 +4,12 @@ import { Row } from './Base'
 import RenderedPoint from './RenderedPoint'
 
 const PointList = props => {
-  const { setPointCursor, routeHandler, points } = props
+  const { setPointCursor, routeHandler, points, loading } = props
   const chunks = lodash.chunk(points, 3)
 
   return (
      points.length === 0
-      ? <p>{'No points to display'}</p>
+      ? <p>{loading ? 'Loading...' : 'No points to display' }</p>
       : lodash.map(chunks, (chunk, idx) =>
         <Row key={ `render-row-${idx}` }>
           {
@@ -23,8 +23,7 @@ const PointList = props => {
           }
         </Row>
       )
-    
-)
+  )
 }
 
 export default PointList
