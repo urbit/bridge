@@ -27,7 +27,8 @@ class Points extends React.Component {
       managing: [],
       voting: [],
       spawning: [],
-      eclipticOwner: false
+      eclipticOwner: false,
+      loading: true
     }
   }
 
@@ -66,7 +67,8 @@ class Points extends React.Component {
         managing,
         voting,
         spawning,
-        eclipticOwner
+        eclipticOwner,
+        loading: false
       })
 
       this.cachePoints(ctrcs, addToPointCache, points)
@@ -84,7 +86,7 @@ class Points extends React.Component {
     const { setPointCursor, pushRoute } = this.props
     const { pointCache } = this.props
 
-    const { points, incoming, managing, voting, spawning } = this.state
+    const { points, incoming, managing, voting, spawning, loading } = this.state
     const { eclipticOwner } = this.state
 
     const lookupPointButton =
@@ -227,6 +229,7 @@ class Points extends React.Component {
           setPointCursor={ setPointCursor }
           routeHandler={ pushRoute }
           points={ points }
+          loading={ loading }
         />
 
         { managingPoints }
