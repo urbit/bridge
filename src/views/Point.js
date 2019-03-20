@@ -98,10 +98,7 @@ class Point extends React.Component {
 
     const online = Maybe.Just.hasInstance(web3)
 
-    const authenticated = wallet.matchWith({
-      Just: _ => true,
-      Nothing: _ => false
-    })
+    const authenticated = Maybe.Just.hasInstance(wallet)
 
     const routeHandler = route => {
       popRoute()
