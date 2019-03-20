@@ -38,13 +38,14 @@ const Landing = (props) =>
             <Col>
               <Button
                 prop-type={'link'}
-                prop-size={'md'}
+                prop-size={'lg'}
+                className={'mb-4 mt-8'}
                 onClick={ () => props.pushRoute(ROUTE_NAMES.VIEW_SHIP) }
               >
                 { 'View a point  →' }
               </Button>
               <P>
-                { "View a point on Azimuth." }
+                { "View an Azimuth point without signing into a wallet." }
               </P>
             </Col>
           </Row>
