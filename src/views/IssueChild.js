@@ -442,7 +442,7 @@ class IssueChild extends React.Component {
             prop-format='innerLabel'
             placeholder={ `e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f` }
             value={ state.receivingAddress }
-            disabled={ !state.available }
+            disabled={ Nothing.hasInstance(state.isAvailable) || !state.isAvailable.value }
             onChange={ v => this.handleAddressInput(v) }>
             <InnerLabel>{ 'Receiving Address' }</InnerLabel>
             <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
