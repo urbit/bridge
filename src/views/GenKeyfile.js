@@ -107,6 +107,17 @@ class GenKeyfile extends React.Component {
         </Button>
       : ''
 
+    let networkSeedWarning
+
+    if (this.state.networkSeed === '') {
+      networkSeedWarning = (
+        <P>
+          <b>Warning: </b>
+          { "No network seed detected. To generate a keyfile, you must reset your networking keys." }
+        </P>
+      )
+    }
+
     return (
       <Row>
         <Col className={'col-md-8'}>
@@ -116,33 +127,12 @@ class GenKeyfile extends React.Component {
           { "Generate a private key file for booting this point in Arvo." }
           </P>
 
-          <P>
-          {
-            `Enter a network seed below for generating your key file.  Your
-             network seed must be a string of 64 characters (containing 0-9, A-Z, a-z)`
-          }
-          </P>
-          <P>
-          {
-             `If you've authenticated with either a master ticket or a
-             management proxy mnemonic, a seed will be generated for you
-             automatically.`
-          }
-          </P>
-
-          <RequiredInput
-            className='mono'
-            prop-size='lg'
-            prop-format='innerLabel'
-            autoFocus
-            value={ networkSeed }
-            onChange={ this.handleNetworkSeedInput }>
-            <InnerLabel>{ 'Network seed' }</InnerLabel>
-          </RequiredInput>
+          { networkSeedWarning }
 
           <Button
             className={'mt-8'}
             color={'blue'}
+            disabled={this.state.networkSeed === ''}
             onClick={
               () => {
                 if (hexRegExp.test(networkSeed)) {
@@ -155,9 +145,11 @@ class GenKeyfile extends React.Component {
             { 'Generate  →' }
           </Button>
 
-          <Code>
-            { keyfile }
-          </Code>
+          { keyfile !== '' &&
+            <Code className="pb-5">
+              { keyfile }
+            </Code>
+          }
 
           { warning }
 

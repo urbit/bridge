@@ -335,16 +335,6 @@ class SetKeys extends React.Component {
       ? props.pointCache[state.point]
       : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
 
-    const isManagementMnemonic =
-      this.state.isManagementSeed &&
-      props.walletType === WALLET_NAMES.MNEMONIC
-
-    const isMasterTicket =
-      props.walletType === WALLET_NAMES.TICKET ||
-      props.walletType === WALLET_NAMES.SHARD
-
-    const networkSeedDisabled = isManagementMnemonic || isMasterTicket;
-
     return (
       <Row>
         <Col>
@@ -352,9 +342,15 @@ class SetKeys extends React.Component {
             { 'Set Network Keys For ' } <code>{ `${ob.patp(state.point)}` }</code>
           </H1>
 
+          <P className="mt-10">
+          {
+            `Set new authentication and encryption keys for your Arvo ship.`
+          }
+          </P>
+
           <P>
           {
-            `Set new authentication and encryption keys for your Arvo ship. Once the transaction is sent, a keyfile will be downloaded, enabling you to instantiate your ship on the network.`
+            `Once the transaction is sent, a keyfile will be downloaded, enabling you to instantiate your ship on the network.`
           }
           </P>
 
@@ -367,17 +363,6 @@ class SetKeys extends React.Component {
                 }
               </Warning>
             : <div /> }
-
-          <RequiredInput
-            className='mono'
-            prop-size='lg'
-            prop-format='innerLabel'
-            autoFocus
-            disabled= { networkSeedDisabled }
-            value={ state.networkSeed }
-            onChange={ this.handleNetworkSeedInput }>
-            <InnerLabel>{ 'Network seed' }</InnerLabel>
-          </RequiredInput>
 
           <StatelessTransaction
             // Upper scope
