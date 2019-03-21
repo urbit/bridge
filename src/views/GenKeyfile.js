@@ -1,4 +1,5 @@
 import React from 'react'
+import Maybe from 'folktale/maybe'
 
 import { Button } from '../components/Base'
 import { RequiredInput, InnerLabel } from '../components/Base'
@@ -34,7 +35,12 @@ class GenKeyfile extends React.Component {
 
   async deriveSeed() {
     const next = false
-    const seed = await attemptSeedDerivation(next, this.props)
+    let seed = await attemptSeedDerivation(next, this.props)
+
+    if (seed.getOrElse('') === '' && this.props.networkSeedCache) {
+      seed = Maybe.Just(this.props.networkSeedCache)
+    }
+
     this.setState({
       networkSeed: seed.getOrElse('')
     })

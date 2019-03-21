@@ -10,6 +10,8 @@ import { BRIDGE_ERROR } from '../lib/error'
 import { ROUTE_NAMES } from '../lib/router'
 import { attemptSeedDerivation } from '../lib/keys'
 
+
+
 import { WALLET_NAMES } from '../lib/wallet'
 
 import * as kg from '../../node_modules/urbit-key-generation/dist/index'
@@ -122,21 +124,33 @@ class SetKeys extends React.Component {
     })
   }
 
+  randomHex(len) {
+    let hex = "";
+
+    for (var i = 0; i < len; i++) {
+      hex = hex + ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b',
+      'c', 'd', 'e', 'f'][Math.floor(Math.random() * 16)]
+    }
+
+    return hex;
+  }
+
   async deriveSeed() {
     const next = true
-    const seed = await attemptSeedDerivation(next, this.props)
+    let seed = await attemptSeedDerivation(next, this.props)
+
+    if (seed.getOrElse('') === '') {
+      seed = Maybe.Just(this.randomHex(64));
+    }
+
     this.setState({
       networkSeed: seed.getOrElse('')
     })
   }
 
-
-
   handleNetworkSeedInput(networkSeed) {
     this.setState({ networkSeed })
   }
-
-
 
   handleCreateUnsignedTxn() {
     const txn = this.createUnsignedTxn()
@@ -229,6 +243,7 @@ class SetKeys extends React.Component {
     sendSignedTransaction(props.web3.value, state.stx)
       .then(sent => {
         props.setTxnHashCursor(sent)
+        props.setNetworkSeedCache(this.state.networkSeed)
         props.popRoute()
         props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
       })

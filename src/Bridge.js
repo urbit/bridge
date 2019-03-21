@@ -12,6 +12,11 @@ import { NETWORK_NAMES } from './lib/network'
 import { WALLET_NAMES, DEFAULT_HD_PATH } from './lib/wallet'
 import { BRIDGE_ERROR } from './lib/error'
 
+// import Web3 from 'web3'
+// import * as azimuth from 'azimuth-js'
+// import { CONTRACT_ADDRESSES } from './lib/contracts'
+// import { walletFromMnemonic } from './lib/wallet'
+
 import './style/index.css'
 
 class Bridge extends React.Component {
@@ -51,6 +56,7 @@ class Bridge extends React.Component {
       // urbit wallet-related
       urbitWallet: Maybe.Nothing(),
       authMnemonic: Maybe.Nothing(),
+      networkSeedCache: null,
       // point
       pointCursor: Maybe.Nothing(),
       pointCache: {},
@@ -70,6 +76,7 @@ class Bridge extends React.Component {
     this.setAuthMnemonic = this.setAuthMnemonic.bind(this)
     this.setPointCursor = this.setPointCursor.bind(this)
     this.setTxnHashCursor = this.setTxnHashCursor.bind(this)
+    this.setNetworkSeedCache = this.setNetworkSeedCache.bind(this)
     this.addToPointCache = this.addToPointCache.bind(this)
   }
 
@@ -82,7 +89,7 @@ class Bridge extends React.Component {
 
   // if (process.env.NODE_ENV === 'development') {
   //
-  //   const socket = 'wss://localhost:8545'
+  //   const socket = 'ws://localhost:8545'
   //   const provider = new Web3.providers.WebsocketProvider(socket)
   //   const web3 = new Web3(provider)
   //   const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.DEV)
@@ -92,7 +99,8 @@ class Bridge extends React.Component {
   //
   //   this.setState({
   //     routeCrumbs: Stack([
-  //       ROUTE_NAMES.CREATE_GALAXY,
+  //       // ROUTE_NAMES.CREATE_GALAXY,
+  //       // ROUTE_NAMES.SHIP,
   //       ROUTE_NAMES.SHIPS,
   //       // ROUTE_NAMES.MNEMONIC,
   //       ROUTE_NAMES.WALLET,
@@ -100,12 +108,13 @@ class Bridge extends React.Component {
   //       ROUTE_NAMES.LANDING
   //     ]),
   //     networkType: NETWORK_NAMES.LOCAL,
+  //     pointCursor: Maybe.Just(0),
   //     web3: Maybe.Just(web3),
   //     contracts: Maybe.Just(contracts),
   //     walletType: WALLET_NAMES.MNEMONIC,
   //     wallet: walletFromMnemonic(mnemonic, hdpath),
   //     urbitWallet: Maybe.Nothing(),
-  //     authMnemonic: Maybe.Nothing()
+  //     authMnemonic: Maybe.Just('benefit crew supreme gesture quantum web media hazard theory mercy wing kitten')
   //   })
   // }
 }
@@ -144,6 +153,12 @@ class Bridge extends React.Component {
     } else {
       throw BRIDGE_ERROR.INVALID_NETWORK_TYPE
     }
+  }
+
+  setNetworkSeedCache(networkSeed) {
+    this.setState({
+      networkSeedCache: networkSeed
+    })
   }
 
   setNetwork(web3, contracts) {
@@ -202,6 +217,7 @@ class Bridge extends React.Component {
       wallet,
       urbitWallet,
       authMnemonic,
+      networkSeedCache,
       pointCursor,
       pointCache,
       txnHashCursor,
@@ -252,6 +268,8 @@ class Bridge extends React.Component {
                 addToPointCache={ this.addToPointCache }
                 pointCursor={ pointCursor }
                 pointCache={ pointCache }
+                networkSeedCache= { networkSeedCache }
+                setNetworkSeedCache= { this.setNetworkSeedCache }
                 // txn
                 setTxnHashCursor={ this.setTxnHashCursor }
                 txnHashCursor={ txnHashCursor } />
