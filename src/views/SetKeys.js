@@ -8,9 +8,9 @@ import { RequiredInput, InnerLabel } from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
 import { BRIDGE_ERROR } from '../lib/error'
 import { ROUTE_NAMES } from '../lib/router'
-import { attemptSeedDerivation } from '../lib/keys'
+import { attemptSeedDerivation, genKey  } from '../lib/keys'
 
-
+import saveAs from 'file-saver'
 
 import { WALLET_NAMES } from '../lib/wallet'
 
@@ -236,14 +236,35 @@ class SetKeys extends React.Component {
     })
   }
 
+  downloadKeyfile(networkSeed) {
+    const { pointCache } = this.props
+    const { pointCursor } = this.props
 
+    const point = pointCursor.matchWith({
+      Just: (pt) => pt.value,
+      Nothing: () => {
+        throw BRIDGE_ERROR.MISSING_POINT
+      }
+    })
+
+    const pointDetails =
+        point in pointCache
+      ? pointCache[point]
+      : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
+
+    const revision = parseInt(pointDetails.keyRevisionNumber)
+    const keyfile = genKey(networkSeed, point, revision)
+    let blob = new Blob([keyfile], {type:"text/plain;charset=utf-8"});
+    saveAs(blob, `${ob.patp(point).slice(1)}-${revision}.key`)
+  }
 
   handleSubmit(){
     const { props, state } = this
     sendSignedTransaction(props.web3.value, state.stx)
       .then(sent => {
-        props.setTxnHashCursor(sent)
         props.setNetworkSeedCache(this.state.networkSeed)
+        this.downloadKeyfile(this.state.networkSeed)
+        props.setTxnHashCursor(sent)
         props.popRoute()
         props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
       })
@@ -333,15 +354,7 @@ class SetKeys extends React.Component {
 
           <P>
           {
-            `Please enter a network seed for generating and setting your public
-             network authentication and encryption keys.  Your network seed
-             must be a string of 64 characters (containing 0-9, A-Z, a-z).`
-          }
-          </P>
-          <P>
-          {
-             `If you've authenticated with a master ticket or management proxy
-              mnemonic, a seed will be generated for you automatically.`
+            `Set new authentication and encryption keys for your Arvo ship. Once the transaction is sent, a keyfile will be downloaded, enabling you to instantiate your ship on the network.`
           }
           </P>
 
