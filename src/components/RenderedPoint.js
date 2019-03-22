@@ -20,10 +20,20 @@ const RenderedPoint = (props) => {
 
   return (
     <Col className={'col-md-3 mb-8'} key={ `rendered-${point}` }>
-      <div key={ `rendered-sigil-${point}` }>
+      <div key={ `rendered-sigil-${point}` }
+        className="clickable"
+        onClick={ () => {
+          setPointCursor(Maybe.Just(point))
+          routeHandler(ROUTE_NAMES.SHIP)
+        }}>
         { sigil }
       </div>
-      <div key={ `rendered-name-${point}` }>
+      <div key={ `rendered-name-${point}` }
+        className="clickable"
+        onClick={ () => {
+          setPointCursor(Maybe.Just(point))
+          routeHandler(ROUTE_NAMES.SHIP)
+        }}>
         <code>{ name }</code>
       </div>
       <div key={ `rendered-deets-${point}` }>
