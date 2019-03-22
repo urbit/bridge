@@ -1,9 +1,25 @@
 
 # Changelog
 
+- 1.2.1 (2019-03-21)
+    This release fixes an issue with the spawning of child points.
+
+    * Correctly enable the spawn recipient field based on child availability (#83)
+
+- 1.2.0 (2019-03-20)
+    This release fixes a number of issues, makes various improvements to the user interface, and prepares the Bridge codebase for future work.
+
+    * Ensure compatibility with latest Trezor firmware (#76)
+    * Don't wait for transactions to confirm before showing transaction hash (#62)
+    * Prevent galaxies from spawning planets, as per the contracts (#22)
+    * Remove set transfer proxy action (was redundant with transfer) (#69)
+    * Various smaller UX improvements (#66, #70, #72, #78)
+    * Various copy fixes (#39, #63)
+    * Various code fixes and cleanup (#61, #66, #77)
+
 - 1.1.0 (2019-02-01)
     This release adds more authentication options and fixes bugs:
-    
+
     * Add options for authenticating with private keys, keystore files
     * Fix Ledger EIP-155 issue
     * Styling and small bug fixes
