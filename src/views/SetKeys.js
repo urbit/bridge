@@ -263,7 +263,7 @@ class SetKeys extends React.Component {
     sendSignedTransaction(props.web3.value, state.stx)
       .then(sent => {
         props.setNetworkSeedCache(this.state.networkSeed)
-        this.downloadKeyfile(this.state.networkSeed)
+        // this.downloadKeyfile(this.state.networkSeed)
         props.setTxnHashCursor(sent)
         props.popRoute()
         props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
@@ -350,7 +350,7 @@ class SetKeys extends React.Component {
 
           <P>
           {
-            `Once the transaction is sent, a keyfile will be downloaded, enabling you to instantiate your ship on the network.`
+            `Once the transaction is sent, please generate your Arvo keyfile immediately.`
           }
           </P>
 
