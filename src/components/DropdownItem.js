@@ -12,7 +12,7 @@ const DropdownItem = props => {
     <button
       disabled={props.disabled}
       style={props.style}
-      className={`h-10 m-0 p-0 ph-2 bg-white flex items-start bs-solid brw-2 blw-2 btw-0 bbw-0 sans ${_disabled} ${props.className}`}
+      className={`h-10 m-0 p-0 ph-2 bg-white flex align-center items-start bs-solid brw-2 blw-2 btw-0 bbw-0 sans ${_disabled} ${props.className}`}
       onClick={props.onClick}>
       { props.children }
     </button>

@@ -455,3 +455,7 @@ code {
 .align-baseline {
   align-items: baseline;
 }
+
+.align-center {
+  align-items: center;
+}
