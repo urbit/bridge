@@ -104,6 +104,10 @@ Chrome by pasting the following into the URL bar:
 chrome://flags/#allow-insecure-localhost
 ```
 
+In Firefox, you may need to allow connecting to the unsecured local node
+websocket. Do this by going to `about:config` and setting the
+`network.websocket.allowInsecureFromHTTPS` flag to `true`.
+
 Additionally you need to run with the `HTTPS` environment variable set to
 `true`.  Note that `npm run pilot` will handle this automatically.
 
