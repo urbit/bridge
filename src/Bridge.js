@@ -76,6 +76,12 @@ class Bridge extends React.Component {
   }
 
   componentDidMount() {
+    window.history.pushState(null, null, null);
+
+    window.onpopstate = (e) => {
+      window.history.pushState(null, null, null);
+      this.popRoute();
+    }
 
   // NB (jtobin):
   //
@@ -275,7 +281,6 @@ class Bridge extends React.Component {
 
             <Footer />
           </Col>
-          <Col className='col-md-1' />
         </Row>
       </Container>
     )
