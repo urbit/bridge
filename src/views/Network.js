@@ -45,7 +45,7 @@ class Network extends React.Component {
     if (network === NETWORK_NAMES.LOCAL) {
       setNetworkType(network)
 
-      const endpoint = 'wss://localhost:8545'
+      const endpoint = 'ws://localhost:8545'
       const provider = new Web3.providers.WebsocketProvider(endpoint)
       const web3 = new Web3(provider)
       const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.DEV)
