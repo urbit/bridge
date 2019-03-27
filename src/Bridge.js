@@ -12,11 +12,6 @@ import { NETWORK_NAMES } from './lib/network'
 import { WALLET_NAMES, DEFAULT_HD_PATH } from './lib/wallet'
 import { BRIDGE_ERROR } from './lib/error'
 
-// import Web3 from 'web3'
-// import * as azimuth from 'azimuth-js'
-// import { CONTRACT_ADDRESSES } from './lib/contracts'
-// import { walletFromMnemonic } from './lib/wallet'
-
 import './style/index.css'
 
 class Bridge extends React.Component {
