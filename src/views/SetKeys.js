@@ -41,6 +41,7 @@ class SetKeys extends React.Component {
       auth: '',
       encr: '',
       networkSeed: '',
+      nondeterministicSeed: false,
       point: point,
       cryptoSuiteVersion: 1,
       continuity: false,
@@ -139,13 +140,16 @@ class SetKeys extends React.Component {
   async deriveSeed() {
     const next = true
     let seed = await attemptSeedDerivation(next, this.props)
+    let nondeterministicSeed = false;
 
     if (seed.getOrElse('') === '') {
       seed = Maybe.Just(this.randomHex(64));
+      nondeterministicSeed = true;
     }
 
     this.setState({
-      networkSeed: seed.getOrElse('')
+      networkSeed: seed.getOrElse(''),
+      nondeterministicSeed: nondeterministicSeed
     })
   }
 
@@ -264,7 +268,6 @@ class SetKeys extends React.Component {
     sendSignedTransaction(props.web3.value, state.stx)
       .then(sent => {
         props.setNetworkSeedCache(this.state.networkSeed)
-        // this.downloadKeyfile(this.state.networkSeed)
         props.setTxnHashCursor(sent)
         props.popRoute()
         props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
@@ -273,8 +276,6 @@ class SetKeys extends React.Component {
         this.setState({ txError: err.map(val => val.merge()) })
       })
   }
-
-
 
   createUnsignedTxn() {
     const { state, props } = this
@@ -349,11 +350,16 @@ class SetKeys extends React.Component {
           }
           </P>
 
-          <P>
-          {
-            `Once the transaction is sent, please generate your Arvo keyfile immediately.`
+          { state.nondeterministicSeed &&
+            <Warning>
+              <h3 className={'mb-2'}>{'Warning'}</h3>
+              {
+                `Your network seed could not be derived automatically. We've
+                generated a random one for you, but you must download your Arvo
+                keyfile during this session after setting your keys.`
+              }
+            </Warning>
           }
-          </P>
 
           { pointDetails.keyRevisionNumber === '0'
             ? <Warning>
