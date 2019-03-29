@@ -124,6 +124,7 @@ class SetKeys extends React.Component {
     })
   }
 
+  //TODO use web3.utils.randomHex when it gets fixed, see web3.js#1490
   randomHex(len) {
     let hex = "";
 
