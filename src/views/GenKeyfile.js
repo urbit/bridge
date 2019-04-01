@@ -97,7 +97,7 @@ class GenKeyfile extends React.Component {
 
   render() {
     const { point, pointDetails, revision } = this.getPointDetails();
-    const { keyfile, loading } = this.state
+    const { keyfile, loaded } = this.state
 
     return (
       <Row>
@@ -108,17 +108,17 @@ class GenKeyfile extends React.Component {
           { "Download a private key file for booting this point in Arvo." }
           </P>
 
-          { keyfile === '' &&
+          { keyfile === '' && !loaded &&
             <P>
               { "Generating keyfile..." }
             </P>
           }
 
-          { keyfile === '' &&
+          { keyfile === '' && loaded &&
             <P>
               <b>Warning: </b>
               { `No valid network seed detected. To generate a keyfile, you
-                must reset your networking keys, or try logging in with your 
+                must reset your networking keys, or try logging in with your
                 master ticket or management mnemonic` }
             </P>
           }
