@@ -463,3 +463,10 @@ code {
 .clickable {
   cursor: pointer;
 }
+
+.keyfile {
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 1rem 2rem;
+  margin-bottom: 4rem;
+}
