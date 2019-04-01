@@ -1,5 +1,6 @@
 walletgen {}
 
+@import './base.css';
 @import './type.css';
 
 html {
