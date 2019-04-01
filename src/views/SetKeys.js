@@ -8,7 +8,9 @@ import { RequiredInput, InnerLabel } from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
 import { BRIDGE_ERROR } from '../lib/error'
 import { ROUTE_NAMES } from '../lib/router'
-import { attemptSeedDerivation } from '../lib/keys'
+import { attemptSeedDerivation, genKey  } from '../lib/keys'
+
+import saveAs from 'file-saver'
 
 import { WALLET_NAMES } from '../lib/wallet'
 
@@ -39,6 +41,7 @@ class SetKeys extends React.Component {
       auth: '',
       encr: '',
       networkSeed: '',
+      nondeterministicSeed: false,
       point: point,
       cryptoSuiteVersion: 1,
       continuity: false,
@@ -122,21 +125,37 @@ class SetKeys extends React.Component {
     })
   }
 
-  async deriveSeed() {
-    const next = true
-    const seed = await attemptSeedDerivation(next, this.props)
-    this.setState({
-      networkSeed: seed.getOrElse('')
-    })
+  //TODO use web3.utils.randomHex when it gets fixed, see web3.js#1490
+  randomHex(len) {
+    let hex = "";
+
+    for (var i = 0; i < len; i++) {
+      hex = hex + ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B',
+      'C', 'D', 'E', 'F'][Math.floor(Math.random() * 16)]
+    }
+
+    return hex;
   }
 
+  async deriveSeed() {
+    const next = true
+    let seed = await attemptSeedDerivation(next, this.props)
+    let nondeterministicSeed = false;
 
+    if (seed.getOrElse('') === '') {
+      seed = Maybe.Just(this.randomHex(64));
+      nondeterministicSeed = true;
+    }
+
+    this.setState({
+      networkSeed: seed.getOrElse(''),
+      nondeterministicSeed: nondeterministicSeed
+    })
+  }
 
   handleNetworkSeedInput(networkSeed) {
     this.setState({ networkSeed })
   }
-
-
 
   handleCreateUnsignedTxn() {
     const txn = this.createUnsignedTxn()
@@ -222,22 +241,41 @@ class SetKeys extends React.Component {
     })
   }
 
+  downloadKeyfile(networkSeed) {
+    const { pointCache } = this.props
+    const { pointCursor } = this.props
 
+    const point = pointCursor.matchWith({
+      Just: (pt) => pt.value,
+      Nothing: () => {
+        throw BRIDGE_ERROR.MISSING_POINT
+      }
+    })
+
+    const pointDetails =
+        point in pointCache
+      ? pointCache[point]
+      : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
+
+    const revision = parseInt(pointDetails.keyRevisionNumber)
+    const keyfile = genKey(networkSeed, point, revision)
+    let blob = new Blob([keyfile], {type:"text/plain;charset=utf-8"});
+    saveAs(blob, `${ob.patp(point).slice(1)}-${revision}.key`)
+  }
 
   handleSubmit(){
     const { props, state } = this
     sendSignedTransaction(props.web3.value, state.stx)
       .then(sent => {
+        props.setNetworkSeedCache(this.state.networkSeed)
         props.setTxnHashCursor(sent)
         props.popRoute()
-        props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
+        props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION, {promptKeyfile: true})
       })
       .catch(err => {
         this.setState({ txError: err.map(val => val.merge()) })
       })
   }
-
-
 
   createUnsignedTxn() {
     const { state, props } = this
@@ -299,16 +337,6 @@ class SetKeys extends React.Component {
       ? props.pointCache[state.point]
       : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
 
-    const isManagementMnemonic =
-      this.state.isManagementSeed &&
-      props.walletType === WALLET_NAMES.MNEMONIC
-
-    const isMasterTicket =
-      props.walletType === WALLET_NAMES.TICKET ||
-      props.walletType === WALLET_NAMES.SHARD
-
-    const networkSeedDisabled = isManagementMnemonic || isMasterTicket;
-
     return (
       <Row>
         <Col>
@@ -316,19 +344,22 @@ class SetKeys extends React.Component {
             { 'Set Network Keys For ' } <code>{ `${ob.patp(state.point)}` }</code>
           </H1>
 
-          <P>
+          <P className="mt-10">
           {
-            `Please enter a network seed for generating and setting your public
-             network authentication and encryption keys.  Your network seed
-             must be a string of 64 characters (containing 0-9, A-Z, a-z).`
+            `Set new authentication and encryption keys for your Arvo ship.`
           }
           </P>
-          <P>
-          {
-             `If you've authenticated with a master ticket or management proxy
-              mnemonic, a seed will be generated for you automatically.`
+
+          { state.nondeterministicSeed &&
+            <Warning>
+              <h3 className={'mb-2'}>{'Warning'}</h3>
+              {
+                `Your network seed could not be derived automatically. We've
+                generated a random one for you, so you must download your Arvo
+                keyfile during this session after setting your keys.`
+              }
+            </Warning>
           }
-          </P>
 
           { pointDetails.keyRevisionNumber === '0'
             ? <Warning>
@@ -339,17 +370,6 @@ class SetKeys extends React.Component {
                 }
               </Warning>
             : <div /> }
-
-          <RequiredInput
-            className='mono'
-            prop-size='lg'
-            prop-format='innerLabel'
-            autoFocus
-            disabled= { networkSeedDisabled }
-            value={ state.networkSeed }
-            onChange={ this.handleNetworkSeedInput }>
-            <InnerLabel>{ 'Network seed' }</InnerLabel>
-          </RequiredInput>
 
           <StatelessTransaction
             // Upper scope

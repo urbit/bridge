@@ -2,6 +2,7 @@ import React from 'react'
 import { Row, Col, H1, H3, P, Warning, Anchor } from '../components/Base'
 import { Button } from '../components/Base'
 
+import { ROUTE_NAMES } from '../lib/router'
 import { BRIDGE_ERROR, renderTxnError } from '../lib/error'
 import { NETWORK_NAMES } from '../lib/network'
 
@@ -75,8 +76,10 @@ const Failure = (props) =>
     </Row>
 
 const SentTransaction = (props) => {
-  const { web3, txnHashCursor, networkType, popRoute } = props
+  const { web3, txnHashCursor, networkType, popRoute, pushRoute } = props
   const { setPointCursor, pointCursor } = props
+
+  const promptKeyfile = props.routeData && props.routeData.promptKeyfile
 
   const w3 = web3.matchWith({
     Nothing: _ => { throw BRIDGE_ERROR.MISSING_WEB3 },
@@ -113,10 +116,32 @@ const SentTransaction = (props) => {
       </Col>
     </Row>
 
+  let keyfile;
+
+  if (promptKeyfile) {
+    keyfile = (
+      <Row>
+        <Col>
+          <Button
+            prop-type={'link'}
+            onClick={
+              () => {
+                popRoute()
+                pushRoute(ROUTE_NAMES.GEN_KEYFILE)
+              }
+            }>
+            { 'Download Keyfile →' }
+          </Button>
+        </Col>
+      </Row>
+    )
+  }
+
   return (
     <div>
       { body }
       { ok }
+      { keyfile }
     </div>
   )
 }

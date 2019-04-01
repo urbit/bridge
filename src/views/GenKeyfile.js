@@ -1,4 +1,5 @@
 import React from 'react'
+import Maybe from 'folktale/maybe'
 
 import { Button } from '../components/Base'
 import { RequiredInput, InnerLabel } from '../components/Base'
@@ -21,38 +22,13 @@ class GenKeyfile extends React.Component {
 
     this.state = {
       keyfile: '',
-      networkSeed: ''
+      loaded: false
     }
-
-    this.handleNetworkSeedInput = this.handleNetworkSeedInput.bind(this)
-    this.handleKeyfileChange = this.handleKeyfileChange.bind(this)
   }
 
-  componentDidMount() {
-    this.deriveSeed()
-  }
-
-  async deriveSeed() {
-    const next = false
-    const seed = await attemptSeedDerivation(next, this.props)
-    this.setState({
-      networkSeed: seed.getOrElse('')
-    })
-  }
-
-  handleNetworkSeedInput = (networkSeed) => {
-    this.setState({ networkSeed })
-  }
-
-  handleKeyfileChange = (keyfile) => {
-    this.setState({ keyfile })
-  }
-
-  render() {
+  getPointDetails() {
     const { pointCache } = this.props
     const { pointCursor } = this.props
-
-    const { keyfile, networkSeed } = this.state
 
     const point = pointCursor.matchWith({
       Just: (pt) => pt.value,
@@ -68,6 +44,34 @@ class GenKeyfile extends React.Component {
 
     const revision = parseInt(pointDetails.keyRevisionNumber)
 
+    return {
+      point,
+      pointDetails,
+      revision
+    }
+  }
+
+  async componentDidMount() {
+    const { point, pointDetails, revision } = this.getPointDetails();
+    let keyfile = ''
+
+    const hexRegExp = /[0-9A-Fa-f]{64}/g
+    const networkSeed = await this.deriveSeed()
+
+    const keysmatch = this.checkKeysMatch(networkSeed, pointDetails)
+    const seedValid = hexRegExp.test(networkSeed)
+
+    if (keysmatch && seedValid) {
+      keyfile = genKey(networkSeed, point, revision)
+    }
+
+    this.setState({
+      keyfile: keyfile,
+      loaded: true
+    });
+  }
+
+  checkKeysMatch(networkSeed, pointDetails) {
     const crypub = pointDetails.encryptionKey
     const sgnpub = pointDetails.authenticationKey
 
@@ -77,29 +81,23 @@ class GenKeyfile extends React.Component {
          crypub === addHexPrefix(crypt.public)
       && sgnpub === addHexPrefix(auth.public)
 
-    const warning =
-        keyfile !== '' && keysmatch === false
-      ? <Row>
-          <Col>
-            <b>{ 'WARNING' }</b>{ ": derived key doesn't match Azimuth keys!"  }
-          </Col>
-        </Row>
-      : <div />
+    return keysmatch;
+  }
 
-    const hexRegExp = /[0-9A-Fa-f]{64}/g
+  async deriveSeed() {
+    const next = false
+    let seed = await attemptSeedDerivation(next, this.props)
 
-    const download =
-        keyfile !== ''
-      ? <Button
-          onClick={
-            () => {
-              let blob = new Blob([keyfile], {type:"text/plain;charset=utf-8"});
-              saveAs(blob, `${ob.patp(point).slice(1)}-${revision}.key`)
-            }
-          }>
-          Download →
-        </Button>
-      : ''
+    if (seed.getOrElse('') === '' && this.props.networkSeedCache) {
+      seed = Maybe.Just(this.props.networkSeedCache)
+    }
+
+    return seed.getOrElse('')
+  }
+
+  render() {
+    const { point, pointDetails, revision } = this.getPointDetails();
+    const { keyfile, loaded } = this.state
 
     return (
       <Row>
@@ -107,55 +105,40 @@ class GenKeyfile extends React.Component {
           <H1>{ 'Generate keyfile' }</H1>
 
           <P>
-          { "Generate a private key file for booting this point in Arvo." }
+          { "Download a private key file for booting this point in Arvo." }
           </P>
 
-          <P>
-          {
-            `Enter a network seed below for generating your key file.  Your
-             network seed must be a string of 64 characters (containing 0-9, A-Z, a-z)`
+          { keyfile === '' && !loaded &&
+            <P>
+              { "Generating keyfile..." }
+            </P>
           }
-          </P>
-          <P>
-          {
-             `If you've authenticated with either a master ticket or a
-             management proxy mnemonic, a seed will be generated for you
-             automatically.`
+
+          { keyfile === '' && loaded &&
+            <P>
+              <b>Warning: </b>
+              { `No valid network seed detected. To generate a keyfile, you
+                must reset your networking keys, or try logging in with your
+                master ticket or management mnemonic` }
+            </P>
           }
-          </P>
 
-          <RequiredInput
-            className='mono'
-            prop-size='lg'
-            prop-format='innerLabel'
-            autoFocus
-            value={ networkSeed }
-            onChange={ this.handleNetworkSeedInput }>
-            <InnerLabel>{ 'Network seed' }</InnerLabel>
-          </RequiredInput>
-
-          <Button
-            className={'mt-8'}
-            color={'blue'}
-            onClick={
-              () => {
-                if (hexRegExp.test(networkSeed)) {
-                  const keyfile = genKey(networkSeed, point, revision)
-                  this.setState({ keyfile })
-                }
-              }
-            }
-          >
-            { 'Generate  →' }
-          </Button>
-
-          <Code>
-            { keyfile }
-          </Code>
-
-          { warning }
-
-          { download }
+          { keyfile !== '' &&
+            <React.Fragment>
+              <div className="pb-5 text-code keyfile">
+                { keyfile }
+              </div>
+              <Button
+                  onClick={
+                    () => {
+                      let blob = new Blob([keyfile], {type:"text/plain;charset=utf-8"});
+                      saveAs(blob, `${ob.patp(point).slice(1)}-${revision}.key`)
+                    }
+                  }>
+                  Download →
+                </Button>
+            </React.Fragment>
+          }
 
         </Col>
       </Row>
