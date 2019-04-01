@@ -1,8 +1,11 @@
 import Maybe from 'folktale/maybe'
 import * as lodash from 'lodash'
+import * as azimuth from 'azimuth-js'
 import { Stack } from 'immutable'
+import { CONTRACT_ADDRESSES } from './lib/contracts'
 import React from 'react'
 
+import Web3 from 'web3'
 import Footer from './components/Footer'
 import Header from './components/Header'
 import { Container, Row, Col } from './components/Base'
@@ -14,6 +17,24 @@ import { BRIDGE_ERROR } from './lib/error'
 
 import './style/index.css'
 
+const initWeb3 = (networkType) => {
+  if (networkType === NETWORK_NAMES.MAINNET) {
+    const endpoint =
+          `https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`
+
+    const provider = new Web3.providers.HttpProvider(endpoint)
+    const web3 = new Web3(provider)
+    const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.MAINNET)
+    return {web3: web3, contracts: contracts}
+  } else if (networkType === NETWORK_NAMES.LOCAL) {
+    const endpoint = 'wss://localhost:8545'
+    const provider = new Web3.providers.WebsocketProvider(endpoint)
+    const web3 = new Web3(provider)
+    const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.DEV)
+    return {web3: web3, contracts: contracts}
+  }
+}
+
 class Bridge extends React.Component {
 
   constructor(props) {
@@ -23,6 +44,10 @@ class Bridge extends React.Component {
         process.env.NODE_ENV === 'development'
       ? NETWORK_NAMES.LOCAL
       : NETWORK_NAMES.MAINNET
+
+    // Sidestepping full network selection to allow for point viewing,
+    // but still respecting the networkType
+    const { web3, contracts } = initWeb3(networkType)
 
     // NB (jtobin):
     //
@@ -43,8 +68,8 @@ class Bridge extends React.Component {
       routeData: {},
       // network
       networkType: networkType,
-      web3: Maybe.Nothing(),
-      contracts: Maybe.Nothing(),
+      web3: Maybe.Just(web3),
+      contracts: Maybe.Just(contracts),
       // wallet
       walletType: WALLET_NAMES.MNEMONIC,
       wallet: Maybe.Nothing(),
