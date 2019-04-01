@@ -3,6 +3,7 @@ import * as lodash from 'lodash'
 
 import Header from './components/Header'
 import Footer from './components/Footer'
+import { AppNavigation } from '../components/AppNavigation'
 
 import { NETWORK_STATES, PROFILE_STATES, GEN_STATES } from './lib/constants'
 
@@ -16,8 +17,6 @@ import Generate from './views/Generate'
 import Custody from './views/Custody'
 import Download from './views/Download'
 import Done from './views/Done'
-
-import './styles/index.css'
 
 const checkNetwork = () => navigator.onLine
   ? NETWORK_STATES.ONLINE
@@ -90,6 +89,8 @@ class Walletgen extends React.Component {
   componentDidMount = () => {
     window.addEventListener('online', () => this.setState({'network': NETWORK_STATES.ONLINE}));
     window.addEventListener('offline', () => this.setState({'network': NETWORK_STATES.OFFLINE}));
+
+    import('./styles/index.css')
   };
 
 
@@ -122,26 +123,31 @@ class Walletgen extends React.Component {
     // const routed = this.router(NETWORK_STATES.OFFLINE, true, route) // hacky dev
 
     return (
-      <main className={'container'}>
+      <React.Fragment>
+        <main className={'container'}>
 
-        <Header
-          network={ network }
-          currentStep={ currentStep }
-          totalSteps={ TOTAL_STEPS } />
+          <Header
+            network={ network }
+            currentStep={ currentStep }
+            totalSteps={ TOTAL_STEPS } />
 
-        <div className={ 'row wrapper' }>
-          <div className={'col-'}>
-            { routed }
+          <div className={ 'row wrapper' }>
+            <div className={'col-'}>
+              { routed }
+            </div>
+            <div className={'push'} />
           </div>
-          <div className={'push'} />
-        </div>
 
-        <Footer
-          route={ route }
-          lastRoute={ lastRoute }
-          setGlobalState={ this.setGlobalState }
-        />
-      </main>
+          <Footer
+            route={ route }
+            lastRoute={ lastRoute }
+            setGlobalState={ this.setGlobalState }
+          />
+        </main>
+        <AppNavigation
+          setView={this.props.setView}
+          appView={this.props.appView} />
+      </React.Fragment>
     );
   };
 };
