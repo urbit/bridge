@@ -6,7 +6,6 @@ import React from 'react'
 import Footer from './components/Footer'
 import Header from './components/Header'
 import { Container, Row, Col } from './components/Base'
-import { AppNavigation } from './components/AppNavigation'
 
 import { ROUTE_NAMES, router } from './lib/router'
 import { NETWORK_NAMES } from './lib/network'
@@ -231,63 +230,61 @@ class Bridge extends React.Component {
     const View = router(routeCrumbs.peek())
 
     return (
-      <React.Fragment>
-        <Container>
-          <Row>
-            <Col className='col-md-1' />
-            <Col className='col-md-10' style={{maxWidth: '620px'}}>
-              <Header
-                routeCrumbs={ routeCrumbs }
-                skipRoute={ this.skipRoute }
+      <Container>
+        <Row>
+          <Col className='col-md-1' />
+          <Col className='col-md-10' style={{maxWidth: '620px'}}>
+            <Header
+              routeCrumbs={ routeCrumbs }
+              skipRoute={ this.skipRoute }
+              networkType={ networkType }
+              wallet={ wallet }
+              pointCursor={ pointCursor } />
+
+            <Row className={ 'row wrapper' }>
+
+              <View
+                // router
+                pushRoute={ this.pushRoute }
+                popRoute={ this.popRoute }
+                routeData={ routeData }
+                // network
+                setNetworkType={ this.setNetworkType }
+                setNetwork={ this.setNetwork }
                 networkType={ networkType }
+                web3={ web3 }
+                contracts={ contracts }
+                // wallet
+                setWalletType={ this.setWalletType }
+                setWalletHdPath={ this.setWalletHdPath }
+                setWallet={ this.setWallet }
+                walletType={ walletType }
+                walletHdPath={ walletHdPath }
                 wallet={ wallet }
-                pointCursor={ pointCursor } />
+                // urbit wallet
+                urbitWallet={ urbitWallet }
+                setUrbitWallet={ this.setUrbitWallet }
+                authMnemonic={ authMnemonic }
+                setAuthMnemonic={ this.setAuthMnemonic }
+                // point
+                setPointCursor={ this.setPointCursor }
+                addToPointCache={ this.addToPointCache }
+                pointCursor={ pointCursor }
+                pointCache={ pointCache }
+                networkSeedCache= { networkSeedCache }
+                setNetworkSeedCache= { this.setNetworkSeedCache }
+                // txn
+                setTxnHashCursor={ this.setTxnHashCursor }
+                txnHashCursor={ txnHashCursor } />
 
-              <Row className={ 'row wrapper' }>
+              <div className={'push'} />
 
-                <View
-                  // router
-                  pushRoute={ this.pushRoute }
-                  popRoute={ this.popRoute }
-                  routeData={ routeData }
-                  // network
-                  setNetworkType={ this.setNetworkType }
-                  setNetwork={ this.setNetwork }
-                  networkType={ networkType }
-                  web3={ web3 }
-                  contracts={ contracts }
-                  // wallet
-                  setWalletType={ this.setWalletType }
-                  setWalletHdPath={ this.setWalletHdPath }
-                  setWallet={ this.setWallet }
-                  walletType={ walletType }
-                  walletHdPath={ walletHdPath }
-                  wallet={ wallet }
-                  // urbit wallet
-                  urbitWallet={ urbitWallet }
-                  setUrbitWallet={ this.setUrbitWallet }
-                  authMnemonic={ authMnemonic }
-                  setAuthMnemonic={ this.setAuthMnemonic }
-                  // point
-                  setPointCursor={ this.setPointCursor }
-                  addToPointCache={ this.addToPointCache }
-                  pointCursor={ pointCursor }
-                  pointCache={ pointCache }
-                  networkSeedCache= { networkSeedCache }
-                  setNetworkSeedCache= { this.setNetworkSeedCache }
-                  // txn
-                  setTxnHashCursor={ this.setTxnHashCursor }
-                  txnHashCursor={ txnHashCursor } />
+            </Row>
 
-                <div className={'push'} />
-
-              </Row>
-
-              <Footer />
-            </Col>
-          </Row>
-        </Container>
-      </React.Fragment>
+            <Footer />
+          </Col>
+        </Row>
+      </Container>
     )
   }
 }
