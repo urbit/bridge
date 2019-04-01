@@ -270,7 +270,7 @@ class SetKeys extends React.Component {
         props.setNetworkSeedCache(this.state.networkSeed)
         props.setTxnHashCursor(sent)
         props.popRoute()
-        props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
+        props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION, {promptKeyfile: true})
       })
       .catch(err => {
         this.setState({ txError: err.map(val => val.merge()) })
@@ -355,7 +355,7 @@ class SetKeys extends React.Component {
               <h3 className={'mb-2'}>{'Warning'}</h3>
               {
                 `Your network seed could not be derived automatically. We've
-                generated a random one for you, but you must download your Arvo
+                generated a random one for you, so you must download your Arvo
                 keyfile during this session after setting your keys.`
               }
             </Warning>

@@ -40,6 +40,7 @@ class Bridge extends React.Component {
     this.state = {
       // routes
       routeCrumbs: Stack([ ROUTE_NAMES.LANDING ]),
+      routeData: {},
       // network
       networkType: networkType,
       web3: Maybe.Nothing(),
@@ -120,10 +121,11 @@ class Bridge extends React.Component {
   // }
 }
 
-  pushRoute(symbol) {
+  pushRoute(symbol, routeData) {
     if (lodash.includes(ROUTE_NAMES, symbol)) {
       this.setState((state, _) => ({
         routeCrumbs: state.routeCrumbs.push(symbol),
+        routeData: routeData
       }));
 
       // Scroll to top of page with each route transition.
@@ -212,6 +214,7 @@ class Bridge extends React.Component {
   render() {
     const {
       routeCrumbs,
+      routeData,
       networkType,
       walletType,
       walletHdPath,
@@ -246,6 +249,7 @@ class Bridge extends React.Component {
                 // router
                 pushRoute={ this.pushRoute }
                 popRoute={ this.popRoute }
+                routeData={ routeData }
                 // network
                 setNetworkType={ this.setNetworkType }
                 setNetwork={ this.setNetwork }
