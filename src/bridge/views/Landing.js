@@ -34,6 +34,21 @@ const Landing = (props) =>
         </P>
 
         {
+          <Row>
+            <Col>
+              <Button
+                prop-type={'link'}
+                prop-size={'lg'}
+                className={'mb-4 mt-8'}
+                onClick={ () => props.pushRoute(ROUTE_NAMES.VIEW_SHIP) }
+              >
+                { 'View a point  →' }
+              </Button>
+              <P>
+                { "View an Azimuth point without signing into a wallet." }
+              </P>
+            </Col>
+          </Row>
         //  FIXME add address view
         //  <LinkButton
         //    size={'l'}

@@ -34,11 +34,6 @@ class Network extends React.Component {
     }))
   }
 
-  componentDidMount() {
-    const { networkType } = this.props
-    this.handleNetworkChange(networkType)
-  }
-
   handleNetworkChange(network) {
     const { setNetworkType, setNetwork } = this.props
 
