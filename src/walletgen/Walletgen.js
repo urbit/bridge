@@ -3,7 +3,6 @@ import * as lodash from 'lodash'
 
 import Header from './components/Header'
 import Footer from './components/Footer'
-import { AppNavigation } from '../components/AppNavigation'
 
 import { NETWORK_STATES, PROFILE_STATES, GEN_STATES } from './lib/constants'
 
@@ -121,28 +120,26 @@ class Walletgen extends React.Component {
     // const routed = this.router(NETWORK_STATES.OFFLINE, true, route) // hacky dev
 
     return (
-      <React.Fragment>
-        <main className={'container'}>
+      <main className={'container'}>
 
-          <Header
-            network={ network }
-            currentStep={ currentStep }
-            totalSteps={ TOTAL_STEPS } />
+        <Header
+          network={ network }
+          currentStep={ currentStep }
+          totalSteps={ TOTAL_STEPS } />
 
-          <div className={ 'row wrapper' }>
-            <div className={'col-'}>
-              { routed }
-            </div>
-            <div className={'push'} />
+        <div className={ 'row wrapper' }>
+          <div className={'col-'}>
+            { routed }
           </div>
+          <div className={'push'} />
+        </div>
 
-          <Footer
-            route={ route }
-            lastRoute={ lastRoute }
-            setGlobalState={ this.setGlobalState }
-          />
-        </main>
-      </React.Fragment>
+        <Footer
+          route={ route }
+          lastRoute={ lastRoute }
+          setGlobalState={ this.setGlobalState }
+        />
+      </main>
     );
   };
 };

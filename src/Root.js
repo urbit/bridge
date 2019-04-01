@@ -2,13 +2,15 @@ import 'babel-polyfill' // required for @ledgerhq/hw-transport-u2f
 
 import React from 'react'
 import ReactDOM from 'react-dom'
+import _ from 'lodash'
 
-import Bridge from './Bridge'
+import Bridge from './bridge/Bridge'
 import Walletgen from './walletgen/Walletgen'
-import { AppNavigation } from './components/AppNavigation'
+import { AppNavigation } from './common/components/AppNavigation'
 
-import './style/index.css'
-import './walletgen/styles/index.css'
+import './common/style/index.css'
+import './bridge/style/index.css'
+import './walletgen/style/index.css'
 
 class Root extends React.Component {
   constructor(props) {
@@ -21,26 +23,48 @@ class Root extends React.Component {
     this.setView = this.setView.bind(this)
   }
 
-  componentDidMount() {
-    let styles = document.getElementsByTagName('style')
+  /*
+    Style switching:
 
-    for (var i = 0; i < styles.length; i++) {
-      if (i < 7) styles[i].classList.add('css-bridge');
-      if (i >= 7) {
-        styles[i].classList.add('css-walletgen');
-        styles[i].disabled = true;
+    To switch between walletgen and bridge styles without them clobbering each
+    other, we need a way to identify which app the stylesheet belongs to.
+
+    So we include a "walletgen" or "bridge" style as the first rule of any
+    stylesheet. If this directive is included, we can disable the appropriate
+    sheet when the user switches applications
+
+    A bit hacky, but does the job for now. These styles should probably be
+    fully merged at some point.
+  */
+
+  isWalletgenStyle(styleSheet) {
+    return _.get(styleSheet, 'cssRules[0].selectorText', null) === "walletgen"
+  }
+
+  isBridgeStyle(styleSheet) {
+    return _.get(styleSheet, 'cssRules[0].selectorText', null) === "bridge"
+  }
+
+  disableStylesheets(appView) {
+    for (var i = 0; i < document.styleSheets.length; i++) {
+      let styleSheet = document.styleSheets[i]
+
+      if (appView === "bridge") {
+        if (this.isWalletgenStyle(styleSheet)) styleSheet.disabled = true
+        if (this.isBridgeStyle(styleSheet)) styleSheet.disabled = false
+      } else if (appView === "walletgen") {
+        if (this.isWalletgenStyle(styleSheet)) styleSheet.disabled = false
+        if (this.isBridgeStyle(styleSheet)) styleSheet.disabled = true
       }
     }
   }
 
+  componentDidMount() {
+    this.disableStylesheets(this.state.appView)
+  }
+
   setView(appView) {
-    if (appView === "bridge") {
-      document.querySelectorAll('.css-walletgen').forEach(s => s.disabled = true)
-      document.querySelectorAll('.css-bridge').forEach(s => s.disabled = false)
-    } else if (appView === "walletgen") {
-      document.querySelectorAll('.css-walletgen').forEach(s => s.disabled = false)
-      document.querySelectorAll('.css-bridge').forEach(s => s.disabled = true)
-    }
+    this.disableStylesheets(appView)
 
     this.setState({
       appView
