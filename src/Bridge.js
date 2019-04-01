@@ -83,8 +83,6 @@ class Bridge extends React.Component {
       this.popRoute();
     }
 
-    import('./style/index.css')
-
   // NB (jtobin):
   //
   // If running in development, the following can be tweaked to get you set

@@ -89,8 +89,6 @@ class Walletgen extends React.Component {
   componentDidMount = () => {
     window.addEventListener('online', () => this.setState({'network': NETWORK_STATES.ONLINE}));
     window.addEventListener('offline', () => this.setState({'network': NETWORK_STATES.OFFLINE}));
-
-    import('./styles/index.css')
   };
 
 
