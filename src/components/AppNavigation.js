@@ -21,18 +21,19 @@ class AppNavigation extends React.Component {
     if (this.props.appView === "walletgen") buttonText = "Go to Bridge"
 
     let style = {
-      position: "absolute",
-      top: "10px",
+      position: "fixed",
+      bottom: "10px",
       right: "10px"
     }
 
     return (
-      <button
+      <a
+        href="javascript:void(0)"
         type="button"
         style={style}
         onClick={this.navigate}>
         {buttonText}
-      </button>
+      </a>
     )
   }
 }

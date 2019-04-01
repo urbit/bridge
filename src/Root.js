@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom'
 
 import Bridge from './Bridge'
 import Walletgen from './walletgen/Walletgen'
+import { AppNavigation } from './components/AppNavigation'
 
 import './style/index.css'
 import './walletgen/styles/index.css'
@@ -64,6 +65,10 @@ class Root extends React.Component {
     return (
       <React.Fragment>
         {appComponent}
+        <AppNavigation
+          setView={this.setView}
+          appView={this.state.appView}
+          />
       </React.Fragment>
     )
   }

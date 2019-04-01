@@ -142,9 +142,6 @@ class Walletgen extends React.Component {
             setGlobalState={ this.setGlobalState }
           />
         </main>
-        <AppNavigation
-          setView={this.props.setView}
-          appView={this.props.appView} />
       </React.Fragment>
     );
   };

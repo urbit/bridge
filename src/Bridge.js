@@ -287,10 +287,6 @@ class Bridge extends React.Component {
             </Col>
           </Row>
         </Container>
-
-        <AppNavigation
-          setView={this.props.setView}
-          appView={this.props.appView} />
       </React.Fragment>
     )
   }
