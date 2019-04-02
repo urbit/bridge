@@ -22,6 +22,20 @@ const Landing = (props) =>
           prop-type='link'
           prop-size='lg'
           className={'mb-4 mt-8'}
+          onClick={ () => props.pushRoute(ROUTE_NAMES.INVITE_LOGIN) }
+        >
+          { 'Claim an invite  →' }
+        </Button>
+
+        <P>
+        { "If you were sent an Azimuth invite code, start here." }
+        </P>
+
+
+        <Button
+          prop-type='link'
+          prop-size='lg'
+          className={'mb-4 mt-8'}
           onClick={ () => props.pushRoute(ROUTE_NAMES.NETWORK) }
         >
           { 'Unlock a Wallet  →' }
