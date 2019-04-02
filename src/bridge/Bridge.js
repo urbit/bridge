@@ -15,8 +15,6 @@ import { NETWORK_NAMES } from './lib/network'
 import { WALLET_NAMES, DEFAULT_HD_PATH } from './lib/wallet'
 import { BRIDGE_ERROR } from './lib/error'
 
-import './style/index.css'
-
 const initWeb3 = (networkType) => {
   if (networkType === NETWORK_NAMES.MAINNET) {
     const endpoint =

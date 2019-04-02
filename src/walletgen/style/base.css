@@ -1,9 +1,6 @@
-@charset "UTF-8";
-@import "./fontstack/Inter UI (web hinted)/inter-ui.css";
+walletgen {}
 
-/**********************
-Color variables
-**********************/
+@charset "UTF-8";
 /*! normalize.css v3.0.2 | MIT License | git.io/normalize */
 /**
  * 1. Set default font family to sans-serif.
@@ -82,21 +79,14 @@ template {
  * Remove the gray background color from active links in IE 10.
  */
 a {
-  background-color: transparent;
-}
+  background-color: transparent; }
 
 /**
  * Improve readability when focused and also mouse hovered in all browsers.
  */
 a:active,
-a:hover,
-a:focus {
+a:hover {
   outline: 0; }
-
-a.disabled {
-   pointer-events: none;
-   cursor: default;
-}
 
 /* Text-level semantics
    ========================================================================== */
@@ -132,7 +122,7 @@ h1 {
  */
 mark {
   background: #ff0;
-  color: #000000; }
+  color: #000; }
 
 /**
  * Address inconsistent and variable font size in all browsers.
@@ -392,16 +382,15 @@ th {
 */
 *[class*="col-"] {
   width: 100%;
- }
+  margin-bottom: 1rem; }
 
 .container {
   margin: 0 auto;
-  padding: 0 0rem;
+  padding: 0 2rem;
   max-width: 960px; }
 
 .row {
   display: flex;
-  width: 100%;
   flex-wrap: wrap;
   margin-right: -0.5rem;
   margin-left: -0.5rem; }
@@ -435,8 +424,8 @@ th {
   .col-sm-offset-12 {
     box-sizing: border-box;
     flex: 0 0 auto;
-    padding-right: 0.0rem;
-    padding-left: 0.0rem; }
+    padding-right: 0.5rem;
+    padding-left: 0.5rem; }
   .col-sm {
     flex-grow: 1;
     flex-basis: 0;
@@ -533,8 +522,8 @@ th {
   .col-md-offset-12 {
     box-sizing: border-box;
     flex: 0 0 auto;
-    padding-right: 0.0rem;
-    padding-left: 0.0rem; }
+    padding-right: 0.5rem;
+    padding-left: 0.5rem; }
   .col-md {
     flex-grow: 1;
     flex-basis: 0;
@@ -629,8 +618,8 @@ th {
   .col-lg-offset-12 {
     box-sizing: border-box;
     flex: 0 0 auto;
-    padding-right: 0.0rem;
-    padding-left: 0.0rem; }
+    padding-right: 0.5rem;
+    padding-left: 0.5rem; }
   .col-lg {
     flex-grow: 1;
     flex-basis: 0;
@@ -751,19 +740,6 @@ th {
 .z10 {
   z-index: 10; }
 
-.hidden {
-  visibility: hidden; }
-
-.super-hidden {
-  visibility: hidden;
-  position: fixed;
-  opacity: 0;
-  top: -9999px;
-  left: -99999px; }
-
-.visible {
-  visibility: visible; }
-
 .align-baseline {
   vertical-align: baseline; }
 
@@ -777,10 +753,10 @@ th {
   vertical-align: bottom; }
 
 .flex {
-  display: flex; }
+  display: flex;
+  flex-wrap: wrap; }
 
 .flex-column {
-  display: flex;
   flex-direction: column; }
 
 .flex-wrap {
@@ -864,257 +840,54 @@ th {
 .order-last {
   order: 99999; }
 
-.flex-center-all {
-  display: flex;
-  justify-content: center;
-  align-items: center; }
-
 /**********************
-Opacity Scale
+Color variables
 **********************/
-.o-100 {
-  opacity: 1; }
-
-.o-90 {
-  opacity: .9; }
-
-.o-80 {
-  opacity: .8; }
-
-.o-70 {
-  opacity: .7; }
-
-.o-60 {
-  opacity: .6; }
-
-.o-50 {
-  opacity: .5; }
-
-.o-40 {
-  opacity: .4; }
-
-.o-30 {
-  opacity: .3; }
-
-.o-20 {
-  opacity: .2; }
-
-.o-10 {
-  opacity: .1; }
-
-.o-05 {
-  opacity: .05; }
-
-.o-025 {
-  opacity: .025; }
-
-.o-0 {
-  opacity: 0; }
-
 .br {
   border-width: 1px;
   border-style: solid; }
 
-.bs-solid {
-  border-style: solid; }
-
-.bw-0 {
-  border-width: 0px; }
-
-.btw-0 {
-  border-top-width: 0px; }
-
-.brw-0 {
-  border-right-width: 0px; }
-
-.bbw-0 {
-  border-bottom-width: 0px; }
-
-.blw-0 {
-  border-left-width: 0px; }
-
-.bw-1 {
-  border-width: 1px; }
-
-.btw-1 {
-  border-top-width: 1px; }
-
-.brw-1 {
-  border-right-width: 1px; }
-
-.bbw-1 {
-  border-bottom-width: 1px; }
-
-.blw-1 {
-  border-left-width: 1px; }
-
-.bw-2 {
-  border-width: 2px; }
-
-.btw-2 {
-  border-top-width: 2px; }
-
-.brw-2 {
-  border-right-width: 2px; }
-
-.bbw-2 {
-  border-bottom-width: 2px; }
-
-.blw-2 {
-  border-left-width: 2px; }
-
-.br-red-dark {
-  border-color: #C80F34; }
-
-.br-red {
-  border-color: #EE5432; }
-
-.br-orange {
-  border-color: #EE892B; }
-
-.br-yellow {
-  border-color: #F8C134; }
-
-.br-green-dark {
-  border-color: #286E55; }
-
-.br-green {
-  border-color: #2AA779; }
-
-.br-green-light {
-  border-color: #2ED196; }
-
-.br-blue-dark {
-  border-color: #190D8D; }
-
-.br-blue {
-  border-color: #4330FC; }
-
-.br-blue-light {
-  border-color: #6184FF; }
-
-.br-purple {
-  border-color: #903AE6; }
-
-.br-purple-light {
-  border-color: #EC6FF7; }
-
-.br-white {
-  border-color: #FFFFFF; }
+.br-gray-30 {
+  border-color: #B3B3B3; }
 
 .br-gray-10 {
   border-color: #F2F2F2; }
 
-.br-gray-20 {
-  border-color: #CCCCCC; }
-
-.br-gray-30 {
-  border-color: #B3B3B3; }
-
-.br-gray-40 {
-  border-color: #999999; }
-
-.br-gray-50 {
-  border-color: #7F7F7F; }
-
-.br-gray-60 {
-  border-color: #676767; }
-
-.br-gray-70 {
-  border-color: #4D4D4D; }
-
-.br-gray-80 {
-  border-color: #333333; }
-
-.br-gray-90 {
-  border-color: #1A1A1A; }
-
-.br-black {
-  border-color: #000000; }
-
-.br-transparent {
-  border-color: transparent; }
-
-.br-gray {
-  border-color: #333333; }
-
 /**********************
   Background
 **********************/
-.bg-red-dark {
-  background-color: #C80F34; }
-
-.bg-red {
-  background-color: #EE5432; }
-
-.bg-orange {
-  background-color: #EE892B; }
-
-.bg-yellow {
-  background-color: #F8C134; }
-
-.bg-green-dark {
-  background-color: #286E55; }
-
-.bg-green {
-  background-color: #2AA779; }
-
-.bg-green-light {
-  background-color: #2ED196; }
-
-.bg-blue-dark {
-  background-color: #190D8D; }
-
 .bg-blue {
   background-color: #4330FC; }
 
-.bg-blue-light {
-  background-color: #6184FF; }
+.bg-red {
+  background-color: #EE3124; }
 
-.bg-purple {
-  background-color: #903AE6; }
+.bg-green {
+  background-color: #6FDC74; }
 
-.bg-purple-light {
-  background-color: #EC6FF7; }
+.bg-orange {
+  background-color: #FFC440; }
 
-.bg-white {
-  background-color: #FFFFFF; }
+.bg-gray {
+  background-color: #333333; }
 
-.bg-gray-10 {
-  background-color: #F2F2F2; }
-
-.bg-gray-20 {
-  background-color: #CCCCCC; }
+.bg-gray-60 {
+  background-color: #666666; }
 
 .bg-gray-30 {
   background-color: #B3B3B3; }
 
-.bg-gray-40 {
-  background-color: #999999; }
-
-.bg-gray-50 {
-  background-color: #7F7F7F; }
-
-.bg-gray-60 {
-  background-color: #676767; }
-
-.bg-gray-70 {
-  background-color: #4D4D4D; }
-
-.bg-gray-80 {
-  background-color: #333333; }
-
-.bg-gray-90 {
-  background-color: #1A1A1A; }
+.bg-gray-10 {
+  background-color: #F2F2F2; }
 
 .bg-black {
-  background-color: #000000; }
+  background-color: #111111; }
 
-.bg-transparent {
-  background-color: transparent; }
+.bg-white {
+  background-color: #FFFFFF; }
 
-.bg-gray {
-  background-color: #333333; }
+.bg-gray-30 {
+  background-color: #B3B3B3; }
 
 /*
   Fluid-to-fixed conversions at standard screen sizes:
@@ -1152,7 +925,7 @@ Opacity Scale
 /**********************
   Base text styles
 **********************/
-@font-face {
+/* @font-face {
   font-family: "Work Sans";
   src: url("https://storage.googleapis.com/media.urbit.org/fonts/WorkSans-Thin.ttf") format("truetype");
   font-weight: 100; }
@@ -1225,20 +998,20 @@ Opacity Scale
 @font-face {
   font-family: "Source Code Pro";
   src: url("https://storage.googleapis.com/media.urbit.org/fonts/scp-black.woff");
-  font-weight: 700; }
+  font-weight: 700; } */
 
 * {
   font-smoothing: antialiased;
   -webkit-font-smoothing: antialiased; }
 
 body {
-  font-family: "Inter UI";
+  /* font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; */
   font-size: 3.5rem;
-  line-height: 6rem;
-  color: #000000; }
+  line-height: 4.5rem;
+  color: #111111; }
 
 a {
-  color: #000000; }
+  color: black; }
 
 p {
   margin: 0 0 4rem; }
@@ -1253,14 +1026,13 @@ h4,
 h5,
 .text-heading {
   margin: 0;
-  font-family: "Work Sans";
-  color: #000000; }
+  font-family: "Work Sans"; }
 
 h1,
 .h1 {
-  font-size: 8rem;
+  font-size: 6rem;
   font-weight: 600;
-  line-height: 10rem;
+  line-height: 8rem;
   margin: 0; }
 
 h2,
@@ -1284,36 +1056,12 @@ h4,
   line-height: 4rem;
   margin: 0; }
 
-.markdown h1,
-.markdown .h1 {
-  font-size: 6rem;
-  font-weight: 600;
-  line-height: 8rem;
-  margin-top: 0.67em;
-  margin-bottom: 0.67em; }
-
-.markdown h2,
-.markdown .h2 {
-  font-size: 5rem;
-  font-weight: 600;
-  line-height: 6rem;
-  margin-top: 0.83em;
-  margin-bottom: 0.83em; }
-
-.markdown h3,
-.markdown .h3 {
-  font-size: 4rem;
-  font-weight: 600;
-  margin-top: 1em;
-  margin-bottom: 1em; }
-
-.markdown h4,
-.markdown .h4 {
+h5,
+.h5 {
   font-size: 3.5rem;
-  font-weight: 600;
-  line-height: 4rem;
-  margin-top: 1.33em;
-  margin-bottom: 1.33em; }
+  font-weight: 500;
+  line-height: 4.5rem;
+  margin: 0; }
 
 caption, .text-sm {
   font-size: 3rem;
@@ -1351,13 +1099,12 @@ pre,
 code,
 .code-block,
 .text-code,
-.mono,
 .text-mono {
   font-family: "Source Code Pro", "Roboto mono", "Courier New", monospace; }
 
 .text-code {
   background-color: #F2F2F2;
-  color: #000000; }
+  color: #111111; }
 
 .code-block {
   background-color: #F2F2F2;
@@ -1409,77 +1156,32 @@ b, .text-700 {
 /**********************
 Text color
 **********************/
-.red-dark {
-  color: #C80F34; }
-
-.red {
-  color: #EE5432; }
-
-.orange {
-  color: #EE892B; }
-
-.yellow {
-  color: #F8C134; }
-
-.green-dark {
-  color: #286E55; }
-
-.green {
-  color: #2AA779; }
-
-.green-light {
-  color: #2ED196; }
-
-.blue-dark {
-  color: #190D8D; }
-
 .blue {
   color: #4330FC; }
 
-.blue-light {
-  color: #6184FF; }
+.green {
+  color: #6FDC74; }
 
-.purple {
-  color: #903AE6; }
-
-.purple-light {
-  color: #EC6FF7; }
-
-.white {
-  color: #FFFFFF; }
+.red {
+  color: #EE3124; }
 
 .gray-10 {
   color: #F2F2F2; }
 
-.gray-20 {
-  color: #CCCCCC; }
-
 .gray-30 {
   color: #B3B3B3; }
 
-.gray-40 {
-  color: #999999; }
-
-.gray-50 {
-  color: #7F7F7F; }
-
 .gray-60 {
-  color: #676767; }
+  color: #666666; }
 
-.gray-70 {
-  color: #4D4D4D; }
-
-.gray-80 {
+.gray {
   color: #333333; }
 
-.gray-90 {
-  color: #1A1A1A; }
-
 .black {
-  color: #000000; }
+  color: #111111; }
 
-.transparent {
-  color: transparent; }
+.white {
+  color: #FFFFFF; }
 
 /**********************
   Alignment
@@ -1504,15 +1206,12 @@ button {
 button, .btn {
   font-family: "Work Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 500;
-  /* font-size: 4rem; */
-  /* line-height: 4rem; */
-  user-select: none;
-  /* padding: 3rem 6rem; */
-  /* color: #000000; */
-  /* background-color: #B3B3B3; */
-  white-space: nowrap;
-  /* margin: 0 0 6px; */
-}
+  font-size: 4rem;
+  line-height: 4rem;
+  padding: 3rem 6rem;
+  color: black;
+  background-color: #B3B3B3;
+  margin: 0 0 6px; }
 
 .btn-sm {
   font-size: 3rem;
@@ -1521,25 +1220,25 @@ button, .btn {
 
 .btn-primary {
   background-color: #4330FC;
-  color: #FFFFFF; }
+  color: white; }
 
 .btn-secondary {
-  background-color: #2AA779; }
+  background-color: #6FDC74; }
 
 .btn-tertiary {
-  background-color: #676767;
-  color: #FFFFFF; }
+  background-color: #666666;
+  color: white; }
 
 .btn-warning {
-  background-color: #EE5432;
-  color: #FFFFFF; }
+  background-color: #EE3124;
+  color: white; }
 
 .btn-group .btn {
   display: inline-block; }
 
 .btn-group .btn:not(.active) {
   background-color: #B3B3B3;
-  color: #000000; }
+  color: black; }
 
 label {
   display: block;
@@ -1548,19 +1247,16 @@ label {
 
 textarea,
 input[type="text"],
-input[type="password"],
 input[type="email"],
 input[type="number"] {
-  /* border-width: 2px; */
-  border-style: solid;
-  /* border-color: black; */
-  /* padding: 12px; */
+  border: 2px solid #111111;
+  padding: 12px;
   width: 100%;
   outline: none; }
 
 .error-label {
   display: none;
-  color: #EE5432;
+  color: #EE3124;
   font-size: 4rem;
   line-height: 4rem;
   margin-top: 2rem; }
@@ -1571,9 +1267,7 @@ input[type="number"] {
 .input-group.error textarea,
 .input-group.error input[type="text"],
 .input-group.error input[type="email"] {
-  border-width: 2px;
-  border-style: solid;
-  border-color: #EE5432; }
+  border: 0.5rem solid #EE3124; }
 
 .input-group.error .error-label {
   display: block; }
@@ -1592,9 +1286,7 @@ fieldset {
 
 .select-dropdown {
   display: flex;
-  border-width: 2px;
-  border-style: solid;
-  border-color: black;
+  border: 2px solid black;
   overflow: hidden;
   background-color: #FFFFFF; }
 
@@ -1605,9 +1297,7 @@ fieldset {
   box-shadow: none;
   background: transparent;
   background-image: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none; }
+  -webkit-appearance: none; }
 
 .select-dropdown select:focus {
   outline: none; }
@@ -1615,7 +1305,7 @@ fieldset {
 .triangle-down {
   border-left: 2rem solid transparent;
   border-right: 2rem solid transparent;
-  border-top: 4rem solid #000000; }
+  border-top: 4rem solid black; }
 
 .select-dropdown .triangle-down {
   border-width: 2rem 1rem 0rem 1rem;
@@ -1661,14 +1351,14 @@ fieldset {
   width: 1px;
   height: 1px;
   border: 12.0006px solid transparent;
-  border-right: 18px solid #000000;
+  border-right: 18px solid #000;
   border-left: 0 solid transparent; }
 
 .icon.next {
   width: 1px;
   height: 1px;
   border: 12.0006px solid transparent;
-  border-left: 18px solid #000000;
+  border-left: 18px solid #000;
   border-right: 0 solid transparent;
   margin-right: 0; }
 
@@ -1676,7 +1366,7 @@ fieldset {
   width: 1px;
   height: 1px;
   border: 12.0006px solid transparent;
-  border-bottom: 18px solid #000000;
+  border-bottom: 18px solid #000;
   border-top: 0 solid transparent; }
 
 /**********************
@@ -1686,7 +1376,7 @@ fieldset {
   display: inline-block;
   padding: 2rem;
   border-radius: 50%;
-  border: 2px solid #000000;
+  border: 2px solid black;
   text-align: center; }
 
 .circle-sm {
@@ -1705,7 +1395,7 @@ fieldset {
 .square {
   display: inline-block;
   padding: 2rem;
-  border: 2px solid #000000;
+  border: 2px solid black;
   text-align: center; }
 
 .square-sm {
@@ -1724,31 +1414,31 @@ fieldset {
   Shape Colors
 **********************/
 .shape-black {
-  background-color: #000000; }
+  background-color: black; }
 
 .shape-red {
-  background-color: #EE5432;
-  border-color: #EE5432; }
+  background-color: #EE3124;
+  border-color: #EE3124; }
 
 .shape-blue {
   background-color: #4330FC;
   border-color: #4330FC; }
 
 .shape-blue-light {
-  background-color: #6184FF;
-  border-color: #6184FF; }
+  background-color: #A4D8E8;
+  border-color: #A4D8E8; }
 
 .shape-orange {
-  background-color: #EE892B;
-  border-color: #EE892B; }
+  background-color: #FFC440;
+  border-color: #FFC440; }
 
 .shape-green {
-  background-color: #2AA779;
-  border-color: #2AA779; }
+  background-color: #6FDC74;
+  border-color: #6FDC74; }
 
 .shape-gray-60 {
-  background-color: #676767;
-  border-color: #676767; }
+  background-color: #666666;
+  border-color: #666666; }
 
 .shape-gray-30 {
   background-color: #B3B3B3;
@@ -1770,7 +1460,7 @@ fieldset {
 .triangle-down {
   border-left: 2rem solid transparent;
   border-right: 2rem solid transparent;
-  border-top: 4rem solid #000000; }
+  border-top: 4rem solid black; }
 
 /**********************
   Urbit logo
@@ -1781,7 +1471,7 @@ fieldset {
   display: inline-block;
   border-radius: 50%;
   vertical-align: middle;
-  border: 5px solid #FFFFFF;
+  border: 5px solid white;
   background-color: transparent; }
   .urbit-logo:before {
     content: "~";
@@ -1798,9 +1488,9 @@ fieldset {
     margin-top: 3px; }
 
 .urbit-logo-solid {
-  border-color: #000000; }
+  border-color: black; }
   .urbit-logo-solid:before {
-    color: #000000; }
+    color: black; }
 
 /**********************
   Base elements
@@ -1810,7 +1500,7 @@ section {
   border: none; }
 
 blockquote {
-  border-left: 6px solid #000000;
+  border-left: 6px solid black;
   margin: 24px 0;
   padding-left: 18px; }
 
@@ -1830,7 +1520,7 @@ ul {
   ul li {
     margin-bottom: 2rem;
     padding-left: 2rem; }
-
+/*
 ul ol,
 ul ul,
 ol ul,
@@ -1840,14 +1530,14 @@ ul ol {
   ul ul li,
   ol ul li,
   ul ol li {
-    margin-bottom: 1rem; }
+    margin-bottom: 1rem; } */
 
 ul.list-reset {
   list-style: none;
   padding-left: 0; }
   ul.list-reset li {
     padding-left: 0; }
-
+/*
 ol {
   list-style: none;
   padding-left: 0; }
@@ -1863,7 +1553,7 @@ ol > li:before {
   vertical-align: center;
   display: inline-block;
   width: 6rem;
-  text-align: left; }
+  text-align: left; } */
 
 /*
   Fluid-to-fixed conversions at standard screen sizes:

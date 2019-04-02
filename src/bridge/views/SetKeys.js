@@ -14,7 +14,7 @@ import saveAs from 'file-saver'
 
 import { WALLET_NAMES } from '../lib/wallet'
 
-import * as kg from '../../node_modules/urbit-key-generation/dist/index'
+import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 
 import {
   sendSignedTransaction,

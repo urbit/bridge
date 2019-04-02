@@ -3,7 +3,7 @@ import Maybe from 'folktale/maybe'
 
 import * as noun from '../nockjs/noun'
 import * as serial from '../nockjs/serial'
-import * as kg from '../../node_modules/urbit-key-generation/dist/index'
+import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 
 import { BRIDGE_ERROR } from './error'
 import {

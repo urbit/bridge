@@ -17,8 +17,6 @@ import Custody from './views/Custody'
 import Download from './views/Download'
 import Done from './views/Done'
 
-import './styles/index.css'
-
 const checkNetwork = () => navigator.onLine
   ? NETWORK_STATES.ONLINE
   : NETWORK_STATES.OFFLINE

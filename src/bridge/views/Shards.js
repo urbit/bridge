@@ -3,7 +3,7 @@ import React from 'react'
 import { Button } from '../components/Base'
 import { InnerLabel, ValidatedSigil, PointInput, ShardInput } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
-import * as kg from '../../node_modules/urbit-key-generation/dist/index'
+import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as ob from 'urbit-ob'
 
 import { ROUTE_NAMES } from '../lib/router'

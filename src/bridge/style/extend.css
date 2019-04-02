@@ -1,3 +1,5 @@
+bridge {}
+
 .wrapper {
   min-height: calc(100vh - 52px - 106px - 80px);
 }
