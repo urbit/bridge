@@ -2,7 +2,7 @@ import Maybe from 'folktale/maybe'
 import React from 'react'
 import * as azimuth from 'azimuth-js'
 import { Row, Col, H1, H3, P, InnerLabel, ShowBlockie, Anchor } from '../components/Base'
-import { AddressInput, Warning } from '../components/Base'
+import { AddressInput } from '../components/Base'
 import * as ob from 'urbit-ob'
 
 import { PROXY_TYPE, renderProxyType } from '../lib/proxy'
@@ -12,17 +12,7 @@ import { NETWORK_NAMES } from '../lib/network'
 
 import StatelessTransaction from '../components/StatelessTransaction'
 
-import { ROUTE_NAMES } from '../lib/router'
-
-import {
-  sendSignedTransaction,
-  fromWei,
- } from '../lib/txn'
-
-import {
-  isValidAddress,
-  addressFromSecp256k1Public,
-} from '../lib/wallet'
+import { isValidAddress } from '../lib/wallet'
 
 const SetManagementProxy = (props) =>
   <SetProxy
@@ -101,18 +91,11 @@ class SetProxy extends React.Component {
   }
 
   render() {
-
     const { props, state } = this
 
     const renderedProxyType = renderProxyType(props.proxyType)
-
     const validAddress = isValidAddress(state.proxyAddress)
-
     const canGenerate = validAddress === true
-
-    const canSign = Maybe.Just.hasInstance(state.txn)
-    const canApprove = Maybe.Just.hasInstance(state.stx)
-    const canSend = Maybe.Just.hasInstance(state.stx) && state.userApproval === true
 
     const esvisible =
         props.networkType === NETWORK_NAMES.ROPSTEN ||
@@ -170,46 +153,8 @@ class SetProxy extends React.Component {
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
             networkType={props.networkType}
-            // Tx
-            txn={state.txn}
-            stx={state.stx}
-            // Tx details
-            nonce={state.nonce}
-            gasPrice={state.gasPrice}
-            chainId={state.chainId}
-            gasLimit={state.gasLimit}
-            showGasDetails={state.showGasDetails}
-            toggleGasDetails={this.toggleGasDetails}
             // Checks
-            userApproval={state.userApproval}
-            canGenerate={ canGenerate }
-            canSign={ canSign }
-            canApprove={ canApprove }
-            canSend={ canSend }
-            // Methods
-            createUnsignedTxn={this.handleCreateUnsignedTxn}
-            setUserApproval={this.handleSetUserApproval}
-            setTxn={this.handleSetTxn}
-            setStx={this.handleSetStx}
-            setNonce={this.handleSetNonce}
-            setChainId={this.handleSetChainId}
-            setGasPrice={this.handleSetGasPrice}
-            setGasLimit={this.handleSetGasLimit}
-            handleSubmit={this.handleSubmit} />
-
-            {
-              Maybe.Nothing.hasInstance(state.txError)
-                ? ''
-                : <Warning className={'mt-8'}>
-                    <H3 style={{marginTop: 0, paddingTop: 0}}>
-                      {
-                        'There was an error sending your transaction.'
-                      }
-                    </H3>
-                    { state.txError.value }
-                </Warning>
-            }
-
+            canGenerate={ canGenerate } />
         </Col>
       </Row>
     )

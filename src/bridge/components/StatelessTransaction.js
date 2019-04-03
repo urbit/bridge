@@ -1,11 +1,21 @@
-import { Nothing } from 'folktale/maybe'
+import { Maybe, Nothing } from 'folktale/maybe'
 import React from 'react'
 
 import { Code, H3 } from './Base'
 import { Button } from './Base'
 import { CheckboxButton, Input, InnerLabel } from './Base'
+import {  Warning } from '../components/Base'
 
-import { renderSignedTx, signTransaction } from '../lib/txn'
+import { addressFromSecp256k1Public } from '../lib/wallet'
+import { BRIDGE_ERROR } from '../lib/error'
+import { ROUTE_NAMES } from '../lib/router'
+
+import {
+  sendSignedTransaction,
+  fromWei,
+  renderSignedTx,
+  signTransaction
+ } from '../lib/txn'
 
 class StatelessTransaction extends React.Component {
 
@@ -129,12 +139,12 @@ class StatelessTransaction extends React.Component {
     this.handleClearStx()
   }
 
-  handleSetGasPrice(gasPrice){
+  handleSetGasPrice(gasPrice) {
     this.setState({ gasPrice })
     this.handleClearStx()
   }
 
-  handleRangeChange(e) => {
+  handleRangeChange(e) {
     this.handleSetGasPrice(e.target.value);
   }
 
@@ -167,7 +177,9 @@ class StatelessTransaction extends React.Component {
     const { gasPrice, gasLimit, nonce, chainId, txn, stx, userApproval } = this.state
 
     const { setNonce, setChainId, setGasLimit, setGasPrice, handleSubmit } = this
-    const { showGasDetails, toggleGasDetails, setUserApproval } = this
+    const { showGasDetails, toggleGasDetails, setUserApproval, sendTxn } = this
+
+    const { state } = this
 
     const canSign = Maybe.Just.hasInstance(state.txn)
     const canApprove = Maybe.Just.hasInstance(state.stx)
@@ -227,7 +239,7 @@ class StatelessTransaction extends React.Component {
           max="20"
           list="gweiVals"
           value={gasPrice}
-          onChange={handleRangeChange}
+          onChange={this.handleRangeChange}
           />
 
         <div className="flex space-between text-sm mb-8">
@@ -359,6 +371,17 @@ class StatelessTransaction extends React.Component {
         </React.Fragment>
     })
 
+    const txnErrorDialogue = Maybe.Nothing.hasInstance(state.txError)
+      ? ''
+      : <Warning className={'mt-8'}>
+          <H3 style={{marginTop: 0, paddingTop: 0}}>
+            {
+              'There was an error sending your transaction.'
+            }
+          </H3>
+          { state.txError.value }
+      </Warning>
+
     return (
       <React.Fragment>
         { generateTxnButton }
@@ -379,6 +402,8 @@ class StatelessTransaction extends React.Component {
 
         { signedTxnDisplay }
         { sendDialogue }
+
+        { txnErrorDialogue }
       </React.Fragment>
     )
   }
