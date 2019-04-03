@@ -16,7 +16,7 @@ const StatelessTransaction = props => {
   const { canSend, handleSubmit } = props
 
   // TODO: Investigate
-  // setState doesn't seem to work in SetProxy/handleSubmit; 
+  // setState doesn't seem to work in SetProxy/handleSubmit;
   //   - TypeError: Cannot read property 'updater' of undefined
   // so just modifying the DOM manually here. (https://imgur.com/a/i0Qsyq1)
 
@@ -190,7 +190,7 @@ const StatelessTransaction = props => {
       onClick={ setUserApproval }
       state={ userApproval }
     >
-      <div>
+      <div onClick={ setUserApproval }>
         { `I approve this transaction and wish to send.` }
       </div>
     </CheckboxButton>
