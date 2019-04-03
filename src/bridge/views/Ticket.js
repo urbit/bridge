@@ -33,6 +33,7 @@ class Ticket extends React.Component {
     this.state = {
       ticket: '',
       pointName: '',
+      passphrase: '',
       isUnlocking: false
     }
 
@@ -40,11 +41,16 @@ class Ticket extends React.Component {
     this.ticketPlaceholder = placeholder(8)
 
     this.handleTicketInput = this.handleTicketInput.bind(this)
+    this.handlePassphraseInput = this.handlePassphraseInput.bind(this)
     this.handlePointNameInput = this.handlePointNameInput.bind(this)
   }
 
   handleTicketInput(ticket) {
     this.setState({ ticket })
+  }
+
+  handlePassphraseInput(passphrase) {
+    this.setState({ passphrase })
   }
 
   handlePointNameInput(pointName) {
@@ -53,13 +59,7 @@ class Ticket extends React.Component {
     }
   }
 
-  // buttonTriState = (wallet) => {
-  //   if (wallet.isNothing()) return 'blue'
-  //   if (wallet === false) return 'yellow'
-  //   if (Maybe.Nothing.hasInstance(wallet)) return 'green'
-  // }
-
-  async walletFromTicket(ticket, pointName) {
+  async walletFromTicket(ticket, pointName, passphrase) {
     const { setWallet, setUrbitWallet } = this.props
 
     this.setState({
@@ -68,10 +68,11 @@ class Ticket extends React.Component {
 
     const urbitWallet = await kg.generateWallet({
       ticket: ticket,
-      ship: ob.patp2dec(pointName)
+      ship: ob.patp2dec(pointName),
+      passphrase: passphrase
     })
     const mnemonic = urbitWallet.ownership.seed
-    const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH)
+    const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH, passphrase)
     setWallet(wallet)
     setUrbitWallet(Just(urbitWallet))
 
@@ -82,7 +83,7 @@ class Ticket extends React.Component {
 
   render() {
     const { popRoute, pushRoute, wallet } = this.props
-    const { ticket, pointName } = this.state
+    const { ticket, pointName, passphrase } = this.state
 
     const phPoint = this.pointPlaceholder
     const phTick = this.ticketPlaceholder
@@ -126,12 +127,29 @@ class Ticket extends React.Component {
             <InnerLabel>{ 'Ticket' }</InnerLabel>
           </TicketInput>
 
+          <InputCaption>
+          { 'If your wallet requires a passphrase, you may enter it below.' }
+          </InputCaption>
+
+          <Input
+            className='pt-8'
+            prop-size='md'
+            prop-format='innerLabel'
+            name='passphrase'
+            type='password'
+            value={ passphrase }
+            autocomplete='off'
+            onChange={ this.handlePassphraseInput }>
+            <InnerLabel>{'Passphrase'}</InnerLabel>
+          </Input>
+
           <Button
             className={'mt-8'}
             prop-size={'lg wide'}
             disabled={this.state.isUnlocking || Just.hasInstance(wallet)}
-            // prop-color={this.buttonTriState(wallet)}
-            onClick={() => this.walletFromTicket(ticket, pointName)}>
+            onClick={
+              () => this.walletFromTicket(ticket, pointName, passphrase)
+            }>
 
             <span className="relative">
               {this.state.isUnlocking &&
