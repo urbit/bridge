@@ -301,7 +301,7 @@ class IssueChild extends React.Component {
     const txn = ecliptic.spawn(
       validContracts,
       pointDec,
-      state.receivingAddress
+      state.receivingAddress.toLowerCase()
     )
 
     return Just(txn)

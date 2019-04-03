@@ -250,7 +250,7 @@ class SetProxy extends React.Component {
     const txArgs = [
       validContracts,
       validPoint,
-      state.proxyAddress
+      state.proxyAddress.toLowerCase()
     ]
 
     if (props.proxyType === PROXY_TYPE.TRANSFER_PROXY) {
