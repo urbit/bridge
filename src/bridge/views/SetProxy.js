@@ -48,10 +48,20 @@ class SetProxy extends React.Component {
       issuingPoint: issuingPoint,
     }
 
+    this.statelessRef = React.createRef();
     this.handleAddressInput = this.handleAddressInput.bind(this)
+    this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
+  }
+
+  handleAddressInput(proxyAddress) {
+    this.setState({ proxyAddress })
+
+    this.statelessRef.current.handleClearTxn()
   }
 
   createUnsignedTxn(proxyAddress) {
+    console.log('creatingTxn')
+
     const { state, props } = this
 
     const validContracts = props.contracts.matchWith({
@@ -153,7 +163,12 @@ class SetProxy extends React.Component {
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
             networkType={props.networkType}
-            // Checks
+            setTxnHashCursor={props.setTxnHashCursor}
+            popRoute={props.popRoute}
+            pushRoute={props.pushRoute}
+            // Other
+            ref={this.statelessRef}
+            createUnsignedTxn={this.createUnsignedTxn}
             canGenerate={ canGenerate } />
         </Col>
       </Row>

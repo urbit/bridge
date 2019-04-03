@@ -1,4 +1,4 @@
-import { Maybe, Nothing } from 'folktale/maybe'
+import { Maybe, Nothing, Just } from 'folktale/maybe'
 import React from 'react'
 
 import { Code, H3 } from './Base'
@@ -38,7 +38,8 @@ class StatelessTransaction extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleSetUserApproval = this.handleSetUserApproval.bind(this)
     this.handleSetTxn = this.handleSetTxn.bind(this)
-    this.handleSetStx = this.handleSetStx.bind(this)
+    this.setStx = this.setStx.bind(this)
+    this.sendTxn = this.sendTxn.bind(this)
     this.handleSetNonce = this.handleSetNonce.bind(this)
     this.handleSetChainId = this.handleSetChainId.bind(this)
     this.handleSetGasPrice = this.handleSetGasPrice.bind(this)
@@ -90,7 +91,8 @@ class StatelessTransaction extends React.Component {
         props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
       })
       .catch(err => {
-        this.setState({ txError: err.map(val => val.merge()) })
+        console.log('err = ', err)
+        // this.setState({ txError: err.map(val => val.merge()) })
       })
   }
 
@@ -105,7 +107,7 @@ class StatelessTransaction extends React.Component {
     })
   }
 
-  handleSetStx(stx){
+  setStx(stx){
     this.setState({
       stx,
       userApproval: false,
@@ -124,8 +126,8 @@ class StatelessTransaction extends React.Component {
   handleClearTxn() {
     this.setState({
       userApproval: false,
-      txn: Maybe.Nothing(),
-      stx: Maybe.Nothing(),
+      txn: Nothing(),
+      stx: Nothing(),
     })
   }
 
@@ -156,7 +158,7 @@ class StatelessTransaction extends React.Component {
   handleClearStx() {
     this.setState({
       userApproval: false,
-      stx: Maybe.Nothing(),
+      stx: Nothing(),
     })
   }
 
@@ -173,17 +175,19 @@ class StatelessTransaction extends React.Component {
   }
 
   render() {
-    const { web3, createUnsignedTxn, canGenerate } = this.props
-    const { gasPrice, gasLimit, nonce, chainId, txn, stx, userApproval } = this.state
+    const { web3, canGenerate } = this.props
+    const { gasPrice, gasLimit, nonce, chainId,
+      txn, stx, userApproval } = this.state
 
-    const { setNonce, setChainId, setGasLimit, setGasPrice, handleSubmit } = this
-    const { showGasDetails, toggleGasDetails, setUserApproval, sendTxn } = this
+    const { setNonce, setChainId, setGasLimit, setGasPrice,
+      handleSubmit, showGasDetails, toggleGasDetails, handleSetUserApproval,
+      sendTxn, handleCreateUnsignedTxn } = this
 
     const { state } = this
 
-    const canSign = Maybe.Just.hasInstance(state.txn)
-    const canApprove = Maybe.Just.hasInstance(state.stx)
-    const canSend = Maybe.Just.hasInstance(state.stx) && state.userApproval === true
+    const canSign = Just.hasInstance(state.txn)
+    const canApprove = Just.hasInstance(state.stx)
+    const canSend = Just.hasInstance(state.stx) && state.userApproval === true
 
     const generateButtonColor =
         Nothing.hasInstance(txn)
@@ -201,7 +205,7 @@ class StatelessTransaction extends React.Component {
         disabled={ !canGenerate }
         prop-color={ generateButtonColor }
         prop-size={ 'lg wide' }
-        onClick={ createUnsignedTxn }
+        onClick={ handleCreateUnsignedTxn }
       >
         { 'Generate Transaction' }
       </Button>
@@ -319,7 +323,7 @@ class StatelessTransaction extends React.Component {
         className={ 'mt-8' }
         prop-size={ 'lg wide' }
         prop-color={ signerButtonColor }
-        onClick={ () => signTransaction(this.props) }
+        onClick={ () => signTransaction({...this.props, ...this.state, setStx: this.setStx}) }
       >
         { 'Sign Transaction' }
       </Button>
@@ -341,7 +345,7 @@ class StatelessTransaction extends React.Component {
       <CheckboxButton
         className={ 'mt-8' }
         disabled={ !canApprove }
-        onClick={ setUserApproval }
+        onClick={ handleSetUserApproval }
         state={ userApproval }
       >
         <div>
@@ -371,7 +375,7 @@ class StatelessTransaction extends React.Component {
         </React.Fragment>
     })
 
-    const txnErrorDialogue = Maybe.Nothing.hasInstance(state.txError)
+    const txnErrorDialogue = Nothing.hasInstance(state.txError)
       ? ''
       : <Warning className={'mt-8'}>
           <H3 style={{marginTop: 0, paddingTop: 0}}>
