@@ -1,4 +1,4 @@
-import Maybe from 'folktale/maybe'
+import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { Button } from '../components/Base'
 import { InnerLabel, ValidatedSigil, PointInput, TicketInput } from '../components/Base'
@@ -49,7 +49,7 @@ class InviteLogin extends React.Component {
   // buttonTriState = (wallet) => {
   //   if (wallet.isNothing()) return 'blue'
   //   if (wallet === false) return 'yellow'
-  //   if (Maybe.Nothing.hasInstance(wallet)) return 'green'
+  //   if (Nothing.hasInstance(wallet)) return 'green'
   // }
 
   async walletFromTicket(ticket, pointName) {
@@ -66,7 +66,7 @@ class InviteLogin extends React.Component {
     const mnemonic = urbitWallet.ownership.seed
     const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH)
     setWallet(wallet)
-    setUrbitWallet(Maybe.Just(urbitWallet))
+    setUrbitWallet(Just(urbitWallet))
 
     this.setState({
       isUnlocking: false
