@@ -1,7 +1,14 @@
 import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { Button } from '../components/Base'
-import { InnerLabel, ValidatedSigil, PointInput, ShardInput } from '../components/Base'
+import {
+  InnerLabel,
+  ValidatedSigil,
+  PointInput,
+  ShardInput,
+  InputCaption,
+  Input
+  } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as ob from 'urbit-ob'

@@ -2,7 +2,12 @@ import * as bip39 from 'bip39'
 import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { Button } from '../components/Base'
-import { Input, MnemonicInput, InnerLabel, InputCaption } from '../components/Base'
+import {
+  Input,
+  MnemonicInput,
+  InnerLabel,
+  InputCaption
+  } from '../components/Base'
 import { Row, Col, H1 } from '../components/Base'
 
 import { ROUTE_NAMES } from '../lib/router'
