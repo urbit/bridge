@@ -1,5 +1,5 @@
 import * as bip39 from 'bip39'
-import Maybe from 'folktale/maybe'
+import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { Button } from '../components/Base'
 import { Input, MnemonicInput, InnerLabel, InputCaption } from '../components/Base'
@@ -62,7 +62,7 @@ class Mnemonic extends React.Component {
     const { setWallet, setAuthMnemonic, setWalletHdPath } = this.props
     const wallet = walletFromMnemonic(mnemonic, hdpath)
     setWallet(wallet)
-    setAuthMnemonic(Maybe.Just(mnemonic))
+    setAuthMnemonic(Just(mnemonic))
     setWalletHdPath(hdpath)
   }
 
@@ -114,7 +114,7 @@ class Mnemonic extends React.Component {
 
             <Button
               className={'mt-10'}
-              disabled={ Maybe.Nothing.hasInstance(wallet) }
+              disabled={ Nothing.hasInstance(wallet) }
               onClick={ () => {
                   popRoute()
                   pushRoute(ROUTE_NAMES.SHIPS)

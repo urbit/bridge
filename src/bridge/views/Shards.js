@@ -1,4 +1,4 @@
-import Maybe from 'folktale/maybe'
+import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { Button } from '../components/Base'
 import { InnerLabel, ValidatedSigil, PointInput, ShardInput } from '../components/Base'
@@ -87,7 +87,7 @@ class Shards extends React.Component {
       const mnemonic = urbitWallet.ownership.seed
       const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH)
       setWallet(wallet)
-      setUrbitWallet(Maybe.Just(urbitWallet))
+      setUrbitWallet(Just(urbitWallet))
     }
   }
 
@@ -183,7 +183,7 @@ class Shards extends React.Component {
           <Button
             className={'mt-4'}
             prop-size={'xl wide'}
-            disabled={ Maybe.Nothing.hasInstance(wallet) }
+            disabled={ Nothing.hasInstance(wallet) }
             onClick={ () => {
                 popRoute()
                 pushRoute(ROUTE_NAMES.SHIPS)

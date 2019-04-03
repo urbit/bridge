@@ -1,4 +1,4 @@
-import Maybe from 'folktale/maybe'
+import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { Button } from '../components/Base'
 import { InnerLabel, ValidatedSigil, PointInput, TicketInput } from '../components/Base'
@@ -66,7 +66,7 @@ class Ticket extends React.Component {
     const mnemonic = urbitWallet.ownership.seed
     const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH)
     setWallet(wallet)
-    setUrbitWallet(Maybe.Just(urbitWallet))
+    setUrbitWallet(Just(urbitWallet))
 
     this.setState({
       isUnlocking: false
@@ -122,7 +122,7 @@ class Ticket extends React.Component {
           <Button
             className={'mt-8'}
             prop-size={'lg wide'}
-            disabled={this.state.isUnlocking || Maybe.Just.hasInstance(wallet)}
+            disabled={this.state.isUnlocking || Just.hasInstance(wallet)}
             // prop-color={this.buttonTriState(wallet)}
             onClick={() => this.walletFromTicket(ticket, pointName)}>
 
@@ -137,7 +137,7 @@ class Ticket extends React.Component {
           <Button
             className={'mt-4'}
             prop-size={'xl wide'}
-            disabled={ Maybe.Nothing.hasInstance(wallet) }
+            disabled={ Nothing.hasInstance(wallet) }
             onClick={ () => {
                 popRoute()
                 pushRoute(ROUTE_NAMES.SHIPS)
