@@ -115,12 +115,18 @@ class GenKeyfile extends React.Component {
           }
 
           { keyfile === '' && loaded &&
-            <P>
-              <b>Warning: </b>
-              { `No valid network seed detected. To generate a keyfile, you
-                must reset your networking keys, or try logging in with your
-                master ticket or management mnemonic` }
-            </P>
+            <React.Fragment>
+              <P>
+                <b>Warning: </b>
+                { `No valid network seed detected. To generate a keyfile, you
+                  must reset your networking keys, or try logging in with your
+                  master ticket or management mnemonic.` }
+              </P>
+
+              <P>
+                { `If you've just reset your networking keys, you may need to wait for the transaction to go through. Check back shortly.` }
+              </P>
+            </React.Fragment>
           }
 
           { keyfile !== '' &&
