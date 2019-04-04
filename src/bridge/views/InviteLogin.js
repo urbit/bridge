@@ -7,7 +7,7 @@ import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as ob from 'urbit-ob'
 
 import { ROUTE_NAMES } from '../lib/router'
-import { DEFAULT_HD_PATH, walletFromMnemonic } from '../lib/wallet'
+import { DEFAULT_HD_PATH, urbitWalletFromTicket } from '../lib/wallet'
 
 const placeholder = (len) => {
   let bytes = window.crypto.getRandomValues(new Uint8Array(len))
@@ -40,20 +40,12 @@ class InviteLogin extends React.Component {
   }
 
   async walletFromTicket(ticket, pointName) {
-    const { setWallet, setUrbitWallet } = this.props
-
     this.setState({
       isUnlocking: true
     });
 
-    const urbitWallet = await kg.generateWallet({
-      ticket: ticket,
-      ship: ob.patp2dec('~zod') //NOTE invite wallet
-    })
-    const mnemonic = urbitWallet.ownership.seed
-    const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH)
-    setWallet(wallet)
-    setUrbitWallet(Just(urbitWallet))
+    const uhdw = await urbitWalletFromTicket(ticket, '~zod');
+    this.props.setUrbitWallet(Just(uhdw));
 
     this.setState({
       isUnlocking: false

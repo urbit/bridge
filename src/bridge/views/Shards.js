@@ -14,7 +14,7 @@ import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as ob from 'urbit-ob'
 
 import { ROUTE_NAMES } from '../lib/router'
-import { DEFAULT_HD_PATH, walletFromMnemonic } from '../lib/wallet'
+import { DEFAULT_HD_PATH, urbitWalletFromTicket } from '../lib/wallet'
 
 const placeholder = (len) => {
   let bytes = window.crypto.getRandomValues(new Uint8Array(len))
@@ -73,8 +73,6 @@ class Shards extends React.Component {
   }
 
   async walletFromShards(shard1, shard2, shard3, pointName, passphrase) {
-    const { setWallet, setUrbitWallet } = this.props
-
     const s1 = shard1 === '' ? undefined : shard1
     const s2 = shard2 === '' ? undefined : shard2
     const s3 = shard3 === '' ? undefined : shard3
@@ -87,15 +85,8 @@ class Shards extends React.Component {
     }
 
     if (ticket !== undefined) {
-      const urbitWallet = await kg.generateWallet({
-        ticket: ticket,
-        ship: ob.patp2dec(pointName),
-        passphrase: passphrase
-      })
-      const mnemonic = urbitWallet.ownership.seed
-      const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH, passphrase)
-      setWallet(wallet)
-      setUrbitWallet(Just(urbitWallet))
+      const uhdw = await urbitWalletFromTicket(ticket, pointName, passphrase);
+      this.props.setUrbitWallet(Just(uhdw));
     }
   }
 

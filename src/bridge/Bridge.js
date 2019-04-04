@@ -12,7 +12,7 @@ import { Container, Row, Col } from './components/Base'
 
 import { ROUTE_NAMES, router } from './lib/router'
 import { NETWORK_NAMES } from './lib/network'
-import { WALLET_NAMES, DEFAULT_HD_PATH } from './lib/wallet'
+import { WALLET_NAMES, DEFAULT_HD_PATH, walletFromMnemonic } from './lib/wallet'
 import { BRIDGE_ERROR } from './lib/error'
 
 const initWeb3 = (networkType) => {
@@ -212,8 +212,18 @@ class Bridge extends React.Component {
     this.setState({ walletHdPath })
   }
 
+  // also sets wallet to ownership address
   setUrbitWallet(urbitWallet) {
-    this.setState({ urbitWallet })
+    let wallet = this.state.wallet;
+    if (Just.hasInstance(urbitWallet)) {
+      const mnemonic = urbitWallet.value.ownership.seed;
+      wallet = walletFromMnemonic(
+        mnemonic,
+        DEFAULT_HD_PATH,
+        urbitWallet.value.meta.passphrase
+      );
+    }
+    this.setState({ urbitWallet, wallet })
   }
 
   setAuthMnemonic(authMnemonic) {
