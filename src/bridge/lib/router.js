@@ -6,6 +6,8 @@ import Landing from '../views/Landing'
 
 import InviteLogin from '../views/InviteLogin'
 import InviteWallet from '../views/InviteWallet'
+import InviteVerify from '../views/InviteVerify.js'
+import InviteTransactions from '../views/InviteTransactions.js'
 
 import AcceptTransfer from '../views/AcceptTransfer'
 import CancelTransfer from '../views/CancelTransfer'
@@ -42,6 +44,8 @@ const ROUTE_NAMES = {
   //
   INVITE_LOGIN: Symbol('INVITE_LOGIN'),
   INVITE_WALLET: Symbol('INVITE_WALLET'),
+  INVITE_VERIFY: Symbol('INVITE_VERIFY'),
+  INVITE_TRANSACTIONS: Symbol('INVITE_TRANSACTIONS'),
   //
   ACCEPT_TRANSFER: Symbol('ACCEPT_TRANSFER'),
   CANCEL_TRANSFER: Symbol('CANCEL_TRANSFER'),
@@ -75,6 +79,8 @@ const createRoutes = () => {
   //
   routes[ROUTE_NAMES.INVITE_LOGIN] = InviteLogin
   routes[ROUTE_NAMES.INVITE_WALLET] = InviteWallet
+  routes[ROUTE_NAMES.INVITE_VERIFY] = InviteVerify
+  routes[ROUTE_NAMES.INVITE_TRANSACTIONS] = InviteTransactions
   //
   routes[ROUTE_NAMES.ACCEPT_TRANSFER] = AcceptTransfer
   routes[ROUTE_NAMES.CANCEL_TRANSFER] = CancelTransfer
@@ -116,6 +122,12 @@ const renderRoute = (props, route) => {
 
     : route === ROUTE_NAMES.INVITE_WALLET
     ? 'Claim invite'
+
+    : route === ROUTE_NAMES.INVITE_VERIFY
+    ? 'Verify new wallet'
+
+    : route === ROUTE_NAMES.INVITE_TRANSACTIONS
+    ? 'Setting up new wallet'
 
     : route === ROUTE_NAMES.NETWORK
     ? `${renderNetworkType(networkType)}`

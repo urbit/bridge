@@ -5,6 +5,7 @@ import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
 
 import { addressFromSecp256k1Public, EthereumWallet } from '../lib/wallet'
+import { ROUTE_NAMES } from '../lib/router'
 
 import PointList from '../components/PointList'
 import ReactSVGComponents from '../components/ReactSVGComponents'
@@ -39,10 +40,10 @@ class InviteWallet extends React.Component {
       wallet: Nothing(),
       paper: Nothing(),
       downloaded: false
-      //TODO remove bools in favor of Nothings/Justs
     }
 
     this.download = this.download.bind(this)
+    this.proceed = this.proceed.bind(this)
   }
 
   componentDidMount() {
@@ -162,7 +163,10 @@ class InviteWallet extends React.Component {
   }
 
   proceed() {
-    //TODO
+    this.props.pushRoute(ROUTE_NAMES.INVITE_VERIFY, {
+      ticket: this.state.wallet.value.ticket,
+      point: this.state.point.value
+    });
   }
 
   render() {
@@ -269,7 +273,7 @@ class InviteWallet extends React.Component {
           { balanceWarning }
           { pointOverview }
 
-          <p>{'TODO copy. you need a wallet to receive the point into. download it below.'}</p>
+          <p>{'TODO copy. you need a wallet to receive the point into. download it below. also explanation of wallet files/storage'}</p>
 
           { downloadButton }
           { nextButton }

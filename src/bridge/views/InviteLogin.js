@@ -33,24 +33,11 @@ class InviteLogin extends React.Component {
     this.ticketPlaceholder = placeholder(12)
 
     this.handleTicketInput = this.handleTicketInput.bind(this)
-    this.handlePointNameInput = this.handlePointNameInput.bind(this)
   }
 
   handleTicketInput(ticket) {
     this.setState({ ticket })
   }
-
-  handlePointNameInput(pointName) {
-    if (pointName.length < 15) {
-      this.setState({ pointName })
-    }
-  }
-
-  // buttonTriState = (wallet) => {
-  //   if (wallet.isNothing()) return 'blue'
-  //   if (wallet === false) return 'yellow'
-  //   if (Nothing.hasInstance(wallet)) return 'green'
-  // }
 
   async walletFromTicket(ticket, pointName) {
     const { setWallet, setUrbitWallet } = this.props
@@ -78,7 +65,6 @@ class InviteLogin extends React.Component {
     const { wallet } = this.props
     const { ticket, pointName } = this.state
 
-    const phPoint = this.pointPlaceholder
     const phTick = this.ticketPlaceholder
 
     return (
