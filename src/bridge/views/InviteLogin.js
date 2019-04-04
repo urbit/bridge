@@ -71,7 +71,7 @@ class InviteLogin extends React.Component {
     this.setState({
       isUnlocking: false
     });
-    this.props.pushRoute(ROUTE_NAMES.INVITE_CLAIM)
+    this.props.pushRoute(ROUTE_NAMES.INVITE_WALLET);
   }
 
   render() {

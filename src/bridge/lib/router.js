@@ -5,7 +5,7 @@ import React from 'react';
 import Landing from '../views/Landing'
 
 import InviteLogin from '../views/InviteLogin'
-import InviteClaim from '../views/InviteClaim'
+import InviteWallet from '../views/InviteWallet'
 
 import AcceptTransfer from '../views/AcceptTransfer'
 import CancelTransfer from '../views/CancelTransfer'
@@ -41,7 +41,7 @@ const ROUTE_NAMES = {
   DEFAULT: Symbol('DEFAULT'),
   //
   INVITE_LOGIN: Symbol('INVITE_LOGIN'),
-  INVITE_CLAIM: Symbol('INVITE_CLAIM'),
+  INVITE_WALLET: Symbol('INVITE_WALLET'),
   //
   ACCEPT_TRANSFER: Symbol('ACCEPT_TRANSFER'),
   CANCEL_TRANSFER: Symbol('CANCEL_TRANSFER'),
@@ -74,7 +74,7 @@ const createRoutes = () => {
   routes[ROUTE_NAMES.DEFAULT] = Landing
   //
   routes[ROUTE_NAMES.INVITE_LOGIN] = InviteLogin
-  routes[ROUTE_NAMES.INVITE_CLAIM] = InviteClaim
+  routes[ROUTE_NAMES.INVITE_WALLET] = InviteWallet
   //
   routes[ROUTE_NAMES.ACCEPT_TRANSFER] = AcceptTransfer
   routes[ROUTE_NAMES.CANCEL_TRANSFER] = CancelTransfer
@@ -114,7 +114,7 @@ const renderRoute = (props, route) => {
     : route === ROUTE_NAMES.INVITE_LOGIN
     ? 'Invite code'
 
-    : route === ROUTE_NAMES.INVITE_CLAIM
+    : route === ROUTE_NAMES.INVITE_WALLET
     ? 'Claim invite'
 
     : route === ROUTE_NAMES.NETWORK

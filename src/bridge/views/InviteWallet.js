@@ -28,8 +28,7 @@ import { MAX_GALAXY, MIN_STAR, MAX_STAR, MIN_PLANET,
 const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8
 const NEXT_STEP_NUM = 6;
 
-//TODO more like InviteGenerate...
-class InviteClaim extends React.Component {
+class InviteWallet extends React.Component {
 
   constructor(props) {
     super(props)
@@ -162,6 +161,10 @@ class InviteClaim extends React.Component {
     });
   }
 
+  proceed() {
+    //TODO
+  }
+
   render() {
 
     const { loaded, point, wallet, paper, downloaded } = this.state;
@@ -235,7 +238,7 @@ class InviteClaim extends React.Component {
           className={'mt-8'}
           prop-size={'lg wide'}
           disabled={!this.state.downloaded}
-          onClick={() => console.log('TODO route to next')}
+          onClick={this.proceed}
         >
           {'Proceed'}
         </Button>
@@ -279,4 +282,4 @@ class InviteClaim extends React.Component {
   }
 }
 
-export default InviteClaim
+export default InviteWallet
