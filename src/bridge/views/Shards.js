@@ -1,7 +1,14 @@
-import Maybe from 'folktale/maybe'
+import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { Button } from '../components/Base'
-import { InnerLabel, ValidatedSigil, PointInput, ShardInput } from '../components/Base'
+import {
+  InnerLabel,
+  ValidatedSigil,
+  PointInput,
+  ShardInput,
+  InputCaption,
+  Input
+  } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as ob from 'urbit-ob'
@@ -33,12 +40,14 @@ class Shards extends React.Component {
       shard1: '',
       shard2: '',
       shard3: '',
+      passphrase: '',
       pointName: ''
     }
 
     this.pointPlaceholder = placeholder(4)
     this.ticketPlaceholder = placeholder(16)
 
+    this.handlePassphraseInput = this.handlePassphraseInput.bind(this)
     this.handleShardInput = this.handleShardInput.bind(this)
     this.handlePointNameInput = this.handlePointNameInput.bind(this)
   }
@@ -53,19 +62,17 @@ class Shards extends React.Component {
     }
   }
 
+  handlePassphraseInput(passphrase) {
+    this.setState({ passphrase })
+  }
+
   handlePointNameInput(pointName) {
     if (pointName.length < 15) {
       this.setState({ pointName })
     }
   }
 
-  // buttonTriState = (wallet) => {
-  //   if (wallet.isNothing()) return 'blue'
-  //   if (wallet === false) return 'yellow'
-  //   if (Maybe.Nothing.hasInstance(wallet)) return 'green'
-  // }
-
-  async walletFromShards(shard1, shard2, shard3, pointName) {
+  async walletFromShards(shard1, shard2, shard3, pointName, passphrase) {
     const { setWallet, setUrbitWallet } = this.props
 
     const s1 = shard1 === '' ? undefined : shard1
@@ -82,18 +89,19 @@ class Shards extends React.Component {
     if (ticket !== undefined) {
       const urbitWallet = await kg.generateWallet({
         ticket: ticket,
-        ship: ob.patp2dec(pointName)
+        ship: ob.patp2dec(pointName),
+        passphrase: passphrase
       })
       const mnemonic = urbitWallet.ownership.seed
-      const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH)
+      const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH, passphrase)
       setWallet(wallet)
-      setUrbitWallet(Maybe.Just(urbitWallet))
+      setUrbitWallet(Just(urbitWallet))
     }
   }
 
   render() {
     const { popRoute, pushRoute, wallet } = this.props
-    const { shard1, shard2, shard3, pointName } = this.state
+    const { shard1, shard2, shard3, pointName, passphrase } = this.state
 
     const phPoint = this.pointPlaceholder
     const phTick = this.ticketPlaceholder
@@ -169,13 +177,34 @@ class Shards extends React.Component {
             <InnerLabel>{ 'Shard 3' }</InnerLabel>
           </ShardInput>
 
+          <InputCaption>
+          { 'If your wallet requires a passphrase, you may enter it below.' }
+          </InputCaption>
+
+          <Input
+            className='pt-8'
+            prop-size='md'
+            prop-format='innerLabel'
+            name='passphrase'
+            type='password'
+            value={ passphrase }
+            autocomplete='off'
+            onChange={ this.handlePassphraseInput }>
+            <InnerLabel>{'Passphrase'}</InnerLabel>
+          </Input>
+
           <Button
             disabled={ !ready }
             className={'mt-8'}
             prop-size={'lg wide'}
             // prop-color={this.buttonTriState(wallet)}
             onClick={() =>
-              this.walletFromShards(shard1, shard2, shard3, pointName)
+              this.walletFromShards(
+                shard1,
+                shard2,
+                shard3,
+                pointName,
+                passphrase)
             }>
             {'Unlock Wallet →'}
           </Button>
@@ -183,7 +212,7 @@ class Shards extends React.Component {
           <Button
             className={'mt-4'}
             prop-size={'xl wide'}
-            disabled={ Maybe.Nothing.hasInstance(wallet) }
+            disabled={ Nothing.hasInstance(wallet) }
             onClick={ () => {
                 popRoute()
                 pushRoute(ROUTE_NAMES.SHIPS)
