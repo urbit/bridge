@@ -1,4 +1,4 @@
-import Maybe from 'folktale/maybe'
+import { Just, Nothing } from 'folktale/maybe'
 import * as lodash from 'lodash'
 import * as azimuth from 'azimuth-js'
 import { Stack } from 'immutable'
@@ -66,21 +66,21 @@ class Bridge extends React.Component {
       routeData: {},
       // network
       networkType: networkType,
-      web3: Maybe.Just(web3),
-      contracts: Maybe.Just(contracts),
+      web3: Just(web3),
+      contracts: Just(contracts),
       // wallet
       walletType: WALLET_NAMES.MNEMONIC,
-      wallet: Maybe.Nothing(),
+      wallet: Nothing(),
       walletHdPath: DEFAULT_HD_PATH,
       // urbit wallet-related
-      urbitWallet: Maybe.Nothing(),
-      authMnemonic: Maybe.Nothing(),
+      urbitWallet: Nothing(),
+      authMnemonic: Nothing(),
       networkSeedCache: null,
       // point
-      pointCursor: Maybe.Nothing(),
+      pointCursor: Nothing(),
       pointCache: {},
       // txn
-      txnHashCursor: Maybe.Nothing()
+      txnHashCursor: Nothing()
     }
 
     this.pushRoute = this.pushRoute.bind(this)
@@ -133,13 +133,13 @@ class Bridge extends React.Component {
   //       ROUTE_NAMES.LANDING
   //     ]),
   //     networkType: NETWORK_NAMES.LOCAL,
-  //     pointCursor: Maybe.Just(0),
-  //     web3: Maybe.Just(web3),
-  //     contracts: Maybe.Just(contracts),
+  //     pointCursor: Just(0),
+  //     web3: Just(web3),
+  //     contracts: Just(contracts),
   //     walletType: WALLET_NAMES.MNEMONIC,
   //     wallet: walletFromMnemonic(mnemonic, hdpath),
-  //     urbitWallet: Maybe.Nothing(),
-  //     authMnemonic: Maybe.Just('benefit crew supreme gesture quantum web media hazard theory mercy wing kitten')
+  //     urbitWallet: Nothing(),
+  //     authMnemonic: Just('benefit crew supreme gesture quantum web media hazard theory mercy wing kitten')
   //   })
   // }
 }
