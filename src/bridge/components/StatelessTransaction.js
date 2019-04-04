@@ -98,7 +98,11 @@ class StatelessTransaction extends React.Component {
         }
       })
       .catch(err => {
-        this.setState({ txError: err })
+        if (err.map) {
+          this.setState({ txError: err.map(val => val.merge()) })
+        } else {
+          this.setState({ txError: err })
+        }
       })
   }
 
