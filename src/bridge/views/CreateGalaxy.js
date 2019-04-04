@@ -61,54 +61,23 @@ class CreateGalaxy extends React.Component {
       galaxyOwner: galaxyOwner,
       galaxyName: '',
       isAvailable: null,
-      txApproval: false,
-      nonce: '',
-      gasPrice: '5',
-      showGasDetails: false,
-      chainId: '',
-      txInfo: '',
-      gasLimit: '600000',
-      txn: Maybe.Nothing(),
-      stx: Maybe.Nothing(),
     }
 
     this.handleAddressInput = this.handleAddressInput.bind(this)
     this.handleGalaxyNameInput = this.handleGalaxyNameInput.bind(this)
     this.confirmAvailability = this.confirmAvailability.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.toggleGasDetails = this.toggleGasDetails.bind(this)
+    this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
+    this.statelessRef = React.createRef();
   }
-
-  toggleGasDetails() {
-    this.setState({
-      showGasDetails: !this.state.showGasDetails
-    })
-  }
-
-  componentDidMount() {
-    const { props } = this
-    const addr = props.wallet.matchWith({
-      Just: wal => addressFromSecp256k1Public(wal.value.publicKey),
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_WALLET
-      }
-    })
-
-    // getTxnInfo(props.web3.value, addr).then(txInfo => this.setState(txInfo))
-    props.web3.map(w3 => getTxnInfo(w3, addr)
-      .then(txInfo => this.setState(txInfo))
-    )
-  }
-
 
   handleGalaxyNameInput = (galaxyName) => {
     this.setState({ galaxyName, isAvailable: null })
-    this.clearTransaction()
+    this.statelessRef.current.clearTxn()
   }
 
   handleAddressInput = (galaxyOwner) => {
     this.setState({ galaxyOwner })
-    this.clearTransaction()
+    this.statelessRef.current.clearTxn()
   }
 
   createUnsignedTxn = () => {
@@ -133,18 +102,7 @@ class CreateGalaxy extends React.Component {
       state.galaxyOwner
     )
 
-    this.setState({ txn: Maybe.Just(txn) })
-  }
-
-
-  handleSubmit = () => {
-    const { props, state } = this
-    sendSignedTransaction(props.web3.value, state.stx)
-      .then(sent => {
-        props.setTxnHashCursor(sent)
-        props.popRoute()
-        props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
-      })
+    return Maybe.Just(txn)
   }
 
   confirmAvailability = async () => {
@@ -174,20 +132,15 @@ class CreateGalaxy extends React.Component {
     this.setState({ isAvailable: available })
   }
 
-
-  clearTransaction = () => {
-    this.setState({
-      txApproval: false,
-      txn: Maybe.Nothing(),
-      stx: Maybe.Nothing(),
-    })
-  }
-
   render() {
     const { props, state } = this
 
     const validAddress = isValidAddress(state.galaxyOwner)
     const validGalaxy = isValidGalaxy(state.galaxyName)
+
+    const canGenerate = validAddress === true &&
+                        validGalaxy === true &&
+                        state.isAvailable === true
 
     const esvisible =
         props.networkType === NETWORK_NAMES.ROPSTEN ||
@@ -259,43 +212,20 @@ class CreateGalaxy extends React.Component {
           </Button>
 
           <StatelessTransaction
-            address={state.galaxyOwner}
-            shipName={state.galaxyName}
-            isAvailable={state.isAvailable}
+            // Upper scope
             web3={props.web3}
             contracts={props.contracts}
             wallet={props.wallet}
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
             networkType={props.networkType}
-            // Tx
-            txApproval={state.txApproval}
-            txn={state.txn}
-            stx={state.stx}
-            nonce={state.nonce}
-            gasPrice={state.gasPrice}
-            showGasDetails={state.showGasDetails}
-            toggleGasDetails={this.toggleGasDetails}
-            chainId={state.chainId}
-            gasLimit={state.gasLimit}
-            canGenerate={
-              validAddress === true &&
-              validGalaxy === true &&
-              state.isAvailable === true
-            }
-            canSign={Maybe.Just.hasInstance(state.txn)}
-            canSend={Maybe.Just.hasInstance(state.stx)}
-            // Methods
-            createUnsignedTxn={() => this.createUnsignedTxn()}
-            clearTransaction={() => this.clearTransaction()}
-            setApproval={() => this.setState({txApproval: !state.txApproval})}
-            setTxn={txn => this.setState({txn})}
-            setStx={stx => this.setState({stx})}
-            setNonce={nonce => this.setState({nonce})}
-            setChainId={chainId => this.setState({chainId})}
-            setGasPrice={gasPrice => this.setState({gasPrice})}
-            setGasLimit={gasLimit => this.setState({gasLimit})}
-            handleSubmit={this.handleSubmit} />
+            setTxnHashCursor={props.setTxnHashCursor}
+            popRoute={props.popRoute}
+            pushRoute={props.pushRoute}
+            // Other
+            ref={this.statelessRef}
+            canGenerate={canGenerate}
+            createUnsignedTxn={this.createUnsignedTxn} />
 
         </Col>
       </Row>
