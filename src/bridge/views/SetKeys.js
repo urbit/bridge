@@ -109,28 +109,6 @@ class SetKeys extends React.Component {
     this.setState({ networkSeed })
   }
 
-  downloadKeyfile(networkSeed) {
-    const { pointCache } = this.props
-    const { pointCursor } = this.props
-
-    const point = pointCursor.matchWith({
-      Just: (pt) => pt.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
-
-    const pointDetails =
-        point in pointCache
-      ? pointCache[point]
-      : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
-
-    const revision = parseInt(pointDetails.keyRevisionNumber)
-    const keyfile = genKey(networkSeed, point, revision)
-    let blob = new Blob([keyfile], {type:"text/plain;charset=utf-8"});
-    saveAs(blob, `${ob.patp(point).slice(1)}-${revision}.key`)
-  }
-
   createUnsignedTxn() {
     const { state, props } = this
 
@@ -231,7 +209,9 @@ class SetKeys extends React.Component {
             pushRoute={props.pushRoute}
             // Tx
             canGenerate={ canGenerate }
-            createUnsignedTxn={this.createUnsignedTxn} />
+            createUnsignedTxn={this.createUnsignedTxn}
+            networkSeed={ state.networkSeed }
+            setNetworkSeedCache={ props.setNetworkSeedCache } />
 
         </Col>
       </Row>

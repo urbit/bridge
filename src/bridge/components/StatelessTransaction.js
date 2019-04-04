@@ -89,7 +89,13 @@ class StatelessTransaction extends React.Component {
       .then(sent => {
         props.setTxnHashCursor(sent)
         props.popRoute()
-        props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
+
+        if (props.networkSeed) {
+          props.setNetworkSeedCache(props.networkSeed)
+          props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION, {promptKeyfile: true})
+        } else {
+          props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
+        }
       })
       .catch(err => {
         this.setState({ txError: err })
