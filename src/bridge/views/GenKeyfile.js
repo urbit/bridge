@@ -2,9 +2,7 @@ import React from 'react'
 import Maybe from 'folktale/maybe'
 
 import { Button } from '../components/Base'
-import { RequiredInput, InnerLabel } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
-import { Code } from '../components/Base'
 
 import * as ob from 'urbit-ob'
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
@@ -96,7 +94,7 @@ class GenKeyfile extends React.Component {
   }
 
   render() {
-    const { point, pointDetails, revision } = this.getPointDetails();
+    const { point, revision } = this.getPointDetails();
     const { keyfile, loaded } = this.state
 
     return (
@@ -115,12 +113,18 @@ class GenKeyfile extends React.Component {
           }
 
           { keyfile === '' && loaded &&
-            <P>
-              <b>Warning: </b>
-              { `No valid network seed detected. To generate a keyfile, you
-                must reset your networking keys, or try logging in with your
-                master ticket or management mnemonic` }
-            </P>
+            <React.Fragment>
+              <P>
+                <b>Warning: </b>
+                { `No valid network seed detected. To generate a keyfile, you
+                  must reset your networking keys, or try logging in with your
+                  master ticket or management mnemonic.` }
+              </P>
+
+              <P>
+                { `If you've just reset your networking keys, you may need to wait for the transaction to go through. Check back shortly.` }
+              </P>
+            </React.Fragment>
           }
 
           { keyfile !== '' &&
