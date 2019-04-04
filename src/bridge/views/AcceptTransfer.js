@@ -130,9 +130,10 @@ class AcceptTransfer extends React.Component {
             setTxnHashCursor={props.setTxnHashCursor}
             popRoute={props.popRoute}
             pushRoute={props.pushRoute}
-            // Tx
+            // Other
             canGenerate={ canGenerate }
-            createUnsignedTxn={this.createUnsignedTxn} />
+            createUnsignedTxn={this.createUnsignedTxn}
+            ref={ this.statelessRef } />
         </Col>
       </Row>
     )
