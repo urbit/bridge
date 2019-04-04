@@ -60,8 +60,6 @@ class SetProxy extends React.Component {
   }
 
   createUnsignedTxn(proxyAddress) {
-    console.log('creatingTxn')
-
     const { state, props } = this
 
     const validContracts = props.contracts.matchWith({

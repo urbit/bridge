@@ -43,87 +43,24 @@ class IssueChild extends React.Component {
     ]
 
     this.state = {
-      txError: Nothing(),
       receivingAddress: '',
       issuingPoint: issuingPoint,
       desiredPoint: '',
       isAvailable: Nothing(), // use Nothing to allow attempt when offline
-      userApproval: false,
-      nonce: '',
-      gasPrice: '5',
-      showGasDetails: false,
-      chainId: '',
-      gasLimit: '600000',
-      txn: Nothing(),
-      stx: Nothing(),
       suggestions: suggestions,
     }
 
     this.handlePointInput = this.handlePointInput.bind(this)
     this.handleAddressInput = this.handleAddressInput.bind(this)
     this.handleConfirmAvailability = this.handleConfirmAvailability.bind(this)
-    this.handleCreateUnsignedTxn = this.handleCreateUnsignedTxn.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.handleSetUserApproval = this.handleSetUserApproval.bind(this)
-    this.handleSetTxn = this.handleSetTxn.bind(this)
-    this.handleSetStx = this.handleSetStx.bind(this)
-    this.handleSetNonce = this.handleSetNonce.bind(this)
-    this.handleSetChainId = this.handleSetChainId.bind(this)
-    this.handleSetGasPrice = this.handleSetGasPrice.bind(this)
-    this.handleSetGasLimit = this.handleSetGasLimit.bind(this)
-    this.toggleGasDetails = this.toggleGasDetails.bind(this)
+    this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
+    this.statelessRef = React.createRef();
   }
-
-  toggleGasDetails() {
-    this.setState({
-      showGasDetails: !this.state.showGasDetails
-    })
-  }
-
-  componentDidMount() {
-    const { props } = this
-
-    const addr = props.wallet.matchWith({
-      Just: wal => addressFromSecp256k1Public(wal.value.publicKey),
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_WALLET
-      }
-    })
-
-    props.web3.matchWith({
-      Nothing: () => {},
-      Just: (w3) => {
-        const validWeb3 = w3.value
-
-        const getTxMetadata = [
-          validWeb3.eth.getTransactionCount(addr),
-          validWeb3.eth.net.getId(),
-          validWeb3.eth.getGasPrice()
-        ]
-
-        Promise.all(getTxMetadata).then(r => {
-          const txMetadata = {
-            nonce: r[0],
-            chainId: r[1],
-            gasPrice: fromWei(r[2], 'gwei'),
-          }
-
-          this.setState({...txMetadata})
-
-        })
-      }
-    })
-
-  }
-
-
 
   handleAddressInput = (receivingAddress) => {
     this.setState({ receivingAddress })
-    this.handleClearTxn()
+    this.statelessRef.current.clearTxn()
   }
-
-
 
   handlePointInput(desiredPoint) {
     if (desiredPoint.length < 15) {
@@ -131,11 +68,9 @@ class IssueChild extends React.Component {
         desiredPoint,
         isAvailable: Nothing()
       })
-      this.handleClearTxn()
+      this.statelessRef.current.clearTxn()
     }
   }
-
-
 
   handleConfirmAvailability() {
     this.confirmPointAvailability().then(r => {
@@ -144,106 +79,6 @@ class IssueChild extends React.Component {
       })
     })
 
-  }
-
-
-
-  handleCreateUnsignedTxn() {
-    const txn = this.createUnsignedTxn()
-    this.setState({ txn })
-  }
-
-
-  handleSetUserApproval(){
-    const {state} = this
-    this.setState({ userApproval: !state.userApproval })
-  }
-
-
-
-  handleSetTxn(txn){
-    this.setState({ txn })
-  }
-
-
-
-  handleSetStx(stx){
-    this.setState({
-      stx,
-      userApproval: false,
-    })
-  }
-
-
-
-  handleSetNonce(nonce){
-    this.setState({ nonce })
-    this.handleClearStx()
-  }
-
-
-
-  handleSetChainId(chainId){
-    this.setState({ chainId })
-    this.handleClearStx()
-  }
-
-
-
-  handleSetGasPrice(gasPrice){
-    this.setState({ gasPrice })
-    this.handleClearStx()
-  }
-
-
-
-  handleSetGasLimit(gasLimit){
-    this.setState({ gasLimit })
-    this.handleClearStx()
-  }
-
-
-
-  handleClearStx() {
-    this.setState({
-      userApproval: false,
-      stx: Nothing(),
-    })
-  }
-
-
-
-  handleClearTxn() {
-    this.setState({
-      userApproval: false,
-      txn: Nothing(),
-      stx: Nothing(),
-    })
-  }
-
-
-
-  handleClearTransaction() {
-    this.setState({
-      userApproval: false,
-      txn: Nothing(),
-      stx: Nothing(),
-    })
-  }
-
-
-
-  handleSubmit(){
-    const { props, state } = this
-    sendSignedTransaction(props.web3.value, state.stx)
-      .then(sent => {
-        props.setTxnHashCursor(sent)
-        props.popRoute()
-        props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
-      })
-      .catch(err => {
-        this.setState({ txError: err.map(val => val.merge()) })
-      })
   }
 
   async confirmPointAvailability() {
@@ -307,16 +142,12 @@ class IssueChild extends React.Component {
     return Just(txn)
   }
 
-
-
   buttonTriState() {
     const a = this.state.isAvailable
     if (Nothing.hasInstance(a)) return 'blue'
     if (a.value === false) return 'yellow'
     if (a.value === true) return 'green'
   }
-
-
 
   buttonTriStateText() {
     const a = this.state.isAvailable
@@ -343,7 +174,6 @@ class IssueChild extends React.Component {
     return vpatp && vchild
   }
 
-
   render() {
     const { props, state } = this
 
@@ -361,12 +191,6 @@ class IssueChild extends React.Component {
           state.isAvailable.value === true
       }
     })
-
-    const canSign = Just.hasInstance(state.txn)
-    const canApprove = Just.hasInstance(state.stx)
-    const canSend =
-         Just.hasInstance(state.stx)
-      && state.userApproval === true
 
     const esvisible =
         props.networkType === NETWORK_NAMES.ROPSTEN ||
@@ -480,46 +304,13 @@ class IssueChild extends React.Component {
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
             networkType={props.networkType}
-            // Tx
-            txn={state.txn}
-            stx={state.stx}
-            // Tx details
-            nonce={state.nonce}
-            gasPrice={state.gasPrice}
-            showGasDetails={state.showGasDetails}
-            toggleGasDetails={this.toggleGasDetails}
-            chainId={state.chainId}
-            gasLimit={state.gasLimit}
-            // Checks
-            userApproval={state.userApproval}
-            canGenerate={ canGenerate }
-            canSign={ canSign }
-            canApprove={ canApprove }
-            canSend={ canSend }
-            // Methods
-            createUnsignedTxn={this.handleCreateUnsignedTxn}
-            setUserApproval={this.handleSetUserApproval}
-            setTxn={this.handleSetTxn}
-            setStx={this.handleSetStx}
-            setNonce={this.handleSetNonce}
-            setChainId={this.handleSetChainId}
-            setGasPrice={this.handleSetGasPrice}
-            setGasLimit={this.handleSetGasLimit}
-            handleSubmit={this.handleSubmit} />
-
-          {
-            Nothing.hasInstance(state.txError)
-              ? ''
-              : <Warning className={'mt-8'}>
-                  <H3 style={{marginTop: 0, paddingTop: 0}}>
-                    {
-                      'There was an error sending your transaction.'
-                    }
-                  </H3>
-                  { state.txError.value }
-              </Warning>
-          }
-
+            setTxnHashCursor={props.setTxnHashCursor}
+            popRoute={props.popRoute}
+            pushRoute={props.pushRoute}
+            // Other
+            canGenerate={canGenerate}
+            createUnsignedTxn={this.createUnsignedTxn}
+            ref={this.statelessRef} />
         </Col>
       </Row>
     )

@@ -92,8 +92,7 @@ class StatelessTransaction extends React.Component {
         props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
       })
       .catch(err => {
-        console.log('err = ', err)
-        // this.setState({ txError: err.map(val => val.merge()) })
+        this.setState({ txError: err })
       })
   }
 
@@ -121,6 +120,7 @@ class StatelessTransaction extends React.Component {
 
   createUnsignedTxn() {
     const txn = this.props.createUnsignedTxn()
+
     this.setState({ txn })
   }
 
@@ -186,9 +186,9 @@ class StatelessTransaction extends React.Component {
 
     const { state } = this
 
-    const canSign = Just.hasInstance(state.txn)
-    const canApprove = Just.hasInstance(state.stx)
-    const canSend = Just.hasInstance(state.stx) && state.userApproval === true
+    const canSign = Just.hasInstance(txn)
+    const canApprove = Just.hasInstance(stx)
+    const canSend = Just.hasInstance(stx) && userApproval === true
 
     const generateButtonColor =
         Nothing.hasInstance(txn)
