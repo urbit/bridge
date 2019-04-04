@@ -56,7 +56,7 @@ class SetProxy extends React.Component {
   handleAddressInput(proxyAddress) {
     this.setState({ proxyAddress })
 
-    this.statelessRef.current.handleClearTxn()
+    this.statelessRef.current.clearTxn()
   }
 
   createUnsignedTxn(proxyAddress) {

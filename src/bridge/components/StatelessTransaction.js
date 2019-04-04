@@ -34,16 +34,17 @@ class StatelessTransaction extends React.Component {
       txError: Nothing(),
     }
 
-    this.handleCreateUnsignedTxn = this.handleCreateUnsignedTxn.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.handleSetUserApproval = this.handleSetUserApproval.bind(this)
-    this.handleSetTxn = this.handleSetTxn.bind(this)
+    this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
+    this.submit = this.submit.bind(this)
+    this.setUserApproval = this.setUserApproval.bind(this)
+    this.setTxn = this.setTxn.bind(this)
     this.setStx = this.setStx.bind(this)
     this.sendTxn = this.sendTxn.bind(this)
-    this.handleSetNonce = this.handleSetNonce.bind(this)
-    this.handleSetChainId = this.handleSetChainId.bind(this)
-    this.handleSetGasPrice = this.handleSetGasPrice.bind(this)
-    this.handleSetGasLimit = this.handleSetGasLimit.bind(this)
+    this.setNonce = this.setNonce.bind(this)
+    this.setChainId = this.setChainId.bind(this)
+    this.setGasPrice = this.setGasPrice.bind(this)
+    this.setGasLimit = this.setGasLimit.bind(this)
+    this.rangeChange = this.rangeChange.bind(this)
     this.toggleGasDetails = this.toggleGasDetails.bind(this)
   }
 
@@ -82,7 +83,7 @@ class StatelessTransaction extends React.Component {
     });
   }
 
-  handleSubmit(){
+  submit(){
     const { props, state } = this
     sendSignedTransaction(props.web3.value, state.stx)
       .then(sent => {
@@ -96,7 +97,7 @@ class StatelessTransaction extends React.Component {
       })
   }
 
-  handleSetUserApproval(){
+  setUserApproval(){
     const {state} = this
     this.setState({ userApproval: !state.userApproval })
   }
@@ -114,16 +115,16 @@ class StatelessTransaction extends React.Component {
     })
   }
 
-  handleSetTxn(txn){
+  setTxn(txn){
     this.setState({ txn })
   }
 
-  handleCreateUnsignedTxn() {
+  createUnsignedTxn() {
     const txn = this.props.createUnsignedTxn()
     this.setState({ txn })
   }
 
-  handleClearTxn() {
+  clearTxn() {
     this.setState({
       userApproval: false,
       txn: Nothing(),
@@ -131,31 +132,31 @@ class StatelessTransaction extends React.Component {
     })
   }
 
-  handleSetNonce(nonce){
+  setNonce(nonce){
     this.setState({ nonce })
-    this.handleClearStx()
+    this.clearStx()
   }
 
-  handleSetChainId(chainId){
+  setChainId(chainId){
     this.setState({ chainId })
-    this.handleClearStx()
+    this.clearStx()
   }
 
-  handleSetGasPrice(gasPrice) {
+  setGasPrice(gasPrice) {
     this.setState({ gasPrice })
-    this.handleClearStx()
+    this.clearStx()
   }
 
-  handleRangeChange(e) {
-    this.handleSetGasPrice(e.target.value);
+  rangeChange(e) {
+    this.setGasPrice(e.target.value);
   }
 
-  handleSetGasLimit(gasLimit){
+  setGasLimit(gasLimit){
     this.setState({ gasLimit })
-    this.handleClearStx()
+    this.clearStx()
   }
 
-  handleClearStx() {
+  clearStx() {
     this.setState({
       userApproval: false,
       stx: Nothing(),
@@ -163,7 +164,7 @@ class StatelessTransaction extends React.Component {
   }
 
   // TODO: Investigate
-  // setState doesn't seem to work in SetProxy/handleSubmit;
+  // setState doesn't seem to work in SetProxy/submit;
   //   - TypeError: Cannot read property 'updater' of undefined
   // so just modifying the DOM manually here. (https://imgur.com/a/i0Qsyq1)
 
@@ -171,17 +172,17 @@ class StatelessTransaction extends React.Component {
     e.target.setAttribute("disabled", true);
     let spinner = e.target.querySelectorAll('.btn-spinner')[0];
     spinner.classList.remove('hide');
-    this.handleSubmit()
+    this.submit()
   }
 
   render() {
     const { web3, canGenerate } = this.props
     const { gasPrice, gasLimit, nonce, chainId,
-      txn, stx, userApproval } = this.state
+      txn, stx, userApproval, showGasDetails } = this.state
 
     const { setNonce, setChainId, setGasLimit, setGasPrice,
-      handleSubmit, showGasDetails, toggleGasDetails, handleSetUserApproval,
-      sendTxn, handleCreateUnsignedTxn } = this
+      submit, toggleGasDetails, setUserApproval,
+      sendTxn, createUnsignedTxn } = this
 
     const { state } = this
 
@@ -205,7 +206,7 @@ class StatelessTransaction extends React.Component {
         disabled={ !canGenerate }
         prop-color={ generateButtonColor }
         prop-size={ 'lg wide' }
-        onClick={ handleCreateUnsignedTxn }
+        onClick={ createUnsignedTxn }
       >
         { 'Generate Transaction' }
       </Button>
@@ -243,7 +244,7 @@ class StatelessTransaction extends React.Component {
           max="20"
           list="gweiVals"
           value={gasPrice}
-          onChange={this.handleRangeChange}
+          onChange={this.rangeChange}
           />
 
         <div className="flex space-between text-sm mb-8">
@@ -345,7 +346,7 @@ class StatelessTransaction extends React.Component {
       <CheckboxButton
         className={ 'mt-8' }
         disabled={ !canApprove }
-        onClick={ handleSetUserApproval }
+        onClick={ setUserApproval }
         state={ userApproval }
       >
         <div>
