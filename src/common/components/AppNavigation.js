@@ -23,17 +23,17 @@ class AppNavigation extends React.Component {
     let style = {
       position: "fixed",
       bottom: "10px",
-      right: "10px"
+      right: "10px",
+      "text-decoration": "underline",
+      cursor: "pointer"
     }
 
     return (
-      <a
-        href="javascript:void(0)"
-        type="button"
+      <span
         style={style}
         onClick={this.navigate}>
         {buttonText}
-      </a>
+      </span>
     )
   }
 }

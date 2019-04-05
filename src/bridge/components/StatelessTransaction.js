@@ -264,7 +264,7 @@ class StatelessTransaction extends React.Component {
     )
 
     const toggleGasDetailsDialogue = (
-      <a href="javascript:void(0)" onClick={toggleGasDetails}>Gas Details</a>
+      <span className="text-link" onClick={toggleGasDetails}>Gas Details</span>
     )
 
     const gasPriceDialogue =

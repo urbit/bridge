@@ -466,6 +466,11 @@ code {
   cursor: pointer;
 }
 
+.text-link {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .keyfile {
   white-space: pre-wrap;
   word-break: break-word;
