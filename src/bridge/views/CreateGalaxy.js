@@ -9,16 +9,8 @@ import { InnerLabel, GalaxyInput, AddressInput, ValidatedSigil, ShowBlockie } fr
 import StatelessTransaction from '../components/StatelessTransaction'
 
 import { BRIDGE_ERROR } from '../lib/error'
-
 import { NETWORK_NAMES } from '../lib/network'
-
-import {
-  sendSignedTransaction,
-  getTxnInfo,
-  canDecodePatp
-} from '../lib/txn'
-
-import { ROUTE_NAMES } from '../lib/router'
+import { canDecodePatp } from '../lib/txn'
 
 import {
   addressFromSecp256k1Public,

@@ -1,7 +1,7 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
 import * as azimuth from 'azimuth-js'
-import { Row, Col, H1, H3, P, InnerLabel, ShowBlockie, Anchor } from '../components/Base'
+import { Row, Col, H1, P, InnerLabel, ShowBlockie, Anchor } from '../components/Base'
 import { AddressInput } from '../components/Base'
 import * as ob from 'urbit-ob'
 

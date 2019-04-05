@@ -4,22 +4,15 @@ import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
 
 import { Row, Col, H1, InnerLabel, ShowBlockie, P, Anchor } from '../components/Base'
-import { AddressInput, Warning, H3 } from '../components/Base'
+import { AddressInput } from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
 
 import { BRIDGE_ERROR } from '../lib/error'
 import { NETWORK_NAMES } from '../lib/network'
-import { ROUTE_NAMES } from '../lib/router'
 
 import {
-  sendSignedTransaction,
-  fromWei,
- } from '../lib/txn'
-
- import {
-   isValidAddress,
-   addressFromSecp256k1Public
- } from '../lib/wallet'
+  isValidAddress
+} from '../lib/wallet'
 
 class Transfer extends React.Component {
   constructor(props) {

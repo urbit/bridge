@@ -2,24 +2,13 @@ import React from 'react'
 import Maybe from 'folktale/maybe'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
-import { Row, Col, H1, P, Warning, H3 } from '../components/Base'
-import { RequiredInput, InnerLabel } from '../components/Base'
+import { Row, Col, H1, P, Warning } from '../components/Base'
 
 import StatelessTransaction from '../components/StatelessTransaction'
 import { BRIDGE_ERROR } from '../lib/error'
-import { ROUTE_NAMES } from '../lib/router'
-import { attemptSeedDerivation, genKey  } from '../lib/keys'
-
-import saveAs from 'file-saver'
-
-import { WALLET_NAMES } from '../lib/wallet'
+import { attemptSeedDerivation } from '../lib/keys'
 
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
-
-import {
-  sendSignedTransaction,
-  fromWei,
- } from '../lib/txn'
 
 import {
   addressFromSecp256k1Public,

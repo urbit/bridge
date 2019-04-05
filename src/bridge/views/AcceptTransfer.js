@@ -1,6 +1,6 @@
-import { Just, Nothing } from 'folktale/maybe'
+import { Just } from 'folktale/maybe'
 import React from 'react'
-import { Row, Col, H1, H3, P, Warning } from '../components/Base'
+import { Row, Col, H1, P } from '../components/Base'
 import { InnerLabel, AddressInput, ShowBlockie, Anchor } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
@@ -8,8 +8,6 @@ import * as ob from 'urbit-ob'
 import StatelessTransaction from '../components/StatelessTransaction'
 import { BRIDGE_ERROR } from '../lib/error'
 import { NETWORK_NAMES } from '../lib/network'
-import { ROUTE_NAMES } from '../lib/router'
-import { sendSignedTransaction, fromWei } from '../lib/txn'
 import { isValidAddress, addressFromSecp256k1Public } from '../lib/wallet'
 
 class AcceptTransfer extends React.Component {

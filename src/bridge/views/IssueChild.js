@@ -3,23 +3,21 @@ import React from 'react'
 import { azimuth, ecliptic } from 'azimuth-js'
 import * as ob from 'urbit-ob'
 
-import { Row, Col, H1, H3, P, Anchor, Warning } from '../components/Base'
+import { Row, Col, H1, P, Anchor } from '../components/Base'
 import { Button, ShowBlockie, ValidatedSigil } from '../components/Base'
 import { PointInput, AddressInput, InnerLabel } from '../components/Base'
 
 import StatelessTransaction from '../components/StatelessTransaction'
 
-import { ROUTE_NAMES } from '../lib/router'
 import { NETWORK_NAMES } from '../lib/network'
 import { BRIDGE_ERROR } from '../lib/error'
 import { getSpawnCandidate } from '../lib/child'
-import { canDecodePatp, sendSignedTransaction, fromWei } from '../lib/txn'
+import { canDecodePatp } from '../lib/txn'
 
 import {
   ETH_ZERO_ADDR,
   isValidAddress,
-  eqAddr,
-  addressFromSecp256k1Public
+  eqAddr
 } from '../lib/wallet'
 
 class IssueChild extends React.Component {

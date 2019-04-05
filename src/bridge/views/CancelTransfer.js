@@ -1,23 +1,12 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
-import { Row, Col, H1, P, Warning, H3 } from '../components/Base'
+import { Row, Col, H1, P } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
 
 import StatelessTransaction from '../components/StatelessTransaction'
 import { BRIDGE_ERROR } from '../lib/error'
 import { ETH_ZERO_ADDR } from '../lib/wallet'
-import { ROUTE_NAMES } from '../lib/router'
-
-import {
-  sendSignedTransaction,
-  fromWei,
- } from '../lib/txn'
-
-import {
-  addressFromSecp256k1Public,
-} from '../lib/wallet'
-
 
 class CancelTransfer extends React.Component {
   constructor(props) {

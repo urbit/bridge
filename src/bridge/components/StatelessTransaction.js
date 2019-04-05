@@ -1,4 +1,4 @@
-import { Maybe, Nothing, Just } from 'folktale/maybe'
+import { Nothing, Just } from 'folktale/maybe'
 import React from 'react'
 
 import { Code, H3 } from './Base'
@@ -190,9 +190,8 @@ class StatelessTransaction extends React.Component {
     const { gasPrice, gasLimit, nonce, chainId,
       txn, stx, userApproval, showGasDetails } = this.state
 
-    const { setNonce, setChainId, setGasLimit, setGasPrice,
-      submit, toggleGasDetails, setUserApproval,
-      sendTxn, createUnsignedTxn } = this
+    const { setNonce, setChainId, setGasLimit, setGasPrice, toggleGasDetails,
+      setUserApproval, sendTxn, createUnsignedTxn } = this
 
     const { state } = this
 
