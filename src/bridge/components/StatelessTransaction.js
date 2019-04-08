@@ -85,7 +85,7 @@ class StatelessTransaction extends React.Component {
 
   submit(){
     const { props, state } = this
-    sendSignedTransaction(props.web3.value, state.stx)
+    sendSignedTransaction(props.web3.value, state.stx, props.setTxnConfirmations)
       .then(sent => {
         props.setTxnHashCursor(sent)
         props.popRoute()

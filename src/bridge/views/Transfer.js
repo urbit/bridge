@@ -132,6 +132,7 @@ class Transfer extends React.Component {
             walletHdPath={props.walletHdPath}
             networkType={props.networkType}
             setTxnHashCursor={props.setTxnHashCursor}
+            setTxnConfirmations={props.setTxnConfirmations}
             popRoute={props.popRoute}
             pushRoute={props.pushRoute}
             // Checks

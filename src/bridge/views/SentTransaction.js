@@ -1,3 +1,4 @@
+import Maybe from 'folktale/maybe'
 import React from 'react'
 import { Row, Col, H1, H3, P, Warning, Anchor } from '../components/Base'
 import { Button } from '../components/Base'
@@ -6,14 +7,17 @@ import { ROUTE_NAMES } from '../lib/router'
 import { BRIDGE_ERROR, renderTxnError } from '../lib/error'
 import { NETWORK_NAMES } from '../lib/network'
 
+
 const Success = (props) => {
 
+  const { networkType, hash, txnConfirmations } = props
+
   const esvisible =
-      props.networkType === NETWORK_NAMES.ROPSTEN ||
-      props.networkType === NETWORK_NAMES.MAINNET
+      networkType === NETWORK_NAMES.ROPSTEN ||
+      networkType === NETWORK_NAMES.MAINNET
 
   const esdomain =
-      props.networkType === NETWORK_NAMES.ROPSTEN
+      networkType === NETWORK_NAMES.ROPSTEN
     ? "ropsten.etherscan.io"
     : "etherscan.io"
 
@@ -29,9 +33,15 @@ const Success = (props) => {
         className={'mb-4 mt-1'}
         prop-size={'sm'}
         target={'_blank'}
-        href={`https://${esdomain}/tx/${props.hash}`}>
+        href={`https://${esdomain}/tx/${hash}`}>
           {'View on Etherscan ↗'}
       </Anchor>
+
+  const confirmations = Maybe.fromNullable(txnConfirmations[hash]).getOrElse(0)
+
+  const requiredConfirmations = 1
+
+  const status = confirmations < requiredConfirmations ? 'Pending...' : `Confirmed x${confirmations}!`
 
   return (
     <Row>
@@ -47,10 +57,17 @@ const Success = (props) => {
 
         <H3>{ 'Transaction Hash' }</H3>
         <P>
-          { props.hash }
+          { hash }
         </P>
 
-        { esanchor }
+        <H3>{ 'Transaction Status' }</H3>
+        <P>
+          <div>{ status }</div>
+          <div>{ esanchor }</div>
+        </P>
+        <P>
+        </P>
+
 
       </Col>
     </Row>
@@ -76,7 +93,7 @@ const Failure = (props) =>
     </Row>
 
 const SentTransaction = (props) => {
-  const { web3, txnHashCursor, networkType, popRoute, pushRoute } = props
+  const { web3, txnHashCursor, networkType, popRoute, pushRoute, txnConfirmations} = props
   const { setPointCursor, pointCursor } = props
 
   const promptKeyfile = props.routeData && props.routeData.promptKeyfile
@@ -97,6 +114,7 @@ const SentTransaction = (props) => {
       <Success
         hash={ hash.value }
         networkType={ networkType }
+        txnConfirmations={ txnConfirmations }
       />
   })
 
