@@ -30,7 +30,6 @@ const Actions = (props) => {
       eqAddr(details.value.owner, addr) && details.value.active
   })
 
-
   const canSetManagementProxy = pointDetails.matchWith({
     Nothing: _ => false,
     Just: details =>
