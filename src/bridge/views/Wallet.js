@@ -1,21 +1,13 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
 import { Button, H1, P } from '../components/Base'
-import {
-  InnerLabelDropdown,
-  DropdownItem,
-  DropdownDivider
-} from '../components/Base'
+import { InnerLabelDropdown } from '../components/Base'
 import { Row, Col } from '../components/Base'
 
 import { ROUTE_NAMES } from '../lib/router'
 import { WALLET_NAMES, renderWalletType } from '../lib/wallet'
 
 class Wallet extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
   componentDidMount() {
     const { setWallet } = this.props
     setWallet(Maybe.Nothing())
@@ -51,7 +43,7 @@ class Wallet extends React.Component {
   }
 
   render() {
-    const { props, state } = this
+    const { props } = this
     const walletOptions = this.getWalletOptions()
 
     return (

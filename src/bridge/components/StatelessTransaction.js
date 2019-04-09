@@ -4,7 +4,7 @@ import React from 'react'
 import { Code, H3 } from './Base'
 import { Button } from './Base'
 import { CheckboxButton, Input, InnerLabel,
-  InnerLabelDropdown, DropdownItem } from './Base'
+  InnerLabelDropdown } from './Base'
 import {  Warning } from '../components/Base'
 
 import { addressFromSecp256k1Public } from '../lib/wallet'
@@ -29,7 +29,6 @@ class StatelessTransaction extends React.Component {
       showGasDetails: false,
       userApproval: false,
       chainId: '',
-      chainDropdownOpen: false,
       customChain: false,
       nonce: '',
       stx: Nothing(),
@@ -245,11 +244,10 @@ class StatelessTransaction extends React.Component {
     const { web3, canGenerate } = this.props
     const { gasPrice, gasLimit, nonce, chainId,
       txn, stx, userApproval, showGasDetails,
-      customChain, chainDropdownOpen } = this.state
+      customChain } = this.state
 
-    const { setNonce, setChainId, setGasLimit, setGasPrice,
-      toggleGasDetails, setUserApproval, sendTxn, createUnsignedTxn,
-      selectChain, handleChainUpdate } = this
+    const { setNonce, setChainId, setGasLimit, setGasPrice, toggleGasDetails,
+      setUserApproval, sendTxn, createUnsignedTxn, handleChainUpdate } = this
 
     const { state } = this
 
