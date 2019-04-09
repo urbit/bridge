@@ -49,10 +49,7 @@ class StatelessTransaction extends React.Component {
     this.setGasLimit = this.setGasLimit.bind(this)
     this.rangeChange = this.rangeChange.bind(this)
     this.toggleGasDetails = this.toggleGasDetails.bind(this)
-    this.toggleChainDropdown = this.toggleChainDropdown.bind(this)
-    this.closeChainDropdown = this.closeChainDropdown.bind(this)
-    this.selectChain = this.selectChain.bind(this)
-    this.openCustomChain = this.openCustomChain.bind(this)
+    this.handleChainUpdate = this.handleChainUpdate.bind(this)
   }
 
   componentDidMount() {
@@ -113,31 +110,17 @@ class StatelessTransaction extends React.Component {
       })
   }
 
-  openCustomChain() {
-    this.setState({
-      chainDropdownOpen: false,
-      customChain: true
-    })
-  }
-
-  toggleChainDropdown() {
-    this.setState({
-      chainDropdownOpen: !this.state.chainDropdownOpen
-    })
-  }
-
-  closeChainDropdown() {
-    this.setState({
-      chainDropdownOpen: false
-    })
-  }
-
-  selectChain(chainId) {
-    this.setState({
-      chainId,
-      chainDropdownOpen: false,
-      customChain: false
-    })
+  handleChainUpdate(chainId) {
+    if (chainId === "custom") {
+      this.setState({
+        customChain: true
+      })
+    } else {
+      this.setState({
+        customChain: false,
+        chainId
+      })
+    }
   }
 
   setUserApproval(){
@@ -219,20 +202,62 @@ class StatelessTransaction extends React.Component {
     this.submit()
   }
 
+  getChainTitle(chainId) {
+    let map = {
+      "1": "Mainnet - 1",
+      "2": "Morden - 2",
+      "3": "Ropsten - 3",
+      "4": "Goerli - 4",
+      "42": "Kovan - 42",
+      "1337": "Geth private chains - 1337",
+      "custom": "Custom"
+    }
+
+    return map[chainId]
+  }
+
+  getChainOptions() {
+    return [{
+      title: this.getChainTitle("1"),
+      value: "1"
+    }, {
+      title: this.getChainTitle("2"),
+      value: "2"
+    }, {
+      title: this.getChainTitle("3"),
+      value: "3"
+    }, {
+      title: this.getChainTitle("4"),
+      value: "4"
+    }, {
+      title: this.getChainTitle("42"),
+      value: "42"
+    }, {
+      title: this.getChainTitle("1337"),
+      value: "1337"
+    }, {
+      title: this.getChainTitle("custom"),
+      value: "custom"
+    }]
+  }
+
   render() {
     const { web3, canGenerate } = this.props
     const { gasPrice, gasLimit, nonce, chainId,
       txn, stx, userApproval, showGasDetails,
       customChain, chainDropdownOpen } = this.state
 
-    const { setNonce, setChainId, setGasLimit, setGasPrice, toggleGasDetails,
-      setUserApproval, sendTxn, createUnsignedTxn, selectChain } = this
+    const { setNonce, setChainId, setGasLimit, setGasPrice,
+      toggleGasDetails, setUserApproval, sendTxn, createUnsignedTxn,
+      selectChain, handleChainUpdate } = this
 
     const { state } = this
 
     const canSign = Just.hasInstance(txn)
     const canApprove = Just.hasInstance(stx)
     const canSend = Just.hasInstance(stx) && userApproval === true
+
+    const chainOptions = this.getChainOptions()
 
     const generateButtonColor =
         Nothing.hasInstance(txn)
@@ -340,66 +365,16 @@ class StatelessTransaction extends React.Component {
         </InnerLabel>
       </Input>
 
-    const chainDialogueTitle = customChain ? "Custom" : chainId
+    const chainDialogueTitle = customChain ? "Custom" : this.getChainTitle(chainId)
     const chainDialogue =
       <InnerLabelDropdown
         className={'mt-6'}
-        handleToggle={this.toggleChainDropdown}
-        handleClose={this.closeChainDropdown}
         fullWidth={true}
-        isOpen={chainDropdownOpen}
         title={'Chain ID'}
+        options={chainOptions}
+        handleUpdate={handleChainUpdate}
         currentSelectionTitle={chainDialogueTitle}
       >
-          <DropdownItem
-            isSelected={ false }
-            onClick={() => selectChain("1")}
-          >
-            { '1 - Mainnet' }
-          </DropdownItem>
-
-          <DropdownItem
-            isSelected={false}
-            onClick={() => selectChain("2")}
-          >
-            {'2 - Morden'}
-          </DropdownItem>
-
-          <DropdownItem
-            isSelected={false}
-            onClick={() => selectChain("3")}
-          >
-            {'3 - Ropsten'}
-          </DropdownItem>
-
-          <DropdownItem
-            isSelected={false}
-            onClick={() => selectChain("4")}
-          >
-            {'4 - Goerli'}
-          </DropdownItem>
-
-          <DropdownItem
-            isSelected={false}
-            onClick={() => selectChain("42")}
-          >
-            {'42 - Kovan'}
-          </DropdownItem>
-
-          <DropdownItem
-            isSelected={false}
-            onClick={() => selectChain("1337")}
-          >
-            {'1337 - Geth private chains'}
-          </DropdownItem>
-
-          <DropdownItem
-            isSelected={false}
-            onClick={this.openCustomChain}
-          >
-            {'Custom'}
-          </DropdownItem>
-
       </InnerLabelDropdown>
 
     const customChainDialogue = !customChain ? null :

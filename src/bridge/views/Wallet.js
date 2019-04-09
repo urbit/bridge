@@ -47,7 +47,7 @@ class Wallet extends React.Component {
     }, {
       title: 'Ethereum Keystore File',
       value: WALLET_NAMES.KEYSTORE
-    }, ]
+    }]
   }
 
   render() {

@@ -98,7 +98,7 @@ class Network extends React.Component {
     }, {
       title: 'Offline',
       value: NETWORK_NAMES.OFFLINE
-    }, ]
+    }]
   }
 
   render() {
