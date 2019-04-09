@@ -2,9 +2,7 @@ import React from 'react'
 import Maybe from 'folktale/maybe'
 
 import { Button } from '../components/Base'
-import { RequiredInput, InnerLabel } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
-import { Code } from '../components/Base'
 
 import * as ob from 'urbit-ob'
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
@@ -96,7 +94,7 @@ class GenKeyfile extends React.Component {
   }
 
   render() {
-    const { point, pointDetails, revision } = this.getPointDetails();
+    const { point, revision } = this.getPointDetails();
     const { keyfile, loaded } = this.state
 
     return (

@@ -24,18 +24,11 @@ const Actions = (props) => {
     }
   })
 
-  const canSetTransferProxy = pointDetails.matchWith({
-    // also should check is addr is operator
-    Nothing: _ => false,
-    Just: details => eqAddr(details.value.owner, addr)
-  })
-
   const canSetSpawnProxy = pointDetails.matchWith({
     Nothing: _ => false,
     Just: details =>
       eqAddr(details.value.owner, addr) && details.value.active
   })
-
 
   const canSetManagementProxy = pointDetails.matchWith({
     Nothing: _ => false,

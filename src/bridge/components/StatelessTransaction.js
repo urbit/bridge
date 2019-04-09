@@ -1,244 +1,426 @@
-import { Nothing } from 'folktale/maybe'
+import { Nothing, Just } from 'folktale/maybe'
 import React from 'react'
 
 import { Code, H3 } from './Base'
 import { Button } from './Base'
 import { CheckboxButton, Input, InnerLabel } from './Base'
+import {  Warning } from '../components/Base'
 
-import { renderSignedTx, signTransaction } from '../lib/txn'
+import { addressFromSecp256k1Public } from '../lib/wallet'
+import { BRIDGE_ERROR } from '../lib/error'
+import { ROUTE_NAMES } from '../lib/router'
 
-const StatelessTransaction = props => {
-  const { web3, gasPrice, gasLimit, nonce, chainId } = props
-  const { setNonce, setChainId, setGasLimit, setGasPrice, showGasDetails, toggleGasDetails } = props
-  const { txn, stx, createUnsignedTxn } = props
-  const { canSign, canGenerate, canApprove } = props
-  const { setUserApproval, userApproval } = props
-  const { canSend, handleSubmit } = props
+import {
+  sendSignedTransaction,
+  fromWei,
+  renderSignedTx,
+  signTransaction
+ } from '../lib/txn'
+
+class StatelessTransaction extends React.Component {
+
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      gasPrice: '5',
+      gasLimit: '600000',
+      showGasDetails: false,
+      userApproval: false,
+      chainId: '',
+      nonce: '',
+      stx: Nothing(),
+      txn: Nothing(),
+      txError: Nothing(),
+    }
+
+    this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
+    this.submit = this.submit.bind(this)
+    this.setUserApproval = this.setUserApproval.bind(this)
+    this.setTxn = this.setTxn.bind(this)
+    this.setStx = this.setStx.bind(this)
+    this.sendTxn = this.sendTxn.bind(this)
+    this.setNonce = this.setNonce.bind(this)
+    this.setChainId = this.setChainId.bind(this)
+    this.setGasPrice = this.setGasPrice.bind(this)
+    this.setGasLimit = this.setGasLimit.bind(this)
+    this.rangeChange = this.rangeChange.bind(this)
+    this.toggleGasDetails = this.toggleGasDetails.bind(this)
+  }
+
+  componentDidMount() {
+    const { props } = this
+
+    const addr = props.wallet.matchWith({
+      Just: wal => addressFromSecp256k1Public(wal.value.publicKey),
+      Nothing: () => {
+        throw BRIDGE_ERROR.MISSING_WALLET
+      }
+    })
+
+    props.web3.matchWith({
+      Nothing: () => {},
+      Just: (w3) => {
+        const validWeb3 = w3.value
+
+        const getTxMetadata = [
+          validWeb3.eth.getTransactionCount(addr),
+          validWeb3.eth.net.getId(),
+          validWeb3.eth.getGasPrice()
+        ];
+
+        Promise.all(getTxMetadata).then(r => {
+          const txMetadata = {
+            nonce: r[0],
+            chainId: r[1],
+            gasPrice: fromWei(r[2], 'gwei'),
+          };
+
+          this.setState({...txMetadata})
+
+        })
+      }
+    });
+  }
+
+  submit(){
+    const { props, state } = this
+    sendSignedTransaction(props.web3.value, state.stx)
+      .then(sent => {
+        props.setTxnHashCursor(sent)
+        props.popRoute()
+
+        if (props.networkSeed) {
+          props.setNetworkSeedCache(props.networkSeed)
+          props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION, {promptKeyfile: true})
+        } else {
+          props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
+        }
+      })
+      .catch(err => {
+        if (err.map) {
+          this.setState({ txError: err.map(val => val.merge()) })
+        } else {
+          this.setState({ txError: err })
+        }
+      })
+  }
+
+  setUserApproval(){
+    const {state} = this
+    this.setState({ userApproval: !state.userApproval })
+  }
+
+  toggleGasDetails() {
+    this.setState({
+      showGasDetails: !this.state.showGasDetails
+    })
+  }
+
+  setStx(stx){
+    this.setState({
+      stx,
+      userApproval: false,
+    })
+  }
+
+  setTxn(txn){
+    this.setState({ txn })
+  }
+
+  createUnsignedTxn() {
+    const txn = this.props.createUnsignedTxn()
+
+    this.setState({ txn })
+  }
+
+  clearTxn() {
+    this.setState({
+      userApproval: false,
+      txn: Nothing(),
+      stx: Nothing(),
+    })
+  }
+
+  setNonce(nonce){
+    this.setState({ nonce })
+    this.clearStx()
+  }
+
+  setChainId(chainId){
+    this.setState({ chainId })
+    this.clearStx()
+  }
+
+  setGasPrice(gasPrice) {
+    this.setState({ gasPrice })
+    this.clearStx()
+  }
+
+  rangeChange(e) {
+    this.setGasPrice(e.target.value);
+  }
+
+  setGasLimit(gasLimit){
+    this.setState({ gasLimit })
+    this.clearStx()
+  }
+
+  clearStx() {
+    this.setState({
+      userApproval: false,
+      stx: Nothing(),
+    })
+  }
 
   // TODO: Investigate
-  // setState doesn't seem to work in SetProxy/handleSubmit;
+  // setState doesn't seem to work in SetProxy/submit;
   //   - TypeError: Cannot read property 'updater' of undefined
   // so just modifying the DOM manually here. (https://imgur.com/a/i0Qsyq1)
 
-  const handleRangeChange = (e) => {
-    setGasPrice(e.target.value);
-  }
-
-  const sendTxn = (e) => {
+  sendTxn(e) {
     e.target.setAttribute("disabled", true);
     let spinner = e.target.querySelectorAll('.btn-spinner')[0];
     spinner.classList.remove('hide');
-    handleSubmit()
+    this.submit()
   }
 
-  const generateButtonColor =
-      Nothing.hasInstance(txn)
-    ? 'blue'
-    : 'green'
+  render() {
+    const { web3, canGenerate } = this.props
+    const { gasPrice, gasLimit, nonce, chainId,
+      txn, stx, userApproval, showGasDetails } = this.state
 
-  const signerButtonColor =
-      Nothing.hasInstance(stx)
-    ? 'blue'
-    : 'green'
+    const { setNonce, setChainId, setGasLimit, setGasPrice, toggleGasDetails,
+      setUserApproval, sendTxn, createUnsignedTxn } = this
 
-  const generateTxnButton =
-    <Button
-      className={ 'mt-8' }
-      disabled={ !canGenerate }
-      prop-color={ generateButtonColor }
-      prop-size={ 'lg wide' }
-      onClick={ createUnsignedTxn }
-    >
-      { 'Generate Transaction' }
-    </Button>
+    const { state } = this
 
-  const unsignedTxnDisplay = txn.matchWith({
-    Nothing: _ => '',
-    Just: tx =>
+    const canSign = Just.hasInstance(txn)
+    const canApprove = Just.hasInstance(stx)
+    const canSend = Just.hasInstance(stx) && userApproval === true
+
+    const generateButtonColor =
+        Nothing.hasInstance(txn)
+      ? 'blue'
+      : 'green'
+
+    const signerButtonColor =
+        Nothing.hasInstance(stx)
+      ? 'blue'
+      : 'green'
+
+    const generateTxnButton =
+      <Button
+        className={ 'mt-8' }
+        disabled={ !canGenerate }
+        prop-color={ generateButtonColor }
+        prop-size={ 'lg wide' }
+        onClick={ createUnsignedTxn }
+      >
+        { 'Generate Transaction' }
+      </Button>
+
+    const unsignedTxnDisplay = txn.matchWith({
+      Nothing: _ => '',
+      Just: tx =>
+        <React.Fragment>
+          <H3 className={ 'mt-8' }>
+            { 'Unsigned Transaction' }
+          </H3>
+          <Code>
+            { JSON.stringify(tx.value, null, 2) }
+          </Code>
+        </React.Fragment>
+    })
+
+    const gasPriceRangeDialogue = (
       <React.Fragment>
-        <H3 className={ 'mt-8' }>
-          { 'Unsigned Transaction' }
-        </H3>
-        <Code>
-          { JSON.stringify(tx.value, null, 2) }
-        </Code>
-      </React.Fragment>
-  })
-
-  const gasPriceRangeDialogue = (
-    <React.Fragment>
-      <div className="mt-12 flex space-between align-baseline">
-        <div>
-          <span>Gas Price:</span>
-          <span className="ml-4 text-700 text-sm">{gasPrice} gwei</span>
+        <div className="mt-12 flex space-between align-baseline">
+          <div>
+            <span>Gas Price:</span>
+            <span className="ml-4 text-700 text-sm">{gasPrice} gwei</span>
+          </div>
+          <div className="text-sm">
+            <span>Max transaction fee: </span>
+            <span className="text-700">{(gasPrice * gasLimit) / 1000000000} eth</span>
+          </div>
         </div>
-        <div className="text-sm">
-          <span>Max transaction fee: </span>
-          <span className="text-700">{(gasPrice * gasLimit) / 1000000000} eth</span>
+
+        <input
+          className="mt-4"
+          type="range"
+          min="2"
+          max="20"
+          list="gweiVals"
+          value={gasPrice}
+          onChange={this.rangeChange}
+          />
+
+        <div className="flex space-between text-sm mb-8">
+          <div>Cheap</div>
+          <div>Fast</div>
         </div>
-      </div>
-
-      <input
-        className="mt-4"
-        type="range"
-        min="2"
-        max="20"
-        list="gweiVals"
-        value={gasPrice}
-        onChange={handleRangeChange}
-        />
-
-      <div className="flex space-between text-sm mb-8">
-        <div>Cheap</div>
-        <div>Fast</div>
-      </div>
-    </React.Fragment>
-  )
-
-  const toggleGasDetailsDialogue = (
-    <a href="javascript:void(0)" onClick={toggleGasDetails}>Gas Details</a>
-  )
-
-  const gasPriceDialogue =
-    <Input
-      className={ 'mono mt-4' }
-      prop-size={ 'md' }
-      prop-format={ 'innerLabel' }
-      value={ gasPrice }
-      onChange={ setGasPrice }
-    >
-      <InnerLabel>
-        { 'Gas Price (gwei)' }
-      </InnerLabel>
-    </Input>
-
-  const gasLimitDialogue =
-    <Input
-      className={ 'mono mt-4' }
-      prop-size={ 'md' }
-      prop-format={ 'innerLabel' }
-      value={ gasLimit }
-      onChange={ setGasLimit }>
-      <InnerLabel>
-        { 'Gas Limit' }
-      </InnerLabel>
-    </Input>
-
-  const nonceDialogue =
-    <Input
-      className={ 'mono mt-4' }
-      prop-size={ 'md' }
-      prop-format={ 'innerLabel' }
-      value={ nonce }
-      onChange={ setNonce }
-    >
-      <InnerLabel>
-        { 'Nonce' }
-      </InnerLabel>
-    </Input>
-
-  const chainDialogue =
-    <Input
-      className={ 'mono mt-4 mb-8' }
-      prop-size={ 'md' }
-      prop-format={ 'innerLabel' }
-      value={ chainId }
-      onChange={ setChainId }
-    >
-      <InnerLabel>
-        { 'Chain ID' }
-      </InnerLabel>
-    </Input>
-
-  const onlineParamsDialogue = web3.matchWith({
-    Just: _ => <div />,
-    Nothing: _ =>
-      <React.Fragment>
-        { nonceDialogue }
-        { chainDialogue }
       </React.Fragment>
-  })
+    )
 
-  const signTxnButton =
-    <Button
-      disabled={ !canSign }
-      className={ 'mt-8' }
-      prop-size={ 'lg wide' }
-      prop-color={ signerButtonColor }
-      onClick={ () => signTransaction(props) }
-    >
-      { 'Sign Transaction' }
-    </Button>
+    const toggleGasDetailsDialogue = (
+      <span className="text-link" onClick={toggleGasDetails}>Gas Details</span>
+    )
 
-  const signedTxnDisplay = stx.matchWith({
-    Nothing: _ => '',
-    Just: tx =>
-      <React.Fragment>
-        <H3 className={ 'mt-8' }>
-          { 'Signed Transaction' }
-        </H3>
-        <Code>
-          { JSON.stringify(renderSignedTx(tx.value), null, 2) }
-        </Code>
-      </React.Fragment>
-  })
+    const gasPriceDialogue =
+      <Input
+        className={ 'mono mt-4' }
+        prop-size={ 'md' }
+        prop-format={ 'innerLabel' }
+        value={ gasPrice }
+        onChange={ setGasPrice }
+      >
+        <InnerLabel>
+          { 'Gas Price (gwei)' }
+        </InnerLabel>
+      </Input>
 
-  const confirmButton =
-    <CheckboxButton
-      className={ 'mt-8' }
-      disabled={ !canApprove }
-      onClick={ setUserApproval }
-      state={ userApproval }
-    >
-      <div onClick={ setUserApproval }>
-        { `I approve this transaction and wish to send.` }
-      </div>
-    </CheckboxButton>
+    const gasLimitDialogue =
+      <Input
+        className={ 'mono mt-4' }
+        prop-size={ 'md' }
+        prop-format={ 'innerLabel' }
+        value={ gasLimit }
+        onChange={ setGasLimit }>
+        <InnerLabel>
+          { 'Gas Limit' }
+        </InnerLabel>
+      </Input>
 
-  const sendTxnButton =
-    <Button
-      prop-size={ 'xl wide' }
-      className={ 'mt-8' }
-      disabled={ !canSend }
-      onClick={ sendTxn }
-    >
-      <span className="relative">
-        <span className="btn-spinner hide"></span>
-        { 'Send Transaction' }
-      </span>
-    </Button>
+    const nonceDialogue =
+      <Input
+        className={ 'mono mt-4' }
+        prop-size={ 'md' }
+        prop-format={ 'innerLabel' }
+        value={ nonce }
+        onChange={ setNonce }
+      >
+        <InnerLabel>
+          { 'Nonce' }
+        </InnerLabel>
+      </Input>
 
-  const sendDialogue = web3.matchWith({
-    Nothing: _ => '',
-    Just: _ =>
-      <React.Fragment>
-        { confirmButton }
-        { sendTxnButton }
-      </React.Fragment>
-  })
+    const chainDialogue =
+      <Input
+        className={ 'mono mt-4 mb-8' }
+        prop-size={ 'md' }
+        prop-format={ 'innerLabel' }
+        value={ chainId }
+        onChange={ setChainId }
+      >
+        <InnerLabel>
+          { 'Chain ID' }
+        </InnerLabel>
+      </Input>
 
-  return (
-    <React.Fragment>
-      { generateTxnButton }
-      { unsignedTxnDisplay }
+    const onlineParamsDialogue = web3.matchWith({
+      Just: _ => <div />,
+      Nothing: _ =>
+        <React.Fragment>
+          { nonceDialogue }
+          { chainDialogue }
+        </React.Fragment>
+    })
 
-      { gasPriceRangeDialogue }
-      { toggleGasDetailsDialogue }
+    const signTxnButton =
+      <Button
+        disabled={ !canSign }
+        className={ 'mt-8' }
+        prop-size={ 'lg wide' }
+        prop-color={ signerButtonColor }
+        onClick={ () => signTransaction({...this.props, ...this.state, setStx: this.setStx}) }
+      >
+        { 'Sign Transaction' }
+      </Button>
 
-      { showGasDetails &&
-        <div>
-          { gasPriceDialogue }
-          { gasLimitDialogue }
+    const signedTxnDisplay = stx.matchWith({
+      Nothing: _ => '',
+      Just: tx =>
+        <React.Fragment>
+          <H3 className={ 'mt-8' }>
+            { 'Signed Transaction' }
+          </H3>
+          <Code>
+            { JSON.stringify(renderSignedTx(tx.value), null, 2) }
+          </Code>
+        </React.Fragment>
+    })
+
+    const confirmButton =
+      <CheckboxButton
+        className={ 'mt-8' }
+        disabled={ !canApprove }
+        onClick={ setUserApproval }
+        state={ userApproval }
+      >
+        <div onClick={ setUserApproval }>
+          { `I approve this transaction and wish to send.` }
         </div>
-      }
-      { onlineParamsDialogue }
+      </CheckboxButton>
 
-      { signTxnButton }
+    const sendTxnButton =
+      <Button
+        prop-size={ 'xl wide' }
+        className={ 'mt-8' }
+        disabled={ !canSend }
+        onClick={ sendTxn }
+      >
+        <span className="relative">
+          <span className="btn-spinner hide"></span>
+          { 'Send Transaction' }
+        </span>
+      </Button>
 
-      { signedTxnDisplay }
-      { sendDialogue }
-    </React.Fragment>
-  )
+    const sendDialogue = web3.matchWith({
+      Nothing: _ => '',
+      Just: _ =>
+        <React.Fragment>
+          { confirmButton }
+          { sendTxnButton }
+        </React.Fragment>
+    })
+
+    const txnErrorDialogue = Nothing.hasInstance(state.txError)
+      ? ''
+      : <Warning className={'mt-8'}>
+          <H3 style={{marginTop: 0, paddingTop: 0}}>
+            {
+              'There was an error sending your transaction.'
+            }
+          </H3>
+          { state.txError.value }
+      </Warning>
+
+    return (
+      <React.Fragment>
+        { generateTxnButton }
+        { unsignedTxnDisplay }
+
+        { gasPriceRangeDialogue }
+        { toggleGasDetailsDialogue }
+
+        { showGasDetails &&
+          <div>
+            { gasPriceDialogue }
+            { gasLimitDialogue }
+          </div>
+        }
+        { onlineParamsDialogue }
+
+        { signTxnButton }
+
+        { signedTxnDisplay }
+        { sendDialogue }
+
+        { txnErrorDialogue }
+      </React.Fragment>
+    )
+  }
 }
 
 export default StatelessTransaction
