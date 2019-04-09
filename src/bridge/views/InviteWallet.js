@@ -59,13 +59,14 @@ class InviteWallet extends React.Component {
 
       let point = Nothing();
       if (incoming.length > 0) {
-        point = Just(incoming[0]);
-        this.generateWallet(incoming[0]);
-        this.setState({ loaded: true, point: point });
+        let pointNum = parseInt(incoming[0]);
+        point = Just(pointNum);
+        this.generateWallet(pointNum);
         if (incoming.length > 1) {
           //TODO  notify user "...and others / ticket reusable"
         }
       }
+      this.setState({loaded: true, point: point})
     })))
   }
 
@@ -105,15 +106,13 @@ class InviteWallet extends React.Component {
 
     const genWallet = async (point, ticket, cb) => {
 
-      const boot = point < MIN_STAR || point > MAX_STAR;
-
       const config = {
         ticket: ticket,
         seedSize: SEED_LENGTH_BYTES,
         ship: point,
         password: '',
         revisions: {},
-        boot: boot
+        boot: false //TODO should this generate networking keys here already?
       };
 
       const wallet = await kg.generateWallet(config);
@@ -165,7 +164,7 @@ class InviteWallet extends React.Component {
   proceed() {
     this.props.pushRoute(ROUTE_NAMES.INVITE_VERIFY, {
       ticket: this.state.wallet.value.ticket,
-      point: this.state.point.value
+      point: parseInt(this.state.point.value)
     });
   }
 
