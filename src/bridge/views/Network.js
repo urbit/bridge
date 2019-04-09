@@ -1,11 +1,7 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
 import { Button } from '../components/Base'
-import {
-  DropdownItem,
-  InnerLabelDropdown,
-  DropdownDivider,
-} from '../components/Base'
+import { InnerLabelDropdown } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 import Web3 from 'web3'
@@ -19,19 +15,7 @@ class Network extends React.Component {
   constructor(props) {
     super(props)
 
-    this.state = {
-      dropdownOpen: false
-    };
-
-    this.toggle = this.toggle.bind(this);
-    this.close = this.close.bind(this);
     this.handleNetworkChange = this.handleNetworkChange.bind(this);
-  }
-
-  toggle() {
-    this.setState((state, _) => ({
-      dropdownOpen: !state.dropdownOpen
-    }))
   }
 
   handleNetworkChange(network) {
@@ -99,97 +83,58 @@ class Network extends React.Component {
     }
   }
 
-  selectClose(f) {
-    f()
-    this.setState({ dropdownOpen: false })
-  }
-
-
-  close () {
-    this.setState({ dropdownOpen: false })
+  getNetworkOptions() {
+    return [{
+      title: 'Main Network (default)',
+      value: NETWORK_NAMES.MAINNET
+    }, {
+      title: 'Local Node',
+      value: NETWORK_NAMES.LOCAL
+    }, {
+      title: 'Ropsten',
+      value: NETWORK_NAMES.ROPSTEN
+    }, {
+      type: 'divider'
+    }, {
+      title: 'Offline',
+      value: NETWORK_NAMES.OFFLINE
+    }, ]
   }
 
   render() {
-    const { dropdownOpen } = this.state
     const { networkType, pushRoute } = this.props
+    const networkOptions = this.getNetworkOptions()
 
     return (
         <Row>
           <Col>
             <H1>{ 'Select Network' }</H1>
 
+            <P>
+            {
+              "Please select the Ethereum node you'd like to send " +
+              "transactions to.  For highly valuable keys, please select " +
+              "offline mode."
+            }
+            </P>
 
-          <P>
-          {
-            "Please select the Ethereum node you'd like to send " +
-            "transactions to.  For highly valuable keys, please select " +
-            "offline mode."
-          }
-          </P>
+            <InnerLabelDropdown
+              className={'mt-6'}
+              title={'Node:'}
+              handleUpdate={this.handleNetworkChange}
+              options={networkOptions}
+              currentSelectionTitle={renderNetworkType(networkType)}>
+            </InnerLabelDropdown>
 
+            <Button
+              className={'mt-10'}
+              onClick={ () => pushRoute(ROUTE_NAMES.WALLET) }
+            >
+              { 'Continue  →' }
+            </Button>
 
-          <InnerLabelDropdown
-            className={'mt-6'}
-            handleToggle={this.toggle}
-            handleClose={this.close}
-            isOpen={dropdownOpen}
-            title={'Node:'}
-            currentSelectionTitle={renderNetworkType(networkType)}
-          >
-
-              <DropdownItem
-                isSelected={ false }
-                onClick={
-                  () => this.selectClose(() => this.handleNetworkChange(NETWORK_NAMES.MAINNET))
-                }
-              >
-                { 'Main Network (default)' }
-              </DropdownItem>
-
-              <DropdownItem
-                isSelected={false}
-                onClick={
-                  () => this.selectClose(() => this.handleNetworkChange(NETWORK_NAMES.LOCAL))
-                }
-              >
-                { //'Ganache Node @ Port 8545 (Default)'
-                }
-                {'Local Node'}
-              </DropdownItem>
-
-              <DropdownItem
-                // disabled={ true }
-                isSelected={ false }
-                onClick={
-                  () => this.selectClose(() => this.handleNetworkChange(NETWORK_NAMES.ROPSTEN))
-                }
-              >
-                { 'Ropsten' }
-              </DropdownItem>
-
-              <DropdownDivider />
-
-              <DropdownItem
-                // disabled={ true }
-                isSelected={ false }
-                onClick={
-                  () => this.selectClose(() => this.handleNetworkChange(NETWORK_NAMES.OFFLINE))
-                }
-              >
-                { 'Offline' }
-              </DropdownItem>
-
-          </InnerLabelDropdown>
-
-          <Button
-            className={'mt-10'}
-            onClick={ () => pushRoute(ROUTE_NAMES.WALLET) }
-          >
-            { 'Continue  →' }
-          </Button>
-
-        </Col>
-      </Row>
+          </Col>
+        </Row>
     )
   }
 }

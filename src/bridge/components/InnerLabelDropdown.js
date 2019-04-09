@@ -1,73 +1,114 @@
 import React from 'react'
 import PropTypes from 'prop-types';
 
+import { DropdownItem, DropdownDivider } from '../components/Base'
 
-const InnerLabelDropdown = props => {
+class InnerLabelDropdown extends React.Component {
+  constructor(props) {
+    super(props)
 
-  const menuVisibility = props.isOpen === true
-    ? 'visible'
-    : 'hidden';
+    this.state = {
+      isOpen: false
+    }
 
-  const selectedClasses = props.isOpen === true
-    ? 'br-blue'
-    : 'br-gray-50';
+    this.toggle = this.toggle.bind(this)
+    this.close = this.close.bind(this)
+  }
 
-  const fullWidthClass = props.fullWidth ? 'full-width' : ''
+  toggle() {
+    this.setState({
+      isOpen: !this.state.isOpen
+    })
+  }
 
-  return (
-    <div className={`rel table ${fullWidthClass}`}>
-      <div
-        className={`fix full o-0 ${menuVisibility}`}
-        onClick={props.handleClose}
-      />
+  close() {
+    this.setState({
+      isOpen: false
+    })
+  }
 
-      <button
-        className={`h-10 mp-0 bg-white outline-blue sans ${props.className} ${fullWidthClass}`}
-        onClick={props.handleToggle}
-        disabled={props.disabled}>
-        <div className={'flex'}>
-          <div className={`ph-4 flex-center-all b-2 br-0 b-solid h-10 ${selectedClasses} ${fullWidthClass}`}>
-            <div className={'text-400 mr-2'}>{props.title}</div>
-            <div className={'text-600'}>{props.currentSelectionTitle}</div>
+  selectOption(opt) {
+    this.close()
+    this.props.handleUpdate(opt)
+  }
+
+  getOptionElems() {
+    return this.props.options.map(opt => {
+      if (opt.type === "divider") {
+        return <DropdownDivider />
+      } else {
+        return (
+          <DropdownItem onClick={() => this.selectOption(opt.value)}>
+            { opt.title }
+          </DropdownItem>
+        )
+      }
+    })
+  }
+
+  render() {
+    const { props, state } = this
+
+    const optionElems = this.getOptionElems()
+
+    const menuVisibility = state.isOpen === true
+      ? 'visible'
+      : 'hidden';
+
+    const selectedClasses = state.isOpen === true
+      ? 'br-blue'
+      : 'br-gray-50';
+
+    const fullWidthClass = props.fullWidth ? 'full-width' : ''
+
+    return (
+      <div className={`rel table ${fullWidthClass}`}>
+        <div
+          className={`fix full o-0 ${menuVisibility}`}
+          onClick={this.close}
+        />
+
+        <button
+          className={`h-10 mp-0 bg-white outline-blue sans ${props.className} ${fullWidthClass}`}
+          onClick={this.toggle}
+          disabled={props.disabled}>
+          <div className={'flex'}>
+            <div className={`ph-4 flex align-center b-2 br-0 b-solid h-10 ${selectedClasses} ${fullWidthClass}`}>
+              <div className={'text-400 mr-2'}>{props.title}</div>
+              <div className={'text-600'}>{props.currentSelectionTitle}</div>
+            </div>
+            <div className={'white bg-blue s-10 flex-center-all text-sm'}>{'▼'}</div>
           </div>
-          <div className={'white bg-blue s-10 flex-center-all text-sm'}>{'▼'}</div>
+        </button>
+
+        <div className={`abs flex-column bg-white t-12 l-0 w-100 z-1 ${menuVisibility}`}>
+          <div className={'pv-1 b-solid b-gray-50 b-2 bb-0'} />
+
+          { optionElems }
+
+          <div className={'pv-1 b-solid b-gray-50 b-2 bt-0'} />
         </div>
-      </button>
 
-      <div className={`abs flex-column bg-white t-12 l-0 w-100 ${menuVisibility}`}>
-        <div className={'pv-1 b-solid b-gray-50 b-2 bb-0'} />
-
-        { props.children }
-
-        <div className={'pv-1 b-solid b-gray-50 b-2 bt-0'} />
       </div>
-
-    </div>
-  )
+    )
+  }
 }
 
 InnerLabelDropdown.propTypes = {
   disabled: PropTypes.bool,
-  isOpen: PropTypes.bool,
-  handleToggle: PropTypes.func,
-  handleClose: PropTypes.func,
   className: PropTypes.string,
   title: PropTypes.string,
-  children: PropTypes.node,
   style: PropTypes.object,
   currentSelectionTitle: PropTypes.string,
+  children: PropTypes.node,
 };
 
-
 InnerLabelDropdown.defaultProps = {
-  isOpen: false,
+  disabled: false,
   className: '',
   title: '',
-  currentSelectionTitle: '',
-  handleToggle: () => {},
-  handleClose: () => {},
-  disabled: false,
   style: {},
+  currentSelectionTitle: '',
 };
 
 export default InnerLabelDropdown
