@@ -3,7 +3,8 @@ import React from 'react'
 
 import { Code, H3 } from './Base'
 import { Button } from './Base'
-import { CheckboxButton, Input, InnerLabel } from './Base'
+import { CheckboxButton, Input, InnerLabel,
+  InnerLabelDropdown, DropdownItem } from './Base'
 import {  Warning } from '../components/Base'
 
 import { addressFromSecp256k1Public } from '../lib/wallet'
@@ -28,10 +29,12 @@ class StatelessTransaction extends React.Component {
       showGasDetails: false,
       userApproval: false,
       chainId: '',
+      chainDropdownOpen: false,
+      customChain: false,
       nonce: '',
       stx: Nothing(),
       txn: Nothing(),
-      txError: Nothing(),
+      txError: Nothing()
     }
 
     this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
@@ -46,6 +49,10 @@ class StatelessTransaction extends React.Component {
     this.setGasLimit = this.setGasLimit.bind(this)
     this.rangeChange = this.rangeChange.bind(this)
     this.toggleGasDetails = this.toggleGasDetails.bind(this)
+    this.toggleChainDropdown = this.toggleChainDropdown.bind(this)
+    this.closeChainDropdown = this.closeChainDropdown.bind(this)
+    this.selectChain = this.selectChain.bind(this)
+    this.openCustomChain = this.openCustomChain.bind(this)
   }
 
   componentDidMount() {
@@ -104,6 +111,33 @@ class StatelessTransaction extends React.Component {
           this.setState({ txError: err })
         }
       })
+  }
+
+  openCustomChain() {
+    this.setState({
+      chainDropdownOpen: false,
+      customChain: true
+    })
+  }
+
+  toggleChainDropdown() {
+    this.setState({
+      chainDropdownOpen: !this.state.chainDropdownOpen
+    })
+  }
+
+  closeChainDropdown() {
+    this.setState({
+      chainDropdownOpen: false
+    })
+  }
+
+  selectChain(chainId) {
+    this.setState({
+      chainId,
+      chainDropdownOpen: false,
+      customChain: false
+    })
   }
 
   setUserApproval(){
@@ -188,10 +222,11 @@ class StatelessTransaction extends React.Component {
   render() {
     const { web3, canGenerate } = this.props
     const { gasPrice, gasLimit, nonce, chainId,
-      txn, stx, userApproval, showGasDetails } = this.state
+      txn, stx, userApproval, showGasDetails,
+      customChain, chainDropdownOpen } = this.state
 
     const { setNonce, setChainId, setGasLimit, setGasPrice, toggleGasDetails,
-      setUserApproval, sendTxn, createUnsignedTxn } = this
+      setUserApproval, sendTxn, createUnsignedTxn, selectChain } = this
 
     const { state } = this
 
@@ -294,7 +329,7 @@ class StatelessTransaction extends React.Component {
 
     const nonceDialogue =
       <Input
-        className={ 'mono mt-4' }
+        className={ 'mono mt-4 mb-4' }
         prop-size={ 'md' }
         prop-format={ 'innerLabel' }
         value={ nonce }
@@ -305,18 +340,80 @@ class StatelessTransaction extends React.Component {
         </InnerLabel>
       </Input>
 
+    const chainDialogueTitle = customChain ? "Custom" : chainId
     const chainDialogue =
-      <Input
-        className={ 'mono mt-4 mb-8' }
-        prop-size={ 'md' }
-        prop-format={ 'innerLabel' }
-        value={ chainId }
-        onChange={ setChainId }
+      <InnerLabelDropdown
+        className={'mt-6'}
+        handleToggle={this.toggleChainDropdown}
+        handleClose={this.closeChainDropdown}
+        fullWidth={true}
+        isOpen={chainDropdownOpen}
+        title={'Chain ID'}
+        currentSelectionTitle={chainDialogueTitle}
       >
-        <InnerLabel>
-          { 'Chain ID' }
-        </InnerLabel>
-      </Input>
+          <DropdownItem
+            isSelected={ false }
+            onClick={() => selectChain("1")}
+          >
+            { '1 - Mainnet' }
+          </DropdownItem>
+
+          <DropdownItem
+            isSelected={false}
+            onClick={() => selectChain("2")}
+          >
+            {'2 - Morden'}
+          </DropdownItem>
+
+          <DropdownItem
+            isSelected={false}
+            onClick={() => selectChain("3")}
+          >
+            {'3 - Ropsten'}
+          </DropdownItem>
+
+          <DropdownItem
+            isSelected={false}
+            onClick={() => selectChain("4")}
+          >
+            {'4 - Goerli'}
+          </DropdownItem>
+
+          <DropdownItem
+            isSelected={false}
+            onClick={() => selectChain("42")}
+          >
+            {'42 - Kovan'}
+          </DropdownItem>
+
+          <DropdownItem
+            isSelected={false}
+            onClick={() => selectChain("1337")}
+          >
+            {'1337 - Geth private chains'}
+          </DropdownItem>
+
+          <DropdownItem
+            isSelected={false}
+            onClick={this.openCustomChain}
+          >
+            {'Custom'}
+          </DropdownItem>
+
+      </InnerLabelDropdown>
+
+    const customChainDialogue = !customChain ? null :
+        <Input
+          className={ 'mono mt-4 mb-8' }
+          prop-size={ 'md' }
+          prop-format={ 'innerLabel' }
+          value={ chainId }
+          onChange={ setChainId }
+        >
+          <InnerLabel>
+            { 'Chain ID' }
+          </InnerLabel>
+        </Input>
 
     const onlineParamsDialogue = web3.matchWith({
       Just: _ => <div />,
@@ -324,6 +421,7 @@ class StatelessTransaction extends React.Component {
         <React.Fragment>
           { nonceDialogue }
           { chainDialogue }
+          { customChainDialogue }
         </React.Fragment>
     })
 

@@ -12,19 +12,21 @@ const InnerLabelDropdown = props => {
     ? 'br-blue'
     : 'br-gray-50';
 
+  const fullWidthClass = props.fullWidth ? 'full-width' : ''
+
   return (
-    <div className={'rel table'}>
-    <div
-      className={`fix full o-0 ${menuVisibility}`}
-      onClick={props.handleClose}
-    />
+    <div className={`rel table ${fullWidthClass}`}>
+      <div
+        className={`fix full o-0 ${menuVisibility}`}
+        onClick={props.handleClose}
+      />
 
       <button
-        className={`h-10 mp-0 bg-white outline-blue sans ${props.className}`}
+        className={`h-10 mp-0 bg-white outline-blue sans ${props.className} ${fullWidthClass}`}
         onClick={props.handleToggle}
         disabled={props.disabled}>
         <div className={'flex'}>
-          <div className={`ph-4 flex-center-all b-2 br-0 b-solid h-10 ${selectedClasses}`}>
+          <div className={`ph-4 flex-center-all b-2 br-0 b-solid h-10 ${selectedClasses} ${fullWidthClass}`}>
             <div className={'text-400 mr-2'}>{props.title}</div>
             <div className={'text-600'}>{props.currentSelectionTitle}</div>
           </div>
