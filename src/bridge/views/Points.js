@@ -77,7 +77,6 @@ class Points extends React.Component {
 
       this.cachePoints(ctrcs, addToPointCache, points)
     })))
-
   }
 
   cachePoints(contracts, addToPointCache, points) {
