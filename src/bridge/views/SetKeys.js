@@ -34,7 +34,6 @@ class SetKeys extends React.Component {
       point: point,
       cryptoSuiteVersion: 1,
       continuity: false,
-      isManagementSeed: false,
     }
 
     this.handleNetworkSeedInput = this.handleNetworkSeedInput.bind(this)
@@ -52,17 +51,6 @@ class SetKeys extends React.Component {
       Nothing: () => {
         throw BRIDGE_ERROR.MISSING_WALLET
       }
-    })
-
-    this.determineManagementSeed(props.contracts.value, addr)
-  }
-
-  async determineManagementSeed(ctrcs, addr) {
-    const managing =
-      await azimuth.azimuth.getManagerFor(ctrcs, addr)
-
-    this.setState({
-      isManagementSeed: managing.length !== 0
     })
   }
 
