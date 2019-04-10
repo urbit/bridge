@@ -62,9 +62,13 @@ const genKey = (networkSeed, point, revision) => {
 
 // 'next' refers to setting the next set of keys
 // if false, we use revision - 1
-const attemptSeedDerivation = async (next, args) => {
+const attemptSeedDerivation = async (next, args, assumedRevision) => {
   const { walletType, wallet, pointCursor, pointCache } = args
   const { urbitWallet, authMnemonic } = args
+
+  // If you pass in a revision number, we're going to assume you want
+  // to bypass network checks and get a seed anyway
+  const isOfflineDerivation = typeof assumedRevision === "number"
 
   // NB (jtobin):
   //
@@ -90,9 +94,11 @@ const attemptSeedDerivation = async (next, args) => {
     : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
 
   const revision =
-      next === true
-    ? parseInt(pointDetails.keyRevisionNumber)
-    : parseInt(pointDetails.keyRevisionNumber) - 1
+      isOfflineDerivation
+    ? assumedRevision
+    : next === true
+      ? parseInt(pointDetails.keyRevisionNumber)
+      : parseInt(pointDetails.keyRevisionNumber) - 1
 
   let managementSeed = ''
 
@@ -118,14 +124,18 @@ const attemptSeedDerivation = async (next, args) => {
       }
     })
 
-    const chainProxy = pointDetails.managementProxy
-
-    // the network seed is only derivable from mnemonic if the derived
-    // management seed equals the record we have on chain
-    const networkSeedDerivable = eqAddr(walProxy, chainProxy)
-
-    if (networkSeedDerivable === true) {
+    if (isOfflineDerivation) {
       managementSeed = mnemonic
+    } else {
+      const chainProxy = pointDetails.managementProxy
+
+      // the network seed is only derivable from mnemonic if the derived
+      // management seed equals the record we have on chain
+      const networkSeedDerivable = eqAddr(walProxy, chainProxy)
+
+      if (networkSeedDerivable === true) {
+        managementSeed = mnemonic
+      }
     }
   }
 
@@ -141,11 +151,7 @@ const attemptSeedDerivation = async (next, args) => {
   return networkSeed
 }
 
-
-
-
 export {
   genKey,
   attemptSeedDerivation
 }
-
