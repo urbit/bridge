@@ -41,15 +41,12 @@ const validateMnemonic = m => simpleValidatorWrapper({
   errorMessage: 'This is not a valid mnemonic.'
 });
 
-
 // Checks an empty field
 const validateNotEmpty = m => simpleValidatorWrapper({
   prevMessage: m,
-  validator: d => d.length > 1,
+  validator: d => d.length > 0,
   errorMessage: 'This field is required.'
 });
-
-
 
 // Checks if a patp is a valid galaxy
 const validateGalaxy = m => simpleValidatorWrapper({
