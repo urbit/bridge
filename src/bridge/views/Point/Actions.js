@@ -137,7 +137,7 @@ const Actions = (props) => {
           <Button
             prop-size={'sm'}
             prop-type={'link'}
-            disabled={ !canAcceptTransfer }
+            disabled={ online && !canAcceptTransfer }
             onClick={ () => {
               pushRoute(ROUTE_NAMES.ACCEPT_TRANSFER)
             }}
@@ -159,7 +159,7 @@ const Actions = (props) => {
           <Button
             prop-size={'sm'}
             prop-type={'link'}
-            disabled={ !canGenKeyfile }
+            disabled={ online && !canGenKeyfile }
             onClick={ () => {
               pushRoute(ROUTE_NAMES.GEN_KEYFILE)
             }}
