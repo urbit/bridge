@@ -25,7 +25,14 @@ const initWeb3 = (networkType) => {
     const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.MAINNET)
     return {web3: web3, contracts: contracts}
   } else if (networkType === NETWORK_NAMES.LOCAL) {
-    const endpoint = 'wss://localhost:8545'
+
+    const protocol =
+        process.env.NODE_ENV === 'development'
+      ? 'ws'
+      : 'wss'
+
+    const endpoint = `${protocol}://localhost:8545`
+
     const provider = new Web3.providers.WebsocketProvider(endpoint)
     const web3 = new Web3(provider)
     const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.DEV)
