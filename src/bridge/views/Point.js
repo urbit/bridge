@@ -8,6 +8,7 @@ import PointList from '../components/PointList'
 import ReactSVGComponents from '../components/ReactSVGComponents'
 import KeysAndMetadata from './Point/KeysAndMetadata'
 import Actions from './Point/Actions'
+import { NETWORK_NAMES } from '../lib/network'
 import { BRIDGE_ERROR } from '../lib/error'
 import { Row, Col, H1,  H3 } from '../components/Base'
 
@@ -43,15 +44,35 @@ class Point extends React.Component {
   }
 
   cachePoints() {
-    const { web3, contracts, pointCursor, addToPointCache } = this.props
+    const { web3, contracts, pointCursor,
+      addToPointCache, networkType } = this.props
 
-    web3.chain(_ =>
-    contracts.chain(ctrcs =>
-    pointCursor.chain(point => {
-      azimuth.azimuth.getPoint(ctrcs, point)
-      .then(details => addToPointCache({ [point]: details }))
-      this.updateSpawned(ctrcs, point)
-    })))
+    if (networkType === NETWORK_NAMES.OFFLINE) {
+      const point = pointCursor.matchWith({
+        Just: (pt) => pt.value,
+        Nothing: () => {
+          throw BRIDGE_ERROR.MISSING_POINT
+        }
+      })
+
+      addToPointCache({ [point]: {
+        keyRevisionNumber: '',
+        encryptionKey: '',
+        authenticationKey: '',
+        owner: '',
+        managementProxy: '',
+        spawnProxy: '',
+        transferProxy: ''
+      }})
+    } else {
+      web3.chain(_ =>
+      contracts.chain(ctrcs =>
+      pointCursor.chain(point => {
+        azimuth.azimuth.getPoint(ctrcs, point)
+        .then(details => addToPointCache({ [point]: details }))
+        this.updateSpawned(ctrcs, point)
+      })))
+    }
   }
 
   updateSpawned = contracts => {
@@ -64,7 +85,6 @@ class Point extends React.Component {
         .then(spawned => this.setState({ spawned }))
       }
     })
-
   }
 
   render() {
