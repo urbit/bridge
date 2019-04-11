@@ -19,7 +19,12 @@ import { BRIDGE_ERROR } from '../lib/error'
 import { Row, Col, Warning, Button, H1, H3 } from '../components/Base'
 
 // for transaction generation and signing
-import { signTransaction, sendSignedTransaction } from '../lib/txn'
+import {
+  signTransaction,
+  sendSignedTransaction,
+  waitForTransactionConfirm,
+  isTransactionConfirmed
+} from '../lib/txn'
 import { attemptSeedDerivation, genKey  } from '../lib/keys'
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as tank from '../lib/tank'
@@ -43,10 +48,13 @@ class InviteVerify extends React.Component {
       point: this.props.routeData.point,
       ticket: this.props.routeData.ticket
     }
+
+    this.startTransactions = this.startTransactions.bind(this);
   }
 
   componentDidMount() {
-    this.startTransactions();
+    //NOTE delayed so that we hang *after* rendering the page
+    setTimeout(this.startTransactions, 100);
   }
 
   componentDidUpdate(prevProps) {
@@ -82,8 +90,8 @@ class InviteVerify extends React.Component {
 
     // ping gas tank with txs if needed
 
-    let nonce = await web3.eth.getTransactionCount(inviteAddress);
-    transferTx.nonce = nonce++;
+    let inviteNonce = await web3.eth.getTransactionCount(inviteAddress);
+    transferTx.nonce = inviteNonce++;
     transferTx.gasPrice = 20000000000; //NOTE we pay the premium for faster ux
     transferTx.from = inviteAddress;
 
@@ -92,53 +100,11 @@ class InviteVerify extends React.Component {
     transferStx.sign(inviteWallet.privateKey);
     let rawTransferStx = '0x'+transferStx.serialize().toString('hex');
 
-    let transferCost = (transferTx.gasPrice * transferTx.gas);
-    let balance = await web3.eth.getBalance(inviteAddress);
-    console.log('balance', balance, 'transfercost', transferCost, 'need funds', transferCost > balance);
-    if (transferCost > balance) {
-
-      //TODO want to do this earlier, maybe? but we need costs for all
-      //     transactions, and all balances, known before we can display useful
-      //     prompts to the user.
-      const fundsRemaining = await tank.remainingTransactions(point);
-      console.log('freebies remaining', fundsRemaining);
-      if (fundsRemaining < 1) {
-        throw new Error(`TODO present user with "please fund $(inviteAddress) with $(transferCost), then click to retry"`);
-      }
-
-      const res = await this.pingGasTank([rawTransferStx]);
-      if (!res) {
-        //TODO show pls fund msg + try again button
-        console.log('tank request failed');
-      }
-
-      //TODO await confirm of res.txHash
-      console.log('funded transfer tx');
-    } else {
-      console.log('paying for ourselves');
-    }
+    const transferCost = transferTx.gas * transferTx.gasPrice;
+    await this.ensureFundsFor(web3, point, inviteAddress, transferCost, [rawTransferStx]);
 
     // send transaction
-    await web3.eth.sendSignedTransaction(rawTransferStx);
-
-    const transferTxHash = web3.utils.keccak256(rawTransferStx);
-    //TODO refactor into waitForConfirm function in /lib/txn
-    let confirmed = false;
-    let success = false;
-    while (!confirmed) {
-      let receipt = await web3.eth.getTransactionReceipt(transferTxHash);
-      confirmed = (receipt !== null);
-      if (confirmed) {
-        console.log('confirmed!', receipt);
-        success = receipt.status;
-      }
-    }
-
-    if (!success) {
-      throw new Error('transaction failed');
-    }
-
-    console.log('sent transfer tx');
+    await this.sendAndAwaitConfirm(web3, [rawTransferStx]);
 
     //
     // we're gonna be operating as the new wallet from here on out, so change
@@ -194,37 +160,14 @@ class InviteVerify extends React.Component {
       return '0x'+stx.serialize().toString('hex');
     });
 
-    //TODO copy-pasted from above, refactor
-    balance = await web3.eth.getBalance(newAddress);
-    console.log('balance', balance, 'totalcost', totalCost, 'need funds', totalCost > balance);
-    if (totalCost > balance) {
+    await this.ensureFundsFor(web3, point, newAddress, totalCost, rawStxs);
 
-      const fundsRemaining = await tank.remainingTransactions(point);
-      console.log('freebies remaining', fundsRemaining);
-      if (fundsRemaining < 2) {
-        throw new Error(`TODO present user with "please fund $(newAddress) with at least $(totalCost), then click to retry"`);
-      }
-
-      const res = await this.pingGasTank(rawStxs);
-      if (!res) {
-        //TODO show pls fund msg + try again button
-        console.log('tank request failed');
-      }
-
-      //TODO await confirm of res.txHash
-      console.log('funded transfer tx');
-    } else {
-      console.log('paying for ourselves');
-    }
-
-    await web3.eth.sendSignedTransaction(rawStxs[0]);
-    await web3.eth.sendSignedTransaction(rawStxs[1]);
+    await this.sendAndAwaitConfirm(web3, rawStxs);
     console.log('sent transactions');
-    //TODO use PromiEvent functions to wait for confirm
 
     // if non-trivial eth left in invite wallet, transfer to new ownership
     //TODO
-    balance = await web3.eth.getBalance(inviteAddress);
+    let balance = await web3.eth.getBalance(inviteAddress);
     const gasPrice = 20000000000;
     const gasLimit = 21000;
     const sendEthCost = gasPrice * gasLimit;
@@ -236,12 +179,14 @@ class InviteVerify extends React.Component {
         value: value,
         gasPrice: gasPrice,
         gas: gasLimit,
-        nonce: nonce++
+        nonce: inviteNonce++
       }
       let stx = new Tx(tx);
       stx.sign(inviteWallet.privateKey);
       const rawTx = '0x'+stx.serialize().toString('hex');
-      await web3.eth.sendSignedTransaction(rawTx);
+      await web3.eth.sendSignedTransaction(rawTx).catch(err => {
+        console.log('error sending value tx, who cares', err);
+      });
       console.log('sent old balance');
     }
 
@@ -250,21 +195,53 @@ class InviteVerify extends React.Component {
     //TODO forward to "all done!" screen
   }
 
-  //TODO move into tank.js?
-  async pingGasTank(signedTxs) {
-    //TODO  use folktale/either folktale/result more
-    const fundRes = await tank.fundTransactions(signedTxs);
+  async ensureFundsFor(web3, point, address, cost, signedTxs) {
+    let balance = await web3.eth.getBalance(address);
 
-    let success = false;
+    if (cost > balance) {
 
-    if (fundRes.success === true) {
-      //TODO await confirmation on fundRes.txHash
+      const fundsRemaining = await tank.remainingTransactions(point);
+      if (fundsRemaining < signedTxs.length) {
+        throw new Error(`TODO present user with "please fund $(address) with at least $(cost), then click to retry"`);
+      }
+
+      const res = await tank.fundTransactions(signedTxs);
+      if (!res.success) {
+        //TODO show pls fund msg
+        console.log('tank request failed');
+      } else {
+        await waitForTransactionConfirm(web3, res.txHash);
+        let newBalance = await web3.eth.getBalance(address);
+        console.log('funds have confirmed', balance >= cost, balance, newBalance);
+      }
+
     } else {
-      console.log(fundRes.reason);
+      console.log('already have sufficient funds');
     }
-
-    return success;
   }
+
+  async sendAndAwaitConfirm(web3, signedTxs) {
+    let promises = signedTxs.map(tx => {
+      console.log('sending...');
+      return new Promise((resolve, reject) => {
+        web3.eth.sendSignedTransaction(tx).then(res => {
+          //TODO figure out how to handle the doesn't-resolve-immediately case
+          //res.transactionHash;
+          resolve();
+        }).catch(async err => {
+          // if there's an error, check if it's because the transaction was
+          // already confirmed prior to sending.
+          // this is really only the case in local dev environments.
+          const txHash = web3.utils.keccak256(tx);
+          const confirmed = await isTransactionConfirmed(web3, txHash);
+          if (confirmed) resolve();
+          else reject(err);
+        });
+      });
+    });
+  }
+
+  //TODO waitForBalance(address, minBalance)
 
   render() {
 

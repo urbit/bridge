@@ -161,6 +161,25 @@ const sendSignedTransaction = (web3, stx) => {
   })
 }
 
+// returns a Promise
+const waitForTransactionConfirm = (web3, txHash) => {
+  return new Promise((resolve, reject) => {
+    const checkForConfirm = async () => {
+      console.log('checking for confirm', txHash);
+      let confirmed = isTransactionConfirmed(web3, txHash);
+      if (confirmed) resolve();
+      else setTimeout(checkForConfirm, 13000);
+    }
+    checkForConfirm();
+  });
+}
+
+const isTransactionConfirmed = async (web3, txHash) => {
+  const receipt = await web3.eth.getTransactionReceipt(txHash);
+  console.log('got confirm state', receipt !== null, receipt.confirmations);
+  return (receipt !== null);
+}
+
 const hexify = val => addHexPrefix(val.toString('hex'))
 
 const renderSignedTx = stx => ({
@@ -199,6 +218,8 @@ const canDecodePatp = p => {
 export {
   signTransaction,
   sendSignedTransaction,
+  waitForTransactionConfirm,
+  isTransactionConfirmed,
   TXN_PURPOSE,
   getTxnInfo,
   renderTxnPurpose,
