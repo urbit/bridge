@@ -3,6 +3,7 @@ import { Just } from 'folktale/maybe'
 import { Ok, Error } from 'folktale/result'
 import Tx from 'ethereumjs-tx'
 import Web3 from 'web3'
+import { toWei, fromWei, toHex } from 'web3-utils'
 
 import { BRIDGE_ERROR } from '../lib/error'
 import { NETWORK_NAMES } from '../lib/network'
@@ -181,11 +182,6 @@ const getTxnInfo = async (web3, addr) => {
     gasPrice: fromWei(gasPrice, 'gwei')
   }
 }
-
-const dummy = new Web3()
-const toHex = dummy.utils.toHex
-const toWei = dummy.utils.toWei
-const fromWei = dummy.utils.fromWei
 
 const canDecodePatp = p => {
   try {
