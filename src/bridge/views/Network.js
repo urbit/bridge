@@ -70,7 +70,10 @@ class Network extends React.Component {
       // We may want to offer the ability to select a target network for
       // transactions when offline.
 
-      const web3 = new Web3()
+      // Note: localhost:3456 doesn't actually point to anything, we just need
+      // a provider to initialize the Web3 object
+      const provider = new Web3.providers.HttpProvider("http://localhost:3456")
+      const web3 = new Web3(provider)
 
       const target =
           process.env.NODE_ENV === 'development'
