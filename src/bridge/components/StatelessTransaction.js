@@ -28,9 +28,9 @@ class StatelessTransaction extends React.Component {
       gasLimit: '600000',
       showGasDetails: false,
       userApproval: false,
-      chainId: '',
+      chainId: '1',
       customChain: false,
-      nonce: '',
+      nonce: '0',
       stx: Nothing(),
       txn: Nothing(),
       txError: Nothing()
@@ -120,6 +120,8 @@ class StatelessTransaction extends React.Component {
         chainId
       })
     }
+
+    this.clearStx()
   }
 
   setUserApproval(){
