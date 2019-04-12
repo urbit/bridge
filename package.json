@@ -14,9 +14,10 @@
     "node": "11.0.0"
   },
   "dependencies": {
-    "azimuth-js": "^0.10.0",
     "@ledgerhq/hw-app-eth": "^4.35.0",
     "@ledgerhq/hw-transport-u2f": "^4.35.0",
+    "PaperCollateralRenderer": "github:urbit/PaperCollateralRenderer",
+    "azimuth-js": "^0.10.0",
     "azimuth-solidity": "1.0.2",
     "babel-polyfill": "^6.26.0",
     "bip32": "^1.0.2",
@@ -34,7 +35,6 @@
     "keythereum": "^1.0.4",
     "lodash": "^4.17.11",
     "more-entropy": "^0.0.7",
-    "PaperCollateralRenderer": "github:urbit/PaperCollateralRenderer",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
@@ -45,7 +45,8 @@
     "trezor-connect": "^7.0.1",
     "urbit-key-generation": "0.12.1",
     "urbit-ob": "^3.1.0",
-    "web3": "1.0.0-beta.52"
+    "web3": "1.0.0-beta.52",
+    "web3-utils": "^1.0.0-beta.52"
   },
   "scripts": {
     "start": "react-scripts start",
