@@ -214,19 +214,27 @@ class InviteVerify extends React.Component {
 
     if (cost > balance) {
 
-      const fundsRemaining = await tank.remainingTransactions(point);
-      if (fundsRemaining < signedTxs.length) {
-        throw new Error(`TODO present user with "please fund $(address) with at least $(cost), then click to retry"`);
-      }
+      try {
 
-      const res = await tank.fundTransactions(signedTxs);
-      if (!res.success) {
-        //TODO show pls fund msg
-        console.log('tank request failed');
-      } else {
-        await waitForTransactionConfirm(web3, res.txHash);
-        let newBalance = await web3.eth.getBalance(address);
-        console.log('funds have confirmed', balance >= cost, balance, newBalance);
+        const fundsRemaining = await tank.remainingTransactions(point);
+        if (fundsRemaining < signedTxs.length) {
+          throw new Error('request invalid');
+        }
+
+        const res = await tank.fundTransactions(signedTxs);
+        if (!res.success) {
+          throw new Error('request rejected');
+        } else {
+          await waitForTransactionConfirm(web3, res.txHash);
+          let newBalance = await web3.eth.getBalance(address);
+          console.log('funds have confirmed', balance >= cost, balance, newBalance);
+        }
+
+      } catch (e) {
+
+        console.log('funding failed', e);
+        await this.waitForBalance(web3, address, cost);
+
       }
 
     } else {
@@ -234,28 +242,70 @@ class InviteVerify extends React.Component {
     }
   }
 
+  // resolves when address has at least minBalance
+  //
+  async waitForBalance(web3, address, minBalance) {
+    console.log('awaiting balance', address, minBalance);
+    return new Promise((resolve, reject) => {
+      let oldBalance = null;
+      const checkForBalance = async () => {
+        const balance = await web3.eth.getBalance(address);
+        if (balance >= minBalance) {
+          resolve();
+        } else {
+          if (balance !== oldBalance) {
+            this.askForFunding(address, minBalance, balance);
+          }
+          setTimeout(checkForBalance, 13000);
+        }
+      };
+      checkForBalance();
+    });
+  }
+
   async sendAndAwaitConfirm(web3, signedTxs) {
-    let promises = signedTxs.map(tx => {
+    await Promise.all(signedTxs.map(tx => {
       console.log('sending...');
       return new Promise((resolve, reject) => {
         web3.eth.sendSignedTransaction(tx).then(res => {
-          //TODO figure out how to handle the doesn't-resolve-immediately case
-          //res.transactionHash;
-          resolve();
+          console.log('sent, now waiting for confirm!', res.transactionHash);
+          waitForTransactionConfirm(web3, res.transactionHash)
+          .then(resolve);
         }).catch(async err => {
           // if there's an error, check if it's because the transaction was
           // already confirmed prior to sending.
           // this is really only the case in local dev environments.
           const txHash = web3.utils.keccak256(tx);
-          const confirmed = await isTransactionConfirmed(web3, txHash);
-          if (confirmed) resolve();
-          else reject(err);
+          console.log(err.message);
+          if (err.message.slice(0,54) ===
+              "Returned error: the tx doesn't have the correct nonce.") {
+            console.log('nonce error, awaiting confirm', err.message.slice(55));
+            //TODO max wait time before assume failure?
+            let res = await waitForTransactionConfirm(web3, txHash);
+            if (res) resolve();
+            else reject(new Error('Unexpected tx failure'));
+          } else {
+            const confirmed = await isTransactionConfirmed(web3, txHash);
+            console.log('error, but maybe confirmed:', confirmed);
+            if (confirmed) resolve();
+            else reject(err);
+          }
         });
       });
-    });
+    }));
   }
 
-  //TODO waitForBalance(address, minBalance)
+  awaitForResult(desired, retryTime, func) {
+    return new Promise((resolve, reject) => {
+      const retry = async () => {
+        const result = await func();
+        console.log('result vs desired', result, desired);
+        if (result === desired) resolve();
+        else setTimeout(retry, retryTime);
+      };
+      retry();
+    });
+  }
 
   render() {
 

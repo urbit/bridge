@@ -161,13 +161,15 @@ const sendSignedTransaction = (web3, stx) => {
   })
 }
 
-// returns a Promise
+// returns a Promise<bool>, where the bool indicates tx success/failure
 const waitForTransactionConfirm = (web3, txHash) => {
   return new Promise((resolve, reject) => {
     const checkForConfirm = async () => {
       console.log('checking for confirm', txHash);
-      let confirmed = isTransactionConfirmed(web3, txHash);
-      if (confirmed) resolve();
+      const receipt = await web3.eth.getTransactionReceipt(txHash);
+      console.log('tried, got', receipt);
+      let confirmed = (receipt !== null);
+      if (confirmed) resolve(receipt.status === '0x1');
       else setTimeout(checkForConfirm, 13000);
     }
     checkForConfirm();
