@@ -65,7 +65,7 @@ class AcceptTransfer extends React.Component {
     return Just(azimuth.ecliptic.transferFrom(
       validContracts,
       owner,
-      state.receivingAddress.toLowerCase(),
+      state.receivingAddress,
       validPoint
     ))
   }

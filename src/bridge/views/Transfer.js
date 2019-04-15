@@ -66,7 +66,7 @@ class Transfer extends React.Component {
     const txn = azimuth.ecliptic.setTransferProxy(
       validContracts,
       validPoint,
-      state.receivingAddress.toLowerCase()
+      state.receivingAddress
     )
 
     return Maybe.Just(txn)
