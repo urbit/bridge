@@ -34,9 +34,10 @@ const PROGRESS_STATES = {
   GENERATING: 'Generating transactions',
   SIGNING: 'Signing transactions',
   FUNDING: 'Funding transactions',
-  SENDING: 'Sending transactions',
-  WAITING: 'Waiting for transaction confirmations',
-  CLEANING: 'Cleaning up'
+  CLAIMING: 'Claiming invite',
+  CONFIGURING: 'Configuring planet',
+  CLEANING: 'Cleaning up',
+  DONE: 'Done'
 }
 
 class InviteVerify extends React.Component {
@@ -46,7 +47,8 @@ class InviteVerify extends React.Component {
 
     this.state = {
       point: this.props.routeData.point,
-      ticket: this.props.routeData.ticket
+      ticket: this.props.routeData.ticket,
+      progress: 'Starting'
     }
 
     this.startTransactions = this.startTransactions.bind(this);
@@ -54,11 +56,20 @@ class InviteVerify extends React.Component {
 
   componentDidMount() {
     //NOTE delayed so that we hang *after* rendering the page
+    this.updateProgress('Generating transactions');
     setTimeout(this.startTransactions, 100);
   }
 
   componentDidUpdate(prevProps) {
     //
+  }
+
+  updateProgress(msg) {
+    this.setState({progress: msg+'...'});
+  }
+
+  askForFunding(address, amount, current) {
+    this.updateProgress(`Please make sure ${address} has at least ${amount} wei, we'll continue once that's true. Current balance: ${current}. Waiting`);
   }
 
   async startTransactions() {
@@ -104,6 +115,7 @@ class InviteVerify extends React.Component {
     await this.ensureFundsFor(web3, point, inviteAddress, transferCost, [rawTransferStx]);
 
     // send transaction
+    this.updateProgress(PROGRESS_STATES.CLAIMING);
     await this.sendAndAwaitConfirm(web3, [rawTransferStx]);
 
     //
@@ -162,11 +174,11 @@ class InviteVerify extends React.Component {
 
     await this.ensureFundsFor(web3, point, newAddress, totalCost, rawStxs);
 
+    this.updateProgress(PROGRESS_STATES.CONFIGURING);
     await this.sendAndAwaitConfirm(web3, rawStxs);
-    console.log('sent transactions');
 
     // if non-trivial eth left in invite wallet, transfer to new ownership
-    //TODO
+    this.updateProgress(PROGRESS_STATES.CLEANING);
     let balance = await web3.eth.getBalance(inviteAddress);
     const gasPrice = 20000000000;
     const gasLimit = 21000;
@@ -191,11 +203,13 @@ class InviteVerify extends React.Component {
     }
 
     // proceed without waiting for confirm
+    this.updateProgress(PROGRESS_STATES.DONE);
     this.props.setUrbitWallet(Just(newUrbitWallet));
     //TODO forward to "all done!" screen
   }
 
   async ensureFundsFor(web3, point, address, cost, signedTxs) {
+    this.updateProgress(PROGRESS_STATES.FUNDING);
     let balance = await web3.eth.getBalance(address);
 
     if (cost > balance) {
@@ -263,7 +277,6 @@ class InviteVerify extends React.Component {
       </>
     );
 
-    console.log('tickets', this.state.ticket, this.state.realTicket, (this.state.realTicket === this.state.ticket));
     return (
       <Row>
         <Col>
@@ -271,6 +284,8 @@ class InviteVerify extends React.Component {
           { pointOverview }
 
           <p>{ 'Please wait while your wallet and point are prepared for use. This may take up to five minutes.' }</p>
+
+          <p>{ this.state.progress }</p>
 
         </Col>
       </Row>
