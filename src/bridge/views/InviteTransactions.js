@@ -196,7 +196,7 @@ class InviteVerify extends React.Component {
       let stx = new Tx(tx);
       stx.sign(inviteWallet.privateKey);
       const rawTx = '0x'+stx.serialize().toString('hex');
-      await web3.eth.sendSignedTransaction(rawTx).catch(err => {
+      web3.eth.sendSignedTransaction(rawTx).catch(err => {
         console.log('error sending value tx, who cares', err);
       });
       console.log('sent old balance');
