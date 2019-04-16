@@ -56,7 +56,7 @@ class Success extends React.Component {
 
     const esanchor =
           esvisible === false
-          ? <div />
+          ? null
           : <Anchor
           className={'mb-4 mt-1'}
           prop-size={'sm'}
