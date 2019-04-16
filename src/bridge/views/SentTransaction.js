@@ -30,7 +30,7 @@ class Success extends React.Component {
     this.setState({interval: interval})
   }
 
-  componentDidUnmount() {
+  componentWillUnmount() {
     clearInterval(this.state.interval)
   }
 
