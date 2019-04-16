@@ -167,7 +167,7 @@ class CreateGalaxy extends React.Component {
             <ValidatedSigil
               className='tr-0 mt-05 mr-0 abs'
               patp={state.galaxyName}
-              size={76}
+              size={68}
               margin={8} />
           </GalaxyInput>
 
