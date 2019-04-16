@@ -4,6 +4,7 @@ import keccak from 'keccak'
 import * as lodash from 'lodash'
 import Maybe from 'folktale/maybe'
 import * as secp256k1 from 'secp256k1'
+import { isAddress } from 'web3-utils'
 
 const DEFAULT_HD_PATH = "m/44'/60'/0'/0/0"
 
@@ -69,8 +70,7 @@ const stripHexPrefix = hex =>
 const keccak256 = str =>
   keccak('keccak256').update(str).digest()
 
-const isValidAddress = (address) =>
-  /^0x[0-9a-fA-F]{40}$/.test(address)
+const isValidAddress = isAddress
 
 const toChecksumAddress = (address) => {
   const addr = stripHexPrefix(address).toLowerCase()

@@ -431,7 +431,7 @@ class StatelessTransaction extends React.Component {
         onClick={ setUserApproval }
         state={ userApproval }
       >
-        <div>
+        <div onClick={ setUserApproval }>
           { `I approve this transaction and wish to send.` }
         </div>
       </CheckboxButton>
