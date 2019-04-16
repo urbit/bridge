@@ -96,9 +96,6 @@ class Success extends React.Component {
           <P>
             { esanchor }
           </P>
-          <P>
-          </P>
-
 
         </Col>
       </Row>
