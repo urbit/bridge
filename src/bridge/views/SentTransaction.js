@@ -91,8 +91,8 @@ class Success extends React.Component {
 
           <H3>{ 'Transaction Status' }</H3>
           <P>
-            <div>{ status }</div>
-            <div>{ esanchor }</div>
+            { status }
+            { esanchor }
           </P>
           <P>
           </P>
