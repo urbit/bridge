@@ -87,7 +87,8 @@ class Bridge extends React.Component {
       pointCursor: Maybe.Nothing(),
       pointCache: {},
       // txn
-      txnHashCursor: Maybe.Nothing()
+      txnHashCursor: Maybe.Nothing(),
+      txnConfirmations: {}
     }
 
     this.pushRoute = this.pushRoute.bind(this)
@@ -102,6 +103,7 @@ class Bridge extends React.Component {
     this.setAuthMnemonic = this.setAuthMnemonic.bind(this)
     this.setPointCursor = this.setPointCursor.bind(this)
     this.setTxnHashCursor = this.setTxnHashCursor.bind(this)
+    this.setTxnConfirmations = this.setTxnConfirmations.bind(this)
     this.setNetworkSeedCache = this.setNetworkSeedCache.bind(this)
     this.addToPointCache = this.addToPointCache.bind(this)
   }
@@ -241,6 +243,12 @@ class Bridge extends React.Component {
     this.setState({ txnHashCursor })
   }
 
+  setTxnConfirmations(txnHash, txnConfirmations) {
+    this.setState((prevState, _) =>
+                  ({txnConfirmations: { ...prevState.txnConfirmations,
+                                        [txnHash]: txnConfirmations}}))
+  }
+
   render() {
     const {
       routeCrumbs,
@@ -255,6 +263,7 @@ class Bridge extends React.Component {
       pointCursor,
       pointCache,
       txnHashCursor,
+      txnConfirmations,
       web3,
       contracts
     } = this.state
@@ -307,7 +316,9 @@ class Bridge extends React.Component {
                 setNetworkSeedCache= { this.setNetworkSeedCache }
                 // txn
                 setTxnHashCursor={ this.setTxnHashCursor }
-                txnHashCursor={ txnHashCursor } />
+                txnHashCursor={ txnHashCursor }
+                setTxnConfirmations={ this.setTxnConfirmations }
+                txnConfirmations={ txnConfirmations } />
 
               <div className={'push'} />
 

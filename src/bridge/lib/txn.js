@@ -138,7 +138,7 @@ const signTransaction = async config => {
   setStx(Just(stx))
 }
 
-const sendSignedTransaction = (web3, stx) => {
+const sendSignedTransaction = (web3, stx, confirmationCb) => {
   const txn = stx.matchWith({
     Just: (tx) => tx.value,
     Nothing: () => {
@@ -154,6 +154,10 @@ const sendSignedTransaction = (web3, stx) => {
         resolve(Just(Ok(hash)))
       )
       .on('receipt', txn => {
+        resolve(Just(Ok(txn.transactionHash)))
+      })
+      .on('confirmation', (confirmationNum, txn) => {
+        confirmationCb(txn.transactionHash, confirmationNum + 1)
         resolve(Just(Ok(txn.transactionHash)))
       })
       .on('error', err => {
