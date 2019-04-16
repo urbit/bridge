@@ -54,7 +54,6 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "checksum": "find build -exec shasum -a256 {} ';' > checksums.txt",
-    "tar": "tar -czvf bridge-$npm_package_version.tar.gz README.md bridge-https.py checksums.txt build",
     "zip": "zip -FSr bridge-$npm_package_version.zip README.md bridge-https.py checksums.txt && cd build && zip -FSr ../bridge-$npm_package_version.zip ./* && cd ..",
     "release": "npm install && npm run build && npm run checksum && npm run zip",
     "pilot:ganache": "ganache-cli -m 'benefit crew supreme gesture quantum web media hazard theory mercy wing kitten' > /dev/null &",
