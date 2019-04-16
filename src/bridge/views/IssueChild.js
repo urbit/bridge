@@ -253,7 +253,7 @@ class IssueChild extends React.Component {
             <ValidatedSigil
               className={'tr-0 mt-05 mr-0 abs'}
               patp={state.desiredPoint}
-              size={76}
+              size={68}
               margin={8}
               validator={() => this.validatePoint(state.desiredPoint)} />
           </PointInput>
