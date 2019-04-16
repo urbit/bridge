@@ -3,6 +3,7 @@ import { Just } from 'folktale/maybe'
 import { Ok, Error } from 'folktale/result'
 import Tx from 'ethereumjs-tx'
 import Web3 from 'web3'
+import { toWei, fromWei, toHex } from 'web3-utils'
 
 import { BRIDGE_ERROR } from '../lib/error'
 import { NETWORK_NAMES } from '../lib/network'
@@ -137,7 +138,7 @@ const signTransaction = async config => {
   setStx(Just(stx))
 }
 
-const sendSignedTransaction = (web3, stx) => {
+const sendSignedTransaction = (web3, stx, confirmationCb) => {
   const txn = stx.matchWith({
     Just: (tx) => tx.value,
     Nothing: () => {
@@ -153,6 +154,10 @@ const sendSignedTransaction = (web3, stx) => {
         resolve(Just(Ok(hash)))
       )
       .on('receipt', txn => {
+        resolve(Just(Ok(txn.transactionHash)))
+      })
+      .on('confirmation', (confirmationNum, txn) => {
+        confirmationCb(txn.transactionHash, confirmationNum + 1)
         resolve(Just(Ok(txn.transactionHash)))
       })
       .on('error', err => {
@@ -202,11 +207,6 @@ const getTxnInfo = async (web3, addr) => {
     gasPrice: fromWei(gasPrice, 'gwei')
   }
 }
-
-const dummy = new Web3()
-const toHex = dummy.utils.toHex
-const toWei = dummy.utils.toWei
-const fromWei = dummy.utils.fromWei
 
 const canDecodePatp = p => {
   try {

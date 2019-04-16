@@ -3,7 +3,8 @@ import React from 'react'
 
 import { Code, H3 } from './Base'
 import { Button } from './Base'
-import { CheckboxButton, Input, InnerLabel } from './Base'
+import { CheckboxButton, Input, InnerLabel,
+  InnerLabelDropdown } from './Base'
 import {  Warning } from '../components/Base'
 
 import { addressFromSecp256k1Public } from '../lib/wallet'
@@ -27,11 +28,12 @@ class StatelessTransaction extends React.Component {
       gasLimit: '600000',
       showGasDetails: false,
       userApproval: false,
-      chainId: '',
-      nonce: '',
+      chainId: '1',
+      customChain: false,
+      nonce: '0',
       stx: Nothing(),
       txn: Nothing(),
-      txError: Nothing(),
+      txError: Nothing()
     }
 
     this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
@@ -46,6 +48,7 @@ class StatelessTransaction extends React.Component {
     this.setGasLimit = this.setGasLimit.bind(this)
     this.rangeChange = this.rangeChange.bind(this)
     this.toggleGasDetails = this.toggleGasDetails.bind(this)
+    this.handleChainUpdate = this.handleChainUpdate.bind(this)
   }
 
   componentDidMount() {
@@ -85,7 +88,7 @@ class StatelessTransaction extends React.Component {
 
   submit(){
     const { props, state } = this
-    sendSignedTransaction(props.web3.value, state.stx)
+    sendSignedTransaction(props.web3.value, state.stx, props.setTxnConfirmations)
       .then(sent => {
         props.setTxnHashCursor(sent)
         props.popRoute()
@@ -104,6 +107,21 @@ class StatelessTransaction extends React.Component {
           this.setState({ txError: err })
         }
       })
+  }
+
+  handleChainUpdate(chainId) {
+    if (chainId === "custom") {
+      this.setState({
+        customChain: true
+      })
+    } else {
+      this.setState({
+        customChain: false,
+        chainId
+      })
+    }
+
+    this.clearStx()
   }
 
   setUserApproval(){
@@ -185,19 +203,61 @@ class StatelessTransaction extends React.Component {
     this.submit()
   }
 
+  getChainTitle(chainId) {
+    let map = {
+      "1": "Mainnet - 1",
+      "2": "Morden - 2",
+      "3": "Ropsten - 3",
+      "4": "Goerli - 4",
+      "42": "Kovan - 42",
+      "1337": "Geth private chains - 1337",
+      "custom": "Custom"
+    }
+
+    return map[chainId]
+  }
+
+  getChainOptions() {
+    return [{
+      title: this.getChainTitle("1"),
+      value: "1"
+    }, {
+      title: this.getChainTitle("2"),
+      value: "2"
+    }, {
+      title: this.getChainTitle("3"),
+      value: "3"
+    }, {
+      title: this.getChainTitle("4"),
+      value: "4"
+    }, {
+      title: this.getChainTitle("42"),
+      value: "42"
+    }, {
+      title: this.getChainTitle("1337"),
+      value: "1337"
+    }, {
+      title: this.getChainTitle("custom"),
+      value: "custom"
+    }]
+  }
+
   render() {
     const { web3, canGenerate } = this.props
     const { gasPrice, gasLimit, nonce, chainId,
-      txn, stx, userApproval, showGasDetails } = this.state
+      txn, stx, userApproval, showGasDetails,
+      customChain } = this.state
 
     const { setNonce, setChainId, setGasLimit, setGasPrice, toggleGasDetails,
-      setUserApproval, sendTxn, createUnsignedTxn } = this
+      setUserApproval, sendTxn, createUnsignedTxn, handleChainUpdate } = this
 
     const { state } = this
 
     const canSign = Just.hasInstance(txn)
     const canApprove = Just.hasInstance(stx)
     const canSend = Just.hasInstance(stx) && userApproval === true
+
+    const chainOptions = this.getChainOptions()
 
     const generateButtonColor =
         Nothing.hasInstance(txn)
@@ -294,7 +354,7 @@ class StatelessTransaction extends React.Component {
 
     const nonceDialogue =
       <Input
-        className={ 'mono mt-4' }
+        className={ 'mono mt-4 mb-4' }
         prop-size={ 'md' }
         prop-format={ 'innerLabel' }
         value={ nonce }
@@ -305,18 +365,30 @@ class StatelessTransaction extends React.Component {
         </InnerLabel>
       </Input>
 
+    const chainDialogueTitle = customChain ? "Custom" : this.getChainTitle(chainId)
     const chainDialogue =
-      <Input
-        className={ 'mono mt-4 mb-8' }
-        prop-size={ 'md' }
-        prop-format={ 'innerLabel' }
-        value={ chainId }
-        onChange={ setChainId }
+      <InnerLabelDropdown
+        className={'mt-6'}
+        fullWidth={true}
+        title={'Chain ID'}
+        options={chainOptions}
+        handleUpdate={handleChainUpdate}
+        currentSelectionTitle={chainDialogueTitle}
       >
-        <InnerLabel>
-          { 'Chain ID' }
-        </InnerLabel>
-      </Input>
+      </InnerLabelDropdown>
+
+    const customChainDialogue = !customChain ? null :
+        <Input
+          className={ 'mono mt-4 mb-8' }
+          prop-size={ 'md' }
+          prop-format={ 'innerLabel' }
+          value={ chainId }
+          onChange={ setChainId }
+        >
+          <InnerLabel>
+            { 'Chain ID' }
+          </InnerLabel>
+        </Input>
 
     const onlineParamsDialogue = web3.matchWith({
       Just: _ => <div />,
@@ -324,6 +396,7 @@ class StatelessTransaction extends React.Component {
         <React.Fragment>
           { nonceDialogue }
           { chainDialogue }
+          { customChainDialogue }
         </React.Fragment>
     })
 
@@ -358,7 +431,7 @@ class StatelessTransaction extends React.Component {
         onClick={ setUserApproval }
         state={ userApproval }
       >
-        <div>
+        <div onClick={ setUserApproval }>
           { `I approve this transaction and wish to send.` }
         </div>
       </CheckboxButton>

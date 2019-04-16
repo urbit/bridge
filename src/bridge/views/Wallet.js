@@ -1,52 +1,50 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
 import { Button, H1, P } from '../components/Base'
-import {
-  InnerLabelDropdown,
-  DropdownItem,
-  DropdownDivider
-} from '../components/Base'
+import { InnerLabelDropdown } from '../components/Base'
 import { Row, Col } from '../components/Base'
 
 import { ROUTE_NAMES } from '../lib/router'
 import { WALLET_NAMES, renderWalletType } from '../lib/wallet'
 
 class Wallet extends React.Component {
-
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      dropdownOpen: false
-    }
-
-    this.toggle = this.toggle.bind(this)
-    this.close = this.close.bind(this)
-
-  }
-
   componentDidMount() {
     const { setWallet } = this.props
     setWallet(Maybe.Nothing())
   }
 
-  toggle() {
-    this.setState((state, _) => ({
-      dropdownOpen: !state.dropdownOpen
-    }))
-  }
-
-  selectClose(f) {
-    f()
-    this.setState({ dropdownOpen: false })
-  }
-
-  close () {
-    this.setState({ dropdownOpen: false })
+  getWalletOptions() {
+    return [{
+      title: 'Urbit Master Ticket',
+      value: WALLET_NAMES.TICKET
+    }, {
+      title: 'Urbit Master Ticket (Shards)',
+      value: WALLET_NAMES.SHARDS
+    }, {
+      type: 'divider'
+    }, {
+      title: 'Ledger',
+      value: WALLET_NAMES.LEDGER
+    }, {
+      title: 'Trezor',
+      value: WALLET_NAMES.TREZOR
+    }, {
+      type: 'divider'
+    }, {
+      title: 'BIP39 Mnemonic',
+      value: WALLET_NAMES.MNEMONIC
+    }, {
+      title: 'Ethereum Private Key',
+      value: WALLET_NAMES.PRIVATE_KEY
+    }, {
+      title: 'Ethereum Keystore File',
+      value: WALLET_NAMES.KEYSTORE
+    }]
   }
 
   render() {
-    const { props, state } = this
+    const { props } = this
+    const walletOptions = this.getWalletOptions()
 
     return (
       <Row>
@@ -63,60 +61,10 @@ class Wallet extends React.Component {
 
           <InnerLabelDropdown
             className={'mb-10 mt-6'}
-            handleToggle={this.toggle}
-            handleClose={this.close}
-            isOpen={state.dropdownOpen}
             title={'Wallet Type:'}
+            options={walletOptions}
+            handleUpdate={props.setWalletType}
             currentSelectionTitle={renderWalletType(props.walletType)}>
-
-            <DropdownItem
-              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.TICKET)) }
-            >
-              { 'Urbit Master Ticket' }
-            </DropdownItem>
-
-            <DropdownItem
-              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.SHARDS)) }
-            >
-              { 'Urbit Master Ticket (Shards)' }
-            </DropdownItem>
-
-            <DropdownDivider />
-
-            <DropdownItem
-              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.LEDGER)) }
-            >
-              { 'Ledger' }
-            </DropdownItem>
-
-            <DropdownItem
-              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.TREZOR)) }
-            >
-              { 'Trezor' }
-            </DropdownItem>
-
-            <DropdownDivider />
-
-            <DropdownItem
-              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.MNEMONIC)) }
-            >
-              { 'BIP39 Mnemonic' }
-            </DropdownItem>
-
-            <DropdownItem
-              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.PRIVATE_KEY)) }
-            >
-              { 'Ethereum Private Key' }
-            </DropdownItem>
-
-            <DropdownItem
-              onClick={ () => this.selectClose(() => props.setWalletType(WALLET_NAMES.KEYSTORE)) }
-            >
-              { 'Ethereum Keystore File' }
-            </DropdownItem>
-
-
-
           </InnerLabelDropdown>
 
           <Button
