@@ -8,70 +8,100 @@ import { BRIDGE_ERROR, renderTxnError } from '../lib/error'
 import { NETWORK_NAMES } from '../lib/network'
 
 
-const Success = (props) => {
+class Success extends React.Component {
 
-  const { networkType, hash, txnConfirmations } = props
+  constructor(props) {
+    super(props)
 
-  const esvisible =
-      networkType === NETWORK_NAMES.ROPSTEN ||
-      networkType === NETWORK_NAMES.MAINNET
+    this.state = {
+      pending: '.',
+      interval: null
+    }
+  }
 
-  const esdomain =
-      networkType === NETWORK_NAMES.ROPSTEN
-    ? "ropsten.etherscan.io"
-    : "etherscan.io"
+  componentDidMount() {
+    const nextDot = {'.': '..',
+                     '..': '...',
+                     '...': '.'}
 
-  const esmessage =
-      esvisible === true
-    ? "If you’d like to keep track of it, click the Etherscan link below."
-    : ''
+    const interval = setInterval(() => {
+      this.setState(({ pending }) => ({pending: nextDot[pending]}))
+    }, 1000)
+    this.setState({interval: interval})
+  }
 
-  const esanchor =
-      esvisible === false
-    ? <div />
-    : <Anchor
-        className={'mb-4 mt-1'}
-        prop-size={'sm'}
-        target={'_blank'}
-        href={`https://${esdomain}/tx/${hash}`}>
-          {'View on Etherscan ↗'}
-      </Anchor>
+  componentDidUnmount() {
+    clearInterval(this.state.interval)
+  }
 
-  const confirmations = Maybe.fromNullable(txnConfirmations[hash]).getOrElse(0)
+  render() {
 
-  const requiredConfirmations = 1
+    const { props, state } = this
+    const { networkType, hash, txnConfirmations } = props
+    const { pending } = state
 
-  const status = confirmations < requiredConfirmations ? 'Pending...' : `Confirmed x${confirmations}!`
+    const esvisible =
+          networkType === NETWORK_NAMES.ROPSTEN ||
+          networkType === NETWORK_NAMES.MAINNET
 
-  return (
-    <Row>
-      <Col>
-        <H1>{ 'Your Transaction was Sent' }</H1>
+    const esdomain =
+          networkType === NETWORK_NAMES.ROPSTEN
+          ? "ropsten.etherscan.io"
+          : "etherscan.io"
 
-        <P>
-          {
-            `We sent your transaction to the chain. It can take some time to
+    const esmessage =
+          esvisible === true
+          ? "If you’d like to keep track of it, click the Etherscan link below."
+          : ''
+
+    const esanchor =
+          esvisible === false
+          ? <div />
+          : <Anchor
+          className={'mb-4 mt-1'}
+          prop-size={'sm'}
+          target={'_blank'}
+          href={`https://${esdomain}/tx/${hash}`}>
+                   {'View on Etherscan ↗'}
+                 </Anchor>
+
+    const confirmations = Maybe.fromNullable(txnConfirmations[hash]).getOrElse(0)
+
+    const requiredConfirmations = 1
+
+    const status = confirmations < requiredConfirmations ?
+          `Pending${pending}` : `Confirmed! (x${confirmations} confirmations)!`
+
+    return (
+      <Row>
+        <Col>
+          <H1>{ 'Your Transaction was Sent' }</H1>
+
+          <P>
+            {
+              `We sent your transaction to the chain. It can take some time to
             execute, especially if the network is busy. ${esmessage}`
-          }
-        </P>
+            }
+          </P>
 
-        <H3>{ 'Transaction Hash' }</H3>
-        <P>
-          { hash }
-        </P>
+          <H3>{ 'Transaction Hash' }</H3>
+          <P>
+            { hash }
+          </P>
 
-        <H3>{ 'Transaction Status' }</H3>
-        <P>
-          <div>{ status }</div>
-          <div>{ esanchor }</div>
-        </P>
-        <P>
-        </P>
+          <H3>{ 'Transaction Status' }</H3>
+          <P>
+            <div>{ status }</div>
+            <div>{ esanchor }</div>
+          </P>
+          <P>
+          </P>
 
 
-      </Col>
-    </Row>
-  )
+        </Col>
+      </Row>
+    )
+  }
 }
 
 const Failure = (props) =>
