@@ -33,6 +33,12 @@ class InviteLogin extends React.Component {
     this.ticketPlaceholder = placeholder(12)
 
     this.handleTicketInput = this.handleTicketInput.bind(this)
+    this.navigateLogin = this.navigateLogin.bind(this)
+  }
+
+  navigateLogin() {
+    this.props.popRoute()
+    this.props.pushRoute(ROUTE_NAMES.NETWORK)
   }
 
   handleTicketInput(ticket) {
@@ -60,17 +66,13 @@ class InviteLogin extends React.Component {
     const phTick = this.ticketPlaceholder
 
     return (
-        <Row>
-          <Col>
-            <H1>{ 'Onboard' }</H1>
-
-            <P>
-            { `Please enter your invite code.` }
-            </P>
+      <Row>
+        <Col className="col-md-4">
+          <H1>{ 'Welcome' }</H1>
 
           <TicketInput
             className='mono mt-8'
-            prop-size='lg'
+            prop-size='md'
             prop-format='innerLabel'
             type='text'
             autoFocus
@@ -78,14 +80,14 @@ class InviteLogin extends React.Component {
             placeholder={ `e.g. ${phTick}` }
             value={ ticket }
             onChange={ this.handleTicketInput }>
-            <InnerLabel>{ 'Invite code' }</InnerLabel>
+            <InnerLabel>{ 'Activation code' }</InnerLabel>
           </TicketInput>
 
           <Button
             className={'mt-8'}
-            prop-size={'lg wide'}
+            prop-size={'lg'}
             disabled={this.state.isUnlocking}
-            // prop-color={this.buttonTriState(wallet)}
+            prop-color={'black'}
             onClick={() => this.walletFromTicket(ticket, pointName)}>
 
             <span className="relative">
@@ -94,6 +96,14 @@ class InviteLogin extends React.Component {
               }
               {'Continue →'}
             </span>
+          </Button>
+
+          <Button
+            prop-type={`link`}
+            prop-size={`sm`}
+            className={`block mt-4`}
+            onClick={this.navigateLogin} >
+            {`Log in`}
           </Button>
 
         </Col>

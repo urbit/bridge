@@ -264,11 +264,20 @@ class Bridge extends React.Component {
 
     const View = router(routeCrumbs.peek())
 
+    let colClass
+    let colStyle
+
+    if (routeCrumbs.contains(ROUTE_NAMES.INVITE_LOGIN)) {
+      colClass = 'col-md-12'
+    } else {
+      colClass = 'col-md-offset-1 col-md-10'
+      colStyle = {maxWidth: '620px'}
+    }
+
     return (
       <Container>
         <Row>
-          <Col className='col-md-1' />
-          <Col className='col-md-10' style={{maxWidth: '620px'}}>
+          <Col className={colClass} style={colStyle}>
             <Header
               routeCrumbs={ routeCrumbs }
               skipRoute={ this.skipRoute }
