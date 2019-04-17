@@ -38,14 +38,13 @@ To authenticate and sign transactions with a Ledger, Bridge must be serving
 over HTTPS on localhost. This requires self-signed certificates. You can do
 this via the following:
 
-* Install [mkcert](https://github.com/FiloSottile/mkcert)
+* Install [mkcert](https://github.com/FiloSottile/mkcert), and [nss](https://github.com/nss-dev/nss) if you're using Firefox
 * Install a local certificate authority via `mkcert -install`
 * In your `bridge` directory, generate a certificate valid for localhost via
   `mkcert localhost`.  This will produce two files: `localhost.pem`, the local
   certificate, and `localhost-key.pem`, its corresponding private key.
 * Run `python bridge-https.py`
-
-Bridge will serve to localhost over HTTPS on port 4443
+* Navigate to https://localhost:4443 in a web browser
 
 ### Useful Accounts
 
