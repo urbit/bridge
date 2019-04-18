@@ -13,10 +13,23 @@ Python 3.7.2
 1. To use Bridge, [download a release](https://github.com/urbit/bridge/releases) and unzip it (`bridge-$version.zip`).
 2. Open up your command line interface (Terminal on MacOS, Command Prompt on Windows).
 3. `cd` into the `bridge-$version` directory.
-4. Run this command: `python3 -m http.server 5000 --bind 127.0.0.1`
+4. Run this command: `python3 -m http.server 5000 --bind 127.0.0.1`. If you're using Bridge with a Ledger hardware wallet, skip this step and see the Ledger Support subsection below.
 5. You can then use Bridge by navigating to http://localhost:5000 using a web browser.
 
-### Verify checksums
+#### Ledger Support
+
+To authenticate and sign transactions with a [Ledger](https://www.ledger.com/), Bridge must be serving over HTTPS on localhost. This requires self-signed certificates. You can do this via the following: 
+
+* Install [mkcert](https://github.com/FiloSottile/mkcert)
+* If you're using Firefox, additionally install [nss](https://github.com/nss-dev/nss)
+* Install a local certificate authority via `mkcert -install`
+* In your `bridge` directory, generate a certificate valid for localhost via
+  `mkcert localhost`.  This will produce two files: `localhost.pem`, the local
+  certificate, and `localhost-key.pem`, its corresponding private key.
+* Run `python bridge-https.py`
+* Navigate to https://localhost:4443 in a web browser
+
+### Verify Checksums
 
 To validate your downloaded file's integrity, compare the lines in checksum.txt to SHA-256 hashes of the `bridge-$version` directory's contents.
 
@@ -31,7 +44,7 @@ To validate your downloaded file's integrity, compare the lines in checksum.txt 
 Clone the repo, and use a simple `npm install`.  You can then use a `npm run
 build` to create an optimised static build (serve it with e.g. [serve][serv]).
 
-### General notes
+### General Notes
 
 For development, use `npm run pilot` to get going after a `npm install`.  This
 will boot up a Ganache node in the background, deploy the Azimuth contracts to
@@ -49,21 +62,6 @@ $ nvm use v11.0.0
 ```
 
 before running `npm run pilot`.
-
-### Ledger support
-
-To authenticate and sign transactions with a Ledger, Bridge must be serving
-over HTTPS on localhost. This requires self-signed certificates. You can do
-this via the following:
-
-* Install [mkcert](https://github.com/FiloSottile/mkcert)
-* If you're using Firefox, additionally install [nss](https://github.com/nss-dev/nss)
-* Install a local certificate authority via `mkcert -install`
-* In your `bridge` directory, generate a certificate valid for localhost via
-  `mkcert localhost`.  This will produce two files: `localhost.pem`, the local
-  certificate, and `localhost-key.pem`, its corresponding private key.
-* Run `python bridge-https.py`
-* Navigate to https://localhost:4443 in a web browser
 
 ### Useful Accounts
 
