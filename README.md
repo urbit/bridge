@@ -22,7 +22,7 @@ To use Bridge:
 If you plan to authenticate and sign transactions with a Master Ticket, BIP39 mnemonic, Ethereum private key, or keystore file:
 
 1. `cd` into the `bridge-$version` directory
-2. Run this command: `python3 -m http.server 5000 --bind 127.0.0.1`
+2. Run `python3 -m http.server 5000 --bind 127.0.0.1`
 3. Navigate to http://localhost:5000 using a web browser to access Bridge
 
 #### Running Bridge with Ledger support
@@ -32,11 +32,9 @@ If you plan to authenticate and sign transactions with a [Ledger](https://www.le
 1. Install [mkcert](https://github.com/FiloSottile/mkcert)
 2. If you're using Firefox, additionally install [nss](https://github.com/nss-dev/nss)
 3. Install a local certificate authority via `mkcert -install`
-4. In the `bridge-$version` directory, generate a certificate valid for localhost via
-  `mkcert localhost`.  This will produce two files: `localhost.pem`, the local
-  certificate, and `localhost-key.pem`, its corresponding private key
-5. `cd` into the `bridge-$version` directory
-6. Run `python bridge-https.py` from the `bridge-$version` directory
+4. `cd` into the `bridge-$version` directory
+5. Run `mkcert localhost` to generate a certificate valid for localhost. This will produce two files: `localhost.pem`, the local certificate, and `localhost-key.pem`, its corresponding private key
+6. Run `python bridge-https.py`
 7. Navigate to https://localhost:4443 in a web browser to access Bridge
 
 ### Verify checksums
