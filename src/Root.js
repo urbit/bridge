@@ -9,7 +9,6 @@ import { AppNavigation } from './common/components/AppNavigation'
 
 import './common/style/index.css'
 import './bridge/style/index.css'
-import './walletgen/style/index.css'
 
 class Root extends React.Component {
   constructor(props) {
@@ -88,10 +87,6 @@ class Root extends React.Component {
     return (
       <React.Fragment>
         {appComponent}
-        <AppNavigation
-          setView={this.setView}
-          appView={this.state.appView}
-          />
       </React.Fragment>
     )
   }
