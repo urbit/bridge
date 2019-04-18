@@ -2,59 +2,59 @@ import React from 'react'
 import { get, map } from 'lodash'
 
 const ReactSVGComponents = {
-  svg: p => {
+  svg: (p, key) => {
     return (
-      <svg {...p.attr} version={'1.1'} xmlns={'http://www.w3.org/2000/svg'}>
-       { map(get(p, 'children', []), child => ReactSVGComponents[child.tag](child)) }
+      <svg {...p.attr} version={'1.1'} xmlns={'http://www.w3.org/2000/svg'} key={key}>
+        { map(get(p, 'children', []), (child, idx) => ReactSVGComponents[child.tag](child, idx)) }
       </svg>
     )
   },
-  circle: p => {
+  circle: (p, key) => {
     return (
-      <circle {...p.attr}>
-      { map(get(p, 'children', []), child => ReactSVGComponents[child.tag](child)) }
+      <circle {...p.attr} key={key}>
+        { map(get(p, 'children', []), (child, idx) => ReactSVGComponents[child.tag](child, idx)) }
       </circle>
     )
   },
-  rect: p => {
+  rect: (p, key) => {
     return (
-      <rect {...p.attr}>
-      { map(get(p, 'children', []), child => ReactSVGComponents[child.tag](child)) }
+      <rect {...p.attr} key={key}>
+        { map(get(p, 'children', []), (child, idx) => ReactSVGComponents[child.tag](child, idx)) }
       </rect>
     )
   },
-  path: p => {
+  path: (p, key) => {
     return (
-      <path {...p.attr}>
-      { map(get(p, 'children', []), child => ReactSVGComponents[child.tag](child)) }
+      <path {...p.attr} key={key}>
+        { map(get(p, 'children', []), (child, idx) => ReactSVGComponents[child.tag](child, idx)) }
       </path>
     )
   },
-  g: p => {
+  g: (p, key) => {
     return (
-      <g {...p.attr}>
-        { map(get(p, 'children', []), child => ReactSVGComponents[child.tag](child)) }
+      <g {...p.attr} key={key}>
+        { map(get(p, 'children', []), (child, idx) => ReactSVGComponents[child.tag](child, idx)) }
       </g>
     )
   },
-  polygon: p => {
+  polygon: (p, key) => {
     return (
-      <polygon {...p.attr}>
-      { map(get(p, 'children', []), child => ReactSVGComponents[child.tag](child)) }
+      <polygon {...p.attr} key={key}>
+        { map(get(p, 'children', []), (child, idx) => ReactSVGComponents[child.tag](child, idx)) }
       </polygon>
     )
   },
-  line: p => {
+  line: (p, key) => {
     return (
-      <line {...p.attr}>
-      { map(get(p, 'children', []), child => ReactSVGComponents[child.tag](child)) }
+      <line {...p.attr} key={key}>
+        { map(get(p, 'children', []), (child, idx) => ReactSVGComponents[child.tag](child, idx)) }
       </line>
     )
   },
-  polyline: p => {
+  polyline: (p, key) => {
     return (
-      <polyline {...p.attr}>
-      { map(get(p, 'children', []), child => ReactSVGComponents[child.tag](child)) }
+      <polyline {...p.attr} key={key}>
+        { map(get(p, 'children', []), (child, idx) => ReactSVGComponents[child.tag](child, idx)) }
       </polyline>
     )
   }
