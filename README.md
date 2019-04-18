@@ -4,7 +4,25 @@ An application for interacting with Azimuth.
 
 ## Usage
 
-To run Bridge, follow the instructions on the [latest release][rele] page.
+### Requirements
+
+Python 3.7.2
+
+### Instructions
+
+1. To use Bridge, [download a release](https://github.com/urbit/bridge/releases) and unzip it (`bridge-$version.zip`).
+2. Open up your command line interface (Terminal on MacOS, Command Prompt on Windows).
+3. `cd` into the `bridge-$version` directory.
+4. Run this command: `python3 -m http.server 5000 --bind 127.0.0.1`
+5. You can then use Bridge by navigating to http://localhost:5000 using a web browser.
+
+### Verify checksums
+
+To validate your downloaded file's integrity, compare the lines in checksum.txt to SHA-256 hashes of the `bridge-$version` directory's contents.
+
+- On MacOS: `shasum -a 256 -c checksums.txt .`
+- On Linux: `sha256sum -c checksums.txt .`
+- On Windows: Go into the `build` directory and verify files individually with `CertUtil -hashFile [file_name] SHA256`
 
 ## Development Notes
 
