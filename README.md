@@ -10,26 +10,33 @@ Python 3.7.2
 
 ### Instructions
 
-1. To use Bridge, [download a release](https://github.com/urbit/bridge/releases) and unzip it (`bridge-$version.zip`).
-2. Open up your command line interface (Terminal on MacOS, Command Prompt on Windows).
-3. `cd` into the `bridge-$version` directory.
-4. Run this command: `python3 -m http.server 5000 --bind 127.0.0.1`. If you're using Bridge with a Ledger hardware wallet, skip this step and see the Ledger Support subsection below.
-5. You can then use Bridge by navigating to http://localhost:5000 using a web browser.
+Before using Bridge, you'll need access to whatever media you're using to store the Ethereum wallet that owns or will own your Azimuth points. This could be an Urbit HD wallet containing a Master Ticket, a BIP39 mnemonic, a Ledger or Trezor hardware wallet, or an Ethereum private key or keystore file.
 
-#### Ledger Support
+With that in hand, to use Bridge, [download a release](https://github.com/urbit/bridge/releases) and unzip it (`bridge-$version.zip`), then do one of the following:
 
-To authenticate and sign transactions with a [Ledger](https://www.ledger.com/), Bridge must be serving over HTTPS on localhost. This requires self-signed certificates. You can do this via the following: 
+#### Non-Ledger
 
-* Install [mkcert](https://github.com/FiloSottile/mkcert)
-* If you're using Firefox, additionally install [nss](https://github.com/nss-dev/nss)
-* Install a local certificate authority via `mkcert -install`
-* In your `bridge` directory, generate a certificate valid for localhost via
+If you plan to authenticate and sign transactions with a Master Ticket, BIP39 mnemonic, Ethereum private key, or keystore file:
+
+1. Open up your command line interface (Terminal on MacOS, Command Prompt on Windows)
+2. `cd` into the `bridge-$version` directory
+3. Run this command: `python3 -m http.server 5000 --bind 127.0.0.1`
+4. Navigate to http://localhost:5000 using a web browser to access Bridge
+
+#### Ledger support
+
+To authenticate and sign transactions with a [Ledger](https://www.ledger.com/), Bridge must be serving over HTTPS on localhost. This requires self-signed certificates. To do this, follow these steps:
+
+1. Install [mkcert](https://github.com/FiloSottile/mkcert)
+2. If you're using Firefox, additionally install [nss](https://github.com/nss-dev/nss)
+3. Install a local certificate authority via `mkcert -install`
+4. In the `bridge-$version` directory, generate a certificate valid for localhost via
   `mkcert localhost`.  This will produce two files: `localhost.pem`, the local
-  certificate, and `localhost-key.pem`, its corresponding private key.
-* Run `python bridge-https.py`
-* Navigate to https://localhost:4443 in a web browser
+  certificate, and `localhost-key.pem`, its corresponding private key
+5. Run `python bridge-https.py` from the `bridge-$version` directory
+6. Navigate to https://localhost:4443 in a web browser to access Bridge
 
-### Verify Checksums
+### Verify checksums
 
 To validate your downloaded file's integrity, compare the lines in checksum.txt to SHA-256 hashes of the `bridge-$version` directory's contents.
 
@@ -37,14 +44,14 @@ To validate your downloaded file's integrity, compare the lines in checksum.txt 
 - On Linux: `sha256sum -c checksums.txt .`
 - On Windows: Go into the `build` directory and verify files individually with `CertUtil -hashFile [file_name] SHA256`
 
-## Development Notes
+## Development notes
 
 ### Install / Build
 
 Clone the repo, and use a simple `npm install`.  You can then use a `npm run
 build` to create an optimised static build (serve it with e.g. [serve][serv]).
 
-### General Notes
+### General notes
 
 For development, use `npm run pilot` to get going after a `npm install`.  This
 will boot up a Ganache node in the background, deploy the Azimuth contracts to
@@ -63,7 +70,7 @@ $ nvm use v11.0.0
 
 before running `npm run pilot`.
 
-### Useful Accounts
+### Useful accounts
 
 The ecliptic owner is the only account that's able to create galaxies, so
 it's a good place to get started.  On the testnet, it's the address:
@@ -97,7 +104,7 @@ with 100 ETH:
 To play around with any of these, authenticate using the same mnemonic, but
 use a custom HD path of `m/44'/60'/0'/0/1`, `m/44'/60'/0'/0/2`, and so on.
 
-### Initial Development State
+### Initial development state
 
 You can also tweak a couple of things to change your development state
 somewhat (say, for example, you want to start on the points list screen, instead
