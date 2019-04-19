@@ -212,6 +212,10 @@ footer,
   font-size: 8rem;
 }
 
+.lh-8 {
+  line-height: 8rem;
+}
+
 .ls-1 > * {
   padding-bottom: 1rem !important;
 }
@@ -480,4 +484,53 @@ code {
 
 .block {
   display: block;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+/**
+  Passport styles
+**/
+
+.passport {
+  border: 1px solid #C5FBE7;
+  padding: 24px;
+}
+
+.passport-block {
+  width: 8px;
+  height: 8px;
+}
+
+.passport-label {
+  font-size: 12px;
+  line-height: 24px;
+  font-weight: 700;
+  font-family: "Inter UI";
+  color: #7f7f7f;
+}
+
+.passport-value {
+  font-size: 12px;
+  line-height: 24px;
+  font-family: "Source Code Pro";
+  color: #7f7f7f;
+}
+
+.passport-metadata .passport-label {
+  line-height: 12px;
+}
+
+.passport-point {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.passport-sigil-blank {
+  width: 128px;
+  height: 128px;
+
+  background-color: black;
 }

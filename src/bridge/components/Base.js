@@ -63,6 +63,7 @@ import ValidatedSigil from './ValidatedSigil';
 import ValidatedBlockie from './ValidatedBlockie';
 import Chevron from './icons/Chevron'
 import ShowBlockie from './ShowBlockie'
+import Passport from './Passport'
 
 // HOC validated form components
 
@@ -202,4 +203,5 @@ export {
   Warning,
 
   Chevron,
+  Passport
 };

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Chevron } from '../components/Base'
 
-import { renderRoute } from '../lib/router'
+import { renderRoute, ROUTE_NAMES } from '../lib/router'
 import { isLast } from '../lib/lib'
 
 const Crumbs = (props) => {
@@ -40,15 +40,24 @@ const Crumbs = (props) => {
   return rendered
 }
 
-const Header = (props) =>
-  <div className={'flex items-center h-10'}>
-    <Crumbs
-      routeCrumbs={ props.routeCrumbs }
-      skipRoute={ props.skipRoute }
-      networkType={ props.networkType }
-      wallet={ props.wallet }
-      pointCursor={ props.pointCursor }
-    />
-  </div>
+const Header = (props) => {
+  let showCrumbs = !props.routeCrumbs.contains(ROUTE_NAMES.INVITE_LOGIN)
+
+  if (showCrumbs) {
+    return (
+      <div className={'flex items-center h-10'}>
+        <Crumbs
+          routeCrumbs={ props.routeCrumbs }
+          skipRoute={ props.skipRoute }
+          networkType={ props.networkType }
+          wallet={ props.wallet }
+          pointCursor={ props.pointCursor }
+        />
+      </div>
+    )
+  } else {
+    return <h2 className="mt-9">Bridge</h2>
+  }
+}
 
 export default Header

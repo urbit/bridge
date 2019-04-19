@@ -24,7 +24,7 @@ class AppNavigation extends React.Component {
       position: "fixed",
       bottom: "10px",
       right: "10px",
-      "text-decoration": "underline",
+      textDecoration: "underline",
       cursor: "pointer"
     }
 
