@@ -10,32 +10,32 @@ Python 3.7.2
 
 ### Instructions
 
-To use Bridge:
+#### Install
 
-- [Download a release](https://github.com/urbit/bridge/releases)
-- Unzip it (`bridge-$version.zip`)
-- Open up your command line interface (Terminal on MacOS, Command Prompt on Windows)
-- Follow the instructions below to run Bridge
+1. [Download a release](https://github.com/urbit/bridge/releases)
+2. Unzip it (`bridge-$version.zip`)
+3. Open up your command line interface (Terminal on MacOS, Command Prompt on Windows)
+4. `cd` into the `bridge-$version` directory
 
-#### Running Bridge
+Follow the instructions below to run Bridge.
+
+#### Run Bridge
 
 If you plan to authenticate and sign transactions with a Master Ticket, BIP39 mnemonic, Ethereum private key, or keystore file:
 
-1. `cd` into the `bridge-$version` directory
-2. Run `python3 -m http.server 5000 --bind 127.0.0.1`
+2. Run `python3 -m http.server 5000 --bind 127.0.0.1` from the `bridge-$version` directory
 3. Navigate to http://localhost:5000 using a web browser to access Bridge
 
-#### Running Bridge with Ledger support
+#### Run Bridge with Ledger support
 
 If you plan to authenticate and sign transactions with a [Ledger](https://www.ledger.com/), Bridge must be serving over HTTPS on localhost. This requires self-signed certificates. To do this:
 
 1. Install [mkcert](https://github.com/FiloSottile/mkcert)
 2. If you're using Firefox, additionally install [nss](https://github.com/nss-dev/nss)
 3. Install a local certificate authority via `mkcert -install`
-4. `cd` into the `bridge-$version` directory
-5. Run `mkcert localhost` to generate a certificate valid for localhost. This will produce two files: `localhost.pem`, the local certificate, and `localhost-key.pem`, its corresponding private key
-6. Run `python bridge-https.py`
-7. Navigate to https://localhost:4443 in a web browser to access Bridge
+4. From the `bridge-$version` directory, run `mkcert localhost` to generate a certificate valid for localhost. This will produce two files: `localhost.pem`, the local certificate, and `localhost-key.pem`, its corresponding private key
+5. Run `python bridge-https.py`
+6. Navigate to https://localhost:4443 in a web browser to access Bridge
 
 ### Verify checksums
 
