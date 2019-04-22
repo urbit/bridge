@@ -112,7 +112,7 @@ class InviteTicket extends React.Component {
     this.setState({
       realPoint: point,
       realWallet: Just(wallet),
-      walletStates: this.state.walletStates.concat(WALLET_STATES.GENERATED)
+      walletStates: this.state.walletStates.concat(WALLET_STATES.RENDERING)
     })
   }
 

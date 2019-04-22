@@ -24,8 +24,8 @@ const INVITE_STAGES = {
 const WALLET_STATES = {
   UNLOCKING: "Unlocking invite wallet",
   GENERATING: "Generating your wallet",
-  GENERATED: "Wallet generation complete",
-  PAPER_READY: "Paper collateral generated",
+  RENDERING: "Creating paper collateral",
+  PAPER_READY: "Download your wallet",
   DOWNLOADED: "Wallet downloaded",
   TRANSACTIONS: "Sending transactions"
 }
@@ -80,10 +80,7 @@ async function generateWallet(point) {
   }
 
   const ticket = await makeTicket(point);
-
   const wallet = await genWallet(point, ticket);
-  console.log('got wallet', wallet);
-  console.log('should start rendering now');
   return wallet;
 }
 

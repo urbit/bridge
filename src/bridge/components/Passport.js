@@ -59,14 +59,22 @@ class Passport extends React.Component {
   }
 
   getWalletStates() {
-    let hideWalletStates = this.props.walletStates.includes(WALLET_STATES.TRANSACTIONS)
+    let { walletStates } = this.props
+
+    let hideWalletStates = walletStates.includes(WALLET_STATES.TRANSACTIONS)
     if (hideWalletStates) return null
 
-    let stateElems = this.props.walletStates.map(state => {
+    let stateElems = walletStates.map(state => {
+      if (state === WALLET_STATES.DOWNLOADED) return null
+      
+      let lastIndex = walletStates.indexOf(state) === walletStates.length - 1
+
       return (
         <div className="flex justify-between">
           <div className="text-mono text-sm lh-6 green-dark">{state}</div>
-          <div className="text-700 text-sm lh-6 green-dark">✓</div>
+          {(!lastIndex) &&
+            <div className="text-700 text-sm lh-6 green-dark">✓</div>
+          }
         </div>
       )
     })
@@ -110,6 +118,8 @@ class Passport extends React.Component {
     let walletStates = this.getWalletStates()
     let paperReady = this.state.paper && this.props.walletStates.includes(WALLET_STATES.PAPER_READY)
     let downloadColor = paperReady ? 'green' : 'black'
+
+    window.curTime = (new Date()).getTime()
 
     return (
       <div>
