@@ -23,7 +23,7 @@ If you plan to authenticate and sign transactions with a Master Ticket, BIP39 mn
 
 1. `cd` into the `bridge-$version` directory
 2. Run `python3 -m http.server 5000 --bind 127.0.0.1`
-3. Navigate to http://localhost:5000 using a web browser to access Bridge
+3. Navigate to http://localhost:5000 using a web browser to access Bridge (we recommend using Firefox or Chrome)
 
 #### Running Bridge with Ledger support
 
