@@ -570,3 +570,14 @@ code {
 
   background-color: #2AA779;
 }
+
+.passport-wallet-progress {
+  height: 4px;
+  background-color: #C5FBE7;
+}
+
+.passport-wallet-progress-fill {
+  height: 4px;
+  width: 100%;
+  background-color: #2AA779;
+}

@@ -58,15 +58,50 @@ class Passport extends React.Component {
     return fmtDate
   }
 
+  getWalletProgress() {
+    let { walletStates } = this.props
+
+    if ( !walletStates.includes(WALLET_STATES.UNLOCKING) ) return null
+    if ( walletStates.includes(WALLET_STATES.TRANSACTIONS) ) return null
+
+    let progressTimes = {
+      [WALLET_STATES.UNLOCKING]: {ms: "2813", pct: "44%"},
+      [WALLET_STATES.GENERATING]: {ms: "2433", pct: "38%"},
+      [WALLET_STATES.RENDERING]: {ms: "986", pct: "15%"}
+    }
+
+    const progressBars = Object.keys(progressTimes).map(state => {
+      let progressIndex = walletStates.indexOf(state)
+      let progressDone = progressIndex !== -1 && progressIndex < walletStates.length -1
+
+      let progressStyle = {
+        width: progressTimes[state].pct
+      }
+
+      return (
+        <div className="passport-wallet-progress" style={progressStyle}>
+          {progressDone &&
+            <div className="passport-wallet-progress-fill"></div>
+          }
+        </div>
+      )
+    })
+
+    return (
+      <div className="flex space-between mt-3">
+        {progressBars}
+      </div>
+    )
+  }
+
   getWalletStates() {
     let { walletStates } = this.props
 
-    let hideWalletStates = walletStates.includes(WALLET_STATES.TRANSACTIONS)
-    if (hideWalletStates) return null
+    if ( walletStates.includes(WALLET_STATES.TRANSACTIONS) ) return null
 
     let stateElems = walletStates.map(state => {
       if (state === WALLET_STATES.DOWNLOADED) return null
-      
+
       let lastIndex = walletStates.indexOf(state) === walletStates.length - 1
 
       return (
@@ -116,6 +151,7 @@ class Passport extends React.Component {
 
     let currentDate = this.getCurrentDate()
     let walletStates = this.getWalletStates()
+    let walletProgress = this.getWalletProgress()
     let paperReady = this.state.paper && this.props.walletStates.includes(WALLET_STATES.PAPER_READY)
     let downloadColor = paperReady ? 'green' : 'black'
 
@@ -173,6 +209,7 @@ class Passport extends React.Component {
           </Button>
         </div>
 
+        {walletProgress}
         {walletStates}
 
       </div>
