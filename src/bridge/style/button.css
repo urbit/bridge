@@ -54,6 +54,10 @@ button[prop-type='solid'][prop-color='green']:focus {
   box-shadow: 0 0 0 3px #C5FBE7;
 }
 
+button[prop-type='solid'][prop-color='green']:disabled {
+  background-color: #C5FBE7;
+}
+
 button[prop-type='solid'][prop-color='yellow'] {
   background-color: #F8C134;
   border-color: #F8C134;

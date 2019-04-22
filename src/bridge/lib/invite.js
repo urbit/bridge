@@ -14,6 +14,21 @@ import saveAs from 'file-saver'
 const NEXT_STEP_NUM = 6;
 const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8
 
+const INVITE_STAGES = {
+  INVITE_LOGIN: "invite login",
+  INVITE_WALLET: "invite wallet",
+  INVITE_VERIFY: "invite verify",
+  INVITE_TRANSACTIONS: "invite transactions"
+}
+
+const WALLET_STATES = {
+  UNLOCKING: "Unlocking invite wallet",
+  GENERATING: "Generating your wallet",
+  GENERATED: "Wallet generation complete",
+  PAPER_READY: "Paper collateral generated",
+  DOWNLOADED: "Wallet downloaded"
+}
+
 async function generateWallet(point) {
   const makeTicket = point => {
 
@@ -104,5 +119,7 @@ async function downloadWallet(paper) {
 
 export {
   generateWallet,
-  downloadWallet
+  downloadWallet,
+  INVITE_STAGES,
+  WALLET_STATES
 }

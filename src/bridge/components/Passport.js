@@ -6,6 +6,7 @@ import PropTypes from 'prop-types'
 import PaperCollateralRenderer from 'PaperCollateralRenderer'
 import { Button } from './Base'
 
+import { WALLET_STATES } from '../lib/invite'
 import { downloadWallet } from '../lib/invite'
 
 class Passport extends React.Component {
@@ -58,8 +59,6 @@ class Passport extends React.Component {
   }
 
   getWalletStates() {
-    console.log('walletStates = ', this.props.walletStates)
-
     let stateElems = this.props.walletStates.map(state => {
       return (
         <div className="flex justify-between">
@@ -106,57 +105,59 @@ class Passport extends React.Component {
 
     let currentDate = this.getCurrentDate()
     let walletStates = this.getWalletStates()
+    let paperReady = this.state.paper && this.props.walletStates.includes(WALLET_STATES.PAPER_READY)
+    let downloadColor = paperReady ? 'green' : 'black'
 
     return (
       <div>
-        <div className={`passport ${wallet && 'passport-filled'}`}>
-          <div className="flex">
-            <div className="passport-sigil">
-              {sigil}
+        <div className="passport-border">
+          <div className={`passport ${paperReady && 'passport-filled'}`}>
+            <div className="flex">
+              <div className="passport-sigil">
+                {sigil}
+              </div>
+              <div className="passport-metadata ml-4">
+                <div className="passport-label text-mono">Point</div>
+                <div className="text-mono">{patp || '-'}</div>
+
+                <div className="passport-label gray-50 mt-6">Created on</div>
+                <div className="passport-value">{patp ? currentDate : '-' }</div>
+
+                <div className="passport-label gray-50 mt-2">Invited by</div>
+                <div className="passport-value">{this.props.invitedBy || '-'}</div>
+              </div>
             </div>
-            <div className="passport-metadata ml-4">
-              <div className="passport-label text-mono">Point</div>
-              <div className="text-mono">{patp || '-'}</div>
 
-              <div className="passport-label gray-50 mt-6">Created on</div>
-              <div className="passport-value">{patp ? currentDate : '-' }</div>
+            <div className="mt-8">
+              <div className="passport-label text-mono">Ethereum Address</div>
+              <div className="passport-value">{ownershipAddress || 'Ungenerated'}</div>
 
-              <div className="passport-label gray-50 mt-2">Invited by</div>
-              <div className="passport-value">{this.props.invitedBy || '-'}</div>
+              <div className="passport-label gray-50 mt-3">Master Ticket</div>
+              <div className="passport-value">{ownershipAddress ? this.masterScreen : 'Ungenerated'}</div>
+
+              <div className="passport-label gray-50 mt-5">Managment Seed</div>
+              <div className="passport-value">{ownershipAddress ? this.managementScreen : 'Ungenerated'}</div>
             </div>
+
+            {wallet &&
+              <PaperCollateralRenderer
+                wallet={{[this.props.point.value]: wallet}}
+                className={'extremely-hidden'}
+                callback={data => {
+                  this.setState({paper: data})
+                  this.props.pushWalletState(WALLET_STATES.PAPER_READY)
+                }}
+                mode={'REGISTRATION'} />
+            }
           </div>
-
-          <div className="mt-8">
-            <div className="passport-label text-mono">Ethereum Address</div>
-            <div className="passport-value">{ownershipAddress || 'Ungenerated'}</div>
-
-            <div className="passport-label gray-50 mt-3">Master Ticket</div>
-            <div className="passport-value">{ownershipAddress ? this.masterScreen : 'Ungenerated'}</div>
-
-            <div className="passport-label gray-50 mt-5">Managment Seed</div>
-            <div className="passport-value">{ownershipAddress ? this.managementScreen : 'Ungenerated'}</div>
-
-            <Button
-              disabled={ !this.state.paper }
-              className={ 'mt-8' }
-              prop-size={ 'lg wide' }
-              prop-color={ 'green' }
-              onClick={ this.download }
-            >
-              { 'Download' }
-            </Button>
-          </div>
-
-          {wallet &&
-            <PaperCollateralRenderer
-              wallet={{[this.props.point.value]: wallet}}
-              className={'extremely-hidden'}
-              callback={data => {
-                console.log('paper wallet generated')
-                this.setState({paper: data})
-              }}
-              mode={'REGISTRATION'} />
-          }
+          <Button
+            disabled={ !paperReady }
+            prop-size={ 'lg wide' }
+            prop-color={ downloadColor }
+            onClick={ this.download }
+          >
+            { 'Download' }
+          </Button>
         </div>
         <div className="passport-wallet-states mt-3">
           {walletStates}

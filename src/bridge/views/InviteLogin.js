@@ -10,6 +10,7 @@ import { ROUTE_NAMES } from '../lib/router'
 import { DEFAULT_HD_PATH, urbitWalletFromTicket,
   walletFromMnemonic, addressFromSecp256k1Public } from '../lib/wallet'
 import { BRIDGE_ERROR } from '../lib/error'
+import { INVITE_STAGES, WALLET_STATES } from '../lib/invite'
 import { generateWallet } from '../lib/invite'
 
 const placeholder = (len) => {
@@ -19,20 +20,6 @@ const placeholder = (len) => {
     ''
   )
   return ob.hex2patq(hex)
-}
-
-const INVITE_STAGES = {
-  INVITE_LOGIN: "invite login",
-  INVITE_WALLET: "invite wallet",
-  INVITE_VERIFY: "invite verify",
-  INVITE_TRANSACTIONS: "invite transactions"
-}
-
-const WALLET_STATES = {
-  UNLOCKING: "Unlocking invite wallet",
-  GENERATING: "Generating your wallet",
-  GENERATED: "Wallet generation complete",
-  DOWNLOADED: "Wallet downloaded"
 }
 
 class InviteLogin extends React.Component {
@@ -46,7 +33,6 @@ class InviteLogin extends React.Component {
       realPoint: Nothing(),
       realWallet: Nothing(),
       walletReady: false,
-      continueReady: true,
       stage: INVITE_STAGES.INVITE_LOGIN,
       walletStates: []
     }
@@ -57,7 +43,14 @@ class InviteLogin extends React.Component {
     this.handleInviteTicketInput = this.handleInviteTicketInput.bind(this)
     this.handleVerifyTicketInput = this.handleVerifyTicketInput.bind(this)
     this.confirmWalletDownload = this.confirmWalletDownload.bind(this)
+    this.pushWalletState = this.pushWalletState.bind(this)
     this.navigateLogin = this.navigateLogin.bind(this)
+  }
+
+  pushWalletState(walletState) {
+    this.setState({
+      walletStates: this.state.walletStates.concat(walletState)
+    })
   }
 
   navigateLogin() {
@@ -75,13 +68,12 @@ class InviteLogin extends React.Component {
 
   confirmWalletDownload() {
     this.setState({
-      continueReady: true
+      walletStates: this.state.walletStates.concat(WALLET_STATES.DOWNLOADED),
     })
   }
 
   async unlockInviteWallet(inviteTicket) {
     this.setState({
-      continueReady: false,
       walletStates: this.state.walletStates.concat(WALLET_STATES.UNLOCKING),
       stage: INVITE_STAGES.INVITE_WALLET
     });
@@ -172,9 +164,17 @@ class InviteLogin extends React.Component {
       case INVITE_STAGES.INVITE_WALLET:
         return (
           <div>
-            <h1 className="fs-6 lh-8">Welcome</h1>
+            <h1 className="fs-6 lh-8 mb-3">Passport</h1>
             <p>A passport is your digital identity. You will use your passport to access your true computer, send payments, and administer your identity. So naturally, you must keep this secure.</p>
             <p>After you’ve downloaded your passport, back up the ticket manually or store on a trusted device.</p>
+          </div>
+        )
+        break
+      case INVITE_STAGES.INVITE_VERIFY:
+        return (
+          <div>
+            <h1 className="fs-6 lh-8 mb-3">Verify Passport</h1>
+            <p>Afer you download your passport, verify your custody. Your passport should be a folder of image files. One of them is your Master Ticket. Open it and enter the 4 word phrase below (with hyphens).</p>
           </div>
         )
         break
@@ -185,18 +185,27 @@ class InviteLogin extends React.Component {
     if (this.state.stage === INVITE_STAGES.INVITE_TRANSACTIONS) return null
 
     let clickHandler
-    let btnColor
+    let btnColor = this.state.walletStates.includes(WALLET_STATES.PAPER_READY)
+      ? 'green'
+      : 'black'
+    let continueReady
 
     switch(this.state.stage) {
       case INVITE_STAGES.INVITE_LOGIN:
         clickHandler = () => {
           this.unlockInviteWallet(this.state.inviteTicket)
         }
-        btnColor = "black"
+        continueReady = true
+        break
+      case INVITE_STAGES.INVITE_WALLET:
+        clickHandler = () => {
+          this.setState({
+            stage: INVITE_STAGES.INVITE_VERIFY
+          })
+        }
+        continueReady = this.state.walletStates.includes(WALLET_STATES.DOWNLOADED)
         break
       case INVITE_STAGES.INVITE_VERIFY:
-      case INVITE_STAGES.INVITE_WALLET:
-        btnColor = "green"
         break
     }
 
@@ -205,7 +214,7 @@ class InviteLogin extends React.Component {
         className={'mt-4'}
         prop-size={'lg'}
         prop-color={btnColor}
-        disabled={!this.state.continueReady}
+        disabled={!continueReady}
         onClick={clickHandler}
       >
         { 'Continue →' }
@@ -258,6 +267,7 @@ class InviteLogin extends React.Component {
             point={this.state.realPoint}
             wallet={this.state.realWallet}
             walletStates={this.state.walletStates}
+            pushWalletState={this.pushWalletState}
             confirmWalletDownload={this.confirmWalletDownload}
           />
         </Col>

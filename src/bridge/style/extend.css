@@ -499,7 +499,6 @@ code {
 **/
 
 .passport {
-  border: 1px solid #C5FBE7;
   padding: 24px;
 }
 
@@ -510,6 +509,10 @@ code {
 
 .passport-filled {
   background-color: #C5FBE7;
+}
+
+.passport-border {
+  border: 1px solid #C5FBE7;
 }
 
 .passport-block {
