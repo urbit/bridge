@@ -33,7 +33,7 @@ class InviteLogin extends React.Component {
       realPoint: Nothing(),
       realWallet: Nothing(),
       walletReady: false,
-      stage: INVITE_STAGES.INVITE_LOGIN,
+      stage: INVITE_STAGES.INVITE_TRANSACTIONS,
       walletStates: []
     }
 
@@ -175,6 +175,20 @@ class InviteLogin extends React.Component {
           <div>
             <h1 className="fs-6 lh-8 mb-3">Verify Passport</h1>
             <p>Afer you download your passport, verify your custody. Your passport should be a folder of image files. One of them is your Master Ticket. Open it and enter the 4 word phrase below (with hyphens).</p>
+          </div>
+        )
+        break
+      case INVITE_STAGES.INVITE_TRANSACTIONS:
+        return (
+          <div>
+            <h1 className="fs-6 lh-8 mb-3">Submitting</h1>
+            <div className="passport-progress mb-2">
+              <div className="passport-progress-filled"></div>
+            </div>
+            <div className="flex justify-between">
+              <div className="text-mono text-sm lh-6 green-dark">Executing transactions</div>
+              <div className="text-mono text-sm lh-6">3 minutes</div>
+            </div>
           </div>
         )
         break

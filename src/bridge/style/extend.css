@@ -550,3 +550,23 @@ code {
 
   background-color: black;
 }
+
+.passport-progress {
+  position: relative;
+  height: 4px;
+  width: 100%;
+
+  background-color: #E6E6E6;
+}
+
+.passport-progress-filled {
+  position: absolute;
+  height: 4px;
+  width: 30%;
+
+  z-index: 1;
+  top: 0;
+  left: 0;
+
+  background-color: #2AA779;
+}
