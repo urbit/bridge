@@ -28,6 +28,13 @@ const INVITE_STAGES = {
   INVITE_TRANSACTIONS: "invite transactions"
 }
 
+const WALLET_STATES = {
+  UNLOCKING: "Unlocking invite wallet",
+  GENERATING: "Generating your wallet",
+  GENERATED: "Wallet generation complete",
+  DOWNLOADED: "Wallet downloaded"
+}
+
 class InviteLogin extends React.Component {
 
   constructor(props) {
@@ -40,7 +47,8 @@ class InviteLogin extends React.Component {
       realWallet: Nothing(),
       walletReady: false,
       continueReady: true,
-      stage: INVITE_STAGES.INVITE_LOGIN
+      stage: INVITE_STAGES.INVITE_LOGIN,
+      walletStates: []
     }
 
     this.pointPlaceholder = placeholder(4)
@@ -74,6 +82,7 @@ class InviteLogin extends React.Component {
   async unlockInviteWallet(inviteTicket) {
     this.setState({
       continueReady: false,
+      walletStates: this.state.walletStates.concat(WALLET_STATES.UNLOCKING),
       stage: INVITE_STAGES.INVITE_WALLET
     });
 
@@ -99,6 +108,10 @@ class InviteLogin extends React.Component {
 
     const incoming = await azimuth.azimuth.getTransferringFor(ctrcs, addr)
 
+    this.setState({
+      walletStates: this.state.walletStates.concat(WALLET_STATES.GENERATING)
+    })
+
     let point
     let wallet
 
@@ -113,7 +126,8 @@ class InviteLogin extends React.Component {
 
     this.setState({
       realPoint: point,
-      realWallet: Just(wallet)
+      realWallet: Just(wallet),
+      walletStates: this.state.walletStates.concat(WALLET_STATES.GENERATED)
     })
   }
 
@@ -189,7 +203,7 @@ class InviteLogin extends React.Component {
     return (
       <Button
         className={'mt-4'}
-        prop-size={'md'}
+        prop-size={'lg'}
         prop-color={btnColor}
         disabled={!this.state.continueReady}
         onClick={clickHandler}
@@ -243,6 +257,7 @@ class InviteLogin extends React.Component {
           <Passport
             point={this.state.realPoint}
             wallet={this.state.realWallet}
+            walletStates={this.state.walletStates}
             confirmWalletDownload={this.confirmWalletDownload}
           />
         </Col>

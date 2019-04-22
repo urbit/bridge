@@ -212,6 +212,10 @@ footer,
   font-size: 8rem;
 }
 
+.lh-6 {
+  line-height: 6rem;
+}
+
 .lh-8 {
   line-height: 8rem;
 }
@@ -497,6 +501,15 @@ code {
 .passport {
   border: 1px solid #C5FBE7;
   padding: 24px;
+}
+
+.passport .text-sm {
+  font-size: 3rem;
+  line-height: 6rem;
+}
+
+.passport-filled {
+  background-color: #C5FBE7;
 }
 
 .passport-block {
