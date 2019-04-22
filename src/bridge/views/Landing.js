@@ -22,7 +22,7 @@ const Landing = (props) =>
           prop-type='link'
           prop-size='lg'
           className={'mb-4 mt-8'}
-          onClick={ () => props.pushRoute(ROUTE_NAMES.INVITE_LOGIN) }
+          onClick={ () => props.pushRoute(ROUTE_NAMES.INVITE_TICKET) }
         >
           { 'Claim an invite  →' }
         </Button>

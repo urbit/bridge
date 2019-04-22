@@ -22,7 +22,7 @@ const placeholder = (len) => {
   return ob.hex2patq(hex)
 }
 
-class InviteLogin extends React.Component {
+class InviteTicket extends React.Component {
 
   constructor(props) {
     super(props)
@@ -239,6 +239,8 @@ class InviteLogin extends React.Component {
   getStageDisplay() {
     const { stage } = this.state
 
+    if (stage === INVITE_STAGES.INVITE_LOGIN) return null
+
     return (
       <div className="mt-6 mb-8">
         <span className={`fs-35 mr-3 ${stage !== INVITE_STAGES.INVITE_WALLET && 'gray-20'}`}>1 Passport</span>
@@ -289,4 +291,4 @@ class InviteLogin extends React.Component {
   }
 }
 
-export default InviteLogin
+export default InviteTicket

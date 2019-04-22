@@ -267,7 +267,7 @@ class Bridge extends React.Component {
     let colClass
     let colStyle
 
-    if (routeCrumbs.contains(ROUTE_NAMES.INVITE_LOGIN)) {
+    if (routeCrumbs.contains(ROUTE_NAMES.INVITE_TICKET)) {
       colClass = 'col-md-12'
     } else {
       colClass = 'col-md-offset-1 col-md-10'

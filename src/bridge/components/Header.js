@@ -41,7 +41,7 @@ const Crumbs = (props) => {
 }
 
 const Header = (props) => {
-  let showCrumbs = !props.routeCrumbs.contains(ROUTE_NAMES.INVITE_LOGIN)
+  let showCrumbs = !props.routeCrumbs.contains(ROUTE_NAMES.INVITE_TICKET)
 
   if (showCrumbs) {
     return (

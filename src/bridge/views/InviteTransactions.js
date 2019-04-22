@@ -40,7 +40,7 @@ const PROGRESS_STATES = {
   DONE: 'Done'
 }
 
-class InviteVerify extends React.Component {
+class InviteTransactions extends React.Component {
 
   constructor(props) {
     super(props)
@@ -343,4 +343,4 @@ class InviteVerify extends React.Component {
   }
 }
 
-export default InviteVerify
+export default InviteTransactions

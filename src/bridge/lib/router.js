@@ -4,9 +4,7 @@ import React from 'react';
 
 import Landing from '../views/Landing'
 
-import InviteLogin from '../views/InviteLogin'
-import InviteWallet from '../views/InviteWallet'
-import InviteVerify from '../views/InviteVerify.js'
+import InviteTicket from '../views/InviteTicket'
 import InviteTransactions from '../views/InviteTransactions.js'
 
 import AcceptTransfer from '../views/AcceptTransfer'
@@ -42,9 +40,7 @@ import { BRIDGE_ERROR } from './error'
 const ROUTE_NAMES = {
   DEFAULT: Symbol('DEFAULT'),
   //
-  INVITE_LOGIN: Symbol('INVITE_LOGIN'),
-  INVITE_WALLET: Symbol('INVITE_WALLET'),
-  INVITE_VERIFY: Symbol('INVITE_VERIFY'),
+  INVITE_TICKET: Symbol('INVITE_TICKET'),
   INVITE_TRANSACTIONS: Symbol('INVITE_TRANSACTIONS'),
   //
   ACCEPT_TRANSFER: Symbol('ACCEPT_TRANSFER'),
@@ -77,9 +73,7 @@ const createRoutes = () => {
   const routes = {}
   routes[ROUTE_NAMES.DEFAULT] = Landing
   //
-  routes[ROUTE_NAMES.INVITE_LOGIN] = InviteLogin
-  routes[ROUTE_NAMES.INVITE_WALLET] = InviteWallet
-  routes[ROUTE_NAMES.INVITE_VERIFY] = InviteVerify
+  routes[ROUTE_NAMES.INVITE_TICKET] = InviteTicket
   routes[ROUTE_NAMES.INVITE_TRANSACTIONS] = InviteTransactions
   //
   routes[ROUTE_NAMES.ACCEPT_TRANSFER] = AcceptTransfer
@@ -117,14 +111,8 @@ const renderRoute = (props, route) => {
       route === ROUTE_NAMES.LANDING
     ? 'Bridge'
 
-    : route === ROUTE_NAMES.INVITE_LOGIN
+    : route === ROUTE_NAMES.INVITE_TICKET
     ? 'Invite code'
-
-    : route === ROUTE_NAMES.INVITE_WALLET
-    ? 'Claim invite'
-
-    : route === ROUTE_NAMES.INVITE_VERIFY
-    ? 'Verify new wallet'
 
     : route === ROUTE_NAMES.INVITE_TRANSACTIONS
     ? 'Setting up new wallet'
