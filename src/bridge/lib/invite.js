@@ -26,7 +26,8 @@ const WALLET_STATES = {
   GENERATING: "Generating your wallet",
   GENERATED: "Wallet generation complete",
   PAPER_READY: "Paper collateral generated",
-  DOWNLOADED: "Wallet downloaded"
+  DOWNLOADED: "Wallet downloaded",
+  TRANSACTIONS: "Sending transactions"
 }
 
 async function generateWallet(point) {

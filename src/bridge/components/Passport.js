@@ -26,7 +26,7 @@ class Passport extends React.Component {
 
   download() {
     downloadWallet(this.state.paper)
-    this.props.confirmWalletDownload()
+    this.props.pushWalletState(WALLET_STATES.DOWNLOADED)
   }
 
   generateScreen() {
@@ -59,6 +59,9 @@ class Passport extends React.Component {
   }
 
   getWalletStates() {
+    let hideWalletStates = this.props.walletStates.includes(WALLET_STATES.TRANSACTIONS)
+    if (hideWalletStates) return null
+
     let stateElems = this.props.walletStates.map(state => {
       return (
         <div className="flex justify-between">
@@ -69,7 +72,7 @@ class Passport extends React.Component {
     })
 
     return (
-      <div>
+      <div className="mt-3">
         {stateElems}
       </div>
     )
@@ -159,9 +162,9 @@ class Passport extends React.Component {
             { 'Download' }
           </Button>
         </div>
-        <div className="passport-wallet-states mt-3">
-          {walletStates}
-        </div>
+
+        {walletStates}
+
       </div>
     )
   }

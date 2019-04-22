@@ -33,7 +33,7 @@ class InviteLogin extends React.Component {
       realPoint: Nothing(),
       realWallet: Nothing(),
       walletReady: false,
-      stage: INVITE_STAGES.INVITE_TRANSACTIONS,
+      stage: INVITE_STAGES.INVITE_LOGIN,
       walletStates: []
     }
 
@@ -42,7 +42,6 @@ class InviteLogin extends React.Component {
 
     this.handleInviteTicketInput = this.handleInviteTicketInput.bind(this)
     this.handleVerifyTicketInput = this.handleVerifyTicketInput.bind(this)
-    this.confirmWalletDownload = this.confirmWalletDownload.bind(this)
     this.pushWalletState = this.pushWalletState.bind(this)
     this.navigateLogin = this.navigateLogin.bind(this)
   }
@@ -64,12 +63,6 @@ class InviteLogin extends React.Component {
 
   handleVerifyTicketInput(verifyTicket) {
     this.setState({ verifyTicket })
-  }
-
-  confirmWalletDownload() {
-    this.setState({
-      walletStates: this.state.walletStates.concat(WALLET_STATES.DOWNLOADED),
-    })
   }
 
   async unlockInviteWallet(inviteTicket) {
@@ -220,6 +213,13 @@ class InviteLogin extends React.Component {
         continueReady = this.state.walletStates.includes(WALLET_STATES.DOWNLOADED)
         break
       case INVITE_STAGES.INVITE_VERIFY:
+        clickHandler = () => {
+          this.setState({
+            stage: INVITE_STAGES.INVITE_TRANSACTIONS,
+            walletStates: this.state.walletStates.concat(WALLET_STATES.TRANSACTIONS)
+          })
+        }
+        continueReady = true
         break
     }
 
@@ -282,7 +282,6 @@ class InviteLogin extends React.Component {
             wallet={this.state.realWallet}
             walletStates={this.state.walletStates}
             pushWalletState={this.pushWalletState}
-            confirmWalletDownload={this.confirmWalletDownload}
           />
         </Col>
       </Row>
