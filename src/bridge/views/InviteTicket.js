@@ -151,7 +151,7 @@ class InviteTicket extends React.Component {
     switch (this.state.stage) {
       case INVITE_STAGES.INVITE_LOGIN:
         return (
-          <h1 className="text-700">Welcome</h1>
+          <h1 className="text-700 mt-15">Welcome</h1>
         )
         break
       case INVITE_STAGES.INVITE_WALLET:

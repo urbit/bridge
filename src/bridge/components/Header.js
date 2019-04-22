@@ -56,7 +56,7 @@ const Header = (props) => {
       </div>
     )
   } else {
-    return <h2 className="mt-9">Bridge</h2>
+    return <h2 className="mt-9 clickable" onClick={() => props.skipRoute(1)}>Bridge</h2>
   }
 }
 
