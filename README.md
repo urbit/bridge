@@ -23,8 +23,9 @@ Follow the instructions below to run Bridge.
 
 If you plan to authenticate and sign transactions with a Master Ticket, BIP39 mnemonic, Ethereum private key, or keystore file:
 
-1. Run `python3 -m http.server 5000 --bind 127.0.0.1` from the `bridge-$version` directory
-2. Navigate to http://localhost:5000 using a web browser to access Bridge
+1. `cd` into the `bridge-$version` directory
+2. Run `python3 -m http.server 5000 --bind 127.0.0.1`
+3. Navigate to http://localhost:5000 using a web browser to access Bridge (we recommend using Firefox or Chrome)
 
 #### Run Bridge with Ledger support
 
