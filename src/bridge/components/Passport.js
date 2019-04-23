@@ -155,8 +155,6 @@ class Passport extends React.Component {
     let paperReady = this.state.paper && this.props.walletStates.includes(WALLET_STATES.PAPER_READY)
     let downloadColor = paperReady ? 'green' : 'black'
 
-    window.curTime = (new Date()).getTime()
-
     return (
       <div>
         <div className="passport-border">
