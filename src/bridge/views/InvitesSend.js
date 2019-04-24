@@ -102,7 +102,7 @@ class InvitesSend extends React.Component {
 
   async findRandomPlanet() {
     let res = Nothing();
-    const kids = azimuth.azimuth.getUnspawnedChildren(
+    const kids = await azimuth.azimuth.getUnspawnedChildren(
       this.contracts,
       azimuth.azimuth.getPrefix(this.point)
     );
