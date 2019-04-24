@@ -132,14 +132,14 @@ class InvitesManage extends React.Component {
   render() {
 
     let spawnProxyWarning = null;
-    if (this.state.invitesWillWork === Just(false)) {
+    if (this.state.invitesWillWork.value === false) {
       spawnProxyWarning = (
         <Warning>
           <h3 className={'mb-2'}>{'Warning'}</h3>
           {
             'Planets under this star will not be able to send invites ' +
             'until the invite contract ('
-            }<code>{this.props.contract.delegatedSending.address}</code>{
+            }<code>{this.contracts.delegatedSending.address}</code>{
             ') is made spawn proxy for this star.'
           }
         </Warning>
@@ -156,6 +156,8 @@ class InvitesManage extends React.Component {
         <Col>
 
           <p>{ 'manage invites here, for stars. can only give invites to child planets' }</p>
+
+          { spawnProxyWarning }
 
           <PointInput
             prop-format='innerlabel'
