@@ -49,9 +49,12 @@ class Point extends React.Component {
     contracts.chain(ctrcs =>
     pointCursor.chain(point => {
       azimuth.azimuth.getPoint(ctrcs, point)
-      .then(details => addToPointCache({ [point]: details }))
-      this.updateSpawned(ctrcs, point)
-    })))
+      .then(details => addToPointCache({ [point]: details }));
+      const prefix = azimuth.azimuth.getPrefix(point);
+      azimuth.azimuth.getPoint(ctrcs, point)
+      .then(details => addToPointCache({ [prefix]: details }));
+      this.updateSpawned(ctrcs, point);
+    })));
   }
 
   updateSpawned = contracts => {
@@ -69,9 +72,10 @@ class Point extends React.Component {
 
   render() {
 
-    const { web3, popRoute, pushRoute, wallet } = this.props
-    const { setPointCursor } = this.props
-    const { pointCursor, pointCache } = this.props
+    const {
+      web3, popRoute, pushRoute, wallet, contracts,
+      setPointCursor, pointCursor, pointCache
+    } = this.props;
 
     const { spawned } = this.state
 
@@ -87,6 +91,16 @@ class Point extends React.Component {
         point in pointCache
       ? Just(pointCache[point])
       : Nothing()
+
+    const prefix = azimuth.azimuth.getPrefix(point);
+    const prefixDetails =
+        prefix in pointCache
+      ? Just(pointCache[prefix])
+      : Nothing();
+    const delegatedSending = contracts.matchWith({
+      Nothing: () => '0x',
+      Just: (c) => c.value.delegatedSending.address
+    })
 
     const name = ob.patp(point)
 
@@ -129,7 +143,14 @@ class Point extends React.Component {
             <H1><code>{ name }</code></H1>
             {
               authenticated
-              ? <Actions pushRoute={ pushRoute } online={ online } point={ point } pointDetails={ pointDetails } wallet={ wallet }/>
+              ? <Actions
+                  pushRoute={ pushRoute }
+                  online={ online }
+                  wallet={ wallet }
+                  delegatedSending={ delegatedSending }
+                  point={ point }
+                  pointDetails={ pointDetails }
+                  prefixDetails={ prefixDetails } />
               : null
             }
 
