@@ -16,7 +16,10 @@ import ReactSVGComponents from '../components/ReactSVGComponents'
 import KeysAndMetadata from './Point/KeysAndMetadata'
 import Actions from './Point/Actions'
 import { BRIDGE_ERROR } from '../lib/error'
-import { Row, Col, Warning, Button, H1, H3 } from '../components/Base'
+import { sendMail } from '../lib/inviteMail'
+import { Row, Col, Warning, Button, H1, H3,
+         Input, InnerLabel
+} from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
 
 // for wallet generation
@@ -35,7 +38,6 @@ import {
 import * as tank from '../lib/tank'
 import Tx from 'ethereumjs-tx'
 
-//TODO needs more work to include email sending in the process
 class InvitesSend extends React.Component {
 
   constructor(props) {
@@ -46,13 +48,19 @@ class InvitesSend extends React.Component {
       fromPool: Nothing(),
       haveInvited: Nothing(),
       randomPlanet: Nothing(),
-      inviteWallet: Nothing()
+      inviteWallet: Nothing(),
+      targetEmail: ''
     }
 
     this.findInvited = this.findInvited.bind(this);
     this.findRandomPlanet = this.findRandomPlanet.bind(this);
     this.generateWallet = this.generateWallet.bind(this);
     this.canGenerate = this.canGenerate.bind(this);
+    this.handleEmailInput = this.handleEmailInput.bind(this);
+    this.txnConfirmation = this.txnConfirmation.bind(this);
+    this.createUnsignedTxn = this.createUnsignedTxn.bind(this);
+
+    this.promptText = 'The email will be sent on first confirmation. Please wait.';
   }
 
   componentDidMount() {
@@ -91,10 +99,11 @@ class InvitesSend extends React.Component {
       this.contracts,
       this.point
     );
-    invited.map(async point => {
+    invited = invited.map(async point => {
       const active = await azimuth.azimuth.isActive(this.contracts, point);
       console.log('point active', point, active);
-      return {point: Number(point), active};
+      const res = {point: Number(point), active:active};
+      return res;
     });
     invited = await Promise.all(invited);
     this.setState({haveInvited: Just(invited)});
@@ -148,9 +157,13 @@ class InvitesSend extends React.Component {
     });
   }
 
+  handleEmailInput(email) {
+    //TODO simple .*@.*\..* email validation
+    this.setState({ targetEmail: email });
+  }
+
   canGenerate() {
     //TODO and canSend()
-    console.log('can generate', this.state.invitesAvailable, this.state.randomPlanet,);
     let res = this.state.invitesAvailable.matchWith({
       Nothing: () => false,
       Just: invites => ((invites.value > 0)
@@ -158,6 +171,24 @@ class InvitesSend extends React.Component {
                         && Just.hasInstance(this.state.inviteWallet))
     });
     return res;
+  }
+
+  createUnsignedTxn() {
+    const txn = azimuth.delegatedSending.sendPoint(
+      this.contracts,
+      this.point,
+      this.state.randomPlanet.value,
+      this.state.inviteWallet.value.owner
+    );
+    return Just(txn)
+  }
+
+  txnConfirmation(txHash, confirmations) {
+    this.props.setTxnConfirmations(txHash, confirmations);
+    if (confirmations === 1) {
+      sendMail(this.state.targetEmail, this.state.inviteWallet.value.ticket)
+      .then(console.log);
+    }
   }
 
   render() {
@@ -180,7 +211,7 @@ class InvitesSend extends React.Component {
       Nothing: () => (<li>{'Loading...'}</li>),
       Just: (invited) => invited.value.map(i => {
         return (<li>
-          <span class="invitee">{ob.patp(i.point)}</span>
+          <span class="invitee">{ob.patp(i.point)}</span>:
           <span class="status">{i.active ? 'accepted' : 'pending'}</span>
         </li>);
       })
@@ -196,6 +227,14 @@ class InvitesSend extends React.Component {
 
           <ul>{ inviteList }</ul>
 
+          <Input
+            value={ this.state.targetEmail }
+            onChange={ this.handleEmailInput }>
+            <InnerLabel>
+              { 'Recipient email' }
+            </InnerLabel>
+          </Input>
+
           <StatelessTransaction
             // Upper scope
             web3={this.props.web3}
@@ -205,10 +244,11 @@ class InvitesSend extends React.Component {
             walletHdPath={this.props.walletHdPath}
             networkType={this.props.networkType}
             setTxnHashCursor={this.props.setTxnHashCursor}
-            setTxnConfirmations={this.props.setTxnConfirmations}
+            setTxnConfirmations={this.txnConfirmation}
             popRoute={this.props.popRoute}
             pushRoute={this.props.pushRoute}
             // Other
+            promptText={this.promptText}
             canGenerate={this.canGenerate()}
             createUnsignedTxn={this.createUnsignedTxn}
             ref={this.statelessRef} />
