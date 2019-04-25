@@ -244,9 +244,12 @@ class Bridge extends React.Component {
   }
 
   setTxnConfirmations(txnHash, txnConfirmations) {
-    this.setState((prevState, _) =>
-                  ({txnConfirmations: { ...prevState.txnConfirmations,
-                                        [txnHash]: txnConfirmations}}))
+    this.setState((prevState, _) => {
+      return prevState.routeCrumbs.peek() === ROUTE_NAMES.SENT_TRANSACTION
+      ? {txnConfirmations: { ...prevState.txnConfirmations,
+                               [txnHash]: txnConfirmations}}
+      : null
+    })
   }
 
   render() {
