@@ -126,6 +126,7 @@ const SentTransaction = (props) => {
   const { setPointCursor, pointCursor } = props
 
   const promptKeyfile = props.routeData && props.routeData.promptKeyfile
+  const promptText = props.routeData && props.routeData.promptText
 
   const w3 = web3.matchWith({
     Nothing: _ => { throw BRIDGE_ERROR.MISSING_WEB3 },
@@ -146,6 +147,17 @@ const SentTransaction = (props) => {
         txnConfirmations={ txnConfirmations }
       />
   })
+
+  let text;
+  if (promptText) {
+    text = (
+      <Row>
+        <Col>
+          <p>{promptText}</p>
+        </Col>
+      </Row>
+    )
+  }
 
   const ok =
     <Row>
@@ -187,6 +199,7 @@ const SentTransaction = (props) => {
   return (
     <div>
       { body }
+      { text }
       { ok }
       { keyfile }
     </div>
