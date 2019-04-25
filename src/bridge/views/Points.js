@@ -4,6 +4,7 @@ import { Button } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 
 import PointList from '../components/PointList'
+import { NETWORK_NAMES } from '../lib/network'
 import { ROUTE_NAMES } from '../lib/router'
 import {
   ETH_ZERO_ADDR,
@@ -21,6 +22,9 @@ class Points extends React.Component {
   constructor(props) {
     super(props)
 
+    const { networkType } = props
+    const loading = networkType !== NETWORK_NAMES.OFFLINE
+
     this.state = {
       points: [],
       incoming: [],
@@ -28,7 +32,7 @@ class Points extends React.Component {
       voting: [],
       spawning: [],
       eclipticOwner: false,
-      loading: true
+      loading: loading
     }
   }
 

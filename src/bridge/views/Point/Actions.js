@@ -9,10 +9,12 @@ import { BRIDGE_ERROR } from '../../lib/error'
 import { Row, Col, H2, P } from '../../components/Base'
 import { Button } from '../../components/Base'
 import { ROUTE_NAMES } from '../../lib/router'
-
+import { azimuth } from 'azimuth-js'
 
 const isPlanet = point =>
-      parseInt(point, 10) > 65535
+      (azimuth.getPointSize(point) === azimuth.PointSize.Planet);
+const isStar = point =>
+      (azimuth.getPointSize(point) === azimuth.PointSize.Star);
 
 const Actions = (props) => {
   const { pushRoute, online, point, pointDetails, wallet } = props
@@ -24,35 +26,30 @@ const Actions = (props) => {
     }
   })
 
-  const canSetSpawnProxy = pointDetails.matchWith({
+  const isOwner = pointDetails.matchWith({
     Nothing: _ => false,
-    Just: details =>
-      eqAddr(details.value.owner, addr) && details.value.active
-  })
-
-  const canSetManagementProxy = pointDetails.matchWith({
+    Just: details => eqAddr(details.value.owner, addr)
+  });
+  const isActive = pointDetails.matchWith({
     Nothing: _ => false,
-    Just: details =>
-      eqAddr(details.value.owner, addr) && details.value.active
-  })
+    Just: details => details.value.active
+  });
+  const isActiveOwner = (isOwner && isActive);
+  const canSetSpawnProxy = isActiveOwner;
+  const canSetManagementProxy = isActiveOwner;
 
-  const canConfigureKeys = pointDetails.matchWith({
+  const canManage = (isOwner || pointDetails.matchWith({
     Nothing: _ => false,
-    Just: details => {
-      const canManage =
-            eqAddr(details.value.owner, addr)
-            || eqAddr(details.value.managementProxy, addr)
-
-      return canManage && details.value.active
-    }
-  })
+    Just: details => eqAddr(details.value.managementProxy, addr)
+  }));
+  const canConfigureKeys = (canManage && isActive);
 
   const canIssueChild =
         pointDetails.matchWith({
           Nothing: () => false,
           Just: (details) => {
             const hasPermission =
-                  eqAddr(details.value.owner, addr)
+                  isOwner
                   || eqAddr(details.value.spawnProxy, addr)
 
             const isBooted =
@@ -65,6 +62,7 @@ const Actions = (props) => {
         })
 
   const planet = isPlanet(point)
+  const star = isStar(point)
 
   const canTransfer =
         pointDetails.matchWith({
@@ -112,6 +110,36 @@ const Actions = (props) => {
     }
   })
 
+  let invites = null;
+  if (planet) {
+    invites = (
+      <Button
+        disabled={(!isActiveOwner || !online)}
+        prop-size={'sm'}
+        prop-type={'link'}
+        onClick={ () => {
+          pushRoute(ROUTE_NAMES.INVITES_SEND);
+        }}
+      >
+        { 'Send invites' }
+      </Button>
+    );
+  }
+  if (star) {
+    invites = (
+      <Button
+        disabled={(!(isActiveOwner && canIssueChild) || !online)}
+        prop-size={'sm'}
+        prop-type={'link'}
+        onClick={ () => {
+          pushRoute(ROUTE_NAMES.INVITES_MANAGE);
+        }}
+      >
+        { 'Manage invites' }
+      </Button>
+    );
+  }
+
   return (
     <div>
       <H2>{ 'Actions' }</H2>
@@ -137,7 +165,7 @@ const Actions = (props) => {
           <Button
             prop-size={'sm'}
             prop-type={'link'}
-            disabled={ !canAcceptTransfer }
+            disabled={ online && !canAcceptTransfer }
             onClick={ () => {
               pushRoute(ROUTE_NAMES.ACCEPT_TRANSFER)
             }}
@@ -159,7 +187,7 @@ const Actions = (props) => {
           <Button
             prop-size={'sm'}
             prop-type={'link'}
-            disabled={ !canGenKeyfile }
+            disabled={ online && !canGenKeyfile }
             onClick={ () => {
               pushRoute(ROUTE_NAMES.GEN_KEYFILE)
             }}
@@ -213,6 +241,11 @@ const Actions = (props) => {
           >
             { 'Transfer' }
           </Button>
+
+        </Col>
+        <Col className={'flex flex-column items-start col-md-4'}>
+
+          { invites }
 
         </Col>
       </Row>

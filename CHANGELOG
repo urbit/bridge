@@ -1,6 +1,22 @@
 
 # Changelog
 
+- 1.3.1 (2019-04-23)
+    This release fixes an issue with the script for serving Bridge over HTTPS.
+
+    * Stop `cd`ing into the new-removed `build` directory (#123)
+
+- 1.3.0 (2019-04-18)
+    This release simplifies the flows surrounding networking keys and brings many other quality of life improvements.
+
+    * Simplify the network key generation & download flows (#85, #92)
+    * Allow viewing points without logging in (#80)
+    * Display transaction confirmation status after submission (#99)
+    * Support the optional BIP39 mnemonic passphrase (#94)
+    * Makes the browser back button work for navigating in Bridge (#86)
+    * Various smaller UI improvements (#87, #100, #104, #106, #113, #116)
+    * Various smaller code improvements (#82, #91, #95, #96, #108, #115)
+
 - 1.2.1 (2019-03-21)
     This release fixes an issue with the spawning of child points.
 

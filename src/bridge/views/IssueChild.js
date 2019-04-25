@@ -253,7 +253,7 @@ class IssueChild extends React.Component {
             <ValidatedSigil
               className={'tr-0 mt-05 mr-0 abs'}
               patp={state.desiredPoint}
-              size={76}
+              size={68}
               margin={8}
               validator={() => this.validatePoint(state.desiredPoint)} />
           </PointInput>
@@ -303,6 +303,7 @@ class IssueChild extends React.Component {
             walletHdPath={props.walletHdPath}
             networkType={props.networkType}
             setTxnHashCursor={props.setTxnHashCursor}
+            setTxnConfirmations={props.setTxnConfirmations}
             popRoute={props.popRoute}
             pushRoute={props.pushRoute}
             // Other

@@ -1,4 +1,4 @@
-import Maybe from 'folktale/maybe'
+import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { pour } from 'sigil-js'
 import * as ob from 'urbit-ob'
@@ -85,8 +85,8 @@ class Point extends React.Component {
 
     const pointDetails =
         point in pointCache
-      ? Maybe.Just(pointCache[point])
-      : Maybe.Nothing()
+      ? Just(pointCache[point])
+      : Nothing()
 
     const name = ob.patp(point)
 
@@ -96,9 +96,9 @@ class Point extends React.Component {
       size: 256
     })
 
-    const online = Maybe.Just.hasInstance(web3)
+    const online = Just.hasInstance(web3)
 
-    const authenticated = Maybe.Just.hasInstance(wallet)
+    const authenticated = Just.hasInstance(wallet)
 
     const routeHandler = route => {
       popRoute()

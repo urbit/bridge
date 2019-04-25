@@ -1,6 +1,6 @@
 {
   "name": "bridge",
-  "version": "1.2.1",
+  "version": "1.3.1",
   "description": "An application for interacting with Azimuth",
   "repository": {
     "type": "git",
@@ -14,10 +14,11 @@
     "node": "11.0.0"
   },
   "dependencies": {
-    "azimuth-js": "^0.10.0",
     "@ledgerhq/hw-app-eth": "^4.35.0",
     "@ledgerhq/hw-transport-u2f": "^4.35.0",
-    "azimuth-solidity": "1.0.2",
+    "PaperCollateralRenderer": "github:urbit/PaperCollateralRenderer",
+    "azimuth-js": "^0.13.2",
+    "azimuth-solidity": "^1.1.0",
     "babel-polyfill": "^6.26.0",
     "bip32": "^1.0.2",
     "bip39": "^2.5.0",
@@ -34,7 +35,6 @@
     "keythereum": "^1.0.4",
     "lodash": "^4.17.11",
     "more-entropy": "^0.0.7",
-    "PaperCollateralRenderer": "github:urbit/PaperCollateralRenderer",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
@@ -45,18 +45,18 @@
     "trezor-connect": "^7.0.1",
     "urbit-key-generation": "0.12.1",
     "urbit-ob": "^3.1.0",
-    "web3": "1.0.0-beta.33"
+    "web3": "1.0.0-beta.33",
+    "web3-utils": "^1.0.0-beta.52"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "checksum": "find build -exec shasum -a256 {} ';' > checksums.txt",
-    "tar": "tar -czvf bridge-$npm_package_version.tar.gz README.md bridge-https.py checksums.txt build",
-    "zip": "zip -FSr bridge-$npm_package_version.zip README.md bridge-https.py checksums.txt build",
+    "checksum": "cd build && find . -exec shasum -a256 {} ';' > ../checksums.txt && cd ..",
+    "zip": "zip -ur bridge-$npm_package_version.zip README.md bridge-https.py checksums.txt && cd build && zip -ur ../bridge-$npm_package_version.zip ./* && cd ..",
     "release": "npm install && npm run build && npm run checksum && npm run zip",
-    "pilot:ganache": "ganache-cli -m 'benefit crew supreme gesture quantum web media hazard theory mercy wing kitten' > /dev/null &",
+    "pilot:ganache": "ganache-cli --blockTime 1 -m 'benefit crew supreme gesture quantum web media hazard theory mercy wing kitten' > /dev/null &",
     "pilot:deploy": "cd node_modules/azimuth-solidity && truffle deploy",
     "pilot:setup": "npm run pilot:ganache && npm run pilot:deploy",
     "pilot": "HTTPS=true npm-run-all pilot:setup start pilot:cleanup --continue-on-error",

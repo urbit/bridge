@@ -7,6 +7,9 @@ import Landing from '../views/Landing'
 import InviteTicket from '../views/InviteTicket'
 import InviteTransactions from '../views/InviteTransactions.js'
 
+import InvitesSend from '../views/InvitesSend.js'
+import InvitesManage from '../views/InvitesManage.js'
+
 import AcceptTransfer from '../views/AcceptTransfer'
 import CancelTransfer from '../views/CancelTransfer'
 import CreateGalaxy from '../views/CreateGalaxy'
@@ -42,6 +45,8 @@ const ROUTE_NAMES = {
   //
   INVITE_TICKET: Symbol('INVITE_TICKET'),
   INVITE_TRANSACTIONS: Symbol('INVITE_TRANSACTIONS'),
+  INVITES_SEND: Symbol('INVITES_SEND'),
+  INVITES_MANAGE: Symbol('INVITES_MANAGE'),
   //
   ACCEPT_TRANSFER: Symbol('ACCEPT_TRANSFER'),
   CANCEL_TRANSFER: Symbol('CANCEL_TRANSFER'),
@@ -75,6 +80,8 @@ const createRoutes = () => {
   //
   routes[ROUTE_NAMES.INVITE_TICKET] = InviteTicket
   routes[ROUTE_NAMES.INVITE_TRANSACTIONS] = InviteTransactions
+  routes[ROUTE_NAMES.INVITES_SEND] = InvitesSend
+  routes[ROUTE_NAMES.INVITES_MANAGE] = InvitesManage
   //
   routes[ROUTE_NAMES.ACCEPT_TRANSFER] = AcceptTransfer
   routes[ROUTE_NAMES.CANCEL_TRANSFER] = CancelTransfer
@@ -116,6 +123,12 @@ const renderRoute = (props, route) => {
 
     : route === ROUTE_NAMES.INVITE_TRANSACTIONS
     ? 'Setting up new wallet'
+
+    : route === ROUTE_NAMES.INVITES_SEND
+    ? 'Send invites'
+
+    : route === ROUTE_NAMES.INVITES_MANAGE
+    ? 'Manage invites'
 
     : route === ROUTE_NAMES.NETWORK
     ? `${renderNetworkType(networkType)}`

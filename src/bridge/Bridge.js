@@ -25,7 +25,11 @@ const initWeb3 = (networkType) => {
     const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.MAINNET)
     return {web3: web3, contracts: contracts}
   } else if (networkType === NETWORK_NAMES.LOCAL) {
-    const endpoint = 'ws://localhost:8545'
+    const protocol =
+        process.env.NODE_ENV === 'development'
+      ? 'ws'
+      : 'wss'
+    const endpoint = `${protocol}://localhost:8545`
     const provider = new Web3.providers.WebsocketProvider(endpoint)
     const web3 = new Web3(provider)
     const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.DEV)
@@ -80,7 +84,8 @@ class Bridge extends React.Component {
       pointCursor: Nothing(),
       pointCache: {},
       // txn
-      txnHashCursor: Nothing()
+      txnHashCursor: Nothing(),
+      txnConfirmations: {}
     }
 
     this.pushRoute = this.pushRoute.bind(this)
@@ -95,6 +100,7 @@ class Bridge extends React.Component {
     this.setAuthMnemonic = this.setAuthMnemonic.bind(this)
     this.setPointCursor = this.setPointCursor.bind(this)
     this.setTxnHashCursor = this.setTxnHashCursor.bind(this)
+    this.setTxnConfirmations = this.setTxnConfirmations.bind(this)
     this.setNetworkSeedCache = this.setNetworkSeedCache.bind(this)
     this.addToPointCache = this.addToPointCache.bind(this)
   }
@@ -244,6 +250,12 @@ class Bridge extends React.Component {
     this.setState({ txnHashCursor })
   }
 
+  setTxnConfirmations(txnHash, txnConfirmations) {
+    this.setState((prevState, _) =>
+                  ({txnConfirmations: { ...prevState.txnConfirmations,
+                                        [txnHash]: txnConfirmations}}))
+  }
+
   render() {
     const {
       routeCrumbs,
@@ -258,6 +270,7 @@ class Bridge extends React.Component {
       pointCursor,
       pointCache,
       txnHashCursor,
+      txnConfirmations,
       web3,
       contracts
     } = this.state
@@ -319,7 +332,9 @@ class Bridge extends React.Component {
                 setNetworkSeedCache= { this.setNetworkSeedCache }
                 // txn
                 setTxnHashCursor={ this.setTxnHashCursor }
-                txnHashCursor={ txnHashCursor } />
+                txnHashCursor={ txnHashCursor }
+                setTxnConfirmations={ this.setTxnConfirmations }
+                txnConfirmations={ txnConfirmations } />
 
               <div className={'push'} />
 

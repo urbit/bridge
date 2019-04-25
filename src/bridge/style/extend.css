@@ -494,6 +494,14 @@ code {
   flex-wrap: wrap;
 }
 
+.full-width {
+  width: 100%;
+}
+
+.z-1 {
+  z-index: 1
+}
+
 /**
   Passport styles
 **/

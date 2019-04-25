@@ -4,9 +4,49 @@ An application for interacting with Azimuth.
 
 ## Usage
 
-To run Bridge, follow the instructions on the [latest release][rele] page.
+### Requirements
 
-## Development Notes
+Python 3.7.2
+
+### Instructions
+
+#### Install
+
+1. [Download a release](https://github.com/urbit/bridge/releases)
+2. Unzip it (`bridge-$version.zip`)
+3. Open up your command line interface (Terminal on MacOS, Command Prompt on Windows)
+4. `cd` into the `bridge-$version` directory
+
+Follow the instructions below to run Bridge.
+
+#### Run Bridge
+
+If you plan to authenticate and sign transactions with a Master Ticket, BIP39 mnemonic, Ethereum private key, or keystore file:
+
+1. `cd` into the `bridge-$version` directory
+2. Run `python3 -m http.server 5000 --bind 127.0.0.1`
+3. Navigate to http://localhost:5000 using a web browser to access Bridge (we recommend using Firefox or Chrome)
+
+#### Run Bridge with Ledger support
+
+If you plan to authenticate and sign transactions with a [Ledger](https://www.ledger.com/), Bridge must be serving over HTTPS on localhost. This requires self-signed certificates. To do this:
+
+1. Install [mkcert](https://github.com/FiloSottile/mkcert)
+2. If you're using Firefox, additionally install [nss](https://github.com/nss-dev/nss)
+3. Install a local certificate authority via `mkcert -install`
+4. From the `bridge-$version` directory, run `mkcert localhost` to generate a certificate valid for localhost. This will produce two files: `localhost.pem`, the local certificate, and `localhost-key.pem`, its corresponding private key
+5. Run `python bridge-https.py`
+6. Navigate to https://localhost:4443 in a web browser to access Bridge
+
+### Verify checksums
+
+To validate your downloaded file's integrity, compare the lines in checksum.txt to SHA-256 hashes of the `bridge-$version` directory's contents.
+
+- On MacOS: `shasum -a 256 -c checksums.txt .`
+- On Linux: `sha256sum -c checksums.txt .`
+- On Windows: Go into the `build` directory and verify files individually with `CertUtil -hashFile [file_name] SHA256`
+
+## Development notes
 
 ### Install / Build
 
@@ -32,22 +72,7 @@ $ nvm use v11.0.0
 
 before running `npm run pilot`.
 
-### Ledger support
-
-To authenticate and sign transactions with a Ledger, Bridge must be serving
-over HTTPS on localhost. This requires self-signed certificates. You can do
-this via the following:
-
-* Install [mkcert](https://github.com/FiloSottile/mkcert)
-* Install a local certificate authority via `mkcert -install`
-* In your `bridge` directory, generate a certificate valid for localhost via
-  `mkcert localhost`.  This will produce two files: `localhost.pem`, the local
-  certificate, and `localhost-key.pem`, its corresponding private key.
-* Run `python bridge-https.py`
-
-Bridge will serve to localhost over HTTPS on port 4443
-
-### Useful Accounts
+### Useful accounts
 
 The ecliptic owner is the only account that's able to create galaxies, so
 it's a good place to get started.  On the testnet, it's the address:
@@ -81,7 +106,7 @@ with 100 ETH:
 To play around with any of these, authenticate using the same mnemonic, but
 use a custom HD path of `m/44'/60'/0'/0/1`, `m/44'/60'/0'/0/2`, and so on.
 
-### Initial Development State
+### Initial development state
 
 You can also tweak a couple of things to change your development state
 somewhat (say, for example, you want to start on the points list screen, instead
