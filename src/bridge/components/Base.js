@@ -1,5 +1,6 @@
 // Helpers
 import {
+  simpleValidatorWrapper,
   validateMnemonic,
   validateNotEmpty,
   validateEthereumAddress,
@@ -143,6 +144,25 @@ const TicketInput = advancedInput({
   ]
 });
 
+const VerifyTicketInput = matchingTicket => advancedInput({
+  WrappedComponent: Input,
+  validators: [
+    validateTicket,
+    validateNotEmpty,
+
+    // TODO: This should be in /lib/validators, but we'd need a way for
+    // validators to compare against dynamic values
+    m => simpleValidatorWrapper({
+      prevMessage: m,
+      validator: d => d === matchingTicket,
+      errorMessage: 'This does not match the provided master ticket'
+    })
+  ],
+  transformers: [
+    prependSig,
+  ]
+});
+
 const ShardInput = advancedInput({
   WrappedComponent: Input,
   validators: [
@@ -169,6 +189,7 @@ export {
   GalaxyInput,
   PointInput,
   TicketInput,
+  VerifyTicketInput,
   ShardInput,
   RequiredInput,
   NetworkKeyInput,

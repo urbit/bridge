@@ -1,11 +1,12 @@
 import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
-import { InnerLabel, ValidatedSigil, PointInput, Warning,
-  TicketInput, Button, Row, Col, H1, P, Passport } from '../components/Base'
+import { InnerLabel, ValidatedSigil, PointInput, Warning, Input, TicketInput,
+  VerifyTicketInput, Button, Row, Col, H1, P, Passport } from '../components/Base'
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
 
+import { simpleValidatorWrapper } from '../lib/validators'
 import { ROUTE_NAMES } from '../lib/router'
 import { DEFAULT_HD_PATH, urbitWalletFromTicket,
   walletFromMnemonic, addressFromSecp256k1Public } from '../lib/wallet'
@@ -127,6 +128,7 @@ class InviteTicket extends React.Component {
       realPoint,
       realWallet,
       inviteWallet: Just(inviteWallet),
+      // verifyTicket: realWallet.value.ticket,
       walletStates: this.state.walletStates.concat(WALLET_STATES.RENDERING),
       errors
     })
@@ -144,8 +146,13 @@ class InviteTicket extends React.Component {
       let handler = isLogin ? this.handleInviteTicketInput : this.handleVerifyTicketInput
       let label = isLogin ? 'Activation code' : 'ticket'
 
+      const TicketElem =
+          isVerify && !Nothing.hasInstance(this.state.realWallet)
+        ? VerifyTicketInput(this.state.realWallet.value.ticket)
+        : TicketInput
+
       return (
-        <TicketInput
+        <TicketElem
           className='mono mt-8'
           prop-size='md'
           prop-format='innerLabel'
@@ -156,7 +163,7 @@ class InviteTicket extends React.Component {
           value={ value }
           onChange={ handler }>
           <InnerLabel>{ label }</InnerLabel>
-        </TicketInput>
+        </TicketElem>
       )
     } else {
       return null
@@ -258,13 +265,6 @@ class InviteTicket extends React.Component {
             Nothing: null
           })
 
-          // if (realTicket !== verifyTicket) {
-          //   const verifyError = "Incorrect ticket. Please double-check the Master Ticket field from your generated wallet and try again."
-          //
-          //   this.setState({
-          //     errors: [verifyError]
-          //   })
-          // } else {
           this.setState({
             stage: INVITE_STAGES.INVITE_TRANSACTIONS,
             walletStates: this.state.walletStates.concat(WALLET_STATES.TRANSACTIONS)
@@ -285,7 +285,6 @@ class InviteTicket extends React.Component {
               this.props.popRoute()
             }, 5000)
           })
-          // }
         }
         continueReady = true
         break

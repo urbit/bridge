@@ -75,6 +75,7 @@ const advancedInput = ({
 
       // Run validation chain on the transformed value. Validators are executed
       // from right to left and exit on the first validation failure.
+
       const report = compose(...validators, initMessage)(props.value)
 
       // Makes a uniform data structure to pass to display triggers. This
