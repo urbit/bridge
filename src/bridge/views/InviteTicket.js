@@ -179,34 +179,29 @@ class InviteTicket extends React.Component {
   }
 
   getStageText() {
-    switch (this.state.stage) {
-      case INVITE_STAGES.INVITE_LOGIN:
-        return (
-          <h1 className="text-700 mt-15">Welcome</h1>
-        )
-        break
-      case INVITE_STAGES.INVITE_WALLET:
-        return (
+    const { stage } = this.state
+
+    let progressWidth = this.state.transactionProgress.pct;
+
+    const stageText = stage === INVITE_STAGES.INVITE_LOGIN
+        ? <h1 className="text-700 mt-15">Welcome</h1>
+        : stage === INVITE_STAGES.INVITE_LOGIN
+        ? (
           <div>
             <h1 className="fs-6 lh-8 mb-3">Passport</h1>
             <p>A passport is your digital identity. You will use your passport to access your true computer, send payments, and administer your identity. So naturally, you must keep this secure.</p>
             <p>After you’ve downloaded your passport, back up the ticket manually or store on a trusted device.</p>
           </div>
         )
-        break
-      case INVITE_STAGES.INVITE_VERIFY:
-        return (
+        : stage === INVITE_STAGES.INVITE_VERIFY
+        ? (
           <div>
             <h1 className="fs-6 lh-8 mb-3">Verify Passport</h1>
             <p>Afer you download your passport, verify your custody. Your passport should be a folder of image files. One of them is your Master Ticket. Open it and enter the 4 word phrase below (with hyphens).</p>
           </div>
-        )
-        break
-      case INVITE_STAGES.INVITE_TRANSACTIONS:
-        let progressWidth = this.state.transactionProgress.pct;
-
-        if (this.state.transactionProgress.label === TRANSACTION_STATES.DONE.label) {
-          return (
+        ) : INVITE_STAGES.INVITE_TRANSACTIONS
+        ? this.state.transactionProgress.label === TRANSACTION_STATES.DONE.label
+          ? (
             <div>
               <h1 className="fs-6 lh-8 mb-3">
                 <span>Success</span>
@@ -215,8 +210,7 @@ class InviteTicket extends React.Component {
               <p>Transferring to Bridge...</p>
             </div>
           )
-        } else {
-          return (
+          : (
             <div>
               <h1 className="fs-6 lh-8 mb-3">Submitting</h1>
               <p className="mt-4 mb-4">This step can take up to five minutes. Please do not leave this page until the transactions are complete.</p>
@@ -228,9 +222,9 @@ class InviteTicket extends React.Component {
               </div>
             </div>
           )
-        }
-        break
-    }
+        : null
+
+      return stageText
   }
 
   updateProgress(transactionProgress) {
@@ -240,75 +234,73 @@ class InviteTicket extends React.Component {
   }
 
   getContinueButton() {
-    if (this.state.stage === INVITE_STAGES.INVITE_TRANSACTIONS) return null
-
-    const { realPoint, realWallet, inviteWallet, verifyTicket, inviteTicket } = this.state
+    const { realPoint, realWallet, inviteWallet, stage, walletStates,
+      verifyTicket, inviteTicket } = this.state
     const { web3, contracts, setUrbitWallet } = this.props
 
-    let clickHandler
-    let btnColor = this.state.walletStates.includes(WALLET_STATES.PAPER_READY)
+    const btnColor = this.state.walletStates.includes(WALLET_STATES.PAPER_READY)
       ? 'green'
       : 'black'
-    let continueReady
 
-    switch(this.state.stage) {
-      case INVITE_STAGES.INVITE_LOGIN:
-        clickHandler = () => {
-          this.unlockInviteWallet(inviteTicket)
-        }
-        continueReady = true
-        break
-      case INVITE_STAGES.INVITE_WALLET:
-        clickHandler = () => {
-          this.setState({
-            stage: INVITE_STAGES.INVITE_VERIFY
-          })
-        }
-        continueReady = this.state.walletStates.includes(WALLET_STATES.DOWNLOADED)
-        break
-      case INVITE_STAGES.INVITE_VERIFY:
-        clickHandler = () => {
-          const realTicket = realWallet.matchWith({
-            Just: w => w.value.ticket,
-            Nothing: null
-          })
+    const clickHandler = stage === INVITE_STAGES.INVITE_LOGIN
+        ? () => {
+            this.unlockInviteWallet(inviteTicket)
+          }
+        : stage === INVITE_STAGES.INVITE_WALLET
+        ? () => {
+            this.setState({
+              stage: INVITE_STAGES.INVITE_VERIFY
+            })
+          }
+        : stage === INVITE_STAGES.INVITE_TRANSACTIONS
+        ? () => {
+            const realTicket = realWallet.matchWith({
+              Just: w => w.value.ticket,
+              Nothing: null
+            })
 
-          this.setState({
-            stage: INVITE_STAGES.INVITE_TRANSACTIONS,
-            walletStates: this.state.walletStates.concat(WALLET_STATES.TRANSACTIONS)
-          })
+            this.setState({
+              stage: INVITE_STAGES.INVITE_TRANSACTIONS,
+              walletStates: this.state.walletStates.concat(WALLET_STATES.TRANSACTIONS)
+            })
 
-          startTransactions({
-            inviteWalletM: inviteWallet,
-            realWalletM: realWallet,
-            realPointM: realPoint,
-            realTicket: verifyTicket,
-            web3M: web3,
-            contractsM: contracts,
-            setUrbitWallet,
-            updateProgress: this.updateProgress
-          })
-          .then(() => {
-            setTimeout(() => {
-              this.props.popRoute()
-            }, 5000)
-          })
-        }
-        continueReady = true
-        break
-    }
+            startTransactions({
+              inviteWalletM: inviteWallet,
+              realWalletM: realWallet,
+              realPointM: realPoint,
+              realTicket: verifyTicket,
+              web3M: web3,
+              contractsM: contracts,
+              setUrbitWallet,
+              updateProgress: this.updateProgress
+            })
+            .then(() => {
+              setTimeout(() => {
+                this.props.popRoute()
+              }, 5000)
+            })
+          }
+        : null
 
-    return (
-      <Button
-        className={'mt-4'}
-        prop-size={'lg'}
-        prop-color={btnColor}
-        disabled={!continueReady}
-        onClick={clickHandler}
-      >
-        { 'Continue →' }
-      </Button>
-    )
+    const continueReady = stage === INVITE_STAGES.INVITE_WALLET
+        ? walletStates.includes(WALLET_STATES.DOWNLOADED)
+        : true
+
+    const buttonElem = stage === INVITE_STAGES.INVITE_TRANSACTIONS
+        ? null
+        : (
+          <Button
+            className={'mt-4'}
+            prop-size={'lg'}
+            prop-color={btnColor}
+            disabled={!continueReady}
+            onClick={clickHandler}
+          >
+            { 'Continue →' }
+          </Button>
+        )
+
+    return buttonElem
   }
 
   getStageDisplay() {
