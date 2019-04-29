@@ -178,11 +178,6 @@ async function startTransactions(args) {
   const inviteAddress = addressFromSecp256k1Public(inviteWallet.publicKey);
   console.log('working as', inviteAddress);
 
-  console.log('realTicket = ', realTicket)
-  console.log('realPoint = ', point)
-  console.log('inviteWallet = ', inviteWallet)
-  debugger
-
   const realWallet = await urbitWalletFromTicket(realTicket, point);
 
   // transfer from invite wallet to new wallet
