@@ -1,6 +1,6 @@
 import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
-import { InnerLabel, ValidatedSigil, PointInput,
+import { InnerLabel, ValidatedSigil, PointInput, Warning,
   TicketInput, Button, Row, Col, H1, P, Passport } from '../components/Base'
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as ob from 'urbit-ob'
@@ -10,8 +10,8 @@ import { ROUTE_NAMES } from '../lib/router'
 import { DEFAULT_HD_PATH, urbitWalletFromTicket,
   walletFromMnemonic, addressFromSecp256k1Public } from '../lib/wallet'
 import { BRIDGE_ERROR } from '../lib/error'
-import { INVITE_STAGES, WALLET_STATES } from '../lib/invite'
-import { generateWallet } from '../lib/invite'
+import { INVITE_STAGES, WALLET_STATES, TRANSACTION_STATES } from '../lib/invite'
+import { generateWallet, startTransactions } from '../lib/invite'
 
 const placeholder = (len) => {
   let bytes = window.crypto.getRandomValues(new Uint8Array(len))
@@ -29,12 +29,16 @@ class InviteTicket extends React.Component {
 
     this.state = {
       inviteTicket: '',
+      inviteWallet: Nothing(),
       verifyTicket: '',
+      realTicket: '',
       realPoint: Nothing(),
       realWallet: Nothing(),
       walletReady: false,
+      walletStates: [],
+      errors: [],
       stage: INVITE_STAGES.INVITE_LOGIN,
-      walletStates: []
+      transactionProgress: TRANSACTION_STATES.GENERATING
     }
 
     this.pointPlaceholder = placeholder(4)
@@ -42,6 +46,7 @@ class InviteTicket extends React.Component {
 
     this.handleInviteTicketInput = this.handleInviteTicketInput.bind(this)
     this.handleVerifyTicketInput = this.handleVerifyTicketInput.bind(this)
+    this.updateProgress = this.updateProgress.bind(this)
     this.pushWalletState = this.pushWalletState.bind(this)
     this.navigateLogin = this.navigateLogin.bind(this)
   }
@@ -63,6 +68,10 @@ class InviteTicket extends React.Component {
 
   handleVerifyTicketInput(verifyTicket) {
     this.setState({ verifyTicket })
+  }
+
+  updateTransactionProgress(transactionProgress) {
+    this.setState({ transactionProgress })
   }
 
   async unlockInviteWallet(inviteTicket) {
@@ -97,22 +106,29 @@ class InviteTicket extends React.Component {
       walletStates: this.state.walletStates.concat(WALLET_STATES.GENERATING)
     })
 
-    let point
-    let wallet
+    let realPoint = Nothing()
+    let realWallet = Nothing()
+    let errors = []
 
     if (incoming.length > 0) {
       let pointNum = parseInt(incoming[0]);
-      point = Just(pointNum);
-      wallet = await generateWallet(pointNum);
+      realPoint = Just(pointNum);
+      let genWallet = await generateWallet(pointNum);
+
+      realWallet = Just(genWallet)
       if (incoming.length > 1) {
         //TODO  notify user "...and others / ticket reusable"
       }
+    } else {
+      errors = ["Invite code has no claimable ship. Check your invite code and try again."]
     }
 
     this.setState({
-      realPoint: point,
-      realWallet: Just(wallet),
-      walletStates: this.state.walletStates.concat(WALLET_STATES.RENDERING)
+      realPoint,
+      realWallet,
+      inviteWallet: Just(inviteWallet),
+      walletStates: this.state.walletStates.concat(WALLET_STATES.RENDERING),
+      errors
     })
   }
 
@@ -179,7 +195,7 @@ class InviteTicket extends React.Component {
               <div className="passport-progress-filled"></div>
             </div>
             <div className="flex justify-between">
-              <div className="text-mono text-sm lh-6 green-dark">Executing transactions</div>
+              <div className="text-mono text-sm lh-6 green-dark">{this.state.transactionProgress}</div>
               <div className="text-mono text-sm lh-6">3 minutes</div>
             </div>
           </div>
@@ -188,8 +204,17 @@ class InviteTicket extends React.Component {
     }
   }
 
+  updateProgress(transactionProgress) {
+    this.setState({
+      transactionProgress
+    })
+  }
+
   getContinueButton() {
     if (this.state.stage === INVITE_STAGES.INVITE_TRANSACTIONS) return null
+
+    const { realPoint, realWallet, inviteWallet, verifyTicket, inviteTicket } = this.state
+    const { web3, contracts, setUrbitWallet } = this.props
 
     let clickHandler
     let btnColor = this.state.walletStates.includes(WALLET_STATES.PAPER_READY)
@@ -200,7 +225,7 @@ class InviteTicket extends React.Component {
     switch(this.state.stage) {
       case INVITE_STAGES.INVITE_LOGIN:
         clickHandler = () => {
-          this.unlockInviteWallet(this.state.inviteTicket)
+          this.unlockInviteWallet(inviteTicket)
         }
         continueReady = true
         break
@@ -214,10 +239,34 @@ class InviteTicket extends React.Component {
         break
       case INVITE_STAGES.INVITE_VERIFY:
         clickHandler = () => {
+          const realTicket = realWallet.matchWith({
+            Just: w => w.value.ticket,
+            Nothing: null
+          })
+
+          // if (realTicket !== verifyTicket) {
+          //   const verifyError = "Incorrect ticket. Please double-check the Master Ticket field from your generated wallet and try again."
+          //
+          //   this.setState({
+          //     errors: [verifyError]
+          //   })
+          // } else {
           this.setState({
             stage: INVITE_STAGES.INVITE_TRANSACTIONS,
             walletStates: this.state.walletStates.concat(WALLET_STATES.TRANSACTIONS)
           })
+
+          startTransactions({
+            inviteWalletM: inviteWallet,
+            realWalletM: realWallet,
+            realPointM: realPoint,
+            realTicket: verifyTicket,
+            web3M: web3,
+            contractsM: contracts,
+            setUrbitWallet,
+            updateProgress: this.updateProgress
+          })
+          // }
         }
         continueReady = true
         break
@@ -250,6 +299,19 @@ class InviteTicket extends React.Component {
     )
   }
 
+  getErrors() {
+    if (this.state.errors.length === 0) return null
+
+    let errorElems = this.state.errors.map(e => <span>{e}</span>)
+
+    return (
+      <Warning>
+        <h3 className={'mb-2'}>{'Warning'}</h3>
+        { errorElems }
+      </Warning>
+    )
+  }
+
   render() {
     const { wallet } = this.props
     const { inviteTicket } = this.state
@@ -258,11 +320,13 @@ class InviteTicket extends React.Component {
     let stageText = this.getStageText()
     let ticketElem = this.getTicketElement()
     let continueButton = this.getContinueButton()
+    let errorDisplay = this.getErrors()
 
     return (
       <Row>
         <Col className="col-md-4 mt-">
           {stageDisplay}
+          {errorDisplay}
           {stageText}
           {ticketElem}
           {continueButton}
