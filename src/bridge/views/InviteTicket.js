@@ -89,7 +89,9 @@ class InviteTicket extends React.Component {
       uhdw.meta.passphrase
     ).matchWith({
       Just: w => w.value,
-      Nothing: () => null
+      Nothing: () => {
+        throw BRIDGE_ERROR.MISSING_WALLET
+      }
     });
 
     const addr = addressFromSecp256k1Public(inviteWallet.publicKey);
@@ -146,9 +148,15 @@ class InviteTicket extends React.Component {
       let handler = isLogin ? this.handleInviteTicketInput : this.handleVerifyTicketInput
       let label = isLogin ? 'Activation code' : 'ticket'
 
+      // if realWallet is Just, then VerifyTicketInput appropriate contents; if Nothing, remain Nothing
+      const Verified = this.state.realWallet.map(realWallet =>
+        VerifyTicketInput(realWallet.ticket)
+      )
+
+      // Verified.getOrElse(TicketInput) falls back to TicketInput if Verified is Nothing
       const TicketElem =
-          isVerify && !Nothing.hasInstance(this.state.realWallet)
-        ? VerifyTicketInput(this.state.realWallet.value.ticket)
+          isVerify
+        ? Verified.getOrElse(TicketInput)
         : TicketInput
 
       return (

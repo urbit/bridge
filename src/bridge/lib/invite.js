@@ -86,6 +86,7 @@ const TRANSACTION_STATES = {
   },
 }
 
+//TODO should be moved to lib/walletgen
 async function generateWallet(point) {
   const makeTicket = point => {
 
@@ -140,7 +141,7 @@ async function generateWallet(point) {
   return wallet;
 }
 
-//TODO pulled from walletgen/views/Generate and Download, put into lib
+//TODO should be moved to lib/walletgen
 async function downloadWallet(paper) {
   return new Promise((resolve, reject) => {
     const zip = new JSZip();

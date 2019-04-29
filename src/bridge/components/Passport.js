@@ -50,9 +50,7 @@ class Passport extends React.Component {
 
   getCurrentDate() {
     let date = new Date()
-    var fil = function(n) {
-        return n >= 10 ? n : "0" + n;
-      };
+    const fil = n => n >= 10 ? n : `0${n}`
     let fmtDate = `${date.getUTCFullYear()}.` +
                   `${(date.getUTCMonth() + 1)}.` +
                   `${fil(date.getUTCDate())}`
@@ -104,14 +102,15 @@ class Passport extends React.Component {
     let stateElems = walletStates.map(state => {
       if (state === WALLET_STATES.DOWNLOADED) return null
 
-      let lastIndex = walletStates.indexOf(state) === walletStates.length - 1
+      const lastIndex = walletStates.indexOf(state) === walletStates.length - 1
+      const checkmark = lastIndex
+          ? <div className="text-700 text-sm lh-6 green-dark">✓</div>
+          : null
 
       return (
         <div className="flex justify-between">
           <div className="text-mono text-sm lh-6 green-dark">{state}</div>
-          {(!lastIndex) &&
-            <div className="text-700 text-sm lh-6 green-dark">✓</div>
-          }
+          { checkmark }
         </div>
       )
     })
@@ -124,8 +123,6 @@ class Passport extends React.Component {
   }
 
   render() {
-    let sigil = null
-
     let patp = this.props.point.matchWith({
       Just: p => ob.patp(p.value),
       Nothing: () => ''
@@ -141,15 +138,13 @@ class Passport extends React.Component {
       Nothing: () => null
     })
 
-    if (patp !== '') {
-      sigil = pour({
-        patp: patp,
-        renderer: ReactSVGComponents,
-        size: 128
-      })
-    } else {
-      sigil = <div className="passport-sigil-blank"></div>
-    }
+    const sigil = patp !== ''
+      ? pour({
+          patp: patp,
+          renderer: ReactSVGComponents,
+          size: 128
+        })
+      : <div className="passport-sigil-blank"></div>
 
     let currentDate = this.getCurrentDate()
     let walletStates = this.getWalletStates()
