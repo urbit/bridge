@@ -498,6 +498,10 @@ code {
   width: 100%;
 }
 
+.overflow-hidden {
+  overflow: hidden;
+}
+
 .z-1 {
   z-index: 1
 }
@@ -541,6 +545,10 @@ code {
   line-height: 24px;
   font-family: "Source Code Pro";
   color: #7f7f7f;
+}
+
+.passport-censor {
+  min-width: 350px;
 }
 
 .passport-metadata .passport-label {

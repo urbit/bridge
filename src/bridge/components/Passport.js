@@ -18,8 +18,8 @@ class Passport extends React.Component {
       paper: null
     }
 
-    this.masterScreen = this.generateScreen()
-    this.managementScreen = this.generateScreen()
+    this.masterCensor = this.generateCensor()
+    this.managementCensor = this.generateCensor()
 
     this.download = this.download.bind(this)
   }
@@ -29,18 +29,20 @@ class Passport extends React.Component {
     this.props.pushWalletState(WALLET_STATES.DOWNLOADED)
   }
 
-  generateScreen() {
+  generateCensor() {
     let blocks = [];
 
-    for (var i = 0; i < 80; i++) {
+    for (var i = 0; i < 86; i++) {
       let rand = Math.round(Math.random())
-      let className = rand ? "passport-block bg-gray-30" : "passport-block"
+      let filled = (rand || i === 0 || i === 43)
 
-      blocks.push(<div key={i} className={className}></div>)
+      let className = filled ? "passport-block bg-gray-30" : "passport-block"
+
+      blocks.push(<div key={i} data-key={i}className={className}></div>)
     }
 
     return (
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap passport-censor">
         {blocks}
       </div>
     )
@@ -180,10 +182,10 @@ class Passport extends React.Component {
               <div className="passport-value">{ownershipAddress || 'Ungenerated'}</div>
 
               <div className="passport-label gray-50 mt-3">Master Ticket</div>
-              <div className="passport-value">{ownershipAddress ? this.masterScreen : 'Ungenerated'}</div>
+              <div className="passport-value overflow-hidden">{this.masterCensor}</div>
 
               <div className="passport-label gray-50 mt-5">Managment Seed</div>
-              <div className="passport-value">{ownershipAddress ? this.managementScreen : 'Ungenerated'}</div>
+              <div className="passport-value overflow-hidden">{this.managementCensor}</div>
             </div>
 
             {wallet &&
