@@ -23,10 +23,7 @@ import { Row, Col, Warning, Button, H1, H3,
 import StatelessTransaction from '../components/StatelessTransaction'
 
 // for wallet generation
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
-import * as more from 'more-entropy'
-import lodash from 'lodash'
-import { PLANET_ENTROPY_BITS } from '../../walletgen/lib/constants'
+import * as wg from '../../walletgen/lib/lib'
 
 // for transaction generation and signing
 import {
@@ -101,7 +98,6 @@ class InvitesSend extends React.Component {
     );
     invited = invited.map(async point => {
       const active = await azimuth.azimuth.isActive(this.contracts, point);
-      console.log('point active', point, active);
       const res = {point: Number(point), active:active};
       return res;
     });
@@ -123,35 +119,9 @@ class InvitesSend extends React.Component {
     return res;
   }
 
-  //TODO pulled from walletgen/views/Generate, put into lib
   async generateWallet() {
-    const makeTicket = () => {
-
-      const bits = PLANET_ENTROPY_BITS
-
-      const bytes = bits / 8
-      const some = new Uint8Array(bytes)
-      window.crypto.getRandomValues(some)
-
-      const gen = new more.Generator()
-
-      return new Promise((resolve, reject) => {
-        gen.generate(bits, result => {
-          const chunked = lodash.chunk(result, 2)
-          const desired = chunked.slice(0, bytes) // only take required entropy
-          const more = lodash.flatMap(desired, arr => arr[0] ^ arr[1])
-          const entropy = lodash.zipWith(some, more, (x, y) => x ^ y)
-          const buf = Buffer.from(entropy)
-          const patq = ob.hex2patq(buf.toString('hex'))
-          resolve(patq)
-          reject('Entropy generation failed')
-        })
-      })
-    };
-
-    const ticket = await makeTicket(0x10000); // planet-sized ticket
-    const wallet = await kg.generateWallet({ticket, ship:0});
-    console.log('found ticket', ticket, wallet, wallet.ownership.keys.address);
+    const ticket = await wg.makeTicket(0x10000); // planet-sized ticket
+    const wallet = await wg.generateWallet(0, ticket, false);
     this.setState({inviteWallet:
       Just({ticket, owner:wallet.ownership.keys.address})
     });
