@@ -41,9 +41,7 @@ const Crumbs = (props) => {
 }
 
 const Header = (props) => {
-  let showCrumbs = !props.routeCrumbs.contains(ROUTE_NAMES.INVITE_TICKET)
-
-  if (showCrumbs) {
+  if (props.showCrumbs) {
     return (
       <div className={'flex items-center h-10'}>
         <Crumbs
