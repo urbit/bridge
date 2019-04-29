@@ -51,7 +51,7 @@ class Point extends React.Component {
       azimuth.azimuth.getPoint(ctrcs, point)
       .then(details => addToPointCache({ [point]: details }));
       const prefix = azimuth.azimuth.getPrefix(point);
-      azimuth.azimuth.getPoint(ctrcs, point)
+      azimuth.azimuth.getPoint(ctrcs, prefix)
       .then(details => addToPointCache({ [prefix]: details }));
       this.updateSpawned(ctrcs, point);
     })));
