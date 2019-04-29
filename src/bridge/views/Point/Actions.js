@@ -17,7 +17,10 @@ const isStar = point =>
       (azimuth.getPointSize(point) === azimuth.PointSize.Star);
 
 const Actions = (props) => {
-  const { pushRoute, online, point, pointDetails, wallet } = props
+  const {
+    pushRoute, online, wallet, delegatedSending,
+    point, pointDetails, prefixDetails
+  } = props
 
   const addr = wallet.matchWith({
     Just: (wal) => addressFromSecp256k1Public(wal.value.publicKey),
@@ -60,6 +63,12 @@ const Actions = (props) => {
             return hasPermission && isBooted && isNotPlanet
           }
         })
+
+  const prefixHasDelegatedSending =
+    prefixDetails.matchWith({
+      Nothing: () => false,
+      Just: (details) => eqAddr(details.value.spawnProxy, delegatedSending)
+    });
 
   const planet = isPlanet(point)
   const star = isStar(point)
@@ -114,7 +123,7 @@ const Actions = (props) => {
   if (planet) {
     invites = (
       <Button
-        disabled={(!isActiveOwner || !online)}
+        disabled={(!isActiveOwner || !online || !prefixHasDelegatedSending)}
         prop-size={'sm'}
         prop-type={'link'}
         onClick={ () => {
