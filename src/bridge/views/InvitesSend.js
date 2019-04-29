@@ -153,6 +153,9 @@ class InvitesSend extends React.Component {
     return Just(txn)
   }
 
+  //TODO find a better way of making the user wait for submission success
+  //     and email sending, so that we can catch failure cases and can
+  //     always fall back to retrying or "please send them this"
   txnConfirmation(txHash, confirmations) {
     this.props.setTxnConfirmations(txHash, confirmations);
     if (confirmations === 1) {

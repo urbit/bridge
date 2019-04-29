@@ -44,6 +44,7 @@ class InviteLogin extends React.Component {
       isUnlocking: true
     });
 
+    //NOTE ~zod because tmp wallet
     const uhdw = await urbitWalletFromTicket(ticket, '~zod');
     this.props.setUrbitWallet(Just(uhdw));
 
