@@ -570,13 +570,14 @@ code {
 .passport-progress-filled {
   position: absolute;
   height: 4px;
-  width: 30%;
+  width: 0%;
 
   z-index: 1;
   top: 0;
   left: 0;
 
   background-color: #2AA779;
+  transition: width 3s ease;
 }
 
 .passport-wallet-progress {

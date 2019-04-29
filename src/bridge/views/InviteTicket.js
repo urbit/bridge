@@ -188,18 +188,32 @@ class InviteTicket extends React.Component {
         )
         break
       case INVITE_STAGES.INVITE_TRANSACTIONS:
-        return (
-          <div>
-            <h1 className="fs-6 lh-8 mb-3">Submitting</h1>
-            <div className="passport-progress mb-2">
-              <div className="passport-progress-filled"></div>
+        let progressWidth = this.state.transactionProgress.pct;
+
+        if (this.state.transactionProgress.label === TRANSACTION_STATES.DONE.label) {
+          return (
+            <div>
+              <h1 className="fs-6 lh-8 mb-3">
+                <span>Success</span>
+                <span className="ml-4 green">✓</span>
+              </h1>
+              <p>Transferring to Bridge...</p>
             </div>
-            <div className="flex justify-between">
-              <div className="text-mono text-sm lh-6 green-dark">{this.state.transactionProgress}</div>
-              <div className="text-mono text-sm lh-6">3 minutes</div>
+          )
+        } else {
+          return (
+            <div>
+              <h1 className="fs-6 lh-8 mb-3">Submitting</h1>
+              <div className="passport-progress mb-2">
+                <div className="passport-progress-filled" style={{width: progressWidth}}></div>
+              </div>
+              <div className="flex justify-between">
+                <div className="text-mono text-sm lh-6 green-dark">{this.state.transactionProgress.label}</div>
+                <div className="text-mono text-sm lh-6">3 minutes</div>
+              </div>
             </div>
-          </div>
-        )
+          )
+        }
         break
     }
   }
@@ -265,6 +279,11 @@ class InviteTicket extends React.Component {
             contractsM: contracts,
             setUrbitWallet,
             updateProgress: this.updateProgress
+          })
+          .then(() => {
+            setTimeout(() => {
+              this.props.popRoute()
+            }, 5000)
           })
           // }
         }

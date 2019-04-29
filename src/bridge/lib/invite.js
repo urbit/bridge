@@ -52,13 +52,38 @@ const WALLET_STATES = {
 }
 
 const TRANSACTION_STATES = {
-  GENERATING: 'Generating transactions',
-  SIGNING: 'Signing transactions',
-  FUNDING: 'Funding transactions',
-  CLAIMING: 'Claiming invite',
-  CONFIGURING: 'Configuring planet',
-  CLEANING: 'Cleaning up',
-  DONE: 'Done'
+  GENERATING: {
+    label: 'Generating transactions',
+    pct: "0%"
+  },
+  SIGNING: {
+    label: 'Signing transactions',
+    pct: "15%"
+  },
+  FUNDING_INVITE: {
+    label: 'Funding invite wallet',
+    pct: "30%"
+  },
+  CLAIMING: {
+    label: 'Claiming invite',
+    pct: "55%"
+  },
+  FUNDING_RECIPIENT: {
+    label: 'Funding recipient wallet',
+    pct: "65%"
+  },
+  CONFIGURING: {
+    label: 'Configuring planet',
+    pct: "85%"
+  },
+  CLEANING: {
+    label: 'Cleaning up',
+    pct: "95%"
+  },
+  DONE: {
+    label: 'Done',
+    pct: "100%"
+  },
 }
 
 async function generateWallet(point) {
@@ -198,7 +223,7 @@ async function startTransactions(args) {
   let rawTransferStx = '0x'+transferStx.serialize().toString('hex');
 
   const transferCost = transferTx.gas * transferTx.gasPrice;
-  await ensureFundsFor(web3, point, inviteAddress, transferCost, [rawTransferStx], updateProgress);
+  await ensureFundsFor(web3, point, inviteAddress, transferCost, [rawTransferStx], updateProgress, true);
 
   // send transaction
   updateProgress(TRANSACTION_STATES.CLAIMING);
@@ -258,7 +283,7 @@ async function startTransactions(args) {
     return '0x'+stx.serialize().toString('hex');
   });
 
-  await ensureFundsFor(web3, point, newAddress, totalCost, rawStxs, updateProgress);
+  await ensureFundsFor(web3, point, newAddress, totalCost, rawStxs, updateProgress, false);
 
   updateProgress(TRANSACTION_STATES.CONFIGURING);
   await sendAndAwaitConfirm(web3, rawStxs);
@@ -294,8 +319,10 @@ async function startTransactions(args) {
   //TODO forward to "all done!" screen
 }
 
-async function ensureFundsFor(web3, point, address, cost, signedTxs, updateProgress) {
-  updateProgress(TRANSACTION_STATES.FUNDING);
+async function ensureFundsFor(web3, point, address, cost, signedTxs, updateProgress, firstTx) {
+  let fundingState = firstTx? TRANSACTION_STATES.FUNDING_INVITE : TRANSACTION_STATES.FUNDING_RECIPIENT
+
+  updateProgress(fundingState);
   let balance = await web3.eth.getBalance(address);
 
   if (cost > balance) {
