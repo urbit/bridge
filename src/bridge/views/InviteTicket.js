@@ -204,12 +204,12 @@ class InviteTicket extends React.Component {
           return (
             <div>
               <h1 className="fs-6 lh-8 mb-3">Submitting</h1>
+              <p className="mt-4 mb-4">This step can take up to five minutes. Please do not leave this page until the transactions are complete.</p>
               <div className="passport-progress mb-2">
                 <div className="passport-progress-filled" style={{width: progressWidth}}></div>
               </div>
               <div className="flex justify-between">
                 <div className="text-mono text-sm lh-6 green-dark">{this.state.transactionProgress.label}</div>
-                <div className="text-mono text-sm lh-6">3 minutes</div>
               </div>
             </div>
           )
