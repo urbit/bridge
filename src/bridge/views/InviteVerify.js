@@ -4,6 +4,7 @@ import { pour } from 'sigil-js'
 import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
 
+import { randomPatq } from '../lib/lib'
 import { ROUTE_NAMES } from '../lib/router'
 
 import { InnerLabel, TicketInput } from '../components/Base'
@@ -12,16 +13,6 @@ import KeysAndMetadata from './Point/KeysAndMetadata'
 import Actions from './Point/Actions'
 import { BRIDGE_ERROR } from '../lib/error'
 import { Row, Col, Warning, Button, H1, H3 } from '../components/Base'
-
-//TODO from Ticket.js, move to lib
-const placeholder = (len) => {
-  let bytes = window.crypto.getRandomValues(new Uint8Array(len))
-  let hex = bytes.reduce((acc, byt) =>
-    acc + byt.toString(16).padStart(2, '0'),
-    ''
-  )
-  return ob.hex2patq(hex)
-}
 
 class InviteVerify extends React.Component {
 
@@ -33,7 +24,7 @@ class InviteVerify extends React.Component {
       realTicket: this.props.routeData.ticket
     }
 
-    this.ticketPlaceholder = placeholder(8);
+    this.ticketPlaceholder = randomPatq(8);
     this.handleTicketInput = this.handleTicketInput.bind(this);
     this.proceed = this.proceed.bind(this);
   }
