@@ -7,12 +7,10 @@ const baseUrl = 'https://localhost:3002'
 function sendMail(recipient, ticket) {
   return new Promise((resolve, reject) => {
     fetch(baseUrl + '/send-ticket', {
-      method: "POST",
-      // mode: "cors", // no-cors, cors, *same-origin
-      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-      // credentials: "omit", // include, *same-origin, omit
+      method: 'POST',
+      cache: 'no-cache',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({recipient,ticket}),
     })
