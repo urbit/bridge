@@ -1,6 +1,6 @@
 import TrezorConnect from 'trezor-connect'
 
-const TREZOR_BASE_PATH = "m/44'/60'/0'/0/0"
+const TREZOR_PATH = "m/44'/60'/0'/0/x"
 
 const formatChainId = val =>
     typeof val === 'number'
@@ -33,7 +33,7 @@ const trezorSignTransaction = async (txn, hdpath) => {
 }
 
 export {
-  TREZOR_BASE_PATH,
+  TREZOR_PATH,
   trezorSignTransaction
 }
 

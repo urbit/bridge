@@ -3,11 +3,11 @@ import React from 'react'
 import Maybe from 'folktale/maybe'
 import { Button } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
-import { InnerLabel, Input } from '../components/Base'
+import { InnerLabel, Input, InnerLabelDropdown } from '../components/Base'
 import TrezorConnect from 'trezor-connect'
 import * as secp256k1 from 'secp256k1'
 
-import { TREZOR_BASE_PATH } from '../lib/trezor'
+import { TREZOR_PATH } from '../lib/trezor'
 import { ROUTE_NAMES } from '../lib/router'
 
 class Trezor extends React.Component {
@@ -16,11 +16,21 @@ class Trezor extends React.Component {
     super(props)
 
     this.state = {
-      hdpath: TREZOR_BASE_PATH
+      hdpath: TREZOR_PATH.replace(/x/g, 0),
+      account: 0
     }
 
+    this.handleAccountSelection = this.handleAccountSelection.bind(this)
     this.handleHdPathInput = this.handleHdPathInput.bind(this)
     this.pollDevice = this.pollDevice.bind(this)
+  }
+
+  handleAccountSelection(account) {
+    let hdpath = this.state.hdpath;
+    if (account !== 'custom') {
+      hdpath = TREZOR_PATH.replace(/x/g, account);
+    }
+    this.setState({ account, hdpath });
   }
 
   handleHdPathInput(hdpath) {
@@ -53,7 +63,57 @@ class Trezor extends React.Component {
 
   render() {
     const { pushRoute, popRoute, wallet } = this.props
-    const { hdpath } = this.state
+    const { hdpath, account } = this.state
+    const { handleAccountSelection } = this;
+    console.log('hdpath', hdpath)
+
+    let accountOptions = [{
+      title: 'Custom path',
+      value: 'custom'
+    }];
+    for (let i = 0; i < 20; i++) {
+      accountOptions.push({
+        title: 'Account #' + (i+1),
+        value: i
+      });
+    }
+    //NOTE this is dumb
+    let accountTitle = '';
+    for (let i in accountOptions) {
+      let option = accountOptions[i];
+      if (option.value === account) {
+        accountTitle = option.title;
+        break;
+      }
+    }
+
+    const accountSelection = (
+      <InnerLabelDropdown
+        className='mt-8'
+        prop-size='md'
+        prop-format='innerLabel'
+        options={accountOptions}
+        handleUpdate={handleAccountSelection}
+        title={'Account'}
+        currentSelectionTitle={accountTitle}
+        fullWidth={true}
+      >
+      </InnerLabelDropdown>
+    );
+
+    const pathSelection = (account !== 'custom') ? null :
+      (
+        <Input
+          className='mt-8 pt-8 text-mono'
+          prop-size='md'
+          prop-format='innerLabel'
+          name='hdpath'
+          value={ hdpath }
+          autocomplete='off'
+          onChange={ this.handleHdPathInput }>
+          <InnerLabel>{'HD Path'}</InnerLabel>
+        </Input>
+      );
 
     return (
         <Row>
@@ -66,16 +126,8 @@ class Trezor extends React.Component {
               }
             </P>
 
-            <Input
-              className='pt-8 text-mono'
-              prop-size='md'
-              prop-format='innerLabel'
-              name='hdpath'
-              value={ hdpath }
-              autocomplete='off'
-              onChange={ this.handleHdPathInput }>
-              <InnerLabel>{'HD Path'}</InnerLabel>
-            </Input>
+            { accountSelection }
+            { pathSelection }
 
             <Button
               className={'mt-8'}
