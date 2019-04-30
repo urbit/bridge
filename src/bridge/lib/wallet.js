@@ -70,7 +70,7 @@ const stripHexPrefix = hex =>
 const keccak256 = str =>
   keccak('keccak256').update(str).digest()
 
-const isValidAddress = isAddress
+const isValidAddress = a => (('0x0' === a) || isAddress(a))
 
 const toChecksumAddress = (address) => {
   const addr = stripHexPrefix(address).toLowerCase()
