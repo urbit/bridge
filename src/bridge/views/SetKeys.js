@@ -37,7 +37,6 @@ class SetKeys extends React.Component {
       isManagementSeed: false,
     }
 
-    this.handleNetworkSeedInput = this.handleNetworkSeedInput.bind(this)
     // Transaction
     this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
   }
@@ -92,10 +91,6 @@ class SetKeys extends React.Component {
       networkSeed: seed.getOrElse(''),
       nondeterministicSeed: nondeterministicSeed
     })
-  }
-
-  handleNetworkSeedInput(networkSeed) {
-    this.setState({ networkSeed })
   }
 
   createUnsignedTxn() {
