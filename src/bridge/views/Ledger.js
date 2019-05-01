@@ -96,15 +96,7 @@ class Ledger extends React.Component {
         value: 'custom'
       }
     ];
-    //NOTE this is dumb
-    let basePathTitle = '';
-    for (let i in pathOptions) {
-      let option = pathOptions[i];
-      if (option.value === basePath) {
-        basePathTitle = option.title;
-        break;
-      }
-    }
+    let basePathTitle = pathOptions.find(o => (o.value === basePath)).title;
 
     let accountOptions = [];
     for (let i = 0; i < 20; i++) {
@@ -113,15 +105,7 @@ class Ledger extends React.Component {
         value: i
       });
     }
-    //NOTE this is dumb
-    let accountTitle = '';
-    for (let i in accountOptions) {
-      let option = accountOptions[i];
-      if (option.value === account) {
-        accountTitle = option.title;
-        break;
-      }
-    }
+    let accountTitle = accountOptions.find(o => (o.value === account)).title;
 
     const basePathSelection = (
       <InnerLabelDropdown

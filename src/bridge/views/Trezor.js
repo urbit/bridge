@@ -65,7 +65,6 @@ class Trezor extends React.Component {
     const { pushRoute, popRoute, wallet } = this.props
     const { hdpath, account } = this.state
     const { handleAccountSelection } = this;
-    console.log('hdpath', hdpath)
 
     let accountOptions = [{
       title: 'Custom path',
@@ -77,15 +76,7 @@ class Trezor extends React.Component {
         value: i
       });
     }
-    //NOTE this is dumb
-    let accountTitle = '';
-    for (let i in accountOptions) {
-      let option = accountOptions[i];
-      if (option.value === account) {
-        accountTitle = option.title;
-        break;
-      }
-    }
+    let accountTitle = accountOptions.find(o => (o.value === account)).title;
 
     const accountSelection = (
       <InnerLabelDropdown
