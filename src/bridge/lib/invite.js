@@ -226,8 +226,12 @@ async function startTransactions(args) {
   const transferCost = transferTx.gas * transferTx.gasPrice;
   await ensureFundsFor(web3, point, inviteAddress, transferCost, [rawTransferStx], updateProgress, true);
 
+  updateProgress({
+    type: "progress",
+    value: TRANSACTION_STATES.CLAIMING
+  });
+
   // send transaction
-  updateProgress(TRANSACTION_STATES.CLAIMING);
   await sendAndAwaitConfirm(web3, [rawTransferStx]);
 
   //
@@ -286,11 +290,19 @@ async function startTransactions(args) {
 
   await ensureFundsFor(web3, point, newAddress, totalCost, rawStxs, updateProgress, false);
 
-  updateProgress(TRANSACTION_STATES.CONFIGURING);
+  updateProgress({
+    type: "progress",
+    value: TRANSACTION_STATES.CONFIGURING
+  });
+
   await sendAndAwaitConfirm(web3, rawStxs);
 
+  updateProgress({
+    type: "progress",
+    value: TRANSACTION_STATES.CLEANING
+  });
+
   // if non-trivial eth left in invite wallet, transfer to new ownership
-  updateProgress(TRANSACTION_STATES.CLEANING);
   let balance = await web3.eth.getBalance(inviteAddress);
   const gasPrice = 20000000000;
   const gasLimit = 21000;
@@ -314,16 +326,23 @@ async function startTransactions(args) {
     console.log('sent old balance');
   }
 
+  updateProgress({
+    type: "progress",
+    value: TRANSACTION_STATES.DONE
+  });
+
   // proceed without waiting for confirm
-  updateProgress(TRANSACTION_STATES.DONE);
   setUrbitWallet(Just(realWallet));
-  //TODO forward to "all done!" screen
 }
 
 async function ensureFundsFor(web3, point, address, cost, signedTxs, updateProgress, firstTx) {
   let fundingState = firstTx? TRANSACTION_STATES.FUNDING_INVITE : TRANSACTION_STATES.FUNDING_RECIPIENT
 
-  updateProgress(fundingState);
+  updateProgress({
+    type: "progress",
+    value: fundingState
+  });
+
   let balance = await web3.eth.getBalance(address);
 
   if (cost > balance) {
@@ -422,7 +441,10 @@ function awaitForResult(desired, retryTime, func) {
 }
 
 function askForFunding(address, amount, current, updateProgress) {
-  updateProgress(`Please make sure ${address} has at least ${amount} wei, we'll continue once that's true. Current balance: ${current}. Waiting`);
+  updateProgress({
+    type: "notify",
+    value: `Please make sure ${address} has at least ${amount} wei, we'll continue once that's true. Current balance: ${current}. Waiting`
+  });
 }
 
 export {

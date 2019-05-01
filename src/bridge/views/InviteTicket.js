@@ -129,8 +129,9 @@ class InviteTicket extends React.Component {
     this.setState({
       realPoint,
       realWallet,
+      // dev mode: uncomment this out to autofill verified ticket
       inviteWallet: Just(inviteWallet),
-      // verifyTicket: realWallet.value.ticket,
+      verifyTicket: realWallet.value.ticket,
       walletStates: this.state.walletStates.concat(WALLET_STATES.RENDERING),
       errors
     })
@@ -185,7 +186,7 @@ class InviteTicket extends React.Component {
 
     const stageText = stage === INVITE_STAGES.INVITE_LOGIN
         ? <h1 className="text-700 mt-15">Welcome</h1>
-        : stage === INVITE_STAGES.INVITE_LOGIN
+        : stage === INVITE_STAGES.INVITE_WALLET
         ? (
           <div>
             <h1 className="fs-6 lh-8 mb-3">Passport</h1>
@@ -227,10 +228,14 @@ class InviteTicket extends React.Component {
       return stageText
   }
 
-  updateProgress(transactionProgress) {
-    this.setState({
-      transactionProgress
-    })
+  updateProgress(notification) {
+    let newState = notification.type === "progress"
+        ? { transactionProgress: notification.value }
+        : notification.type === "progress"
+        ? { errors: [notification.value] }
+        : {}
+
+    this.setState(newState)
   }
 
   getContinueButton() {
