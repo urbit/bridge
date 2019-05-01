@@ -1,7 +1,7 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
 import * as azimuth from 'azimuth-js'
-import { Row, Col, H1, P, InnerLabel, ShowBlockie, Anchor } from '../components/Base'
+import { Row, Col, H1, P, InnerLabel, ShowBlockie, Anchor, HorizontalSelector } from '../components/Base'
 import { AddressInput } from '../components/Base'
 import * as ob from 'urbit-ob'
 
@@ -46,11 +46,21 @@ class SetProxy extends React.Component {
     this.state = {
       proxyAddress: '',
       issuingPoint: issuingPoint,
+      setProxy: true
     }
 
     this.statelessRef = React.createRef();
+    this.handleSetUnset = this.handleSetUnset.bind(this);
     this.handleAddressInput = this.handleAddressInput.bind(this)
     this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
+  }
+
+  handleSetUnset(selected) {
+    const set = (selected === 'set');
+    this.setState({
+      setProxy: set,
+      proxyAddress: set ? '' : '0x0000000000000000000000000000000000000000'
+    });
   }
 
   handleAddressInput(proxyAddress) {
@@ -116,42 +126,61 @@ class SetProxy extends React.Component {
 
     const ucFirst = w => w.charAt(0).toUpperCase() + w.slice(1);
 
+    const setUnset = [
+      { title: 'Set', value: 'set' },
+      { title: 'Unset', value: 'unset' }
+    ];
+
+    const titleVerb = this.state.setProxy ? 'Set' : 'Unset';
+
+    let addressInput = null;
+    if (this.state.setProxy) {
+      addressInput = (<>
+        <P className='mt-8'>
+        {
+          'Please provide an Ethereum address to act as the ' +
+          `${renderedProxyType} proxy.  You can also use Wallet ` +
+          'Generator to generate a keypair.'
+        }
+        </P>
+
+        <AddressInput
+          className='mono mt-8'
+          prop-size='lg'
+          prop-format='innerLabel'
+          placeholder={ `e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f` }
+          value={ state.proxyAddress }
+          onChange={ v => this.handleAddressInput(v) }>
+          <InnerLabel>{ 'Proxy Address' }</InnerLabel>
+          <ShowBlockie className={'mt-1'} address={state.proxyAddress} />
+        </AddressInput>
+
+        <Anchor
+          className={'mt-1'}
+          prop-size={'sm'}
+          prop-disabled={!isValidAddress(state.proxyAddress) || !esvisible}
+          target={'_blank'}
+          href={`https://${esdomain}/address/${state.proxyAddress}`}>
+            {'View on Etherscan ↗'}
+        </Anchor>
+      </>)
+    }
 
     return (
       <Row>
         <Col>
           <H1>
-            { `Set ${ucFirst(renderedProxyType)} Proxy For ` }
+            { `${titleVerb} ${ucFirst(renderedProxyType)} Proxy For ` }
             <code>{ `${ob.patp(state.issuingPoint)}` }</code>
           </H1>
 
-          <P>
-          {
-            'Please provide an Ethereum address to act as the ' +
-            `${renderedProxyType} proxy.  You can also use Wallet ` +
-            'Generator to generate a keypair.'
-          }
-          </P>
+          <HorizontalSelector
+            options={setUnset}
+            onChange={this.handleSetUnset}
+            className='mt-8'
+          />
 
-          <AddressInput
-            className='mono mt-8'
-            prop-size='lg'
-            prop-format='innerLabel'
-            placeholder={ `e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f` }
-            value={ state.proxyAddress }
-            onChange={ v => this.handleAddressInput(v) }>
-            <InnerLabel>{ 'Proxy Address' }</InnerLabel>
-            <ShowBlockie className={'mt-1'} address={state.proxyAddress} />
-          </AddressInput>
-
-          <Anchor
-            className={'mt-1'}
-            prop-size={'sm'}
-            prop-disabled={!isValidAddress(state.proxyAddress) || !esvisible}
-            target={'_blank'}
-            href={`https://${esdomain}/address/${state.proxyAddress}`}>
-              {'View on Etherscan ↗'}
-          </Anchor>
+          { addressInput }
 
           <StatelessTransaction
             // Upper scope
