@@ -548,7 +548,8 @@ code {
 }
 
 .passport-censor {
-  min-width: 350px;
+  /* min-width: 350px; */
+  font-size: 48px;
 }
 
 .passport-metadata .passport-label {

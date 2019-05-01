@@ -30,23 +30,35 @@ class Passport extends React.Component {
   }
 
   generateCensor() {
-    let blocks = [];
+    let censor = "";
+    const blocks = ['▖','▗','▘','▙','▚','▛','▜','▝','▞','▟'];
 
-    for (var i = 0; i < 86; i++) {
-      let rand = Math.round(Math.random())
-      let filled = (rand || i === 0 || i === 43)
-
-      let className = filled ? "passport-block bg-gray-30" : "passport-block"
-
-      blocks.push(<div key={i} data-key={i}className={className}></div>)
+    for (var i = 0; i < 12; i++) {
+      let index = Math.floor(Math.random() * blocks.length)
+      censor += blocks[index];
     }
 
-    return (
-      <div className="flex flex-wrap passport-censor">
-        {blocks}
-      </div>
-    )
+    return censor
   }
+
+  // generateCensor() {
+  //   let blocks = [];
+  //
+  //   for (var i = 0; i < 86; i++) {
+  //     let rand = Math.round(Math.random())
+  //     let filled = (rand || i === 0 || i === 43)
+  //
+  //     let className = filled ? "passport-block bg-gray-30" : "passport-block"
+  //
+  //     blocks.push(<div key={i} data-key={i}className={className}></div>)
+  //   }
+  //
+  //   return (
+  //     <div className="flex flex-wrap passport-censor">
+  //       {blocks}
+  //     </div>
+  //   )
+  // }
 
   getCurrentDate() {
     let date = new Date()
@@ -177,10 +189,10 @@ class Passport extends React.Component {
               <div className="passport-value">{ownershipAddress || 'Ungenerated'}</div>
 
               <div className="passport-label gray-50 mt-3">Master Ticket</div>
-              <div className="passport-value overflow-hidden">{this.masterCensor}</div>
+              <div className="passport-value passport-censor overflow-hidden">{this.masterCensor}</div>
 
-              <div className="passport-label gray-50 mt-5">Managment Seed</div>
-              <div className="passport-value overflow-hidden">{this.managementCensor}</div>
+              <div className="passport-label gray-50 mt-5">Management Seed</div>
+              <div className="passport-value passport-censor overflow-hidden">{this.managementCensor}</div>
             </div>
 
             {wallet &&
