@@ -2,7 +2,7 @@ import React from 'react'
 import Maybe from 'folktale/maybe'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
-import { Row, Col, H1, P, Warning } from '../components/Base'
+import { Row, Col, H1, P, Warning, CheckboxButton } from '../components/Base'
 
 import StatelessTransaction from '../components/StatelessTransaction'
 import { BRIDGE_ERROR } from '../lib/error'
@@ -33,12 +33,17 @@ class SetKeys extends React.Component {
       nondeterministicSeed: false,
       point: point,
       cryptoSuiteVersion: 1,
-      continuity: false,
+      discontinuity: false,
       isManagementSeed: false,
     }
 
+    this.toggleDiscontinuity = this.toggleDiscontinuity.bind(this);
     // Transaction
     this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
+  }
+
+  toggleDiscontinuity() {
+    this.setState({ discontinuity: !this.state.discontinuity });
   }
 
   componentDidMount() {
@@ -125,7 +130,7 @@ class SetKeys extends React.Component {
         pencr,
         pauth,
         1,
-        false
+        state.discontinuity
       )
 
       return Maybe.Just(txn)
@@ -179,6 +184,16 @@ class SetKeys extends React.Component {
                 }
               </Warning>
             : <div /> }
+
+          <CheckboxButton
+            className='mt-8'
+            onClick={ this.toggleDiscontinuity }
+            state={ state.discontinuity }
+          >
+            <div style={{cursor: 'pointer'}} onClick={ this.toggleDiscontinuity }>
+              { 'I have lost important off-chain data relating to this point and need to do a hard-reset. (For example, rebooting an Arvo ship.)' }
+            </div>
+          </CheckboxButton>
 
           <StatelessTransaction
             // Upper scope
