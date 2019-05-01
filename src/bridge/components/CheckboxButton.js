@@ -16,7 +16,8 @@ const CheckboxButton = props => {
   return (
     <div
       className={`flex items-center ${props.className}`}
-      style={props.style}>
+      style={{cursor: 'pointer', ...props.style}}
+      onClick={props.onToggle}>
 
       <ProtoButton
         // {...getDomProps(props)}
@@ -38,6 +39,7 @@ const CheckboxButton = props => {
 
       </ProtoButton>
 
+      <div>{ props.label }</div>
       { props.children }
 
     </div>
