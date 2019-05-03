@@ -5,7 +5,6 @@ import React from 'react';
 import Landing from '../views/Landing'
 
 import InviteTicket from '../views/InviteTicket'
-import InviteTransactions from '../views/InviteTransactions.js'
 
 import InvitesSend from '../views/InvitesSend.js'
 import InvitesManage from '../views/InvitesManage.js'
@@ -79,7 +78,6 @@ const createRoutes = () => {
   routes[ROUTE_NAMES.DEFAULT] = Landing
   //
   routes[ROUTE_NAMES.INVITE_TICKET] = InviteTicket
-  routes[ROUTE_NAMES.INVITE_TRANSACTIONS] = InviteTransactions
   routes[ROUTE_NAMES.INVITES_SEND] = InvitesSend
   routes[ROUTE_NAMES.INVITES_MANAGE] = InvitesManage
   //
