@@ -13,17 +13,9 @@ import { Row, Col, H1, P } from '../components/Base'
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as ob from 'urbit-ob'
 
+import { randomPatq } from '../lib/lib'
 import { ROUTE_NAMES } from '../lib/router'
 import { DEFAULT_HD_PATH, urbitWalletFromTicket } from '../lib/wallet'
-
-const placeholder = (len) => {
-  let bytes = window.crypto.getRandomValues(new Uint8Array(len))
-  let hex = bytes.reduce((acc, byt) =>
-    acc + byt.toString(16).padStart(2, '0'),
-    ''
-  )
-  return ob.hex2patq(hex)
-}
 
 class Ticket extends React.Component {
 
@@ -37,8 +29,8 @@ class Ticket extends React.Component {
       isUnlocking: false
     }
 
-    this.pointPlaceholder = placeholder(4)
-    this.ticketPlaceholder = placeholder(8)
+    this.pointPlaceholder = randomPatq(4)
+    this.ticketPlaceholder = randomPatq(8)
 
     this.handleTicketInput = this.handleTicketInput.bind(this)
     this.handlePassphraseInput = this.handlePassphraseInput.bind(this)

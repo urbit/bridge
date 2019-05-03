@@ -33,7 +33,7 @@ class Passport extends React.Component {
     let censor = "";
     const blocks = ['▖','▗','▘','▙','▚','▛','▜','▝','▞','▟'];
 
-    (new UInt32Array(12)).forEach((_, i) => {
+    (new Uint32Array(12)).forEach((_, i) => {
       let index = Math.floor(Math.random() * blocks.length)
       censor += blocks[index];
     })

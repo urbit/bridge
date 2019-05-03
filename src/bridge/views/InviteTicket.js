@@ -6,6 +6,7 @@ import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
 
+import { randomPatq } from '../lib/lib'
 import { simpleValidatorWrapper } from '../lib/validators'
 import { ROUTE_NAMES } from '../lib/router'
 import { DEFAULT_HD_PATH, urbitWalletFromTicket,
@@ -13,15 +14,6 @@ import { DEFAULT_HD_PATH, urbitWalletFromTicket,
 import { BRIDGE_ERROR } from '../lib/error'
 import { INVITE_STAGES, WALLET_STATES, TRANSACTION_STATES } from '../lib/invite'
 import { generateWallet, startTransactions } from '../lib/invite'
-
-const placeholder = (len) => {
-  let bytes = window.crypto.getRandomValues(new Uint8Array(len))
-  let hex = bytes.reduce((acc, byt) =>
-    acc + byt.toString(16).padStart(2, '0'),
-    ''
-  )
-  return ob.hex2patq(hex)
-}
 
 class InviteTicket extends React.Component {
 
@@ -42,8 +34,8 @@ class InviteTicket extends React.Component {
       transactionProgress: TRANSACTION_STATES.GENERATING
     }
 
-    this.pointPlaceholder = placeholder(4)
-    this.ticketPlaceholder = placeholder(12)
+    this.pointPlaceholder = randomPatq(4)
+    this.ticketPlaceholder = randomPatq(12)
 
     this.handleInviteTicketInput = this.handleInviteTicketInput.bind(this)
     this.handleVerifyTicketInput = this.handleVerifyTicketInput.bind(this)
@@ -81,6 +73,7 @@ class InviteTicket extends React.Component {
       stage: INVITE_STAGES.INVITE_WALLET
     });
 
+    //NOTE ~zod because tmp wallet
     const uhdw = await urbitWalletFromTicket(inviteTicket, '~zod');
     const mnemonic = uhdw.ownership.seed;
     const inviteWallet = walletFromMnemonic(
