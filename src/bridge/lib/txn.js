@@ -2,7 +2,6 @@ import * as ob from 'urbit-ob'
 import { Just } from 'folktale/maybe'
 import { Ok, Error } from 'folktale/result'
 import Tx from 'ethereumjs-tx'
-import Web3 from 'web3'
 import { toWei, fromWei, toHex } from 'web3-utils'
 
 import { BRIDGE_ERROR } from '../lib/error'

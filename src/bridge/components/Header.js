@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Chevron } from '../components/Base'
 
-import { renderRoute, ROUTE_NAMES } from '../lib/router'
+import { renderRoute } from '../lib/router'
 import { isLast } from '../lib/lib'
 
 const Crumbs = (props) => {

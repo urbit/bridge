@@ -1,13 +1,10 @@
 import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
-import { InnerLabel, ValidatedSigil, PointInput, Warning, Input, TicketInput,
-  VerifyTicketInput, Button, Row, Col, H1, P, Passport } from '../components/Base'
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
-import * as ob from 'urbit-ob'
+import { InnerLabel, Warning, TicketInput,
+  VerifyTicketInput, Button, Row, Col, Passport } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 
 import { randomPatq } from '../lib/lib'
-import { simpleValidatorWrapper } from '../lib/validators'
 import { ROUTE_NAMES } from '../lib/router'
 import { DEFAULT_HD_PATH, urbitWalletFromTicket,
   walletFromMnemonic, addressFromSecp256k1Public } from '../lib/wallet'
@@ -252,11 +249,6 @@ class InviteTicket extends React.Component {
           }
         : stage === INVITE_STAGES.INVITE_VERIFY
         ? () => {
-            const realTicket = realWallet.matchWith({
-              Just: w => w.value.ticket,
-              Nothing: null
-            })
-
             this.setState({
               stage: INVITE_STAGES.INVITE_TRANSACTIONS,
               walletStates: this.state.walletStates.concat(WALLET_STATES.TRANSACTIONS)
@@ -329,9 +321,6 @@ class InviteTicket extends React.Component {
   }
 
   render() {
-    const { wallet } = this.props
-    const { inviteTicket } = this.state
-
     let stageDisplay = this.getStageDisplay()
     let stageText = this.getStageText()
     let ticketElem = this.getTicketElement()

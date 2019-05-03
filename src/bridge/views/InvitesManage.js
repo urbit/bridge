@@ -1,24 +1,11 @@
 import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
-import { pour } from 'sigil-js'
 import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
 
-import {
-  EthereumWallet,
-  addressFromSecp256k1Public,
-  urbitWalletFromTicket,
-  addHexPrefix,
-  WALLET_NAMES
-} from '../lib/wallet'
-
-import ReactSVGComponents from '../components/ReactSVGComponents'
-import KeysAndMetadata from './Point/KeysAndMetadata'
-import Actions from './Point/Actions'
 import { BRIDGE_ERROR } from '../lib/error'
-import { Row, Col, Warning, Button, H1, H3, Input,
-         PointInput, InnerLabel, ValidatedSigil
-} from '../components/Base'
+import { Row, Col, Warning, Input,
+         PointInput, InnerLabel, ValidatedSigil } from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
 
 

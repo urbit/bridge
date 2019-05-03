@@ -10,12 +10,10 @@ import {
   InputCaption
   } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
-import * as ob from 'urbit-ob'
 
 import { randomPatq } from '../lib/lib'
 import { ROUTE_NAMES } from '../lib/router'
-import { DEFAULT_HD_PATH, urbitWalletFromTicket } from '../lib/wallet'
+import { urbitWalletFromTicket } from '../lib/wallet'
 
 class Ticket extends React.Component {
 

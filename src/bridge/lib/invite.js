@@ -7,32 +7,25 @@ import * as more from 'more-entropy'
 import * as ob from 'urbit-ob'
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as tank from './tank'
-import { MAX_GALAXY, MIN_STAR, MAX_STAR, MIN_PLANET,
+import { MIN_STAR, MIN_PLANET, SEED_ENTROPY_BITS,
          GALAXY_ENTROPY_BITS, STAR_ENTROPY_BITS, PLANET_ENTROPY_BITS,
-         SEED_ENTROPY_BITS,
-         GEN_STATES
        } from '../../walletgen/lib/constants'
 
 import JSZip from 'jszip'
 import saveAs from 'file-saver'
 
 import {
-  signTransaction,
-  sendSignedTransaction,
   waitForTransactionConfirm,
   isTransactionConfirmed
 } from './txn'
 import { BRIDGE_ERROR } from './error'
-import { attemptSeedDerivation, genKey  } from './keys'
+import { attemptSeedDerivation } from './keys'
 import {
-  EthereumWallet,
   addressFromSecp256k1Public,
-  urbitWalletFromTicket,
   addHexPrefix,
   WALLET_NAMES
 } from './wallet'
 
-const NEXT_STEP_NUM = 6;
 const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8
 
 const INVITE_STAGES = {
@@ -173,7 +166,7 @@ async function downloadWallet(paper) {
 }
 
 async function startTransactions(args) {
-  let { realPointM, web3M, contractsM, realTicket,
+  let { realPointM, web3M, contractsM,
     inviteWalletM, realWalletM, setUrbitWallet, updateProgress } = args
 
   if (Nothing.hasInstance(web3M)) {
@@ -191,10 +184,12 @@ async function startTransactions(args) {
   }
   const inviteWallet = inviteWalletM.value;
 
-  // if (Nothing.hasInstance(realWalletM)) {
-  //   throw BRIDGE_ERROR.MISSING_WALLET;
-  // }
-  // const realWallet = realWalletM.value;
+  if (Nothing.hasInstance(realWalletM)) {
+    throw BRIDGE_ERROR.MISSING_WALLET;
+  }
+  const realWallet = realWalletM.value;
+
+  // const realWallet = await urbitWalletFromTicket(args.realTicket, point);
 
   if (Nothing.hasInstance(realPointM)) {
     throw BRIDGE_ERROR.MISSING_POINT;
@@ -203,8 +198,6 @@ async function startTransactions(args) {
 
   const inviteAddress = addressFromSecp256k1Public(inviteWallet.publicKey);
   console.log('working as', inviteAddress);
-
-  const realWallet = await urbitWalletFromTicket(realTicket, point);
 
   // transfer from invite wallet to new wallet
 
@@ -426,18 +419,6 @@ async function sendAndAwaitConfirm(web3, signedTxs) {
       });
     });
   }));
-}
-
-function awaitForResult(desired, retryTime, func) {
-  return new Promise((resolve, reject) => {
-    const retry = async () => {
-      const result = await func();
-      console.log('result vs desired', result, desired);
-      if (result === desired) resolve();
-      else setTimeout(retry, retryTime);
-    };
-    retry();
-  });
 }
 
 function askForFunding(address, amount, current, updateProgress) {
