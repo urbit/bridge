@@ -30,35 +30,23 @@ class Passport extends React.Component {
   }
 
   generateCensor() {
-    let censor = "";
-    const blocks = ['▖','▗','▘','▙','▚','▛','▜','▝','▞','▟'];
+    let blocks = [];
 
-    (new Uint32Array(12)).forEach((_, i) => {
-      let index = Math.floor(Math.random() * blocks.length)
-      censor += blocks[index];
+    (new Uint32Array(86)).forEach((_, i) => {
+      let rand = Math.round(Math.random())
+      let filled = (rand || i === 0 || i === 43)
+
+      let className = filled ? "passport-block bg-gray-30" : "passport-block"
+
+      blocks.push(<div key={i} data-key={i}className={className}></div>)
     })
 
-    return censor
+    return (
+      <div className="flex flex-wrap passport-censor">
+        {blocks}
+      </div>
+    )
   }
-
-  // generateCensor() {
-  //   let blocks = [];
-  //
-  //   (new UInt32Array(86)).forEach((_, i) => {
-  //     let rand = Math.round(Math.random())
-  //     let filled = (rand || i === 0 || i === 43)
-  //
-  //     let className = filled ? "passport-block bg-gray-30" : "passport-block"
-  //
-  //     blocks.push(<div key={i} data-key={i}className={className}></div>)
-  //   })
-  //
-  //   return (
-  //     <div className="flex flex-wrap passport-censor">
-  //       {blocks}
-  //     </div>
-  //   )
-  // }
 
   getCurrentDate() {
     let date = new Date()
