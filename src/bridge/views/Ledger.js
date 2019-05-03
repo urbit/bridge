@@ -109,6 +109,7 @@ class Ledger extends React.Component {
 
     const basePathSelection = (
       <InnerLabelDropdown
+        className='mt-8'
         options={pathOptions}
         handleUpdate={handlePathSelection}
         title={'Derivation path'}
@@ -120,7 +121,7 @@ class Ledger extends React.Component {
 
     const truePathSelection = (basePath === 'custom')
       ? ( <Input
-            className='pt-8 mt-8 text-mono'
+            className='pt-8 mt-4 text-mono'
             prop-size='md'
             prop-format='innerLabel'
             name='hdpath'
@@ -130,7 +131,7 @@ class Ledger extends React.Component {
             <InnerLabel>{'HD Path'}</InnerLabel>
           </Input> )
       : ( <InnerLabelDropdown
-            className='mt-8'
+            className='mt-4'
             prop-size='md'
             prop-format='innerLabel'
             options={accountOptions}
