@@ -506,6 +506,10 @@ code {
   z-index: 1
 }
 
+.break-word {
+  word-wrap: break-word;
+}
+
 /**
   Passport styles
 **/

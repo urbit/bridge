@@ -5,7 +5,7 @@ const Warning = ({ className, children, style, measure }) => {
 
 
   return (
-    <div className={`mb-7 p-4 bg-yellow ${className}`} style={style}>
+    <div className={`mb-7 p-4 bg-yellow break-word ${className}`} style={style}>
       { children }
     </div>
   )

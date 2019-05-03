@@ -231,7 +231,7 @@ class InviteTicket extends React.Component {
   updateProgress(notification) {
     let newState = notification.type === "progress"
         ? { transactionProgress: notification.value }
-        : notification.type === "progress"
+        : notification.type === "notify"
         ? { errors: [notification.value] }
         : {}
 
@@ -257,7 +257,7 @@ class InviteTicket extends React.Component {
               stage: INVITE_STAGES.INVITE_VERIFY
             })
           }
-        : stage === INVITE_STAGES.INVITE_TRANSACTIONS
+        : stage === INVITE_STAGES.INVITE_VERIFY
         ? () => {
             const realTicket = realWallet.matchWith({
               Just: w => w.value.ticket,
