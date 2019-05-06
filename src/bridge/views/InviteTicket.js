@@ -119,9 +119,9 @@ class InviteTicket extends React.Component {
     this.setState({
       realPoint,
       realWallet,
-      // dev mode: uncomment this out to autofill verified ticket
       inviteWallet: Just(inviteWallet),
-      verifyTicket: realWallet.value.ticket,
+      // dev mode: uncomment this out to autofill verified ticket
+      verifyTicket: !Nothing.hasInstance(realWallet) ? realWallet.value.ticket : '',
       walletStates: this.state.walletStates.concat(WALLET_STATES.RENDERING),
       errors
     })
