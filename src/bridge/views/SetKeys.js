@@ -190,7 +190,7 @@ class SetKeys extends React.Component {
             onToggle={ this.toggleDiscontinuity }
             state={ state.discontinuity }
             label={`I have lost important off-chain data relating to this point
-                    and need to do a hard-reset.
+                    and need to do a hard reset.
                     (For example, rebooting an Arvo ship.)`}
           ></CheckboxButton>
 
