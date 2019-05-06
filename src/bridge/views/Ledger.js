@@ -3,12 +3,12 @@ import React from 'react'
 import Maybe from 'folktale/maybe'
 import { Button } from '../components/Base'
 import { Row, Col, H1, P, H2 } from '../components/Base'
-import { Input, InnerLabel } from '../components/Base'
+import { Input, InnerLabel, InnerLabelDropdown } from '../components/Base'
 import Transport from '@ledgerhq/hw-transport-u2f'
 import Eth from '@ledgerhq/hw-app-eth'
 import * as secp256k1 from 'secp256k1'
 
-import { LEDGER_BASE_PATH } from '../lib/ledger'
+import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from '../lib/ledger'
 import { ROUTE_NAMES } from '../lib/router'
 
 const chopHdPrefix = str =>
@@ -26,11 +26,32 @@ class Ledger extends React.Component {
     super(props)
 
     this.state = {
-      hdpath: LEDGER_BASE_PATH
+      basePath: LEDGER_LIVE_PATH,
+      hdpath: LEDGER_LIVE_PATH.replace(/x/g, 0),
+      account: 0
     }
 
     this.pollDevice = this.pollDevice.bind(this)
     this.handleHdPathInput = this.handleHdPathInput.bind(this)
+    this.handlePathSelection = this.handlePathSelection.bind(this);
+    this.handleAccountSelection = this.handleAccountSelection.bind(this);
+    this.updateHdPath = this.updateHdPath.bind(this);
+  }
+
+  handlePathSelection(basePath) {
+    this.updateHdPath(basePath, this.state.account);
+  }
+
+  handleAccountSelection(account) {
+    this.updateHdPath(this.state.basePath, account);
+  }
+
+  updateHdPath(basePath, account) {
+    let hdpath = this.state.hdpath;
+    if (basePath !== 'custom') {
+      hdpath = basePath.replace(/x/g, account);
+    }
+    this.setState({ basePath, account, hdpath });
   }
 
   handleHdPathInput(hdpath) {
@@ -60,7 +81,66 @@ class Ledger extends React.Component {
 
   render() {
     const { pushRoute, popRoute, wallet } = this.props
-    const { hdpath } = this.state
+    const { basePath, hdpath, account } = this.state;
+    const { handlePathSelection, handleAccountSelection } = this;
+
+    const pathOptions = [
+      { title: 'Ledger Live',
+        value: LEDGER_LIVE_PATH
+      },
+      { title: 'Ledger Legacy',
+        value: LEDGER_LEGACY_PATH
+      },
+      {
+        title: 'Custom path',
+        value: 'custom'
+      }
+    ];
+    let basePathTitle = pathOptions.find(o => (o.value === basePath)).title;
+
+    let accountOptions = [];
+    for (let i = 0; i < 20; i++) {
+      accountOptions.push({
+        title: 'Account #' + (i+1),
+        value: i
+      });
+    }
+    let accountTitle = accountOptions.find(o => (o.value === account)).title;
+
+    const basePathSelection = (
+      <InnerLabelDropdown
+        className='mt-8'
+        options={pathOptions}
+        handleUpdate={handlePathSelection}
+        title={'Derivation path'}
+        currentSelectionTitle={basePathTitle}
+        fullWidth={true}
+      >
+      </InnerLabelDropdown>
+    );
+
+    const truePathSelection = (basePath === 'custom')
+      ? ( <Input
+            className='pt-8 mt-4 text-mono'
+            prop-size='md'
+            prop-format='innerLabel'
+            name='hdpath'
+            value={ addHdPrefix(hdpath) }
+            autocomplete='off'
+            onChange={ this.handleHdPathInput }>
+            <InnerLabel>{'HD Path'}</InnerLabel>
+          </Input> )
+      : ( <InnerLabelDropdown
+            className='mt-4'
+            prop-size='md'
+            prop-format='innerLabel'
+            options={accountOptions}
+            handleUpdate={handleAccountSelection}
+            title={'Account'}
+            currentSelectionTitle={accountTitle}
+            fullWidth={true}
+          >
+          </InnerLabelDropdown> );
 
     return (
 
@@ -99,16 +179,8 @@ class Ledger extends React.Component {
               <li className={'mt-4'}>{'Run '}<code>{'python bridge-https.py'}</code></li>
             </ol>
 
-            <Input
-              className='pt-8 mt-8 text-mono'
-              prop-size='md'
-              prop-format='innerLabel'
-              name='hdpath'
-              value={ addHdPrefix(hdpath) }
-              autocomplete='off'
-              onChange={ this.handleHdPathInput }>
-              <InnerLabel>{'HD Path'}</InnerLabel>
-            </Input>
+            { basePathSelection }
+            { truePathSelection }
 
             <Button
               prop-size={'wide lg'}

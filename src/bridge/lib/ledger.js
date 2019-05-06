@@ -1,7 +1,8 @@
 import Transport from '@ledgerhq/hw-transport-u2f'
 import Eth from '@ledgerhq/hw-app-eth'
 
-const LEDGER_BASE_PATH = "44'/60'/0'/0/0"
+const LEDGER_LEGACY_PATH = "m/44'/60'/0'/x"
+const LEDGER_LIVE_PATH = "m/44'/60'/x'/0/0"
 
 const chopHdPrefix = str =>
     str.slice(0, 2) === "m/"
@@ -24,6 +25,7 @@ const ledgerSignTransaction = async (txn, hdpath) => {
 }
 
 export {
-  LEDGER_BASE_PATH,
+  LEDGER_LIVE_PATH,
+  LEDGER_LEGACY_PATH,
   ledgerSignTransaction
 }
