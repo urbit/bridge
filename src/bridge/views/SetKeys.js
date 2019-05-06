@@ -187,13 +187,12 @@ class SetKeys extends React.Component {
 
           <CheckboxButton
             className='mt-8'
-            onClick={ this.toggleDiscontinuity }
+            onToggle={ this.toggleDiscontinuity }
             state={ state.discontinuity }
-          >
-            <div style={{cursor: 'pointer'}} onClick={ this.toggleDiscontinuity }>
-              { 'I have lost important off-chain data relating to this point and need to do a hard-reset. (For example, rebooting an Arvo ship.)' }
-            </div>
-          </CheckboxButton>
+            label={`I have lost important off-chain data relating to this point
+                    and need to do a hard-reset.
+                    (For example, rebooting an Arvo ship.)`}
+          ></CheckboxButton>
 
           <StatelessTransaction
             // Upper scope
