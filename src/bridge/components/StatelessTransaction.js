@@ -185,7 +185,13 @@ class StatelessTransaction extends React.Component {
 
     this.setState({ txStatus: SUBMISSION_STATES.FUNDING });
 
-    const rawTx = hexify(state.stx.value.serialize());
+    const stx = state.stx.matchWith({
+      Just: tx => tx.value,
+      Nothing: () => {
+        throw BRIDGE_ERROR.MISSING_TXN;
+      }
+    });
+    const rawTx = hexify(stx.serialize());
     const cost = (state.gasLimit * toWei(state.gasPrice, 'gwei'));
 
     //TODO need a lib function or something for address=, it's everywhere
