@@ -245,7 +245,7 @@ class StatelessTransaction extends React.Component {
       .catch(err => {
         this.setState({
           txStatus: SUBMISSION_STATES.PROMPT,
-          txError: err
+          txError: Just(err)
         });
       });
     }
