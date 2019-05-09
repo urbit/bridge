@@ -25,6 +25,7 @@ import {
 
 const SUBMISSION_STATES = {
   PROMPT: 'Send transaction',
+  PREPARING: 'Preparing...',
   FUNDING: 'Finding transaction funding...',
   SENDING: 'Sending transaction...'
 };
@@ -183,14 +184,30 @@ class StatelessTransaction extends React.Component {
     const { props, state } = this;
     const web3 = props.web3.value;
 
-    this.setState({ txStatus: SUBMISSION_STATES.FUNDING });
-
     const stx = state.stx.matchWith({
       Just: tx => tx.value,
       Nothing: () => {
         throw BRIDGE_ERROR.MISSING_TXN;
       }
     });
+
+    if (props.beforeSend) {
+      try {
+        this.setState({ txStatus: SUBMISSION_STATES.PREPARING });
+        const res = await props.beforeSend(stx);
+        if (res === false) throw 'beforeSend disallowed sending';
+      } catch (e) {
+        console.log('beforeSend error', e);
+        this.setState({
+          txStatus: SUBMISSION_STATES.PROMPT,
+          txError: Just('Something went wrong!')
+        });
+        return;
+      }
+    }
+
+    this.setState({ txStatus: SUBMISSION_STATES.FUNDING });
+
     const rawTx = hexify(stx.serialize());
     const cost = (state.gasLimit * toWei(state.gasPrice, 'gwei'));
 
