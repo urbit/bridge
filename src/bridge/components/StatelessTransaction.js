@@ -232,7 +232,7 @@ class StatelessTransaction extends React.Component {
         props.setTxnConfirmations
       )
       .then(txHash => {
-        props.setTxnHashCursor(Just(Ok(txHash)));
+        props.onSent(Just(Ok(txHash)), state.stx.value);
         props.popRoute();
 
         let routeData = {};

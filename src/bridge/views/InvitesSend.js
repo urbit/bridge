@@ -214,8 +214,8 @@ class InvitesSend extends React.Component {
             walletType={this.props.walletType}
             walletHdPath={this.props.walletHdPath}
             networkType={this.props.networkType}
-            setTxnHashCursor={this.props.setTxnHashCursor}
             setTxnConfirmations={this.txnConfirmation}
+            onSent={this.props.setTxnHashCursor}
             popRoute={this.props.popRoute}
             pushRoute={this.props.pushRoute}
             // Other
