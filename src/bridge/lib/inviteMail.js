@@ -4,22 +4,39 @@
 //     https://stackoverflow.com/a/53011185/1334324
 const baseUrl = 'https://localhost:3002'
 
-function sendMail(recipient, ticket) {
+function sendRequest(where, what) {
   return new Promise((resolve, reject) => {
-    fetch(baseUrl + '/send-ticket', {
+    fetch(baseUrl + where, {
       method: 'POST',
       cache: 'no-cache',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({recipient,ticket}),
+      body: JSON.stringify(what)
     })
-    .then(response => resolve(response.ok))
+    .then(response => {
+      if (response.ok) {
+        resolve(response.json());
+      } else {
+        reject(response);
+      }
+    })
     .catch(reject);
   });
 }
 
+async function hasReceived(recipient) {
+  const res = await sendRequest('/has-received', {recipient});
+  console.log('got fetch result', res);
+  return res.hasReceived;
+}
+
+function sendMail(recipient, ticket, tx) {
+  return sendRequest('/send-ticket', {recipient,ticket,tx});
+}
+
 export {
+  hasReceived,
   sendMail
 }
 
