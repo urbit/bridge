@@ -16,7 +16,7 @@ import ReactSVGComponents from '../components/ReactSVGComponents'
 import KeysAndMetadata from './Point/KeysAndMetadata'
 import Actions from './Point/Actions'
 import { BRIDGE_ERROR } from '../lib/error'
-import { sendMail } from '../lib/inviteMail'
+import { hasReceived, sendMail } from '../lib/inviteMail'
 import { Row, Col, Warning, Button, H1, H3,
          Input, InnerLabel
 } from '../components/Base'
@@ -46,7 +46,8 @@ class InvitesSend extends React.Component {
       haveInvited: Nothing(),
       randomPlanet: Nothing(),
       inviteWallet: Nothing(),
-      targetEmail: ''
+      targetEmail: '',
+      targetHasReceived: Nothing()
     }
 
     this.findInvited = this.findInvited.bind(this);
@@ -126,19 +127,33 @@ class InvitesSend extends React.Component {
   }
 
   handleEmailInput(email) {
-    //TODO simple .*@.*\..* email validation
-    this.setState({ targetEmail: email });
+    let newState = { targetEmail: email };
+    if (email.match(/.*@.*\...+/)) {
+      hasReceived(email)
+      .then(res => {
+        console.log('hasReceived', res);
+        this.setState({ targetHasReceived: Just(res) });
+      });
+    } else {
+      newState.targetHasReceived = Nothing();
+    }
+    this.setState(newState);
   }
 
   canGenerate() {
     //TODO and canSend()
-    let res = this.state.invitesAvailable.matchWith({
+    let invites = this.state.invitesAvailable.matchWith({
       Nothing: () => false,
-      Just: invites => ((invites.value > 0)
-                        && Just.hasInstance(this.state.randomPlanet)
-                        && Just.hasInstance(this.state.inviteWallet))
+      Just: invites => (invites.value > 0)
     });
-    return res;
+    let alreadyGotInvited = this.state.targetHasReceived.matchWith({
+      Nothing: () => false,
+      Just: has => has.value
+    });
+    return invites
+           && !alreadyGotInvited
+           && Just.hasInstance(this.state.randomPlanet)
+           && Just.hasInstance(this.state.inviteWallet);
   }
 
   createUnsignedTxn() {
@@ -188,6 +203,19 @@ class InvitesSend extends React.Component {
       })
     });
 
+    const recipientWarning = this.state.targetHasReceived.matchWith({
+      Nothing: () => null,
+      Just: hasReceived => {
+        if (!hasReceived.value) return null;
+        return (
+          <Warning>
+            <h3 className={'mb-2'}>{'Warning'}</h3>
+            { 'That email address has already received an invite!' }
+          </Warning>
+        );
+      }
+    });
+
     return (
       <Row>
         <Col>
@@ -205,6 +233,8 @@ class InvitesSend extends React.Component {
               { 'Recipient email' }
             </InnerLabel>
           </Input>
+
+          { recipientWarning }
 
           <StatelessTransaction
             // Upper scope
