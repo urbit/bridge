@@ -56,8 +56,6 @@ class InvitesSend extends React.Component {
     this.handleEmailInput = this.handleEmailInput.bind(this);
     this.txnConfirmation = this.txnConfirmation.bind(this);
     this.createUnsignedTxn = this.createUnsignedTxn.bind(this);
-
-    this.promptText = 'The email will be sent on first confirmation. Please wait.';
   }
 
   componentDidMount() {
@@ -221,7 +219,6 @@ class InvitesSend extends React.Component {
             popRoute={this.props.popRoute}
             pushRoute={this.props.pushRoute}
             // Other
-            promptText={this.promptText}
             canGenerate={this.canGenerate()}
             createUnsignedTxn={this.createUnsignedTxn}
             ref={this.statelessRef} />

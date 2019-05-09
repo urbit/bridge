@@ -240,9 +240,6 @@ class StatelessTransaction extends React.Component {
           props.setNetworkSeedCache(props.networkSeed);
           routeData.promptKeyfile = true;
         }
-        if (props.promptText) {
-          routeData.promptText = props.promptText;
-        }
         props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION, routeData);
       })
       .catch(err => {
