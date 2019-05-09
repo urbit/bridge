@@ -30,7 +30,8 @@ import {
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,
-  isTransactionConfirmed
+  isTransactionConfirmed,
+  hexify
 } from '../lib/txn'
 import * as tank from '../lib/tank'
 import Tx from 'ethereumjs-tx'
@@ -55,8 +56,8 @@ class InvitesSend extends React.Component {
     this.generateWallet = this.generateWallet.bind(this);
     this.canGenerate = this.canGenerate.bind(this);
     this.handleEmailInput = this.handleEmailInput.bind(this);
-    this.txnConfirmation = this.txnConfirmation.bind(this);
     this.createUnsignedTxn = this.createUnsignedTxn.bind(this);
+    this.beforeSend = this.beforeSend.bind(this);
   }
 
   componentDidMount() {
@@ -166,15 +167,13 @@ class InvitesSend extends React.Component {
     return Just(txn)
   }
 
-  //TODO find a better way of making the user wait for submission success
-  //     and email sending, so that we can catch failure cases and can
-  //     always fall back to retrying or "please send them this"
-  txnConfirmation(txHash, confirmations) {
-    this.props.setTxnConfirmations(txHash, confirmations);
-    if (confirmations === 1) {
-      sendMail(this.state.targetEmail, this.state.inviteWallet.value.ticket)
-      .then(console.log);
-    }
+  async beforeSend(stx) {
+    const rawTx = hexify(stx.serialize());
+    return await sendMail(
+      this.state.targetEmail,
+      this.state.inviteWallet.value.ticket,
+      rawTx
+    );
   }
 
   render() {
@@ -244,8 +243,9 @@ class InvitesSend extends React.Component {
             walletType={this.props.walletType}
             walletHdPath={this.props.walletHdPath}
             networkType={this.props.networkType}
-            setTxnConfirmations={this.txnConfirmation}
+            beforeSend={this.beforeSend}
             onSent={this.props.setTxnHashCursor}
+            setTxnConfirmations={this.props.setTxnConfirmations}
             popRoute={this.props.popRoute}
             pushRoute={this.props.pushRoute}
             // Other
