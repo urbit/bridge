@@ -62,14 +62,14 @@ class InnerLabelDropdown extends React.Component {
     const fullWidthClass = props.fullWidth ? 'full-width' : ''
 
     return (
-      <div className={`rel table ${fullWidthClass}`}>
+      <div className={`rel table ${fullWidthClass} ${props.className}`}>
         <div
           className={`fix full o-0 ${menuVisibility}`}
           onClick={this.close}
         />
 
         <button
-          className={`h-10 mp-0 bg-white outline-blue sans ${props.className} ${fullWidthClass}`}
+          className={`h-10 mp-0 bg-white outline-blue sans ${fullWidthClass}`}
           onClick={this.toggle}
           disabled={props.disabled}>
           <div className={'flex'}>

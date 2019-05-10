@@ -215,7 +215,7 @@ const Actions = (props) => {
               pushRoute(ROUTE_NAMES.SET_SPAWN_PROXY)
             }}
           >
-            { 'Set spawn proxy' }
+            { 'Change spawn proxy' }
           </Button>
 
           <Button
@@ -226,7 +226,7 @@ const Actions = (props) => {
               pushRoute(ROUTE_NAMES.SET_MANAGEMENT_PROXY)
             }}
           >
-            { 'Set management proxy' }
+            { 'Change management proxy' }
           </Button>
 
           <Button

@@ -36,7 +36,7 @@ class Network extends React.Component {
       setNetworkType(network)
 
       const endpoint =
-        `https://ropsten.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`
+        `https://ropsten.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`
 
       const provider = new Web3.providers.HttpProvider(endpoint)
       const web3 = new Web3(provider)
@@ -49,7 +49,7 @@ class Network extends React.Component {
       setNetworkType(network)
 
       const endpoint =
-        `https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`
+        `https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`
 
       const provider = new Web3.providers.HttpProvider(endpoint)
       const web3 = new Web3(provider)
