@@ -104,9 +104,14 @@ class InviteTicket extends React.Component {
     let errors = []
 
     if (incoming.length > 0) {
-      let pointNum = parseInt(incoming[0]);
-      realPoint = Just(pointNum);
-      let genWallet = await generateWallet(pointNum);
+      let pointNum = parseInt(incoming[0], 10)
+      realPoint = Just(pointNum)
+
+      this.setState({
+        realPoint
+      })
+
+      let genWallet = await generateWallet(pointNum)
 
       realWallet = Just(genWallet)
       if (incoming.length > 1) {
@@ -117,7 +122,6 @@ class InviteTicket extends React.Component {
     }
 
     this.setState({
-      realPoint,
       realWallet,
       inviteWallet: Just(inviteWallet),
       // dev mode: uncomment this out to autofill verified ticket
@@ -272,8 +276,15 @@ class InviteTicket extends React.Component {
           }
         : null
 
+    const ticketMatches = this.state.realWallet.matchWith({
+      Just: wal => wal.value.ticket === this.state.verifyTicket,
+      Nothing: () => false
+    })
+
     const continueReady = stage === INVITE_STAGES.INVITE_WALLET
         ? walletStates.includes(WALLET_STATES.DOWNLOADED)
+        : stage === INVITE_STAGES.INVITE_VERIFY
+        ? ticketMatches
         : true
 
     const buttonElem = stage === INVITE_STAGES.INVITE_TRANSACTIONS

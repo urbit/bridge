@@ -104,8 +104,8 @@ class Passport extends React.Component {
 
       const lastIndex = walletStates.indexOf(state) === walletStates.length - 1
       const checkmark = lastIndex
-          ? <div className="text-700 text-sm lh-6 green-dark">✓</div>
-          : null
+          ? null
+          : <div className="text-700 text-sm lh-6 green-dark">✓</div>
 
       return (
         <div className="flex justify-between">
@@ -128,7 +128,7 @@ class Passport extends React.Component {
       Nothing: () => ''
     })
 
-    let patp = ob.patp(pointVal)
+    let patp = pointVal === '' ? '' : ob.patp(pointVal)
 
     let wallet = this.props.wallet.matchWith({
       Just: w => w.value,
