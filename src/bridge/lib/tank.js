@@ -26,6 +26,7 @@ function sendRequest(where, what) {
 }
 
 const remainingTransactions = point => {
+  if (typeof point === 'string') point = Number(point);
   return sendRequest('/point', {point:point});
 };
 
