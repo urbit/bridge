@@ -210,6 +210,7 @@ class SetKeys extends React.Component {
             canGenerate={ canGenerate }
             createUnsignedTxn={this.createUnsignedTxn}
             networkSeed={ state.networkSeed }
+            newRevision={ (parseInt(pointDetails.keyRevisionNumber) + 1) }
             setNetworkSeedCache={ props.setNetworkSeedCache } />
 
         </Col>

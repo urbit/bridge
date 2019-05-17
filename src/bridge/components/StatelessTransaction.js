@@ -93,8 +93,9 @@ class StatelessTransaction extends React.Component {
         props.setTxnHashCursor(sent)
         props.popRoute()
 
-        if (props.networkSeed) {
-          props.setNetworkSeedCache(props.networkSeed)
+        //TODO this special logic should live in a handler in SetKeys.
+        if (props.networkSeed && props.newRevision) {
+          props.setNetworkSeedCache(props.networkSeed, props.newRevision)
           props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION, {promptKeyfile: true})
         } else {
           props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
