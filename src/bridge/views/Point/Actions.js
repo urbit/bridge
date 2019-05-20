@@ -199,7 +199,7 @@ const Actions = (props) => {
               pushRoute(ROUTE_NAMES.SET_KEYS)
             }}
           >
-            { 'Set public keys' }
+            { 'Set network keys' }
           </Button>
 
           <Button
