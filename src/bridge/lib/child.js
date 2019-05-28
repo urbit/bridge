@@ -4,17 +4,11 @@ const MIN_PLANET = Math.pow(2, 16)
 const MAX_GALAXY = MIN_STAR - 1
 const MAX_STAR = MIN_PLANET - 1
 
-const randomStarName = galaxy =>
-  (Math.floor(Math.random() * MAX_GALAXY) + 1) * MIN_STAR + galaxy
-
-const randomPlanetName = star =>
-  (Math.floor(Math.random() * MAX_STAR) + 1) * (MAX_STAR + 1) + star
-
-const getSpawnCandidate = point =>
-    point >= MIN_GALAXY && point < MIN_STAR
-  ? randomStarName(point)
-  : randomPlanetName(point)
+const getNthSpawnCandidate = (point, n) => {
+  let childSpace = point >= MIN_GALAXY && point < MIN_STAR ? 0x100 : 0x10000
+  return point + ((n + 1) * childSpace)
+}
 
 export {
-  getSpawnCandidate
+  getNthSpawnCandidate
 }

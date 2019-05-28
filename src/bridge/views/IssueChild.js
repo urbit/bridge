@@ -4,20 +4,20 @@ import { azimuth, ecliptic } from 'azimuth-js'
 import * as ob from 'urbit-ob'
 
 import { Row, Col, H1, P, Anchor } from '../components/Base'
-import { Button, ShowBlockie, ValidatedSigil } from '../components/Base'
+import { ShowBlockie, ValidatedSigil } from '../components/Base'
 import { PointInput, AddressInput, InnerLabel } from '../components/Base'
 
 import StatelessTransaction from '../components/StatelessTransaction'
 
 import { NETWORK_NAMES } from '../lib/network'
 import { BRIDGE_ERROR } from '../lib/error'
-import { getSpawnCandidate } from '../lib/child'
+import { getNthSpawnCandidate } from '../lib/child'
 import { canDecodePatp } from '../lib/txn'
 
+import Scramble from 'react-scramble'
+
 import {
-  ETH_ZERO_ADDR,
   isValidAddress,
-  eqAddr
 } from '../lib/wallet'
 
 const setFind = (set, pred) => {
@@ -40,13 +40,13 @@ class IssueChild extends React.Component {
       }
     })
 
-    const getCandidate = () => ob.patp(getSpawnCandidate(issuingPoint))
+    const getCandidate = (n) => ob.patp(getNthSpawnCandidate(issuingPoint, n))
 
     const suggestions = [
-      getCandidate(),
-      getCandidate(),
-      getCandidate(),
-      getCandidate()
+      getCandidate(0),
+      getCandidate(1),
+      getCandidate(2),
+      getCandidate(3)
     ]
 
     this.state = {
@@ -56,7 +56,9 @@ class IssueChild extends React.Component {
       isAvailable: Nothing(), // use Nothing to allow attempt when offline
       suggestions: suggestions,
       validChildren: new Set(),
-      autoComplete: ''
+      autoComplete: '',
+      scrambleStart: [],
+      placeHolderVisible: false
     }
 
     this.handlePointInput = this.handlePointInput.bind(this)
@@ -83,7 +85,18 @@ class IssueChild extends React.Component {
       }
     })
 
-    azimuth.getUnspawnedChildren(validContracts, issuingPoint).then(ps => this.setState({ validChildren: new Set(ps.map(ob.patp)) }))
+    azimuth.getUnspawnedChildren(validContracts, issuingPoint).then(ps => {
+      const children = ps.map(ob.patp)
+      this.setState((prevState, _) => {
+        for (let i = 0; i < prevState.suggestions.length; i++) {
+          if (children[i] !== prevState.suggestions[i]) {
+            prevState.scrambleStart[i]()
+          }
+        }
+        return { validChildren: new Set(children),
+                 suggestions: children.slice(0, 4),
+                 placeHolderVisible: true }})
+    })
   }
 
   handlePointInput(desiredPoint) {
@@ -202,25 +215,82 @@ class IssueChild extends React.Component {
             {
               ' are '
             }
-              <code>
-                { state.suggestions[0] }
-              </code>
-          { ', ' }
-              <code>
-                { state.suggestions[1] }
-              </code>
-          { ', and ' }
-              <code>
-                { state.suggestions[2] }
-              </code>
-          { '.' }
+            <code>
+              <Scramble
+                text={ state.suggestions[0] }
+                speed='fast'
+                bindMethod={c => {
+                  this.setState((prevState, _) => {
+                    return {scrambleStart: prevState.scrambleStart.concat([c.start])}
+                  })
+                }}
+                steps={[
+                  {
+                    roll: 10,
+                    action: '+',
+                    type: 'all',
+                  },
+                  {
+                    action: '-',
+                    type: 'forward',
+                  }
+                ]}
+              />
+            </code>
+            { ', ' }
+            <code>
+              <Scramble
+                text={ state.suggestions[1] }
+                speed='fast'
+                bindMethod={c => {
+                  this.setState((prevState, _) => {
+                    return {scrambleStart: prevState.scrambleStart.concat([c.start])}
+                  })
+                }}
+                steps={[
+                  {
+                    roll: 10,
+                    action: '+',
+                    type: 'all',
+                  },
+                  {
+                    action: '-',
+                    type: 'forward',
+                  }
+                ]}
+              />
+            </code>
+            { ', and ' }
+            <code>
+              <Scramble
+                text={ state.suggestions[2] }
+                speed='fast'
+                bindMethod={c => {
+                  this.setState((prevState, _) => {
+                    return {scrambleStart: prevState.scrambleStart.concat([c.start])}
+                  })
+                }}
+                steps={[
+                  {
+                    roll: 10,
+                    action: '+',
+                    type: 'all',
+                  },
+                  {
+                    action: '-',
+                    type: 'forward',
+                  }
+                ]}
+              />
+            </code>
+            { '.' }
           </P>
 
           <PointInput
             prop-size='lg'
             prop-format='innerLabel'
             className={'mono mt-8'}
-            placeholder={ `e.g. ${state.suggestions[3]}` }
+            placeholder={ state.placeHolderVisible ? `e.g. ${state.suggestions[3]}`: '' }
             value={ state.desiredPoint }
             onChange={ this.handlePointInput }>
             <InnerLabel>{ 'Point to Issue' }</InnerLabel>
