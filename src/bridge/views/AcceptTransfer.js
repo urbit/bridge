@@ -60,13 +60,11 @@ class AcceptTransfer extends React.Component {
       }
     })
 
-    const owner = props.pointCache[validPoint].owner
-
-    return Just(azimuth.ecliptic.transferFrom(
+    return Just(azimuth.ecliptic.transferPoint(
       validContracts,
-      owner,
+      validPoint,
       state.receivingAddress,
-      validPoint
+      true
     ))
   }
 
@@ -125,7 +123,7 @@ class AcceptTransfer extends React.Component {
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
             networkType={props.networkType}
-            setTxnHashCursor={props.setTxnHashCursor}
+            onSent={props.setTxnHashCursor}
             setTxnConfirmations={props.setTxnConfirmations}
             popRoute={props.popRoute}
             pushRoute={props.pushRoute}

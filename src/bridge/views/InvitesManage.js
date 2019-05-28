@@ -176,7 +176,7 @@ class InvitesManage extends React.Component {
             walletType={this.props.walletType}
             walletHdPath={this.props.walletHdPath}
             networkType={this.props.networkType}
-            setTxnHashCursor={this.props.setTxnHashCursor}
+            onSent={this.props.setTxnHashCursor}
             setTxnConfirmations={this.props.setTxnConfirmations}
             popRoute={this.props.popRoute}
             pushRoute={this.props.pushRoute}

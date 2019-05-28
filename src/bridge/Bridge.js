@@ -18,7 +18,7 @@ import { BRIDGE_ERROR } from './lib/error'
 const initWeb3 = (networkType) => {
   if (networkType === NETWORK_NAMES.MAINNET) {
     const endpoint =
-          `https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`
+      `https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`
 
     const provider = new Web3.providers.HttpProvider(endpoint)
     const web3 = new Web3(provider)
@@ -251,9 +251,12 @@ class Bridge extends React.Component {
   }
 
   setTxnConfirmations(txnHash, txnConfirmations) {
-    this.setState((prevState, _) =>
-                  ({txnConfirmations: { ...prevState.txnConfirmations,
-                                        [txnHash]: txnConfirmations}}))
+    this.setState((prevState, _) => {
+      return prevState.routeCrumbs.peek() === ROUTE_NAMES.SENT_TRANSACTION
+      ? {txnConfirmations: { ...prevState.txnConfirmations,
+                               [txnHash]: txnConfirmations}}
+      : null
+    })
   }
 
   render() {

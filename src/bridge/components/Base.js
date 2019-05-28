@@ -38,6 +38,9 @@ import DropdownItem from './DropdownItem';
 import DropdownDivider from './DropdownDivider';
 import InnerLabelDropdown from './InnerLabelDropdown';
 
+// Option selectors
+import HorizontalSelector from './HorizontalSelector';
+
 // Path Control
 import Breadcrumb from './Breadcrumb';
 import BreadcrumbItem from './BreadcrumbItem';
@@ -204,6 +207,8 @@ export {
   DropdownItem,
   DropdownDivider,
   InnerLabelDropdown,
+
+  HorizontalSelector,
 
   Breadcrumb,
   BreadcrumbItem,

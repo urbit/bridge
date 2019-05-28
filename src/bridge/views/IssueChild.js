@@ -20,6 +20,15 @@ import {
   eqAddr
 } from '../lib/wallet'
 
+const setFind = (set, pred) => {
+  for (const e of set) {
+    if (pred(e)) {
+      return e
+    }
+  }
+  return undefined
+}
+
 class IssueChild extends React.Component {
   constructor(props) {
     super(props)
@@ -46,11 +55,12 @@ class IssueChild extends React.Component {
       desiredPoint: '',
       isAvailable: Nothing(), // use Nothing to allow attempt when offline
       suggestions: suggestions,
+      validChildren: new Set(),
+      autoComplete: ''
     }
 
     this.handlePointInput = this.handlePointInput.bind(this)
     this.handleAddressInput = this.handleAddressInput.bind(this)
-    this.handleConfirmAvailability = this.handleConfirmAvailability.bind(this)
     this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
     this.statelessRef = React.createRef();
   }
@@ -60,28 +70,11 @@ class IssueChild extends React.Component {
     this.statelessRef.current.clearTxn()
   }
 
-  handlePointInput(desiredPoint) {
-    if (desiredPoint.length < 15) {
-      this.setState({
-        desiredPoint,
-        isAvailable: Nothing()
-      })
-      this.statelessRef.current.clearTxn()
-    }
-  }
+  componentWillMount() {
 
-  handleConfirmAvailability() {
-    this.confirmPointAvailability().then(r => {
-      this.setState({
-        isAvailable: r,
-      })
-    })
-
-  }
-
-  async confirmPointAvailability() {
     const { contracts } = this.props
-    const { desiredPoint } = this.state
+    const { issuingPoint } = this.state
+
 
     const validContracts = contracts.matchWith({
       Just: cs => cs.value,
@@ -90,30 +83,27 @@ class IssueChild extends React.Component {
       }
     })
 
-    if (canDecodePatp(desiredPoint) === false) {
-      return Just(false)
-    }
-
-    const point = ob.patp2dec(desiredPoint)
-    const pointSize = azimuth.getPointSize(point)
-
-    const prefix = azimuth.getPrefix(point)
-    const prefixSize = azimuth.getPointSize(prefix)
-
-    // NB (jtobin): this prevents galaxies from attempting to spawn planets
-    //
-    if (pointSize !== prefixSize + 1) {
-      return Just(false)
-    }
-
-    const owner = await azimuth.getOwner(validContracts, point)
-
-    if (eqAddr(owner, ETH_ZERO_ADDR)) {
-      return Just(true)
-    }
-
-    return Just(false)
+    azimuth.getUnspawnedChildren(validContracts, issuingPoint).then(ps => this.setState({ validChildren: new Set(ps.map(ob.patp)) }))
   }
+
+  handlePointInput(desiredPoint) {
+    if (desiredPoint.length < 15) {
+
+      const suggestedPoint = setFind(this.state.validChildren, (e => e.startsWith(desiredPoint))) || ''
+      const rendered = ' '.repeat(desiredPoint.length) + suggestedPoint.substring(desiredPoint.length)
+
+      const available = Just(this.state.validChildren.has(desiredPoint))
+
+      this.setState({
+        desiredPoint,
+        isAvailable: available,
+        autoComplete: rendered
+      })
+      this.statelessRef.current.clearTxn()
+
+    }
+  }
+
 
   createUnsignedTxn() {
     const { state, props } = this
@@ -140,19 +130,6 @@ class IssueChild extends React.Component {
     return Just(txn)
   }
 
-  buttonTriState() {
-    const a = this.state.isAvailable
-    if (Nothing.hasInstance(a)) return 'blue'
-    if (a.value === false) return 'yellow'
-    if (a.value === true) return 'green'
-  }
-
-  buttonTriStateText() {
-    const a = this.state.isAvailable
-    if (Nothing.hasInstance(a)) return 'Confirm Availablility'
-    if (a.value === false) return 'Point is Not Available'
-    if (a.value === true) return 'Available'
-  }
 
   validatePoint = patp => {
     const point = this.point
@@ -176,16 +153,13 @@ class IssueChild extends React.Component {
     const { props, state } = this
 
     const validAddress = isValidAddress(state.receivingAddress)
-    const validPoint = canDecodePatp(state.desiredPoint)
 
     const canGenerate = props.web3.matchWith({
       Nothing: () => {
-        return validAddress === true &&
-        validPoint === true
+        return validAddress === true
       },
       Just: () => {
         return validAddress === true &&
-          validPoint === true &&
           state.isAvailable.value === true
       }
     })
@@ -250,6 +224,11 @@ class IssueChild extends React.Component {
             value={ state.desiredPoint }
             onChange={ this.handlePointInput }>
             <InnerLabel>{ 'Point to Issue' }</InnerLabel>
+            <div
+              style={{marginTop: '8.8rem', marginLeft: '4.6rem', fontSize: '5rem', color: '#757575', whiteSpace: 'pre-wrap'}}
+              className='abs tl-0 mono'>
+              { state.autoComplete }
+            </div>
             <ValidatedSigil
               className={'tr-0 mt-05 mr-0 abs'}
               patp={state.desiredPoint}
@@ -279,21 +258,6 @@ class IssueChild extends React.Component {
               {'View on Etherscan ↗'}
           </Anchor>
 
-          {
-            props.web3.matchWith({
-              Nothing: _ => <div />,
-              Just: _ =>
-              <Button
-                prop-size='lg wide'
-                prop-color={this.buttonTriState()}
-                className={'mt-8'}
-                disabled={!validPoint}
-                onClick={this.handleConfirmAvailability}>
-                {this.buttonTriStateText()}
-              </Button>
-            })
-          }
-
           <StatelessTransaction
             // Upper scope
             web3={props.web3}
@@ -302,7 +266,7 @@ class IssueChild extends React.Component {
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
             networkType={props.networkType}
-            setTxnHashCursor={props.setTxnHashCursor}
+            onSent={props.setTxnHashCursor}
             setTxnConfirmations={props.setTxnConfirmations}
             popRoute={props.popRoute}
             pushRoute={props.pushRoute}
