@@ -187,9 +187,10 @@ class Bridge extends React.Component {
     }
   }
 
-  setNetworkSeedCache(networkSeed) {
+  setNetworkSeedCache(networkSeed, revision) {
     this.setState({
-      networkSeedCache: networkSeed
+      networkSeedCache: networkSeed,
+      networkRevisionCache: revision
     })
   }
 
@@ -270,6 +271,7 @@ class Bridge extends React.Component {
       urbitWallet,
       authMnemonic,
       networkSeedCache,
+      networkRevisionCache,
       pointCursor,
       pointCache,
       txnHashCursor,
@@ -337,6 +339,7 @@ class Bridge extends React.Component {
                 pointCursor={ pointCursor }
                 pointCache={ pointCache }
                 networkSeedCache= { networkSeedCache }
+                networkRevisionCache={ networkRevisionCache }
                 setNetworkSeedCache= { this.setNetworkSeedCache }
                 // txn
                 setTxnHashCursor={ this.setTxnHashCursor }

@@ -515,13 +515,10 @@ class StatelessTransaction extends React.Component {
       <CheckboxButton
         className={ 'mt-8' }
         disabled={ !canApprove }
-        onClick={ setUserApproval }
+        onToggle={ setUserApproval }
         state={ userApproval }
-      >
-        <div onClick={ setUserApproval }>
-          { `I approve this transaction and wish to send.` }
-        </div>
-      </CheckboxButton>
+        label='I approve this transaction and wish to send.'
+      ></CheckboxButton>
 
     const sending = (txStatus !== SUBMISSION_STATES.PROMPT);
     const sendTxnSpinner = sending ? '' : 'hide';

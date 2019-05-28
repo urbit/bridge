@@ -40,7 +40,10 @@ class GenKeyfile extends React.Component {
       ? pointCache[point]
       : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
 
-    const revision = parseInt(pointDetails.keyRevisionNumber)
+    // in case we did SetKeys earlier this session, make sure to generate the
+    // newer keyfile, rather than the one that will expire soon
+    const revision = (this.props.networkRevisionCache ||
+                      parseInt(pointDetails.keyRevisionNumber));
 
     return {
       point,
