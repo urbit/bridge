@@ -11,13 +11,8 @@ const Crumbs = (props) => {
   // FIXME probably more straightforward to render them normally and just
   // return the reversed array of renders
   const rendered = history.map((route, idx) => {
-
       return (
         <div className={'flex items-center'} key={ `history-${idx}` }>
-
-
-
-
           <Button
             prop-type={'link'}
             prop-size={'sm'}
@@ -31,8 +26,6 @@ const Crumbs = (props) => {
               ? <div />
               : <Chevron className={'h-4 mh-2'} />
           }
-
-
         </div>
       )
     })
@@ -40,15 +33,22 @@ const Crumbs = (props) => {
   return rendered
 }
 
-const Header = (props) =>
-  <div className={'flex items-center h-10'}>
-    <Crumbs
-      routeCrumbs={ props.routeCrumbs }
-      skipRoute={ props.skipRoute }
-      networkType={ props.networkType }
-      wallet={ props.wallet }
-      pointCursor={ props.pointCursor }
-    />
-  </div>
+const Header = (props) => {
+  const crumbs = (
+    <div className={'flex items-center h-10'}>
+      <Crumbs
+        routeCrumbs={ props.routeCrumbs }
+        skipRoute={ props.skipRoute }
+        networkType={ props.networkType }
+        wallet={ props.wallet }
+        pointCursor={ props.pointCursor }
+      />
+    </div>
+  )
+
+  const noCrumbs = <h2 className="mt-9 clickable" onClick={() => props.skipRoute(1)}>Bridge</h2>
+
+  return props.showCrumbs ? crumbs : noCrumbs
+}
 
 export default Header

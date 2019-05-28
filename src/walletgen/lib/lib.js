@@ -4,10 +4,8 @@ import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as more from 'more-entropy'
 import lodash from 'lodash'
 import {
-  MAX_GALAXY, MIN_STAR, MAX_STAR, MIN_PLANET,
+  MIN_STAR, MIN_PLANET, SEED_ENTROPY_BITS,
   GALAXY_ENTROPY_BITS, STAR_ENTROPY_BITS, PLANET_ENTROPY_BITS,
-  SEED_ENTROPY_BITS,
-  GEN_STATES
 } from './constants'
 
 const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8

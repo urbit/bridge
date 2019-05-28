@@ -1,6 +1,4 @@
 import React from 'react'
-import * as more from 'more-entropy'
-import lodash from 'lodash'
 import * as sigil from 'sigil-js'
 import ob from 'urbit-ob'
 import classnames from 'classnames'
@@ -11,15 +9,9 @@ import Button from '../components/Button'
 import ReactSVGComponents from '../components/ReactSVGComponents'
 import PaperCollateralRenderer from 'PaperCollateralRenderer'
 
-import { MAX_GALAXY, MIN_STAR, MAX_STAR, MIN_PLANET,
-         GALAXY_ENTROPY_BITS, STAR_ENTROPY_BITS, PLANET_ENTROPY_BITS,
-         SEED_ENTROPY_BITS,
-         GEN_STATES
-       } from '../lib/constants'
+import { MAX_GALAXY, MIN_STAR, MAX_STAR, GEN_STATES } from '../lib/constants'
 
-const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8
 const NEXT_STEP_NUM = 6;
-
 
 const shipInfo = ship => {
   const name = ob.patp(ship)

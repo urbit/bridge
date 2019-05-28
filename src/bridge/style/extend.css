@@ -212,6 +212,14 @@ footer,
   font-size: 8rem;
 }
 
+.lh-6 {
+  line-height: 6rem;
+}
+
+.lh-8 {
+  line-height: 8rem;
+}
+
 .ls-1 > * {
   padding-bottom: 1rem !important;
 }
@@ -478,10 +486,120 @@ code {
   margin-bottom: 4rem;
 }
 
+.block {
+  display: block;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
 .full-width {
   width: 100%;
 }
 
+.overflow-hidden {
+  overflow: hidden;
+}
+
 .z-1 {
   z-index: 1
+}
+
+.break-word {
+  word-wrap: break-word;
+}
+
+/**
+  Passport styles
+**/
+
+.passport {
+  padding: 24px;
+}
+
+.passport .text-sm {
+  font-size: 3rem;
+  line-height: 6rem;
+}
+
+.passport-filled {
+  background-color: #C5FBE7;
+}
+
+.passport-border {
+  border: 1px solid #C5FBE7;
+}
+
+.passport-block {
+  width: 8px;
+  height: 8px;
+}
+
+.passport-label {
+  font-size: 12px;
+  line-height: 24px;
+  font-weight: 700;
+  font-family: "Inter UI";
+  color: #7f7f7f;
+}
+
+.passport-value {
+  font-size: 12px;
+  line-height: 24px;
+  font-family: "Source Code Pro";
+  color: #7f7f7f;
+}
+
+.passport-censor {
+  /* min-width: 350px; */
+  font-size: 48px;
+}
+
+.passport-metadata .passport-label {
+  line-height: 12px;
+}
+
+.passport-point {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.passport-sigil-blank {
+  width: 128px;
+  height: 128px;
+
+  background-color: black;
+}
+
+.passport-progress {
+  position: relative;
+  height: 4px;
+  width: 100%;
+
+  background-color: #E6E6E6;
+}
+
+.passport-progress-filled {
+  position: absolute;
+  height: 4px;
+  width: 0%;
+
+  z-index: 1;
+  top: 0;
+  left: 0;
+
+  background-color: #2AA779;
+  transition: width 3s ease;
+}
+
+.passport-wallet-progress {
+  height: 4px;
+  background-color: #C5FBE7;
+}
+
+.passport-wallet-progress-fill {
+  height: 4px;
+  width: 100%;
+  background-color: #2AA779;
 }

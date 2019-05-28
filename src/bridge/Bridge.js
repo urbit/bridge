@@ -280,16 +280,30 @@ class Bridge extends React.Component {
 
     const View = router(routeCrumbs.peek())
 
+    // For the invite acceptance flow, widen the screen to use the full
+    // container, and hide the breadcrumbs
+    const colClass = routeCrumbs.contains(ROUTE_NAMES.INVITE_TICKET)
+        ? 'col-md-12'
+        : 'col-md-offset-1 col-md-10'
+
+    const colStyle = routeCrumbs.contains(ROUTE_NAMES.INVITE_TICKET)
+        ? {}
+        : {maxWidth: '620px'}
+
+    const showCrumbs = routeCrumbs.contains(ROUTE_NAMES.INVITE_TICKET)
+        ? false
+        : true
+
     return (
       <Container>
         <Row>
-          <Col className='col-md-1' />
-          <Col className='col-md-10' style={{maxWidth: '620px'}}>
+          <Col className={colClass} style={colStyle}>
             <Header
               routeCrumbs={ routeCrumbs }
               skipRoute={ this.skipRoute }
               networkType={ networkType }
               wallet={ wallet }
+              showCrumbs={ showCrumbs }
               pointCursor={ pointCursor } />
 
             <Row className={ 'row wrapper' }>

@@ -14,7 +14,7 @@ import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as ob from 'urbit-ob'
 
 import { ROUTE_NAMES } from '../lib/router'
-import { DEFAULT_HD_PATH, urbitWalletFromTicket } from '../lib/wallet'
+import { urbitWalletFromTicket } from '../lib/wallet'
 
 const placeholder = (len) => {
   let bytes = window.crypto.getRandomValues(new Uint8Array(len))

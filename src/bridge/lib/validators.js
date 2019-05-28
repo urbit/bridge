@@ -5,7 +5,6 @@ import { isValidAddress } from './wallet'
 
 const hexRegExp = /[0-9A-Fa-f]{64}/g
 
-
 // // Note that this validator also transforms data
 // const validateBase64 = ({ data, pass, error }) => {
 //   if (pass !== true) return { data, pass, error }
@@ -30,10 +29,6 @@ const hexRegExp = /[0-9A-Fa-f]{64}/g
 //   }
 // };
 
-
-
-
-
 // Validates a bip39 mnemonic
 const validateMnemonic = m => simpleValidatorWrapper({
   prevMessage: m,
@@ -41,15 +36,12 @@ const validateMnemonic = m => simpleValidatorWrapper({
   errorMessage: 'This is not a valid mnemonic.'
 });
 
-
 // Checks an empty field
 const validateNotEmpty = m => simpleValidatorWrapper({
   prevMessage: m,
   validator: d => d.length > 1,
   errorMessage: 'This field is required.'
 });
-
-
 
 // Checks if a patp is a valid galaxy
 const validateGalaxy = m => simpleValidatorWrapper({
@@ -66,8 +58,6 @@ const validateGalaxy = m => simpleValidatorWrapper({
   errorMessage: 'This is not a valid galaxy'
 });
 
-
-
 const validatePoint = m => simpleValidatorWrapper({
   prevMessage: m,
   validator: d => {
@@ -79,8 +69,6 @@ const validatePoint = m => simpleValidatorWrapper({
   },
   errorMessage: 'This is not a valid point'
 });
-
-
 
 const validateTicket = m => simpleValidatorWrapper({
   prevMessage: m,
@@ -94,7 +82,6 @@ const validateTicket = m => simpleValidatorWrapper({
   errorMessage: 'This is not a valid ticket'
 });
 
-
 const validateShard = m => simpleValidatorWrapper({
   prevMessage: m,
   validator: d => {
@@ -107,13 +94,11 @@ const validateShard = m => simpleValidatorWrapper({
   errorMessage: 'This is not a valid shard'
 });
 
-
 const validateLength = (m, l) => simpleValidatorWrapper({
   prevMessage: m,
   validator: d => d.length === l,
   errorMessage: 'This is of an invalid length'
 });
-
 
 const validateNetworkKey = m => simpleValidatorWrapper({
   prevMessage: m,
@@ -121,14 +106,11 @@ const validateNetworkKey = m => simpleValidatorWrapper({
   errorMessage: 'This is not a valid network key'
 });
 
-
 const validateNetworkSeed = m => simpleValidatorWrapper({
   prevMessage: m,
   validator: d => hexRegExp.test(d),
   errorMessage: 'This is not a valid network seed'
 });
-
-
 
 // Checks if a string is a valid ethereum address
 const validateEthereumAddress = m => simpleValidatorWrapper({
@@ -136,10 +118,6 @@ const validateEthereumAddress = m => simpleValidatorWrapper({
   validator: d => isValidAddress(d),
   errorMessage: 'This is not a valid Ethereum address'
 });
-
-
-
-
 
 // Wraps single validation functions in a controlled and predictable way.
 const simpleValidatorWrapper = config => {
@@ -172,11 +150,10 @@ const newMessage = (data, pass, error) => ({
   error,
 })
 
-
-
 export {
   // validateBase64,
   // validateJSON,
+  simpleValidatorWrapper,
   validateMnemonic,
   validateNotEmpty,
   validateGalaxy,

@@ -1,39 +1,15 @@
 import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
-import { pour } from 'sigil-js'
 import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
 
-import {
-  EthereumWallet,
-  addressFromSecp256k1Public,
-  urbitWalletFromTicket,
-  addHexPrefix,
-  WALLET_NAMES
-} from '../lib/wallet'
-
-import ReactSVGComponents from '../components/ReactSVGComponents'
-import KeysAndMetadata from './Point/KeysAndMetadata'
-import Actions from './Point/Actions'
 import { BRIDGE_ERROR } from '../lib/error'
 import { sendMail } from '../lib/inviteMail'
-import { Row, Col, Warning, Button, H1, H3,
-         Input, InnerLabel
-} from '../components/Base'
+import { Row, Col, Input, InnerLabel } from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
 
 // for wallet generation
 import * as wg from '../../walletgen/lib/lib'
-
-// for transaction generation and signing
-import {
-  signTransaction,
-  sendSignedTransaction,
-  waitForTransactionConfirm,
-  isTransactionConfirmed
-} from '../lib/txn'
-import * as tank from '../lib/tank'
-import Tx from 'ethereumjs-tx'
 
 class InvitesSend extends React.Component {
 
@@ -163,14 +139,13 @@ class InvitesSend extends React.Component {
   }
 
   render() {
-
     const inviteStatus = this.state.invitesAvailable.matchWith({
       Nothing: () => 'Loading...',
       Just: (invites) => {
         let res = `${invites.value} invites available`;
         return res + this.state.fromPool.matchWith({
           Nothing: () => '',
-          Just: (pool) => (pool.value == this.point)
+          Just: (pool) => (pool.value === this.point)
                           ? ''
                           : ` (from ${ob.patp(pool.value)})`
         });
