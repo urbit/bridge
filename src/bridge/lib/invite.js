@@ -169,6 +169,13 @@ async function startTransactions(args) {
   let { realPointM, web3M, contractsM,
     inviteWalletM, realWalletM, setUrbitWallet, updateProgress } = args
 
+  const askForFunding = (address, amount, current) => {
+    updateProgress({
+      type: "notify",
+      value: `Please make sure ${address} has at least ${amount} wei, we'll continue once that's true. Current balance: ${current}. Waiting`
+    });
+  }
+
   if (Nothing.hasInstance(web3M)) {
     throw BRIDGE_ERROR.MISSING_WEB3;
   }
@@ -217,7 +224,11 @@ async function startTransactions(args) {
   let rawTransferStx = '0x'+transferStx.serialize().toString('hex');
 
   const transferCost = transferTx.gas * transferTx.gasPrice;
-  await ensureFundsFor(web3, point, inviteAddress, transferCost, [rawTransferStx], updateProgress, true);
+  updateProgress({
+    type: "progress",
+    value: TRANSACTION_STATES.FUNDING_INVITE
+  });
+  await tank.ensureFundsFor(web3, point, inviteAddress, transferCost, [rawTransferStx], askForFunding);
 
   updateProgress({
     type: "progress",
@@ -281,7 +292,11 @@ async function startTransactions(args) {
     return '0x'+stx.serialize().toString('hex');
   });
 
-  await ensureFundsFor(web3, point, newAddress, totalCost, rawStxs, updateProgress, false);
+  updateProgress({
+    type: "progress",
+    value: TRANSACTION_STATES.FUNDING_RECIPIENT
+  });
+  await tank.ensureFundsFor(web3, point, newAddress, totalCost, rawStxs, askForFunding);
 
   updateProgress({
     type: "progress",
@@ -328,67 +343,6 @@ async function startTransactions(args) {
   setUrbitWallet(Just(realWallet));
 }
 
-async function ensureFundsFor(web3, point, address, cost, signedTxs, updateProgress, firstTx) {
-  let fundingState = firstTx? TRANSACTION_STATES.FUNDING_INVITE : TRANSACTION_STATES.FUNDING_RECIPIENT
-
-  updateProgress({
-    type: "progress",
-    value: fundingState
-  });
-
-  let balance = await web3.eth.getBalance(address);
-
-  if (cost > balance) {
-
-    try {
-
-      const fundsRemaining = await tank.remainingTransactions(point);
-      if (fundsRemaining < signedTxs.length) {
-        throw new Error('request invalid');
-      }
-
-      const res = await tank.fundTransactions(signedTxs);
-      if (!res.success) {
-        throw new Error('request rejected');
-      } else {
-        await waitForTransactionConfirm(web3, res.txHash);
-        let newBalance = await web3.eth.getBalance(address);
-        console.log('funds have confirmed', balance >= cost, balance, newBalance);
-      }
-
-    } catch (e) {
-
-      console.log('funding failed', e);
-      await waitForBalance(web3, address, cost, updateProgress);
-
-    }
-
-  } else {
-    console.log('already have sufficient funds');
-  }
-}
-
-// resolves when address has at least minBalance
-//
-async function waitForBalance(web3, address, minBalance, updateProgress) {
-  console.log('awaiting balance', address, minBalance);
-  return new Promise((resolve, reject) => {
-    let oldBalance = null;
-    const checkForBalance = async () => {
-      const balance = await web3.eth.getBalance(address);
-      if (balance >= minBalance) {
-        resolve();
-      } else {
-        if (balance !== oldBalance) {
-          askForFunding(address, minBalance, balance, updateProgress);
-        }
-        setTimeout(checkForBalance, 13000);
-      }
-    };
-    checkForBalance();
-  });
-}
-
 //TODO replace with txn.sendSignedTransaction? it can doubt nonce errors too
 async function sendAndAwaitConfirm(web3, signedTxs) {
   await Promise.all(signedTxs.map(tx => {
@@ -419,13 +373,6 @@ async function sendAndAwaitConfirm(web3, signedTxs) {
       });
     });
   }));
-}
-
-function askForFunding(address, amount, current, updateProgress) {
-  updateProgress({
-    type: "notify",
-    value: `Please make sure ${address} has at least ${amount} wei, we'll continue once that's true. Current balance: ${current}. Waiting`
-  });
 }
 
 export {
