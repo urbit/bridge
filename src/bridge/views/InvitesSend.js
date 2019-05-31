@@ -4,12 +4,25 @@ import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
 
 import { BRIDGE_ERROR } from '../lib/error'
-import { sendMail } from '../lib/inviteMail'
-import { Row, Col, Input, InnerLabel } from '../components/Base'
+import { hasReceived, sendMail } from '../lib/inviteMail'
+import { Row, Col, Warning, Button, H1, H3,
+         Input, InnerLabel
+} from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
 
 // for wallet generation
 import * as wg from '../../walletgen/lib/lib'
+
+// for transaction generation and signing
+import {
+  signTransaction,
+  sendSignedTransaction,
+  waitForTransactionConfirm,
+  isTransactionConfirmed,
+  hexify
+} from '../lib/txn'
+import * as tank from '../lib/tank'
+import Tx from 'ethereumjs-tx'
 
 class InvitesSend extends React.Component {
 
@@ -22,7 +35,8 @@ class InvitesSend extends React.Component {
       haveInvited: Nothing(),
       randomPlanet: Nothing(),
       inviteWallet: Nothing(),
-      targetEmail: ''
+      targetEmail: '',
+      targetHasReceived: Nothing()
     }
 
     this.findInvited = this.findInvited.bind(this);
@@ -30,8 +44,8 @@ class InvitesSend extends React.Component {
     this.generateWallet = this.generateWallet.bind(this);
     this.canGenerate = this.canGenerate.bind(this);
     this.handleEmailInput = this.handleEmailInput.bind(this);
-    this.txnConfirmation = this.txnConfirmation.bind(this);
     this.createUnsignedTxn = this.createUnsignedTxn.bind(this);
+    this.beforeSend = this.beforeSend.bind(this);
   }
 
   componentDidMount() {
@@ -102,19 +116,33 @@ class InvitesSend extends React.Component {
   }
 
   handleEmailInput(email) {
-    //TODO simple .*@.*\..* email validation
-    this.setState({ targetEmail: email });
+    let newState = { targetEmail: email };
+    if (email.match(/.*@.*\...+/)) {
+      hasReceived(email)
+      .then(res => {
+        console.log('hasReceived', res);
+        this.setState({ targetHasReceived: Just(res) });
+      });
+    } else {
+      newState.targetHasReceived = Nothing();
+    }
+    this.setState(newState);
   }
 
   canGenerate() {
     //TODO and canSend()
-    let res = this.state.invitesAvailable.matchWith({
+    let invites = this.state.invitesAvailable.matchWith({
       Nothing: () => false,
-      Just: invites => ((invites.value > 0)
-                        && Just.hasInstance(this.state.randomPlanet)
-                        && Just.hasInstance(this.state.inviteWallet))
+      Just: invites => (invites.value > 0)
     });
-    return res;
+    let alreadyGotInvited = this.state.targetHasReceived.matchWith({
+      Nothing: () => false,
+      Just: has => has.value
+    });
+    return invites
+           && !alreadyGotInvited
+           && Just.hasInstance(this.state.randomPlanet)
+           && Just.hasInstance(this.state.inviteWallet);
   }
 
   createUnsignedTxn() {
@@ -127,15 +155,13 @@ class InvitesSend extends React.Component {
     return Just(txn)
   }
 
-  //TODO find a better way of making the user wait for submission success
-  //     and email sending, so that we can catch failure cases and can
-  //     always fall back to retrying or "please send them this"
-  txnConfirmation(txHash, confirmations) {
-    this.props.setTxnConfirmations(txHash, confirmations);
-    if (confirmations === 1) {
-      sendMail(this.state.targetEmail, this.state.inviteWallet.value.ticket)
-      .then(console.log);
-    }
+  async beforeSend(stx) {
+    const rawTx = hexify(stx.serialize());
+    return await sendMail(
+      this.state.targetEmail,
+      this.state.inviteWallet.value.ticket,
+      rawTx
+    );
   }
 
   render() {
@@ -163,6 +189,19 @@ class InvitesSend extends React.Component {
       })
     });
 
+    const recipientWarning = this.state.targetHasReceived.matchWith({
+      Nothing: () => null,
+      Just: hasReceived => {
+        if (!hasReceived.value) return null;
+        return (
+          <Warning>
+            <h3 className={'mb-2'}>{'Warning'}</h3>
+            { 'That email address has already received an invite!' }
+          </Warning>
+        );
+      }
+    });
+
     return (
       <Row>
         <Col>
@@ -181,6 +220,8 @@ class InvitesSend extends React.Component {
             </InnerLabel>
           </Input>
 
+          { recipientWarning }
+
           <StatelessTransaction
             // Upper scope
             web3={this.props.web3}
@@ -189,8 +230,9 @@ class InvitesSend extends React.Component {
             walletType={this.props.walletType}
             walletHdPath={this.props.walletHdPath}
             networkType={this.props.networkType}
-            setTxnConfirmations={this.txnConfirmation}
+            beforeSend={this.beforeSend}
             onSent={this.props.setTxnHashCursor}
+            setTxnConfirmations={this.props.setTxnConfirmations}
             popRoute={this.props.popRoute}
             pushRoute={this.props.pushRoute}
             // Other
