@@ -389,6 +389,7 @@ async function waitForBalance(web3, address, minBalance, updateProgress) {
   });
 }
 
+//TODO replace with txn.sendSignedTransaction? it can doubt nonce errors too
 async function sendAndAwaitConfirm(web3, signedTxs) {
   await Promise.all(signedTxs.map(tx => {
     console.log('sending...');
@@ -403,8 +404,7 @@ async function sendAndAwaitConfirm(web3, signedTxs) {
         // this is really only the case in local dev environments.
         const txHash = web3.utils.keccak256(tx);
         console.log(err.message);
-        if (err.message.slice(0,54) ===
-            "Returned error: the tx doesn't have the correct nonce.") {
+        if (err.message.includes("the tx doesn't have the correct nonce.")) {
           console.log('nonce error, awaiting confirm', err.message.slice(55));
           //TODO max wait time before assume failure?
           let res = await waitForTransactionConfirm(web3, txHash);
