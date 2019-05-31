@@ -6,6 +6,7 @@ import * as azimuth from 'azimuth-js'
 import * as more from 'more-entropy'
 import * as ob from 'urbit-ob'
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
+import * as wg from '../../walletgen/lib/lib.js'
 import * as tank from './tank'
 import { MIN_STAR, MIN_PLANET, SEED_ENTROPY_BITS,
          GALAXY_ENTROPY_BITS, STAR_ENTROPY_BITS, PLANET_ENTROPY_BITS,
@@ -79,58 +80,9 @@ const TRANSACTION_STATES = {
   },
 }
 
-//TODO should be moved to lib/walletgen
 async function generateWallet(point) {
-  const makeTicket = point => {
-
-    const bits = point < MIN_STAR
-      ? GALAXY_ENTROPY_BITS
-      : point < MIN_PLANET
-        ? STAR_ENTROPY_BITS
-        : PLANET_ENTROPY_BITS
-
-    const bytes = bits / 8
-    const some = new Uint8Array(bytes)
-    window.crypto.getRandomValues(some)
-
-    const gen = new more.Generator()
-
-    return new Promise((resolve, reject) => {
-      gen.generate(bits, result => {
-        const chunked = lodash.chunk(result, 2)
-        const desired = chunked.slice(0, bytes) // only take required entropy
-        const more = lodash.flatMap(desired, arr => arr[0] ^ arr[1])
-        const entropy = lodash.zipWith(some, more, (x, y) => x ^ y)
-        const buf = Buffer.from(entropy)
-        const patq = ob.hex2patq(buf.toString('hex'))
-        resolve(patq)
-        reject('Entropy generation failed')
-      })
-    })
-  }
-
-  const genWallet = async (point, ticket, cb) => {
-
-    const config = {
-      ticket: ticket,
-      seedSize: SEED_LENGTH_BYTES,
-      ship: point,
-      password: '',
-      revisions: {},
-      boot: false //TODO should this generate networking keys here already?
-    };
-
-    const wallet = await kg.generateWallet(config);
-
-    // This is here to notify the anyone who opens console because the thread
-    // hangs, blocking UI updates so this cannot be doen in the UI
-    console.log('Generating Wallet for point address: ', point);
-
-    return wallet;
-  }
-
-  const ticket = await makeTicket(point);
-  const wallet = await genWallet(point, ticket);
+  const ticket = await wg.makeTicket(point);
+  const wallet = await wg.generateWallet(point, ticket);
   return wallet;
 }
 
