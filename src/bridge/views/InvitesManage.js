@@ -86,7 +86,7 @@ class InvitesManage extends React.Component {
     } else {
       azimuth.delegatedSending.getPool(this.contracts, who)
       .then(pool => {
-        azimuth.delegatedSending.invitesInPool(this.contracts, pool)
+        azimuth.delegatedSending.invitesInPool(this.contracts, pool, this.point)
         .then(size => {
           this.updatePoolSize(who, size);
         });
@@ -111,6 +111,7 @@ class InvitesManage extends React.Component {
   createUnsignedTxn() {
     return Just(azimuth.delegatedSending.setPoolSize(
       this.contracts,
+      this.point,
       this.state.targetPlanet.value,
       this.state.targetPoolSize
     ))
@@ -134,7 +135,7 @@ class InvitesManage extends React.Component {
     }
 
     let poolSizeText = this.state.currentPoolSize.matchWith({
-      Just: ps => `(currently ${ps.toString()})`,
+      Just: ps => `(currently ${ps.value.toString()})`,
       Nothing: _ => ''
     });
 
