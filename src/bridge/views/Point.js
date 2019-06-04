@@ -18,7 +18,8 @@ class Point extends React.Component {
     super(props)
 
     this.state = {
-      spawned: []
+      spawned: [],
+      invites: Nothing()
     }
   }
 
@@ -50,9 +51,8 @@ class Point extends React.Component {
     pointCursor.chain(point => {
       azimuth.azimuth.getPoint(ctrcs, point)
       .then(details => addToPointCache({ [point]: details }));
-      const prefix = azimuth.azimuth.getPrefix(point);
-      azimuth.azimuth.getPoint(ctrcs, prefix)
-      .then(details => addToPointCache({ [prefix]: details }));
+      azimuth.delegatedSending.getTotalUsableInvites(ctrcs, point)
+      .then(count => this.setState({ invites: Just(count) }));
       this.updateSpawned(ctrcs, point);
     })));
   }
@@ -91,16 +91,6 @@ class Point extends React.Component {
         point in pointCache
       ? Just(pointCache[point])
       : Nothing()
-
-    const prefix = azimuth.azimuth.getPrefix(point);
-    const prefixDetails =
-        prefix in pointCache
-      ? Just(pointCache[prefix])
-      : Nothing();
-    const delegatedSending = contracts.matchWith({
-      Nothing: () => '0x',
-      Just: (c) => c.value.delegatedSending.address
-    })
 
     const name = ob.patp(point)
 
@@ -147,10 +137,9 @@ class Point extends React.Component {
                   pushRoute={ pushRoute }
                   online={ online }
                   wallet={ wallet }
-                  delegatedSending={ delegatedSending }
                   point={ point }
                   pointDetails={ pointDetails }
-                  prefixDetails={ prefixDetails } />
+                  invites={ this.state.invites } />
               : null
             }
 

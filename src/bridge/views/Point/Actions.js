@@ -19,7 +19,7 @@ const isStar = point =>
 const Actions = (props) => {
   const {
     pushRoute, online, wallet, delegatedSending,
-    point, pointDetails, prefixDetails
+    point, pointDetails, invites
   } = props
 
   const addr = wallet.matchWith({
@@ -64,10 +64,10 @@ const Actions = (props) => {
           }
         })
 
-  const prefixHasDelegatedSending =
-    prefixDetails.matchWith({
+  const hasInvites =
+    invites.matchWith({
       Nothing: () => false,
-      Just: (details) => eqAddr(details.value.spawnProxy, delegatedSending)
+      Just: (count) => (count.value > 0)
     });
 
   const planet = isPlanet(point)
@@ -119,23 +119,29 @@ const Actions = (props) => {
     }
   })
 
-  let invites = null;
+  let inviteAction = null;
   if (planet) {
-    invites = (
+    inviteAction = (
       <Button
-        disabled={(!isActiveOwner || !online || !prefixHasDelegatedSending)}
+        disabled={(!isActiveOwner || !online || !hasInvites)}
         prop-size={'sm'}
         prop-type={'link'}
         onClick={ () => {
           pushRoute(ROUTE_NAMES.INVITES_SEND);
         }}
       >
-        { 'Send invites' }
+        { 'Send invites (' }
+        { invites.matchWith({
+            Nothing: () => '?',
+            Just: (count) => count.value
+          })
+        }
+        { ')' }
       </Button>
     );
   }
   if (star) {
-    invites = (
+    inviteAction = (
       <Button
         disabled={(!(isActiveOwner && canIssueChild) || !online)}
         prop-size={'sm'}
@@ -254,7 +260,7 @@ const Actions = (props) => {
         </Col>
         <Col className={'flex flex-column items-start col-md-4'}>
 
-          { invites }
+          { inviteAction }
 
         </Col>
       </Row>
