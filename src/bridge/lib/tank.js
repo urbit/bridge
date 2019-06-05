@@ -38,6 +38,10 @@ const fundTransactions = signedTxs => {
   return sendRequest('/request', {txs:signedTxs});
 };
 
+// resolves when address has at least cost balance
+// returns true if gas tank was used, false otherwise
+// askForFunding: callback that takes (address, requiredBalance, currentBalance)
+//                and tells the user to get that address the required balance
 const ensureFundsFor = async (web3, point, address, cost, signedTxs, askForFunding) => {
   let balance = await web3.eth.getBalance(address);
 
@@ -45,9 +49,16 @@ const ensureFundsFor = async (web3, point, address, cost, signedTxs, askForFundi
 
     try {
 
-      const fundsRemaining = await remainingTransactions(point);
-      if (fundsRemaining < signedTxs.length) {
-        throw new Error('tank: request invalid');
+      if (point !== null) {
+        const fundsRemaining = await remainingTransactions(point);
+        if (fundsRemaining < signedTxs.length) {
+          throw new Error('tank: request invalid');
+        }
+      } else {
+        console.log('tank: skipping remaining-funds check');
+        //TODO if we can't always (easily) provide a point, and the
+        //     fundTransactions call is gonna fail anyway, should we maybe
+        //     just not bother doing this check in the first place?
       }
 
       const res = await fundTransactions(signedTxs);
@@ -57,6 +68,7 @@ const ensureFundsFor = async (web3, point, address, cost, signedTxs, askForFundi
         await waitForTransactionConfirm(web3, res.txHash);
         let newBalance = await web3.eth.getBalance(address);
         console.log('tank: funds have confirmed', balance >= cost, balance, newBalance);
+        return true;
       }
 
     } catch (e) {
@@ -69,12 +81,12 @@ const ensureFundsFor = async (web3, point, address, cost, signedTxs, askForFundi
   } else {
     console.log('tank: already have sufficient funds');
   }
+  return false;
 };
 
 // resolves when address has at least minBalance
 //
-// askForFunding: callback that takes (address, requiredBalance, currentBalance)
-//                and tells the user to get that address the required balance
+//TODO should maybe do a "we got it" callback also, so clients can hide msg?
 async function waitForBalance(web3, address, minBalance, askForFunding) {
   console.log('tank: awaiting balance', address, minBalance);
   return new Promise((resolve, reject) => {

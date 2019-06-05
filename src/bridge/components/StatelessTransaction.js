@@ -224,8 +224,8 @@ class StatelessTransaction extends React.Component {
     let usedTank = false;
     // if we need to, try and fund the transaction
     if (!hasBalance) {
-      hasBalance = await this.ensureFundsFor(web3, address, cost, [rawTx]);
-      usedTank = hasBalance;
+      usedTank = await this.ensureFundsFor(web3, address, cost, [rawTx]);
+      hasBalance = usedTank;
     }
 
     // if we still don't have sufficient balance, fail and tell the user
@@ -268,26 +268,15 @@ class StatelessTransaction extends React.Component {
     }
   }
 
-  //TODO partially copied from InviteTransactions, try to move into tank lib
-  async ensureFundsFor(web3, address, cost, signedTxs) {
-    let balance = await web3.eth.getBalance(address);
-    if (cost > balance) {
-      try {
-
-        const res = await tank.fundTransactions(signedTxs);
-        if (!res.success) {
-          return false;
-        } else {
-          await waitForTransactionConfirm(web3, res.txHash);
-          return true;
-        }
-
-      } catch (e) {
-        return false;
-      }
-    } else {
-      return true;
-    }
+  // uses the gas tank to ensure funds, but if we have to ask the user
+  // for funding, just resolve instead of waiting
+  // returns true if the gas tank was used, false otherwise
+  ensureFundsFor(web3, address, cost, signedTxs) {
+    return new Promise((resolve, reject) => {
+      tank.ensureFundsFor(web3, null, address, cost, signedTxs,
+        () => { resolve(false); })
+      .then(res => { resolve(res); });
+    });
   }
 
   getChainTitle(chainId) {
