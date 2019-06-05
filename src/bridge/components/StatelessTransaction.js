@@ -15,7 +15,6 @@ import * as tank from '../lib/tank'
 
 import {
   sendSignedTransaction,
-  waitForTransactionConfirm,
   fromWei,
   toWei,
   hexify,
@@ -195,7 +194,7 @@ class StatelessTransaction extends React.Component {
       try {
         this.setState({ txStatus: SUBMISSION_STATES.PREPARING });
         const res = await props.beforeSend(stx);
-        if (res === false) throw 'beforeSend disallowed sending';
+        if (res === false) throw new Error('beforeSend disallowed sending');
       } catch (e) {
         console.log('beforeSend error', e);
         this.setState({

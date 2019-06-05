@@ -96,11 +96,13 @@ class InvitesManage extends React.Component {
   }
 
   updatePoolSize(who, size) {
-    this.state.cachedPoolSizes[who] = size;
+    const cache = this.state.cachedPoolSizes;
+    cache[who] = size;
+    this.setState({ cachedPoolSizes: cache });
     const target = this.state.targetPlanet;
     const match = Just.hasInstance(target) ? (who === target.value) : false;
     if (match) {
-      this.setState({currentPoolSize:Just(size)});
+      this.setState({ currentPoolSize:Just(size) });
     }
   }
 

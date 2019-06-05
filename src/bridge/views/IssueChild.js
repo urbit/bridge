@@ -3,9 +3,11 @@ import React from 'react'
 import { azimuth, ecliptic } from 'azimuth-js'
 import * as ob from 'urbit-ob'
 
-import { Row, Col, H1, P, Anchor } from '../components/Base'
-import { Button, ShowBlockie, ValidatedSigil } from '../components/Base'
-import { PointInput, AddressInput, InnerLabel } from '../components/Base'
+import {
+  Row, Col, H1, P, Anchor,
+  ShowBlockie, ValidatedSigil,
+  PointInput, AddressInput, InnerLabel
+} from '../components/Base'
 
 import StatelessTransaction from '../components/StatelessTransaction'
 
@@ -14,11 +16,7 @@ import { BRIDGE_ERROR } from '../lib/error'
 import { getSpawnCandidate } from '../lib/child'
 import { canDecodePatp } from '../lib/txn'
 
-import {
-  ETH_ZERO_ADDR,
-  isValidAddress,
-  eqAddr
-} from '../lib/wallet'
+import { isValidAddress } from '../lib/wallet'
 
 const setFind = (set, pred) => {
   for (const e of set) {

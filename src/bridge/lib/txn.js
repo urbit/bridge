@@ -1,6 +1,5 @@
 import * as ob from 'urbit-ob'
 import { Just } from 'folktale/maybe'
-import { Ok, Error } from 'folktale/result'
 import Tx from 'ethereumjs-tx'
 import { toWei, fromWei, toHex } from 'web3-utils'
 

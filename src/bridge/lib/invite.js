@@ -1,16 +1,10 @@
-import lodash from 'lodash'
 import { Just, Nothing } from 'folktale/maybe'
 import Tx from 'ethereumjs-tx'
 
 import * as azimuth from 'azimuth-js'
-import * as more from 'more-entropy'
-import * as ob from 'urbit-ob'
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import * as wg from '../../walletgen/lib/lib.js'
 import * as tank from './tank'
-import { MIN_STAR, MIN_PLANET, SEED_ENTROPY_BITS,
-         GALAXY_ENTROPY_BITS, STAR_ENTROPY_BITS, PLANET_ENTROPY_BITS,
-       } from '../../walletgen/lib/constants'
 
 import JSZip from 'jszip'
 import saveAs from 'file-saver'
@@ -26,8 +20,6 @@ import {
   addHexPrefix,
   WALLET_NAMES
 } from './wallet'
-
-const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8
 
 const INVITE_STAGES = {
   INVITE_LOGIN: "invite login",

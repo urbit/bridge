@@ -73,7 +73,7 @@ class Point extends React.Component {
   render() {
 
     const {
-      web3, popRoute, pushRoute, wallet, contracts,
+      web3, popRoute, pushRoute, wallet,
       setPointCursor, pointCursor, pointCache
     } = this.props;
 

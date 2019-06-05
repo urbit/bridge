@@ -18,7 +18,7 @@ const isStar = point =>
 
 const Actions = (props) => {
   const {
-    pushRoute, online, wallet, delegatedSending,
+    pushRoute, online, wallet,
     point, pointDetails, invites
   } = props
 

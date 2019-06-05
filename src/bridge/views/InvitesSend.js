@@ -1,14 +1,10 @@
 import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
-import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
 
 import { BRIDGE_ERROR } from '../lib/error'
 import { hasReceived, sendMail } from '../lib/inviteMail'
-import { Row, Col, Warning, Button, H1, H3,
-         Input, InnerLabel
-} from '../components/Base'
-import StatelessTransaction from '../components/StatelessTransaction'
+import { Row, Col, Button, Input } from '../components/Base'
 import { addressFromSecp256k1Public } from '../lib/wallet'
 
 // for wallet generation
@@ -19,14 +15,13 @@ import {
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,
-  isTransactionConfirmed,
   hexify
 } from '../lib/txn'
 import * as tank from '../lib/tank'
 
-const GAS_PRICE = 20000000000; // we pay the premium for faster ux
+const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = 500000; //TODO fine-tune
-const INVITE_COST = (GAS_PRICE * GAS_LIMIT);
+const INVITE_COST = (GAS_PRICE_GWEI * 1000000000 * GAS_LIMIT);
 
 const STATUS = {
   INPUT: 'Generate invites',
@@ -162,13 +157,13 @@ class InvitesSend extends React.Component {
       const signedTx = await signTransaction({
         ...this.props,
         txn: Just(inviteTx),
-        gasPrice: '20', //TODO
-        gasLimit: '600000', //TODO
+        gasPrice: GAS_PRICE_GWEI.toString(),
+        gasLimit: GAS_LIMIT.toString(),
         nonce: nonce + i,
         chainId: chainId,
         setStx: () => {}
       });
-      const rawTx = '0x'+signedTx.serialize().toString('hex');
+      const rawTx = hexify(signedTx.serialize());
 
       invites.push({recipient, ticket: wallet.ticket, signedTx, rawTx });
       this.setEmailStatus(i, EMAIL_STATUS.DONE);
@@ -234,8 +229,9 @@ class InvitesSend extends React.Component {
   }
 
   setEmailStatus(i, status) {
-    this.state.targets[i].status = Just(status);
-    this.setState({ targets: this.state.targets });
+    const targets = this.state.targets;
+    targets[i].status = Just(status);
+    this.setState({ targets });
   }
 
   askForFunding(address, minBalance, balance) {
@@ -282,7 +278,6 @@ class InvitesSend extends React.Component {
 
   addTarget() {
     let targets = this.state.targets;
-    let i = targets.length;
     targets.push({ email: '', hasReceived: Nothing(), status: Nothing() });
     this.setState({ targets });
   }
