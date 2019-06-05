@@ -38,7 +38,7 @@ const fundTransactions = signedTxs => {
   return sendRequest('/request', {txs:signedTxs});
 };
 
-const ensureFundsFor = async (web3, address, cost, signedTxs, askForFunding) => {
+const ensureFundsFor = async (web3, point, address, cost, signedTxs, askForFunding) => {
   let balance = await web3.eth.getBalance(address);
 
   if (cost > balance) {

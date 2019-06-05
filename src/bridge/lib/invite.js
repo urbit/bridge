@@ -180,7 +180,7 @@ async function startTransactions(args) {
     type: "progress",
     value: TRANSACTION_STATES.FUNDING_INVITE
   });
-  await tank.ensureFundsFor(web3, inviteAddress, transferCost, [rawTransferStx], askForFunding);
+  await tank.ensureFundsFor(web3, point, inviteAddress, transferCost, [rawTransferStx], askForFunding);
 
   updateProgress({
     type: "progress",
@@ -248,7 +248,7 @@ async function startTransactions(args) {
     type: "progress",
     value: TRANSACTION_STATES.FUNDING_RECIPIENT
   });
-  await tank.ensureFundsFor(web3, newAddress, totalCost, rawStxs, askForFunding);
+  await tank.ensureFundsFor(web3, point, newAddress, totalCost, rawStxs, askForFunding);
 
   updateProgress({
     type: "progress",
