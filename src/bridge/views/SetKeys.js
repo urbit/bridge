@@ -175,7 +175,7 @@ class SetKeys extends React.Component {
             </Warning>
           }
 
-          { pointDetails.keyRevisionNumber === '0'
+          { pointDetails.keyRevisionNumber === 0
             ? <Warning>
                 <h3 className={'mb-2'}>{'Warning'}</h3>
                 {
