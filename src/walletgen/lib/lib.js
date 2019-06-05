@@ -60,6 +60,13 @@ const generateWallet = async (point, ticket, boot) => {
   return wallet;
 }
 
+const generateOwnershipWallet = async (point, ticket) => {
+  return await kg.generateOwnershipWallet({
+    ship: point,
+    ticket
+  });
+}
+
 const seq = num => Array.from(Array(num), (_, i) => i)
 
 const compose = (...fs) => fs.reduceRight((pF, nF) => (...args) => nF(pF(...args)), v => v)
@@ -67,6 +74,7 @@ const compose = (...fs) => fs.reduceRight((pF, nF) => (...args) => nF(pF(...args
 export {
   makeTicket,
   generateWallet,
+  generateOwnershipWallet,
   compose,
   seq,
 }

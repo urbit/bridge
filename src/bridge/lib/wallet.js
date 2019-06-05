@@ -89,7 +89,7 @@ const eqAddr = (addr0, addr1) =>
   toChecksumAddress(addr0) === toChecksumAddress(addr1)
 
 const urbitWalletFromTicket = async (ticket, point, passphrase) => {
-  if (typeof point === 'string') {
+  if (typeof point === 'string') { //TODO why not in kg?
     point = ob.patp2dec(point);
   }
   let uhdw = await kg.generateWallet({
@@ -97,10 +97,19 @@ const urbitWalletFromTicket = async (ticket, point, passphrase) => {
     ship: point,
     passphrase: passphrase
   });
-  //TODO remove after keygen-js#61 gets released
-  uhdw.meta.ship = point;
-  uhdw.meta.passphrase = passphrase;
   return uhdw;
+}
+
+
+const ownershipWalletFromTicket = async (ticket, point, passphrase) => {
+  if (typeof point === 'string') { //TODO why not in kg?
+    point = ob.patp2dec(point);
+  }
+  return await kg.generateOwnershipWallet({
+    ticket,
+    ship: point,
+    passphrase
+  })
 }
 
 const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
@@ -135,6 +144,7 @@ export {
   addressFromSecp256k1Public,
   eqAddr,
   urbitWalletFromTicket,
+  ownershipWalletFromTicket,
   walletFromMnemonic,
   addHexPrefix,
   EthereumWallet
