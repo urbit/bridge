@@ -134,7 +134,8 @@ const signTransaction = async config => {
     stx.sign(sec)
   }
 
-  setStx(Just(stx))
+  setStx(Just(stx));
+  return stx;
 }
 
 const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
