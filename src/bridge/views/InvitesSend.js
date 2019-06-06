@@ -338,19 +338,26 @@ class InvitesSend extends React.Component {
   }
 
   render() {
+
+    const dif = (this.state.status === STATUS.DONE)
+                ? this.state.targets.length
+                : null;
+
     const invitesAvailable = this.state.invitesAvailable.matchWith({
       Nothing: () => 'Loading...',
       Just: (invites) => {
-        return `You currently have ${invites.value} invitations left.`;
+        const dia = dif ? `(-${dif})` : '';
+        return `You currently have ${invites.value}${dia} invitations left.`;
       }
     });
 
     const invitesSent = this.state.invited.matchWith({
       Nothing: () => (<>{'Loading...'}</>),
       Just: (invited) => {
+        const dit = dif ? `(+${dif})` : '';
         return (<>
           {'Out of the '}
-          {invited.value.total}
+          {invited.value.total + dit}
           {' invites you sent, '}
           {invited.value.accepted}
           {' have been accepted.'}
@@ -373,31 +380,88 @@ class InvitesSend extends React.Component {
       Just: msg => (<Warning className={'mt-8'}>{msg.value}</Warning>)
     });
 
-    //TODO don't render inputs at all if STATUS.DONE
+    let inputs;
+    if (this.state.status === STATUS.DONE) {
+      //TODO proper clickable router thing
+      inputs = '<- Back to Home';
+    } else {
 
-    const inputDisabled = (this.state.status !== STATUS.INPUT);
+      const inputDisabled = (this.state.status !== STATUS.INPUT);
 
-    let targetInputs = [];
-    for (let i = 0; i < this.state.targets.length; i++) {
-      const target = this.state.targets[i];
-      let progress = target.status.matchWith({
-        Nothing: () => '',
-        Just: status => status.value
-      });
-      targetInputs.push(<>
-        <Input
-          value={ target.email }
-          onChange={ (value) => { this.handleEmailInput(i, value); } }
-          placeholder={'Email address'}
-          disabled={ inputDisabled }>
-        </Input>
-        {
-          target.hasReceived.matchWith({
-            Nothing: () => null,
-            Just: (has) => has.value ? <span>{'×'}</span> : <span>{'°'}</span>
-          })
-        }
-        { progress }
+      const lessButton = (
+        <Button
+          prop-size={'s narrow'}
+          className={'mt-8'}
+          disabled={inputDisabled || this.state.targets.length === 1}
+          onClick={this.removeTarget}
+        >
+          { '-' }
+        </Button>
+      );
+
+      const moreButton = (
+        <Button
+          prop-size={'s narrow'}
+          className={'mt-8'}
+          disabled={
+            inputDisabled ||
+            this.state.invitesAvailable.matchWith({
+              Nothing: () => true,
+              Just: (inv) => (inv.value <= this.state.targets.length)
+            })
+          }
+          onClick={this.addTarget}
+        >
+          { '+' }
+        </Button>
+      );
+
+      let targetInputs = [];
+      for (let i = 0; i < this.state.targets.length; i++) {
+        const target = this.state.targets[i];
+        let progress = target.status.matchWith({
+          Nothing: () => '',
+          Just: status => status.value
+        });
+        targetInputs.push(<>
+          <Input
+            value={ target.email }
+            onChange={ (value) => { this.handleEmailInput(i, value); } }
+            placeholder={'Email address'}
+            disabled={ inputDisabled }>
+          </Input>
+          {
+            target.hasReceived.matchWith({
+              Nothing: () => null,
+              Just: (has) => has.value ? <span>{'×'}</span> : <span>{'°'}</span>
+            })
+          }
+          { progress }
+        </>);
+      }
+
+      const submitButton = (
+        <Button
+          prop-size={'xl wide'}
+          className={'mt-8'}
+          disabled={ (inputDisabled && (this.state.status !== STATUS.CAN_SEND))
+                     || !this.canSend() }
+          onClick={ () => {
+            if (this.state.status === STATUS.INPUT)
+              this.generateInvites();
+            if (this.state.status === STATUS.CAN_SEND)
+              this.sendInvites();
+          }}
+        >
+          { this.state.status }
+        </Button>
+      );
+
+      inputs = (<>
+        { lessButton }
+        { moreButton }
+        { targetInputs }
+        { submitButton }
       </>);
     }
 
@@ -415,46 +479,7 @@ class InvitesSend extends React.Component {
 
           { fundingMessage }
 
-          <Button
-            prop-size={'s narrow'}
-            className={'mt-8'}
-            disabled={inputDisabled || this.state.targets.length === 1}
-            onClick={this.removeTarget}
-          >
-            { '-' }
-          </Button>
-
-          <Button
-            prop-size={'s narrow'}
-            className={'mt-8'}
-            disabled={
-              inputDisabled ||
-              this.state.invitesAvailable.matchWith({
-                Nothing: () => true,
-                Just: (inv) => (inv.value <= this.state.targets.length)
-              })
-            }
-            onClick={this.addTarget}
-          >
-            { '+' }
-          </Button>
-
-          { targetInputs }
-
-          <Button
-            prop-size={'xl wide'}
-            className={'mt-8'}
-            disabled={ (inputDisabled && (this.state.status !== STATUS.CAN_SEND))
-                       || !this.canSend() }
-            onClick={ () => {
-              if (this.state.status === STATUS.INPUT)
-                this.generateInvites();
-              if (this.state.status === STATUS.CAN_SEND)
-                this.sendInvites();
-            }}
-          >
-            { this.state.status }
-          </Button>
+          { inputs }
 
         </Col>
       </Row>
