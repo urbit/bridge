@@ -4,7 +4,7 @@ import * as azimuth from 'azimuth-js'
 
 import { BRIDGE_ERROR } from '../lib/error'
 import { hasReceived, sendMail } from '../lib/inviteMail'
-import { Row, Col, Button, Input } from '../components/Base'
+import { Row, Col, Button, Input, H3, Warning } from '../components/Base'
 import { addressFromSecp256k1Public } from '../lib/wallet'
 
 // for wallet generation
@@ -48,6 +48,7 @@ class InvitesSend extends React.Component {
       invited: Nothing(),
       targets: [{ email: '', hasReceived: Nothing(), status: Nothing() }],
       status: STATUS.INPUT,
+      errors: Nothing(),
       //
       invites: []
     }
@@ -206,21 +207,24 @@ class InvitesSend extends React.Component {
               this.setEmailStatus(i, EMAIL_STATUS.DONE);
             } else {
               console.log('email send failed');
-              //TODO tell user to manually send email
+              this.addError(
+                'Invite email failed to send for ' + invite.recipient +
+                '. Please give them this ticket: ' + invite.ticket
+              );
               //TODO but this doesn't catch sender-side failures... we may
               //     just need really good monitoring for that...
               this.setEmailStatus(i, EMAIL_STATUS.FAIL);
             }
           } else {
             console.log('invite tx rejected');
-            //TODO properly inform user?
+            this.addError('Invite transaction failed for ' + invite.recipient);
             this.setEmailStatus(i, EMAIL_STATUS.FAIL);
           }
         });
       })
       .catch(err => {
         console.error('invite tx sending failed', err);
-        //TODO properly inform user?
+        this.addError('Invite transaction not sent for ' + invite.recipient);
         this.setEmailStatus(i, EMAIL_STATUS.FAIL);
       });
     }
@@ -232,6 +236,14 @@ class InvitesSend extends React.Component {
     const targets = this.state.targets;
     targets[i].status = Just(status);
     this.setState({ targets });
+  }
+
+  addError(error) {
+    const newError = this.state.errors.matchWith({
+      Nothing: () => [error],
+      Just: errs => errs.value.push(error)
+    });
+    this.setState({ errors: Just(newError) });
   }
 
   askForFunding(address, minBalance, balance) {
@@ -309,6 +321,16 @@ class InvitesSend extends React.Component {
       }
     });
 
+    let error = this.state.errors.matchWith({
+      Nothing: () => null,
+      Just: (errors) => (<Warning className={'mt-8'}>
+        <H3 style={{marginTop: 0, paddingTop: 0}}>
+          { 'Something went wrong!' }
+        </H3>
+        { errors.value.map(err => (<p>{err}</p>)) }
+      </Warning>)
+    });
+
     //TODO don't render inputs at all if STATUS.DONE
 
     const inputDisabled = (this.state.status !== STATUS.INPUT);
@@ -346,6 +368,8 @@ class InvitesSend extends React.Component {
           <p>{ invitesAvailable }</p>
 
           <ul>{ invitesSent }</ul>
+
+          { error }
 
           <Button
             prop-size={'s narrow'}
