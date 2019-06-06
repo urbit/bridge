@@ -194,39 +194,46 @@ class InvitesSend extends React.Component {
 
     for (let i = 0; i < invites.length; i++) {
       const invite = invites[i];
-      sendSignedTransaction(web3, Just(invite.signedTx), tankWasUsed, ()=>{})
-      .then(txHash => {
-        waitForTransactionConfirm(web3, txHash)
-        .then(async success => {
-          if (success) {
-            console.log('tx succeeded, sending mail', i);
-            success = await sendMail(
-              invite.recipient, invite.ticket, invite.rawTx
-            );
-            if (success) {
-              this.setEmailStatus(i, EMAIL_STATUS.DONE);
-            } else {
-              console.log('email send failed');
-              this.addError(
-                'Invite email failed to send for ' + invite.recipient +
-                '. Please give them this ticket: ' + invite.ticket
-              );
-              //TODO but this doesn't catch sender-side failures... we may
-              //     just need really good monitoring for that...
-              this.setEmailStatus(i, EMAIL_STATUS.FAIL);
-            }
-          } else {
-            console.log('invite tx rejected');
-            this.addError('Invite transaction failed for ' + invite.recipient);
-            this.setEmailStatus(i, EMAIL_STATUS.FAIL);
-          }
-        });
-      })
-      .catch(err => {
+
+      // send transaction, informing the user of failure
+      const txHash = await sendSignedTransaction(
+        web3, Just(invite.signedTx), tankWasUsed, ()=>{}
+      ).catch(err => {
         console.error('invite tx sending failed', err);
         this.addError('Invite transaction not sent for ' + invite.recipient);
         this.setEmailStatus(i, EMAIL_STATUS.FAIL);
       });
+
+      // ask the email sender to send this. we can do this prior to tx confirm,
+      // because the sender service waits for confirm & success for us.
+      const mailSuccess = await sendMail(
+        invite.recipient, invite.ticket, invite.rawTx
+      );
+      //TODO but this doesn't catch sender-side failures... we may
+      //     just need really good monitoring for that...
+      if (mailSuccess) {
+        this.setEmailStatus(i, EMAIL_STATUS.DONE);
+      } else {
+        console.log('email send failed');
+        //NOTE this assumes that the transaction succeeds, but we don't know
+        //     that for a fact yet...
+        this.addError(
+          'Invite email failed to send for ' + invite.recipient +
+          '. Please give them this ticket: ' + invite.ticket
+        );
+        this.setEmailStatus(i, EMAIL_STATUS.FAIL);
+      }
+
+      // update status on transaction confirm, but don't block on it
+      waitForTransactionConfirm(web3, txHash)
+      .then(async success => {
+        if (!success) {
+          console.log('invite tx rejected');
+          this.addError('Invite transaction failed for ' + invite.recipient);
+          this.setEmailStatus(i, EMAIL_STATUS.FAIL);
+        }
+      });
+
     }
 
     this.setState({ status: STATUS.DONE });
