@@ -15,13 +15,15 @@ import {
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,
-  hexify
+  hexify,
+  fromWei,
+  toWei
 } from '../lib/txn'
 import * as tank from '../lib/tank'
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
-const GAS_LIMIT = 500000; //TODO fine-tune
-const INVITE_COST = (GAS_PRICE_GWEI * 1000000000 * GAS_LIMIT);
+const GAS_LIMIT = 350000;
+const INVITE_COST = toWei((GAS_PRICE_GWEI * GAS_LIMIT).toString(), 'gwei');
 
 const STATUS = {
   INPUT: 'Generate invites',
@@ -50,13 +52,15 @@ class InvitesSend extends React.Component {
       status: STATUS.INPUT,
       errors: Nothing(),
       //
-      invites: []
+      fundingMessage: Nothing(),
+      wipInvites: []
     }
 
     this.findInvited = this.findInvited.bind(this);
     this.generateInvites = this.generateInvites.bind(this);
     this.sendInvites = this.sendInvites.bind(this);
     this.canSend = this.canSend.bind(this);
+    this.addError = this.addError.bind(this);
     this.handleEmailInput = this.handleEmailInput.bind(this);
     this.addTarget = this.addTarget.bind(this);
     this.removeTarget = this.removeTarget.bind(this);
@@ -130,26 +134,27 @@ class InvitesSend extends React.Component {
 
     const web3 = this.web3;
     const targets = this.state.targets;
-    console.log('getting planets');
     const planets = await azimuth.delegatedSending.getPlanetsToSend(
       this.contracts, this.point, targets.length
     );
-    console.log('got planets', planets.length);
+
+    // account for the race condition where invites got used up while we were
+    // composing our target list
     if (planets.length < targets.length) {
-      //TODO proper display state
-      throw new Error('can currently only send '+planets.length+' invites...');
+      this.addError('Can currently only send '+planets.length+' invites!');
+      return;
     }
 
-    let invites = []; // { recipient, ticket, signedTx, rawTx }
-    console.log('generating emails...');
     const nonce = await web3.eth.getTransactionCount(this.address);
     const chainId = await web3.eth.net.getId();
-    console.log('chainId', chainId);
+
+    // create invite wallets and transactions
+    let invites = []; // { email, ticket, signedTx, rawTx }
     for (let i = 0; i < targets.length; i++) {
       console.log('generating email', i, targets[i].email);
       this.setEmailStatus(i, EMAIL_STATUS.BUSY);
 
-      const recipient = targets[i].email;
+      const email = targets[i].email;
       const wallet = await this.getTemporaryWallet();
 
       let inviteTx = azimuth.delegatedSending.sendPoint(
@@ -166,15 +171,15 @@ class InvitesSend extends React.Component {
       });
       const rawTx = hexify(signedTx.serialize());
 
-      invites.push({recipient, ticket: wallet.ticket, signedTx, rawTx });
+      invites.push({email, ticket: wallet.ticket, signedTx, rawTx });
       this.setEmailStatus(i, EMAIL_STATUS.DONE);
     }
 
-    this.setState({ invites, status: STATUS.CAN_SEND });
+    this.setState({ wipInvites: invites, status: STATUS.CAN_SEND });
   }
 
   async sendInvites() {
-    const invites = this.state.invites;
+    const invites = this.state.wipInvites;
     const web3 = this.web3;
 
     //TODO invite status isn't changing... why?
@@ -188,7 +193,7 @@ class InvitesSend extends React.Component {
       (INVITE_COST * invites.length),
       invites.map(i => i.rawTx), this.askForFunding
     );
-    this.setState({ message: Nothing() }); //TODO see /lib/tank waitForBalance
+    this.setState({ fundingMessage: Nothing() }); //TODO see /lib/tank waitForBalance
 
     this.setState({ status: STATUS.SENDING });
 
@@ -200,14 +205,14 @@ class InvitesSend extends React.Component {
         web3, Just(invite.signedTx), tankWasUsed, ()=>{}
       ).catch(err => {
         console.error('invite tx sending failed', err);
-        this.addError('Invite transaction not sent for ' + invite.recipient);
+        this.addError('Invite transaction not sent for ' + invite.email);
         this.setEmailStatus(i, EMAIL_STATUS.FAIL);
       });
 
       // ask the email sender to send this. we can do this prior to tx confirm,
       // because the sender service waits for confirm & success for us.
       const mailSuccess = await sendMail(
-        invite.recipient, invite.ticket, invite.rawTx
+        invite.email, invite.ticket, invite.rawTx
       );
       //TODO but this doesn't catch sender-side failures... we may
       //     just need really good monitoring for that...
@@ -218,7 +223,7 @@ class InvitesSend extends React.Component {
         //NOTE this assumes that the transaction succeeds, but we don't know
         //     that for a fact yet...
         this.addError(
-          'Invite email failed to send for ' + invite.recipient +
+          'Invite email failed to send for ' + invite.email +
           '. Please give them this ticket: ' + invite.ticket
         );
         this.setEmailStatus(i, EMAIL_STATUS.FAIL);
@@ -229,7 +234,7 @@ class InvitesSend extends React.Component {
       .then(async success => {
         if (!success) {
           console.log('invite tx rejected');
-          this.addError('Invite transaction failed for ' + invite.recipient);
+          this.addError('Invite transaction failed for ' + invite.email);
           this.setEmailStatus(i, EMAIL_STATUS.FAIL);
         }
       });
@@ -248,15 +253,16 @@ class InvitesSend extends React.Component {
   addError(error) {
     const newError = this.state.errors.matchWith({
       Nothing: () => [error],
-      Just: errs => errs.value.push(error)
+      Just: errs => { errs.value.push(error); return errs.value; }
     });
     this.setState({ errors: Just(newError) });
   }
 
   askForFunding(address, minBalance, balance) {
-    this.setState({ message: Just(
-      `Please make sure ${address} has at least ${minBalance} wei,` +
-      `we'll continue once that's true. Current balance: ${balance}. Waiting...`
+    this.setState({ fundingMessage: Just(
+      `Please make sure ${address} has at least ${fromWei(minBalance)} ETH,` +
+      `we'll continue once that's true. Current balance: ${fromWei(balance)}.` +
+      `Waiting...`
     ) });
   }
 
@@ -264,6 +270,7 @@ class InvitesSend extends React.Component {
     let targets = this.state.targets;
     targets[i].email = email;
 
+    // if it's a valid address, check if it has received an invite before
     if (email.match(/.*@.*\...+/)) {
       hasReceived(email)
       .then(res => {
@@ -273,14 +280,18 @@ class InvitesSend extends React.Component {
     } else {
       targets[i].hasReceived = Nothing();
     }
+
     this.setState({ targets });
   }
 
   canSend() {
     const targets = this.state.targets;
+
     // may not have duplicate targets
     if ((new Set(targets.map(t => t.email))).size !== targets.length)
       return false;
+
+    // none may have received invites already
     for (let i = 0; i < targets.length; i++) {
       const target = targets[i];
       const res = target.hasReceived.matchWith({
@@ -289,6 +300,7 @@ class InvitesSend extends React.Component {
       });
       if (res) return false;
     }
+
     return this.state.invitesAvailable.matchWith({
       Nothing: () => false,
       Just: invites => (invites.value > 0)
@@ -328,7 +340,7 @@ class InvitesSend extends React.Component {
       }
     });
 
-    let error = this.state.errors.matchWith({
+    const error = this.state.errors.matchWith({
       Nothing: () => null,
       Just: (errors) => (<Warning className={'mt-8'}>
         <H3 style={{marginTop: 0, paddingTop: 0}}>
@@ -336,6 +348,11 @@ class InvitesSend extends React.Component {
         </H3>
         { errors.value.map(err => (<p>{err}</p>)) }
       </Warning>)
+    });
+
+    const fundingMessage = this.state.fundingMessage.matchWith({
+      Nothing: () => null,
+      Just: msg => (<Warning className={'mt-8'}>{msg.value}</Warning>)
     });
 
     //TODO don't render inputs at all if STATUS.DONE
@@ -377,6 +394,8 @@ class InvitesSend extends React.Component {
           <ul>{ invitesSent }</ul>
 
           { error }
+
+          { fundingMessage }
 
           <Button
             prop-size={'s narrow'}
