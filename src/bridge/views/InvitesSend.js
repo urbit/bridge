@@ -31,7 +31,8 @@ const STATUS = {
   CAN_SEND: 'Send invites',
   FUNDING: 'Funding invites',
   SENDING: 'Sending invites',
-  DONE: 'Done'
+  DONE: 'Done',
+  FAIL: 'Some failed'
 }
 
 const EMAIL_STATUS = {
@@ -182,10 +183,10 @@ class InvitesSend extends React.Component {
     const invites = this.state.wipInvites;
     const web3 = this.web3;
 
-    //TODO invite status isn't changing... why?
+    //TODO invite status isn't changing/re-rendering... why?
     this.setState({
       status: STATUS.FUNDING,
-      invites: invites.map(i => { return {email: i.email, hasReceived: i.hasReceived, status: Nothing()}; })
+      invites: invites.map(i => { return {...i, status: Nothing()}; })
     });
 
     const tankWasUsed = await tank.ensureFundsFor(
@@ -197,28 +198,34 @@ class InvitesSend extends React.Component {
 
     this.setState({ status: STATUS.SENDING });
 
+    //TODO nasty loop, probably move into lib... but so many callbacks!
+    let promises = [];
     for (let i = 0; i < invites.length; i++) {
       const invite = invites[i];
 
-      // send transaction, informing the user of failure
-      const txHash = await sendSignedTransaction(
-        web3, Just(invite.signedTx), tankWasUsed, ()=>{}
-      ).catch(err => {
+      // send transaction. if it fails, inform the user and skip to next
+      let txHash;
+      try {
+        txHash = await sendSignedTransaction(
+          web3, Just(invite.signedTx), tankWasUsed, ()=>{}
+        );
+      } catch(err) {
         console.error('invite tx sending failed', err);
         this.addError('Invite transaction not sent for ' + invite.email);
         this.setEmailStatus(i, EMAIL_STATUS.FAIL);
-      });
+        continue;
+      };
 
       // ask the email sender to send this. we can do this prior to tx confirm,
       // because the sender service waits for confirm & success for us.
-      const mailSuccess = await sendMail(
-        invite.email, invite.ticket, invite.rawTx
-      );
-      //TODO but this doesn't catch sender-side failures... we may
-      //     just need really good monitoring for that...
-      if (mailSuccess) {
+      // if this fails, inform the user and skip to next
+      try {
+        const mailSuccess = await sendMail(
+          invite.email, invite.ticket, invite.rawTx
+        );
+        if (!mailSuccess) throw new Error();
         this.setEmailStatus(i, EMAIL_STATUS.DONE);
-      } else {
+      } catch(e) {
         console.log('email send failed');
         //NOTE this assumes that the transaction succeeds, but we don't know
         //     that for a fact yet...
@@ -227,21 +234,32 @@ class InvitesSend extends React.Component {
           '. Please give them this ticket: ' + invite.ticket
         );
         this.setEmailStatus(i, EMAIL_STATUS.FAIL);
+        continue;
       }
 
       // update status on transaction confirm, but don't block on it
-      waitForTransactionConfirm(web3, txHash)
-      .then(async success => {
-        if (!success) {
-          console.log('invite tx rejected');
-          this.addError('Invite transaction failed for ' + invite.email);
-          this.setEmailStatus(i, EMAIL_STATUS.FAIL);
-        }
-      });
+      promises.push(
+        waitForTransactionConfirm(web3, txHash)
+        .then(success => {
+          if (success) {
+            this.setEmailStatus(i, EMAIL_STATUS.DONE);
+          } else {
+            console.log('invite tx rejected');
+            this.addError('Invite transaction failed for ' + invite.email);
+            this.setEmailStatus(i, EMAIL_STATUS.FAIL);
+          }
+          return success;
+        })
+      );
 
     }
 
-    this.setState({ status: STATUS.DONE });
+    const txStatus = await Promise.all(promises);
+    if (txStatus.every(e => e)) {
+      this.setState({ status: STATUS.DONE });
+    } else {
+      this.setState({ status: STATUS.FAIL });
+    }
   }
 
   setEmailStatus(i, status) {
