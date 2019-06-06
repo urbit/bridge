@@ -192,9 +192,9 @@ class InvitesSend extends React.Component {
     const tankWasUsed = await tank.ensureFundsFor(
       web3, this.point, this.address,
       (INVITE_COST * invites.length),
-      invites.map(i => i.rawTx), this.askForFunding
+      invites.map(i => i.rawTx), this.askForFunding,
+      () => { this.setState({ fundingMessage: Nothing() }); }
     );
-    this.setState({ fundingMessage: Nothing() }); //TODO see /lib/tank waitForBalance
 
     this.setState({ status: STATUS.SENDING });
 

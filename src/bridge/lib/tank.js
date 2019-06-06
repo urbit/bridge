@@ -42,7 +42,9 @@ const fundTransactions = signedTxs => {
 // returns true if gas tank was used, false otherwise
 // askForFunding: callback that takes (address, requiredBalance, currentBalance)
 //                and tells the user to get that address the required balance
-const ensureFundsFor = async (web3, point, address, cost, signedTxs, askForFunding) => {
+// gotFunding: optional callback that stops telling the user to go get funding
+const ensureFundsFor = async (web3, point, address, cost, signedTxs,
+                              askForFunding, gotFunding) => {
   let balance = await web3.eth.getBalance(address);
 
   if (cost > balance) {
@@ -74,7 +76,7 @@ const ensureFundsFor = async (web3, point, address, cost, signedTxs, askForFundi
     } catch (e) {
 
       console.log('tank: funding failed', e);
-      await waitForBalance(web3, address, cost, askForFunding);
+      await waitForBalance(web3, address, cost, askForFunding, gotFunding);
 
     }
 
@@ -87,13 +89,18 @@ const ensureFundsFor = async (web3, point, address, cost, signedTxs, askForFundi
 // resolves when address has at least minBalance
 //
 //TODO should maybe do a "we got it" callback also, so clients can hide msg?
-async function waitForBalance(web3, address, minBalance, askForFunding) {
+async function waitForBalance(web3, address, minBalance,
+                              askForFunding, gotFunding) {
   console.log('tank: awaiting balance', address, minBalance);
   return new Promise((resolve, reject) => {
     let oldBalance = null;
     const checkForBalance = async () => {
       const balance = await web3.eth.getBalance(address);
       if (balance >= minBalance) {
+        // if we ever asked for funding, retract that request now
+        if (gotFunding && (oldBalance !== null)) {
+          gotFunding();
+        }
         resolve();
       } else {
         if (balance !== oldBalance) {
