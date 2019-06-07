@@ -13,13 +13,9 @@ import {
   waitForTransactionConfirm,
   isTransactionConfirmed
 } from './txn'
-import { BRIDGE_ERROR } from './error'
+import { BRIDGE_ERROR } from '../lib/error'
 import { attemptSeedDerivation } from './keys'
-import {
-  addressFromSecp256k1Public,
-  addHexPrefix,
-  WALLET_NAMES
-} from './wallet'
+import { addHexPrefix, WALLET_NAMES } from './wallet'
 
 const INVITE_STAGES = {
   INVITE_LOGIN: "invite login",

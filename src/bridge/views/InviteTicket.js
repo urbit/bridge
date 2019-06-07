@@ -3,11 +3,12 @@ import React from 'react'
 import { InnerLabel, Warning, TicketInput,
   VerifyTicketInput, Button, Row, Col, Passport } from '../components/Base'
 import * as azimuth from 'azimuth-js'
+import * as n from '../lib/need'
 
 import { randomPatq } from '../lib/lib'
 import { ROUTE_NAMES } from '../lib/router'
 import { DEFAULT_HD_PATH, ownershipWalletFromTicket,
-  walletFromMnemonic, addressFromSecp256k1Public } from '../lib/wallet'
+  walletFromMnemonic } from '../lib/wallet'
 import { BRIDGE_ERROR } from '../lib/error'
 import { INVITE_STAGES, WALLET_STATES, TRANSACTION_STATES } from '../lib/invite'
 import { generateWallet, startTransactions } from '../lib/invite'
@@ -86,12 +87,7 @@ class InviteTicket extends React.Component {
 
     const addr = inviteWallet.address;
 
-    const ctrcs = this.props.contracts.matchWith({
-      Just: ctrcs => ctrcs.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    })
+    const ctrcs = n.needContracts(this.props);
 
     const incoming = await azimuth.azimuth.getTransferringFor(ctrcs, addr)
 

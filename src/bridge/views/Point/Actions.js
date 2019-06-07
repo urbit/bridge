@@ -1,11 +1,10 @@
 import React from 'react'
+import * as n from '../../lib/need'
 import {
   ETH_ZERO_ADDR,
   CURVE_ZERO_ADDR,
-  addressFromSecp256k1Public,
   eqAddr
 } from '../../lib/wallet'
-import { BRIDGE_ERROR } from '../../lib/error'
 import { Row, Col, H2, P } from '../../components/Base'
 import { Button } from '../../components/Base'
 import { ROUTE_NAMES } from '../../lib/router'
@@ -18,16 +17,11 @@ const isStar = point =>
 
 const Actions = (props) => {
   const {
-    pushRoute, online, wallet,
+    pushRoute, online,
     point, pointDetails, invites
   } = props
 
-  const addr = wallet.matchWith({
-    Just: (wal) => wal.value.address,
-    Nothing: () => {
-      throw BRIDGE_ERROR.MISSING_WALLET
-    }
-  })
+  const addr = n.needAddress(props);
 
   const isOwner = pointDetails.matchWith({
     Nothing: _ => false,

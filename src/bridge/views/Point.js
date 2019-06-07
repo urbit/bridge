@@ -3,12 +3,12 @@ import React from 'react'
 import { pour } from 'sigil-js'
 import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
+import * as n from '../lib/need'
 
 import PointList from '../components/PointList'
 import ReactSVGComponents from '../components/ReactSVGComponents'
 import KeysAndMetadata from './Point/KeysAndMetadata'
 import Actions from './Point/Actions'
-import { BRIDGE_ERROR } from '../lib/error'
 import { Row, Col, H1,  H3 } from '../components/Base'
 
 
@@ -74,18 +74,12 @@ class Point extends React.Component {
 
     const {
       web3, popRoute, pushRoute, wallet,
-      setPointCursor, pointCursor, pointCache
+      setPointCursor, pointCache
     } = this.props;
 
     const { spawned } = this.state
 
-
-    const point = pointCursor.matchWith({
-      Just: (cursor) => cursor.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const point = n.needPointCursor(this.props);
 
     const pointDetails =
         point in pointCache

@@ -1,5 +1,6 @@
 import React from 'react'
 import Maybe from 'folktale/maybe'
+import * as n from '../lib/need'
 
 import { Button } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
@@ -9,7 +10,6 @@ import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import saveAs from 'file-saver'
 
 import { attemptSeedDerivation, genKey } from '../lib/keys'
-import { BRIDGE_ERROR } from '../lib/error'
 import {
   addHexPrefix
   } from '../lib/wallet'
@@ -25,20 +25,9 @@ class GenKeyfile extends React.Component {
   }
 
   getPointDetails() {
-    const { pointCache } = this.props
-    const { pointCursor } = this.props
+    const point = n.needPointCursor(this.props);
 
-    const point = pointCursor.matchWith({
-      Just: (pt) => pt.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
-
-    const pointDetails =
-        point in pointCache
-      ? pointCache[point]
-      : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
+    const pointDetails = n.needFromPointCache(this.props, point);
 
     // in case we did SetKeys earlier this session, make sure to generate the
     // newer keyfile, rather than the one that will expire soon

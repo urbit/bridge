@@ -2,29 +2,21 @@ import React from 'react'
 import Maybe from 'folktale/maybe'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
+import * as n from '../lib/need'
 import { Row, Col, H1, P, Warning, CheckboxButton } from '../components/Base'
 
 import StatelessTransaction from '../components/StatelessTransaction'
-import { BRIDGE_ERROR } from '../lib/error'
 import { attemptSeedDerivation } from '../lib/keys'
 
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 
-import {
-  addressFromSecp256k1Public,
-  addHexPrefix
-} from '../lib/wallet'
+import { addHexPrefix } from '../lib/wallet'
 
 class SetKeys extends React.Component {
   constructor(props) {
     super(props)
 
-    const point = props.pointCursor.matchWith({
-      Just: (shp) => shp.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const point = n.needPointCursor(props);
 
     this.state = {
       auth: '',
@@ -51,12 +43,7 @@ class SetKeys extends React.Component {
 
     this.deriveSeed()
 
-    const addr = props.wallet.matchWith({
-      Just: wal => wal.value.address,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_WALLET
-      }
-    })
+    const addr = n.needAddress(props);
 
     this.determineManagementSeed(props.contracts.value, addr)
   }
@@ -101,19 +88,9 @@ class SetKeys extends React.Component {
   createUnsignedTxn() {
     const { state, props } = this
 
-    const validContracts = props.contracts.matchWith({
-      Just: (cs) => cs.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    })
+    const validContracts = n.needContracts(props);
 
-    const validPoint = props.pointCursor.matchWith({
-      Just: (shp) => shp.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const validPoint = n.needPointCursor(props);
 
     const hexRegExp = /[0-9A-Fa-f]{64}/g
 
@@ -146,10 +123,7 @@ class SetKeys extends React.Component {
          state.networkSeed.length === 64
       && state.networkSeed.length === 64
 
-    const pointDetails =
-        state.point in props.pointCache
-      ? props.pointCache[state.point]
-      : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
+    const pointDetails = n.needFromPointCache(props, state.point);
 
     return (
       <Row>

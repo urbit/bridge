@@ -8,7 +8,6 @@ import { NETWORK_NAMES } from '../lib/network'
 import { ROUTE_NAMES } from '../lib/router'
 import {
   ETH_ZERO_ADDR,
-  addressFromSecp256k1Public,
   eqAddr
   } from '../lib/wallet'
 

@@ -1,12 +1,12 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
+import * as n from '../lib/need'
 import * as azimuth from 'azimuth-js'
 import { Row, Col, H1, P, InnerLabel, ShowBlockie, Anchor, HorizontalSelector } from '../components/Base'
 import { AddressInput } from '../components/Base'
 import * as ob from 'urbit-ob'
 
 import { PROXY_TYPE, renderProxyType } from '../lib/proxy'
-import { BRIDGE_ERROR } from '../lib/error'
 
 import { NETWORK_NAMES } from '../lib/network'
 
@@ -36,12 +36,7 @@ class SetProxy extends React.Component {
   constructor(props) {
     super(props)
 
-    const issuingPoint = props.pointCursor.matchWith({
-      Just: (shp) => shp.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const issuingPoint = n.needPointCursor(props);
 
     this.state = {
       proxyAddress: '',
@@ -72,19 +67,9 @@ class SetProxy extends React.Component {
   createUnsignedTxn(proxyAddress) {
     const { state, props } = this
 
-    const validContracts = props.contracts.matchWith({
-      Just: (cs) => cs.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    })
+    const validContracts = n.needContracts(props);
 
-    const validPoint = props.pointCursor.matchWith({
-      Just: (shp) => shp.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const validPoint = n.needPointCursor(props);
 
     const txArgs = [
       validContracts,

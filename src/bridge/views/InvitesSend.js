@@ -1,11 +1,10 @@
 import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import * as azimuth from 'azimuth-js'
+import * as n from '../lib/need'
 
-import { BRIDGE_ERROR } from '../lib/error'
 import { hasReceived, sendMail } from '../lib/inviteMail'
 import { Row, Col, Button, Input, H3, Warning } from '../components/Base'
-import { addressFromSecp256k1Public } from '../lib/wallet'
 
 // for wallet generation
 import * as wg from '../../walletgen/lib/lib'
@@ -70,31 +69,10 @@ class InvitesSend extends React.Component {
   }
 
   componentDidMount() {
-    this.point = this.props.pointCursor.matchWith({
-      Just: (pt) => parseInt(pt.value, 10),
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT;
-      }
-    });
-    //TODO why are we doing this locally, instead of made global on sign-in?
-    this.address = this.props.wallet.matchWith({
-      Just: (wal) => wal.value.address,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_WALLET;
-      }
-    });
-    this.contracts = this.props.contracts.matchWith({
-      Just: cs => cs.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS;
-      }
-    });
-    this.web3 = this.props.web3.matchWith({
-      Just: w3 => w3.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_WEB3;
-      }
-    });
+    this.point = parseInt(n.needPointCursor(this.props), 10);
+    this.address = n.needAddress(this.props);
+    this.contracts = n.needContracts(this.props);
+    this.web3 = n.needWeb3(this.props);
 
     console.log(azimuth.delegatedSending);
     azimuth.delegatedSending.getTotalUsableInvites(this.contracts, this.point)

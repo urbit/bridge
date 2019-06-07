@@ -2,6 +2,7 @@ import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { azimuth, ecliptic } from 'azimuth-js'
 import * as ob from 'urbit-ob'
+import * as n from '../lib/need'
 
 import {
   Row, Col, H1, P, Anchor,
@@ -12,7 +13,6 @@ import {
 import StatelessTransaction from '../components/StatelessTransaction'
 
 import { NETWORK_NAMES } from '../lib/network'
-import { BRIDGE_ERROR } from '../lib/error'
 import { getSpawnCandidate } from '../lib/child'
 import { canDecodePatp } from '../lib/txn'
 
@@ -31,12 +31,7 @@ class IssueChild extends React.Component {
   constructor(props) {
     super(props)
 
-    const issuingPoint = props.pointCursor.matchWith({
-      Just: (pt) => parseInt(pt.value, 10),
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const issuingPoint = parseInt(n.needPointCursor(props), 10);
 
     const getCandidate = () => ob.patp(getSpawnCandidate(issuingPoint))
 
@@ -69,17 +64,9 @@ class IssueChild extends React.Component {
   }
 
   componentWillMount() {
-
-    const { contracts } = this.props
     const { issuingPoint } = this.state
 
-
-    const validContracts = contracts.matchWith({
-      Just: cs => cs.value,
-      Nothing: _ => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    })
+    const validContracts = n.needContracts(this.props);
 
     azimuth.getUnspawnedChildren(validContracts, issuingPoint).then(ps => this.setState({ validChildren: new Set(ps.map(ob.patp)) }))
   }
@@ -110,12 +97,7 @@ class IssueChild extends React.Component {
     if (state.isAvailable === false) return Nothing()
     if (canDecodePatp(state.desiredPoint) === false) return Nothing()
 
-    const validContracts = props.contracts.matchWith({
-      Just: (cs) => cs.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    })
+    const validContracts = n.needContracts(props);
 
     const pointDec = ob.patp2dec(state.desiredPoint)
 

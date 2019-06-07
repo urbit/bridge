@@ -4,29 +4,19 @@ import { Row, Col, H1, P } from '../components/Base'
 import { InnerLabel, AddressInput, ShowBlockie, Anchor } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
+import * as n from '../lib/need'
 
 import StatelessTransaction from '../components/StatelessTransaction'
-import { BRIDGE_ERROR } from '../lib/error'
 import { NETWORK_NAMES } from '../lib/network'
-import { isValidAddress, addressFromSecp256k1Public } from '../lib/wallet'
+import { isValidAddress } from '../lib/wallet'
 
 class AcceptTransfer extends React.Component {
   constructor(props) {
     super(props)
 
-    const receivingAddress = props.wallet.matchWith({
-      Just: (wal) => wal.value.address,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_WALLET
-      }
-    })
+    const receivingAddress = n.needAddress(props);
 
-    const incomingPoint = props.pointCursor.matchWith({
-      Just: (shp) => shp.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const incomingPoint = n.needPointCursor(props);
 
     this.state = {
       receivingAddress: receivingAddress,
@@ -46,19 +36,9 @@ class AcceptTransfer extends React.Component {
   createUnsignedTxn() {
     const { state, props } = this
 
-    const validContracts = props.contracts.matchWith({
-      Just: (cs) => cs.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    })
+    const validContracts = n.needContracts(props);
 
-    const validPoint = props.pointCursor.matchWith({
-      Just: (shp) => shp.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const validPoint = n.needPointCursor(props); //TODO state.incomingPoint ?
 
     return Just(azimuth.ecliptic.transferPoint(
       validContracts,

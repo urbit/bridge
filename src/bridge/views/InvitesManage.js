@@ -2,8 +2,8 @@ import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
+import * as n from '../lib/need'
 
-import { BRIDGE_ERROR } from '../lib/error'
 import { Row, Col, Warning, Input,
          PointInput, InnerLabel, ValidatedSigil } from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
@@ -32,18 +32,8 @@ class InvitesManage extends React.Component {
   }
 
   componentDidMount() {
-    this.point = this.props.pointCursor.matchWith({
-      Just: (pt) => parseInt(pt.value, 10),
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    });
-    this.contracts = this.props.contracts.matchWith({
-      Just: cs => cs.value,
-      Nothing: _ => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    });
+    this.point = n.needPointCursor(this.props);
+    this.contracts = n.needContracts(this.props);
 
     azimuth.azimuth.isSpawnProxy(
       this.contracts,

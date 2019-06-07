@@ -1,6 +1,7 @@
 import { Nothing, Just } from 'folktale/maybe'
 import { Ok } from 'folktale/result'
 import React from 'react'
+import * as n from '../lib/need'
 
 import { Code, H3 } from './Base'
 import { Button } from './Base'
@@ -8,7 +9,6 @@ import { CheckboxButton, Input, InnerLabel,
   InnerLabelDropdown } from './Base'
 import {  Warning } from '../components/Base'
 
-import { addressFromSecp256k1Public } from '../lib/wallet'
 import { BRIDGE_ERROR } from '../lib/error'
 import { ROUTE_NAMES } from '../lib/router'
 import * as tank from '../lib/tank'
@@ -65,12 +65,7 @@ class StatelessTransaction extends React.Component {
   componentDidMount() {
     const { props } = this
 
-    const addr = props.wallet.matchWith({
-      Just: wal => wal.value.address,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_WALLET
-      }
-    })
+    const addr = n.needAddress(props);
 
     props.web3.matchWith({
       Nothing: () => {},
@@ -210,13 +205,7 @@ class StatelessTransaction extends React.Component {
     const rawTx = hexify(stx.serialize());
     const cost = (state.gasLimit * toWei(state.gasPrice, 'gwei'));
 
-    //TODO need a lib function or something for address=, it's everywhere
-    const address = props.wallet.matchWith({
-      Just: wal => wal.value.address,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_WALLET
-      }
-    });
+    const address = n.needAddress(props);
     let balance = await web3.eth.getBalance(address);
     let hasBalance = (balance >= cost);
 
