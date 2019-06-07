@@ -122,7 +122,9 @@ const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
     let wal
     try {
       const hd = bip32.fromSeed(sd)
-      wal = Maybe.Just(hd.derivePath(path))
+      wal = hd.derivePath(path);
+      wal.address = addressFromSecp256k1Public(wal.publicKey);
+      wal = Maybe.Just(wal);
     } catch (_) {
       wal = Maybe.Nothing()
     }

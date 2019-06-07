@@ -42,8 +42,7 @@ class Points extends React.Component {
     web3.chain(_ =>
     contracts.chain(ctrcs =>
     wallet.chain(async wal => {
-      const pub = wal.publicKey
-      const addr = addressFromSecp256k1Public(pub)
+      const addr = wal.address
 
       const points =
         await azimuth.azimuth.getOwnedPoints(ctrcs, addr)

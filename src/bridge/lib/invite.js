@@ -147,7 +147,7 @@ async function startTransactions(args) {
   }
   const point = realPointM.value;
 
-  const inviteAddress = addressFromSecp256k1Public(inviteWallet.publicKey);
+  const inviteAddress = inviteWallet.address;
   console.log('working as', inviteAddress);
 
   // transfer from invite wallet to new wallet

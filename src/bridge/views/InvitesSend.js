@@ -78,7 +78,7 @@ class InvitesSend extends React.Component {
     });
     //TODO why are we doing this locally, instead of made global on sign-in?
     this.address = this.props.wallet.matchWith({
-      Just: (wal) => addressFromSecp256k1Public(wal.value.publicKey),
+      Just: (wal) => wal.value.address,
       Nothing: () => {
         throw BRIDGE_ERROR.MISSING_WALLET;
       }

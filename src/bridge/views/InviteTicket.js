@@ -84,7 +84,7 @@ class InviteTicket extends React.Component {
       }
     });
 
-    const addr = addressFromSecp256k1Public(inviteWallet.publicKey);
+    const addr = inviteWallet.address;
 
     const ctrcs = this.props.contracts.matchWith({
       Just: ctrcs => ctrcs.value,

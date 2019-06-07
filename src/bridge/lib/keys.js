@@ -105,7 +105,7 @@ const attemptSeedDerivation = async (next, args) => {
   } else if (walletType === WALLET_NAMES.MNEMONIC) {
 
     const walProxy = wallet.matchWith({
-      Just: wal => addressFromSecp256k1Public(wal.value.publicKey),
+      Just: wal => wal.value.address,
       Nothing: _ => {
         throw BRIDGE_ERROR.MISSING_WALLET
       }

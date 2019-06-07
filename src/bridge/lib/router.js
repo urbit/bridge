@@ -137,7 +137,7 @@ const renderRoute = (props, route) => {
         Just: (wal) =>
             wal.value instanceof EthereumWallet
           ? (<span className="text-mono">{wal.value.address}</span>)
-          : (<span className="text-mono">{addressFromSecp256k1Public(wal.value.publicKey)}</span>)
+          : (<span className="text-mono">{wal.value.address}</span>)
       })
 
     : route === ROUTE_NAMES.MNEMONIC

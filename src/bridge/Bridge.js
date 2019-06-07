@@ -12,7 +12,12 @@ import { Container, Row, Col } from './components/Base'
 
 import { ROUTE_NAMES, router } from './lib/router'
 import { NETWORK_NAMES } from './lib/network'
-import { WALLET_NAMES, DEFAULT_HD_PATH, walletFromMnemonic } from './lib/wallet'
+import {
+  WALLET_NAMES,
+  DEFAULT_HD_PATH,
+  walletFromMnemonic,
+  addressFromSecp256k1Public
+} from './lib/wallet'
 import { BRIDGE_ERROR } from './lib/error'
 
 const initWeb3 = (networkType) => {
@@ -212,6 +217,11 @@ class Bridge extends React.Component {
   }
 
   setWallet(wallet) {
+    if (Just.hasInstance(wallet) &&
+        wallet.value.publicKey &&
+        typeof wallet.value.address === 'undefined') {
+      wallet.value.address = addressFromSecp256k1Public(wallet.value.publicKey);
+    }
     this.setState({ wallet })
   }
 
@@ -229,6 +239,7 @@ class Bridge extends React.Component {
         DEFAULT_HD_PATH,
         urbitWallet.value.meta.passphrase
       );
+      wallet.value.address = urbitWallet.value.ownership.keys.address;
     }
     this.setState({ urbitWallet, wallet })
   }

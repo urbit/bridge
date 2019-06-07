@@ -52,7 +52,7 @@ class SetKeys extends React.Component {
     this.deriveSeed()
 
     const addr = props.wallet.matchWith({
-      Just: wal => addressFromSecp256k1Public(wal.value.publicKey),
+      Just: wal => wal.value.address,
       Nothing: () => {
         throw BRIDGE_ERROR.MISSING_WALLET
       }
