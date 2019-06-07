@@ -9,10 +9,7 @@ import * as tank from './tank'
 import JSZip from 'jszip'
 import saveAs from 'file-saver'
 
-import {
-  waitForTransactionConfirm,
-  isTransactionConfirmed
-} from './txn'
+import { sendSignedTransaction } from './txn'
 import { BRIDGE_ERROR } from '../lib/error'
 import { attemptSeedDerivation } from './keys'
 import { addHexPrefix, WALLET_NAMES } from './wallet'
@@ -168,7 +165,9 @@ async function startTransactions(args) {
     type: "progress",
     value: TRANSACTION_STATES.FUNDING_INVITE
   });
-  await tank.ensureFundsFor(web3, point, inviteAddress, transferCost, [rawTransferStx], askForFunding);
+  let usedTank = await tank.ensureFundsFor(
+    web3, point, inviteAddress, transferCost, [rawTransferStx], askForFunding
+  );
 
   updateProgress({
     type: "progress",
@@ -176,7 +175,7 @@ async function startTransactions(args) {
   });
 
   // send transaction
-  await sendAndAwaitConfirm(web3, [rawTransferStx]);
+  await sendAndAwaitConfirm(web3, [rawTransferStx], usedTank);
 
   //
   // we're gonna be operating as the new wallet from here on out, so change
@@ -236,14 +235,16 @@ async function startTransactions(args) {
     type: "progress",
     value: TRANSACTION_STATES.FUNDING_RECIPIENT
   });
-  await tank.ensureFundsFor(web3, point, newAddress, totalCost, rawStxs, askForFunding);
+  usedTank = await tank.ensureFundsFor(
+    web3, point, newAddress, totalCost, rawStxs, askForFunding
+  );
 
   updateProgress({
     type: "progress",
     value: TRANSACTION_STATES.CONFIGURING
   });
 
-  await sendAndAwaitConfirm(web3, rawStxs);
+  await sendAndAwaitConfirm(web3, rawStxs, usedTank);
 
   updateProgress({
     type: "progress",
@@ -283,34 +284,10 @@ async function startTransactions(args) {
   setUrbitWallet(Just(realWallet));
 }
 
-//TODO replace with txn.sendSignedTransaction? it can doubt nonce errors too
-async function sendAndAwaitConfirm(web3, signedTxs) {
+async function sendAndAwaitConfirm(web3, signedTxs, usedTank) {
   await Promise.all(signedTxs.map(tx => {
-    console.log('sending...');
     return new Promise((resolve, reject) => {
-      web3.eth.sendSignedTransaction(tx).then(res => {
-        console.log('sent, now waiting for confirm!', res.transactionHash);
-        waitForTransactionConfirm(web3, res.transactionHash)
-        .then(resolve);
-      }).catch(async err => {
-        // if there's an error, check if it's because the transaction was
-        // already confirmed prior to sending.
-        // this is really only the case in local dev environments.
-        const txHash = web3.utils.keccak256(tx);
-        console.log(err.message);
-        if (err.message.includes("the tx doesn't have the correct nonce.")) {
-          console.log('nonce error, awaiting confirm', err.message.slice(55));
-          //TODO max wait time before assume failure?
-          let res = await waitForTransactionConfirm(web3, txHash);
-          if (res) resolve();
-          else reject(new Error('Unexpected tx failure'));
-        } else {
-          const confirmed = await isTransactionConfirmed(web3, txHash);
-          console.log('error, but maybe confirmed:', confirmed);
-          if (confirmed) resolve();
-          else reject(err);
-        }
-      });
+      sendSignedTransaction(web3, tx, usedTank, resolve);
     });
   }));
 }
