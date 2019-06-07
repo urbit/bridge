@@ -353,6 +353,7 @@ class Bridge extends React.Component {
                 networkRevisionCache={ networkRevisionCache }
                 setNetworkSeedCache= { this.setNetworkSeedCache }
                 // txn
+                onSent={ this.setTxnHashCursor }
                 setTxnHashCursor={ this.setTxnHashCursor }
                 txnHashCursor={ txnHashCursor }
                 setTxnConfirmations={ this.setTxnConfirmations }

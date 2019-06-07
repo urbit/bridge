@@ -163,16 +163,7 @@ class InvitesManage extends React.Component {
 
           <StatelessTransaction
             // Upper scope
-            web3={this.props.web3}
-            contracts={this.props.contracts}
-            wallet={this.props.wallet}
-            walletType={this.props.walletType}
-            walletHdPath={this.props.walletHdPath}
-            networkType={this.props.networkType}
-            onSent={this.props.setTxnHashCursor}
-            setTxnConfirmations={this.props.setTxnConfirmations}
-            popRoute={this.props.popRoute}
-            pushRoute={this.props.pushRoute}
+            {...this.props}
             // Other
             canGenerate={this.state.canGenerate}
             createUnsignedTxn={this.createUnsignedTxn}

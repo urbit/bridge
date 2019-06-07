@@ -110,16 +110,7 @@ class Transfer extends React.Component {
 
           <StatelessTransaction
             // Upper scope
-            web3={props.web3}
-            contracts={props.contracts}
-            wallet={props.wallet}
-            walletType={props.walletType}
-            walletHdPath={props.walletHdPath}
-            networkType={props.networkType}
-            onSent={props.setTxnHashCursor}
-            setTxnConfirmations={props.setTxnConfirmations}
-            popRoute={props.popRoute}
-            pushRoute={props.pushRoute}
+            {...props}
             // Checks
             userApproval={state.userApproval}
             canGenerate={ canGenerate }
