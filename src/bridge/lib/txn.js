@@ -2,7 +2,6 @@ import * as ob from 'urbit-ob'
 import { Just } from 'folktale/maybe'
 import { Ok, Error } from 'folktale/result'
 import Tx from 'ethereumjs-tx'
-import Web3 from 'web3'
 import { toWei, fromWei, toHex } from 'web3-utils'
 
 import { BRIDGE_ERROR } from '../lib/error'
@@ -138,32 +137,70 @@ const signTransaction = async config => {
   setStx(Just(stx))
 }
 
-const sendSignedTransaction = (web3, stx, confirmationCb) => {
+const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
   const txn = stx.matchWith({
     Just: (tx) => tx.value,
     Nothing: () => {
       throw BRIDGE_ERROR.MISSING_TXN
     }
-  })
+  });
 
-  const serializedTx = addHexPrefix(txn.serialize().toString('hex'))
+  const rawTx = addHexPrefix(txn.serialize().toString('hex'));
 
+  return new Promise(async (resolve, reject) => {
+    web3.eth.sendSignedTransaction(rawTx)
+    .on('transactionHash', hash => {
+      resolve(hash);
+    })
+    .on('confirmation', (confirmationNum, txn) => {
+      confirmationCb(txn.transactionHash, confirmationNum + 1);
+      resolve(txn.transactionHash);
+    })
+    .on('error', err => {
+      // if there's a nonce error, but we used the gas tank, it's likely
+      // that it's because the tank already submitted our transaction.
+      // we just wait for first confirmation here.
+      if (doubtNonceError &&
+          err.message.includes("the tx doesn't have the correct nonce.")) {
+        console.log('nonce error, likely from gas tank submission, ignoring');
+        const txHash = web3.utils.keccak256(rawTx);
+        //TODO can we do does-exists check first?
+        //TODO max wait time before assume fail?
+        waitForTransactionConfirm(web3, txHash)
+        .then(res => {
+          if (res) {
+            resolve(txHash);
+            confirmationCb(txHash, 1);
+          } else {
+            reject('Unexpected tx failure');
+          }
+        });
+      } else {
+        reject(err.message);
+      }
+    });
+  });
+}
+
+// returns a Promise<bool>, where the bool indicates tx success/failure
+const waitForTransactionConfirm = (web3, txHash) => {
   return new Promise((resolve, reject) => {
-    web3.eth.sendSignedTransaction(serializedTx)
-      .on('transactionHash', hash =>
-        resolve(Just(Ok(hash)))
-      )
-      .on('receipt', txn => {
-        resolve(Just(Ok(txn.transactionHash)))
-      })
-      .on('confirmation', (confirmationNum, txn) => {
-        confirmationCb(txn.transactionHash, confirmationNum + 1)
-        resolve(Just(Ok(txn.transactionHash)))
-      })
-      .on('error', err => {
-        reject(Just(Error(err.message)))
-      })
-  })
+    const checkForConfirm = async () => {
+      console.log('checking for confirm', txHash);
+      const receipt = await web3.eth.getTransactionReceipt(txHash);
+      console.log('tried, got', receipt);
+      let confirmed = (receipt !== null);
+      if (confirmed) resolve(receipt.status === true);
+      else setTimeout(checkForConfirm, 13000);
+    }
+    checkForConfirm();
+  });
+}
+
+const isTransactionConfirmed = async (web3, txHash) => {
+  const receipt = await web3.eth.getTransactionReceipt(txHash);
+  console.log('got confirm state', receipt !== null, receipt.confirmations);
+  return (receipt !== null);
 }
 
 const hexify = val => addHexPrefix(val.toString('hex'))
@@ -199,6 +236,8 @@ const canDecodePatp = p => {
 export {
   signTransaction,
   sendSignedTransaction,
+  waitForTransactionConfirm,
+  isTransactionConfirmed,
   TXN_PURPOSE,
   getTxnInfo,
   renderTxnPurpose,

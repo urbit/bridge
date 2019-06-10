@@ -4,6 +4,8 @@ import keccak from 'keccak'
 import * as lodash from 'lodash'
 import Maybe from 'folktale/maybe'
 import * as secp256k1 from 'secp256k1'
+import * as ob from 'urbit-ob'
+import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 import { isAddress } from 'web3-utils'
 
 const DEFAULT_HD_PATH = "m/44'/60'/0'/0/0"
@@ -86,6 +88,21 @@ const toChecksumAddress = (address) => {
 const eqAddr = (addr0, addr1) =>
   toChecksumAddress(addr0) === toChecksumAddress(addr1)
 
+const urbitWalletFromTicket = async (ticket, point, passphrase) => {
+  if (typeof point === 'string') {
+    point = ob.patp2dec(point);
+  }
+  let uhdw = await kg.generateWallet({
+    ticket: ticket,
+    ship: point,
+    passphrase: passphrase
+  });
+  //TODO remove after keygen-js#61 gets released
+  uhdw.meta.ship = point;
+  uhdw.meta.passphrase = passphrase;
+  return uhdw;
+}
+
 const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
   const seed =
       bip39.validateMnemonic(mnemonic)
@@ -117,6 +134,7 @@ export {
   toChecksumAddress,
   addressFromSecp256k1Public,
   eqAddr,
+  urbitWalletFromTicket,
   walletFromMnemonic,
   addHexPrefix,
   EthereumWallet

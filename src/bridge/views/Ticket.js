@@ -10,20 +10,10 @@ import {
   InputCaption
   } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
-import * as ob from 'urbit-ob'
 
+import { randomPatq } from '../lib/lib'
 import { ROUTE_NAMES } from '../lib/router'
-import { DEFAULT_HD_PATH, walletFromMnemonic } from '../lib/wallet'
-
-const placeholder = (len) => {
-  let bytes = window.crypto.getRandomValues(new Uint8Array(len))
-  let hex = bytes.reduce((acc, byt) =>
-    acc + byt.toString(16).padStart(2, '0'),
-    ''
-  )
-  return ob.hex2patq(hex)
-}
+import { urbitWalletFromTicket } from '../lib/wallet'
 
 class Ticket extends React.Component {
 
@@ -37,8 +27,8 @@ class Ticket extends React.Component {
       isUnlocking: false
     }
 
-    this.pointPlaceholder = placeholder(4)
-    this.ticketPlaceholder = placeholder(8)
+    this.pointPlaceholder = randomPatq(4)
+    this.ticketPlaceholder = randomPatq(8)
 
     this.handleTicketInput = this.handleTicketInput.bind(this)
     this.handlePassphraseInput = this.handlePassphraseInput.bind(this)
@@ -60,21 +50,12 @@ class Ticket extends React.Component {
   }
 
   async walletFromTicket(ticket, pointName, passphrase) {
-    const { setWallet, setUrbitWallet } = this.props
-
     this.setState({
       isUnlocking: true
     });
 
-    const urbitWallet = await kg.generateWallet({
-      ticket: ticket,
-      ship: ob.patp2dec(pointName),
-      passphrase: passphrase
-    })
-    const mnemonic = urbitWallet.ownership.seed
-    const wallet = walletFromMnemonic(mnemonic, DEFAULT_HD_PATH, passphrase)
-    setWallet(wallet)
-    setUrbitWallet(Just(urbitWallet))
+    const uhdw = await urbitWalletFromTicket(ticket, pointName, passphrase);
+    this.props.setUrbitWallet(Just(uhdw));
 
     this.setState({
       isUnlocking: false

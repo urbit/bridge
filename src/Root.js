@@ -5,7 +5,7 @@ import _ from 'lodash'
 
 import Bridge from './bridge/Bridge'
 import Walletgen from './walletgen/Walletgen'
-import { AppNavigation } from './common/components/AppNavigation'
+// import { AppNavigation } from './common/components/AppNavigation'
 
 import './common/style/index.css'
 import './bridge/style/index.css'

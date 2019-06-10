@@ -29,6 +29,15 @@ const isValidGalaxy = name => {
   return point >= 0 && point < 256
 }
 
+const randomPatq = (len) => {
+  let bytes = window.crypto.getRandomValues(new Uint8Array(len))
+  let hex = bytes.reduce((acc, byt) =>
+    acc + byt.toString(16).padStart(2, '0'),
+    ''
+  )
+  return ob.hex2patq(hex)
+}
+
 export {
   compose,
   allFalse,
@@ -40,4 +49,5 @@ export {
   t,
   f,
   isValidGalaxy,
+  randomPatq
 }

@@ -202,7 +202,7 @@ class SetKeys extends React.Component {
             walletType={props.walletType}
             walletHdPath={props.walletHdPath}
             networkType={props.networkType}
-            setTxnHashCursor={props.setTxnHashCursor}
+            onSent={props.setTxnHashCursor}
             setTxnConfirmations={props.setTxnConfirmations}
             popRoute={props.popRoute}
             pushRoute={props.pushRoute}

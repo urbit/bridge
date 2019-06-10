@@ -2,12 +2,18 @@ import * as ob from 'urbit-ob'
 
 import React from 'react';
 
+import Landing from '../views/Landing'
+
+import InviteTicket from '../views/InviteTicket'
+
+import InvitesSend from '../views/InvitesSend.js'
+import InvitesManage from '../views/InvitesManage.js'
+
 import AcceptTransfer from '../views/AcceptTransfer'
 import CancelTransfer from '../views/CancelTransfer'
 import CreateGalaxy from '../views/CreateGalaxy'
 import GenKeyfile from '../views/GenKeyfile'
 import IssueChild from '../views/IssueChild'
-import Landing from '../views/Landing'
 import Network from '../views/Network'
 import Mnemonic from '../views/Mnemonic'
 import Ledger from '../views/Ledger'
@@ -34,6 +40,13 @@ import { renderNetworkType } from './network'
 import { BRIDGE_ERROR } from './error'
 
 const ROUTE_NAMES = {
+  DEFAULT: Symbol('DEFAULT'),
+  //
+  INVITE_TICKET: Symbol('INVITE_TICKET'),
+  INVITE_TRANSACTIONS: Symbol('INVITE_TRANSACTIONS'),
+  INVITES_SEND: Symbol('INVITES_SEND'),
+  INVITES_MANAGE: Symbol('INVITES_MANAGE'),
+  //
   ACCEPT_TRANSFER: Symbol('ACCEPT_TRANSFER'),
   CANCEL_TRANSFER: Symbol('CANCEL_TRANSFER'),
   LANDING: Symbol('LANDING'),
@@ -57,12 +70,17 @@ const ROUTE_NAMES = {
   SET_KEYS: Symbol('SET_KEYS'),
   TRANSFER: Symbol('TRANSFER'),
   SENT_TRANSACTION: Symbol('SENT_TRANSACTION'),
-  GEN_KEYFILE: Symbol('GEN_KEYFILE'),
-  DEFAULT: Symbol('DEFAULT')
+  GEN_KEYFILE: Symbol('GEN_KEYFILE')
 }
 
 const createRoutes = () => {
   const routes = {}
+  routes[ROUTE_NAMES.DEFAULT] = Landing
+  //
+  routes[ROUTE_NAMES.INVITE_TICKET] = InviteTicket
+  routes[ROUTE_NAMES.INVITES_SEND] = InvitesSend
+  routes[ROUTE_NAMES.INVITES_MANAGE] = InvitesManage
+  //
   routes[ROUTE_NAMES.ACCEPT_TRANSFER] = AcceptTransfer
   routes[ROUTE_NAMES.CANCEL_TRANSFER] = CancelTransfer
   routes[ROUTE_NAMES.LANDING] = Landing
@@ -86,7 +104,6 @@ const createRoutes = () => {
   routes[ROUTE_NAMES.SET_KEYS] = SetKeys
   routes[ROUTE_NAMES.TRANSFER] = Transfer
   routes[ROUTE_NAMES.SENT_TRANSACTION] = SentTransaction
-  routes[ROUTE_NAMES.DEFAULT] = Landing
   routes[ROUTE_NAMES.GEN_KEYFILE] = GenKeyfile
   return routes
 }
@@ -98,6 +115,18 @@ const renderRoute = (props, route) => {
   return (
       route === ROUTE_NAMES.LANDING
     ? 'Bridge'
+
+    : route === ROUTE_NAMES.INVITE_TICKET
+    ? 'Invite code'
+
+    : route === ROUTE_NAMES.INVITE_TRANSACTIONS
+    ? 'Setting up new wallet'
+
+    : route === ROUTE_NAMES.INVITES_SEND
+    ? 'Send invites'
+
+    : route === ROUTE_NAMES.INVITES_MANAGE
+    ? 'Manage invites'
 
     : route === ROUTE_NAMES.NETWORK
     ? `${renderNetworkType(networkType)}`

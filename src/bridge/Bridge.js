@@ -1,4 +1,4 @@
-import Maybe from 'folktale/maybe'
+import { Just, Nothing } from 'folktale/maybe'
 import * as lodash from 'lodash'
 import * as azimuth from 'azimuth-js'
 import { Stack } from 'immutable'
@@ -12,7 +12,7 @@ import { Container, Row, Col } from './components/Base'
 
 import { ROUTE_NAMES, router } from './lib/router'
 import { NETWORK_NAMES } from './lib/network'
-import { WALLET_NAMES, DEFAULT_HD_PATH } from './lib/wallet'
+import { WALLET_NAMES, DEFAULT_HD_PATH, walletFromMnemonic } from './lib/wallet'
 import { BRIDGE_ERROR } from './lib/error'
 
 const initWeb3 = (networkType) => {
@@ -25,14 +25,11 @@ const initWeb3 = (networkType) => {
     const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.MAINNET)
     return {web3: web3, contracts: contracts}
   } else if (networkType === NETWORK_NAMES.LOCAL) {
-
     const protocol =
         process.env.NODE_ENV === 'development'
       ? 'ws'
       : 'wss'
-
     const endpoint = `${protocol}://localhost:8545`
-
     const provider = new Web3.providers.WebsocketProvider(endpoint)
     const web3 = new Web3(provider)
     const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.DEV)
@@ -73,21 +70,21 @@ class Bridge extends React.Component {
       routeData: {},
       // network
       networkType: networkType,
-      web3: Maybe.Just(web3),
-      contracts: Maybe.Just(contracts),
+      web3: Just(web3),
+      contracts: Just(contracts),
       // wallet
       walletType: WALLET_NAMES.MNEMONIC,
-      wallet: Maybe.Nothing(),
+      wallet: Nothing(),
       walletHdPath: DEFAULT_HD_PATH,
       // urbit wallet-related
-      urbitWallet: Maybe.Nothing(),
-      authMnemonic: Maybe.Nothing(),
+      urbitWallet: Nothing(),
+      authMnemonic: Nothing(),
       networkSeedCache: null,
       // point
-      pointCursor: Maybe.Nothing(),
+      pointCursor: Nothing(),
       pointCache: {},
       // txn
-      txnHashCursor: Maybe.Nothing(),
+      txnHashCursor: Nothing(),
       txnConfirmations: {}
     }
 
@@ -142,13 +139,13 @@ class Bridge extends React.Component {
   //       ROUTE_NAMES.LANDING
   //     ]),
   //     networkType: NETWORK_NAMES.LOCAL,
-  //     pointCursor: Maybe.Just(0),
-  //     web3: Maybe.Just(web3),
-  //     contracts: Maybe.Just(contracts),
+  //     pointCursor: Just(0),
+  //     web3: Just(web3),
+  //     contracts: Just(contracts),
   //     walletType: WALLET_NAMES.MNEMONIC,
   //     wallet: walletFromMnemonic(mnemonic, hdpath),
-  //     urbitWallet: Maybe.Nothing(),
-  //     authMnemonic: Maybe.Just('benefit crew supreme gesture quantum web media hazard theory mercy wing kitten')
+  //     urbitWallet: Nothing(),
+  //     authMnemonic: Just('benefit crew supreme gesture quantum web media hazard theory mercy wing kitten')
   //   })
   // }
 }
@@ -222,8 +219,18 @@ class Bridge extends React.Component {
     this.setState({ walletHdPath })
   }
 
+  // also sets wallet to ownership address
   setUrbitWallet(urbitWallet) {
-    this.setState({ urbitWallet })
+    let wallet = this.state.wallet;
+    if (Just.hasInstance(urbitWallet)) {
+      const mnemonic = urbitWallet.value.ownership.seed;
+      wallet = walletFromMnemonic(
+        mnemonic,
+        DEFAULT_HD_PATH,
+        urbitWallet.value.meta.passphrase
+      );
+    }
+    this.setState({ urbitWallet, wallet })
   }
 
   setAuthMnemonic(authMnemonic) {
@@ -275,16 +282,30 @@ class Bridge extends React.Component {
 
     const View = router(routeCrumbs.peek())
 
+    // For the invite acceptance flow, widen the screen to use the full
+    // container, and hide the breadcrumbs
+    const colClass = routeCrumbs.contains(ROUTE_NAMES.INVITE_TICKET)
+        ? 'col-md-12'
+        : 'col-md-offset-1 col-md-10'
+
+    const colStyle = routeCrumbs.contains(ROUTE_NAMES.INVITE_TICKET)
+        ? {}
+        : {maxWidth: '620px'}
+
+    const showCrumbs = routeCrumbs.contains(ROUTE_NAMES.INVITE_TICKET)
+        ? false
+        : true
+
     return (
       <Container>
         <Row>
-          <Col className='col-md-1' />
-          <Col className='col-md-10' style={{maxWidth: '620px'}}>
+          <Col className={colClass} style={colStyle}>
             <Header
               routeCrumbs={ routeCrumbs }
               skipRoute={ this.skipRoute }
               networkType={ networkType }
               wallet={ wallet }
+              showCrumbs={ showCrumbs }
               pointCursor={ pointCursor } />
 
             <Row className={ 'row wrapper' }>

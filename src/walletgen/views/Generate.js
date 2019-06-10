@@ -1,26 +1,17 @@
 import React from 'react'
-import * as more from 'more-entropy'
-import lodash from 'lodash'
 import * as sigil from 'sigil-js'
 import ob from 'urbit-ob'
 import classnames from 'classnames'
-// temporarily use keygen-js with argon2u that is configured with 520MB
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
+import * as wg from '../lib/lib'
 
 
 import Button from '../components/Button'
 import ReactSVGComponents from '../components/ReactSVGComponents'
 import PaperCollateralRenderer from 'PaperCollateralRenderer'
 
-import { MAX_GALAXY, MIN_STAR, MAX_STAR, MIN_PLANET,
-         GALAXY_ENTROPY_BITS, STAR_ENTROPY_BITS, PLANET_ENTROPY_BITS,
-         SEED_ENTROPY_BITS,
-         GEN_STATES
-       } from '../lib/constants'
+import { MAX_GALAXY, MIN_STAR, MAX_STAR, GEN_STATES } from '../lib/constants'
 
-const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8
 const NEXT_STEP_NUM = 6;
-
 
 const shipInfo = ship => {
   const name = ob.patp(ship)
@@ -169,65 +160,6 @@ const planetInfo = (ship, sig) =>
     </div>
   </div>
 
-
-
-const makeTicket = ship => {
-
-  const bits = ship < MIN_STAR
-    ? GALAXY_ENTROPY_BITS
-    : ship < MIN_PLANET
-      ? STAR_ENTROPY_BITS
-      : PLANET_ENTROPY_BITS
-
-  const bytes = bits / 8
-  const some = new Uint8Array(bytes)
-  window.crypto.getRandomValues(some)
-
-  const gen = new more.Generator()
-
-  return new Promise((resolve, reject) => {
-    gen.generate(bits, result => {
-      const chunked = lodash.chunk(result, 2)
-      const desired = chunked.slice(0, bytes) // only take required entropy
-      const more = lodash.flatMap(desired, arr => arr[0] ^ arr[1])
-      const entropy = lodash.zipWith(some, more, (x, y) => x ^ y)
-      const buf = Buffer.from(entropy)
-      const patq = ob.hex2patq(buf.toString('hex'))
-      resolve(patq)
-      reject('Entropy generation failed')
-    })
-  })
-}
-
-
-
-
-const genWallet = async (ship, ticket, cb) => {
-
-  const boot = ship < MIN_STAR || ship > MAX_STAR;
-
-  const config = {
-    ticket: ticket,
-    seedSize: SEED_LENGTH_BYTES,
-    ship: ship,
-    password: '',
-    revisions: {},
-    boot: boot
-  };
-
-  const wallet = await kg.generateWallet(config);
-
-  // This is here to notify the anyone who opens console because the thread
-  // hangs, blocking UI updates so this cannot be doen in the UI
-  console.log('Generating Wallet for ship address: ', ship);
-
-  return wallet;
-}
-
-
-
-
-
 class Generate extends React.Component {
   constructor(props) {
     super(props)
@@ -249,7 +181,7 @@ class Generate extends React.Component {
     const enyPromises = ships.map(async ship => {
       return {
         ship,
-        ticket: await makeTicket(ship),
+        ticket: await wg.makeTicket(ship),
       };
     });
 
@@ -264,9 +196,10 @@ class Generate extends React.Component {
     await this.forciblyExecuteArgon2Once(enyTable);
 
     const walletPromises = enyTable.map(async ({ ship, ticket }) => {
+      const boot = ship < MIN_STAR || ship > MAX_STAR;
       return {
         ship,
-        wallet: await genWallet(ship, ticket),
+        wallet: await wg.generateWallet(ship, ticket, boot),
       };
     });
 

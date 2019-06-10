@@ -1,4 +1,5 @@
 import { Nothing, Just } from 'folktale/maybe'
+import { Ok } from 'folktale/result'
 import React from 'react'
 
 import { Code, H3 } from './Base'
@@ -10,13 +11,24 @@ import {  Warning } from '../components/Base'
 import { addressFromSecp256k1Public } from '../lib/wallet'
 import { BRIDGE_ERROR } from '../lib/error'
 import { ROUTE_NAMES } from '../lib/router'
+import * as tank from '../lib/tank'
 
 import {
   sendSignedTransaction,
+  waitForTransactionConfirm,
   fromWei,
+  toWei,
+  hexify,
   renderSignedTx,
   signTransaction
  } from '../lib/txn'
+
+const SUBMISSION_STATES = {
+  PROMPT: 'Send transaction',
+  PREPARING: 'Preparing...',
+  FUNDING: 'Finding transaction funding...',
+  SENDING: 'Sending transaction...'
+};
 
 class StatelessTransaction extends React.Component {
 
@@ -33,11 +45,11 @@ class StatelessTransaction extends React.Component {
       nonce: '0',
       stx: Nothing(),
       txn: Nothing(),
+      txStatus: SUBMISSION_STATES.PROMPT,
       txError: Nothing()
     }
 
     this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
-    this.submit = this.submit.bind(this)
     this.setUserApproval = this.setUserApproval.bind(this)
     this.setTxn = this.setTxn.bind(this)
     this.setStx = this.setStx.bind(this)
@@ -84,30 +96,6 @@ class StatelessTransaction extends React.Component {
         })
       }
     });
-  }
-
-  submit(){
-    const { props, state } = this
-    sendSignedTransaction(props.web3.value, state.stx, props.setTxnConfirmations)
-      .then(sent => {
-        props.setTxnHashCursor(sent)
-        props.popRoute()
-
-        //TODO this special logic should live in a handler in SetKeys.
-        if (props.networkSeed && props.newRevision) {
-          props.setNetworkSeedCache(props.networkSeed, props.newRevision)
-          props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION, {promptKeyfile: true})
-        } else {
-          props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION)
-        }
-      })
-      .catch(err => {
-        if (err.map) {
-          this.setState({ txError: err.map(val => val.merge()) })
-        } else {
-          this.setState({ txError: err })
-        }
-      })
   }
 
   handleChainUpdate(chainId) {
@@ -192,16 +180,114 @@ class StatelessTransaction extends React.Component {
     })
   }
 
-  // TODO: Investigate
-  // setState doesn't seem to work in SetProxy/submit;
-  //   - TypeError: Cannot read property 'updater' of undefined
-  // so just modifying the DOM manually here. (https://imgur.com/a/i0Qsyq1)
+  async sendTxn() {
+    const { props, state } = this;
+    const web3 = props.web3.value;
 
-  sendTxn(e) {
-    e.target.setAttribute("disabled", true);
-    let spinner = e.target.querySelectorAll('.btn-spinner')[0];
-    spinner.classList.remove('hide');
-    this.submit()
+    const stx = state.stx.matchWith({
+      Just: tx => tx.value,
+      Nothing: () => {
+        throw BRIDGE_ERROR.MISSING_TXN;
+      }
+    });
+
+    if (props.beforeSend) {
+      try {
+        this.setState({ txStatus: SUBMISSION_STATES.PREPARING });
+        const res = await props.beforeSend(stx);
+        if (res === false) throw 'beforeSend disallowed sending';
+      } catch (e) {
+        console.log('beforeSend error', e);
+        this.setState({
+          txStatus: SUBMISSION_STATES.PROMPT,
+          txError: Just('Something went wrong!')
+        });
+        return;
+      }
+    }
+
+    this.setState({ txStatus: SUBMISSION_STATES.FUNDING });
+
+    const rawTx = hexify(stx.serialize());
+    const cost = (state.gasLimit * toWei(state.gasPrice, 'gwei'));
+
+    //TODO need a lib function or something for address=, it's everywhere
+    const address = props.wallet.matchWith({
+      Just: wal => addressFromSecp256k1Public(wal.value.publicKey),
+      Nothing: () => {
+        throw BRIDGE_ERROR.MISSING_WALLET
+      }
+    });
+    let balance = await web3.eth.getBalance(address);
+    let hasBalance = (balance >= cost);
+
+    let usedTank = false;
+    // if we need to, try and fund the transaction
+    if (!hasBalance) {
+      hasBalance = await this.ensureFundsFor(web3, address, cost, [rawTx]);
+      usedTank = hasBalance;
+    }
+
+    // if we still don't have sufficient balance, fail and tell the user
+    if (!hasBalance) {
+      this.setState({
+        txStatus: SUBMISSION_STATES.PROMPT,
+        txError: Just(`Insufficient funds.
+          Address ${address} needs at least ${fromWei(cost.toString())} ETH,
+          currently has ${fromWei(balance.toString())} ETH.`
+        )
+      });
+
+    // if we have the balance, proceed with submission
+    } else {
+      this.setState({ txStatus: SUBMISSION_STATES.SENDING });
+
+      sendSignedTransaction(
+        web3,
+        state.stx,
+        usedTank,
+        props.setTxnConfirmations
+      )
+      .then(txHash => {
+        props.onSent(Just(Ok(txHash)), state.stx.value);
+        props.popRoute();
+
+        let routeData = {};
+        if (props.networkSeed) {
+          props.setNetworkSeedCache(props.networkSeed);
+          routeData.promptKeyfile = true;
+        }
+        props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION, routeData);
+      })
+      .catch(err => {
+        this.setState({
+          txStatus: SUBMISSION_STATES.PROMPT,
+          txError: Just(err)
+        });
+      });
+    }
+  }
+
+  //TODO partially copied from InviteTransactions, try to move into tank lib
+  async ensureFundsFor(web3, address, cost, signedTxs) {
+    let balance = await web3.eth.getBalance(address);
+    if (cost > balance) {
+      try {
+
+        const res = await tank.fundTransactions(signedTxs);
+        if (!res.success) {
+          return false;
+        } else {
+          await waitForTransactionConfirm(web3, res.txHash);
+          return true;
+        }
+
+      } catch (e) {
+        return false;
+      }
+    } else {
+      return true;
+    }
   }
 
   getChainTitle(chainId) {
@@ -247,7 +333,7 @@ class StatelessTransaction extends React.Component {
     const { web3, canGenerate } = this.props
     const { gasPrice, gasLimit, nonce, chainId,
       txn, stx, userApproval, showGasDetails,
-      customChain } = this.state
+      customChain, txStatus } = this.state
 
     const { setNonce, setChainId, setGasLimit, setGasPrice, toggleGasDetails,
       setUserApproval, sendTxn, createUnsignedTxn, handleChainUpdate } = this
@@ -434,16 +520,18 @@ class StatelessTransaction extends React.Component {
         label='I approve this transaction and wish to send.'
       ></CheckboxButton>
 
+    const sending = (txStatus !== SUBMISSION_STATES.PROMPT);
+    const sendTxnSpinner = sending ? '' : 'hide';
     const sendTxnButton =
       <Button
         prop-size={ 'xl wide' }
         className={ 'mt-8' }
-        disabled={ !canSend }
+        disabled={ !canSend || sending }
         onClick={ sendTxn }
       >
         <span className="relative">
-          <span className="btn-spinner hide"></span>
-          { 'Send Transaction' }
+          <span className={`btn-spinner ${sendTxnSpinner}`}></span>
+          { txStatus }
         </span>
       </Button>
 

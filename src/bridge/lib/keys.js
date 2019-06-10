@@ -70,13 +70,6 @@ const attemptSeedDerivation = async (next, args) => {
   //
   // following code is intentionally verbose for sake of clarity
 
-  const walProxy = wallet.matchWith({
-    Just: wal => addressFromSecp256k1Public(wal.value.publicKey),
-    Nothing: _ => {
-      throw BRIDGE_ERROR.MISSING_WALLET
-    }
-  })
-
   const point = pointCursor.matchWith({
     Just: pt => pt.value,
     Nothing: _ => {
@@ -110,6 +103,13 @@ const attemptSeedDerivation = async (next, args) => {
     managementSeed = uwal.management.seed
 
   } else if (walletType === WALLET_NAMES.MNEMONIC) {
+
+    const walProxy = wallet.matchWith({
+      Just: wal => addressFromSecp256k1Public(wal.value.publicKey),
+      Nothing: _ => {
+        throw BRIDGE_ERROR.MISSING_WALLET
+      }
+    })
 
     const mnemonic = authMnemonic.matchWith({
       Just: mnem => mnem.value,
