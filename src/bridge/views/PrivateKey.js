@@ -7,8 +7,6 @@ import { Row, Col, H1 } from '../components/Base'
 import { ROUTE_NAMES } from '../lib/router'
 import { EthereumWallet } from '../lib/wallet'
 
-const secre = /[0-9A-Fa-f]{64}/g
-
 class PrivateKey extends React.Component {
 
   constructor(props) {
@@ -28,7 +26,7 @@ class PrivateKey extends React.Component {
 
   constructWallet(privateKey) {
     const { setWallet } = this.props
-    if (secre.test(privateKey) === true) {
+    if (/^[0-9A-Fa-f]{64}$/g.test(privateKey) === true) {
       const sec = Buffer.from(privateKey, 'hex')
       const wallet = new EthereumWallet(sec)
       setWallet(Maybe.Just(wallet))
