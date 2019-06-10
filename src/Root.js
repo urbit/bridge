@@ -1,7 +1,7 @@
 import 'babel-polyfill' // required for @ledgerhq/hw-transport-u2f
 
 import React from 'react'
-import _ from 'lodash'
+import { get } from 'lodash'
 
 import Bridge from './bridge/Bridge'
 import Walletgen from './walletgen/Walletgen'
@@ -36,11 +36,11 @@ class Root extends React.Component {
   */
 
   isWalletgenStyle(styleSheet) {
-    return _.get(styleSheet, 'cssRules[0].selectorText', null) === "walletgen"
+    return get(styleSheet, 'cssRules[0].selectorText', null) === "walletgen"
   }
 
   isBridgeStyle(styleSheet) {
-    return _.get(styleSheet, 'cssRules[0].selectorText', null) === "bridge"
+    return get(styleSheet, 'cssRules[0].selectorText', null) === "bridge"
   }
 
   disableStylesheets(appView) {
@@ -70,25 +70,20 @@ class Root extends React.Component {
   }
 
   render() {
-    let appComponent = null;
+    const { appView } = this.state;
 
-    if (this.state.appView === "walletgen") {
-      appComponent = <Walletgen
-                      appView={this.state.appView}
-                      setView={this.setView} />
+    switch (appView) {
+      case "walletgen":
+        return <Walletgen
+          appView={appView}
+          setView={this.setView} />
+      case "bridge":
+        return <Bridge
+          appView={appView}
+          setView={this.setView} />
+      default:
+        throw new Error(`Unknown appView ${appView}`)
     }
-
-    if (this.state.appView === "bridge") {
-      appComponent = <Bridge
-                      appView={this.state.appView}
-                      setView={this.setView} />
-    }
-
-    return (
-      <React.Fragment>
-        {appComponent}
-      </React.Fragment>
-    )
   }
 }
 
