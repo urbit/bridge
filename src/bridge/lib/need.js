@@ -5,24 +5,30 @@
 import { BRIDGE_ERROR } from '../lib/error'
 
 function needWeb3(obj) {
-  return obj.web3.matchWith({
-    Nothing: () => { throw BRIDGE_ERROR.MISSING_WEB3 },
-    Just: w => w.value
-  });
+  return ('web3' in obj === false)
+    ? (() => { throw BRIDGE_ERROR.MISSING_WEB3 })()
+    : obj.web3.matchWith({
+        Nothing: () => { throw BRIDGE_ERROR.MISSING_WEB3 },
+        Just: w => w.value
+      });
 }
 
 function needContracts(obj) {
-  return obj.contracts.matchWith({
-    Nothing: () => { throw BRIDGE_ERROR.MISSING_CONTRACTS },
-    Just: c => c.value
-  });
+  return ('contracts' in obj === false)
+    ? (() => { throw BRIDGE_ERROR.MISSING_CONTRACTS })()
+    : obj.contracts.matchWith({
+        Nothing: () => { throw BRIDGE_ERROR.MISSING_CONTRACTS },
+        Just: c => c.value
+      });
 }
 
 function needWallet(obj) {
-  return obj.wallet.matchWith({
-    Nothing: () => { throw BRIDGE_ERROR.MISSING_WALLET },
-    Just: w => w.value
-  });
+  return ('wallet' in obj === false)
+    ? (() => { throw BRIDGE_ERROR.MISSING_WALLET })()
+    : obj.wallet.matchWith({
+        Nothing: () => { throw BRIDGE_ERROR.MISSING_WALLET },
+        Just: w => w.value
+      });
 }
 
 function needAddress(obj) {
@@ -30,16 +36,20 @@ function needAddress(obj) {
 }
 
 function needPointCursor(obj) {
-  return obj.pointCursor.matchWith({
-    Nothing: () => { throw BRIDGE_ERROR.MISSING_POINT },
-    Just: p => p.value
-  });
+  return ('pointCursor' in obj === false)
+    ? (() => { throw BRIDGE_ERROR.MISSING_POINT })()
+    : obj.pointCursor.matchWith({
+        Nothing: () => { throw BRIDGE_ERROR.MISSING_POINT },
+        Just: p => p.value
+      });
 }
 
 function needFromPointCache(obj, point) {
-  return point in obj.pointCache
-         ? obj.pointCache[point]
-         : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
+  return ('pointCache' in obj === false)
+    ? (() => { throw BRIDGE_ERROR.MISSING_POINT })()
+    : point in obj.pointCache
+      ? obj.pointCache[point]
+      : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
 }
 
 export {
