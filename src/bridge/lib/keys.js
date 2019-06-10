@@ -22,6 +22,7 @@ const b64 = buf => {
     n = n.shrn(6)
   }
 
+  // prettier-ignore
   const trans = j =>
       10 > j
     ? j + 48
