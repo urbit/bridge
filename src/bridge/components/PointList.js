@@ -15,6 +15,7 @@ const PointList = props => {
           {
             lodash.map(chunk, point =>
               <RenderedPoint
+                key={ point }
                 setPointCursor={ setPointCursor }
                 routeHandler={ routeHandler }
                 point={ point }

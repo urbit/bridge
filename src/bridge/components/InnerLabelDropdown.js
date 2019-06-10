@@ -33,12 +33,12 @@ class InnerLabelDropdown extends React.Component {
   }
 
   getOptionElems() {
-    return this.props.options.map(opt => {
+    return this.props.options.map((opt, i) => {
       if (opt.type === "divider") {
-        return <DropdownDivider />
+        return <DropdownDivider key={`divider-${i}`} />
       } else {
         return (
-          <DropdownItem onClick={() => this.selectOption(opt.value)}>
+          <DropdownItem key={opt.title} onClick={() => this.selectOption(opt.value)}>
             { opt.title }
           </DropdownItem>
         )

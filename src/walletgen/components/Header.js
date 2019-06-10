@@ -40,7 +40,7 @@ const ProgressIndicator = ({ currentStep, totalSteps }) =>
     <div className={'absolute ml-3 h-9 flex align-center text-sm white text-600'}>{`Step ${currentStep} of ${totalSteps}`}</div>
     <div className={'flex'}>
     {
-      seq(totalSteps).map((step, index) => <div className={`${ index+1 > currentStep ? 'bg-gray' : 'bg-blue' } h-9 col-`}>{''}</div> )
+      seq(totalSteps).map((step, index) => <div key={index} className={`${ index+1 > currentStep ? 'bg-gray' : 'bg-blue' } h-9 col-`}>{''}</div> )
     }
     </div>
 
