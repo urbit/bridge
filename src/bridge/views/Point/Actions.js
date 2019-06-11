@@ -6,7 +6,7 @@ import { ETH_ZERO_ADDR, CURVE_ZERO_ADDR, eqAddr } from "../../lib/wallet";
 import { Row, Col, H2, P } from "../../components/Base";
 import { Button } from "../../components/Base";
 import { ROUTE_NAMES } from "../../lib/routeNames";
-import { useHistory } from "../../lib/history";
+import { useHistory } from "../../store/history";
 
 const isPlanet = point =>
   azimuth.getPointSize(point) === azimuth.PointSize.Planet;

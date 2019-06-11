@@ -9,7 +9,7 @@ import Web3 from "web3";
 import { CONTRACT_ADDRESSES } from "../lib/contracts";
 import { NETWORK_NAMES, renderNetworkType } from "../lib/network";
 import { ROUTE_NAMES } from "../lib/routeNames";
-import { withHistory } from "../lib/history";
+import { withHistory } from "../store/history";
 
 class Network extends React.Component {
   constructor(props) {

@@ -4,7 +4,7 @@ import { Row, Col } from "../components/Base";
 import { H1, P } from "../components/Base";
 
 import { ROUTE_NAMES } from "../lib/routeNames";
-import { useHistory } from "../lib/history";
+import { useHistory } from "../store/history";
 
 function Landing(props) {
   const history = useHistory();

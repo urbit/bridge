@@ -10,7 +10,7 @@ import * as secp256k1 from "secp256k1";
 
 import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from "../lib/ledger";
 import { ROUTE_NAMES } from "../lib/routeNames";
-import { withHistory } from "../lib/history";
+import { withHistory } from "../store/history";
 
 const chopHdPrefix = str => (str.slice(0, 2) === "m/" ? str.slice(2) : str);
 

@@ -3,7 +3,7 @@ import { Button, Chevron } from "../components/Base";
 
 import { getRouteBreadcrumb } from "../lib/router";
 import { ROUTE_NAMES } from "../lib/routeNames";
-import { useHistory } from "../lib/history";
+import { useHistory } from "../store/history";
 import { isLast } from "../lib/lib";
 
 function Crumbs(props) {

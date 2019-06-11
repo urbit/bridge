@@ -15,7 +15,7 @@ import * as need from "../lib/need";
 
 import { randomPatq } from "../lib/lib";
 import { ROUTE_NAMES } from "../lib/routeNames";
-import { withHistory } from "../lib/history";
+import { withHistory } from "../store/history";
 import {
   DEFAULT_HD_PATH,
   ownershipWalletFromTicket,

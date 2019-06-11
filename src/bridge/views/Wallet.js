@@ -5,7 +5,7 @@ import { InnerLabelDropdown } from "../components/Base";
 import { Row, Col } from "../components/Base";
 
 import { ROUTE_NAMES } from "../lib/routeNames";
-import { withHistory } from "../lib/history";
+import { withHistory } from "../store/history";
 import { WALLET_NAMES, renderWalletType } from "../lib/wallet";
 
 class Wallet extends React.Component {

@@ -10,7 +10,7 @@ import ReactSVGComponents from "../components/ReactSVGComponents";
 import KeysAndMetadata from "./Point/KeysAndMetadata";
 import Actions from "./Point/Actions";
 import { Row, Col, H1, H3 } from "../components/Base";
-import { withHistory } from "../lib/history";
+import { withHistory } from "../store/history";
 
 class Point extends React.Component {
   constructor(props) {

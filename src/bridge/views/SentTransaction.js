@@ -5,7 +5,7 @@ import { Row, Col, H1, H3, P, Warning, Anchor } from "../components/Base";
 import { Button } from "../components/Base";
 
 import { ROUTE_NAMES } from "../lib/routeNames";
-import { useHistory } from "../lib/history";
+import { useHistory } from "../store/history";
 import { BRIDGE_ERROR, renderTxnError } from "../lib/error";
 import { NETWORK_NAMES } from "../lib/network";
 import { withTxnConfirmations } from "../store/txnConfirmations";

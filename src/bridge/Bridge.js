@@ -9,7 +9,7 @@ import { Container, Row, Col } from "./components/Base";
 import { router } from "./lib/router";
 import { initWeb3 } from "./lib/web3";
 import { ROUTE_NAMES } from "./lib/routeNames";
-import { HistoryProvider, withHistory, useHistory } from "./lib/history";
+import { HistoryProvider, withHistory, useHistory } from "./store/history";
 import { TxnConfirmationsProvider } from "./store/txnConfirmations";
 import { NETWORK_NAMES } from "./lib/network";
 import {

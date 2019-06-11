@@ -14,7 +14,7 @@ import * as kg from "urbit-key-generation/dist/index";
 import * as ob from "urbit-ob";
 
 import { ROUTE_NAMES } from "../lib/routeNames";
-import { withHistory } from "../lib/history";
+import { withHistory } from "../store/history";
 import { urbitWalletFromTicket } from "../lib/wallet";
 
 const placeholder = len => {

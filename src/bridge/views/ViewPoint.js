@@ -7,7 +7,7 @@ import { Row, Col, H1, P } from "../components/Base";
 import { InnerLabel, PointInput, ValidatedSigil } from "../components/Base";
 
 import { ROUTE_NAMES } from "../lib/routeNames";
-import { withHistory } from "../lib/history";
+import { withHistory } from "../store/history";
 
 class ViewPoint extends React.Component {
   constructor(props) {
