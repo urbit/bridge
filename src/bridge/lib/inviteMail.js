@@ -27,12 +27,11 @@ function sendRequest(where, what) {
 
 async function hasReceived(recipient) {
   const res = await sendRequest('/has-received', {recipient});
-  console.log('got fetch result', res);
   return res.hasReceived;
 }
 
 function sendMail(recipient, ticket, tx) {
-  return sendRequest('/send-ticket', {recipient,ticket,tx});
+  return sendRequest('/send-ticket', { recipient, ticket, tx });
 }
 
 export {

@@ -92,7 +92,7 @@ class InvitesManage extends React.Component {
     const target = this.state.targetPlanet;
     const match = Just.hasInstance(target) ? (who === target.value) : false;
     if (match) {
-      this.setState({ currentPoolSize:Just(size) });
+      this.setState({ currentPoolSize: Just(size) });
     }
   }
 
@@ -127,7 +127,7 @@ class InvitesManage extends React.Component {
     }
 
     let poolSizeText = this.state.currentPoolSize.matchWith({
-      Just: ps => `(currently ${ps.value.toString()})`,
+      Just: ps => `(currently ${ps.value})`,
       Nothing: _ => ''
     });
 
