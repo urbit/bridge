@@ -1,15 +1,13 @@
+import React from "react";
 import { Just, Nothing } from "folktale/maybe";
 import { includes } from "lodash";
-import * as azimuth from "azimuth-js";
-import { CONTRACT_ADDRESSES } from "./lib/contracts";
-import React from "react";
 
-import Web3 from "web3";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import { Container, Row, Col } from "./components/Base";
 
 import { router } from "./lib/router";
+import { initWeb3 } from "./lib/web3";
 import { ROUTE_NAMES } from "./lib/routeNames";
 import { HistoryProvider, withHistory, useHistory } from "./lib/history";
 import { TxnConfirmationsProvider } from "./store/txnConfirmations";
@@ -21,34 +19,32 @@ import {
   addressFromSecp256k1Public,
 } from "./lib/wallet";
 import { BRIDGE_ERROR } from "./lib/error";
+import { isLocal } from "./lib/flags";
 
-const initWeb3 = networkType => {
-  if (networkType === NETWORK_NAMES.MAINNET) {
-    const endpoint = `https://mainnet.infura.io/v3/${
-      process.env.REACT_APP_INFURA_ENDPOINT
-    }`;
+// NB(shrugs): toggle this shouldStubLocal variable to use the default local state.
+// don't commit changes to this line, but there shouldn't be a problem because we'll never stub
+// on a production build.
+const shouldStubLocal = false;
+const isStubbed = isLocal && shouldStubLocal;
+const kInitialRoutes = isStubbed
+  ? [
+      { name: ROUTE_NAMES.SHIPS },
+      { name: ROUTE_NAMES.WALLET },
+      { name: ROUTE_NAMES.NETWORK },
+      { name: ROUTE_NAMES.LANDING },
+    ]
+  : [{ name: ROUTE_NAMES.LANDING }];
 
-    const provider = new Web3.providers.HttpProvider(endpoint);
-    const web3 = new Web3(provider);
-    const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.MAINNET);
-    return { web3: web3, contracts: contracts };
-  } else if (networkType === NETWORK_NAMES.LOCAL) {
-    const protocol = process.env.NODE_ENV === "development" ? "ws" : "wss";
-    const endpoint = `${protocol}://localhost:8545`;
-    const provider = new Web3.providers.WebsocketProvider(endpoint);
-    const web3 = new Web3(provider);
-    const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.DEV);
-    return { web3: web3, contracts: contracts };
-  }
-};
-
-export const View = function(props) {
+// the router itself is a component that renders a specific view based on the latest history state
+const Router = function(props) {
   const history = useHistory();
   const Route = router(history.peek());
 
   return <Route {...props} />;
 };
 
+// NB(shrugs): separate component because it needs withHistory
+// this will be must better structured as part of the UI overhaul
 const VariableWidthColumn = withHistory(({ history, children }) => (
   // For the invite acceptance flow, widen the screen to use the full
   // container, and hide the breadcrumbs
@@ -70,10 +66,7 @@ class Bridge extends React.Component {
   constructor(props) {
     super(props);
 
-    const networkType =
-      process.env.NODE_ENV === "development"
-        ? NETWORK_NAMES.LOCAL
-        : NETWORK_NAMES.MAINNET;
+    const networkType = isLocal ? NETWORK_NAMES.LOCAL : NETWORK_NAMES.MAINNET;
 
     // Sidestepping full network selection to allow for point viewing,
     // but still respecting the networkType
@@ -127,40 +120,22 @@ class Bridge extends React.Component {
   }
 
   componentDidMount() {
-    // NB (jtobin):
+    // NB (jtobin, shrugs):
     //
     // If running in development, the following can be tweaked to get you set
     // up with a desirable initial state.
-    // if (process.env.NODE_ENV === 'development') {
-    //
-    //   const socket = 'ws://localhost:8545'
-    //   const provider = new Web3.providers.WebsocketProvider(socket)
-    //   const web3 = new Web3(provider)
-    //   const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.DEV)
-    //
-    //   const mnemonic = process.env.REACT_APP_DEV_MNEMONIC
-    //   const hdpath = process.env.REACT_APP_HD_PATH
-    //
-    //   this.setState({
-    //     routeCrumbs: Stack([
-    //       // ROUTE_NAMES.CREATE_GALAXY,
-    //       // ROUTE_NAMES.SHIP,
-    //       ROUTE_NAMES.SHIPS,
-    //       // ROUTE_NAMES.MNEMONIC,
-    //       ROUTE_NAMES.WALLET,
-    //       ROUTE_NAMES.NETWORK,
-    //       ROUTE_NAMES.LANDING
-    //     ]),
-    //     networkType: NETWORK_NAMES.LOCAL,
-    //     pointCursor: Just(0),
-    //     web3: Just(web3),
-    //     contracts: Just(contracts),
-    //     walletType: WALLET_NAMES.MNEMONIC,
-    //     wallet: walletFromMnemonic(mnemonic, hdpath),
-    //     urbitWallet: Nothing(),
-    //     authMnemonic: Just('benefit crew supreme gesture quantum web media hazard theory mercy wing kitten')
-    //   })
-    // }
+    if (isStubbed) {
+      const mnemonic = process.env.REACT_APP_DEV_MNEMONIC;
+      const hdpath = process.env.REACT_APP_HD_PATH;
+
+      this.setState({
+        pointCursor: Just(0),
+        walletType: WALLET_NAMES.MNEMONIC,
+        wallet: walletFromMnemonic(mnemonic, hdpath),
+        urbitWallet: Nothing(),
+        authMnemonic: Just(mnemonic),
+      });
+    }
   }
 
   setNetworkType(symbol) {
@@ -276,7 +251,7 @@ class Bridge extends React.Component {
                 />
 
                 <Row className={"row wrapper"}>
-                  <View
+                  <Router
                     // network
                     setNetworkType={this.setNetworkType}
                     setNetwork={this.setNetwork}
