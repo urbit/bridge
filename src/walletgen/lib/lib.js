@@ -60,12 +60,9 @@ const generateWallet = async (point, ticket, boot) => {
   return wallet;
 }
 
-const generateOwnershipWallet = async (point, ticket) => {
-  return await kg.generateOwnershipWallet({
-    ship: point,
-    ticket
-  });
-}
+// returns a promise
+const generateOwnershipWallet = (ship, ticket) =>
+  kg.generateOwnershipWallet({ ship, ticket });
 
 const seq = num => Array.from(Array(num), (_, i) => i)
 
