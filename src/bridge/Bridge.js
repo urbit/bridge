@@ -12,7 +12,12 @@ import { Container, Row, Col } from './components/Base'
 
 import { ROUTE_NAMES, router } from './lib/router'
 import { NETWORK_NAMES } from './lib/network'
-import { WALLET_NAMES, DEFAULT_HD_PATH, walletFromMnemonic } from './lib/wallet'
+import {
+  WALLET_NAMES,
+  DEFAULT_HD_PATH,
+  walletFromMnemonic,
+  addressFromSecp256k1Public
+} from './lib/wallet'
 import { BRIDGE_ERROR } from './lib/error'
 
 const initWeb3 = (networkType) => {
@@ -212,7 +217,11 @@ class Bridge extends React.Component {
   }
 
   setWallet(wallet) {
-    this.setState({ wallet })
+    wallet.map(wal => {
+      wal.address = wal.address || addressFromSecp256k1Public(wal.publicKey);
+      return wal;
+    });
+    this.setState({ wallet });
   }
 
   setWalletHdPath(walletHdPath) {
@@ -229,6 +238,10 @@ class Bridge extends React.Component {
         DEFAULT_HD_PATH,
         urbitWallet.value.meta.passphrase
       );
+      wallet.map(wal => {
+        wal.address = urbitWallet.value.ownership.keys.address;
+        return wal;
+      });
     }
     this.setState({ urbitWallet, wallet })
   }
@@ -342,6 +355,7 @@ class Bridge extends React.Component {
                 networkRevisionCache={ networkRevisionCache }
                 setNetworkSeedCache= { this.setNetworkSeedCache }
                 // txn
+                onSent={ this.setTxnHashCursor }
                 setTxnHashCursor={ this.setTxnHashCursor }
                 txnHashCursor={ txnHashCursor }
                 setTxnConfirmations={ this.setTxnConfirmations }

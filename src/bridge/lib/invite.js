@@ -1,32 +1,18 @@
-import lodash from 'lodash'
 import { Just, Nothing } from 'folktale/maybe'
 import Tx from 'ethereumjs-tx'
 
 import * as azimuth from 'azimuth-js'
-import * as more from 'more-entropy'
-import * as ob from 'urbit-ob'
 import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
+import * as wg from '../../walletgen/lib/lib.js'
 import * as tank from './tank'
-import { MIN_STAR, MIN_PLANET, SEED_ENTROPY_BITS,
-         GALAXY_ENTROPY_BITS, STAR_ENTROPY_BITS, PLANET_ENTROPY_BITS,
-       } from '../../walletgen/lib/constants'
 
 import JSZip from 'jszip'
 import saveAs from 'file-saver'
 
-import {
-  waitForTransactionConfirm,
-  isTransactionConfirmed
-} from './txn'
-import { BRIDGE_ERROR } from './error'
+import { sendSignedTransaction } from './txn'
+import { BRIDGE_ERROR } from '../lib/error'
 import { attemptSeedDerivation } from './keys'
-import {
-  addressFromSecp256k1Public,
-  addHexPrefix,
-  WALLET_NAMES
-} from './wallet'
-
-const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8
+import { addHexPrefix, WALLET_NAMES } from './wallet'
 
 const INVITE_STAGES = {
   INVITE_LOGIN: "invite login",
@@ -79,58 +65,9 @@ const TRANSACTION_STATES = {
   },
 }
 
-//TODO should be moved to lib/walletgen
 async function generateWallet(point) {
-  const makeTicket = point => {
-
-    const bits = point < MIN_STAR
-      ? GALAXY_ENTROPY_BITS
-      : point < MIN_PLANET
-        ? STAR_ENTROPY_BITS
-        : PLANET_ENTROPY_BITS
-
-    const bytes = bits / 8
-    const some = new Uint8Array(bytes)
-    window.crypto.getRandomValues(some)
-
-    const gen = new more.Generator()
-
-    return new Promise((resolve, reject) => {
-      gen.generate(bits, result => {
-        const chunked = lodash.chunk(result, 2)
-        const desired = chunked.slice(0, bytes) // only take required entropy
-        const more = lodash.flatMap(desired, arr => arr[0] ^ arr[1])
-        const entropy = lodash.zipWith(some, more, (x, y) => x ^ y)
-        const buf = Buffer.from(entropy)
-        const patq = ob.hex2patq(buf.toString('hex'))
-        resolve(patq)
-        reject('Entropy generation failed')
-      })
-    })
-  }
-
-  const genWallet = async (point, ticket, cb) => {
-
-    const config = {
-      ticket: ticket,
-      seedSize: SEED_LENGTH_BYTES,
-      ship: point,
-      password: '',
-      revisions: {},
-      boot: false //TODO should this generate networking keys here already?
-    };
-
-    const wallet = await kg.generateWallet(config);
-
-    // This is here to notify the anyone who opens console because the thread
-    // hangs, blocking UI updates so this cannot be doen in the UI
-    console.log('Generating Wallet for point address: ', point);
-
-    return wallet;
-  }
-
-  const ticket = await makeTicket(point);
-  const wallet = await genWallet(point, ticket);
+  const ticket = await wg.makeTicket(point);
+  const wallet = await wg.generateWallet(point, ticket);
   return wallet;
 }
 
@@ -169,6 +106,13 @@ async function startTransactions(args) {
   let { realPointM, web3M, contractsM,
     inviteWalletM, realWalletM, setUrbitWallet, updateProgress } = args
 
+  const askForFunding = (address, amount, current) => {
+    updateProgress({
+      type: "notify",
+      value: `Please make sure ${address} has at least ${amount} wei, we'll continue once that's true. Current balance: ${current}. Waiting`
+    });
+  }
+
   if (Nothing.hasInstance(web3M)) {
     throw BRIDGE_ERROR.MISSING_WEB3;
   }
@@ -196,7 +140,7 @@ async function startTransactions(args) {
   }
   const point = realPointM.value;
 
-  const inviteAddress = addressFromSecp256k1Public(inviteWallet.publicKey);
+  const inviteAddress = inviteWallet.address;
   console.log('working as', inviteAddress);
 
   // transfer from invite wallet to new wallet
@@ -217,7 +161,13 @@ async function startTransactions(args) {
   let rawTransferStx = '0x'+transferStx.serialize().toString('hex');
 
   const transferCost = transferTx.gas * transferTx.gasPrice;
-  await ensureFundsFor(web3, point, inviteAddress, transferCost, [rawTransferStx], updateProgress, true);
+  updateProgress({
+    type: "progress",
+    value: TRANSACTION_STATES.FUNDING_INVITE
+  });
+  let usedTank = await tank.ensureFundsFor(
+    web3, point, inviteAddress, transferCost, [rawTransferStx], askForFunding
+  );
 
   updateProgress({
     type: "progress",
@@ -225,7 +175,7 @@ async function startTransactions(args) {
   });
 
   // send transaction
-  await sendAndAwaitConfirm(web3, [rawTransferStx]);
+  await sendAndAwaitConfirm(web3, [rawTransferStx], usedTank);
 
   //
   // we're gonna be operating as the new wallet from here on out, so change
@@ -281,14 +231,20 @@ async function startTransactions(args) {
     return '0x'+stx.serialize().toString('hex');
   });
 
-  await ensureFundsFor(web3, point, newAddress, totalCost, rawStxs, updateProgress, false);
+  updateProgress({
+    type: "progress",
+    value: TRANSACTION_STATES.FUNDING_RECIPIENT
+  });
+  usedTank = await tank.ensureFundsFor(
+    web3, point, newAddress, totalCost, rawStxs, askForFunding
+  );
 
   updateProgress({
     type: "progress",
     value: TRANSACTION_STATES.CONFIGURING
   });
 
-  await sendAndAwaitConfirm(web3, rawStxs);
+  await sendAndAwaitConfirm(web3, rawStxs, usedTank);
 
   updateProgress({
     type: "progress",
@@ -328,104 +284,12 @@ async function startTransactions(args) {
   setUrbitWallet(Just(realWallet));
 }
 
-async function ensureFundsFor(web3, point, address, cost, signedTxs, updateProgress, firstTx) {
-  let fundingState = firstTx? TRANSACTION_STATES.FUNDING_INVITE : TRANSACTION_STATES.FUNDING_RECIPIENT
-
-  updateProgress({
-    type: "progress",
-    value: fundingState
-  });
-
-  let balance = await web3.eth.getBalance(address);
-
-  if (cost > balance) {
-
-    try {
-
-      const fundsRemaining = await tank.remainingTransactions(point);
-      if (fundsRemaining < signedTxs.length) {
-        throw new Error('request invalid');
-      }
-
-      const res = await tank.fundTransactions(signedTxs);
-      if (!res.success) {
-        throw new Error('request rejected');
-      } else {
-        await waitForTransactionConfirm(web3, res.txHash);
-        let newBalance = await web3.eth.getBalance(address);
-        console.log('funds have confirmed', balance >= cost, balance, newBalance);
-      }
-
-    } catch (e) {
-
-      console.log('funding failed', e);
-      await waitForBalance(web3, address, cost, updateProgress);
-
-    }
-
-  } else {
-    console.log('already have sufficient funds');
-  }
-}
-
-// resolves when address has at least minBalance
-//
-async function waitForBalance(web3, address, minBalance, updateProgress) {
-  console.log('awaiting balance', address, minBalance);
-  return new Promise((resolve, reject) => {
-    let oldBalance = null;
-    const checkForBalance = async () => {
-      const balance = await web3.eth.getBalance(address);
-      if (balance >= minBalance) {
-        resolve();
-      } else {
-        if (balance !== oldBalance) {
-          askForFunding(address, minBalance, balance, updateProgress);
-        }
-        setTimeout(checkForBalance, 13000);
-      }
-    };
-    checkForBalance();
-  });
-}
-
-async function sendAndAwaitConfirm(web3, signedTxs) {
+async function sendAndAwaitConfirm(web3, signedTxs, usedTank) {
   await Promise.all(signedTxs.map(tx => {
-    console.log('sending...');
     return new Promise((resolve, reject) => {
-      web3.eth.sendSignedTransaction(tx).then(res => {
-        console.log('sent, now waiting for confirm!', res.transactionHash);
-        waitForTransactionConfirm(web3, res.transactionHash)
-        .then(resolve);
-      }).catch(async err => {
-        // if there's an error, check if it's because the transaction was
-        // already confirmed prior to sending.
-        // this is really only the case in local dev environments.
-        const txHash = web3.utils.keccak256(tx);
-        console.log(err.message);
-        if (err.message.slice(0,54) ===
-            "Returned error: the tx doesn't have the correct nonce.") {
-          console.log('nonce error, awaiting confirm', err.message.slice(55));
-          //TODO max wait time before assume failure?
-          let res = await waitForTransactionConfirm(web3, txHash);
-          if (res) resolve();
-          else reject(new Error('Unexpected tx failure'));
-        } else {
-          const confirmed = await isTransactionConfirmed(web3, txHash);
-          console.log('error, but maybe confirmed:', confirmed);
-          if (confirmed) resolve();
-          else reject(err);
-        }
-      });
+      sendSignedTransaction(web3, tx, usedTank, resolve);
     });
   }));
-}
-
-function askForFunding(address, amount, current, updateProgress) {
-  updateProgress({
-    type: "notify",
-    value: `Please make sure ${address} has at least ${amount} wei, we'll continue once that's true. Current balance: ${current}. Waiting`
-  });
 }
 
 export {

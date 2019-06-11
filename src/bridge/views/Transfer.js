@@ -2,12 +2,12 @@ import Maybe from 'folktale/maybe'
 import React from 'react'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
+import * as need from '../lib/need'
 
 import { Row, Col, H1, InnerLabel, ShowBlockie, P, Anchor } from '../components/Base'
 import { AddressInput } from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
 
-import { BRIDGE_ERROR } from '../lib/error'
 import { NETWORK_NAMES } from '../lib/network'
 
 import {
@@ -18,12 +18,7 @@ class Transfer extends React.Component {
   constructor(props) {
     super(props)
 
-    const issuingPoint = props.pointCursor.matchWith({
-      Just: (pt) => pt.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const issuingPoint = need.pointCursor(props);
 
     this.state = {
       receivingAddress: '',
@@ -49,19 +44,9 @@ class Transfer extends React.Component {
   createUnsignedTxn() {
     const { state, props } = this
 
-    const validContracts = props.contracts.matchWith({
-      Just: (cs) => cs.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    })
+    const validContracts = need.contracts(props);
 
-    const validPoint = props.pointCursor.matchWith({
-      Just: (shp) => shp.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINTs
-      }
-    })
+    const validPoint = need.pointCursor(props);
 
     const txn = azimuth.ecliptic.setTransferProxy(
       validContracts,
@@ -125,16 +110,7 @@ class Transfer extends React.Component {
 
           <StatelessTransaction
             // Upper scope
-            web3={props.web3}
-            contracts={props.contracts}
-            wallet={props.wallet}
-            walletType={props.walletType}
-            walletHdPath={props.walletHdPath}
-            networkType={props.networkType}
-            onSent={props.setTxnHashCursor}
-            setTxnConfirmations={props.setTxnConfirmations}
-            popRoute={props.popRoute}
-            pushRoute={props.pushRoute}
+            {...props}
             // Checks
             userApproval={state.userApproval}
             canGenerate={ canGenerate }

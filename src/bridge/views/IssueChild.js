@@ -2,23 +2,21 @@ import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { azimuth, ecliptic } from 'azimuth-js'
 import * as ob from 'urbit-ob'
+import * as need from '../lib/need'
 
-import { Row, Col, H1, P, Anchor } from '../components/Base'
-import { Button, ShowBlockie, ValidatedSigil } from '../components/Base'
-import { PointInput, AddressInput, InnerLabel } from '../components/Base'
+import {
+  Row, Col, H1, P, Anchor,
+  ShowBlockie, ValidatedSigil,
+  PointInput, AddressInput, InnerLabel
+} from '../components/Base'
 
 import StatelessTransaction from '../components/StatelessTransaction'
 
 import { NETWORK_NAMES } from '../lib/network'
-import { BRIDGE_ERROR } from '../lib/error'
 import { getSpawnCandidate } from '../lib/child'
 import { canDecodePatp } from '../lib/txn'
 
-import {
-  ETH_ZERO_ADDR,
-  isValidAddress,
-  eqAddr
-} from '../lib/wallet'
+import { isValidAddress } from '../lib/wallet'
 
 const setFind = (set, pred) => {
   for (const e of set) {
@@ -33,12 +31,7 @@ class IssueChild extends React.Component {
   constructor(props) {
     super(props)
 
-    const issuingPoint = props.pointCursor.matchWith({
-      Just: (pt) => parseInt(pt.value, 10),
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const issuingPoint = parseInt(need.pointCursor(props), 10);
 
     const getCandidate = () => ob.patp(getSpawnCandidate(issuingPoint))
 
@@ -71,17 +64,9 @@ class IssueChild extends React.Component {
   }
 
   componentWillMount() {
-
-    const { contracts } = this.props
     const { issuingPoint } = this.state
 
-
-    const validContracts = contracts.matchWith({
-      Just: cs => cs.value,
-      Nothing: _ => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    })
+    const validContracts = need.contracts(this.props);
 
     azimuth.getUnspawnedChildren(validContracts, issuingPoint).then(ps => this.setState({ validChildren: new Set(ps.map(ob.patp)) }))
   }
@@ -112,12 +97,7 @@ class IssueChild extends React.Component {
     if (state.isAvailable === false) return Nothing()
     if (canDecodePatp(state.desiredPoint) === false) return Nothing()
 
-    const validContracts = props.contracts.matchWith({
-      Just: (cs) => cs.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    })
+    const validContracts = need.contracts(props);
 
     const pointDec = ob.patp2dec(state.desiredPoint)
 
@@ -260,16 +240,7 @@ class IssueChild extends React.Component {
 
           <StatelessTransaction
             // Upper scope
-            web3={props.web3}
-            contracts={props.contracts}
-            wallet={props.wallet}
-            walletType={props.walletType}
-            walletHdPath={props.walletHdPath}
-            networkType={props.networkType}
-            onSent={props.setTxnHashCursor}
-            setTxnConfirmations={props.setTxnConfirmations}
-            popRoute={props.popRoute}
-            pushRoute={props.pushRoute}
+            {...props}
             // Other
             canGenerate={canGenerate}
             createUnsignedTxn={this.createUnsignedTxn}

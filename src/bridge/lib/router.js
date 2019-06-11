@@ -1,4 +1,5 @@
 import * as ob from 'urbit-ob'
+import * as need from '../lib/need'
 
 import React from 'react';
 
@@ -35,9 +36,8 @@ import Ticket from '../views/Ticket'
 import Transfer from '../views/Transfer'
 import Wallet from '../views/Wallet'
 
-import { addressFromSecp256k1Public, EthereumWallet } from './wallet'
+import { EthereumWallet } from './wallet'
 import { renderNetworkType } from './network'
-import { BRIDGE_ERROR } from './error'
 
 const ROUTE_NAMES = {
   DEFAULT: Symbol('DEFAULT'),
@@ -111,7 +111,7 @@ const createRoutes = () => {
 const ROUTES = createRoutes()
 
 const renderRoute = (props, route) => {
-  const { wallet, networkType, pointCursor } = props
+  const { wallet, networkType } = props
   return (
       route === ROUTE_NAMES.LANDING
     ? 'Bridge'
@@ -137,7 +137,7 @@ const renderRoute = (props, route) => {
         Just: (wal) =>
             wal.value instanceof EthereumWallet
           ? (<span className="text-mono">{wal.value.address}</span>)
-          : (<span className="text-mono">{addressFromSecp256k1Public(wal.value.publicKey)}</span>)
+          : (<span className="text-mono">{wal.value.address}</span>)
       })
 
     : route === ROUTE_NAMES.MNEMONIC
@@ -168,12 +168,7 @@ const renderRoute = (props, route) => {
     ? 'View'
 
     : route === ROUTE_NAMES.SHIP
-    ? pointCursor.matchWith({
-        Just: (cursor) => ob.patp(cursor.value),
-        Nothing: () => {
-          throw BRIDGE_ERROR.MISSING_POINT
-        }
-      })
+    ? ob.patp(need.pointCursor(props))
 
     : route === ROUTE_NAMES.SET_TRANSFER_PROXY
       || route === ROUTE_NAMES.SET_MANAGEMENT_PROXY

@@ -8,7 +8,6 @@ import { NETWORK_NAMES } from '../lib/network'
 import { ROUTE_NAMES } from '../lib/router'
 import {
   ETH_ZERO_ADDR,
-  addressFromSecp256k1Public,
   eqAddr
   } from '../lib/wallet'
 
@@ -42,8 +41,7 @@ class Points extends React.Component {
     web3.chain(_ =>
     contracts.chain(ctrcs =>
     wallet.chain(async wal => {
-      const pub = wal.publicKey
-      const addr = addressFromSecp256k1Public(pub)
+      const addr = wal.address
 
       const points =
         await azimuth.azimuth.getOwnedPoints(ctrcs, addr)

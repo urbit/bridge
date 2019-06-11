@@ -1,5 +1,6 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
+import * as need from '../lib/need'
 import { Row, Col, H1, H3, P, Warning, Anchor } from '../components/Base'
 import { Button } from '../components/Base'
 
@@ -122,15 +123,12 @@ const Failure = (props) =>
     </Row>
 
 const SentTransaction = (props) => {
-  const { web3, txnHashCursor, networkType, popRoute, pushRoute, txnConfirmations} = props
+  const { txnHashCursor, networkType, popRoute, pushRoute, txnConfirmations} = props
   const { setPointCursor, pointCursor } = props
 
   const promptKeyfile = props.routeData && props.routeData.promptKeyfile
 
-  const w3 = web3.matchWith({
-    Nothing: _ => { throw BRIDGE_ERROR.MISSING_WEB3 },
-    Just: res => res.value
-  })
+  const w3 = need.web3(props);
 
   const result = txnHashCursor.matchWith({
     Nothing: _ => { throw BRIDGE_ERROR.MISSING_TXN },

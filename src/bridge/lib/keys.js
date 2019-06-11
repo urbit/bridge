@@ -1,5 +1,6 @@
 import BN from 'bn.js'
 import Maybe from 'folktale/maybe'
+import * as need from '../lib/need'
 
 import * as noun from '../nockjs/noun'
 import * as serial from '../nockjs/serial'
@@ -7,7 +8,6 @@ import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
 
 import { BRIDGE_ERROR } from './error'
 import {
-  addressFromSecp256k1Public,
   WALLET_NAMES,
   eqAddr
   } from './wallet'
@@ -63,24 +63,15 @@ const genKey = (networkSeed, point, revision) => {
 // 'next' refers to setting the next set of keys
 // if false, we use revision - 1
 const attemptSeedDerivation = async (next, args) => {
-  const { walletType, wallet, pointCursor, pointCache } = args
+  const { walletType } = args
   const { urbitWallet, authMnemonic } = args
 
   // NB (jtobin):
   //
   // following code is intentionally verbose for sake of clarity
 
-  const point = pointCursor.matchWith({
-    Just: pt => pt.value,
-    Nothing: _ => {
-      throw BRIDGE_ERROR.MISSING_POINT
-    }
-  })
-
-  const pointDetails =
-      point in pointCache
-    ? pointCache[point]
-    : (() => { throw BRIDGE_ERROR.MISSING_POINT })()
+  const point = need.pointCursor(args);
+  const pointDetails = need.fromPointCache(args, point);
 
   const revision =
       next === true
@@ -104,12 +95,7 @@ const attemptSeedDerivation = async (next, args) => {
 
   } else if (walletType === WALLET_NAMES.MNEMONIC) {
 
-    const walProxy = wallet.matchWith({
-      Just: wal => addressFromSecp256k1Public(wal.value.publicKey),
-      Nothing: _ => {
-        throw BRIDGE_ERROR.MISSING_WALLET
-      }
-    })
+    const walProxy = need.address(args);
 
     const mnemonic = authMnemonic.matchWith({
       Just: mnem => mnem.value,

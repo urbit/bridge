@@ -1,6 +1,7 @@
 import { Nothing, Just } from 'folktale/maybe'
 import { Ok } from 'folktale/result'
 import React from 'react'
+import * as need from '../lib/need'
 
 import { Code, H3 } from './Base'
 import { Button } from './Base'
@@ -8,14 +9,12 @@ import { CheckboxButton, Input, InnerLabel,
   InnerLabelDropdown } from './Base'
 import {  Warning } from '../components/Base'
 
-import { addressFromSecp256k1Public } from '../lib/wallet'
 import { BRIDGE_ERROR } from '../lib/error'
 import { ROUTE_NAMES } from '../lib/router'
 import * as tank from '../lib/tank'
 
 import {
   sendSignedTransaction,
-  waitForTransactionConfirm,
   fromWei,
   toWei,
   hexify,
@@ -66,12 +65,7 @@ class StatelessTransaction extends React.Component {
   componentDidMount() {
     const { props } = this
 
-    const addr = props.wallet.matchWith({
-      Just: wal => addressFromSecp256k1Public(wal.value.publicKey),
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_WALLET
-      }
-    })
+    const addr = need.address(props);
 
     props.web3.matchWith({
       Nothing: () => {},
@@ -195,7 +189,7 @@ class StatelessTransaction extends React.Component {
       try {
         this.setState({ txStatus: SUBMISSION_STATES.PREPARING });
         const res = await props.beforeSend(stx);
-        if (res === false) throw 'beforeSend disallowed sending';
+        if (res === false) throw new Error('beforeSend disallowed sending');
       } catch (e) {
         console.log('beforeSend error', e);
         this.setState({
@@ -211,21 +205,15 @@ class StatelessTransaction extends React.Component {
     const rawTx = hexify(stx.serialize());
     const cost = (state.gasLimit * toWei(state.gasPrice, 'gwei'));
 
-    //TODO need a lib function or something for address=, it's everywhere
-    const address = props.wallet.matchWith({
-      Just: wal => addressFromSecp256k1Public(wal.value.publicKey),
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_WALLET
-      }
-    });
+    const address = need.address(props);
     let balance = await web3.eth.getBalance(address);
     let hasBalance = (balance >= cost);
 
     let usedTank = false;
     // if we need to, try and fund the transaction
     if (!hasBalance) {
-      hasBalance = await this.ensureFundsFor(web3, address, cost, [rawTx]);
-      usedTank = hasBalance;
+      usedTank = await this.ensureFundsFor(web3, address, cost, [rawTx]);
+      hasBalance = usedTank;
     }
 
     // if we still don't have sufficient balance, fail and tell the user
@@ -268,26 +256,15 @@ class StatelessTransaction extends React.Component {
     }
   }
 
-  //TODO partially copied from InviteTransactions, try to move into tank lib
-  async ensureFundsFor(web3, address, cost, signedTxs) {
-    let balance = await web3.eth.getBalance(address);
-    if (cost > balance) {
-      try {
-
-        const res = await tank.fundTransactions(signedTxs);
-        if (!res.success) {
-          return false;
-        } else {
-          await waitForTransactionConfirm(web3, res.txHash);
-          return true;
-        }
-
-      } catch (e) {
-        return false;
-      }
-    } else {
-      return true;
-    }
+  // uses the gas tank to ensure funds, but if we have to ask the user
+  // for funding, just resolve instead of waiting
+  // returns true if the gas tank was used, false otherwise
+  ensureFundsFor(web3, address, cost, signedTxs) {
+    return new Promise((resolve, reject) => {
+      tank.ensureFundsFor(web3, null, address, cost, signedTxs,
+        () => { resolve(false); })
+      .then(res => { resolve(res); });
+    });
   }
 
   getChainTitle(chainId) {

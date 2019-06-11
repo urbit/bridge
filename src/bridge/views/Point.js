@@ -3,12 +3,12 @@ import React from 'react'
 import { pour } from 'sigil-js'
 import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
+import * as need from '../lib/need'
 
 import PointList from '../components/PointList'
 import ReactSVGComponents from '../components/ReactSVGComponents'
 import KeysAndMetadata from './Point/KeysAndMetadata'
 import Actions from './Point/Actions'
-import { BRIDGE_ERROR } from '../lib/error'
 import { Row, Col, H1,  H3 } from '../components/Base'
 
 
@@ -18,7 +18,8 @@ class Point extends React.Component {
     super(props)
 
     this.state = {
-      spawned: []
+      spawned: [],
+      invites: Nothing()
     }
   }
 
@@ -50,9 +51,8 @@ class Point extends React.Component {
     pointCursor.chain(point => {
       azimuth.azimuth.getPoint(ctrcs, point)
       .then(details => addToPointCache({ [point]: details }));
-      const prefix = azimuth.azimuth.getPrefix(point);
-      azimuth.azimuth.getPoint(ctrcs, prefix)
-      .then(details => addToPointCache({ [prefix]: details }));
+      azimuth.delegatedSending.getTotalUsableInvites(ctrcs, point)
+      .then(count => this.setState({ invites: Just(count) }));
       this.updateSpawned(ctrcs, point);
     })));
   }
@@ -73,34 +73,18 @@ class Point extends React.Component {
   render() {
 
     const {
-      web3, popRoute, pushRoute, wallet, contracts,
-      setPointCursor, pointCursor, pointCache
+      web3, popRoute, pushRoute, wallet,
+      setPointCursor, pointCache
     } = this.props;
 
     const { spawned } = this.state
 
-
-    const point = pointCursor.matchWith({
-      Just: (cursor) => cursor.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const point = need.pointCursor(this.props);
 
     const pointDetails =
         point in pointCache
       ? Just(pointCache[point])
       : Nothing()
-
-    const prefix = azimuth.azimuth.getPrefix(point);
-    const prefixDetails =
-        prefix in pointCache
-      ? Just(pointCache[prefix])
-      : Nothing();
-    const delegatedSending = contracts.matchWith({
-      Nothing: () => '0x',
-      Just: (c) => c.value.delegatedSending.address
-    })
 
     const name = ob.patp(point)
 
@@ -147,10 +131,9 @@ class Point extends React.Component {
                   pushRoute={ pushRoute }
                   online={ online }
                   wallet={ wallet }
-                  delegatedSending={ delegatedSending }
                   point={ point }
                   pointDetails={ pointDetails }
-                  prefixDetails={ prefixDetails } />
+                  invites={ this.state.invites } />
               : null
             }
 

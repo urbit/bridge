@@ -1,11 +1,10 @@
 import React from 'react'
+import * as need from '../../lib/need'
 import {
   ETH_ZERO_ADDR,
   CURVE_ZERO_ADDR,
-  addressFromSecp256k1Public,
   eqAddr
 } from '../../lib/wallet'
-import { BRIDGE_ERROR } from '../../lib/error'
 import { Row, Col, H2, P } from '../../components/Base'
 import { Button } from '../../components/Base'
 import { ROUTE_NAMES } from '../../lib/router'
@@ -18,16 +17,11 @@ const isStar = point =>
 
 const Actions = (props) => {
   const {
-    pushRoute, online, wallet, delegatedSending,
-    point, pointDetails, prefixDetails
+    pushRoute, online,
+    point, pointDetails, invites
   } = props
 
-  const addr = wallet.matchWith({
-    Just: (wal) => addressFromSecp256k1Public(wal.value.publicKey),
-    Nothing: () => {
-      throw BRIDGE_ERROR.MISSING_WALLET
-    }
-  })
+  const addr = need.address(props);
 
   const isOwner = pointDetails.matchWith({
     Nothing: _ => false,
@@ -64,10 +58,10 @@ const Actions = (props) => {
           }
         })
 
-  const prefixHasDelegatedSending =
-    prefixDetails.matchWith({
+  const hasInvites =
+    invites.matchWith({
       Nothing: () => false,
-      Just: (details) => eqAddr(details.value.spawnProxy, delegatedSending)
+      Just: (count) => (count.value > 0)
     });
 
   const planet = isPlanet(point)
@@ -119,23 +113,29 @@ const Actions = (props) => {
     }
   })
 
-  let invites = null;
+  let inviteAction = null;
   if (planet) {
-    invites = (
+    inviteAction = (
       <Button
-        disabled={(!isActiveOwner || !online || !prefixHasDelegatedSending)}
+        disabled={(!isActiveOwner || !online || !hasInvites)}
         prop-size={'sm'}
         prop-type={'link'}
         onClick={ () => {
           pushRoute(ROUTE_NAMES.INVITES_SEND);
         }}
       >
-        { 'Send invites' }
+        { 'Send invites (' }
+        { invites.matchWith({
+            Nothing: () => '?',
+            Just: (count) => count.value
+          })
+        }
+        { ')' }
       </Button>
     );
   }
   if (star) {
-    invites = (
+    inviteAction = (
       <Button
         disabled={(!(isActiveOwner && canIssueChild) || !online)}
         prop-size={'sm'}
@@ -254,7 +254,7 @@ const Actions = (props) => {
         </Col>
         <Col className={'flex flex-column items-start col-md-4'}>
 
-          { invites }
+          { inviteAction }
 
         </Col>
       </Row>

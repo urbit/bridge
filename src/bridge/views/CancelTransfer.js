@@ -3,21 +3,16 @@ import React from 'react'
 import { Row, Col, H1, P } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
+import * as need from '../lib/need'
 
 import StatelessTransaction from '../components/StatelessTransaction'
-import { BRIDGE_ERROR } from '../lib/error'
 import { ETH_ZERO_ADDR } from '../lib/wallet'
 
 class CancelTransfer extends React.Component {
   constructor(props) {
     super(props)
 
-    const pointInTransfer = props.pointCursor.matchWith({
-      Just: (pt) => pt.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const pointInTransfer = need.pointCursor(props);
 
     this.state = {
       proxyAddress: '',
@@ -30,19 +25,9 @@ class CancelTransfer extends React.Component {
   createUnsignedTxn() {
     const { props } = this
 
-    const validContracts = props.contracts.matchWith({
-      Just: (cs) => cs.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    })
+    const validContracts = need.contracts(props);
 
-    const validPoint = props.pointCursor.matchWith({
-      Just: (pt) => pt.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const validPoint = need.pointCursor(props); //TODO this.state.pointInTransfer ?
 
     const txn = azimuth.ecliptic.setTransferProxy(
       validContracts,
@@ -80,16 +65,7 @@ class CancelTransfer extends React.Component {
             </P>
             <StatelessTransaction
               // Upper scope
-              web3={props.web3}
-              contracts={props.contracts}
-              wallet={props.wallet}
-              walletType={props.walletType}
-              walletHdPath={props.walletHdPath}
-              networkType={props.networkType}
-              onSent={props.setTxnHashCursor}
-              setTxnConfirmations={props.setTxnConfirmations}
-              popRoute={props.popRoute}
-              pushRoute={props.pushRoute}
+              {...props}
               // Other
               canGenerate={ canGenerate }
               createUnsignedTxn={this.createUnsignedTxn} />

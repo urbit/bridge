@@ -3,11 +3,12 @@ import React from 'react'
 import { InnerLabel, Warning, TicketInput,
   VerifyTicketInput, Button, Row, Col, Passport } from '../components/Base'
 import * as azimuth from 'azimuth-js'
+import * as need from '../lib/need'
 
 import { randomPatq } from '../lib/lib'
 import { ROUTE_NAMES } from '../lib/router'
-import { DEFAULT_HD_PATH, urbitWalletFromTicket,
-  walletFromMnemonic, addressFromSecp256k1Public } from '../lib/wallet'
+import { DEFAULT_HD_PATH, ownershipWalletFromTicket,
+  walletFromMnemonic } from '../lib/wallet'
 import { BRIDGE_ERROR } from '../lib/error'
 import { INVITE_STAGES, WALLET_STATES, TRANSACTION_STATES } from '../lib/invite'
 import { generateWallet, startTransactions } from '../lib/invite'
@@ -71,12 +72,12 @@ class InviteTicket extends React.Component {
     });
 
     //NOTE ~zod because tmp wallet
-    const uhdw = await urbitWalletFromTicket(inviteTicket, '~zod');
-    const mnemonic = uhdw.ownership.seed;
+    const ownership = await ownershipWalletFromTicket(inviteTicket, 0);
+    const mnemonic = ownership.seed;
+    //TODO isn't all this accessible in the ownership object?
     const inviteWallet = walletFromMnemonic(
       mnemonic,
-      DEFAULT_HD_PATH,
-      uhdw.meta.passphrase
+      DEFAULT_HD_PATH
     ).matchWith({
       Just: w => w.value,
       Nothing: () => {
@@ -84,14 +85,9 @@ class InviteTicket extends React.Component {
       }
     });
 
-    const addr = addressFromSecp256k1Public(inviteWallet.publicKey);
+    const addr = inviteWallet.address;
 
-    const ctrcs = this.props.contracts.matchWith({
-      Just: ctrcs => ctrcs.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    })
+    const ctrcs = need.contracts(this.props);
 
     const incoming = await azimuth.azimuth.getTransferringFor(ctrcs, addr)
 

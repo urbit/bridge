@@ -1,6 +1,5 @@
 import * as ob from 'urbit-ob'
 import { Just } from 'folktale/maybe'
-import { Ok, Error } from 'folktale/result'
 import Tx from 'ethereumjs-tx'
 import { toWei, fromWei, toHex } from 'web3-utils'
 
@@ -134,7 +133,8 @@ const signTransaction = async config => {
     stx.sign(sec)
   }
 
-  setStx(Just(stx))
+  setStx(Just(stx));
+  return stx;
 }
 
 const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
@@ -152,6 +152,10 @@ const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
     .on('transactionHash', hash => {
       resolve(hash);
     })
+    //TODO do we also reach this if network is slow? web3 only tries a set
+    //     amount of times... should we instead do waitForTransactionConfirm
+    //     in on-transactionHash? we don't care (much) about additional
+    //     confirms anyway.
     .on('confirmation', (confirmationNum, txn) => {
       confirmationCb(txn.transactionHash, confirmationNum + 1);
       resolve(txn.transactionHash);
@@ -160,8 +164,9 @@ const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
       // if there's a nonce error, but we used the gas tank, it's likely
       // that it's because the tank already submitted our transaction.
       // we just wait for first confirmation here.
+      console.log('sent and got error', err);
       if (doubtNonceError &&
-          err.message.includes("the tx doesn't have the correct nonce.")) {
+          (err.message || '').includes("the tx doesn't have the correct nonce.")) {
         console.log('nonce error, likely from gas tank submission, ignoring');
         const txHash = web3.utils.keccak256(rawTx);
         //TODO can we do does-exists check first?

@@ -2,8 +2,8 @@ import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
+import * as need from '../lib/need'
 
-import { BRIDGE_ERROR } from '../lib/error'
 import { Row, Col, Warning, Input,
          PointInput, InnerLabel, ValidatedSigil } from '../components/Base'
 import StatelessTransaction from '../components/StatelessTransaction'
@@ -32,18 +32,8 @@ class InvitesManage extends React.Component {
   }
 
   componentDidMount() {
-    this.point = this.props.pointCursor.matchWith({
-      Just: (pt) => parseInt(pt.value, 10),
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    });
-    this.contracts = this.props.contracts.matchWith({
-      Just: cs => cs.value,
-      Nothing: _ => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    });
+    this.point = need.pointCursor(this.props);
+    this.contracts = need.contracts(this.props);
 
     azimuth.azimuth.isSpawnProxy(
       this.contracts,
@@ -86,7 +76,7 @@ class InvitesManage extends React.Component {
     } else {
       azimuth.delegatedSending.getPool(this.contracts, who)
       .then(pool => {
-        azimuth.delegatedSending.invitesInPool(this.contracts, pool)
+        azimuth.delegatedSending.invitesInPool(this.contracts, pool, this.point)
         .then(size => {
           this.updatePoolSize(who, size);
         });
@@ -96,11 +86,13 @@ class InvitesManage extends React.Component {
   }
 
   updatePoolSize(who, size) {
-    this.state.cachedPoolSizes[who] = size;
+    const cache = this.state.cachedPoolSizes;
+    cache[who] = size;
+    this.setState({ cachedPoolSizes: cache });
     const target = this.state.targetPlanet;
     const match = Just.hasInstance(target) ? (who === target.value) : false;
     if (match) {
-      this.setState({currentPoolSize:Just(size)});
+      this.setState({ currentPoolSize: Just(size) });
     }
   }
 
@@ -111,6 +103,7 @@ class InvitesManage extends React.Component {
   createUnsignedTxn() {
     return Just(azimuth.delegatedSending.setPoolSize(
       this.contracts,
+      this.point,
       this.state.targetPlanet.value,
       this.state.targetPoolSize
     ))
@@ -134,7 +127,7 @@ class InvitesManage extends React.Component {
     }
 
     let poolSizeText = this.state.currentPoolSize.matchWith({
-      Just: ps => `(currently ${ps.toString()})`,
+      Just: ps => `(currently ${ps.value})`,
       Nothing: _ => ''
     });
 
@@ -170,16 +163,7 @@ class InvitesManage extends React.Component {
 
           <StatelessTransaction
             // Upper scope
-            web3={this.props.web3}
-            contracts={this.props.contracts}
-            wallet={this.props.wallet}
-            walletType={this.props.walletType}
-            walletHdPath={this.props.walletHdPath}
-            networkType={this.props.networkType}
-            onSent={this.props.setTxnHashCursor}
-            setTxnConfirmations={this.props.setTxnConfirmations}
-            popRoute={this.props.popRoute}
-            pushRoute={this.props.pushRoute}
+            {...this.props}
             // Other
             canGenerate={this.state.canGenerate}
             createUnsignedTxn={this.createUnsignedTxn}

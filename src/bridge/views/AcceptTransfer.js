@@ -4,29 +4,19 @@ import { Row, Col, H1, P } from '../components/Base'
 import { InnerLabel, AddressInput, ShowBlockie, Anchor } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
+import * as need from '../lib/need'
 
 import StatelessTransaction from '../components/StatelessTransaction'
-import { BRIDGE_ERROR } from '../lib/error'
 import { NETWORK_NAMES } from '../lib/network'
-import { isValidAddress, addressFromSecp256k1Public } from '../lib/wallet'
+import { isValidAddress } from '../lib/wallet'
 
 class AcceptTransfer extends React.Component {
   constructor(props) {
     super(props)
 
-    const receivingAddress = props.wallet.matchWith({
-      Just: (wal) => addressFromSecp256k1Public(wal.value.publicKey),
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_WALLET
-      }
-    })
+    const receivingAddress = need.address(props);
 
-    const incomingPoint = props.pointCursor.matchWith({
-      Just: (shp) => shp.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const incomingPoint = need.pointCursor(props);
 
     this.state = {
       receivingAddress: receivingAddress,
@@ -46,19 +36,9 @@ class AcceptTransfer extends React.Component {
   createUnsignedTxn() {
     const { state, props } = this
 
-    const validContracts = props.contracts.matchWith({
-      Just: (cs) => cs.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS
-      }
-    })
+    const validContracts = need.contracts(props);
 
-    const validPoint = props.pointCursor.matchWith({
-      Just: (shp) => shp.value,
-      Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_POINT
-      }
-    })
+    const validPoint = need.pointCursor(props); //TODO state.incomingPoint ?
 
     return Just(azimuth.ecliptic.transferPoint(
       validContracts,
@@ -117,16 +97,7 @@ class AcceptTransfer extends React.Component {
 
           <StatelessTransaction
             // Upper scope
-            web3={props.web3}
-            contracts={props.contracts}
-            wallet={props.wallet}
-            walletType={props.walletType}
-            walletHdPath={props.walletHdPath}
-            networkType={props.networkType}
-            onSent={props.setTxnHashCursor}
-            setTxnConfirmations={props.setTxnConfirmations}
-            popRoute={props.popRoute}
-            pushRoute={props.pushRoute}
+            {...props}
             // Other
             canGenerate={ canGenerate }
             createUnsignedTxn={this.createUnsignedTxn}

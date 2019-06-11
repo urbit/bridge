@@ -53,12 +53,16 @@ const generateWallet = async (point, ticket, boot) => {
 
   const wallet = await kg.generateWallet(config);
 
-  // This is here to notify the anyone who opens console because the thread
-  // hangs, blocking UI updates so this cannot be doen in the UI
+  // This is here to notify anyone who opens console because the thread
+  // hangs, blocking UI updates so this cannot be done in the UI
   console.log('Generating Wallet for point address: ', point);
 
   return wallet;
 }
+
+// returns a promise
+const generateOwnershipWallet = (ship, ticket) =>
+  kg.generateOwnershipWallet({ ship, ticket });
 
 const seq = num => Array.from(Array(num), (_, i) => i)
 
@@ -67,6 +71,7 @@ const compose = (...fs) => fs.reduceRight((pF, nF) => (...args) => nF(pF(...args
 export {
   makeTicket,
   generateWallet,
+  generateOwnershipWallet,
   compose,
   seq,
 }
