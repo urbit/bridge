@@ -1,17 +1,18 @@
-import * as bip32 from 'bip32'
-import * as bip39 from 'bip39'
-import keccak from 'keccak'
-import * as lodash from 'lodash'
-import Maybe from 'folktale/maybe'
-import * as secp256k1 from 'secp256k1'
-import * as ob from 'urbit-ob'
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index'
-import { isAddress } from 'web3-utils'
+import * as bip32 from 'bip32';
+import * as bip39 from 'bip39';
+import keccak from 'keccak';
+import * as lodash from 'lodash';
+import Maybe from 'folktale/maybe';
+import * as secp256k1 from 'secp256k1';
+import * as ob from 'urbit-ob';
+import * as kg from '../../../node_modules/urbit-key-generation/dist/index';
+import { isAddress } from 'web3-utils';
 
-const DEFAULT_HD_PATH = "m/44'/60'/0'/0/0"
+const DEFAULT_HD_PATH = "m/44'/60'/0'/0/0";
 
-const ETH_ZERO_ADDR = '0x0000000000000000000000000000000000000000'
-const CURVE_ZERO_ADDR = "0x0000000000000000000000000000000000000000000000000000000000000000"
+const ETH_ZERO_ADDR = '0x0000000000000000000000000000000000000000';
+const CURVE_ZERO_ADDR =
+  '0x0000000000000000000000000000000000000000000000000000000000000000';
 
 const WALLET_NAMES = {
   MNEMONIC: Symbol('MNEMONIC'),
@@ -20,120 +21,117 @@ const WALLET_NAMES = {
   LEDGER: Symbol('LEDGER'),
   TREZOR: Symbol('TREZOR'),
   PRIVATE_KEY: Symbol('PRIVATE_KEY'),
-  KEYSTORE: Symbol('KEYSTORE')
-}
+  KEYSTORE: Symbol('KEYSTORE'),
+};
 
 function EthereumWallet(privateKey) {
-  this.privateKey = privateKey
-  this.publicKey = secp256k1.publicKeyCreate(this.privateKey)
-  const pub = this.publicKey.toString('hex')
-  this.address = addressFromSecp256k1Public(pub)
+  this.privateKey = privateKey;
+  this.publicKey = secp256k1.publicKeyCreate(this.privateKey);
+  const pub = this.publicKey.toString('hex');
+  this.address = addressFromSecp256k1Public(pub);
 }
 
-const renderWalletType = (wallet) =>
-    wallet === WALLET_NAMES.MNEMONIC
-  ? 'Mnemonic'
-  : wallet === WALLET_NAMES.TICKET
-  ? 'Ticket'
-  : wallet === WALLET_NAMES.SHARDS
-  ? 'Ticket Shards'
-  : wallet === WALLET_NAMES.LEDGER
-  ? 'Ledger'
-  : wallet === WALLET_NAMES.TREZOR
-  ? 'Trezor'
-  : wallet === WALLET_NAMES.PRIVATE_KEY
-  ? 'Private Key'
-  : wallet === WALLET_NAMES.KEYSTORE
-  ? 'Keystore File'
-  : 'Wallet'
+const renderWalletType = wallet =>
+  wallet === WALLET_NAMES.MNEMONIC
+    ? 'Mnemonic'
+    : wallet === WALLET_NAMES.TICKET
+    ? 'Ticket'
+    : wallet === WALLET_NAMES.SHARDS
+    ? 'Ticket Shards'
+    : wallet === WALLET_NAMES.LEDGER
+    ? 'Ledger'
+    : wallet === WALLET_NAMES.TREZOR
+    ? 'Trezor'
+    : wallet === WALLET_NAMES.PRIVATE_KEY
+    ? 'Private Key'
+    : wallet === WALLET_NAMES.KEYSTORE
+    ? 'Keystore File'
+    : 'Wallet';
 
 const addressFromSecp256k1Public = pub => {
-  const compressed = false
+  const compressed = false;
   const uncompressed = secp256k1.publicKeyConvert(
     Buffer.from(pub, 'hex'),
     compressed
-  )
-  const chopped = uncompressed.slice(1) // chop parity byte
-  const hashed = keccak256(chopped)
-  const addr = addHexPrefix(hashed.slice(-20).toString('hex'))
-  return toChecksumAddress(addr)
-}
+  );
+  const chopped = uncompressed.slice(1); // chop parity byte
+  const hashed = keccak256(chopped);
+  const addr = addHexPrefix(hashed.slice(-20).toString('hex'));
+  return toChecksumAddress(addr);
+};
 
-const addHexPrefix = hex =>
-  hex.slice(0, 2) === '0x'
-  ? hex
-  : '0x' + hex
+const addHexPrefix = hex => (hex.slice(0, 2) === '0x' ? hex : '0x' + hex);
 
-const stripHexPrefix = hex =>
-  hex.slice(0, 2) === '0x'
-  ? hex.slice(2)
-  : hex
+const stripHexPrefix = hex => (hex.slice(0, 2) === '0x' ? hex.slice(2) : hex);
 
 const keccak256 = str =>
-  keccak('keccak256').update(str).digest()
+  keccak('keccak256')
+    .update(str)
+    .digest();
 
-const isValidAddress = a => (('0x0' === a) || isAddress(a))
+const isValidAddress = a => '0x0' === a || isAddress(a);
 
-const toChecksumAddress = (address) => {
-  const addr = stripHexPrefix(address).toLowerCase()
-  const hash = keccak256(addr).toString('hex')
+const toChecksumAddress = address => {
+  const addr = stripHexPrefix(address).toLowerCase();
+  const hash = keccak256(addr).toString('hex');
 
-  return lodash.reduce(addr, (acc, char, idx) =>
-    parseInt(hash[idx], 16) >= 8
-      ? acc + char.toUpperCase()
-      : acc + char,
-    '0x')
-}
+  return lodash.reduce(
+    addr,
+    (acc, char, idx) =>
+      parseInt(hash[idx], 16) >= 8 ? acc + char.toUpperCase() : acc + char,
+    '0x'
+  );
+};
 
 const eqAddr = (addr0, addr1) =>
-  toChecksumAddress(addr0) === toChecksumAddress(addr1)
+  toChecksumAddress(addr0) === toChecksumAddress(addr1);
 
 const urbitWalletFromTicket = async (ticket, point, passphrase) => {
-  if (typeof point === 'string') { //TODO why not in kg?
+  if (typeof point === 'string') {
+    //TODO why not in kg?
     point = ob.patp2dec(point);
   }
   let uhdw = await kg.generateWallet({
     ticket: ticket,
     ship: point,
-    passphrase: passphrase
+    passphrase: passphrase,
   });
   return uhdw;
-}
-
+};
 
 const ownershipWalletFromTicket = async (ticket, point, passphrase) => {
-  if (typeof point === 'string') { //TODO why not in kg?
+  if (typeof point === 'string') {
+    //TODO why not in kg?
     point = ob.patp2dec(point);
   }
   return await kg.generateOwnershipWallet({
     ticket,
     ship: point,
-    passphrase
-  })
-}
+    passphrase,
+  });
+};
 
 const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
-  const seed =
-      bip39.validateMnemonic(mnemonic)
+  const seed = bip39.validateMnemonic(mnemonic)
     ? Maybe.Just(bip39.mnemonicToSeed(mnemonic, passphrase))
-    : Maybe.Nothing()
+    : Maybe.Nothing();
 
   const toWallet = (sd, path) => {
-    let wal
+    let wal;
     try {
-      const hd = bip32.fromSeed(sd)
+      const hd = bip32.fromSeed(sd);
       wal = hd.derivePath(path);
       wal.address = addressFromSecp256k1Public(wal.publicKey);
       wal = Maybe.Just(wal);
     } catch (_) {
-      wal = Maybe.Nothing()
+      wal = Maybe.Nothing();
     }
-    return wal
-  }
+    return wal;
+  };
 
-  const wallet = seed.chain(sd => toWallet(sd, hdpath))
-  return wallet
-}
+  const wallet = seed.chain(sd => toWallet(sd, hdpath));
+  return wallet;
+};
 
 export {
   DEFAULT_HD_PATH,
@@ -149,5 +147,5 @@ export {
   ownershipWalletFromTicket,
   walletFromMnemonic,
   addHexPrefix,
-  EthereumWallet
-}
+  EthereumWallet,
+};

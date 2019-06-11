@@ -1,17 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-
-const Form = ({
-  className,
-  children,
-  style,
-}) => {
+const Form = ({ className, children, style }) => {
   return (
     <form className={`${className}`} style={style}>
-      { children }
+      {children}
     </form>
-  )
+  );
 };
 
 Form.propTypes = {
@@ -24,6 +19,5 @@ Form.defaultProps = {
   className: '',
   style: {},
 };
-
 
 export default Form;

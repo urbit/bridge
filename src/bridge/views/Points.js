@@ -1,28 +1,22 @@
-import React from 'react'
-import { Row, Col, H1, H2, P } from '../components/Base'
-import { Button } from '../components/Base'
-import * as azimuth from 'azimuth-js'
+import React from 'react';
+import { Row, Col, H1, H2, P } from '../components/Base';
+import { Button } from '../components/Base';
+import * as azimuth from 'azimuth-js';
 
-import PointList from '../components/PointList'
-import { NETWORK_NAMES } from '../lib/network'
-import { ROUTE_NAMES } from '../lib/router'
-import {
-  ETH_ZERO_ADDR,
-  eqAddr
-  } from '../lib/wallet'
+import PointList from '../components/PointList';
+import { NETWORK_NAMES } from '../lib/network';
+import { ROUTE_NAMES } from '../lib/router';
+import { ETH_ZERO_ADDR, eqAddr } from '../lib/wallet';
 
 const hasTransferProxy = (cache, point) =>
-    point in cache
-  ? !eqAddr(cache[point].transferProxy, ETH_ZERO_ADDR)
-  : false
+  point in cache ? !eqAddr(cache[point].transferProxy, ETH_ZERO_ADDR) : false;
 
 class Points extends React.Component {
-
   constructor(props) {
-    super(props)
+    super(props);
 
-    const { networkType } = props
-    const loading = networkType !== NETWORK_NAMES.OFFLINE
+    const { networkType } = props;
+    const loading = networkType !== NETWORK_NAMES.OFFLINE;
 
     this.state = {
       points: [],
@@ -31,219 +25,233 @@ class Points extends React.Component {
       voting: [],
       spawning: [],
       eclipticOwner: false,
-      loading: loading
-    }
+      loading: loading,
+    };
   }
 
   componentDidMount() {
-    const { web3, wallet, contracts, addToPointCache } = this.props
+    const { web3, wallet, contracts, addToPointCache } = this.props;
 
     web3.chain(_ =>
-    contracts.chain(ctrcs =>
-    wallet.chain(async wal => {
-      const addr = wal.address
+      contracts.chain(ctrcs =>
+        wallet.chain(async wal => {
+          const addr = wal.address;
 
-      const points =
-        await azimuth.azimuth.getOwnedPoints(ctrcs, addr)
+          const points = await azimuth.azimuth.getOwnedPoints(ctrcs, addr);
 
-      const incoming =
-        await azimuth.azimuth.getTransferringFor(ctrcs, addr)
+          const incoming = await azimuth.azimuth.getTransferringFor(
+            ctrcs,
+            addr
+          );
 
-      const managing =
-        await azimuth.azimuth.getManagerFor(ctrcs, addr)
+          const managing = await azimuth.azimuth.getManagerFor(ctrcs, addr);
 
-      const voting =
-        await azimuth.azimuth.getVotingFor(ctrcs, addr)
+          const voting = await azimuth.azimuth.getVotingFor(ctrcs, addr);
 
-      const spawning =
-        await azimuth.azimuth.getSpawningFor(ctrcs, addr)
+          const spawning = await azimuth.azimuth.getSpawningFor(ctrcs, addr);
 
-      const owner =
-        await azimuth.ecliptic.owner(ctrcs)
+          const owner = await azimuth.ecliptic.owner(ctrcs);
 
-      const eclipticOwner = eqAddr(addr, owner)
+          const eclipticOwner = eqAddr(addr, owner);
 
-      this.setState({
-        points,
-        incoming,
-        managing,
-        voting,
-        spawning,
-        eclipticOwner,
-        loading: false
-      })
+          this.setState({
+            points,
+            incoming,
+            managing,
+            voting,
+            spawning,
+            eclipticOwner,
+            loading: false,
+          });
 
-      this.cachePoints(ctrcs, addToPointCache, points)
-    })))
+          this.cachePoints(ctrcs, addToPointCache, points);
+        })
+      )
+    );
   }
 
   cachePoints(contracts, addToPointCache, points) {
     points.forEach(point => {
-      azimuth.azimuth.getPoint(contracts, point)
-      .then(details => addToPointCache({ [point]: details }))
-    })
+      azimuth.azimuth
+        .getPoint(contracts, point)
+        .then(details => addToPointCache({ [point]: details }));
+    });
   }
 
   render() {
-    const { setPointCursor, pushRoute } = this.props
-    const { pointCache } = this.props
+    const { setPointCursor, pushRoute } = this.props;
+    const { pointCache } = this.props;
 
-    const { points, incoming, managing, voting, spawning, loading } = this.state
-    const { eclipticOwner } = this.state
+    const {
+      points,
+      incoming,
+      managing,
+      voting,
+      spawning,
+      loading,
+    } = this.state;
+    const { eclipticOwner } = this.state;
 
-    const lookupPointButton =
+    const lookupPointButton = (
       <Row>
         <Col>
           <Button
             prop-type={'link'}
             prop-size={'md'}
-            onClick={ () => pushRoute(ROUTE_NAMES.VIEW_SHIP) }
-          >
-            { 'View a point  →' }
+            onClick={() => pushRoute(ROUTE_NAMES.VIEW_SHIP)}>
+            {'View a point  →'}
           </Button>
-          <P>
-          { "View a point on Azimuth." }
-          </P>
+          <P>{'View a point on Azimuth.'}</P>
         </Col>
       </Row>
+    );
 
     const createGalaxyButton =
-        eclipticOwner === false
-      ? <div />
-      : <Row>
+      eclipticOwner === false ? (
+        <div />
+      ) : (
+        <Row>
           <Col>
             <Button
               prop-type={'link'}
               prop-size={'md'}
-              onClick={ () => pushRoute(ROUTE_NAMES.CREATE_GALAXY) }
-            >
-              { 'Create a galaxy  →' }
+              onClick={() => pushRoute(ROUTE_NAMES.CREATE_GALAXY)}>
+              {'Create a galaxy  →'}
             </Button>
             <P>
-            { "You have the authority to create a new Galaxy and you can do so here." }
+              {
+                'You have the authority to create a new Galaxy and you can do so here.'
+              }
             </P>
           </Col>
         </Row>
+      );
 
     const outgoing = points.filter(point =>
       hasTransferProxy(pointCache, point)
-    )
+    );
 
     const outgoingPoints =
-        outgoing.length !== 0
-      ? <React.Fragment>
-          <H2>{ 'Outgoing Transfers' }</H2>
+      outgoing.length !== 0 ? (
+        <React.Fragment>
+          <H2>{'Outgoing Transfers'}</H2>
           <P>
-          { `You own these points until the recipient accepts the incoming
-            transfer. You may cancel the transfer until accepted.` }
+            {`You own these points until the recipient accepts the incoming
+            transfer. You may cancel the transfer until accepted.`}
           </P>
           <PointList
-            setPointCursor={ setPointCursor }
-            routeHandler={ pushRoute }
-            points={ outgoing }
+            setPointCursor={setPointCursor}
+            routeHandler={pushRoute}
+            points={outgoing}
           />
         </React.Fragment>
-      : <div />
+      ) : (
+        <div />
+      );
 
     const incomingPoints =
-        incoming.length !== 0
-      ? <React.Fragment>
-          <H2>{ 'Incoming Transfers' }</H2>
+      incoming.length !== 0 ? (
+        <React.Fragment>
+          <H2>{'Incoming Transfers'}</H2>
           <P>
-          { `You do not own these points until you accept the incoming transfer.
-            You may reject any incoming transfers.` }
+            {`You do not own these points until you accept the incoming transfer.
+            You may reject any incoming transfers.`}
           </P>
           <PointList
-            setPointCursor={ setPointCursor }
-            routeHandler={ pushRoute }
-            points={ incoming }
+            setPointCursor={setPointCursor}
+            routeHandler={pushRoute}
+            points={incoming}
           />
         </React.Fragment>
-      : <div />
+      ) : (
+        <div />
+      );
 
     const managingPoints =
-        managing.length !== 0
-      ? <React.Fragment>
-          <H2>{ 'You Are a Management Proxy For' }</H2>
+      managing.length !== 0 ? (
+        <React.Fragment>
+          <H2>{'You Are a Management Proxy For'}</H2>
           <P>
-          { `You can configure or set network keys and conduct sponsorship
-             related operations for these points.` }
+            {`You can configure or set network keys and conduct sponsorship
+             related operations for these points.`}
           </P>
           <PointList
-            setPointCursor={ setPointCursor }
-            routeHandler={ pushRoute }
-            points={ managing }
+            setPointCursor={setPointCursor}
+            routeHandler={pushRoute}
+            points={managing}
           />
         </React.Fragment>
-      : <div />
+      ) : (
+        <div />
+      );
 
     const votingPoints =
-        voting.length !== 0
-      ? <React.Fragment>
-          <H2>{ 'You Are a Voting Proxy For' }</H2>
+      voting.length !== 0 ? (
+        <React.Fragment>
+          <H2>{'You Are a Voting Proxy For'}</H2>
           <P>
-          { `Since you are part of the Galactic Senate, you can cast votes on
-            new Azimuth proposals on behalf of these points.` }
+            {`Since you are part of the Galactic Senate, you can cast votes on
+            new Azimuth proposals on behalf of these points.`}
           </P>
           <PointList
-            setPointCursor={ setPointCursor }
-            routeHandler={ pushRoute }
-            points={ voting }
+            setPointCursor={setPointCursor}
+            routeHandler={pushRoute}
+            points={voting}
           />
         </React.Fragment>
-      : <div />
+      ) : (
+        <div />
+      );
 
     const spawningPoints =
-        spawning.length !== 0
-      ? <React.Fragment>
-          <H2>{ 'You Are a Spawn Proxy For' }</H2>
-          <P>
-          { `You can create new child ships under these points.` }
-          </P>
+      spawning.length !== 0 ? (
+        <React.Fragment>
+          <H2>{'You Are a Spawn Proxy For'}</H2>
+          <P>{`You can create new child ships under these points.`}</P>
           <PointList
-            setPointCursor={ setPointCursor }
-            routeHandler={ pushRoute }
-            points={ spawning }
+            setPointCursor={setPointCursor}
+            routeHandler={pushRoute}
+            points={spawning}
           />
         </React.Fragment>
-      : <div />
+      ) : (
+        <div />
+      );
 
     return (
       <Row>
         <Col>
-          <H1>{ 'Points' }</H1>
+          <H1>{'Points'}</H1>
 
           <P>{`A point is an identity on the Ethereum blockchain.
             Points declare keys for ships on the Arvo network.`}</P>
 
+          {lookupPointButton}
 
-        { lookupPointButton }
+          {createGalaxyButton}
 
-        { createGalaxyButton }
+          {incomingPoints}
 
-        { incomingPoints }
+          {outgoingPoints}
 
-        { outgoingPoints }
+          <H2>{'Your Points'}</H2>
 
-        <H2>{ 'Your Points' }</H2>
+          <PointList
+            setPointCursor={setPointCursor}
+            routeHandler={pushRoute}
+            points={points}
+            loading={loading}
+          />
 
-        <PointList
-          setPointCursor={ setPointCursor }
-          routeHandler={ pushRoute }
-          points={ points }
-          loading={ loading }
-        />
+          {managingPoints}
 
-        { managingPoints }
+          {votingPoints}
 
-        { votingPoints }
-
-        { spawningPoints }
-
+          {spawningPoints}
         </Col>
       </Row>
-    )
+    );
   }
 }
 
-export default Points
+export default Points;

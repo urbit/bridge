@@ -12,16 +12,18 @@ class UploadButton extends React.Component {
 
   render() {
     return (
-        <label className={this.props.className}>
-          <input
-            className={ 'hidden h-0 w-0 abs' }
-            ref={(ref) => { this.input = ref; }}
-            onChange={this.onChange}
-            disabled={this.props.disabled}
-            type="file"
-          />
-          {this.props.children}
-        </label>
+      <label className={this.props.className}>
+        <input
+          className={'hidden h-0 w-0 abs'}
+          ref={ref => {
+            this.input = ref;
+          }}
+          onChange={this.onChange}
+          disabled={this.props.disabled}
+          type="file"
+        />
+        {this.props.children}
+      </label>
     );
   }
 }

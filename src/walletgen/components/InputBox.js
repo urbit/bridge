@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 const InputBox = ({
   disabled,
@@ -9,7 +9,7 @@ const InputBox = ({
   onChange,
   currentValue,
   placeholder,
-  containerClassnames
+  containerClassnames,
 }) => {
   return (
     <div className={containerClassnames}>
@@ -17,15 +17,15 @@ const InputBox = ({
       <input
         className={className}
         placeholder={placeholder}
-        type='text'
+        type="text"
         value={currentValue}
         autoFocus={autofocus}
         autoComplete={autocomplete}
         disabled={disabled}
-        onChange={e => onChange(e)} />
-    </div> )
-}
+        onChange={e => onChange(e)}
+      />
+    </div>
+  );
+};
 
-
-
-export default InputBox
+export default InputBox;

@@ -1,265 +1,234 @@
-import React from 'react'
-import * as need from '../../lib/need'
-import {
-  ETH_ZERO_ADDR,
-  CURVE_ZERO_ADDR,
-  eqAddr
-} from '../../lib/wallet'
-import { Row, Col, H2, P } from '../../components/Base'
-import { Button } from '../../components/Base'
-import { ROUTE_NAMES } from '../../lib/router'
-import { azimuth } from 'azimuth-js'
+import React from 'react';
+import * as need from '../../lib/need';
+import { ETH_ZERO_ADDR, CURVE_ZERO_ADDR, eqAddr } from '../../lib/wallet';
+import { Row, Col, H2, P } from '../../components/Base';
+import { Button } from '../../components/Base';
+import { ROUTE_NAMES } from '../../lib/router';
+import { azimuth } from 'azimuth-js';
 
 const isPlanet = point =>
-      (azimuth.getPointSize(point) === azimuth.PointSize.Planet);
-const isStar = point =>
-      (azimuth.getPointSize(point) === azimuth.PointSize.Star);
+  azimuth.getPointSize(point) === azimuth.PointSize.Planet;
+const isStar = point => azimuth.getPointSize(point) === azimuth.PointSize.Star;
 
-const Actions = (props) => {
-  const {
-    pushRoute, online,
-    point, pointDetails, invites
-  } = props
+const Actions = props => {
+  const { pushRoute, online, point, pointDetails, invites } = props;
 
   const addr = need.address(props);
 
   const isOwner = pointDetails.matchWith({
     Nothing: _ => false,
-    Just: details => eqAddr(details.value.owner, addr)
+    Just: details => eqAddr(details.value.owner, addr),
   });
   const isActive = pointDetails.matchWith({
     Nothing: _ => false,
-    Just: details => details.value.active
+    Just: details => details.value.active,
   });
-  const isActiveOwner = (isOwner && isActive);
+  const isActiveOwner = isOwner && isActive;
   const canSetSpawnProxy = isActiveOwner;
   const canSetManagementProxy = isActiveOwner;
 
-  const canManage = (isOwner || pointDetails.matchWith({
-    Nothing: _ => false,
-    Just: details => eqAddr(details.value.managementProxy, addr)
-  }));
-  const canConfigureKeys = (canManage && isActive);
-
-  const canIssueChild =
-        pointDetails.matchWith({
-          Nothing: () => false,
-          Just: (details) => {
-            const hasPermission =
-                  isOwner
-                  || eqAddr(details.value.spawnProxy, addr)
-
-            const isBooted =
-                  details.value.keyRevisionNumber > 0
-
-            const isNotPlanet = !isPlanet(point)
-
-            return hasPermission && isBooted && isNotPlanet
-          }
-        })
-
-  const hasInvites =
-    invites.matchWith({
-      Nothing: () => false,
-      Just: (count) => (count.value > 0)
+  const canManage =
+    isOwner ||
+    pointDetails.matchWith({
+      Nothing: _ => false,
+      Just: details => eqAddr(details.value.managementProxy, addr),
     });
+  const canConfigureKeys = canManage && isActive;
 
-  const planet = isPlanet(point)
-  const star = isStar(point)
+  const canIssueChild = pointDetails.matchWith({
+    Nothing: () => false,
+    Just: details => {
+      const hasPermission = isOwner || eqAddr(details.value.spawnProxy, addr);
 
-  const canTransfer =
-        pointDetails.matchWith({
-          Nothing: () => false,
-          Just: (deets) =>
-            eqAddr(deets.value.transferProxy, addr) ||
-            eqAddr(deets.value.owner, addr)
-        })
+      const isBooted = details.value.keyRevisionNumber > 0;
 
-  const canGenKeyfile =
-        pointDetails.matchWith({
-          Nothing: () => false,
-          Just: (deets) => {
-            const hasPermission =
-                  eqAddr(deets.value.owner, addr)
-                  || eqAddr(deets.value.managementProxy, addr)
+      const isNotPlanet = !isPlanet(point);
 
-            const isBooted =
-                  deets.value.keyRevisionNumber > 0
+      return hasPermission && isBooted && isNotPlanet;
+    },
+  });
 
-            return hasPermission && isBooted
-          }
-        })
+  const hasInvites = invites.matchWith({
+    Nothing: () => false,
+    Just: count => count.value > 0,
+  });
 
-  const canAcceptTransfer =
-        pointDetails.matchWith({
-          Nothing: () => false,
-          Just: (deets) =>
-            eqAddr(deets.value.transferProxy, addr)
-        })
+  const planet = isPlanet(point);
+  const star = isStar(point);
 
-  const canCancelTransfer =
-        pointDetails.matchWith({
-          Nothing: () => false,
-          Just: (deets) =>
-            eqAddr(deets.value.owner, addr) &&
-            !eqAddr(deets.value.transferProxy, ETH_ZERO_ADDR)
-        })
+  const canTransfer = pointDetails.matchWith({
+    Nothing: () => false,
+    Just: deets =>
+      eqAddr(deets.value.transferProxy, addr) ||
+      eqAddr(deets.value.owner, addr),
+  });
+
+  const canGenKeyfile = pointDetails.matchWith({
+    Nothing: () => false,
+    Just: deets => {
+      const hasPermission =
+        eqAddr(deets.value.owner, addr) ||
+        eqAddr(deets.value.managementProxy, addr);
+
+      const isBooted = deets.value.keyRevisionNumber > 0;
+
+      return hasPermission && isBooted;
+    },
+  });
+
+  const canAcceptTransfer = pointDetails.matchWith({
+    Nothing: () => false,
+    Just: deets => eqAddr(deets.value.transferProxy, addr),
+  });
+
+  const canCancelTransfer = pointDetails.matchWith({
+    Nothing: () => false,
+    Just: deets =>
+      eqAddr(deets.value.owner, addr) &&
+      !eqAddr(deets.value.transferProxy, ETH_ZERO_ADDR),
+  });
 
   const displayReminder = pointDetails.matchWith({
     Nothing: () => false,
-    Just: (deets) => {
-      return deets.value.encryptionKey === CURVE_ZERO_ADDR
-        && deets.value.authenticationKey === CURVE_ZERO_ADDR
-    }
-  })
+    Just: deets => {
+      return (
+        deets.value.encryptionKey === CURVE_ZERO_ADDR &&
+        deets.value.authenticationKey === CURVE_ZERO_ADDR
+      );
+    },
+  });
 
   let inviteAction = null;
   if (planet) {
     inviteAction = (
       <Button
-        disabled={(!isActiveOwner || !online || !hasInvites)}
+        disabled={!isActiveOwner || !online || !hasInvites}
         prop-size={'sm'}
         prop-type={'link'}
-        onClick={ () => {
+        onClick={() => {
           pushRoute(ROUTE_NAMES.INVITES_SEND);
-        }}
-      >
-        { 'Send invites (' }
-        { invites.matchWith({
-            Nothing: () => '?',
-            Just: (count) => count.value
-          })
-        }
-        { ')' }
+        }}>
+        {'Send invites ('}
+        {invites.matchWith({
+          Nothing: () => '?',
+          Just: count => count.value,
+        })}
+        {')'}
       </Button>
     );
   }
   if (star) {
     inviteAction = (
       <Button
-        disabled={(!(isActiveOwner && canIssueChild) || !online)}
+        disabled={!(isActiveOwner && canIssueChild) || !online}
         prop-size={'sm'}
         prop-type={'link'}
-        onClick={ () => {
+        onClick={() => {
           pushRoute(ROUTE_NAMES.INVITES_MANAGE);
-        }}
-      >
-        { 'Manage invites' }
+        }}>
+        {'Manage invites'}
       </Button>
     );
   }
 
   return (
     <div>
-      <H2>{ 'Actions' }</H2>
-      {
-        displayReminder
-          ? <P>{`Before you can issue child points or generate your Arvo
+      <H2>{'Actions'}</H2>
+      {displayReminder ? (
+        <P>{`Before you can issue child points or generate your Arvo
                   keyfile, you need to set your public keys.`}</P>
-        : ''
-      }
+      ) : (
+        ''
+      )}
       <Row>
         <Col className={'flex flex-column items-start col-md-4'}>
           <Button
             prop-size={'sm'}
             prop-type={'link'}
-            disabled={ (online || planet) && !canIssueChild }
-            onClick={ () => {
-              pushRoute(ROUTE_NAMES.ISSUE_CHILD)
-            }}
-          >
-            { 'Issue child' }
+            disabled={(online || planet) && !canIssueChild}
+            onClick={() => {
+              pushRoute(ROUTE_NAMES.ISSUE_CHILD);
+            }}>
+            {'Issue child'}
           </Button>
 
           <Button
             prop-size={'sm'}
             prop-type={'link'}
-            disabled={ online && !canAcceptTransfer }
-            onClick={ () => {
-              pushRoute(ROUTE_NAMES.ACCEPT_TRANSFER)
-            }}
-          >
-            { 'Accept incoming transfer' }
+            disabled={online && !canAcceptTransfer}
+            onClick={() => {
+              pushRoute(ROUTE_NAMES.ACCEPT_TRANSFER);
+            }}>
+            {'Accept incoming transfer'}
           </Button>
 
           <Button
             prop-size={'sm'}
             prop-type={'link'}
-            disabled={ online && !canCancelTransfer }
-            onClick={ () => {
-              pushRoute(ROUTE_NAMES.CANCEL_TRANSFER)
-            }}
-          >
-            { 'Cancel outgoing transfer' }
+            disabled={online && !canCancelTransfer}
+            onClick={() => {
+              pushRoute(ROUTE_NAMES.CANCEL_TRANSFER);
+            }}>
+            {'Cancel outgoing transfer'}
           </Button>
 
           <Button
             prop-size={'sm'}
             prop-type={'link'}
-            disabled={ online && !canGenKeyfile }
-            onClick={ () => {
-              pushRoute(ROUTE_NAMES.GEN_KEYFILE)
-            }}
-          >
-            { 'Generate Arvo keyfile' }
+            disabled={online && !canGenKeyfile}
+            onClick={() => {
+              pushRoute(ROUTE_NAMES.GEN_KEYFILE);
+            }}>
+            {'Generate Arvo keyfile'}
           </Button>
-
         </Col>
         <Col className={'flex flex-column items-start col-md-4'}>
-
           <Button
-            disabled={ online && !canSetSpawnProxy }
+            disabled={online && !canSetSpawnProxy}
             prop-size={'sm'}
             prop-type={'link'}
-            onClick={ () => {
-              pushRoute(ROUTE_NAMES.SET_SPAWN_PROXY)
-            }}
-          >
-            { 'Change spawn proxy' }
+            onClick={() => {
+              pushRoute(ROUTE_NAMES.SET_SPAWN_PROXY);
+            }}>
+            {'Change spawn proxy'}
           </Button>
 
           <Button
-            disabled={ online && !canSetManagementProxy }
+            disabled={online && !canSetManagementProxy}
             prop-size={'sm'}
             prop-type={'link'}
-            onClick={ () => {
-              pushRoute(ROUTE_NAMES.SET_MANAGEMENT_PROXY)
-            }}
-          >
-            { 'Change management proxy' }
+            onClick={() => {
+              pushRoute(ROUTE_NAMES.SET_MANAGEMENT_PROXY);
+            }}>
+            {'Change management proxy'}
           </Button>
 
           <Button
-            disabled={ online && !canConfigureKeys }
+            disabled={online && !canConfigureKeys}
             prop-size={'sm'}
             prop-type={'link'}
-            onClick={ () => {
-              pushRoute(ROUTE_NAMES.SET_KEYS)
-            }}
-          >
-            { 'Set network keys' }
+            onClick={() => {
+              pushRoute(ROUTE_NAMES.SET_KEYS);
+            }}>
+            {'Set network keys'}
           </Button>
 
           <Button
-            disabled={ online && !canTransfer }
+            disabled={online && !canTransfer}
             prop-size={'sm'}
             prop-type={'link'}
-            onClick={ () => {
-              pushRoute(ROUTE_NAMES.TRANSFER)
-            }}
-          >
-            { 'Transfer' }
+            onClick={() => {
+              pushRoute(ROUTE_NAMES.TRANSFER);
+            }}>
+            {'Transfer'}
           </Button>
-
         </Col>
         <Col className={'flex flex-column items-start col-md-4'}>
-
-          { inviteAction }
-
+          {inviteAction}
         </Col>
       </Row>
     </div>
-  )
-}
+  );
+};
 
-export default Actions
+export default Actions;

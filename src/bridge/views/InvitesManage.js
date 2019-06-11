@@ -1,18 +1,23 @@
-import { Just, Nothing } from 'folktale/maybe'
-import React from 'react'
-import * as ob from 'urbit-ob'
-import * as azimuth from 'azimuth-js'
-import * as need from '../lib/need'
+import { Just, Nothing } from 'folktale/maybe';
+import React from 'react';
+import * as ob from 'urbit-ob';
+import * as azimuth from 'azimuth-js';
+import * as need from '../lib/need';
 
-import { Row, Col, Warning, Input,
-         PointInput, InnerLabel, ValidatedSigil } from '../components/Base'
-import StatelessTransaction from '../components/StatelessTransaction'
-
+import {
+  Row,
+  Col,
+  Warning,
+  Input,
+  PointInput,
+  InnerLabel,
+  ValidatedSigil,
+} from '../components/Base';
+import StatelessTransaction from '../components/StatelessTransaction';
 
 class InvitesManage extends React.Component {
-
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
       invitesWillWork: Nothing(),
@@ -20,8 +25,8 @@ class InvitesManage extends React.Component {
       targetPlanet: Nothing(),
       currentPoolSize: Nothing(),
       cachedPoolSizes: {},
-      targetPoolSize: 5
-    }
+      targetPoolSize: 5,
+    };
 
     this.checkCurrentInvites = this.checkCurrentInvites.bind(this);
     this.handlePointInput = this.handlePointInput.bind(this);
@@ -35,13 +40,15 @@ class InvitesManage extends React.Component {
     this.point = need.pointCursor(this.props);
     this.contracts = need.contracts(this.props);
 
-    azimuth.azimuth.isSpawnProxy(
-      this.contracts,
-      this.point,
-      this.contracts.delegatedSending.address
-    ).then(isSpawnProxy => {
-      this.setState({invitesWillWork:Just(isSpawnProxy)});
-    });
+    azimuth.azimuth
+      .isSpawnProxy(
+        this.contracts,
+        this.point,
+        this.contracts.delegatedSending.address
+      )
+      .then(isSpawnProxy => {
+        this.setState({ invitesWillWork: Just(isSpawnProxy) });
+      });
   }
 
   componentDidUpdate(prevProps) {
@@ -53,10 +60,9 @@ class InvitesManage extends React.Component {
       targetPlanet: Nothing(),
       planetInput: targetPlanet,
       canGenerate: false,
-      currentPoolSize: Nothing()
-    }
-    if ((targetPlanet.length === 14)
-        && ob.isValidPatp(targetPlanet)) {
+      currentPoolSize: Nothing(),
+    };
+    if (targetPlanet.length === 14 && ob.isValidPatp(targetPlanet)) {
       const target = ob.patp2dec(targetPlanet);
       //TODO there must be a simpler way to do this check
       const isChild = ob.sein(targetPlanet) === ob.patp(this.point);
@@ -74,12 +80,12 @@ class InvitesManage extends React.Component {
     if (typeof cachedPoolSizes[who] !== 'undefined') {
       return Just(cachedPoolSizes[who]);
     } else {
-      azimuth.delegatedSending.getPool(this.contracts, who)
-      .then(pool => {
-        azimuth.delegatedSending.invitesInPool(this.contracts, pool, this.point)
-        .then(size => {
-          this.updatePoolSize(who, size);
-        });
+      azimuth.delegatedSending.getPool(this.contracts, who).then(pool => {
+        azimuth.delegatedSending
+          .invitesInPool(this.contracts, pool, this.point)
+          .then(size => {
+            this.updatePoolSize(who, size);
+          });
       });
       return Nothing();
     }
@@ -90,75 +96,76 @@ class InvitesManage extends React.Component {
     cache[who] = size;
     this.setState({ cachedPoolSizes: cache });
     const target = this.state.targetPlanet;
-    const match = Just.hasInstance(target) ? (who === target.value) : false;
+    const match = Just.hasInstance(target) ? who === target.value : false;
     if (match) {
       this.setState({ currentPoolSize: Just(size) });
     }
   }
 
   handlePoolSizeInput(targetSize) {
-    this.setState({targetPoolSize: targetSize});
+    this.setState({ targetPoolSize: targetSize });
   }
 
   createUnsignedTxn() {
-    return Just(azimuth.delegatedSending.setPoolSize(
-      this.contracts,
-      this.point,
-      this.state.targetPlanet.value,
-      this.state.targetPoolSize
-    ))
+    return Just(
+      azimuth.delegatedSending.setPoolSize(
+        this.contracts,
+        this.point,
+        this.state.targetPlanet.value,
+        this.state.targetPoolSize
+      )
+    );
   }
 
   render() {
-
     let spawnProxyWarning = null;
     if (this.state.invitesWillWork.value === false) {
       spawnProxyWarning = (
         <Warning>
           <h3 className={'mb-2'}>{'Warning'}</h3>
-          {
-            'Planets under this star will not be able to send invites ' +
-            'until the invite contract ('
-            }<code>{this.contracts.delegatedSending.address}</code>{
-            ') is made spawn proxy for this star.'
-          }
+          {'Planets under this star will not be able to send invites ' +
+            'until the invite contract ('}
+          <code>{this.contracts.delegatedSending.address}</code>
+          {') is made spawn proxy for this star.'}
         </Warning>
       );
     }
 
     let poolSizeText = this.state.currentPoolSize.matchWith({
       Just: ps => `(currently ${ps.value})`,
-      Nothing: _ => ''
+      Nothing: _ => '',
     });
 
     return (
       <Row>
         <Col>
+          <p>
+            {
+              'manage invites here, for stars. can only give invites to child planets'
+            }
+          </p>
 
-          <p>{ 'manage invites here, for stars. can only give invites to child planets' }</p>
-
-          { spawnProxyWarning }
+          {spawnProxyWarning}
 
           <PointInput
-            prop-format='innerlabel'
-            prop-size='lg'
-            placeholder={ '~sampel-sipnem' }
-            value={ this.state.planetInput }
-            onChange={ this.handlePointInput }>
-            <InnerLabel>{ 'Planet to set invites for' }</InnerLabel>
+            prop-format="innerlabel"
+            prop-size="lg"
+            placeholder={'~sampel-sipnem'}
+            value={this.state.planetInput}
+            onChange={this.handlePointInput}>
+            <InnerLabel>{'Planet to set invites for'}</InnerLabel>
             <ValidatedSigil
-              patp={ this.state.targetPlanet }
-              validator={() => this.validatePoint} />
+              patp={this.state.targetPlanet}
+              validator={() => this.validatePoint}
+            />
           </PointInput>
 
           <Input
-            prop-format='innerlabel'
-            prop-size='lg'
-            value={ this.state.targetPoolSize }
-            onChange={ this.handlePoolSizeInput }>
-            <InnerLabel>
-              { `Available invites ${poolSizeText}` }
-            </InnerLabel>
+            prop-format="innerlabel"
+            prop-size="lg"
+            value={this.state.targetPoolSize}
+            onChange={this.handlePoolSizeInput}>
+            <InnerLabel>{`Available invites ${poolSizeText}`}</InnerLabel>
           </Input>
 
           <StatelessTransaction
@@ -167,12 +174,12 @@ class InvitesManage extends React.Component {
             // Other
             canGenerate={this.state.canGenerate}
             createUnsignedTxn={this.createUnsignedTxn}
-            ref={this.statelessRef} />
-
+            ref={this.statelessRef}
+          />
         </Col>
       </Row>
-    )
+    );
   }
 }
 
-export default InvitesManage
+export default InvitesManage;

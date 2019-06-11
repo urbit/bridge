@@ -1,54 +1,58 @@
-import React from 'react'
-import { Button, Chevron } from '../components/Base'
+import React from 'react';
+import { Button, Chevron } from '../components/Base';
 
-import { renderRoute } from '../lib/router'
-import { isLast } from '../lib/lib'
+import { renderRoute } from '../lib/router';
+import { isLast } from '../lib/lib';
 
-const Crumbs = (props) => {
-  const { routeCrumbs, skipRoute } = props
-  const history = routeCrumbs.reverse()
+const Crumbs = props => {
+  const { routeCrumbs, skipRoute } = props;
+  const history = routeCrumbs.reverse();
 
   // FIXME probably more straightforward to render them normally and just
   // return the reversed array of renders
   const rendered = history.map((route, idx) => {
-      return (
-        <div className={'flex items-center'} key={ `history-${idx}` }>
-          <Button
-            prop-type={'link'}
-            prop-size={'sm'}
-            key={ `history-button-${idx}` }
-            onClick={ () => skipRoute(history.size - idx - 1) }>
-            { renderRoute(props, route) }
-          </Button>
+    return (
+      <div className={'flex items-center'} key={`history-${idx}`}>
+        <Button
+          prop-type={'link'}
+          prop-size={'sm'}
+          key={`history-button-${idx}`}
+          onClick={() => skipRoute(history.size - idx - 1)}>
+          {renderRoute(props, route)}
+        </Button>
 
-          {
-            isLast(history.size, idx)
-              ? <div />
-              : <Chevron className={'h-4 mh-2'} />
-          }
-        </div>
-      )
-    })
+        {isLast(history.size, idx) ? (
+          <div />
+        ) : (
+          <Chevron className={'h-4 mh-2'} />
+        )}
+      </div>
+    );
+  });
 
-  return rendered
-}
+  return rendered;
+};
 
-const Header = (props) => {
+const Header = props => {
   const crumbs = (
     <div className={'flex items-center h-10'}>
       <Crumbs
-        routeCrumbs={ props.routeCrumbs }
-        skipRoute={ props.skipRoute }
-        networkType={ props.networkType }
-        wallet={ props.wallet }
-        pointCursor={ props.pointCursor }
+        routeCrumbs={props.routeCrumbs}
+        skipRoute={props.skipRoute}
+        networkType={props.networkType}
+        wallet={props.wallet}
+        pointCursor={props.pointCursor}
       />
     </div>
-  )
+  );
 
-  const noCrumbs = <h2 className="mt-9 clickable" onClick={() => props.skipRoute(1)}>Bridge</h2>
+  const noCrumbs = (
+    <h2 className="mt-9 clickable" onClick={() => props.skipRoute(1)}>
+      Bridge
+    </h2>
+  );
 
-  return props.showCrumbs ? crumbs : noCrumbs
-}
+  return props.showCrumbs ? crumbs : noCrumbs;
+};
 
-export default Header
+export default Header;

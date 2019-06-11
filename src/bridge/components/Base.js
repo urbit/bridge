@@ -9,12 +9,10 @@ import {
   validateTicket,
   validateNetworkKey,
   validateNetworkSeed,
-  validateShard
+  validateShard,
 } from '../lib/validators';
 
-import {
-  prependSig,
-} from '../lib/transformers';
+import { prependSig } from '../lib/transformers';
 
 // Buttons
 import Button from './Button';
@@ -25,7 +23,7 @@ import Anchor from './Anchor';
 // import ToggleButton from './ToggleButton';
 
 // Input
-import Form from './Form'
+import Form from './Form';
 import Label from './Label';
 import InnerLabel from './InnerLabel';
 import InputCaption from './InputCaption';
@@ -59,120 +57,84 @@ import H2 from './H2';
 import H3 from './H3';
 import H4 from './H4';
 import P from './P';
-import Code from './Code'
-import Warning from './Warning'
+import Code from './Code';
+import Warning from './Warning';
 
 // Misc
 import ValidatedSigil from './ValidatedSigil';
 import ValidatedBlockie from './ValidatedBlockie';
-import Chevron from './icons/Chevron'
-import ShowBlockie from './ShowBlockie'
-import Passport from './Passport'
+import Chevron from './icons/Chevron';
+import ShowBlockie from './ShowBlockie';
+import Passport from './Passport';
 
 // HOC validated form components
 
 const RequiredInput = advancedInput({
   WrappedComponent: Input,
-  validators: [
-    validateNotEmpty,
-  ],
+  validators: [validateNotEmpty],
 });
-
 
 const NetworkKeyInput = advancedInput({
   WrappedComponent: Input,
-  validators: [
-    validateNotEmpty,
-    validateNetworkKey
-  ],
+  validators: [validateNotEmpty, validateNetworkKey],
 });
-
 
 const NetworkSeedInput = advancedInput({
   WrappedComponent: Input,
-  validators: [
-    validateNotEmpty,
-    validateNetworkSeed
-  ],
+  validators: [validateNotEmpty, validateNetworkSeed],
 });
-
 
 const AddressInput = advancedInput({
   WrappedComponent: Input,
-  validators: [
-    validateEthereumAddress,
-    validateNotEmpty,
-  ],
+  validators: [validateEthereumAddress, validateNotEmpty],
 });
-
 
 const MnemonicInput = advancedInput({
   WrappedComponent: Textarea,
-  validators: [
-    validateMnemonic,
-    validateNotEmpty,
-  ],
+  validators: [validateMnemonic, validateNotEmpty],
 });
 
 const GalaxyInput = advancedInput({
   WrappedComponent: Input,
-  validators: [
-    validateGalaxy,
-    validateNotEmpty,
-  ],
-  transformers: [
-    prependSig,
-  ]
+  validators: [validateGalaxy, validateNotEmpty],
+  transformers: [prependSig],
 });
 
 const PointInput = advancedInput({
   WrappedComponent: Input,
-  validators: [
-    validatePoint,
-    validateNotEmpty,
-  ],
-  transformers: [
-    prependSig,
-  ]
+  validators: [validatePoint, validateNotEmpty],
+  transformers: [prependSig],
 });
 
 const TicketInput = advancedInput({
   WrappedComponent: Input,
-  validators: [
-    validateTicket,
-    validateNotEmpty,
-  ],
-  transformers: [
-    prependSig,
-  ]
+  validators: [validateTicket, validateNotEmpty],
+  transformers: [prependSig],
 });
 
-const VerifyTicketInput = matchingTicket => advancedInput({
-  WrappedComponent: Input,
-  validators: [
-    validateTicket,
-    validateNotEmpty,
+const VerifyTicketInput = matchingTicket =>
+  advancedInput({
+    WrappedComponent: Input,
+    validators: [
+      validateTicket,
+      validateNotEmpty,
 
-    // TODO: This should be in /lib/validators, but we'd need a way for
-    // validators to compare against dynamic values
-    m => simpleValidatorWrapper({
-      prevMessage: m,
-      validator: d => d === matchingTicket,
-      errorMessage: 'This does not match the provided master ticket'
-    })
-  ],
-  transformers: [
-    prependSig,
-  ]
-});
+      // TODO: This should be in /lib/validators, but we'd need a way for
+      // validators to compare against dynamic values
+      m =>
+        simpleValidatorWrapper({
+          prevMessage: m,
+          validator: d => d === matchingTicket,
+          errorMessage: 'This does not match the provided master ticket',
+        }),
+    ],
+    transformers: [prependSig],
+  });
 
 const ShardInput = advancedInput({
   WrappedComponent: Input,
-  validators: [
-    validateShard
-  ],
-  transformers: [
-  ]
+  validators: [validateShard],
+  transformers: [],
 });
 
 export {
@@ -181,7 +143,6 @@ export {
   UploadButton,
   Anchor,
   InputCaption,
-
   Form,
   Label,
   Input,
@@ -197,29 +158,22 @@ export {
   RequiredInput,
   NetworkKeyInput,
   NetworkSeedInput,
-
   advancedInput,
-
   ValidatedSigil,
   ValidatedBlockie,
   ShowBlockie,
-
   DropdownItem,
   DropdownDivider,
   InnerLabelDropdown,
-
   HorizontalSelector,
-
   Breadcrumb,
   BreadcrumbItem,
-
   Container,
   Col,
   Row,
   // FlexRow,
   // FlexCol,
   Spacing,
-
   H1,
   H2,
   H3,
@@ -227,7 +181,6 @@ export {
   P,
   Code,
   Warning,
-
   Chevron,
-  Passport
+  Passport,
 };

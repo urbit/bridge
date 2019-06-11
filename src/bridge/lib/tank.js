@@ -1,6 +1,6 @@
 // /lib/tank: functions for funding transactions
 
-import { waitForTransactionConfirm } from './txn'
+import { waitForTransactionConfirm } from './txn';
 
 //NOTE if accessing this in a localhost configuration fails with "CORS request
 //     did not succeed", you might need to visit localhost:3001 or whatever
@@ -14,28 +14,28 @@ function sendRequest(where, what) {
       method: 'POST',
       cache: 'no-cache',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(what)
+      body: JSON.stringify(what),
     })
-    .then(response => {
-      if (response.ok) {
-        resolve(response.json());
-      } else {
-        reject(response);
-      }
-    })
-    .catch(reject);
+      .then(response => {
+        if (response.ok) {
+          resolve(response.json());
+        } else {
+          reject(response);
+        }
+      })
+      .catch(reject);
   });
 }
 
 const remainingTransactions = point => {
   if (typeof point === 'string') point = Number(point);
-  return sendRequest('/point', {point:point});
+  return sendRequest('/point', { point: point });
 };
 
 const fundTransactions = signedTxs => {
-  return sendRequest('/request', {txs:signedTxs});
+  return sendRequest('/request', { txs: signedTxs });
 };
 
 // resolves when address has at least cost balance
@@ -43,14 +43,19 @@ const fundTransactions = signedTxs => {
 // askForFunding: callback that takes (address, requiredBalance, currentBalance)
 //                and tells the user to get that address the required balance
 // gotFunding: optional callback that stops telling the user to go get funding
-const ensureFundsFor = async (web3, point, address, cost, signedTxs,
-                              askForFunding, gotFunding) => {
+const ensureFundsFor = async (
+  web3,
+  point,
+  address,
+  cost,
+  signedTxs,
+  askForFunding,
+  gotFunding
+) => {
   let balance = await web3.eth.getBalance(address);
 
   if (cost > balance) {
-
     try {
-
       if (point !== null) {
         const fundsRemaining = await remainingTransactions(point);
         if (fundsRemaining < signedTxs.length) {
@@ -69,17 +74,18 @@ const ensureFundsFor = async (web3, point, address, cost, signedTxs,
       } else {
         await waitForTransactionConfirm(web3, res.txHash);
         let newBalance = await web3.eth.getBalance(address);
-        console.log('tank: funds have confirmed', balance >= cost, balance, newBalance);
+        console.log(
+          'tank: funds have confirmed',
+          balance >= cost,
+          balance,
+          newBalance
+        );
         return true;
       }
-
     } catch (e) {
-
       console.log('tank: funding failed', e);
       await waitForBalance(web3, address, cost, askForFunding, gotFunding);
-
     }
-
   } else {
     console.log('tank: already have sufficient funds');
   }
@@ -89,8 +95,13 @@ const ensureFundsFor = async (web3, point, address, cost, signedTxs,
 // resolves when address has at least minBalance
 //
 //TODO should maybe do a "we got it" callback also, so clients can hide msg?
-async function waitForBalance(web3, address, minBalance,
-                              askForFunding, gotFunding) {
+async function waitForBalance(
+  web3,
+  address,
+  minBalance,
+  askForFunding,
+  gotFunding
+) {
   console.log('tank: awaiting balance', address, minBalance);
   return new Promise((resolve, reject) => {
     let oldBalance = null;
@@ -98,7 +109,7 @@ async function waitForBalance(web3, address, minBalance,
       const balance = await web3.eth.getBalance(address);
       if (balance >= minBalance) {
         // if we ever asked for funding, retract that request now
-        if (gotFunding && (oldBalance !== null)) {
+        if (gotFunding && oldBalance !== null) {
           gotFunding();
         }
         resolve();
@@ -113,9 +124,4 @@ async function waitForBalance(web3, address, minBalance,
   });
 }
 
-export {
-  remainingTransactions,
-  fundTransactions,
-  ensureFundsFor
-}
-
+export { remainingTransactions, fundTransactions, ensureFundsFor };

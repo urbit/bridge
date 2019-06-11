@@ -12,29 +12,28 @@ const ProtoButton = props => {
       onClick={props.onClick}
       disabled={props.disabled}
       autoFocus={props.autoFocus}>
-      { props.children }
+      {props.children}
     </button>
-  )
-}
+  );
+};
 
 ProtoButton.propTypes = {
-  disabled:     PropTypes.bool,
-  onClick:      PropTypes.func,
-  className:    PropTypes.string,
-  children:     PropTypes.node,
-  autofocus:    PropTypes.bool,
-  style:        PropTypes.object,
-  type:         PropTypes.oneOf(['button', 'submit', 'reset'])
+  disabled: PropTypes.bool,
+  onClick: PropTypes.func,
+  className: PropTypes.string,
+  children: PropTypes.node,
+  autofocus: PropTypes.bool,
+  style: PropTypes.object,
+  type: PropTypes.oneOf(['button', 'submit', 'reset']),
 };
 
 ProtoButton.defaultProps = {
-  className:    '',
-  autoFocus:    false,
-  onClick:      () => {},
-  disabled:     false,
-  style:        {},
-  type:         'button',
+  className: '',
+  autoFocus: false,
+  onClick: () => {},
+  disabled: false,
+  style: {},
+  type: 'button',
 };
-
 
 export default ProtoButton;

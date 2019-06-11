@@ -1,16 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Row = ({
-  className,
-  children,
-  style,
-}) => {
+const Row = ({ className, children, style }) => {
   return (
     <div className={`row ${className}`} style={style}>
-      { children }
+      {children}
     </div>
-  )
+  );
 };
 
 Row.propTypes = {
@@ -24,5 +20,4 @@ Row.defaultProps = {
   style: {},
 };
 
-
-export default Row
+export default Row;

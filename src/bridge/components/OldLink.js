@@ -14,12 +14,9 @@ const Link = ({
   color,
   type,
 }) => {
-
-
-
-  const _color = disabled ? 'disabled' : color
-  const _s = getStyles(styleManifest, type, _color, size)
-  const _disabled = disabled ? 'disabled': ''
+  const _color = disabled ? 'disabled' : color;
+  const _s = getStyles(styleManifest, type, _color, size);
+  const _disabled = disabled ? 'disabled' : '';
 
   return (
     <a
@@ -29,12 +26,11 @@ const Link = ({
       disabled={disabled}
       autoFocus={autoFocus}
       href={href}
-      target={target}
-    >
-      { children }
+      target={target}>
+      {children}
     </a>
-  )
-}
+  );
+};
 
 const getStyles = (m, t, c, s) => `${m[t][c]} ${m[t][s]} ${m[t]['all']}`;
 
@@ -98,9 +94,8 @@ const styleManifest = {
     l: 'h-13 ph-6 fs-5',
     // Applied to all block buttons
     all: 'white b-2 br-solid',
-  }
-}
-
+  },
+};
 
 Link.propTypes = {
   disabled: PropTypes.bool,
@@ -110,7 +105,6 @@ Link.propTypes = {
   autoFocus: PropTypes.bool,
   style: PropTypes.object,
 };
-
 
 Link.defaultProps = {
   className: '',
@@ -122,6 +116,5 @@ Link.defaultProps = {
   type: 'block',
   style: {},
 };
-
 
 export default Link;
