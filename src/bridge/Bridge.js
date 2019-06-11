@@ -139,16 +139,6 @@ class Bridge extends React.Component {
     }
   }
 
-  setNetworkType(symbol) {
-    if (includes(NETWORK_TYPES, symbol)) {
-      this.setState({
-        networkType: symbol,
-      });
-    } else {
-      throw BRIDGE_ERROR.INVALID_NETWORK_TYPE;
-    }
-  }
-
   setNetworkSeedCache(networkSeed, revision) {
     this.setState({
       networkSeedCache: networkSeed,

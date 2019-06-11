@@ -8,13 +8,22 @@ import React, {
 import * as azimuth from 'azimuth-js';
 import Web3 from 'web3';
 import Maybe from 'folktale/maybe';
+import { includes } from 'lodash';
 
 import { CONTRACT_ADDRESSES } from '../lib/contracts';
 import { NETWORK_TYPES } from '../lib/network';
 import { isDevelopment } from '../lib/flags';
+import { BRIDGE_ERROR } from '../lib/error';
 
 function _useNetwork(initialNetworkType = null) {
-  const [networkType, setNetworkType] = useState(initialNetworkType);
+  const [networkType, _setNetworkType] = useState(initialNetworkType);
+
+  const setNetworkType = networkType => {
+    if (!includes(NETWORK_TYPES, networkType)) {
+      throw BRIDGE_ERROR.INVALID_NETWORK_TYPE;
+    }
+    _setNetworkType(networkType);
+  };
 
   const { web3, contracts } = useMemo(() => {
     if (networkType === NETWORK_TYPES.LOCAL) {
