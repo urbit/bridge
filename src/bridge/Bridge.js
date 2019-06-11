@@ -21,9 +21,9 @@ import {
 import { BRIDGE_ERROR } from "./lib/error";
 import { isLocal } from "./lib/flags";
 
-// NB(shrugs): toggle this shouldStubLocal variable to use the default local state.
-// don't commit changes to this line, but there shouldn't be a problem because we'll never stub
-// on a production build.
+// NB(shrugs): toggle this variable to use the default local state.
+// don't commit changes to this line, but there shouldn't be a problem
+// if you do because we'll never stub on a production build.
 const shouldStubLocal = false;
 const isStubbed = isLocal && shouldStubLocal;
 const kInitialRoutes = isStubbed
@@ -238,7 +238,7 @@ class Bridge extends React.Component {
     } = this.state;
 
     return (
-      <HistoryProvider initialRoutes={[{ name: ROUTE_NAMES.LANDING }]}>
+      <HistoryProvider initialRoutes={kInitialRoutes}>
         <TxnConfirmationsProvider>
           <Container>
             <Row>
