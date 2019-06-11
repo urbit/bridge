@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState } from 'react';
 
 export const TxnConfirmationsContext = React.createContext(null);
 
@@ -17,8 +17,7 @@ export function TxnConfirmationsProvider({ children }) {
       value={{
         txnConfirmations: confirmations,
         setTxnConfirmations,
-      }}
-    >
+      }}>
       {children}
     </TxnConfirmationsContext.Provider>
   );

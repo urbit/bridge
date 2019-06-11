@@ -1,5 +1,5 @@
-import { Just, Nothing } from "folktale/maybe";
-import React from "react";
+import { Just, Nothing } from 'folktale/maybe';
+import React from 'react';
 import {
   InnerLabel,
   Warning,
@@ -9,35 +9,35 @@ import {
   Row,
   Col,
   Passport,
-} from "../components/Base";
-import * as azimuth from "azimuth-js";
-import * as need from "../lib/need";
+} from '../components/Base';
+import * as azimuth from 'azimuth-js';
+import * as need from '../lib/need';
 
-import { randomPatq } from "../lib/lib";
-import { ROUTE_NAMES } from "../lib/routeNames";
-import { withHistory } from "../store/history";
+import { randomPatq } from '../lib/lib';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 import {
   DEFAULT_HD_PATH,
   ownershipWalletFromTicket,
   walletFromMnemonic,
-} from "../lib/wallet";
-import { BRIDGE_ERROR } from "../lib/error";
+} from '../lib/wallet';
+import { BRIDGE_ERROR } from '../lib/error';
 import {
   INVITE_STAGES,
   WALLET_STATES,
   TRANSACTION_STATES,
-} from "../lib/invite";
-import { generateWallet, startTransactions } from "../lib/invite";
+} from '../lib/invite';
+import { generateWallet, startTransactions } from '../lib/invite';
 
 class InviteTicket extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      inviteTicket: "",
+      inviteTicket: '',
       inviteWallet: Nothing(),
-      verifyTicket: "",
-      realTicket: "",
+      verifyTicket: '',
+      realTicket: '',
       realPoint: Nothing(),
       realWallet: Nothing(),
       walletReady: false,
@@ -92,7 +92,7 @@ class InviteTicket extends React.Component {
     //TODO isn't all this accessible in the ownership object?
     const inviteWallet = walletFromMnemonic(
       mnemonic,
-      DEFAULT_HD_PATH,
+      DEFAULT_HD_PATH
     ).matchWith({
       Just: w => w.value,
       Nothing: () => {
@@ -130,7 +130,7 @@ class InviteTicket extends React.Component {
       }
     } else {
       errors = [
-        "Invite code has no claimable ship. Check your invite code and try again.",
+        'Invite code has no claimable ship. Check your invite code and try again.',
       ];
     }
 
@@ -140,7 +140,7 @@ class InviteTicket extends React.Component {
       // dev mode: uncomment this out to autofill verified ticket
       verifyTicket: !Nothing.hasInstance(realWallet)
         ? realWallet.value.ticket
-        : "",
+        : '',
       walletStates: this.state.walletStates.concat(WALLET_STATES.RENDERING),
       errors,
     });
@@ -157,11 +157,11 @@ class InviteTicket extends React.Component {
       let handler = isLogin
         ? this.handleInviteTicketInput
         : this.handleVerifyTicketInput;
-      let label = isLogin ? "Activation code" : "ticket";
+      let label = isLogin ? 'Activation code' : 'ticket';
 
       // if realWallet is Just, then VerifyTicketInput appropriate contents; if Nothing, remain Nothing
       const Verified = this.state.realWallet.map(realWallet =>
-        VerifyTicketInput(realWallet.ticket),
+        VerifyTicketInput(realWallet.ticket)
       );
 
       // Verified.getOrElse(TicketInput) falls back to TicketInput if Verified is Nothing
@@ -179,8 +179,7 @@ class InviteTicket extends React.Component {
           name="invite"
           placeholder={`e.g. ${phTick}`}
           value={value}
-          onChange={handler}
-        >
+          onChange={handler}>
           <InnerLabel>{label}</InnerLabel>
         </TicketElem>
       );
@@ -256,7 +255,7 @@ class InviteTicket extends React.Component {
 
   updateProgress(notification) {
     let newState =
-      notification.type === "progress"
+      notification.type === 'progress'
         ? { transactionProgress: notification.value }
         : notification.type === 'notify'
         ? { errors: [notification.value] }
@@ -278,8 +277,8 @@ class InviteTicket extends React.Component {
     const { web3, contracts, setUrbitWallet } = this.props;
 
     const btnColor = this.state.walletStates.includes(WALLET_STATES.PAPER_READY)
-      ? "green"
-      : "black";
+      ? 'green'
+      : 'black';
 
     const clickHandler =
       stage === INVITE_STAGES.INVITE_LOGIN
@@ -297,7 +296,7 @@ class InviteTicket extends React.Component {
             this.setState({
               stage: INVITE_STAGES.INVITE_TRANSACTIONS,
               walletStates: this.state.walletStates.concat(
-                WALLET_STATES.TRANSACTIONS,
+                WALLET_STATES.TRANSACTIONS
               ),
             });
 
@@ -333,13 +332,12 @@ class InviteTicket extends React.Component {
     const buttonElem =
       stage === INVITE_STAGES.INVITE_TRANSACTIONS ? null : (
         <Button
-          className={"mt-4"}
-          prop-size={"lg"}
+          className={'mt-4'}
+          prop-size={'lg'}
           prop-color={btnColor}
           disabled={!continueReady}
-          onClick={clickHandler}
-        >
-          {"Continue →"}
+          onClick={clickHandler}>
+          {'Continue →'}
         </Button>
       );
 
@@ -355,20 +353,17 @@ class InviteTicket extends React.Component {
       <div className="mt-6 mb-8">
         <span
           className={`fs-35 mr-3 ${stage !== INVITE_STAGES.INVITE_WALLET &&
-            "gray-20"}`}
-        >
+            'gray-20'}`}>
           1 Passport
         </span>
         <span
           className={`fs-35 mr-3 ${stage !== INVITE_STAGES.INVITE_VERIFY &&
-            "gray-20"}`}
-        >
+            'gray-20'}`}>
           2 Verify
         </span>
         <span
           className={`fs-35 mr-3 ${stage !==
-            INVITE_STAGES.INVITE_TRANSACTIONS && "gray-20"}`}
-        >
+            INVITE_STAGES.INVITE_TRANSACTIONS && 'gray-20'}`}>
           3 Invite
         </span>
       </div>
@@ -382,7 +377,7 @@ class InviteTicket extends React.Component {
 
     return (
       <Warning>
-        <h3 className={"mb-2"}>{"Warning"}</h3>
+        <h3 className={'mb-2'}>{'Warning'}</h3>
         {errorElems}
       </Warning>
     );
@@ -409,8 +404,7 @@ class InviteTicket extends React.Component {
               prop-type={`link`}
               prop-size={`sm`}
               className={`block mt-4`}
-              onClick={this.navigateLogin}
-            >
+              onClick={this.navigateLogin}>
               {`Log in`}
             </Button>
           )}

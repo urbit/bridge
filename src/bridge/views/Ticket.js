@@ -1,6 +1,6 @@
-import { Just, Nothing } from "folktale/maybe";
-import React from "react";
-import { Button } from "../components/Base";
+import { Just, Nothing } from 'folktale/maybe';
+import React from 'react';
+import { Button } from '../components/Base';
 import {
   InnerLabel,
   ValidatedSigil,
@@ -8,22 +8,22 @@ import {
   TicketInput,
   Input,
   InputCaption,
-} from "../components/Base";
-import { Row, Col, H1, P } from "../components/Base";
+} from '../components/Base';
+import { Row, Col, H1, P } from '../components/Base';
 
-import { randomPatq } from "../lib/lib";
-import { ROUTE_NAMES } from "../lib/routeNames";
-import { withHistory } from "../store/history";
-import { urbitWalletFromTicket } from "../lib/wallet";
+import { randomPatq } from '../lib/lib';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
+import { urbitWalletFromTicket } from '../lib/wallet';
 
 class Ticket extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      ticket: "",
-      pointName: "",
-      passphrase: "",
+      ticket: '',
+      pointName: '',
+      passphrase: '',
       isUnlocking: false,
     };
 
@@ -72,7 +72,7 @@ class Ticket extends React.Component {
     return (
       <Row>
         <Col>
-          <H1>{"Authenticate"}</H1>
+          <H1>{'Authenticate'}</H1>
 
           <P>
             {`Please enter your point and Urbit master ticket here. This information is written on your Urbit HD paper wallets.`}
@@ -86,11 +86,10 @@ class Ticket extends React.Component {
             autoFocus
             placeholder={`e.g. ${phPoint}`}
             value={pointName}
-            onChange={this.handlePointNameInput}
-          >
-            <InnerLabel>{"Point"}</InnerLabel>
+            onChange={this.handlePointNameInput}>
+            <InnerLabel>{'Point'}</InnerLabel>
             <ValidatedSigil
-              className={"tr-0 mt-05 mr-0 abs"}
+              className={'tr-0 mt-05 mr-0 abs'}
               patp={pointName}
               size={68}
               margin={8}
@@ -105,13 +104,12 @@ class Ticket extends React.Component {
             name="ticket"
             placeholder={`e.g. ${phTick}`}
             value={ticket}
-            onChange={this.handleTicketInput}
-          >
-            <InnerLabel>{"Ticket"}</InnerLabel>
+            onChange={this.handleTicketInput}>
+            <InnerLabel>{'Ticket'}</InnerLabel>
           </TicketInput>
 
           <InputCaption>
-            {"If your wallet requires a passphrase, you may enter it below."}
+            {'If your wallet requires a passphrase, you may enter it below.'}
           </InputCaption>
 
           <Input
@@ -122,30 +120,29 @@ class Ticket extends React.Component {
             type="password"
             value={passphrase}
             autocomplete="off"
-            onChange={this.handlePassphraseInput}
-          >
-            <InnerLabel>{"Passphrase"}</InnerLabel>
+            onChange={this.handlePassphraseInput}>
+            <InnerLabel>{'Passphrase'}</InnerLabel>
           </Input>
 
           <Button
-            className={"mt-8"}
-            prop-size={"lg wide"}
+            className={'mt-8'}
+            prop-size={'lg wide'}
             disabled={this.state.isUnlocking || Just.hasInstance(wallet)}
-            onClick={() => this.walletFromTicket(ticket, pointName, passphrase)}
-          >
+            onClick={() =>
+              this.walletFromTicket(ticket, pointName, passphrase)
+            }>
             <span className="relative">
               {this.state.isUnlocking && <span className="btn-spinner" />}
-              {"Unlock Wallet →"}
+              {'Unlock Wallet →'}
             </span>
           </Button>
 
           <Button
-            className={"mt-4"}
-            prop-size={"xl wide"}
+            className={'mt-4'}
+            prop-size={'xl wide'}
             disabled={Nothing.hasInstance(wallet)}
-            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}
-          >
-            {"Continue →"}
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+            {'Continue →'}
           </Button>
         </Col>
       </Row>

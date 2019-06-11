@@ -1,8 +1,8 @@
-import Maybe from "folktale/maybe";
-import React from "react";
-import * as azimuth from "azimuth-js";
-import * as ob from "urbit-ob";
-import * as need from "../lib/need";
+import Maybe from 'folktale/maybe';
+import React from 'react';
+import * as azimuth from 'azimuth-js';
+import * as ob from 'urbit-ob';
+import * as need from '../lib/need';
 
 import {
   Row,
@@ -12,13 +12,13 @@ import {
   ShowBlockie,
   P,
   Anchor,
-} from "../components/Base";
-import { AddressInput } from "../components/Base";
-import StatelessTransaction from "../components/StatelessTransaction";
+} from '../components/Base';
+import { AddressInput } from '../components/Base';
+import StatelessTransaction from '../components/StatelessTransaction';
 
-import { NETWORK_NAMES } from "../lib/network";
+import { NETWORK_NAMES } from '../lib/network';
 
-import { isValidAddress } from "../lib/wallet";
+import { isValidAddress } from '../lib/wallet';
 
 class Transfer extends React.Component {
   constructor(props) {
@@ -27,7 +27,7 @@ class Transfer extends React.Component {
     const issuingPoint = need.pointCursor(props);
 
     this.state = {
-      receivingAddress: "",
+      receivingAddress: '',
       issuingPoint: issuingPoint,
     };
 
@@ -57,7 +57,7 @@ class Transfer extends React.Component {
     const txn = azimuth.ecliptic.setTransferProxy(
       validContracts,
       validPoint,
-      state.receivingAddress,
+      state.receivingAddress
     );
 
     return Maybe.Just(txn);
@@ -75,15 +75,15 @@ class Transfer extends React.Component {
 
     const esdomain =
       props.networkType === NETWORK_NAMES.ROPSTEN
-        ? "ropsten.etherscan.io"
-        : "etherscan.io";
+        ? 'ropsten.etherscan.io'
+        : 'etherscan.io';
 
     return (
       <Row>
         <Col>
           <H1>
-            {"Transfer"} <code>{` ${ob.patp(state.issuingPoint)} `}</code>
-            {"To a New Owner"}
+            {'Transfer'} <code>{` ${ob.patp(state.issuingPoint)} `}</code>
+            {'To a New Owner'}
           </H1>
 
           <P>
@@ -93,27 +93,25 @@ class Transfer extends React.Component {
           </P>
 
           <AddressInput
-            className={"mono mt-8"}
+            className={'mono mt-8'}
             prop-size="lg"
             prop-format="innerLabel"
             value={state.receivingAddress}
             placeholder={`e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f`}
-            onChange={v => this.handleAddressInput(v)}
-          >
-            <InnerLabel>{"New ownership address"}</InnerLabel>
-            <ShowBlockie className={"mt-1"} address={state.receivingAddress} />
+            onChange={v => this.handleAddressInput(v)}>
+            <InnerLabel>{'New ownership address'}</InnerLabel>
+            <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
           </AddressInput>
 
           <Anchor
-            className={"mt-1"}
-            prop-size={"s"}
+            className={'mt-1'}
+            prop-size={'s'}
             prop-disabled={
               !isValidAddress(state.receivingAddress) || !esvisible
             }
-            target={"_blank"}
-            href={`https://${esdomain}/address/${state.receivingAddress}`}
-          >
-            {"View on Etherscan ↗"}
+            target={'_blank'}
+            href={`https://${esdomain}/address/${state.receivingAddress}`}>
+            {'View on Etherscan ↗'}
           </Anchor>
 
           <StatelessTransaction

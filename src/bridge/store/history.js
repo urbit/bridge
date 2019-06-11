@@ -1,8 +1,8 @@
-import React, { useContext, useState, useEffect } from "react";
-import { last, includes } from "lodash";
+import React, { useContext, useState, useEffect } from 'react';
+import { last, includes } from 'lodash';
 
-import { BRIDGE_ERROR } from "../lib/error";
-import { ROUTE_NAMES } from "../lib/routeNames";
+import { BRIDGE_ERROR } from '../lib/error';
+import { ROUTE_NAMES } from '../lib/routeNames';
 
 export const HistoryContext = React.createContext(null);
 

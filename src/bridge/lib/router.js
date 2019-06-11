@@ -1,40 +1,40 @@
-import React from "react";
-import * as ob from "urbit-ob";
-import * as need from "../lib/need";
+import React from 'react';
+import * as ob from 'urbit-ob';
+import * as need from '../lib/need';
 
-import Landing from "../views/Landing";
-import InviteTicket from "../views/InviteTicket";
-import InvitesSend from "../views/InvitesSend.js";
-import InvitesManage from "../views/InvitesManage.js";
-import AcceptTransfer from "../views/AcceptTransfer";
-import CancelTransfer from "../views/CancelTransfer";
-import CreateGalaxy from "../views/CreateGalaxy";
-import GenKeyfile from "../views/GenKeyfile";
-import IssueChild from "../views/IssueChild";
-import Network from "../views/Network";
-import Mnemonic from "../views/Mnemonic";
-import Ledger from "../views/Ledger";
-import Trezor from "../views/Trezor";
-import PrivateKey from "../views/PrivateKey";
-import Keystore from "../views/Keystore";
-import ViewPoint from "../views/ViewPoint";
-import SentTransaction from "../views/SentTransaction";
-import SetKeys from "../views/SetKeys";
+import Landing from '../views/Landing';
+import InviteTicket from '../views/InviteTicket';
+import InvitesSend from '../views/InvitesSend.js';
+import InvitesManage from '../views/InvitesManage.js';
+import AcceptTransfer from '../views/AcceptTransfer';
+import CancelTransfer from '../views/CancelTransfer';
+import CreateGalaxy from '../views/CreateGalaxy';
+import GenKeyfile from '../views/GenKeyfile';
+import IssueChild from '../views/IssueChild';
+import Network from '../views/Network';
+import Mnemonic from '../views/Mnemonic';
+import Ledger from '../views/Ledger';
+import Trezor from '../views/Trezor';
+import PrivateKey from '../views/PrivateKey';
+import Keystore from '../views/Keystore';
+import ViewPoint from '../views/ViewPoint';
+import SentTransaction from '../views/SentTransaction';
+import SetKeys from '../views/SetKeys';
 import {
   SetManagementProxy,
   SetSpawnProxy,
   SetTransferProxy,
-} from "../views/SetProxy";
-import Point from "../views/Point";
-import Points from "../views/Points";
-import Shards from "../views/Shards";
-import Ticket from "../views/Ticket";
-import Transfer from "../views/Transfer";
-import Wallet from "../views/Wallet";
+} from '../views/SetProxy';
+import Point from '../views/Point';
+import Points from '../views/Points';
+import Shards from '../views/Shards';
+import Ticket from '../views/Ticket';
+import Transfer from '../views/Transfer';
+import Wallet from '../views/Wallet';
 
-import { EthereumWallet } from "./wallet";
-import { renderNetworkType } from "./network";
-import { ROUTE_NAMES } from "./routeNames";
+import { EthereumWallet } from './wallet';
+import { renderNetworkType } from './network';
+import { ROUTE_NAMES } from './routeNames';
 
 const ROUTES = {
   [ROUTE_NAMES.DEFAULT]: Landing,
@@ -72,18 +72,18 @@ export const getRouteBreadcrumb = (props, route) => {
 
   switch (route.name) {
     case ROUTE_NAMES.INVITE_TICKET:
-      return "Invite code";
+      return 'Invite code';
     case ROUTE_NAMES.INVITE_TRANSACTIONS:
-      return "Setting up new wallet";
+      return 'Setting up new wallet';
     case ROUTE_NAMES.INVITES_SEND:
-      return "Send invites";
+      return 'Send invites';
     case ROUTE_NAMES.INVITES_MANAGE:
-      return "Manage invites";
+      return 'Manage invites';
     case ROUTE_NAMES.NETWORK:
       return `${renderNetworkType(networkType)}`;
     case ROUTE_NAMES.WALLET:
       return wallet.matchWith({
-        Nothing: () => "Wallet",
+        Nothing: () => 'Wallet',
         Just: wal =>
           wal.value instanceof EthereumWallet ? (
             <span className="text-mono">{wal.value.address}</span>
@@ -92,48 +92,48 @@ export const getRouteBreadcrumb = (props, route) => {
           ),
       });
     case ROUTE_NAMES.MNEMONIC:
-      return "Mnemonic";
+      return 'Mnemonic';
     case ROUTE_NAMES.TICKET:
-      return "Urbit Ticket";
+      return 'Urbit Ticket';
     case ROUTE_NAMES.SHARDS:
-      return "Urbit Ticket";
+      return 'Urbit Ticket';
     case ROUTE_NAMES.LEDGER:
-      return "Ledger";
+      return 'Ledger';
     case ROUTE_NAMES.TREZOR:
-      return "Trezor";
+      return 'Trezor';
     case ROUTE_NAMES.PRIVATE_KEY:
-      return "Private Key";
+      return 'Private Key';
     case ROUTE_NAMES.KEYSTORE:
-      return "Keystore File";
+      return 'Keystore File';
     case ROUTE_NAMES.SHIPS:
-      return "Points";
+      return 'Points';
     case ROUTE_NAMES.VIEW_SHIP:
-      return "View";
+      return 'View';
     case ROUTE_NAMES.SHIP:
       return ob.patp(need.pointCursor(props));
     case ROUTE_NAMES.SET_TRANSFER_PROXY:
     case ROUTE_NAMES.SET_MANAGEMENT_PROXY:
     case ROUTE_NAMES.SET_SPAWN_PROXY:
-      return "Set Proxy";
+      return 'Set Proxy';
     case ROUTE_NAMES.CREATE_GALAXY:
-      return "Create Galaxy";
+      return 'Create Galaxy';
     case ROUTE_NAMES.ISSUE_CHILD:
-      return "Issue Child";
+      return 'Issue Child';
     case ROUTE_NAMES.TRANSFER:
-      return "Transfer";
+      return 'Transfer';
     case ROUTE_NAMES.ACCEPT_TRANSFER:
-      return "Accept Transfer";
+      return 'Accept Transfer';
     case ROUTE_NAMES.CANCEL_TRANSFER:
-      return "Cancel Transfer";
+      return 'Cancel Transfer';
     case ROUTE_NAMES.GEN_KEYFILE:
-      return "Keyfile";
+      return 'Keyfile';
     case ROUTE_NAMES.SET_KEYS:
-      return "Configure Keys";
+      return 'Configure Keys';
     case ROUTE_NAMES.SENT_TRANSACTION:
-      return "Txn";
+      return 'Txn';
     case ROUTE_NAMES.LANDING:
     default:
-      return "Bridge";
+      return 'Bridge';
   }
 };
 

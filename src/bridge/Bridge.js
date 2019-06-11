@@ -1,25 +1,25 @@
-import React from "react";
-import { Just, Nothing } from "folktale/maybe";
-import { includes } from "lodash";
+import React from 'react';
+import { Just, Nothing } from 'folktale/maybe';
+import { includes } from 'lodash';
 
-import Footer from "./components/Footer";
-import Header from "./components/Header";
-import { Container, Row, Col } from "./components/Base";
+import Footer from './components/Footer';
+import Header from './components/Header';
+import { Container, Row, Col } from './components/Base';
 
-import { router } from "./lib/router";
-import { initWeb3 } from "./lib/web3";
-import { ROUTE_NAMES } from "./lib/routeNames";
-import { HistoryProvider, withHistory, useHistory } from "./store/history";
-import { TxnConfirmationsProvider } from "./store/txnConfirmations";
-import { NETWORK_NAMES } from "./lib/network";
+import { router } from './lib/router';
+import { initWeb3 } from './lib/web3';
+import { ROUTE_NAMES } from './lib/routeNames';
+import { HistoryProvider, withHistory, useHistory } from './store/history';
+import { TxnConfirmationsProvider } from './store/txnConfirmations';
+import { NETWORK_NAMES } from './lib/network';
 import {
   WALLET_NAMES,
   DEFAULT_HD_PATH,
   walletFromMnemonic,
   addressFromSecp256k1Public,
-} from "./lib/wallet";
-import { BRIDGE_ERROR } from "./lib/error";
-import { isLocal } from "./lib/flags";
+} from './lib/wallet';
+import { BRIDGE_ERROR } from './lib/error';
+import { isLocal } from './lib/flags';
 
 // NB(shrugs): toggle this variable to use the default local state.
 // don't commit changes to this line, but there shouldn't be a problem
@@ -51,13 +51,12 @@ const VariableWidthColumn = withHistory(({ history, children }) => (
   <Col
     className={
       history.includes(ROUTE_NAMES.INVITE_TICKET)
-        ? "col-md-12"
-        : "col-md-offset-1 col-md-10"
+        ? 'col-md-12'
+        : 'col-md-offset-1 col-md-10'
     }
     style={
-      history.includes(ROUTE_NAMES.INVITE_TICKET) ? {} : { maxWidth: "620px" }
-    }
-  >
+      history.includes(ROUTE_NAMES.INVITE_TICKET) ? {} : { maxWidth: '620px' }
+    }>
     {children}
   </Col>
 ));
@@ -192,7 +191,7 @@ class Bridge extends React.Component {
       wallet = walletFromMnemonic(
         mnemonic,
         DEFAULT_HD_PATH,
-        urbitWallet.value.meta.passphrase,
+        urbitWallet.value.meta.passphrase
       );
       wallet.map(wal => {
         wal.address = urbitWallet.value.ownership.keys.address;
@@ -250,7 +249,7 @@ class Bridge extends React.Component {
                   pointCursor={pointCursor}
                 />
 
-                <Row className={"row wrapper"}>
+                <Row className={'row wrapper'}>
                   <Router
                     // network
                     setNetworkType={this.setNetworkType}
@@ -284,7 +283,7 @@ class Bridge extends React.Component {
                     txnHashCursor={txnHashCursor}
                   />
 
-                  <div className={"push"} />
+                  <div className={'push'} />
                 </Row>
 
                 <Footer />

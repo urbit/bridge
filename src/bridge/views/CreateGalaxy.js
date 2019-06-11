@@ -1,37 +1,37 @@
-import React from "react";
-import Maybe from "folktale/maybe";
-import * as azimuth from "azimuth-js";
-import * as ob from "urbit-ob";
-import * as need from "../lib/need";
+import React from 'react';
+import Maybe from 'folktale/maybe';
+import * as azimuth from 'azimuth-js';
+import * as ob from 'urbit-ob';
+import * as need from '../lib/need';
 
-import { Button } from "../components/Base";
-import { Row, Col, H1, P, Anchor } from "../components/Base";
+import { Button } from '../components/Base';
+import { Row, Col, H1, P, Anchor } from '../components/Base';
 import {
   InnerLabel,
   GalaxyInput,
   AddressInput,
   ValidatedSigil,
   ShowBlockie,
-} from "../components/Base";
-import StatelessTransaction from "../components/StatelessTransaction";
+} from '../components/Base';
+import StatelessTransaction from '../components/StatelessTransaction';
 
-import { NETWORK_NAMES } from "../lib/network";
-import { canDecodePatp } from "../lib/txn";
+import { NETWORK_NAMES } from '../lib/network';
+import { canDecodePatp } from '../lib/txn';
 
-import { ETH_ZERO_ADDR, isValidAddress, eqAddr } from "../lib/wallet";
+import { ETH_ZERO_ADDR, isValidAddress, eqAddr } from '../lib/wallet';
 
-import { isValidGalaxy } from "../lib/lib";
+import { isValidGalaxy } from '../lib/lib';
 
 const buttonTriState = status => {
-  if (status === null) return "blue";
-  if (status === false) return "yellow";
-  if (status === true) return "green";
+  if (status === null) return 'blue';
+  if (status === false) return 'yellow';
+  if (status === true) return 'green';
 };
 
 const buttonTriStateText = status => {
-  if (status === null) return "Confirm Galaxy Availablility";
-  if (status === false) return "Galaxy is Not Available";
-  if (status === true) return "Galaxy is Available";
+  if (status === null) return 'Confirm Galaxy Availablility';
+  if (status === false) return 'Galaxy is Not Available';
+  if (status === true) return 'Galaxy is Available';
 };
 
 class CreateGalaxy extends React.Component {
@@ -42,7 +42,7 @@ class CreateGalaxy extends React.Component {
 
     this.state = {
       galaxyOwner: galaxyOwner,
-      galaxyName: "",
+      galaxyName: '',
       isAvailable: null,
     };
 
@@ -77,7 +77,7 @@ class CreateGalaxy extends React.Component {
     const txn = azimuth.ecliptic.createGalaxy(
       validContracts,
       galaxyDec,
-      state.galaxyOwner,
+      state.galaxyOwner
     );
 
     return Maybe.Just(txn);
@@ -97,7 +97,7 @@ class CreateGalaxy extends React.Component {
 
     const currentOwner = await azimuth.azimuth.getOwner(
       validContracts,
-      galaxyDec,
+      galaxyDec
     );
 
     const available = eqAddr(currentOwner, ETH_ZERO_ADDR);
@@ -122,17 +122,17 @@ class CreateGalaxy extends React.Component {
 
     const esdomain =
       props.networkType === NETWORK_NAMES.ROPSTEN
-        ? "ropsten.etherscan.io"
-        : "etherscan.io";
+        ? 'ropsten.etherscan.io'
+        : 'etherscan.io';
 
     return (
       <Row>
         <Col>
-          <H1> {"Create a Galaxy"} </H1>
+          <H1> {'Create a Galaxy'} </H1>
 
           <P>
-            {"Enter the galaxy to create and the address that will own " +
-              "it (defaulting to this account, if not provided)."}
+            {'Enter the galaxy to create and the address that will own ' +
+              'it (defaulting to this account, if not provided).'}
           </P>
 
           <GalaxyInput
@@ -142,9 +142,8 @@ class CreateGalaxy extends React.Component {
             autoFocus
             placeholder="e.g. ~zod"
             value={state.galaxyName}
-            onChange={v => this.handleGalaxyNameInput(v)}
-          >
-            <InnerLabel>{"Galaxy Name"}</InnerLabel>
+            onChange={v => this.handleGalaxyNameInput(v)}>
+            <InnerLabel>{'Galaxy Name'}</InnerLabel>
             <ValidatedSigil
               className="tr-0 mt-05 mr-0 abs"
               patp={state.galaxyName}
@@ -158,20 +157,18 @@ class CreateGalaxy extends React.Component {
             prop-size="lg"
             prop-format="innerLabel"
             value={state.galaxyOwner}
-            onChange={v => this.handleAddressInput(v)}
-          >
-            <InnerLabel>{"Address that will own this galaxy"}</InnerLabel>
-            <ShowBlockie className={"mt-1"} address={state.galaxyOwner} />
+            onChange={v => this.handleAddressInput(v)}>
+            <InnerLabel>{'Address that will own this galaxy'}</InnerLabel>
+            <ShowBlockie className={'mt-1'} address={state.galaxyOwner} />
           </AddressInput>
 
           <Anchor
-            className={"mt-1"}
-            prop-size={"sm"}
+            className={'mt-1'}
+            prop-size={'sm'}
             prop-disabled={!validAddress || !esvisible}
-            target={"_blank"}
-            href={`https://${esdomain}/address/${state.galaxyOwner}`}
-          >
-            {"View on Etherscan ↗"}
+            target={'_blank'}
+            href={`https://${esdomain}/address/${state.galaxyOwner}`}>
+            {'View on Etherscan ↗'}
           </Anchor>
 
           <Button
@@ -179,8 +176,7 @@ class CreateGalaxy extends React.Component {
             className="mt-8"
             prop-color={buttonTriState(state.isAvailable)}
             disabled={!validGalaxy}
-            onClick={() => this.confirmAvailability()}
-          >
+            onClick={() => this.confirmAvailability()}>
             {buttonTriStateText(state.isAvailable)}
           </Button>
 

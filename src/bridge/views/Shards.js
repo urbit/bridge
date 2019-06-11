@@ -1,6 +1,6 @@
-import { Just, Nothing } from "folktale/maybe";
-import React from "react";
-import { Button } from "../components/Base";
+import { Just, Nothing } from 'folktale/maybe';
+import React from 'react';
+import { Button } from '../components/Base';
 import {
   InnerLabel,
   ValidatedSigil,
@@ -8,28 +8,28 @@ import {
   ShardInput,
   InputCaption,
   Input,
-} from "../components/Base";
-import { Row, Col, H1, P } from "../components/Base";
-import * as kg from "urbit-key-generation/dist/index";
-import * as ob from "urbit-ob";
+} from '../components/Base';
+import { Row, Col, H1, P } from '../components/Base';
+import * as kg from 'urbit-key-generation/dist/index';
+import * as ob from 'urbit-ob';
 
-import { ROUTE_NAMES } from "../lib/routeNames";
-import { withHistory } from "../store/history";
-import { urbitWalletFromTicket } from "../lib/wallet";
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
+import { urbitWalletFromTicket } from '../lib/wallet';
 
 const placeholder = len => {
   let bytes = window.crypto.getRandomValues(new Uint8Array(len));
   let hex = bytes.reduce(
-    (acc, byt) => acc + byt.toString(16).padStart(2, "0"),
-    "",
+    (acc, byt) => acc + byt.toString(16).padStart(2, '0'),
+    ''
   );
   return ob.hex2patq(hex);
 };
 
 const SHARDS = {
-  SHARD1: Symbol("SHARD1"),
-  SHARD2: Symbol("SHARD2"),
-  SHARD3: Symbol("SHARD3"),
+  SHARD1: Symbol('SHARD1'),
+  SHARD2: Symbol('SHARD2'),
+  SHARD3: Symbol('SHARD3'),
 };
 
 class Shards extends React.Component {
@@ -37,11 +37,11 @@ class Shards extends React.Component {
     super(props);
 
     this.state = {
-      shard1: "",
-      shard2: "",
-      shard3: "",
-      passphrase: "",
-      pointName: "",
+      shard1: '',
+      shard2: '',
+      shard3: '',
+      passphrase: '',
+      pointName: '',
     };
 
     this.pointPlaceholder = placeholder(4);
@@ -73,9 +73,9 @@ class Shards extends React.Component {
   }
 
   async walletFromShards(shard1, shard2, shard3, pointName, passphrase) {
-    const s1 = shard1 === "" ? undefined : shard1;
-    const s2 = shard2 === "" ? undefined : shard2;
-    const s3 = shard3 === "" ? undefined : shard3;
+    const s1 = shard1 === '' ? undefined : shard1;
+    const s2 = shard2 === '' ? undefined : shard2;
+    const s3 = shard3 === '' ? undefined : shard3;
 
     let ticket = undefined;
     try {
@@ -98,12 +98,12 @@ class Shards extends React.Component {
     const phTick = this.ticketPlaceholder;
 
     const shards = [shard1, shard2, shard3];
-    const ready = shards.filter(x => x !== "").length > 1;
+    const ready = shards.filter(x => x !== '').length > 1;
 
     return (
       <Row>
         <Col>
-          <H1>{"Authenticate"}</H1>
+          <H1>{'Authenticate'}</H1>
 
           <P>
             {`Enter your point and at least two of your three Urbit master
@@ -119,11 +119,10 @@ class Shards extends React.Component {
             autoFocus
             placeholder={`e.g. ${phPoint}`}
             value={pointName}
-            onChange={this.handlePointNameInput}
-          >
-            <InnerLabel>{"Point"}</InnerLabel>
+            onChange={this.handlePointNameInput}>
+            <InnerLabel>{'Point'}</InnerLabel>
             <ValidatedSigil
-              className={"tr-0 mt-05 mr-0 abs"}
+              className={'tr-0 mt-05 mr-0 abs'}
               patp={pointName}
               size={68}
               margin={8}
@@ -138,9 +137,8 @@ class Shards extends React.Component {
             name="shard1"
             placeholder={`e.g. ${phTick}`}
             value={shard1}
-            onChange={inp => this.handleShardInput(SHARDS.SHARD1, inp)}
-          >
-            <InnerLabel>{"Shard 1"}</InnerLabel>
+            onChange={inp => this.handleShardInput(SHARDS.SHARD1, inp)}>
+            <InnerLabel>{'Shard 1'}</InnerLabel>
           </ShardInput>
 
           <ShardInput
@@ -151,9 +149,8 @@ class Shards extends React.Component {
             name="shard2"
             placeholder={`e.g. ${phTick}`}
             value={shard2}
-            onChange={inp => this.handleShardInput(SHARDS.SHARD2, inp)}
-          >
-            <InnerLabel>{"Shard 2"}</InnerLabel>
+            onChange={inp => this.handleShardInput(SHARDS.SHARD2, inp)}>
+            <InnerLabel>{'Shard 2'}</InnerLabel>
           </ShardInput>
 
           <ShardInput
@@ -164,13 +161,12 @@ class Shards extends React.Component {
             name="shard3"
             placeholder={`e.g. ${phTick}`}
             value={shard3}
-            onChange={inp => this.handleShardInput(SHARDS.SHARD3, inp)}
-          >
-            <InnerLabel>{"Shard 3"}</InnerLabel>
+            onChange={inp => this.handleShardInput(SHARDS.SHARD3, inp)}>
+            <InnerLabel>{'Shard 3'}</InnerLabel>
           </ShardInput>
 
           <InputCaption>
-            {"If your wallet requires a passphrase, you may enter it below."}
+            {'If your wallet requires a passphrase, you may enter it below.'}
           </InputCaption>
 
           <Input
@@ -181,15 +177,14 @@ class Shards extends React.Component {
             type="password"
             value={passphrase}
             autocomplete="off"
-            onChange={this.handlePassphraseInput}
-          >
-            <InnerLabel>{"Passphrase"}</InnerLabel>
+            onChange={this.handlePassphraseInput}>
+            <InnerLabel>{'Passphrase'}</InnerLabel>
           </Input>
 
           <Button
             disabled={!ready}
-            className={"mt-8"}
-            prop-size={"lg wide"}
+            className={'mt-8'}
+            prop-size={'lg wide'}
             // prop-color={this.buttonTriState(wallet)}
             onClick={() =>
               this.walletFromShards(
@@ -197,20 +192,18 @@ class Shards extends React.Component {
                 shard2,
                 shard3,
                 pointName,
-                passphrase,
+                passphrase
               )
-            }
-          >
-            {"Unlock Wallet →"}
+            }>
+            {'Unlock Wallet →'}
           </Button>
 
           <Button
-            className={"mt-4"}
-            prop-size={"xl wide"}
+            className={'mt-4'}
+            prop-size={'xl wide'}
             disabled={Nothing.hasInstance(wallet)}
-            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}
-          >
-            {"Continue →"}
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+            {'Continue →'}
           </Button>
         </Col>
       </Row>

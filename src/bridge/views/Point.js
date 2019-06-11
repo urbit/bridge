@@ -1,16 +1,16 @@
-import { Just, Nothing } from "folktale/maybe";
-import React from "react";
-import { pour } from "sigil-js";
-import * as ob from "urbit-ob";
-import * as azimuth from "azimuth-js";
-import * as need from "../lib/need";
+import { Just, Nothing } from 'folktale/maybe';
+import React from 'react';
+import { pour } from 'sigil-js';
+import * as ob from 'urbit-ob';
+import * as azimuth from 'azimuth-js';
+import * as need from '../lib/need';
 
-import PointList from "../components/PointList";
-import ReactSVGComponents from "../components/ReactSVGComponents";
-import KeysAndMetadata from "./Point/KeysAndMetadata";
-import Actions from "./Point/Actions";
-import { Row, Col, H1, H3 } from "../components/Base";
-import { withHistory } from "../store/history";
+import PointList from '../components/PointList';
+import ReactSVGComponents from '../components/ReactSVGComponents';
+import KeysAndMetadata from './Point/KeysAndMetadata';
+import Actions from './Point/Actions';
+import { Row, Col, H1, H3 } from '../components/Base';
+import { withHistory } from '../store/history';
 
 class Point extends React.Component {
   constructor(props) {
@@ -55,8 +55,8 @@ class Point extends React.Component {
             .getTotalUsableInvites(ctrcs, point)
             .then(count => this.setState({ invites: Just(count) }));
           this.updateSpawned(ctrcs, point);
-        }),
-      ),
+        })
+      )
     );
   }
 
@@ -100,7 +100,7 @@ class Point extends React.Component {
         <div />
       ) : (
         <div>
-          <H3>{"Issued Points"}</H3>
+          <H3>{'Issued Points'}</H3>
 
           <PointList
             setPointCursor={setPointCursor}
@@ -113,7 +113,7 @@ class Point extends React.Component {
     return (
       <Row>
         <Col>
-          <div className={"mt-12 pt-6"}>{sigil}</div>
+          <div className={'mt-12 pt-6'}>{sigil}</div>
           <H1>
             <code>{name}</code>
           </H1>

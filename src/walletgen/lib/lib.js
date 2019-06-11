@@ -1,7 +1,7 @@
-import * as ob from "urbit-ob";
-import * as kg from "urbit-key-generation/dist/index";
-import * as more from "more-entropy";
-import lodash from "lodash";
+import * as ob from 'urbit-ob';
+import * as kg from 'urbit-key-generation/dist/index';
+import * as more from 'more-entropy';
+import lodash from 'lodash';
 import {
   MIN_STAR,
   MIN_PLANET,
@@ -9,7 +9,7 @@ import {
   GALAXY_ENTROPY_BITS,
   STAR_ENTROPY_BITS,
   PLANET_ENTROPY_BITS,
-} from "./constants";
+} from './constants';
 
 const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8;
 
@@ -35,9 +35,9 @@ const makeTicket = point => {
       const more = lodash.flatMap(desired, arr => arr[0] ^ arr[1]);
       const entropy = lodash.zipWith(some, more, (x, y) => x ^ y);
       const buf = Buffer.from(entropy);
-      const patq = ob.hex2patq(buf.toString("hex"));
+      const patq = ob.hex2patq(buf.toString('hex'));
       resolve(patq);
-      reject("Entropy generation failed");
+      reject('Entropy generation failed');
     });
   });
 };
@@ -48,7 +48,7 @@ const generateWallet = async (point, ticket, boot) => {
     ticket: ticket,
     seedSize: SEED_LENGTH_BYTES,
     ship: point,
-    password: "",
+    password: '',
     revisions: {},
     boot: boot,
   };
@@ -57,7 +57,7 @@ const generateWallet = async (point, ticket, boot) => {
 
   // This is here to notify anyone who opens console because the thread
   // hangs, blocking UI updates so this cannot be done in the UI
-  console.log("Generating Wallet for point address: ", point);
+  console.log('Generating Wallet for point address: ', point);
 
   return wallet;
 };

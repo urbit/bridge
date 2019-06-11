@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button, Chevron } from '../components/Base';
 
-import { getRouteBreadcrumb } from '../lib/router'
-import { isLast } from '../lib/lib'
+import { getRouteBreadcrumb } from '../lib/router';
+import { isLast } from '../lib/lib';
 
 const Crumbs = props => {
   const { routeCrumbs, skipRoute } = props;
@@ -11,34 +11,30 @@ const Crumbs = props => {
   // FIXME probably more straightforward to render them normally and just
   // return the reversed array of renders
   const rendered = history.map((route, idx) => {
+    return (
+      <div className={'flex items-center'} key={`history-${idx}`}>
+        <Button
+          size={'s'}
+          type={'link'}
+          color={'black'}
+          key={`history-button-${idx}`}
+          onClick={() => skipRoute(history.size - idx - 1)}>
+          {`${getRouteBreadcrumb(props, route)}`}
+        </Button>
 
-      return (
-        <div className={'flex items-center'} key={ `history-${idx}` }>
+        {isLast(history.size, idx) ? (
+          <div />
+        ) : (
+          <Chevron className={'h-4 mh-2'} />
+        )}
+      </div>
+    );
+  });
 
-          <Button
-            size={'s'}
-            type={'link'}
-            color={'black'}
-            key={ `history-button-${idx}` }
-            onClick={ () => skipRoute(history.size - idx - 1) }
-          >
-            { `${getRouteBreadcrumb(props, route)}` }
-          </Button>
+  return rendered;
+};
 
-          {
-            isLast(history.size, idx)
-              ? <div />
-              : <Chevron className={'h-4 mh-2'} />
-          }
-
-        </div>
-      )
-    })
-
-  return rendered
-}
-
-const Header = (props) =>
+const Header = props => (
   <div className={'flex items-center h-8 pt-4'}>
     <Crumbs
       routeCrumbs={props.routeCrumbs}

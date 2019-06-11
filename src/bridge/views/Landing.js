@@ -1,10 +1,10 @@
-import React from "react";
-import { Button } from "../components/Base";
-import { Row, Col } from "../components/Base";
-import { H1, P } from "../components/Base";
+import React from 'react';
+import { Button } from '../components/Base';
+import { Row, Col } from '../components/Base';
+import { H1, P } from '../components/Base';
 
-import { ROUTE_NAMES } from "../lib/routeNames";
-import { useHistory } from "../store/history";
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { useHistory } from '../store/history';
 
 function Landing(props) {
   const history = useHistory();
@@ -12,51 +12,48 @@ function Landing(props) {
   return (
     <Row>
       <Col>
-        <H1>{"Welcome"}</H1>
+        <H1>{'Welcome'}</H1>
 
         <P>
-          {"Bridge is a tool for managing and viewing assets on " +
-            "Azimuth, the Urbit address space."}
+          {'Bridge is a tool for managing and viewing assets on ' +
+            'Azimuth, the Urbit address space.'}
         </P>
 
         <Button
           prop-type="link"
           prop-size="lg"
-          className={"mb-4 mt-8"}
-          onClick={() => history.push(ROUTE_NAMES.INVITE_TICKET)}
-        >
-          {"Claim an invite  →"}
+          className={'mb-4 mt-8'}
+          onClick={() => history.push(ROUTE_NAMES.INVITE_TICKET)}>
+          {'Claim an invite  →'}
         </Button>
 
-        <P>{"If you were sent an Azimuth invite code, start here."}</P>
+        <P>{'If you were sent an Azimuth invite code, start here.'}</P>
 
         <Button
           prop-type="link"
           prop-size="lg"
-          className={"mb-4 mt-8"}
-          onClick={() => history.push(ROUTE_NAMES.NETWORK)}
-        >
-          {"Unlock a Wallet  →"}
+          className={'mb-4 mt-8'}
+          onClick={() => history.push(ROUTE_NAMES.NETWORK)}>
+          {'Unlock a Wallet  →'}
         </Button>
 
         <P>
-          {"If you own Azimuth assets and want to manage them in some " +
+          {'If you own Azimuth assets and want to manage them in some ' +
             "way, start here.  You'll need either your Urbit ticket or a " +
-            "keypair."}
+            'keypair.'}
         </P>
 
         {
           <Row>
             <Col>
               <Button
-                prop-type={"link"}
-                prop-size={"lg"}
-                className={"mb-4 mt-8"}
-                onClick={() => history.push(ROUTE_NAMES.VIEW_SHIP)}
-              >
-                {"View a point  →"}
+                prop-type={'link'}
+                prop-size={'lg'}
+                className={'mb-4 mt-8'}
+                onClick={() => history.push(ROUTE_NAMES.VIEW_SHIP)}>
+                {'View a point  →'}
               </Button>
-              <P>{"View an Azimuth point without signing into a wallet."}</P>
+              <P>{'View an Azimuth point without signing into a wallet.'}</P>
             </Col>
           </Row>
           //  FIXME add address view

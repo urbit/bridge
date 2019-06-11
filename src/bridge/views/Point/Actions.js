@@ -1,12 +1,12 @@
-import React from "react";
-import { azimuth } from "azimuth-js";
-import * as need from "../../lib/need";
+import React from 'react';
+import { azimuth } from 'azimuth-js';
+import * as need from '../../lib/need';
 
-import { ETH_ZERO_ADDR, CURVE_ZERO_ADDR, eqAddr } from "../../lib/wallet";
-import { Row, Col, H2, P } from "../../components/Base";
-import { Button } from "../../components/Base";
-import { ROUTE_NAMES } from "../../lib/routeNames";
-import { useHistory } from "../../store/history";
+import { ETH_ZERO_ADDR, CURVE_ZERO_ADDR, eqAddr } from '../../lib/wallet';
+import { Row, Col, H2, P } from '../../components/Base';
+import { Button } from '../../components/Base';
+import { ROUTE_NAMES } from '../../lib/routeNames';
+import { useHistory } from '../../store/history';
 
 const isPlanet = point =>
   azimuth.getPointSize(point) === azimuth.PointSize.Planet;
@@ -106,16 +106,15 @@ function Actions(props) {
     inviteAction = (
       <Button
         disabled={!isActiveOwner || !online || !hasInvites}
-        prop-size={"sm"}
-        prop-type={"link"}
-        onClick={() => history.push(ROUTE_NAMES.INVITES_SEND)}
-      >
-        {"Send invites ("}
+        prop-size={'sm'}
+        prop-type={'link'}
+        onClick={() => history.push(ROUTE_NAMES.INVITES_SEND)}>
+        {'Send invites ('}
         {invites.matchWith({
-          Nothing: () => "?",
+          Nothing: () => '?',
           Just: count => count.value,
         })}
-        {")"}
+        {')'}
       </Button>
     );
   }
@@ -123,118 +122,109 @@ function Actions(props) {
     inviteAction = (
       <Button
         disabled={!(isActiveOwner && canIssueChild) || !online}
-        prop-size={"sm"}
-        prop-type={"link"}
+        prop-size={'sm'}
+        prop-type={'link'}
         onClick={() => {
           history.push(ROUTE_NAMES.INVITES_MANAGE);
-        }}
-      >
-        {"Manage invites"}
+        }}>
+        {'Manage invites'}
       </Button>
     );
   }
 
   return (
     <div>
-      <H2>{"Actions"}</H2>
+      <H2>{'Actions'}</H2>
       {displayReminder ? (
         <P>{`Before you can issue child points or generate your Arvo
                   keyfile, you need to set your public keys.`}</P>
       ) : (
-        ""
+        ''
       )}
       <Row>
-        <Col className={"flex flex-column items-start col-md-4"}>
+        <Col className={'flex flex-column items-start col-md-4'}>
           <Button
-            prop-size={"sm"}
-            prop-type={"link"}
+            prop-size={'sm'}
+            prop-type={'link'}
             disabled={(online || planet) && !canIssueChild}
             onClick={() => {
               history.push(ROUTE_NAMES.ISSUE_CHILD);
-            }}
-          >
-            {"Issue child"}
+            }}>
+            {'Issue child'}
           </Button>
 
           <Button
-            prop-size={"sm"}
-            prop-type={"link"}
+            prop-size={'sm'}
+            prop-type={'link'}
             disabled={online && !canAcceptTransfer}
             onClick={() => {
               history.push(ROUTE_NAMES.ACCEPT_TRANSFER);
-            }}
-          >
-            {"Accept incoming transfer"}
+            }}>
+            {'Accept incoming transfer'}
           </Button>
 
           <Button
-            prop-size={"sm"}
-            prop-type={"link"}
+            prop-size={'sm'}
+            prop-type={'link'}
             disabled={online && !canCancelTransfer}
             onClick={() => {
               history.push(ROUTE_NAMES.CANCEL_TRANSFER);
-            }}
-          >
-            {"Cancel outgoing transfer"}
+            }}>
+            {'Cancel outgoing transfer'}
           </Button>
 
           <Button
-            prop-size={"sm"}
-            prop-type={"link"}
+            prop-size={'sm'}
+            prop-type={'link'}
             disabled={online && !canGenKeyfile}
             onClick={() => {
               history.push(ROUTE_NAMES.GEN_KEYFILE);
-            }}
-          >
-            {"Generate Arvo keyfile"}
+            }}>
+            {'Generate Arvo keyfile'}
           </Button>
         </Col>
-        <Col className={"flex flex-column items-start col-md-4"}>
+        <Col className={'flex flex-column items-start col-md-4'}>
           <Button
             disabled={online && !canSetSpawnProxy}
-            prop-size={"sm"}
-            prop-type={"link"}
+            prop-size={'sm'}
+            prop-type={'link'}
             onClick={() => {
               history.push(ROUTE_NAMES.SET_SPAWN_PROXY);
-            }}
-          >
-            {"Change spawn proxy"}
+            }}>
+            {'Change spawn proxy'}
           </Button>
 
           <Button
             disabled={online && !canSetManagementProxy}
-            prop-size={"sm"}
-            prop-type={"link"}
+            prop-size={'sm'}
+            prop-type={'link'}
             onClick={() => {
               history.push(ROUTE_NAMES.SET_MANAGEMENT_PROXY);
-            }}
-          >
-            {"Change management proxy"}
+            }}>
+            {'Change management proxy'}
           </Button>
 
           <Button
             disabled={online && !canConfigureKeys}
-            prop-size={"sm"}
-            prop-type={"link"}
+            prop-size={'sm'}
+            prop-type={'link'}
             onClick={() => {
               history.push(ROUTE_NAMES.SET_KEYS);
-            }}
-          >
-            {"Set network keys"}
+            }}>
+            {'Set network keys'}
           </Button>
 
           <Button
             disabled={online && !canTransfer}
-            prop-size={"sm"}
-            prop-type={"link"}
+            prop-size={'sm'}
+            prop-type={'link'}
             onClick={() => {
               history.push(ROUTE_NAMES.TRANSFER);
-            }}
-          >
-            {"Transfer"}
+            }}>
+            {'Transfer'}
           </Button>
         </Col>
-        <Col className={"flex flex-column items-start col-md-4"}>
+        <Col className={'flex flex-column items-start col-md-4'}>
           {inviteAction}
         </Col>
       </Row>

@@ -1,7 +1,7 @@
-import Maybe from "folktale/maybe";
-import React from "react";
-import * as need from "../lib/need";
-import * as azimuth from "azimuth-js";
+import Maybe from 'folktale/maybe';
+import React from 'react';
+import * as need from '../lib/need';
+import * as azimuth from 'azimuth-js';
 import {
   Row,
   Col,
@@ -11,17 +11,17 @@ import {
   ShowBlockie,
   Anchor,
   HorizontalSelector,
-} from "../components/Base";
-import { AddressInput } from "../components/Base";
-import * as ob from "urbit-ob";
+} from '../components/Base';
+import { AddressInput } from '../components/Base';
+import * as ob from 'urbit-ob';
 
-import { PROXY_TYPE, renderProxyType } from "../lib/proxy";
+import { PROXY_TYPE, renderProxyType } from '../lib/proxy';
 
-import { NETWORK_NAMES } from "../lib/network";
+import { NETWORK_NAMES } from '../lib/network';
 
-import StatelessTransaction from "../components/StatelessTransaction";
+import StatelessTransaction from '../components/StatelessTransaction';
 
-import { isValidAddress } from "../lib/wallet";
+import { isValidAddress } from '../lib/wallet';
 
 const SetManagementProxy = props => (
   <SetProxy {...props} proxyType={PROXY_TYPE.MANAGEMENT_PROXY} />
@@ -42,7 +42,7 @@ class SetProxy extends React.Component {
     const issuingPoint = need.pointCursor(props);
 
     this.state = {
-      proxyAddress: "",
+      proxyAddress: '',
       issuingPoint: issuingPoint,
       setProxy: true,
     };
@@ -54,10 +54,10 @@ class SetProxy extends React.Component {
   }
 
   handleSetUnset(selected) {
-    const set = selected === "set";
+    const set = selected === 'set';
     this.setState({
       setProxy: set,
-      proxyAddress: set ? "" : "0x0000000000000000000000000000000000000000",
+      proxyAddress: set ? '' : '0x0000000000000000000000000000000000000000',
     });
   }
 
@@ -104,26 +104,26 @@ class SetProxy extends React.Component {
 
     const esdomain =
       props.networkType === NETWORK_NAMES.ROPSTEN
-        ? "ropsten.etherscan.io"
-        : "etherscan.io";
+        ? 'ropsten.etherscan.io'
+        : 'etherscan.io';
 
     const ucFirst = w => w.charAt(0).toUpperCase() + w.slice(1);
 
     const setUnset = [
-      { title: "Set", value: "set" },
-      { title: "Unset", value: "unset" },
+      { title: 'Set', value: 'set' },
+      { title: 'Unset', value: 'unset' },
     ];
 
-    const titleVerb = this.state.setProxy ? "Set" : "Unset";
+    const titleVerb = this.state.setProxy ? 'Set' : 'Unset';
 
     let addressInput = null;
     if (this.state.setProxy) {
       addressInput = (
         <>
           <P className="mt-8">
-            {"Please provide an Ethereum address to act as the " +
+            {'Please provide an Ethereum address to act as the ' +
               `${renderedProxyType} proxy.  You can also use Wallet ` +
-              "Generator to generate a keypair."}
+              'Generator to generate a keypair.'}
           </P>
 
           <AddressInput
@@ -132,20 +132,18 @@ class SetProxy extends React.Component {
             prop-format="innerLabel"
             placeholder={`e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f`}
             value={state.proxyAddress}
-            onChange={v => this.handleAddressInput(v)}
-          >
-            <InnerLabel>{"Proxy Address"}</InnerLabel>
-            <ShowBlockie className={"mt-1"} address={state.proxyAddress} />
+            onChange={v => this.handleAddressInput(v)}>
+            <InnerLabel>{'Proxy Address'}</InnerLabel>
+            <ShowBlockie className={'mt-1'} address={state.proxyAddress} />
           </AddressInput>
 
           <Anchor
-            className={"mt-1"}
-            prop-size={"sm"}
+            className={'mt-1'}
+            prop-size={'sm'}
             prop-disabled={!isValidAddress(state.proxyAddress) || !esvisible}
-            target={"_blank"}
-            href={`https://${esdomain}/address/${state.proxyAddress}`}
-          >
-            {"View on Etherscan ↗"}
+            target={'_blank'}
+            href={`https://${esdomain}/address/${state.proxyAddress}`}>
+            {'View on Etherscan ↗'}
           </Anchor>
         </>
       );

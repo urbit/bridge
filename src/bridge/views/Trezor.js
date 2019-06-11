@@ -1,15 +1,15 @@
-import * as bip32 from "bip32";
-import React from "react";
-import Maybe from "folktale/maybe";
-import { Button } from "../components/Base";
-import { Row, Col, H1, P } from "../components/Base";
-import { InnerLabel, Input, InnerLabelDropdown } from "../components/Base";
-import TrezorConnect from "trezor-connect";
-import * as secp256k1 from "secp256k1";
+import * as bip32 from 'bip32';
+import React from 'react';
+import Maybe from 'folktale/maybe';
+import { Button } from '../components/Base';
+import { Row, Col, H1, P } from '../components/Base';
+import { InnerLabel, Input, InnerLabelDropdown } from '../components/Base';
+import TrezorConnect from 'trezor-connect';
+import * as secp256k1 from 'secp256k1';
 
-import { TREZOR_PATH } from "../lib/trezor";
-import { ROUTE_NAMES } from "../lib/routeNames";
-import { withHistory } from "../store/history";
+import { TREZOR_PATH } from '../lib/trezor';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 
 class Trezor extends React.Component {
   constructor(props) {
@@ -27,7 +27,7 @@ class Trezor extends React.Component {
 
   handleAccountSelection(account) {
     let hdpath = this.state.hdpath;
-    if (account !== "custom") {
+    if (account !== 'custom') {
       hdpath = TREZOR_PATH.replace(/x/g, account);
     }
     this.setState({ account, hdpath });
@@ -42,14 +42,14 @@ class Trezor extends React.Component {
     const { hdpath } = this.state;
 
     TrezorConnect.manifest({
-      email: "bridge-trezor@urbit.org",
-      appUrl: "https://github.com/urbit/bridge",
+      email: 'bridge-trezor@urbit.org',
+      appUrl: 'https://github.com/urbit/bridge',
     });
     TrezorConnect.getPublicKey({ path: hdpath }).then(info => {
       if (info.success === true) {
         const payload = info.payload;
-        const publicKey = Buffer.from(payload.publicKey, "hex");
-        const chainCode = Buffer.from(payload.chainCode, "hex");
+        const publicKey = Buffer.from(payload.publicKey, 'hex');
+        const chainCode = Buffer.from(payload.chainCode, 'hex');
         const pub = secp256k1.publicKeyConvert(publicKey, true);
         const hd = bip32.fromPublicKey(pub, chainCode);
         setWallet(Maybe.Just(hd));
@@ -67,13 +67,13 @@ class Trezor extends React.Component {
 
     let accountOptions = [
       {
-        title: "Custom path",
-        value: "custom",
+        title: 'Custom path',
+        value: 'custom',
       },
     ];
     for (let i = 0; i < 20; i++) {
       accountOptions.push({
-        title: "Account #" + (i + 1),
+        title: 'Account #' + (i + 1),
         value: i,
       });
     }
@@ -86,14 +86,14 @@ class Trezor extends React.Component {
         prop-format="innerLabel"
         options={accountOptions}
         handleUpdate={handleAccountSelection}
-        title={"Account"}
+        title={'Account'}
         currentSelectionTitle={accountTitle}
         fullWidth={true}
       />
     );
 
     const pathSelection =
-      account !== "custom" ? null : (
+      account !== 'custom' ? null : (
         <Input
           className="mt-8 pt-8 text-mono"
           prop-size="md"
@@ -101,16 +101,15 @@ class Trezor extends React.Component {
           name="hdpath"
           value={hdpath}
           autocomplete="off"
-          onChange={this.handleHdPathInput}
-        >
-          <InnerLabel>{"HD Path"}</InnerLabel>
+          onChange={this.handleHdPathInput}>
+          <InnerLabel>{'HD Path'}</InnerLabel>
         </Input>
       );
 
     return (
       <Row>
-        <Col className={"measure-md"}>
-          <H1>{"Authenticate With Your Trezor"}</H1>
+        <Col className={'measure-md'}>
+          <H1>{'Authenticate With Your Trezor'}</H1>
 
           <P>
             {`Connect and authenticate to your Trezor.  If you'd like
@@ -121,20 +120,18 @@ class Trezor extends React.Component {
           {pathSelection}
 
           <Button
-            className={"mt-8"}
-            prop-size={"wide lg"}
-            onClick={this.pollDevice}
-          >
-            {"Authenticate →"}
+            className={'mt-8'}
+            prop-size={'wide lg'}
+            onClick={this.pollDevice}>
+            {'Authenticate →'}
           </Button>
 
           <Button
-            className={"mt-8"}
-            prop-size={"wide lg"}
+            className={'mt-8'}
+            prop-size={'wide lg'}
             disabled={Maybe.Nothing.hasInstance(wallet)}
-            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}
-          >
-            {"Continue →"}
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+            {'Continue →'}
           </Button>
         </Col>
       </Row>

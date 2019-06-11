@@ -1,10 +1,10 @@
-import React from "react";
-import { Button, Chevron } from "../components/Base";
+import React from 'react';
+import { Button, Chevron } from '../components/Base';
 
-import { getRouteBreadcrumb } from "../lib/router";
-import { ROUTE_NAMES } from "../lib/routeNames";
-import { useHistory } from "../store/history";
-import { isLast } from "../lib/lib";
+import { getRouteBreadcrumb } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { useHistory } from '../store/history';
+import { isLast } from '../lib/lib';
 
 function Crumbs(props) {
   const history = useHistory();
@@ -13,20 +13,19 @@ function Crumbs(props) {
   // return the reversed array of renders
   const rendered = history.routes.map((route, idx) => {
     return (
-      <div className={"flex items-center"} key={`history-${idx}`}>
+      <div className={'flex items-center'} key={`history-${idx}`}>
         <Button
-          prop-type={"link"}
-          prop-size={"sm"}
+          prop-type={'link'}
+          prop-size={'sm'}
           key={`history-button-${idx}`}
-          onClick={() => history.pop(history.size - idx - 1)}
-        >
+          onClick={() => history.pop(history.size - idx - 1)}>
           {getRouteBreadcrumb(props, route)}
         </Button>
 
         {isLast(history.size, idx) ? (
           <div />
         ) : (
-          <Chevron className={"h-4 mh-2"} />
+          <Chevron className={'h-4 mh-2'} />
         )}
       </div>
     );
@@ -42,7 +41,7 @@ function Header(props) {
 
   if (showCrumbs) {
     return (
-      <div className={"flex items-center h-10"}>
+      <div className={'flex items-center h-10'}>
         <Crumbs
           networkType={props.networkType}
           wallet={props.wallet}

@@ -1,8 +1,8 @@
-import { Just, Nothing } from "folktale/maybe";
-import React from "react";
-import { azimuth, ecliptic } from "azimuth-js";
-import * as ob from "urbit-ob";
-import * as need from "../lib/need";
+import { Just, Nothing } from 'folktale/maybe';
+import React from 'react';
+import { azimuth, ecliptic } from 'azimuth-js';
+import * as ob from 'urbit-ob';
+import * as need from '../lib/need';
 
 import {
   Row,
@@ -15,15 +15,15 @@ import {
   PointInput,
   AddressInput,
   InnerLabel,
-} from "../components/Base";
+} from '../components/Base';
 
-import StatelessTransaction from "../components/StatelessTransaction";
+import StatelessTransaction from '../components/StatelessTransaction';
 
-import { NETWORK_NAMES } from "../lib/network";
-import { getSpawnCandidate } from "../lib/child";
-import { canDecodePatp } from "../lib/txn";
+import { NETWORK_NAMES } from '../lib/network';
+import { getSpawnCandidate } from '../lib/child';
+import { canDecodePatp } from '../lib/txn';
 
-import { isValidAddress } from "../lib/wallet";
+import { isValidAddress } from '../lib/wallet';
 
 const setFind = (set, pred) => {
   for (const e of set) {
@@ -50,13 +50,13 @@ class IssueChild extends React.Component {
     ];
 
     this.state = {
-      receivingAddress: "",
+      receivingAddress: '',
       issuingPoint: issuingPoint,
-      desiredPoint: "",
+      desiredPoint: '',
       isAvailable: Nothing(), // use Nothing to allow attempt when offline
       suggestions: suggestions,
       validChildren: new Set(),
-      autoComplete: "",
+      autoComplete: '',
     };
 
     this.handlePointInput = this.handlePointInput.bind(this);
@@ -84,9 +84,9 @@ class IssueChild extends React.Component {
     if (desiredPoint.length < 15) {
       const suggestedPoint =
         setFind(this.state.validChildren, e => e.startsWith(desiredPoint)) ||
-        "";
+        '';
       const rendered =
-        " ".repeat(desiredPoint.length) +
+        ' '.repeat(desiredPoint.length) +
         suggestedPoint.substring(desiredPoint.length);
 
       const available = Just(this.state.validChildren.has(desiredPoint));
@@ -114,7 +114,7 @@ class IssueChild extends React.Component {
     const txn = ecliptic.spawn(
       validContracts,
       pointDec,
-      state.receivingAddress,
+      state.receivingAddress
     );
 
     return Just(txn);
@@ -156,14 +156,14 @@ class IssueChild extends React.Component {
 
     const esdomain =
       props.networkType === NETWORK_NAMES.ROPSTEN
-        ? "ropsten.etherscan.io"
-        : "etherscan.io";
+        ? 'ropsten.etherscan.io'
+        : 'etherscan.io';
 
     return (
       <Row>
         <Col>
           <H1>
-            {"Issue a Child From "}{" "}
+            {'Issue a Child From '}{' '}
             <code>{`${ob.patp(state.issuingPoint)}`}</code>
           </H1>
 
@@ -177,38 +177,36 @@ class IssueChild extends React.Component {
             {`Your point can only issue children with particular names. Some
             valid suggestions for `}
             {<code>{ob.patp(state.issuingPoint)}</code>}
-            {" are "}
+            {' are '}
             <code>{state.suggestions[0]}</code>
-            {", "}
+            {', '}
             <code>{state.suggestions[1]}</code>
-            {", and "}
+            {', and '}
             <code>{state.suggestions[2]}</code>
-            {"."}
+            {'.'}
           </P>
 
           <PointInput
             prop-size="lg"
             prop-format="innerLabel"
-            className={"mono mt-8"}
+            className={'mono mt-8'}
             placeholder={`e.g. ${state.suggestions[3]}`}
             value={state.desiredPoint}
-            onChange={this.handlePointInput}
-          >
-            <InnerLabel>{"Point to Issue"}</InnerLabel>
+            onChange={this.handlePointInput}>
+            <InnerLabel>{'Point to Issue'}</InnerLabel>
             <div
               style={{
-                marginTop: "8.8rem",
-                marginLeft: "4.6rem",
-                fontSize: "5rem",
-                color: "#757575",
-                whiteSpace: "pre-wrap",
+                marginTop: '8.8rem',
+                marginLeft: '4.6rem',
+                fontSize: '5rem',
+                color: '#757575',
+                whiteSpace: 'pre-wrap',
               }}
-              className="abs tl-0 mono"
-            >
+              className="abs tl-0 mono">
               {state.autoComplete}
             </div>
             <ValidatedSigil
-              className={"tr-0 mt-05 mr-0 abs"}
+              className={'tr-0 mt-05 mr-0 abs'}
               patp={state.desiredPoint}
               size={68}
               margin={8}
@@ -225,22 +223,20 @@ class IssueChild extends React.Component {
             disabled={
               Nothing.hasInstance(state.isAvailable) || !state.isAvailable.value
             }
-            onChange={v => this.handleAddressInput(v)}
-          >
-            <InnerLabel>{"Receiving Address"}</InnerLabel>
-            <ShowBlockie className={"mt-1"} address={state.receivingAddress} />
+            onChange={v => this.handleAddressInput(v)}>
+            <InnerLabel>{'Receiving Address'}</InnerLabel>
+            <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
           </AddressInput>
 
           <Anchor
-            className={"mt-1"}
-            prop-size={"sm"}
+            className={'mt-1'}
+            prop-size={'sm'}
             prop-disabled={
               !isValidAddress(state.receivingAddress) || !esvisible
             }
-            target={"_blank"}
-            href={`https://${esdomain}/address/${state.receivingAddress}`}
-          >
-            {"View on Etherscan ↗"}
+            target={'_blank'}
+            href={`https://${esdomain}/address/${state.receivingAddress}`}>
+            {'View on Etherscan ↗'}
           </Anchor>
 
           <StatelessTransaction

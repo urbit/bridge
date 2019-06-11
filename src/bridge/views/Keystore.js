@@ -1,15 +1,15 @@
-import { Just, Nothing } from "folktale/maybe";
-import { Ok, Error } from "folktale/result";
-import React from "react";
-import * as keythereum from "keythereum";
-import { Button, UploadButton } from "../components/Base";
-import { Input, InnerLabel, InputCaption } from "../components/Base";
-import { Row, Col, H1, H3, Warning } from "../components/Base";
+import { Just, Nothing } from 'folktale/maybe';
+import { Ok, Error } from 'folktale/result';
+import React from 'react';
+import * as keythereum from 'keythereum';
+import { Button, UploadButton } from '../components/Base';
+import { Input, InnerLabel, InputCaption } from '../components/Base';
+import { Row, Col, H1, H3, Warning } from '../components/Base';
 
-import { BRIDGE_ERROR } from "../lib/error";
-import { ROUTE_NAMES } from "../lib/routeNames";
-import { withHistory } from "../store/history";
-import { EthereumWallet } from "../lib/wallet";
+import { BRIDGE_ERROR } from '../lib/error';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
+import { EthereumWallet } from '../lib/wallet';
 
 class Keystore extends React.Component {
   constructor(props) {
@@ -17,7 +17,7 @@ class Keystore extends React.Component {
 
     this.state = {
       keystore: Nothing(), // Maybe<Result<String, String>>
-      password: "",
+      password: '',
       decryptionProblem: false,
     };
 
@@ -70,7 +70,7 @@ class Keystore extends React.Component {
     };
 
     const failure = _ => {
-      const message = "There was a problem uploading your Keystore file";
+      const message = 'There was a problem uploading your Keystore file';
       this.setState({ keystore: Just(Error(message)) });
     };
 
@@ -85,11 +85,11 @@ class Keystore extends React.Component {
     const { keystore, password, decryptionProblem } = this.state;
 
     const uploadButtonClass = keystore.matchWith({
-      Nothing: _ => "bg-blue white",
+      Nothing: _ => 'bg-blue white',
       Just: ks =>
         ks.value.matchWith({
-          Ok: _ => "bg-green white",
-          Error: _ => "bg-yellow black",
+          Ok: _ => 'bg-green white',
+          Error: _ => 'bg-yellow black',
         }),
     });
 
@@ -97,18 +97,18 @@ class Keystore extends React.Component {
       decryptionProblem === false ? (
         <div />
       ) : (
-        <Warning className={"mt-8"}>
+        <Warning className={'mt-8'}>
           <H3 style={{ marginTop: 0, paddingTop: 0 }}>
             {"Couldn't decrypt wallet."}
           </H3>
-          {"You may have entered an incorrect password."}
+          {'You may have entered an incorrect password.'}
         </Warning>
       );
 
     return (
       <Row>
-        <Col className={"measure-md"}>
-          <H1 className={"mb-4"}>{"Upload Your Keystore File"}</H1>
+        <Col className={'measure-md'}>
+          <H1 className={'mb-4'}>{'Upload Your Keystore File'}</H1>
           <InputCaption>
             {`Please upload your Ethereum keystore file.  If your keystore
              file is encrypted with a password, you'll also need to enter
@@ -117,10 +117,9 @@ class Keystore extends React.Component {
 
           <UploadButton
             className={`btn ${uploadButtonClass} mt-10`}
-            onChange={this.handleKeystoreUpload}
-          >
-            <div className={"flex-center-all fs-4 h-11 pointer"}>
-              {"Upload Keystore file"}
+            onChange={this.handleKeystoreUpload}>
+            <div className={'flex-center-all fs-4 h-11 pointer'}>
+              {'Upload Keystore file'}
             </div>
           </UploadButton>
 
@@ -133,29 +132,26 @@ class Keystore extends React.Component {
             onChange={this.handlePasswordInput}
             value={password}
             autocomplete="off"
-            autoFocus
-          >
-            <InnerLabel>{"Password"}</InnerLabel>
+            autoFocus>
+            <InnerLabel>{'Password'}</InnerLabel>
           </Input>
 
           <Button
             className={` mt-10`}
-            prop-size={"wide lg"}
+            prop-size={'wide lg'}
             disabled={Nothing.hasInstance(keystore)}
-            onClick={this.constructWallet}
-          >
-            {"Decrypt"}
+            onClick={this.constructWallet}>
+            {'Decrypt'}
           </Button>
 
           {decryptMessage}
 
           <Button
-            className={"mt-10"}
-            prop-size={"wide lg"}
+            className={'mt-10'}
+            prop-size={'wide lg'}
             disabled={Nothing.hasInstance(wallet)}
-            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}
-          >
-            {"Continue →"}
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+            {'Continue →'}
           </Button>
         </Col>
       </Row>
