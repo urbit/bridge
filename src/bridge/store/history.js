@@ -25,7 +25,7 @@ function _useHistory(initialRoutes = []) {
     peek: () => last(history),
     size: history.length,
     includes: name => includes(history.map(r => r.name), name),
-    data: () => last(history).data,
+    data: last(history).data,
   };
 
   // Scroll to top of page with each route transition.

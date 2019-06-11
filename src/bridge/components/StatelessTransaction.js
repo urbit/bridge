@@ -236,14 +236,14 @@ class StatelessTransaction extends React.Component {
       )
         .then(txHash => {
           props.onSent(Just(Ok(txHash)), state.stx.value);
-          props.history.pop();
 
           let routeData = {};
           if (props.networkSeed) {
             props.setNetworkSeedCache(props.networkSeed);
             routeData.promptKeyfile = true;
           }
-          props.history.push(ROUTE_NAMES.SENT_TRANSACTION, routeData);
+
+          props.history.popAndPush(ROUTE_NAMES.SENT_TRANSACTION, routeData);
         })
         .catch(err => {
           this.setState({

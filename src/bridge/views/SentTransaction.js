@@ -114,7 +114,7 @@ const SentTransaction = props => {
   const { txnHashCursor, networkType, txnConfirmations } = props;
   const { setPointCursor, pointCursor } = props;
 
-  const promptKeyfile = history.data() && history.data().promptKeyfile;
+  const promptKeyfile = history.data && history.data.promptKeyfile;
 
   const w3 = need.web3(props);
 
@@ -143,7 +143,7 @@ const SentTransaction = props => {
           prop-type={'link'}
           onClick={() => {
             setPointCursor(pointCursor);
-            history.pop(2);
+            history.pop();
           }}>
           {'Ok →'}
         </Button>
