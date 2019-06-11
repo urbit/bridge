@@ -1,17 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-
-const FlexCol = ({
-  className,
-  children,
-  style,
-}) => {
+const FlexCol = ({ className, children, style }) => {
   return (
     <div className={`flex flex-column flex-1 ${className}`} style={style}>
-      { children }
+      {children}
     </div>
-  )
+  );
 };
 
 FlexCol.propTypes = {
@@ -24,6 +19,5 @@ FlexCol.defaultProps = {
   className: '',
   style: {},
 };
-
 
 export default FlexCol;

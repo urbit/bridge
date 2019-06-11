@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import PropTypes from 'prop-types';
 
 class HorizontalSelector extends React.Component {
@@ -6,7 +6,7 @@ class HorizontalSelector extends React.Component {
     super(props);
 
     this.state = {
-      option: this.props.options[0].value
+      option: this.props.options[0].value,
     };
 
     this.selectOption = this.selectOption.bind(this);
@@ -14,44 +14,38 @@ class HorizontalSelector extends React.Component {
 
   selectOption(opt) {
     this.props.onChange(opt);
-    this.setState({option: opt});
+    this.setState({ option: opt });
   }
 
   getOptionElems() {
     return this.props.options.map(opt => {
-      let active = (opt.value === this.state.option)
-        ? 'btn-primary active'
-        : '';
+      let active = opt.value === this.state.option ? 'btn-primary active' : '';
       return (
         <button
           className={`btn ${active} h-10 ph-4 flex sans ${this.props.className}`}
           value={opt.value}
           onClick={() => this.selectOption(opt.value)}>
-          { opt.title }
+          {opt.title}
         </button>
-      )
-    })
+      );
+    });
   }
 
   render() {
     const optionElems = this.getOptionElems();
 
-    return (
-      <div className='btn-group'>
-        { optionElems }
-      </div>
-    )
+    return <div className="btn-group">{optionElems}</div>;
   }
 }
 
 HorizontalSelector.propTypes = {
   className: PropTypes.string,
-  options: PropTypes.array
+  options: PropTypes.array,
 };
 
 HorizontalSelector.defaultProps = {
   className: '',
-  options: []
+  options: [],
 };
 
-export default HorizontalSelector
+export default HorizontalSelector;

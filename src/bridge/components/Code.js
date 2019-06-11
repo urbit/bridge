@@ -1,16 +1,15 @@
 import React from 'react';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 const Code = ({ className, children, style, measure }) => {
-
   // const s = getStyles(styleManifest, measure)
 
   return (
     <pre className={`flex ${className}`} style={style}>
-      { children }
+      {children}
     </pre>
-  )
-}
+  );
+};
 
 // const getStyles = (sm, m) => sm[m];
 //
@@ -26,12 +25,10 @@ Code.propTypes = {
   style: PropTypes.object,
 };
 
-
 Code.defaultProps = {
   className: '',
   style: {},
   measure: 'md',
 };
-
 
 export default Code;

@@ -63,7 +63,8 @@
     "pilot:cleanup": "pkill -f ganache-cli",
     "lint": "prettier src/**/*.js",
     "lint:check": "prettier -c 'src/**/*.js'",
-    "lint:fix": "prettier --write 'src/**/*.js'"
+    "lint:fix": "prettier --write 'src/**/*.js'",
+    "precommit": "npm-run-all lint:check"
   },
   "devDependencies": {
     "eslint-plugin-prettier": "^3.1.0",

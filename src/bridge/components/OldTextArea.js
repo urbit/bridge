@@ -30,7 +30,6 @@ const TextArea = ({
   displayFailure,
   error,
 }) => {
-
   const _disabled = disabled === true ? 'br-gray-30' : '';
 
   const s = getStyles(styleManifest, format, size);
@@ -58,15 +57,12 @@ const TextArea = ({
         maxLength={maxLength}
         readOnly={readOnly}
       />
-      {
-        childrenWithProps
-      }
-      {
-        displayFailure === true && isValidated === true
-          ? <div className={'yellow text-600 h-6 mt-1'}>{error}</div>
-          : <div/>
-      }
-
+      {childrenWithProps}
+      {displayFailure === true && isValidated === true ? (
+        <div className={'yellow text-600 h-6 mt-1'}>{error}</div>
+      ) : (
+        <div />
+      )}
     </div>
   );
 };
@@ -78,9 +74,8 @@ const styleManifest = {
     l: 'h-80 fs-7 ph-4',
     m: 'h-40 fs-35 ph-4',
     s: 'h-24 fs-35 ph-1',
-  }
-}
-
+  },
+};
 
 TextArea.propTypes = {
   disabled: PropTypes.bool,
@@ -105,7 +100,6 @@ TextArea.propTypes = {
   validationClassnames: PropTypes.string,
 };
 
-
 TextArea.defaultProps = {
   disabled: false,
   onChange: () => {},
@@ -124,6 +118,5 @@ TextArea.defaultProps = {
   format: 'normal',
   validationClassnames: 'br-gray-50 f-br-blue outline-blue',
 };
-
 
 export default TextArea;

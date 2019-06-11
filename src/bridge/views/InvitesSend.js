@@ -1,13 +1,13 @@
-import { Just, Nothing } from 'folktale/maybe'
-import React from 'react'
-import * as azimuth from 'azimuth-js'
-import * as need from '../lib/need'
+import { Just, Nothing } from 'folktale/maybe';
+import React from 'react';
+import * as azimuth from 'azimuth-js';
+import * as need from '../lib/need';
 
-import { hasReceived, sendMail } from '../lib/inviteMail'
-import { Row, Col, Button, Input, H3, Warning } from '../components/Base'
+import { hasReceived, sendMail } from '../lib/inviteMail';
+import { Row, Col, Button, Input, H3, Warning } from '../components/Base';
 
 // for wallet generation
-import * as wg from '../../walletgen/lib/lib'
+import * as wg from '../../walletgen/lib/lib';
 
 // for transaction generation and signing
 import {
@@ -16,9 +16,9 @@ import {
   waitForTransactionConfirm,
   hexify,
   fromWei,
-  toWei
-} from '../lib/txn'
-import * as tank from '../lib/tank'
+  toWei,
+} from '../lib/txn';
+import * as tank from '../lib/tank';
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = 350000;
@@ -31,19 +31,18 @@ const STATUS = {
   FUNDING: 'Funding invites',
   SENDING: 'Sending invites',
   DONE: 'Done',
-  FAIL: 'Some failed'
-}
+  FAIL: 'Some failed',
+};
 
 const EMAIL_STATUS = {
   BUSY: '⋯',
   DONE: '✔',
-  FAIL: '×'
-}
+  FAIL: '×',
+};
 
 class InvitesSend extends React.Component {
-
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
       invitesAvailable: Nothing(),
@@ -53,8 +52,8 @@ class InvitesSend extends React.Component {
       errors: Nothing(),
       //
       fundingMessage: Nothing(),
-      wipInvites: []
-    }
+      wipInvites: [],
+    };
 
     this.findInvited = this.findInvited.bind(this);
     this.generateInvites = this.generateInvites.bind(this);
@@ -75,10 +74,11 @@ class InvitesSend extends React.Component {
     this.web3 = need.web3(this.props);
 
     console.log(azimuth.delegatedSending);
-    azimuth.delegatedSending.getTotalUsableInvites(this.contracts, this.point)
-    .then(count => {
-      this.setState({invitesAvailable: Just(count)});
-    });
+    azimuth.delegatedSending
+      .getTotalUsableInvites(this.contracts, this.point)
+      .then(count => {
+        this.setState({ invitesAvailable: Just(count) });
+      });
     this.findInvited();
   }
 
@@ -93,19 +93,19 @@ class InvitesSend extends React.Component {
     );
     invited = invited.map(async point => {
       const active = await azimuth.azimuth.isActive(this.contracts, point);
-      const res = {point: Number(point), active:active};
+      const res = { point: Number(point), active: active };
       return res;
     });
     invited = await Promise.all(invited);
     const total = invited.length;
     const accepted = invited.filter(i => i.active).length;
-    this.setState({invited: Just({total, accepted})});
+    this.setState({ invited: Just({ total, accepted }) });
   }
 
   async getTemporaryWallet() {
     const ticket = await wg.makeTicket(0x10000); // planet-sized ticket
     const owner = await wg.generateOwnershipWallet(0, ticket);
-    return {ticket, owner: owner.keys.address};
+    return { ticket, owner: owner.keys.address };
   }
 
   async generateInvites() {
@@ -114,13 +114,15 @@ class InvitesSend extends React.Component {
     const web3 = this.web3;
     const targets = this.state.targets;
     const planets = await azimuth.delegatedSending.getPlanetsToSend(
-      this.contracts, this.point, targets.length
+      this.contracts,
+      this.point,
+      targets.length
     );
 
     // account for the race condition where invites got used up while we were
     // composing our target list
     if (planets.length < targets.length) {
-      this.addError('Can currently only send '+planets.length+' invites!');
+      this.addError('Can currently only send ' + planets.length + ' invites!');
       return;
     }
 
@@ -137,7 +139,10 @@ class InvitesSend extends React.Component {
       const wallet = await this.getTemporaryWallet();
 
       let inviteTx = azimuth.delegatedSending.sendPoint(
-        this.contracts, this.point, planets[i], wallet.owner
+        this.contracts,
+        this.point,
+        planets[i],
+        wallet.owner
       );
       const signedTx = await signTransaction({
         ...this.props,
@@ -146,11 +151,11 @@ class InvitesSend extends React.Component {
         gasLimit: GAS_LIMIT.toString(),
         nonce: nonce + i,
         chainId: chainId,
-        setStx: () => {}
+        setStx: () => {},
       });
       const rawTx = hexify(signedTx.serialize());
 
-      invites.push({email, ticket: wallet.ticket, signedTx, rawTx });
+      invites.push({ email, ticket: wallet.ticket, signedTx, rawTx });
       this.setEmailStatus(i, EMAIL_STATUS.DONE);
     }
 
@@ -164,14 +169,21 @@ class InvitesSend extends React.Component {
     //TODO invite status isn't changing/re-rendering... why?
     this.setState({
       status: STATUS.FUNDING,
-      invites: invites.map(i => { return {...i, status: Nothing()}; })
+      invites: invites.map(i => {
+        return { ...i, status: Nothing() };
+      }),
     });
 
     const tankWasUsed = await tank.ensureFundsFor(
-      web3, this.point, this.address,
-      (INVITE_COST * invites.length),
-      invites.map(i => i.rawTx), this.askForFunding,
-      () => { this.setState({ fundingMessage: Nothing() }); }
+      web3,
+      this.point,
+      this.address,
+      INVITE_COST * invites.length,
+      invites.map(i => i.rawTx),
+      this.askForFunding,
+      () => {
+        this.setState({ fundingMessage: Nothing() });
+      }
     );
 
     this.setState({ status: STATUS.SENDING });
@@ -185,31 +197,38 @@ class InvitesSend extends React.Component {
       let txHash;
       try {
         txHash = await sendSignedTransaction(
-          web3, Just(invite.signedTx), tankWasUsed, ()=>{}
+          web3,
+          Just(invite.signedTx),
+          tankWasUsed,
+          () => {}
         );
-      } catch(err) {
+      } catch (err) {
         console.error('invite tx sending failed', err);
         this.addError('Invite transaction not sent for ' + invite.email);
         this.setEmailStatus(i, EMAIL_STATUS.FAIL);
         continue;
-      };
+      }
 
       // ask the email sender to send this. we can do this prior to tx confirm,
       // because the sender service waits for confirm & success for us.
       // if this fails, inform the user and skip to next
       try {
         const mailSuccess = await sendMail(
-          invite.email, invite.ticket, invite.rawTx
+          invite.email,
+          invite.ticket,
+          invite.rawTx
         );
         if (!mailSuccess) throw new Error();
         this.setEmailStatus(i, EMAIL_STATUS.DONE);
-      } catch(e) {
+      } catch (e) {
         console.log('email send failed');
         //NOTE this assumes that the transaction succeeds, but we don't know
         //     that for a fact yet...
         this.addError(
-          'Invite email failed to send for ' + invite.email +
-          '. Please give them this ticket: ' + invite.ticket
+          'Invite email failed to send for ' +
+            invite.email +
+            '. Please give them this ticket: ' +
+            invite.ticket
         );
         this.setEmailStatus(i, EMAIL_STATUS.FAIL);
         continue;
@@ -217,8 +236,7 @@ class InvitesSend extends React.Component {
 
       // update status on transaction confirm, but don't block on it
       promises.push(
-        waitForTransactionConfirm(web3, txHash)
-        .then(success => {
+        waitForTransactionConfirm(web3, txHash).then(success => {
           if (success) {
             this.setEmailStatus(i, EMAIL_STATUS.DONE);
           } else {
@@ -229,7 +247,6 @@ class InvitesSend extends React.Component {
           return success;
         })
       );
-
     }
 
     const txStatus = await Promise.all(promises);
@@ -249,17 +266,24 @@ class InvitesSend extends React.Component {
   addError(error) {
     const newError = this.state.errors.matchWith({
       Nothing: () => [error],
-      Just: errs => { errs.value.push(error); return errs.value; }
+      Just: errs => {
+        errs.value.push(error);
+        return errs.value;
+      },
     });
     this.setState({ errors: Just(newError) });
   }
 
   askForFunding(address, minBalance, balance) {
-    this.setState({ fundingMessage: Just(
-      `Please make sure ${address} has at least ${fromWei(minBalance)} ETH,` +
-      `we'll continue once that's true. Current balance: ${fromWei(balance)}.` +
-      `Waiting...`
-    ) });
+    this.setState({
+      fundingMessage: Just(
+        `Please make sure ${address} has at least ${fromWei(minBalance)} ETH,` +
+          `we'll continue once that's true. Current balance: ${fromWei(
+            balance
+          )}.` +
+          `Waiting...`
+      ),
+    });
   }
 
   handleEmailInput(i, email) {
@@ -268,8 +292,7 @@ class InvitesSend extends React.Component {
 
     // if it's a valid address, check if it has received an invite before
     if (email.match(/.*@.*\...+/)) {
-      hasReceived(email)
-      .then(res => {
+      hasReceived(email).then(res => {
         targets[i].hasReceived = Just(res);
         this.setState({ targets });
       });
@@ -284,7 +307,7 @@ class InvitesSend extends React.Component {
     const targets = this.state.targets;
 
     // may not have duplicate targets
-    if ((new Set(targets.map(t => t.email))).size !== targets.length)
+    if (new Set(targets.map(t => t.email)).size !== targets.length)
       return false;
 
     // none may have received invites already
@@ -292,14 +315,14 @@ class InvitesSend extends React.Component {
       const target = targets[i];
       const res = target.hasReceived.matchWith({
         Nothing: () => true,
-        Just: has => has.value
+        Just: has => has.value,
       });
       if (res) return false;
     }
 
     return this.state.invitesAvailable.matchWith({
       Nothing: () => false,
-      Just: invites => (invites.value > 0)
+      Just: invites => invites.value > 0,
     });
   }
 
@@ -316,46 +339,50 @@ class InvitesSend extends React.Component {
   }
 
   render() {
-
-    const dif = (this.state.status === STATUS.DONE)
-                ? this.state.targets.length
-                : null;
+    const dif =
+      this.state.status === STATUS.DONE ? this.state.targets.length : null;
 
     const invitesAvailable = this.state.invitesAvailable.matchWith({
       Nothing: () => 'Loading...',
-      Just: (invites) => {
+      Just: invites => {
         const dia = dif ? `(-${dif})` : '';
         return `You currently have ${invites.value}${dia} invitations left.`;
-      }
+      },
     });
 
     const invitesSent = this.state.invited.matchWith({
-      Nothing: () => (<>{'Loading...'}</>),
-      Just: (invited) => {
+      Nothing: () => <>{'Loading...'}</>,
+      Just: invited => {
         const dit = dif ? `(+${dif})` : '';
-        return (<>
-          {'Out of the '}
-          {invited.value.total + dit}
-          {' invites you sent, '}
-          {invited.value.accepted}
-          {' have been accepted.'}
-        </>);
-      }
+        return (
+          <>
+            {'Out of the '}
+            {invited.value.total + dit}
+            {' invites you sent, '}
+            {invited.value.accepted}
+            {' have been accepted.'}
+          </>
+        );
+      },
     });
 
     const error = this.state.errors.matchWith({
       Nothing: () => null,
-      Just: (errors) => (<Warning className={'mt-8'}>
-        <H3 style={{marginTop: 0, paddingTop: 0}}>
-          { 'Something went wrong!' }
-        </H3>
-        { errors.value.map(err => (<p>{err}</p>)) }
-      </Warning>)
+      Just: errors => (
+        <Warning className={'mt-8'}>
+          <H3 style={{ marginTop: 0, paddingTop: 0 }}>
+            {'Something went wrong!'}
+          </H3>
+          {errors.value.map(err => (
+            <p>{err}</p>
+          ))}
+        </Warning>
+      ),
     });
 
     const fundingMessage = this.state.fundingMessage.matchWith({
       Nothing: () => null,
-      Just: msg => (<Warning className={'mt-8'}>{msg.value}</Warning>)
+      Just: msg => <Warning className={'mt-8'}>{msg.value}</Warning>,
     });
 
     let inputs;
@@ -363,17 +390,15 @@ class InvitesSend extends React.Component {
       //TODO proper clickable router thing
       inputs = '<- Back to Home';
     } else {
-
-      const inputDisabled = (this.state.status !== STATUS.INPUT);
+      const inputDisabled = this.state.status !== STATUS.INPUT;
 
       const lessButton = (
         <Button
           prop-size={'s narrow'}
           className={'mt-8'}
           disabled={inputDisabled || this.state.targets.length === 1}
-          onClick={this.removeTarget}
-        >
-          { '-' }
+          onClick={this.removeTarget}>
+          {'-'}
         </Button>
       );
 
@@ -385,12 +410,11 @@ class InvitesSend extends React.Component {
             inputDisabled ||
             this.state.invitesAvailable.matchWith({
               Nothing: () => true,
-              Just: (inv) => (inv.value <= this.state.targets.length)
+              Just: inv => inv.value <= this.state.targets.length,
             })
           }
-          onClick={this.addTarget}
-        >
-          { '+' }
+          onClick={this.addTarget}>
+          {'+'}
         </Button>
       );
 
@@ -399,70 +423,71 @@ class InvitesSend extends React.Component {
         const target = this.state.targets[i];
         let progress = target.status.matchWith({
           Nothing: () => '',
-          Just: status => status.value
+          Just: status => status.value,
         });
-        targetInputs.push(<>
-          <Input
-            value={ target.email }
-            onChange={ (value) => { this.handleEmailInput(i, value); } }
-            placeholder={'Email address'}
-            disabled={ inputDisabled }>
-          </Input>
-          {
-            target.hasReceived.matchWith({
+        targetInputs.push(
+          <>
+            <Input
+              value={target.email}
+              onChange={value => {
+                this.handleEmailInput(i, value);
+              }}
+              placeholder={'Email address'}
+              disabled={inputDisabled}></Input>
+            {target.hasReceived.matchWith({
               Nothing: () => null,
-              Just: (has) => has.value ? <span>{'×'}</span> : <span>{'°'}</span>
-            })
-          }
-          { progress }
-        </>);
+              Just: has =>
+                has.value ? <span>{'×'}</span> : <span>{'°'}</span>,
+            })}
+            {progress}
+          </>
+        );
       }
 
       const submitButton = (
         <Button
           prop-size={'xl wide'}
           className={'mt-8'}
-          disabled={ (inputDisabled && (this.state.status !== STATUS.CAN_SEND))
-                     || !this.canSend() }
-          onClick={ () => {
-            if (this.state.status === STATUS.INPUT)
-              this.generateInvites();
-            if (this.state.status === STATUS.CAN_SEND)
-              this.sendInvites();
-          }}
-        >
-          { this.state.status }
+          disabled={
+            (inputDisabled && this.state.status !== STATUS.CAN_SEND) ||
+            !this.canSend()
+          }
+          onClick={() => {
+            if (this.state.status === STATUS.INPUT) this.generateInvites();
+            if (this.state.status === STATUS.CAN_SEND) this.sendInvites();
+          }}>
+          {this.state.status}
         </Button>
       );
 
-      inputs = (<>
-        { lessButton }
-        { moreButton }
-        { targetInputs }
-        { submitButton }
-      </>);
+      inputs = (
+        <>
+          {lessButton}
+          {moreButton}
+          {targetInputs}
+          {submitButton}
+        </>
+      );
     }
 
     return (
       <Row>
         <Col>
+          <p>{'send invites here, for planets'}</p>
 
-          <p>{ 'send invites here, for planets' }</p>
+          <p>{invitesAvailable}</p>
 
-          <p>{ invitesAvailable }</p>
+          <ul>{invitesSent}</ul>
 
-          <ul>{ invitesSent }</ul>
+          {error}
 
-          { error }
+          {fundingMessage}
 
-          { fundingMessage }
-
-          { inputs }
-
+          {inputs}
         </Col>
       </Row>
-    )
+    );
   }
 }
 
-export default InvitesSend
+export default InvitesSend;

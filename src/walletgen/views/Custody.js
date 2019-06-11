@@ -1,14 +1,14 @@
-import React from 'react'
+import React from 'react';
 
-import Button from '../components/Button'
+import Button from '../components/Button';
 
 const NEXT_STEP_NUM = 5;
 
 class Custody extends React.Component {
   render() {
-    let { setGlobalState } = this.props
+    let { setGlobalState } = this.props;
 
-    return(
+    return (
       <div className={'col-md-6'}>
         <h2 className={'mb-4'}>{`A Word On Custody`}</h2>
 
@@ -24,13 +24,14 @@ class Custody extends React.Component {
           <Button
             className={'btn btn-primary'}
             text={'I Understand →'}
-            onClick={ () => setGlobalState({ route: '/Generate', 'currentStep': NEXT_STEP_NUM })}
+            onClick={() =>
+              setGlobalState({ route: '/Generate', currentStep: NEXT_STEP_NUM })
+            }
           />
         </div>
-
       </div>
-    )
+    );
   }
 }
 
-export default Custody
+export default Custody;

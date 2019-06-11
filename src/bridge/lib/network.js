@@ -3,20 +3,17 @@ const NETWORK_NAMES = {
   LOCAL: Symbol('LOCAL'),
   ROPSTEN: Symbol('ROPSTEN'),
   MAINNET: Symbol('MAINNET'),
-}
+};
 
-const renderNetworkType = (network) =>
-    network === NETWORK_NAMES.OFFLINE
-  ? 'Offline'
-  : network === NETWORK_NAMES.ROPSTEN
-  ? 'Ropsten'
-  : network === NETWORK_NAMES.MAINNET
-  ? 'Main Network'
-  : network === NETWORK_NAMES.LOCAL
-  ? 'Local Node'
-  : 'Offline'
+const renderNetworkType = network =>
+  network === NETWORK_NAMES.OFFLINE
+    ? 'Offline'
+    : network === NETWORK_NAMES.ROPSTEN
+    ? 'Ropsten'
+    : network === NETWORK_NAMES.MAINNET
+    ? 'Main Network'
+    : network === NETWORK_NAMES.LOCAL
+    ? 'Local Node'
+    : 'Offline';
 
-export {
-  NETWORK_NAMES,
-  renderNetworkType
-}
+export { NETWORK_NAMES, renderNetworkType };

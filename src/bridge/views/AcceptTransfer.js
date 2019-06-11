@@ -1,18 +1,23 @@
-import { Just } from 'folktale/maybe'
-import React from 'react'
-import { Row, Col, H1, P } from '../components/Base'
-import { InnerLabel, AddressInput, ShowBlockie, Anchor } from '../components/Base'
-import * as azimuth from 'azimuth-js'
-import * as ob from 'urbit-ob'
-import * as need from '../lib/need'
+import { Just } from 'folktale/maybe';
+import React from 'react';
+import { Row, Col, H1, P } from '../components/Base';
+import {
+  InnerLabel,
+  AddressInput,
+  ShowBlockie,
+  Anchor,
+} from '../components/Base';
+import * as azimuth from 'azimuth-js';
+import * as ob from 'urbit-ob';
+import * as need from '../lib/need';
 
-import StatelessTransaction from '../components/StatelessTransaction'
-import { NETWORK_NAMES } from '../lib/network'
-import { isValidAddress } from '../lib/wallet'
+import StatelessTransaction from '../components/StatelessTransaction';
+import { NETWORK_NAMES } from '../lib/network';
+import { isValidAddress } from '../lib/wallet';
 
 class AcceptTransfer extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     const receivingAddress = need.address(props);
 
@@ -21,91 +26,95 @@ class AcceptTransfer extends React.Component {
     this.state = {
       receivingAddress: receivingAddress,
       incomingPoint: incomingPoint,
-    }
+    };
 
-    this.handleAddressInput = this.handleAddressInput.bind(this)
-    this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
+    this.handleAddressInput = this.handleAddressInput.bind(this);
+    this.createUnsignedTxn = this.createUnsignedTxn.bind(this);
     this.statelessRef = React.createRef();
   }
 
   handleAddressInput(proxyAddress) {
-    this.setState({ proxyAddress })
-    this.statelessRef.current.clearTxn()
+    this.setState({ proxyAddress });
+    this.statelessRef.current.clearTxn();
   }
 
   createUnsignedTxn() {
-    const { state, props } = this
+    const { state, props } = this;
 
     const validContracts = need.contracts(props);
 
     const validPoint = need.pointCursor(props); //TODO state.incomingPoint ?
 
-    return Just(azimuth.ecliptic.transferPoint(
-      validContracts,
-      validPoint,
-      state.receivingAddress,
-      true
-    ))
+    return Just(
+      azimuth.ecliptic.transferPoint(
+        validContracts,
+        validPoint,
+        state.receivingAddress,
+        true
+      )
+    );
   }
 
   render() {
-    const { state, props } = this
-    const validAddress = isValidAddress(state.receivingAddress)
-    const canGenerate = validAddress === true
+    const { state, props } = this;
+    const validAddress = isValidAddress(state.receivingAddress);
+    const canGenerate = validAddress === true;
 
     const esvisible =
-        props.networkType === NETWORK_NAMES.ROPSTEN ||
-        props.networkType === NETWORK_NAMES.MAINNET
+      props.networkType === NETWORK_NAMES.ROPSTEN ||
+      props.networkType === NETWORK_NAMES.MAINNET;
 
     const esdomain =
-        props.networkType === NETWORK_NAMES.ROPSTEN
-      ? "ropsten.etherscan.io"
-      : "etherscan.io"
+      props.networkType === NETWORK_NAMES.ROPSTEN
+        ? 'ropsten.etherscan.io'
+        : 'etherscan.io';
 
     return (
       <Row>
         <Col>
           <H1>
-            { 'Accept Transfer of '} <code>{ ` ${ob.patp(state.incomingPoint)} ` }</code>
+            {'Accept Transfer of '}{' '}
+            <code>{` ${ob.patp(state.incomingPoint)} `}</code>
           </H1>
 
           <P>
-          {
-            "By default, the recipient is the address you're logged in " +
-            "as.  But you can transfer to any address you like."
-          }
+            {"By default, the recipient is the address you're logged in " +
+              'as.  But you can transfer to any address you like.'}
           </P>
 
           <AddressInput
-            className='mono mt-8'
-            prop-size='lg'
-            prop-format='innerLabel'
-            value={ state.receivingAddress }
-            onChange={ v => this.handleAddressInput(v) }>
-            <InnerLabel>{ 'Receiving Address' }</InnerLabel>
+            className="mono mt-8"
+            prop-size="lg"
+            prop-format="innerLabel"
+            value={state.receivingAddress}
+            onChange={v => this.handleAddressInput(v)}>
+            <InnerLabel>{'Receiving Address'}</InnerLabel>
             <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
           </AddressInput>
 
           <Anchor
             className={'mt-1 sm'}
-            prop-size='sm'
-            prop-disabled={!isValidAddress(state.receivingAddress) || !esvisible}
+            prop-size="sm"
+            prop-disabled={
+              !isValidAddress(state.receivingAddress) || !esvisible
+            }
             target={'_blank'}
             href={`https://${esdomain}/address/${state.receivingAddress}`}>
-              {'View on Etherscan ↗'}
+            {'View on Etherscan ↗'}
           </Anchor>
 
           <StatelessTransaction
             // Upper scope
             {...props}
             // Other
-            canGenerate={ canGenerate }
+            canGenerate={canGenerate}
             createUnsignedTxn={this.createUnsignedTxn}
-            ref={ this.statelessRef } />
+            ref={this.statelessRef}
+          />
         </Col>
       </Row>
-    )
+    );
   }
 }
 
-export default AcceptTransfer
+export default AcceptTransfer;

@@ -1,29 +1,29 @@
-import Maybe from 'folktale/maybe'
-import React from 'react'
-import { Row, Col, H1, P } from '../components/Base'
-import * as azimuth from 'azimuth-js'
-import * as ob from 'urbit-ob'
-import * as need from '../lib/need'
+import Maybe from 'folktale/maybe';
+import React from 'react';
+import { Row, Col, H1, P } from '../components/Base';
+import * as azimuth from 'azimuth-js';
+import * as ob from 'urbit-ob';
+import * as need from '../lib/need';
 
-import StatelessTransaction from '../components/StatelessTransaction'
-import { ETH_ZERO_ADDR } from '../lib/wallet'
+import StatelessTransaction from '../components/StatelessTransaction';
+import { ETH_ZERO_ADDR } from '../lib/wallet';
 
 class CancelTransfer extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     const pointInTransfer = need.pointCursor(props);
 
     this.state = {
       proxyAddress: '',
       pointInTransfer: pointInTransfer,
-    }
+    };
 
-    this.createUnsignedTxn = this.createUnsignedTxn.bind(this)
+    this.createUnsignedTxn = this.createUnsignedTxn.bind(this);
   }
 
   createUnsignedTxn() {
-    const { props } = this
+    const { props } = this;
 
     const validContracts = need.contracts(props);
 
@@ -33,46 +33,44 @@ class CancelTransfer extends React.Component {
       validContracts,
       validPoint,
       ETH_ZERO_ADDR
-    )
+    );
 
-    return Maybe.Just(txn)
+    return Maybe.Just(txn);
   }
 
   render() {
-    const { props, state } = this
+    const { props, state } = this;
 
-    const online = Maybe.Just.hasInstance(props.web3)
+    const online = Maybe.Just.hasInstance(props.web3);
 
     const proxy = online
       ? props.pointCache[state.pointInTransfer].transferProxy
-      : 'any outgoing addresses'
+      : 'any outgoing addresses';
 
     // const canGenerate = validAddress === true
 
-    const canGenerate = true
+    const canGenerate = true;
 
     return (
-        <Row>
-          <Col>
-            <H1>
-              { 'Cancel Transfer of '} <code>{ ` ${ob.patp(state.pointInTransfer)} ` }</code>
-            </H1>
+      <Row>
+        <Col>
+          <H1>
+            {'Cancel Transfer of '}{' '}
+            <code>{` ${ob.patp(state.pointInTransfer)} `}</code>
+          </H1>
 
-            <P>
-            {
-              `This action will cancel the transfer to ${proxy}.`
-            }
-            </P>
-            <StatelessTransaction
-              // Upper scope
-              {...props}
-              // Other
-              canGenerate={ canGenerate }
-              createUnsignedTxn={this.createUnsignedTxn} />
+          <P>{`This action will cancel the transfer to ${proxy}.`}</P>
+          <StatelessTransaction
+            // Upper scope
+            {...props}
+            // Other
+            canGenerate={canGenerate}
+            createUnsignedTxn={this.createUnsignedTxn}
+          />
         </Col>
       </Row>
-    )
+    );
   }
 }
 
-export default CancelTransfer
+export default CancelTransfer;

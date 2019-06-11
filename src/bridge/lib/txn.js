@@ -1,16 +1,13 @@
-import * as ob from 'urbit-ob'
-import { Just } from 'folktale/maybe'
-import Tx from 'ethereumjs-tx'
-import { toWei, fromWei, toHex } from 'web3-utils'
+import * as ob from 'urbit-ob';
+import { Just } from 'folktale/maybe';
+import Tx from 'ethereumjs-tx';
+import { toWei, fromWei, toHex } from 'web3-utils';
 
-import { BRIDGE_ERROR } from '../lib/error'
-import { NETWORK_NAMES } from '../lib/network'
-import { ledgerSignTransaction } from '../lib/ledger'
-import { trezorSignTransaction } from '../lib/trezor'
-import {
-  WALLET_NAMES,
-  addHexPrefix
-  } from '../lib/wallet'
+import { BRIDGE_ERROR } from '../lib/error';
+import { NETWORK_NAMES } from '../lib/network';
+import { ledgerSignTransaction } from '../lib/ledger';
+import { trezorSignTransaction } from '../lib/trezor';
+import { WALLET_NAMES, addHexPrefix } from '../lib/wallet';
 
 const TXN_PURPOSE = {
   SET_MANAGEMENT_PROXY: Symbol('SET_MANAGEMENT_PROXY'),
@@ -20,30 +17,29 @@ const TXN_PURPOSE = {
   ISSUE_CHILD: Symbol('ISSUE_CHILD'),
   SET_KEYS: Symbol('SET_KEYS'),
   TRANSFER: Symbol('TRANSFER'),
-  CANCEL_TRANSFER: Symbol('CANCEL_TRANSFER')
-}
+  CANCEL_TRANSFER: Symbol('CANCEL_TRANSFER'),
+};
 
-const renderTxnPurpose = (purpose) =>
-    purpose === TXN_PURPOSE.SET_MANAGEMENT_PROXY
-  ? 'set this management proxy'
-  : purpose === TXN_PURPOSE.SET_SPAWN_PROXY
-  ? 'set this spawn proxy'
-  : purpose === TXN_PURPOSE.SET_TRANSFER_PROXY
-  ? 'set this transfer proxy'
-  : purpose === TXN_PURPOSE.CREATE_GALAXY
-  ? 'create this galaxy'
-  : purpose === TXN_PURPOSE.ISSUE_CHILD
-  ? 'issue this point'
-  : purpose === TXN_PURPOSE.SET_KEYS
-  ? 'set these network keys'
-  : purpose === TXN_PURPOSE.TRANSFER
-  ? 'transfer this point'
-  : purpose === TXN_PURPOSE.CANCEL_TRANSFER
-  ? 'cancel this transfer'
-  : 'perform this transaction'
+const renderTxnPurpose = purpose =>
+  purpose === TXN_PURPOSE.SET_MANAGEMENT_PROXY
+    ? 'set this management proxy'
+    : purpose === TXN_PURPOSE.SET_SPAWN_PROXY
+    ? 'set this spawn proxy'
+    : purpose === TXN_PURPOSE.SET_TRANSFER_PROXY
+    ? 'set this transfer proxy'
+    : purpose === TXN_PURPOSE.CREATE_GALAXY
+    ? 'create this galaxy'
+    : purpose === TXN_PURPOSE.ISSUE_CHILD
+    ? 'issue this point'
+    : purpose === TXN_PURPOSE.SET_KEYS
+    ? 'set these network keys'
+    : purpose === TXN_PURPOSE.TRANSFER
+    ? 'transfer this point'
+    : purpose === TXN_PURPOSE.CANCEL_TRANSFER
+    ? 'cancel this transfer'
+    : 'perform this transaction';
 
 const signTransaction = async config => {
-
   let {
     wallet,
     walletType,
@@ -54,15 +50,15 @@ const signTransaction = async config => {
     nonce,
     chainId,
     gasPrice,
-    gasLimit
-  } = config
+    gasLimit,
+  } = config;
 
-  nonce = toHex(nonce)
-  chainId = toHex(chainId)
-  gasPrice = toHex(toWei(gasPrice, 'gwei'))
-  gasLimit = toHex(gasLimit)
+  nonce = toHex(nonce);
+  chainId = toHex(chainId);
+  gasPrice = toHex(toWei(gasPrice, 'gwei'));
+  gasLimit = toHex(gasLimit);
 
-  const txParams = { nonce, chainId, gasPrice, gasLimit }
+  const txParams = { nonce, chainId, gasPrice, gasLimit };
 
   // NB (jtobin)
   //
@@ -90,102 +86,104 @@ const signTransaction = async config => {
   const eip155Params = {
     r: '0x00',
     s: '0x00',
-    v: chainId
-  }
+    v: chainId,
+  };
 
   const defaultEip155Networks = [
     NETWORK_NAMES.MAINNET,
     NETWORK_NAMES.ROPSTEN,
-    NETWORK_NAMES.OFFLINE
-  ]
+    NETWORK_NAMES.OFFLINE,
+  ];
 
   const needEip155Params =
     walletType === WALLET_NAMES.LEDGER &&
-    defaultEip155Networks.includes(networkType)
+    defaultEip155Networks.includes(networkType);
 
-  const signingParams =
-      needEip155Params
+  const signingParams = needEip155Params
     ? Object.assign(txParams, eip155Params)
-    : txParams
+    : txParams;
 
   const wal = wallet.matchWith({
-    Just: (w) => w.value,
-    Nothing: () => { throw BRIDGE_ERROR.MISSING_WALLET }
-  })
+    Just: w => w.value,
+    Nothing: () => {
+      throw BRIDGE_ERROR.MISSING_WALLET;
+    },
+  });
 
-  const sec = wal.privateKey
+  const sec = wal.privateKey;
 
   const utx = txn.matchWith({
-    Just: (tx) =>
-      Object.assign(tx.value, signingParams),
+    Just: tx => Object.assign(tx.value, signingParams),
     Nothing: () => {
-      throw BRIDGE_ERROR.MISSING_TXN
-    }
-  })
+      throw BRIDGE_ERROR.MISSING_TXN;
+    },
+  });
 
-  const stx = new Tx(utx)
+  const stx = new Tx(utx);
 
   if (walletType === WALLET_NAMES.LEDGER) {
-    await ledgerSignTransaction(stx, walletHdPath)
+    await ledgerSignTransaction(stx, walletHdPath);
   } else if (walletType === WALLET_NAMES.TREZOR) {
-    await trezorSignTransaction(stx, walletHdPath)
+    await trezorSignTransaction(stx, walletHdPath);
   } else {
-    stx.sign(sec)
+    stx.sign(sec);
   }
 
   setStx(Just(stx));
   return stx;
-}
+};
 
 const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
   const txn = stx.matchWith({
-    Just: (tx) => tx.value,
+    Just: tx => tx.value,
     Nothing: () => {
-      throw BRIDGE_ERROR.MISSING_TXN
-    }
+      throw BRIDGE_ERROR.MISSING_TXN;
+    },
   });
 
   const rawTx = addHexPrefix(txn.serialize().toString('hex'));
 
   return new Promise(async (resolve, reject) => {
-    web3.eth.sendSignedTransaction(rawTx)
-    .on('transactionHash', hash => {
-      resolve(hash);
-    })
-    //TODO do we also reach this if network is slow? web3 only tries a set
-    //     amount of times... should we instead do waitForTransactionConfirm
-    //     in on-transactionHash? we don't care (much) about additional
-    //     confirms anyway.
-    .on('confirmation', (confirmationNum, txn) => {
-      confirmationCb(txn.transactionHash, confirmationNum + 1);
-      resolve(txn.transactionHash);
-    })
-    .on('error', err => {
-      // if there's a nonce error, but we used the gas tank, it's likely
-      // that it's because the tank already submitted our transaction.
-      // we just wait for first confirmation here.
-      console.log('sent and got error', err);
-      if (doubtNonceError &&
-          (err.message || '').includes("the tx doesn't have the correct nonce.")) {
-        console.log('nonce error, likely from gas tank submission, ignoring');
-        const txHash = web3.utils.keccak256(rawTx);
-        //TODO can we do does-exists check first?
-        //TODO max wait time before assume fail?
-        waitForTransactionConfirm(web3, txHash)
-        .then(res => {
-          if (res) {
-            resolve(txHash);
-            confirmationCb(txHash, 1);
-          } else {
-            reject('Unexpected tx failure');
-          }
-        });
-      } else {
-        reject(err.message);
-      }
-    });
+    web3.eth
+      .sendSignedTransaction(rawTx)
+      .on('transactionHash', hash => {
+        resolve(hash);
+      })
+      //TODO do we also reach this if network is slow? web3 only tries a set
+      //     amount of times... should we instead do waitForTransactionConfirm
+      //     in on-transactionHash? we don't care (much) about additional
+      //     confirms anyway.
+      .on('confirmation', (confirmationNum, txn) => {
+        confirmationCb(txn.transactionHash, confirmationNum + 1);
+        resolve(txn.transactionHash);
+      })
+      .on('error', err => {
+        // if there's a nonce error, but we used the gas tank, it's likely
+        // that it's because the tank already submitted our transaction.
+        // we just wait for first confirmation here.
+        console.log('sent and got error', err);
+        if (
+          doubtNonceError &&
+          (err.message || '').includes("the tx doesn't have the correct nonce.")
+        ) {
+          console.log('nonce error, likely from gas tank submission, ignoring');
+          const txHash = web3.utils.keccak256(rawTx);
+          //TODO can we do does-exists check first?
+          //TODO max wait time before assume fail?
+          waitForTransactionConfirm(web3, txHash).then(res => {
+            if (res) {
+              resolve(txHash);
+              confirmationCb(txHash, 1);
+            } else {
+              reject('Unexpected tx failure');
+            }
+          });
+        } else {
+          reject(err.message);
+        }
+      });
   });
-}
+};
 
 // returns a Promise<bool>, where the bool indicates tx success/failure
 const waitForTransactionConfirm = (web3, txHash) => {
@@ -194,49 +192,49 @@ const waitForTransactionConfirm = (web3, txHash) => {
       console.log('checking for confirm', txHash);
       const receipt = await web3.eth.getTransactionReceipt(txHash);
       console.log('tried, got', receipt);
-      let confirmed = (receipt !== null);
+      let confirmed = receipt !== null;
       if (confirmed) resolve(receipt.status === true);
       else setTimeout(checkForConfirm, 13000);
-    }
+    };
     checkForConfirm();
   });
-}
+};
 
 const isTransactionConfirmed = async (web3, txHash) => {
   const receipt = await web3.eth.getTransactionReceipt(txHash);
   console.log('got confirm state', receipt !== null, receipt.confirmations);
-  return (receipt !== null);
-}
+  return receipt !== null;
+};
 
-const hexify = val => addHexPrefix(val.toString('hex'))
+const hexify = val => addHexPrefix(val.toString('hex'));
 
 const renderSignedTx = stx => ({
   messageHash: hexify(stx.hash()),
   v: hexify(stx.v),
   s: hexify(stx.s),
   r: hexify(stx.r),
-  rawTransaction: hexify(stx.serialize())
-})
+  rawTransaction: hexify(stx.serialize()),
+});
 
 const getTxnInfo = async (web3, addr) => {
-  let nonce = await web3.eth.getTransactionCount(addr)
-  let chainId = await web3.eth.net.getId()
-  let gasPrice = await web3.eth.getGasPrice()
+  let nonce = await web3.eth.getTransactionCount(addr);
+  let chainId = await web3.eth.net.getId();
+  let gasPrice = await web3.eth.getGasPrice();
   return {
     nonce: nonce,
     chainId: chainId,
-    gasPrice: fromWei(gasPrice, 'gwei')
-  }
-}
+    gasPrice: fromWei(gasPrice, 'gwei'),
+  };
+};
 
 const canDecodePatp = p => {
   try {
-    ob.patp2dec(p)
-    return true
+    ob.patp2dec(p);
+    return true;
   } catch (_) {
-    return false
+    return false;
   }
-}
+};
 
 export {
   signTransaction,
@@ -252,4 +250,4 @@ export {
   toWei,
   fromWei,
   canDecodePatp,
-}
+};
