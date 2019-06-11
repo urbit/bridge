@@ -5,7 +5,7 @@ import { Button } from './Base';
 import { pour } from 'sigil-js';
 import * as ob from 'urbit-ob';
 
-import { ROUTE_NAMES } from '../lib/routeNames';
+import { ROUTE_NAMES } from '../lib/router';
 import ReactSVGComponents from './ReactSVGComponents';
 
 const RenderedPoint = props => {
