@@ -21,7 +21,8 @@ const b64 = buf => {
 
   // prettier-ignore
   const trans = j =>
-    10 > j ? j + 48
+    10 > j
+    ? j + 48
     : 36 > j
     ? j + 87
     : 62 > j
