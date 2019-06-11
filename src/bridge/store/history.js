@@ -6,7 +6,7 @@ import { ROUTE_NAMES } from '../lib/routeNames';
 
 export const HistoryContext = React.createContext(null);
 
-export function HistoryProvider({ initialRoutes = [], children }) {
+function _useHistory(initialRoutes = []) {
   const [history, setHistory] = useState(initialRoutes);
 
   const value = {
@@ -43,9 +43,22 @@ export function HistoryProvider({ initialRoutes = [], children }) {
     // TODO: disposer functon
   });
 
+  return value;
+}
+
+export function HistoryProvider({ initialRoutes, children }) {
+  const history = _useHistory(initialRoutes);
+
   return (
-    <HistoryContext.Provider value={value}>{children}</HistoryContext.Provider>
+    <HistoryContext.Provider value={history}>
+      {children}
+    </HistoryContext.Provider>
   );
+}
+
+// Hook version
+export function useHistory() {
+  return useContext(HistoryContext);
 }
 
 // HOC version
@@ -55,8 +68,3 @@ export const withHistory = Component =>
       {history => <Component ref={ref} history={history} {...props} />}
     </HistoryContext.Consumer>
   ));
-
-// Hook version
-export function useHistory() {
-  return useContext(HistoryContext);
-}
