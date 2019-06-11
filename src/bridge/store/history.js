@@ -16,12 +16,15 @@ function _useHistory(initialRoutes = []) {
         throw BRIDGE_ERROR.INVALID_ROUTE;
       }
 
-      setHistory([...history, { name, data }]);
+      setHistory(history => [...history, { name, data }]);
     },
     popAndPush: (name, data = {}) =>
-      setHistory([...history.slice(0, history.length - 1), { name, data }]),
+      setHistory(history => [
+        ...history.slice(0, history.length - 1),
+        { name, data },
+      ]),
     pop: (count = 1) =>
-      setHistory([...history.slice(0, history.length - count)]),
+      setHistory(history => [...history.slice(0, history.length - count)]),
     peek: () => last(history),
     size: history.length,
     includes: name => includes(history.map(r => r.name), name),
