@@ -87,7 +87,8 @@ class Trezor extends React.Component {
         handleUpdate={handleAccountSelection}
         title={'Account'}
         currentSelectionTitle={accountTitle}
-        fullWidth={true}></InnerLabelDropdown>
+        fullWidth={true}
+      />
     );
 
     const pathSelection =

@@ -433,7 +433,8 @@ class InvitesSend extends React.Component {
                 this.handleEmailInput(i, value);
               }}
               placeholder={'Email address'}
-              disabled={inputDisabled}></Input>
+              disabled={inputDisabled}
+            />
             {target.hasReceived.matchWith({
               Nothing: () => null,
               Just: has =>

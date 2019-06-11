@@ -106,7 +106,8 @@ class Ledger extends React.Component {
         handleUpdate={handlePathSelection}
         title={'Derivation path'}
         currentSelectionTitle={basePathTitle}
-        fullWidth={true}></InnerLabelDropdown>
+        fullWidth={true}
+      />
     );
 
     const truePathSelection =
@@ -130,7 +131,8 @@ class Ledger extends React.Component {
           handleUpdate={handleAccountSelection}
           title={'Account'}
           currentSelectionTitle={accountTitle}
-          fullWidth={true}></InnerLabelDropdown>
+          fullWidth={true}
+        />
       );
 
     return (

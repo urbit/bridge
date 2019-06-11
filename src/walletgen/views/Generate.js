@@ -380,26 +380,26 @@ class Generate extends React.Component {
 
         <div className="col-md-3 col-md-offset-1 mt-9">
           <div className="fixed" style={{ width: '230px' }}>
-            <div className="col-md-12 bg-very-high h-2 mt-4"></div>
+            <div className="col-md-12 bg-very-high h-2 mt-4" />
             <h4 className="text-600 mt-2">Very High Friction</h4>
             <p className="text-sm" style={{ lineHeight: '16px' }}>
               Extremely valuable. Cold storage on a 3 part sharded paper wallet.
               Store each shard in a separate geographic location with protection
               against fire, water and other elements.
             </p>
-            <div className="col-md-12 bg-high h-2 mt-4"></div>
+            <div className="col-md-12 bg-high h-2 mt-4" />
             <h4 className="text-600 mt-2">High Friction</h4>
             <p className="text-sm" style={{ lineHeight: '16px' }}>
               Very valuable. Cold storage on a paper wallet in a different
               location than your computer, such as a safe.
             </p>
-            <div className="col-md-12 bg-medium h-2 mt-4"></div>
+            <div className="col-md-12 bg-medium h-2 mt-4" />
             <h4 className="text-600 mt-2">Medium Friction</h4>
             <p className="text-sm" style={{ lineHeight: '16px' }}>
               Store cold in a paper wallet; can be stored in a desk drawer in a
               trusted environment.
             </p>
-            <div className="col-md-12 bg-low h-2 mt-4"></div>
+            <div className="col-md-12 bg-low h-2 mt-4" />
             <h4 className="text-600 mt-2">Low Friction</h4>
             <p className="text-sm" style={{ lineHeight: '16px' }}>
               Ok to store hot on a trusted networked computer.

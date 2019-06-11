@@ -237,7 +237,8 @@ class InviteTicket extends React.Component {
             <div className="passport-progress mb-2">
               <div
                 className="passport-progress-filled"
-                style={{ width: progressWidth }}></div>
+                style={{ width: progressWidth }}
+              />
             </div>
             <div className="flex justify-between">
               <div className="text-mono text-sm lh-6 green-dark">

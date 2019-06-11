@@ -22,7 +22,9 @@ import { BRIDGE_ERROR } from './lib/error';
 
 const initWeb3 = networkType => {
   if (networkType === NETWORK_NAMES.MAINNET) {
-    const endpoint = `https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
+    const endpoint = `https://mainnet.infura.io/v3/${
+      process.env.REACT_APP_INFURA_ENDPOINT
+    }`;
 
     const provider = new Web3.providers.HttpProvider(endpoint);
     const web3 = new Web3(provider);

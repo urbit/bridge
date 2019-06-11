@@ -131,7 +131,7 @@ class Ticket extends React.Component {
               this.walletFromTicket(ticket, pointName, passphrase)
             }>
             <span className="relative">
-              {this.state.isUnlocking && <span className="btn-spinner"></span>}
+              {this.state.isUnlocking && <span className="btn-spinner" />}
               {'Unlock Wallet →'}
             </span>
           </Button>

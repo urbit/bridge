@@ -37,7 +37,7 @@ class Passport extends React.Component {
 
       let className = filled ? 'passport-block bg-gray-30' : 'passport-block';
 
-      blocks.push(<div key={i} data-key={i} className={className}></div>);
+      blocks.push(<div key={i} data-key={i} className={className} />);
     });
 
     return <div className="flex flex-wrap passport-censor">{blocks}</div>;
@@ -77,9 +77,7 @@ class Passport extends React.Component {
 
       return (
         <div className="passport-wallet-progress" style={progressStyle}>
-          {progressDone && (
-            <div className="passport-wallet-progress-fill"></div>
-          )}
+          {progressDone && <div className="passport-wallet-progress-fill" />}
         </div>
       );
     });
@@ -137,7 +135,7 @@ class Passport extends React.Component {
           size: 128,
         })
       ) : (
-        <div className="passport-sigil-blank"></div>
+        <div className="passport-sigil-blank" />
       );
 
     let currentDate = this.getCurrentDate();
