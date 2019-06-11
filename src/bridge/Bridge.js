@@ -217,12 +217,11 @@ class Bridge extends React.Component {
   }
 
   setWallet(wallet) {
-    if (Just.hasInstance(wallet) &&
-        wallet.value.publicKey &&
-        typeof wallet.value.address === 'undefined') {
-      wallet.value.address = addressFromSecp256k1Public(wallet.value.publicKey);
-    }
-    this.setState({ wallet })
+    wallet.map(wal => {
+      wal.address = wal.address || addressFromSecp256k1Public(wal.publicKey);
+      return wal;
+    });
+    this.setState({ wallet });
   }
 
   setWalletHdPath(walletHdPath) {
@@ -239,7 +238,10 @@ class Bridge extends React.Component {
         DEFAULT_HD_PATH,
         urbitWallet.value.meta.passphrase
       );
-      wallet.value.address = urbitWallet.value.ownership.keys.address;
+      wallet.map(wal => {
+        wal.address = urbitWallet.value.ownership.keys.address;
+        return wal;
+      });
     }
     this.setState({ urbitWallet, wallet })
   }
