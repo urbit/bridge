@@ -1,5 +1,6 @@
 import { createFactory } from 'react';
 
+// inspired by recompose/nest
 export default (components = []) => ({ children, ...props }) =>
   components
     .map(createFactory)

@@ -19,9 +19,9 @@ import {
 } from './lib/wallet';
 import { BRIDGE_ERROR } from './lib/error';
 import { isDevelopment } from './lib/flags';
+import nest from './lib/nest';
 import { OnlineProvider } from './store/online';
 import { NetworkProvider } from './store/network';
-import nest from './lib/nest';
 
 // NB(shrugs): toggle this variable to use the default local state.
 // don't commit changes to this line, but there shouldn't be a problem
@@ -64,6 +64,7 @@ const VariableWidthColumn = withHistory(({ history, children }) => (
   </Col>
 ));
 
+// nest all of the providers within each other to avoid hella depth
 const AllProviders = nest([
   HistoryProvider,
   TxnConfirmationsProvider,
