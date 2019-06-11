@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { forwardRef, useContext, useState, useEffect } from 'react';
 import { last, includes } from 'lodash';
 
 import { BRIDGE_ERROR } from '../lib/error';
@@ -29,10 +29,9 @@ export function HistoryProvider({ initialRoutes = [], children }) {
   };
 
   // Scroll to top of page with each route transition.
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [history]);
+  useEffect(() => window.scrollTo(0, 0), [history]);
 
+  // set up handlers
   useEffect(() => {
     window.history.pushState(null, null, null);
 
@@ -40,6 +39,8 @@ export function HistoryProvider({ initialRoutes = [], children }) {
       window.history.pushState(null, null, null);
       value.pop();
     };
+
+    // TODO: disposer functon
   });
 
   return (
@@ -48,11 +49,12 @@ export function HistoryProvider({ initialRoutes = [], children }) {
 }
 
 // HOC version
-export const withHistory = Component => props => (
-  <HistoryContext.Consumer>
-    {history => <Component history={history} {...props} />}
-  </HistoryContext.Consumer>
-);
+export const withHistory = Component =>
+  forwardRef((props, ref) => (
+    <HistoryContext.Consumer>
+      {history => <Component ref={ref} history={history} {...props} />}
+    </HistoryContext.Consumer>
+  ));
 
 // Hook version
 export function useHistory() {

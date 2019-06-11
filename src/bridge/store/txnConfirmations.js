@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { forwardRef, useContext, useState } from 'react';
 
 export const TxnConfirmationsContext = React.createContext(null);
 
@@ -24,11 +24,14 @@ export function TxnConfirmationsProvider({ children }) {
 }
 
 // HOC version
-export const withTxnConfirmations = Component => props => (
-  <TxnConfirmationsContext.Consumer>
-    {txnConfirmations => <Component {...txnConfirmations} {...props} />}
-  </TxnConfirmationsContext.Consumer>
-);
+export const withTxnConfirmations = Component =>
+  forwardRef((props, ref) => (
+    <TxnConfirmationsContext.Consumer>
+      {txnConfirmations => (
+        <Component ref={ref} {...txnConfirmations} {...props} />
+      )}
+    </TxnConfirmationsContext.Consumer>
+  ));
 
 // Hook version
 export function useTxnConfirmations() {
