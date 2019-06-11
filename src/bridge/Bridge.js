@@ -21,6 +21,7 @@ import { BRIDGE_ERROR } from './lib/error';
 import { isDevelopment } from './lib/flags';
 import { OnlineProvider } from './store/online';
 import { NetworkProvider } from './store/network';
+import nest from './lib/nest';
 
 // NB(shrugs): toggle this variable to use the default local state.
 // don't commit changes to this line, but there shouldn't be a problem
@@ -62,6 +63,13 @@ const VariableWidthColumn = withHistory(({ history, children }) => (
     {children}
   </Col>
 ));
+
+const AllProviders = nest([
+  HistoryProvider,
+  TxnConfirmationsProvider,
+  OnlineProvider,
+  NetworkProvider,
+]);
 
 class Bridge extends React.Component {
   constructor(props) {
@@ -221,62 +229,58 @@ class Bridge extends React.Component {
       : NETWORK_NAMES.MAINNET;
 
     return (
-      <HistoryProvider initialRoutes={kInitialRoutes}>
-        <TxnConfirmationsProvider>
-          <OnlineProvider>
-            <NetworkProvider initialNetworkType={initialNetworkType}>
-              <Container>
-                <Row>
-                  <VariableWidthColumn>
-                    <Header
-                      skipRoute={this.skipRoute}
-                      wallet={wallet}
-                      pointCursor={pointCursor}
-                    />
+      <AllProviders
+        initialRoutes={kInitialRoutes}
+        initialNetworkType={initialNetworkType}>
+        <Container>
+          <Row>
+            <VariableWidthColumn>
+              <Header
+                skipRoute={this.skipRoute}
+                wallet={wallet}
+                pointCursor={pointCursor}
+              />
 
-                    <Row className={'row wrapper'}>
-                      <Router
-                        setWalletType={
-                          this.setWalletType // wallet
-                        }
-                        setWalletHdPath={this.setWalletHdPath}
-                        setWallet={this.setWallet}
-                        walletType={walletType}
-                        walletHdPath={walletHdPath}
-                        wallet={wallet}
-                        urbitWallet={
-                          urbitWallet // urbit wallet
-                        }
-                        setUrbitWallet={this.setUrbitWallet}
-                        authMnemonic={authMnemonic}
-                        setAuthMnemonic={this.setAuthMnemonic}
-                        setPointCursor={
-                          this.setPointCursor // point
-                        }
-                        addToPointCache={this.addToPointCache}
-                        pointCursor={pointCursor}
-                        pointCache={pointCache}
-                        networkSeedCache={networkSeedCache}
-                        networkRevisionCache={networkRevisionCache}
-                        setNetworkSeedCache={this.setNetworkSeedCache}
-                        onSent={
-                          this.setTxnHashCursor // txn
-                        }
-                        setTxnHashCursor={this.setTxnHashCursor}
-                        txnHashCursor={txnHashCursor}
-                      />
+              <Row className={'row wrapper'}>
+                <Router
+                  setWalletType={
+                    this.setWalletType // wallet
+                  }
+                  setWalletHdPath={this.setWalletHdPath}
+                  setWallet={this.setWallet}
+                  walletType={walletType}
+                  walletHdPath={walletHdPath}
+                  wallet={wallet}
+                  urbitWallet={
+                    urbitWallet // urbit wallet
+                  }
+                  setUrbitWallet={this.setUrbitWallet}
+                  authMnemonic={authMnemonic}
+                  setAuthMnemonic={this.setAuthMnemonic}
+                  setPointCursor={
+                    this.setPointCursor // point
+                  }
+                  addToPointCache={this.addToPointCache}
+                  pointCursor={pointCursor}
+                  pointCache={pointCache}
+                  networkSeedCache={networkSeedCache}
+                  networkRevisionCache={networkRevisionCache}
+                  setNetworkSeedCache={this.setNetworkSeedCache}
+                  onSent={
+                    this.setTxnHashCursor // txn
+                  }
+                  setTxnHashCursor={this.setTxnHashCursor}
+                  txnHashCursor={txnHashCursor}
+                />
 
-                      <div className={'push'} />
-                    </Row>
+                <div className={'push'} />
+              </Row>
 
-                    <Footer />
-                  </VariableWidthColumn>
-                </Row>
-              </Container>
-            </NetworkProvider>
-          </OnlineProvider>
-        </TxnConfirmationsProvider>
-      </HistoryProvider>
+              <Footer />
+            </VariableWidthColumn>
+          </Row>
+        </Container>
+      </AllProviders>
     );
   }
 }

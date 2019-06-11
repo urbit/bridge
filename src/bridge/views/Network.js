@@ -31,7 +31,7 @@ const kNetworkOptions = [
 ];
 
 function Network() {
-  const { networkType } = useNetwork();
+  const { networkType, setNetworkType } = useNetwork();
   const history = useHistory();
 
   return (
@@ -48,7 +48,7 @@ function Network() {
         <InnerLabelDropdown
           className={'mt-6'}
           title={'Node:'}
-          handleUpdate={this.network.setNetworkType}
+          handleUpdate={setNetworkType}
           options={kNetworkOptions}
           currentSelectionTitle={renderNetworkType(networkType)}
         />
