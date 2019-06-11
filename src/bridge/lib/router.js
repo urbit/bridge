@@ -1,5 +1,5 @@
 import * as ob from 'urbit-ob'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import React from 'react';
 
@@ -168,7 +168,7 @@ const renderRoute = (props, route) => {
     ? 'View'
 
     : route === ROUTE_NAMES.SHIP
-    ? ob.patp(n.needPointCursor(props))
+    ? ob.patp(need.pointCursor(props))
 
     : route === ROUTE_NAMES.SET_TRANSFER_PROXY
       || route === ROUTE_NAMES.SET_MANAGEMENT_PROXY

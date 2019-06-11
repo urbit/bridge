@@ -4,7 +4,7 @@
 
 import { BRIDGE_ERROR } from '../lib/error'
 
-function needWeb3(obj) {
+function web3(obj) {
   return ('web3' in obj === false)
     ? (() => { throw BRIDGE_ERROR.MISSING_WEB3 })()
     : obj.web3.matchWith({
@@ -13,7 +13,7 @@ function needWeb3(obj) {
       });
 }
 
-function needContracts(obj) {
+function contracts(obj) {
   return ('contracts' in obj === false)
     ? (() => { throw BRIDGE_ERROR.MISSING_CONTRACTS })()
     : obj.contracts.matchWith({
@@ -22,7 +22,7 @@ function needContracts(obj) {
       });
 }
 
-function needWallet(obj) {
+function wallet(obj) {
   return ('wallet' in obj === false)
     ? (() => { throw BRIDGE_ERROR.MISSING_WALLET })()
     : obj.wallet.matchWith({
@@ -31,11 +31,11 @@ function needWallet(obj) {
       });
 }
 
-function needAddress(obj) {
-  return needWallet(obj).address;
+function address(obj) {
+  return wallet(obj).address;
 }
 
-function needPointCursor(obj) {
+function pointCursor(obj) {
   return ('pointCursor' in obj === false)
     ? (() => { throw BRIDGE_ERROR.MISSING_POINT })()
     : obj.pointCursor.matchWith({
@@ -44,7 +44,7 @@ function needPointCursor(obj) {
       });
 }
 
-function needFromPointCache(obj, point) {
+function fromPointCache(obj, point) {
   return ('pointCache' in obj === false)
     ? (() => { throw BRIDGE_ERROR.MISSING_POINT })()
     : point in obj.pointCache
@@ -53,10 +53,10 @@ function needFromPointCache(obj, point) {
 }
 
 export {
-  needWeb3,
-  needContracts,
-  needWallet,
-  needAddress,
-  needPointCursor,
-  needFromPointCache
+  web3,
+  contracts,
+  wallet,
+  address,
+  pointCursor,
+  fromPointCache
 }

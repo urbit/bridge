@@ -4,7 +4,7 @@ import { Row, Col, H1, P } from '../components/Base'
 import { InnerLabel, AddressInput, ShowBlockie, Anchor } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import StatelessTransaction from '../components/StatelessTransaction'
 import { NETWORK_NAMES } from '../lib/network'
@@ -14,9 +14,9 @@ class AcceptTransfer extends React.Component {
   constructor(props) {
     super(props)
 
-    const receivingAddress = n.needAddress(props);
+    const receivingAddress = need.address(props);
 
-    const incomingPoint = n.needPointCursor(props);
+    const incomingPoint = need.pointCursor(props);
 
     this.state = {
       receivingAddress: receivingAddress,
@@ -36,9 +36,9 @@ class AcceptTransfer extends React.Component {
   createUnsignedTxn() {
     const { state, props } = this
 
-    const validContracts = n.needContracts(props);
+    const validContracts = need.contracts(props);
 
-    const validPoint = n.needPointCursor(props); //TODO state.incomingPoint ?
+    const validPoint = need.pointCursor(props); //TODO state.incomingPoint ?
 
     return Just(azimuth.ecliptic.transferPoint(
       validContracts,

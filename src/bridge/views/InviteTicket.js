@@ -3,7 +3,7 @@ import React from 'react'
 import { InnerLabel, Warning, TicketInput,
   VerifyTicketInput, Button, Row, Col, Passport } from '../components/Base'
 import * as azimuth from 'azimuth-js'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import { randomPatq } from '../lib/lib'
 import { ROUTE_NAMES } from '../lib/router'
@@ -87,7 +87,7 @@ class InviteTicket extends React.Component {
 
     const addr = inviteWallet.address;
 
-    const ctrcs = n.needContracts(this.props);
+    const ctrcs = need.contracts(this.props);
 
     const incoming = await azimuth.azimuth.getTransferringFor(ctrcs, addr)
 

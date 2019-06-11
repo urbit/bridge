@@ -1,6 +1,6 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 import * as azimuth from 'azimuth-js'
 import { Row, Col, H1, P, InnerLabel, ShowBlockie, Anchor, HorizontalSelector } from '../components/Base'
 import { AddressInput } from '../components/Base'
@@ -36,7 +36,7 @@ class SetProxy extends React.Component {
   constructor(props) {
     super(props)
 
-    const issuingPoint = n.needPointCursor(props);
+    const issuingPoint = need.pointCursor(props);
 
     this.state = {
       proxyAddress: '',
@@ -67,9 +67,9 @@ class SetProxy extends React.Component {
   createUnsignedTxn(proxyAddress) {
     const { state, props } = this
 
-    const validContracts = n.needContracts(props);
+    const validContracts = need.contracts(props);
 
-    const validPoint = n.needPointCursor(props);
+    const validPoint = need.pointCursor(props);
 
     const txArgs = [
       validContracts,

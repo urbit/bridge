@@ -2,7 +2,7 @@ import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import { Row, Col, Warning, Input,
          PointInput, InnerLabel, ValidatedSigil } from '../components/Base'
@@ -32,8 +32,8 @@ class InvitesManage extends React.Component {
   }
 
   componentDidMount() {
-    this.point = n.needPointCursor(this.props);
-    this.contracts = n.needContracts(this.props);
+    this.point = need.pointCursor(this.props);
+    this.contracts = need.contracts(this.props);
 
     azimuth.azimuth.isSpawnProxy(
       this.contracts,

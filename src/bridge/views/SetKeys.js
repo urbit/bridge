@@ -2,7 +2,7 @@ import React from 'react'
 import Maybe from 'folktale/maybe'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 import { Row, Col, H1, P, Warning, CheckboxButton } from '../components/Base'
 
 import StatelessTransaction from '../components/StatelessTransaction'
@@ -16,7 +16,7 @@ class SetKeys extends React.Component {
   constructor(props) {
     super(props)
 
-    const point = n.needPointCursor(props);
+    const point = need.pointCursor(props);
 
     this.state = {
       auth: '',
@@ -43,7 +43,7 @@ class SetKeys extends React.Component {
 
     this.deriveSeed()
 
-    const addr = n.needAddress(props);
+    const addr = need.address(props);
 
     this.determineManagementSeed(props.contracts.value, addr)
   }
@@ -88,9 +88,9 @@ class SetKeys extends React.Component {
   createUnsignedTxn() {
     const { state, props } = this
 
-    const validContracts = n.needContracts(props);
+    const validContracts = need.contracts(props);
 
-    const validPoint = n.needPointCursor(props);
+    const validPoint = need.pointCursor(props);
 
     const hexRegExp = /[0-9A-Fa-f]{64}/g
 
@@ -123,7 +123,7 @@ class SetKeys extends React.Component {
          state.networkSeed.length === 64
       && state.networkSeed.length === 64
 
-    const pointDetails = n.needFromPointCache(props, state.point);
+    const pointDetails = need.fromPointCache(props, state.point);
 
     return (
       <Row>

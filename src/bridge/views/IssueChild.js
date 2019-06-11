@@ -2,7 +2,7 @@ import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import { azimuth, ecliptic } from 'azimuth-js'
 import * as ob from 'urbit-ob'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import {
   Row, Col, H1, P, Anchor,
@@ -31,7 +31,7 @@ class IssueChild extends React.Component {
   constructor(props) {
     super(props)
 
-    const issuingPoint = parseInt(n.needPointCursor(props), 10);
+    const issuingPoint = parseInt(need.pointCursor(props), 10);
 
     const getCandidate = () => ob.patp(getSpawnCandidate(issuingPoint))
 
@@ -66,7 +66,7 @@ class IssueChild extends React.Component {
   componentWillMount() {
     const { issuingPoint } = this.state
 
-    const validContracts = n.needContracts(this.props);
+    const validContracts = need.contracts(this.props);
 
     azimuth.getUnspawnedChildren(validContracts, issuingPoint).then(ps => this.setState({ validChildren: new Set(ps.map(ob.patp)) }))
   }
@@ -97,7 +97,7 @@ class IssueChild extends React.Component {
     if (state.isAvailable === false) return Nothing()
     if (canDecodePatp(state.desiredPoint) === false) return Nothing()
 
-    const validContracts = n.needContracts(props);
+    const validContracts = need.contracts(props);
 
     const pointDec = ob.patp2dec(state.desiredPoint)
 

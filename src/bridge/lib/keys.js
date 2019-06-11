@@ -1,6 +1,6 @@
 import BN from 'bn.js'
 import Maybe from 'folktale/maybe'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import * as noun from '../nockjs/noun'
 import * as serial from '../nockjs/serial'
@@ -70,8 +70,8 @@ const attemptSeedDerivation = async (next, args) => {
   //
   // following code is intentionally verbose for sake of clarity
 
-  const point = n.needPointCursor(args);
-  const pointDetails = n.needFromPointCache(args, point);
+  const point = need.pointCursor(args);
+  const pointDetails = need.fromPointCache(args, point);
 
   const revision =
       next === true
@@ -95,7 +95,7 @@ const attemptSeedDerivation = async (next, args) => {
 
   } else if (walletType === WALLET_NAMES.MNEMONIC) {
 
-    const walProxy = n.needAddress(args);
+    const walProxy = need.address(args);
 
     const mnemonic = authMnemonic.matchWith({
       Just: mnem => mnem.value,

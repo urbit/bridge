@@ -2,7 +2,7 @@ import Maybe from 'folktale/maybe'
 import React from 'react'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import { Row, Col, H1, InnerLabel, ShowBlockie, P, Anchor } from '../components/Base'
 import { AddressInput } from '../components/Base'
@@ -18,7 +18,7 @@ class Transfer extends React.Component {
   constructor(props) {
     super(props)
 
-    const issuingPoint = n.needPointCursor(props);
+    const issuingPoint = need.pointCursor(props);
 
     this.state = {
       receivingAddress: '',
@@ -44,9 +44,9 @@ class Transfer extends React.Component {
   createUnsignedTxn() {
     const { state, props } = this
 
-    const validContracts = n.needContracts(props);
+    const validContracts = need.contracts(props);
 
-    const validPoint = n.needPointCursor(props);
+    const validPoint = need.pointCursor(props);
 
     const txn = azimuth.ecliptic.setTransferProxy(
       validContracts,

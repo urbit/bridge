@@ -1,7 +1,7 @@
 import { Just, Nothing } from 'folktale/maybe'
 import React from 'react'
 import * as azimuth from 'azimuth-js'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import { hasReceived, sendMail } from '../lib/inviteMail'
 import { Row, Col, Button, Input, H3, Warning } from '../components/Base'
@@ -69,10 +69,10 @@ class InvitesSend extends React.Component {
   }
 
   componentDidMount() {
-    this.point = parseInt(n.needPointCursor(this.props), 10);
-    this.address = n.needAddress(this.props);
-    this.contracts = n.needContracts(this.props);
-    this.web3 = n.needWeb3(this.props);
+    this.point = parseInt(need.pointCursor(this.props), 10);
+    this.address = need.address(this.props);
+    this.contracts = need.contracts(this.props);
+    this.web3 = need.web3(this.props);
 
     console.log(azimuth.delegatedSending);
     azimuth.delegatedSending.getTotalUsableInvites(this.contracts, this.point)

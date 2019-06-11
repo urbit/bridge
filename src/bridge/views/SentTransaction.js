@@ -1,6 +1,6 @@
 import Maybe from 'folktale/maybe'
 import React from 'react'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 import { Row, Col, H1, H3, P, Warning, Anchor } from '../components/Base'
 import { Button } from '../components/Base'
 
@@ -128,7 +128,7 @@ const SentTransaction = (props) => {
 
   const promptKeyfile = props.routeData && props.routeData.promptKeyfile
 
-  const w3 = n.needWeb3(props);
+  const w3 = need.web3(props);
 
   const result = txnHashCursor.matchWith({
     Nothing: _ => { throw BRIDGE_ERROR.MISSING_TXN },

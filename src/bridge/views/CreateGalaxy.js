@@ -2,7 +2,7 @@ import React from 'react'
 import Maybe from 'folktale/maybe'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import { Button, } from '../components/Base'
 import { Row, Col, H1, P, Anchor } from '../components/Base'
@@ -41,7 +41,7 @@ class CreateGalaxy extends React.Component {
   constructor(props) {
     super(props)
 
-    const galaxyOwner = n.needAddress(props);
+    const galaxyOwner = need.address(props);
 
     this.state = {
       galaxyOwner: galaxyOwner,
@@ -73,7 +73,7 @@ class CreateGalaxy extends React.Component {
     if (canDecodePatp(state.galaxyName) === false) return Maybe.Nothing()
     if (isValidGalaxy(state.galaxyName) === false) return Maybe.Nothing()
 
-    const validContracts = n.needContracts(props);
+    const validContracts = need.contracts(props);
 
     const galaxyDec = parseInt(ob.patp2dec(state.galaxyName), 10)
 
@@ -94,7 +94,7 @@ class CreateGalaxy extends React.Component {
       return
     }
 
-    const validContracts = n.needContracts(props);
+    const validContracts = need.contracts(props);
 
     const galaxyDec = ob.patp2dec(state.galaxyName)
 

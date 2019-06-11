@@ -3,7 +3,7 @@ import React from 'react'
 import { Row, Col, H1, P } from '../components/Base'
 import * as azimuth from 'azimuth-js'
 import * as ob from 'urbit-ob'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import StatelessTransaction from '../components/StatelessTransaction'
 import { ETH_ZERO_ADDR } from '../lib/wallet'
@@ -12,7 +12,7 @@ class CancelTransfer extends React.Component {
   constructor(props) {
     super(props)
 
-    const pointInTransfer = n.needPointCursor(props);
+    const pointInTransfer = need.pointCursor(props);
 
     this.state = {
       proxyAddress: '',
@@ -25,9 +25,9 @@ class CancelTransfer extends React.Component {
   createUnsignedTxn() {
     const { props } = this
 
-    const validContracts = n.needContracts(props);
+    const validContracts = need.contracts(props);
 
-    const validPoint = n.needPointCursor(props); //TODO this.state.pointInTransfer ?
+    const validPoint = need.pointCursor(props); //TODO this.state.pointInTransfer ?
 
     const txn = azimuth.ecliptic.setTransferProxy(
       validContracts,

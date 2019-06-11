@@ -3,7 +3,7 @@ import React from 'react'
 import { pour } from 'sigil-js'
 import * as ob from 'urbit-ob'
 import * as azimuth from 'azimuth-js'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import PointList from '../components/PointList'
 import ReactSVGComponents from '../components/ReactSVGComponents'
@@ -79,7 +79,7 @@ class Point extends React.Component {
 
     const { spawned } = this.state
 
-    const point = n.needPointCursor(this.props);
+    const point = need.pointCursor(this.props);
 
     const pointDetails =
         point in pointCache

@@ -1,7 +1,7 @@
 import { Nothing, Just } from 'folktale/maybe'
 import { Ok } from 'folktale/result'
 import React from 'react'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import { Code, H3 } from './Base'
 import { Button } from './Base'
@@ -65,7 +65,7 @@ class StatelessTransaction extends React.Component {
   componentDidMount() {
     const { props } = this
 
-    const addr = n.needAddress(props);
+    const addr = need.address(props);
 
     props.web3.matchWith({
       Nothing: () => {},
@@ -205,7 +205,7 @@ class StatelessTransaction extends React.Component {
     const rawTx = hexify(stx.serialize());
     const cost = (state.gasLimit * toWei(state.gasPrice, 'gwei'));
 
-    const address = n.needAddress(props);
+    const address = need.address(props);
     let balance = await web3.eth.getBalance(address);
     let hasBalance = (balance >= cost);
 

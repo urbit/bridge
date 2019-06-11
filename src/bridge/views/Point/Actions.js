@@ -1,5 +1,5 @@
 import React from 'react'
-import * as n from '../../lib/need'
+import * as need from '../../lib/need'
 import {
   ETH_ZERO_ADDR,
   CURVE_ZERO_ADDR,
@@ -21,7 +21,7 @@ const Actions = (props) => {
     point, pointDetails, invites
   } = props
 
-  const addr = n.needAddress(props);
+  const addr = need.address(props);
 
   const isOwner = pointDetails.matchWith({
     Nothing: _ => false,

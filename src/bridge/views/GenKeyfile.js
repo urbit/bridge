@@ -1,6 +1,6 @@
 import React from 'react'
 import Maybe from 'folktale/maybe'
-import * as n from '../lib/need'
+import * as need from '../lib/need'
 
 import { Button } from '../components/Base'
 import { Row, Col, H1, P } from '../components/Base'
@@ -25,9 +25,9 @@ class GenKeyfile extends React.Component {
   }
 
   getPointDetails() {
-    const point = n.needPointCursor(this.props);
+    const point = need.pointCursor(this.props);
 
-    const pointDetails = n.needFromPointCache(this.props, point);
+    const pointDetails = need.fromPointCache(this.props, point);
 
     // in case we did SetKeys earlier this session, make sure to generate the
     // newer keyfile, rather than the one that will expire soon
