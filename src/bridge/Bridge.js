@@ -35,7 +35,8 @@ const kInitialRoutes = isStubbed
     ]
   : [{ name: ROUTE_NAMES.LANDING }];
 
-// the router itself is a component that renders a specific view based on the latest history state
+// the router itself is a component that renders a specific view
+// based on the latest history state
 const Router = function(props) {
   const history = useHistory();
   const Route = router(history.peek());
