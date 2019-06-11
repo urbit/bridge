@@ -10,6 +10,7 @@ import * as secp256k1 from 'secp256k1';
 import { TREZOR_PATH } from '../lib/trezor';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
+import { compose } from '../lib/lib';
 
 class Trezor extends React.Component {
   constructor(props) {
@@ -139,4 +140,4 @@ class Trezor extends React.Component {
   }
 }
 
-export default withHistory(Trezor);
+export default compose(withHistory)(Trezor);

@@ -8,6 +8,7 @@ import { InnerLabel, PointInput, ValidatedSigil } from '../components/Base';
 
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
+import { compose } from '../lib/lib';
 
 class ViewPoint extends React.Component {
   constructor(props) {
@@ -80,4 +81,4 @@ class ViewPoint extends React.Component {
   }
 }
 
-export default withHistory(ViewPoint);
+export default compose(withHistory)(ViewPoint);

@@ -68,7 +68,4 @@ const generateOwnershipWallet = (ship, ticket) =>
 
 const seq = num => Array.from(Array(num), (_, i) => i);
 
-const compose = (...fs) =>
-  fs.reduceRight((pF, nF) => (...args) => nF(pF(...args)), v => v);
-
-export { makeTicket, generateWallet, generateOwnershipWallet, compose, seq };
+export { makeTicket, generateWallet, generateOwnershipWallet, seq };

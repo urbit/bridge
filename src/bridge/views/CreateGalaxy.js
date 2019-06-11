@@ -20,7 +20,7 @@ import { canDecodePatp } from '../lib/txn';
 
 import { ETH_ZERO_ADDR, isValidAddress, eqAddr } from '../lib/wallet';
 
-import { isValidGalaxy } from '../lib/lib';
+import { isValidGalaxy, compose } from '../lib/lib';
 import { withNetwork } from '../store/network';
 
 const buttonTriState = status => {
@@ -195,4 +195,4 @@ class CreateGalaxy extends React.Component {
   }
 }
 
-export default withNetwork(CreateGalaxy);
+export default compose(withNetwork)(CreateGalaxy);

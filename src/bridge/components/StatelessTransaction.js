@@ -10,9 +10,8 @@ import { Warning } from '../components/Base';
 
 import { BRIDGE_ERROR } from '../lib/error';
 import { ROUTE_NAMES } from '../lib/routeNames';
-import { withHistory } from '../store/history';
+import { compose } from '../lib/lib';
 import * as tank from '../lib/tank';
-
 import {
   sendSignedTransaction,
   fromWei,
@@ -21,8 +20,10 @@ import {
   renderSignedTx,
   signTransaction,
 } from '../lib/txn';
+
 import { withTxnConfirmations } from '../store/txnConfirmations';
 import { withNetwork } from '../store/network';
+import { withHistory } from '../store/history';
 
 const SUBMISSION_STATES = {
   PROMPT: 'Send transaction',
@@ -580,6 +581,8 @@ class StatelessTransaction extends React.Component {
   }
 }
 
-export default withNetwork(
-  withTxnConfirmations(withHistory(StatelessTransaction))
-);
+export default compose(
+  withNetwork,
+  withTxnConfirmations,
+  withHistory
+)(StatelessTransaction);

@@ -20,6 +20,7 @@ import { NETWORK_TYPES } from '../lib/network';
 
 import { isValidAddress } from '../lib/wallet';
 import { withNetwork } from '../store/network';
+import { compose } from '../lib/lib';
 
 class Transfer extends React.Component {
   constructor(props) {
@@ -131,4 +132,4 @@ class Transfer extends React.Component {
   }
 }
 
-export default withNetwork(Transfer);
+export default compose(withNetwork)(Transfer);

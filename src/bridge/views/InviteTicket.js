@@ -13,7 +13,7 @@ import {
 import * as azimuth from 'azimuth-js';
 import * as need from '../lib/need';
 
-import { randomPatq } from '../lib/lib';
+import { randomPatq, compose } from '../lib/lib';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import {
@@ -423,4 +423,7 @@ class InviteTicket extends React.Component {
   }
 }
 
-export default withNetwork(withHistory(InviteTicket));
+export default compose(
+  withNetwork,
+  withHistory
+)(InviteTicket);
