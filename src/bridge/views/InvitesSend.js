@@ -476,8 +476,6 @@ class InvitesSend extends React.Component {
         <Col>
           <p>{'send invites here, for planets'}</p>
 
-          <p>{'send invites here, for planets'}</p>
-
           <p>{invitesAvailable}</p>
 
           <ul>{invitesSent}</ul>
