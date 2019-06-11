@@ -1,13 +1,13 @@
-import { Just, Nothing } from 'folktale/maybe';
-import React from 'react';
-import * as azimuth from 'azimuth-js';
-import * as need from '../lib/need';
+import { Just, Nothing } from "folktale/maybe";
+import React from "react";
+import * as azimuth from "azimuth-js";
+import * as need from "../lib/need";
 
-import { hasReceived, sendMail } from '../lib/inviteMail';
-import { Row, Col, Button, Input, H3, Warning } from '../components/Base';
+import { hasReceived, sendMail } from "../lib/inviteMail";
+import { Row, Col, Button, Input, H3, Warning } from "../components/Base";
 
 // for wallet generation
-import * as wg from '../../walletgen/lib/lib';
+import * as wg from "../../walletgen/lib/lib";
 
 // for transaction generation and signing
 import {
@@ -17,27 +17,27 @@ import {
   hexify,
   fromWei,
   toWei,
-} from '../lib/txn';
-import * as tank from '../lib/tank';
+} from "../lib/txn";
+import * as tank from "../lib/tank";
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = 350000;
-const INVITE_COST = toWei((GAS_PRICE_GWEI * GAS_LIMIT).toString(), 'gwei');
+const INVITE_COST = toWei((GAS_PRICE_GWEI * GAS_LIMIT).toString(), "gwei");
 
 const STATUS = {
-  INPUT: 'Generate invites',
-  GENERATING: 'Generating invites',
-  CAN_SEND: 'Send invites',
-  FUNDING: 'Funding invites',
-  SENDING: 'Sending invites',
-  DONE: 'Done',
-  FAIL: 'Some failed',
+  INPUT: "Generate invites",
+  GENERATING: "Generating invites",
+  CAN_SEND: "Send invites",
+  FUNDING: "Funding invites",
+  SENDING: "Sending invites",
+  DONE: "Done",
+  FAIL: "Some failed",
 };
 
 const EMAIL_STATUS = {
-  BUSY: '⋯',
-  DONE: '✔',
-  FAIL: '×',
+  BUSY: "⋯",
+  DONE: "✔",
+  FAIL: "×",
 };
 
 class InvitesSend extends React.Component {
@@ -47,7 +47,7 @@ class InvitesSend extends React.Component {
     this.state = {
       invitesAvailable: Nothing(),
       invited: Nothing(),
-      targets: [{ email: '', hasReceived: Nothing(), status: Nothing() }],
+      targets: [{ email: "", hasReceived: Nothing(), status: Nothing() }],
       status: STATUS.INPUT,
       errors: Nothing(),
       //
@@ -89,7 +89,7 @@ class InvitesSend extends React.Component {
   async findInvited() {
     let invited = await azimuth.delegatedSending.getInvited(
       this.contracts,
-      this.point
+      this.point,
     );
     invited = invited.map(async point => {
       const active = await azimuth.azimuth.isActive(this.contracts, point);
@@ -116,13 +116,13 @@ class InvitesSend extends React.Component {
     const planets = await azimuth.delegatedSending.getPlanetsToSend(
       this.contracts,
       this.point,
-      targets.length
+      targets.length,
     );
 
     // account for the race condition where invites got used up while we were
     // composing our target list
     if (planets.length < targets.length) {
-      this.addError('Can currently only send ' + planets.length + ' invites!');
+      this.addError("Can currently only send " + planets.length + " invites!");
       return;
     }
 
@@ -132,7 +132,7 @@ class InvitesSend extends React.Component {
     // create invite wallets and transactions
     let invites = []; // { email, ticket, signedTx, rawTx }
     for (let i = 0; i < targets.length; i++) {
-      console.log('generating email', i, targets[i].email);
+      console.log("generating email", i, targets[i].email);
       this.setEmailStatus(i, EMAIL_STATUS.BUSY);
 
       const email = targets[i].email;
@@ -142,7 +142,7 @@ class InvitesSend extends React.Component {
         this.contracts,
         this.point,
         planets[i],
-        wallet.owner
+        wallet.owner,
       );
       const signedTx = await signTransaction({
         ...this.props,
@@ -183,7 +183,7 @@ class InvitesSend extends React.Component {
       this.askForFunding,
       () => {
         this.setState({ fundingMessage: Nothing() });
-      }
+      },
     );
 
     this.setState({ status: STATUS.SENDING });
@@ -200,11 +200,11 @@ class InvitesSend extends React.Component {
           web3,
           Just(invite.signedTx),
           tankWasUsed,
-          () => {}
+          () => {},
         );
       } catch (err) {
-        console.error('invite tx sending failed', err);
-        this.addError('Invite transaction not sent for ' + invite.email);
+        console.error("invite tx sending failed", err);
+        this.addError("Invite transaction not sent for " + invite.email);
         this.setEmailStatus(i, EMAIL_STATUS.FAIL);
         continue;
       }
@@ -216,19 +216,19 @@ class InvitesSend extends React.Component {
         const mailSuccess = await sendMail(
           invite.email,
           invite.ticket,
-          invite.rawTx
+          invite.rawTx,
         );
         if (!mailSuccess) throw new Error();
         this.setEmailStatus(i, EMAIL_STATUS.DONE);
       } catch (e) {
-        console.log('email send failed');
+        console.log("email send failed");
         //NOTE this assumes that the transaction succeeds, but we don't know
         //     that for a fact yet...
         this.addError(
-          'Invite email failed to send for ' +
+          "Invite email failed to send for " +
             invite.email +
-            '. Please give them this ticket: ' +
-            invite.ticket
+            ". Please give them this ticket: " +
+            invite.ticket,
         );
         this.setEmailStatus(i, EMAIL_STATUS.FAIL);
         continue;
@@ -240,12 +240,12 @@ class InvitesSend extends React.Component {
           if (success) {
             this.setEmailStatus(i, EMAIL_STATUS.DONE);
           } else {
-            console.log('invite tx rejected');
-            this.addError('Invite transaction failed for ' + invite.email);
+            console.log("invite tx rejected");
+            this.addError("Invite transaction failed for " + invite.email);
             this.setEmailStatus(i, EMAIL_STATUS.FAIL);
           }
           return success;
-        })
+        }),
       );
     }
 
@@ -279,9 +279,9 @@ class InvitesSend extends React.Component {
       fundingMessage: Just(
         `Please make sure ${address} has at least ${fromWei(minBalance)} ETH,` +
           `we'll continue once that's true. Current balance: ${fromWei(
-            balance
+            balance,
           )}.` +
-          `Waiting...`
+          `Waiting...`,
       ),
     });
   }
@@ -328,7 +328,7 @@ class InvitesSend extends React.Component {
 
   addTarget() {
     let targets = this.state.targets;
-    targets.push({ email: '', hasReceived: Nothing(), status: Nothing() });
+    targets.push({ email: "", hasReceived: Nothing(), status: Nothing() });
     this.setState({ targets });
   }
 
@@ -343,24 +343,24 @@ class InvitesSend extends React.Component {
       this.state.status === STATUS.DONE ? this.state.targets.length : null;
 
     const invitesAvailable = this.state.invitesAvailable.matchWith({
-      Nothing: () => 'Loading...',
+      Nothing: () => "Loading...",
       Just: invites => {
-        const dia = dif ? `(-${dif})` : '';
+        const dia = dif ? `(-${dif})` : "";
         return `You currently have ${invites.value}${dia} invitations left.`;
       },
     });
 
     const invitesSent = this.state.invited.matchWith({
-      Nothing: () => <>{'Loading...'}</>,
+      Nothing: () => <>{"Loading..."}</>,
       Just: invited => {
-        const dit = dif ? `(+${dif})` : '';
+        const dit = dif ? `(+${dif})` : "";
         return (
           <>
-            {'Out of the '}
+            {"Out of the "}
             {invited.value.total + dit}
-            {' invites you sent, '}
+            {" invites you sent, "}
             {invited.value.accepted}
-            {' have been accepted.'}
+            {" have been accepted."}
           </>
         );
       },
@@ -369,9 +369,9 @@ class InvitesSend extends React.Component {
     const error = this.state.errors.matchWith({
       Nothing: () => null,
       Just: errors => (
-        <Warning className={'mt-8'}>
+        <Warning className={"mt-8"}>
           <H3 style={{ marginTop: 0, paddingTop: 0 }}>
-            {'Something went wrong!'}
+            {"Something went wrong!"}
           </H3>
           {errors.value.map(err => (
             <p>{err}</p>
@@ -382,30 +382,31 @@ class InvitesSend extends React.Component {
 
     const fundingMessage = this.state.fundingMessage.matchWith({
       Nothing: () => null,
-      Just: msg => <Warning className={'mt-8'}>{msg.value}</Warning>,
+      Just: msg => <Warning className={"mt-8"}>{msg.value}</Warning>,
     });
 
     let inputs;
     if (this.state.status === STATUS.DONE) {
       //TODO proper clickable router thing
-      inputs = '<- Back to Home';
+      inputs = "<- Back to Home";
     } else {
       const inputDisabled = this.state.status !== STATUS.INPUT;
 
       const lessButton = (
         <Button
-          prop-size={'s narrow'}
-          className={'mt-8'}
+          prop-size={"s narrow"}
+          className={"mt-8"}
           disabled={inputDisabled || this.state.targets.length === 1}
-          onClick={this.removeTarget}>
-          {'-'}
+          onClick={this.removeTarget}
+        >
+          {"-"}
         </Button>
       );
 
       const moreButton = (
         <Button
-          prop-size={'s narrow'}
-          className={'mt-8'}
+          prop-size={"s narrow"}
+          className={"mt-8"}
           disabled={
             inputDisabled ||
             this.state.invitesAvailable.matchWith({
@@ -413,8 +414,9 @@ class InvitesSend extends React.Component {
               Just: inv => inv.value <= this.state.targets.length,
             })
           }
-          onClick={this.addTarget}>
-          {'+'}
+          onClick={this.addTarget}
+        >
+          {"+"}
         </Button>
       );
 
@@ -422,7 +424,7 @@ class InvitesSend extends React.Component {
       for (let i = 0; i < this.state.targets.length; i++) {
         const target = this.state.targets[i];
         let progress = target.status.matchWith({
-          Nothing: () => '',
+          Nothing: () => "",
           Just: status => status.value,
         });
         targetInputs.push(
@@ -432,23 +434,23 @@ class InvitesSend extends React.Component {
               onChange={value => {
                 this.handleEmailInput(i, value);
               }}
-              placeholder={'Email address'}
+              placeholder={"Email address"}
               disabled={inputDisabled}
             />
             {target.hasReceived.matchWith({
               Nothing: () => null,
               Just: has =>
-                has.value ? <span>{'×'}</span> : <span>{'°'}</span>,
+                has.value ? <span>{"×"}</span> : <span>{"°"}</span>,
             })}
             {progress}
-          </>
+          </>,
         );
       }
 
       const submitButton = (
         <Button
-          prop-size={'xl wide'}
-          className={'mt-8'}
+          prop-size={"xl wide"}
+          className={"mt-8"}
           disabled={
             (inputDisabled && this.state.status !== STATUS.CAN_SEND) ||
             !this.canSend()
@@ -456,7 +458,8 @@ class InvitesSend extends React.Component {
           onClick={() => {
             if (this.state.status === STATUS.INPUT) this.generateInvites();
             if (this.state.status === STATUS.CAN_SEND) this.sendInvites();
-          }}>
+          }}
+        >
           {this.state.status}
         </Button>
       );
@@ -474,7 +477,9 @@ class InvitesSend extends React.Component {
     return (
       <Row>
         <Col>
-          <p>{'send invites here, for planets'}</p>
+          <p>{"send invites here, for planets"}</p>
+
+          <p>{"send invites here, for planets"}</p>
 
           <p>{invitesAvailable}</p>
 

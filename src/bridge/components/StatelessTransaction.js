@@ -1,16 +1,17 @@
-import { Nothing, Just } from 'folktale/maybe';
-import { Ok } from 'folktale/result';
-import React from 'react';
-import * as need from '../lib/need';
+import { Nothing, Just } from "folktale/maybe";
+import { Ok } from "folktale/result";
+import React from "react";
+import * as need from "../lib/need";
 
-import { Code, H3 } from './Base';
-import { Button } from './Base';
-import { CheckboxButton, Input, InnerLabel, InnerLabelDropdown } from './Base';
-import { Warning } from '../components/Base';
+import { Code, H3 } from "./Base";
+import { Button } from "./Base";
+import { CheckboxButton, Input, InnerLabel, InnerLabelDropdown } from "./Base";
+import { Warning } from "../components/Base";
 
-import { BRIDGE_ERROR } from '../lib/error';
-import { ROUTE_NAMES } from '../lib/router';
-import * as tank from '../lib/tank';
+import { BRIDGE_ERROR } from "../lib/error";
+import { ROUTE_NAMES } from "../lib/routeNames";
+import { withHistory } from "../lib/history";
+import * as tank from "../lib/tank";
 
 import {
   sendSignedTransaction,
@@ -19,13 +20,14 @@ import {
   hexify,
   renderSignedTx,
   signTransaction,
-} from '../lib/txn';
+} from "../lib/txn";
+import { withTxnConfirmations } from "../store/txnConfirmations";
 
 const SUBMISSION_STATES = {
-  PROMPT: 'Send transaction',
-  PREPARING: 'Preparing...',
-  FUNDING: 'Finding transaction funding...',
-  SENDING: 'Sending transaction...',
+  PROMPT: "Send transaction",
+  PREPARING: "Preparing...",
+  FUNDING: "Finding transaction funding...",
+  SENDING: "Sending transaction...",
 };
 
 class StatelessTransaction extends React.Component {
@@ -33,13 +35,13 @@ class StatelessTransaction extends React.Component {
     super(props);
 
     this.state = {
-      gasPrice: '5',
-      gasLimit: '600000',
+      gasPrice: "5",
+      gasLimit: "600000",
       showGasDetails: false,
       userApproval: false,
-      chainId: '1',
+      chainId: "1",
       customChain: false,
-      nonce: '0',
+      nonce: "0",
       stx: Nothing(),
       txn: Nothing(),
       txStatus: SUBMISSION_STATES.PROMPT,
@@ -80,7 +82,7 @@ class StatelessTransaction extends React.Component {
           const txMetadata = {
             nonce: r[0],
             chainId: r[1],
-            gasPrice: fromWei(r[2], 'gwei'),
+            gasPrice: fromWei(r[2], "gwei"),
           };
 
           this.setState({ ...txMetadata });
@@ -186,12 +188,12 @@ class StatelessTransaction extends React.Component {
       try {
         this.setState({ txStatus: SUBMISSION_STATES.PREPARING });
         const res = await props.beforeSend(stx);
-        if (res === false) throw new Error('beforeSend disallowed sending');
+        if (res === false) throw new Error("beforeSend disallowed sending");
       } catch (e) {
-        console.log('beforeSend error', e);
+        console.log("beforeSend error", e);
         this.setState({
           txStatus: SUBMISSION_STATES.PROMPT,
-          txError: Just('Something went wrong!'),
+          txError: Just("Something went wrong!"),
         });
         return;
       }
@@ -200,7 +202,7 @@ class StatelessTransaction extends React.Component {
     this.setState({ txStatus: SUBMISSION_STATES.FUNDING });
 
     const rawTx = hexify(stx.serialize());
-    const cost = state.gasLimit * toWei(state.gasPrice, 'gwei');
+    const cost = state.gasLimit * toWei(state.gasPrice, "gwei");
 
     const address = need.address(props);
     let balance = await web3.eth.getBalance(address);
@@ -230,18 +232,18 @@ class StatelessTransaction extends React.Component {
         web3,
         state.stx,
         usedTank,
-        props.setTxnConfirmations
+        props.setTxnConfirmations,
       )
         .then(txHash => {
           props.onSent(Just(Ok(txHash)), state.stx.value);
-          props.popRoute();
+          props.history.pop();
 
           let routeData = {};
           if (props.networkSeed) {
             props.setNetworkSeedCache(props.networkSeed);
             routeData.promptKeyfile = true;
           }
-          props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION, routeData);
+          props.history.push(ROUTE_NAMES.SENT_TRANSACTION, routeData);
         })
         .catch(err => {
           this.setState({
@@ -269,13 +271,13 @@ class StatelessTransaction extends React.Component {
 
   getChainTitle(chainId) {
     let map = {
-      '1': 'Mainnet - 1',
-      '2': 'Morden - 2',
-      '3': 'Ropsten - 3',
-      '4': 'Goerli - 4',
-      '42': 'Kovan - 42',
-      '1337': 'Geth private chains - 1337',
-      custom: 'Custom',
+      "1": "Mainnet - 1",
+      "2": "Morden - 2",
+      "3": "Ropsten - 3",
+      "4": "Goerli - 4",
+      "42": "Kovan - 42",
+      "1337": "Geth private chains - 1337",
+      custom: "Custom",
     };
 
     return map[chainId];
@@ -284,32 +286,32 @@ class StatelessTransaction extends React.Component {
   getChainOptions() {
     return [
       {
-        title: this.getChainTitle('1'),
-        value: '1',
+        title: this.getChainTitle("1"),
+        value: "1",
       },
       {
-        title: this.getChainTitle('2'),
-        value: '2',
+        title: this.getChainTitle("2"),
+        value: "2",
       },
       {
-        title: this.getChainTitle('3'),
-        value: '3',
+        title: this.getChainTitle("3"),
+        value: "3",
       },
       {
-        title: this.getChainTitle('4'),
-        value: '4',
+        title: this.getChainTitle("4"),
+        value: "4",
       },
       {
-        title: this.getChainTitle('42'),
-        value: '42',
+        title: this.getChainTitle("42"),
+        value: "42",
       },
       {
-        title: this.getChainTitle('1337'),
-        value: '1337',
+        title: this.getChainTitle("1337"),
+        value: "1337",
       },
       {
-        title: this.getChainTitle('custom'),
-        value: 'custom',
+        title: this.getChainTitle("custom"),
+        value: "custom",
       },
     ];
   }
@@ -349,26 +351,27 @@ class StatelessTransaction extends React.Component {
 
     const chainOptions = this.getChainOptions();
 
-    const generateButtonColor = Nothing.hasInstance(txn) ? 'blue' : 'green';
+    const generateButtonColor = Nothing.hasInstance(txn) ? "blue" : "green";
 
-    const signerButtonColor = Nothing.hasInstance(stx) ? 'blue' : 'green';
+    const signerButtonColor = Nothing.hasInstance(stx) ? "blue" : "green";
 
     const generateTxnButton = (
       <Button
-        className={'mt-8'}
+        className={"mt-8"}
         disabled={!canGenerate}
         prop-color={generateButtonColor}
-        prop-size={'lg wide'}
-        onClick={createUnsignedTxn}>
-        {'Generate Transaction'}
+        prop-size={"lg wide"}
+        onClick={createUnsignedTxn}
+      >
+        {"Generate Transaction"}
       </Button>
     );
 
     const unsignedTxnDisplay = txn.matchWith({
-      Nothing: _ => '',
+      Nothing: _ => "",
       Just: tx => (
         <React.Fragment>
-          <H3 className={'mt-8'}>{'Unsigned Transaction'}</H3>
+          <H3 className={"mt-8"}>{"Unsigned Transaction"}</H3>
           <Code>{JSON.stringify(tx.value, null, 2)}</Code>
         </React.Fragment>
       ),
@@ -414,45 +417,48 @@ class StatelessTransaction extends React.Component {
 
     const gasPriceDialogue = (
       <Input
-        className={'mono mt-4'}
-        prop-size={'md'}
-        prop-format={'innerLabel'}
+        className={"mono mt-4"}
+        prop-size={"md"}
+        prop-format={"innerLabel"}
         value={gasPrice}
-        onChange={setGasPrice}>
-        <InnerLabel>{'Gas Price (gwei)'}</InnerLabel>
+        onChange={setGasPrice}
+      >
+        <InnerLabel>{"Gas Price (gwei)"}</InnerLabel>
       </Input>
     );
 
     const gasLimitDialogue = (
       <Input
-        className={'mono mt-4'}
-        prop-size={'md'}
-        prop-format={'innerLabel'}
+        className={"mono mt-4"}
+        prop-size={"md"}
+        prop-format={"innerLabel"}
         value={gasLimit}
-        onChange={setGasLimit}>
-        <InnerLabel>{'Gas Limit'}</InnerLabel>
+        onChange={setGasLimit}
+      >
+        <InnerLabel>{"Gas Limit"}</InnerLabel>
       </Input>
     );
 
     const nonceDialogue = (
       <Input
-        className={'mono mt-4 mb-4'}
-        prop-size={'md'}
-        prop-format={'innerLabel'}
+        className={"mono mt-4 mb-4"}
+        prop-size={"md"}
+        prop-format={"innerLabel"}
         value={nonce}
-        onChange={setNonce}>
-        <InnerLabel>{'Nonce'}</InnerLabel>
+        onChange={setNonce}
+      >
+        <InnerLabel>{"Nonce"}</InnerLabel>
       </Input>
     );
 
     const chainDialogueTitle = customChain
-      ? 'Custom'
+      ? "Custom"
       : this.getChainTitle(chainId);
     const chainDialogue = (
       <InnerLabelDropdown
-        className={'mt-6'}
+        className={"mt-6"}
         fullWidth={true}
-        title={'Chain ID'}
+        title={"Chain ID"}
         options={chainOptions}
         handleUpdate={handleChainUpdate}
         currentSelectionTitle={chainDialogueTitle}
@@ -461,12 +467,13 @@ class StatelessTransaction extends React.Component {
 
     const customChainDialogue = !customChain ? null : (
       <Input
-        className={'mono mt-4 mb-8'}
-        prop-size={'md'}
-        prop-format={'innerLabel'}
+        className={"mono mt-4 mb-8"}
+        prop-size={"md"}
+        prop-format={"innerLabel"}
         value={chainId}
-        onChange={setChainId}>
-        <InnerLabel>{'Chain ID'}</InnerLabel>
+        onChange={setChainId}
+      >
+        <InnerLabel>{"Chain ID"}</InnerLabel>
       </Input>
     );
 
@@ -484,21 +491,22 @@ class StatelessTransaction extends React.Component {
     const signTxnButton = (
       <Button
         disabled={!canSign}
-        className={'mt-8'}
-        prop-size={'lg wide'}
+        className={"mt-8"}
+        prop-size={"lg wide"}
         prop-color={signerButtonColor}
         onClick={() =>
           signTransaction({ ...this.props, ...this.state, setStx: this.setStx })
-        }>
-        {'Sign Transaction'}
+        }
+      >
+        {"Sign Transaction"}
       </Button>
     );
 
     const signedTxnDisplay = stx.matchWith({
-      Nothing: _ => '',
+      Nothing: _ => "",
       Just: tx => (
         <React.Fragment>
-          <H3 className={'mt-8'}>{'Signed Transaction'}</H3>
+          <H3 className={"mt-8"}>{"Signed Transaction"}</H3>
           <Code>{JSON.stringify(renderSignedTx(tx.value), null, 2)}</Code>
         </React.Fragment>
       ),
@@ -506,7 +514,7 @@ class StatelessTransaction extends React.Component {
 
     const confirmButton = (
       <CheckboxButton
-        className={'mt-8'}
+        className={"mt-8"}
         disabled={!canApprove}
         onToggle={setUserApproval}
         state={userApproval}
@@ -515,13 +523,14 @@ class StatelessTransaction extends React.Component {
     );
 
     const sending = txStatus !== SUBMISSION_STATES.PROMPT;
-    const sendTxnSpinner = sending ? '' : 'hide';
+    const sendTxnSpinner = sending ? "" : "hide";
     const sendTxnButton = (
       <Button
-        prop-size={'xl wide'}
-        className={'mt-8'}
+        prop-size={"xl wide"}
+        className={"mt-8"}
         disabled={!canSend || sending}
-        onClick={sendTxn}>
+        onClick={sendTxn}
+      >
         <span className="relative">
           <span className={`btn-spinner ${sendTxnSpinner}`} />
           {txStatus}
@@ -530,7 +539,7 @@ class StatelessTransaction extends React.Component {
     );
 
     const sendDialogue = web3.matchWith({
-      Nothing: _ => '',
+      Nothing: _ => "",
       Just: _ => (
         <React.Fragment>
           {confirmButton}
@@ -540,11 +549,11 @@ class StatelessTransaction extends React.Component {
     });
 
     const txnErrorDialogue = Nothing.hasInstance(state.txError) ? (
-      ''
+      ""
     ) : (
-      <Warning className={'mt-8'}>
+      <Warning className={"mt-8"}>
         <H3 style={{ marginTop: 0, paddingTop: 0 }}>
-          {'There was an error sending your transaction.'}
+          {"There was an error sending your transaction."}
         </H3>
         {state.txError.value}
       </Warning>
@@ -577,4 +586,4 @@ class StatelessTransaction extends React.Component {
   }
 }
 
-export default StatelessTransaction;
+export default withTxnConfirmations(withHistory(StatelessTransaction));

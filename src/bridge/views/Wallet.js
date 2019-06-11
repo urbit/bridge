@@ -1,11 +1,12 @@
-import Maybe from 'folktale/maybe';
-import React from 'react';
-import { Button, H1, P } from '../components/Base';
-import { InnerLabelDropdown } from '../components/Base';
-import { Row, Col } from '../components/Base';
+import Maybe from "folktale/maybe";
+import React from "react";
+import { Button, H1, P } from "../components/Base";
+import { InnerLabelDropdown } from "../components/Base";
+import { Row, Col } from "../components/Base";
 
-import { ROUTE_NAMES } from '../lib/router';
-import { WALLET_NAMES, renderWalletType } from '../lib/wallet';
+import { ROUTE_NAMES } from "../lib/routeNames";
+import { withHistory } from "../lib/history";
+import { WALLET_NAMES, renderWalletType } from "../lib/wallet";
 
 class Wallet extends React.Component {
   componentDidMount() {
@@ -16,37 +17,37 @@ class Wallet extends React.Component {
   getWalletOptions() {
     return [
       {
-        title: 'Urbit Master Ticket',
+        title: "Urbit Master Ticket",
         value: WALLET_NAMES.TICKET,
       },
       {
-        title: 'Urbit Master Ticket (Shards)',
+        title: "Urbit Master Ticket (Shards)",
         value: WALLET_NAMES.SHARDS,
       },
       {
-        type: 'divider',
+        type: "divider",
       },
       {
-        title: 'Ledger',
+        title: "Ledger",
         value: WALLET_NAMES.LEDGER,
       },
       {
-        title: 'Trezor',
+        title: "Trezor",
         value: WALLET_NAMES.TREZOR,
       },
       {
-        type: 'divider',
+        type: "divider",
       },
       {
-        title: 'BIP39 Mnemonic',
+        title: "BIP39 Mnemonic",
         value: WALLET_NAMES.MNEMONIC,
       },
       {
-        title: 'Ethereum Private Key',
+        title: "Ethereum Private Key",
         value: WALLET_NAMES.PRIVATE_KEY,
       },
       {
-        title: 'Ethereum Keystore File',
+        title: "Ethereum Keystore File",
         value: WALLET_NAMES.KEYSTORE,
       },
     ];
@@ -59,7 +60,7 @@ class Wallet extends React.Component {
     return (
       <Row>
         <Col>
-          <H1>{'Unlock a Wallet'}</H1>
+          <H1>{"Unlock a Wallet"}</H1>
 
           <P>
             {`To manage your assets, you need to unlock a wallet.
@@ -67,17 +68,17 @@ class Wallet extends React.Component {
           </P>
 
           <InnerLabelDropdown
-            className={'mb-10 mt-6'}
-            title={'Wallet Type:'}
+            className={"mb-10 mt-6"}
+            title={"Wallet Type:"}
             options={walletOptions}
             handleUpdate={props.setWalletType}
             currentSelectionTitle={renderWalletType(props.walletType)}
           />
 
           <Button
-            className={'mt-10'}
+            className={"mt-10"}
             onClick={() =>
-              props.pushRoute(
+              props.history.push(
                 props.walletType === WALLET_NAMES.MNEMONIC
                   ? ROUTE_NAMES.MNEMONIC
                   : props.walletType === WALLET_NAMES.TICKET
@@ -92,10 +93,11 @@ class Wallet extends React.Component {
                   ? ROUTE_NAMES.PRIVATE_KEY
                   : props.walletType === WALLET_NAMES.KEYSTORE
                   ? ROUTE_NAMES.KEYSTORE
-                  : ROUTE_NAMES.DEFAULT
+                  : ROUTE_NAMES.DEFAULT,
               )
-            }>
-            {'Continue  →'}
+            }
+          >
+            {"Continue  →"}
           </Button>
         </Col>
       </Row>
@@ -103,4 +105,4 @@ class Wallet extends React.Component {
   }
 }
 
-export default Wallet;
+export default withHistory(Wallet);

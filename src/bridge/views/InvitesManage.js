@@ -1,8 +1,8 @@
-import { Just, Nothing } from 'folktale/maybe';
-import React from 'react';
-import * as ob from 'urbit-ob';
-import * as azimuth from 'azimuth-js';
-import * as need from '../lib/need';
+import { Just, Nothing } from "folktale/maybe";
+import React from "react";
+import * as ob from "urbit-ob";
+import * as azimuth from "azimuth-js";
+import * as need from "../lib/need";
 
 import {
   Row,
@@ -12,8 +12,8 @@ import {
   PointInput,
   InnerLabel,
   ValidatedSigil,
-} from '../components/Base';
-import StatelessTransaction from '../components/StatelessTransaction';
+} from "../components/Base";
+import StatelessTransaction from "../components/StatelessTransaction";
 
 class InvitesManage extends React.Component {
   constructor(props) {
@@ -21,7 +21,7 @@ class InvitesManage extends React.Component {
 
     this.state = {
       invitesWillWork: Nothing(),
-      planetInput: '',
+      planetInput: "",
       targetPlanet: Nothing(),
       currentPoolSize: Nothing(),
       cachedPoolSizes: {},
@@ -44,7 +44,7 @@ class InvitesManage extends React.Component {
       .isSpawnProxy(
         this.contracts,
         this.point,
-        this.contracts.delegatedSending.address
+        this.contracts.delegatedSending.address,
       )
       .then(isSpawnProxy => {
         this.setState({ invitesWillWork: Just(isSpawnProxy) });
@@ -77,7 +77,7 @@ class InvitesManage extends React.Component {
 
   checkCurrentInvites(who) {
     const cachedPoolSizes = this.state.cachedPoolSizes;
-    if (typeof cachedPoolSizes[who] !== 'undefined') {
+    if (typeof cachedPoolSizes[who] !== "undefined") {
       return Just(cachedPoolSizes[who]);
     } else {
       azimuth.delegatedSending.getPool(this.contracts, who).then(pool => {
@@ -112,8 +112,8 @@ class InvitesManage extends React.Component {
         this.contracts,
         this.point,
         this.state.targetPlanet.value,
-        this.state.targetPoolSize
-      )
+        this.state.targetPoolSize,
+      ),
     );
   }
 
@@ -122,18 +122,18 @@ class InvitesManage extends React.Component {
     if (this.state.invitesWillWork.value === false) {
       spawnProxyWarning = (
         <Warning>
-          <h3 className={'mb-2'}>{'Warning'}</h3>
-          {'Planets under this star will not be able to send invites ' +
-            'until the invite contract ('}
+          <h3 className={"mb-2"}>{"Warning"}</h3>
+          {"Planets under this star will not be able to send invites " +
+            "until the invite contract ("}
           <code>{this.contracts.delegatedSending.address}</code>
-          {') is made spawn proxy for this star.'}
+          {") is made spawn proxy for this star."}
         </Warning>
       );
     }
 
     let poolSizeText = this.state.currentPoolSize.matchWith({
       Just: ps => `(currently ${ps.value})`,
-      Nothing: _ => '',
+      Nothing: _ => "",
     });
 
     return (
@@ -141,7 +141,7 @@ class InvitesManage extends React.Component {
         <Col>
           <p>
             {
-              'manage invites here, for stars. can only give invites to child planets'
+              "manage invites here, for stars. can only give invites to child planets"
             }
           </p>
 
@@ -150,10 +150,11 @@ class InvitesManage extends React.Component {
           <PointInput
             prop-format="innerlabel"
             prop-size="lg"
-            placeholder={'~sampel-sipnem'}
+            placeholder={"~sampel-sipnem"}
             value={this.state.planetInput}
-            onChange={this.handlePointInput}>
-            <InnerLabel>{'Planet to set invites for'}</InnerLabel>
+            onChange={this.handlePointInput}
+          >
+            <InnerLabel>{"Planet to set invites for"}</InnerLabel>
             <ValidatedSigil
               patp={this.state.targetPlanet}
               validator={() => this.validatePoint}
@@ -164,7 +165,8 @@ class InvitesManage extends React.Component {
             prop-format="innerlabel"
             prop-size="lg"
             value={this.state.targetPoolSize}
-            onChange={this.handlePoolSizeInput}>
+            onChange={this.handlePoolSizeInput}
+          >
             <InnerLabel>{`Available invites ${poolSizeText}`}</InnerLabel>
           </Input>
 

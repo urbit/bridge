@@ -1,16 +1,16 @@
-import React from 'react';
-import Maybe from 'folktale/maybe';
-import * as azimuth from 'azimuth-js';
-import * as ob from 'urbit-ob';
-import * as need from '../lib/need';
-import { Row, Col, H1, P, Warning, CheckboxButton } from '../components/Base';
+import React from "react";
+import Maybe from "folktale/maybe";
+import * as azimuth from "azimuth-js";
+import * as ob from "urbit-ob";
+import * as need from "../lib/need";
+import { Row, Col, H1, P, Warning, CheckboxButton } from "../components/Base";
 
-import StatelessTransaction from '../components/StatelessTransaction';
-import { attemptSeedDerivation } from '../lib/keys';
+import StatelessTransaction from "../components/StatelessTransaction";
+import { attemptSeedDerivation } from "../lib/keys";
 
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index';
+import * as kg from "urbit-key-generation/dist/index";
 
-import { addHexPrefix } from '../lib/wallet';
+import { addHexPrefix } from "../lib/wallet";
 
 class SetKeys extends React.Component {
   constructor(props) {
@@ -19,9 +19,9 @@ class SetKeys extends React.Component {
     const point = need.pointCursor(props);
 
     this.state = {
-      auth: '',
-      encr: '',
-      networkSeed: '',
+      auth: "",
+      encr: "",
+      networkSeed: "",
       nondeterministicSeed: false,
       point: point,
       cryptoSuiteVersion: 1,
@@ -64,22 +64,22 @@ class SetKeys extends React.Component {
       hex =
         hex +
         [
-          '0',
-          '1',
-          '2',
-          '3',
-          '4',
-          '5',
-          '6',
-          '7',
-          '8',
-          '9',
-          'A',
-          'B',
-          'C',
-          'D',
-          'E',
-          'F',
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
         ][Math.floor(Math.random() * 16)];
     }
 
@@ -91,13 +91,13 @@ class SetKeys extends React.Component {
     let seed = await attemptSeedDerivation(next, this.props);
     let nondeterministicSeed = false;
 
-    if (seed.getOrElse('') === '') {
+    if (seed.getOrElse("") === "") {
       seed = Maybe.Just(this.randomHex(64));
       nondeterministicSeed = true;
     }
 
     this.setState({
-      networkSeed: seed.getOrElse(''),
+      networkSeed: seed.getOrElse(""),
       nondeterministicSeed: nondeterministicSeed,
     });
   }
@@ -124,7 +124,7 @@ class SetKeys extends React.Component {
         pencr,
         pauth,
         1,
-        state.discontinuity
+        state.discontinuity,
       );
 
       return Maybe.Just(txn);
@@ -145,7 +145,7 @@ class SetKeys extends React.Component {
       <Row>
         <Col>
           <H1>
-            {'Set Network Keys For '} <code>{`${ob.patp(state.point)}`}</code>
+            {"Set Network Keys For "} <code>{`${ob.patp(state.point)}`}</code>
           </H1>
 
           <P className="mt-10">
@@ -154,7 +154,7 @@ class SetKeys extends React.Component {
 
           {state.nondeterministicSeed && (
             <Warning>
-              <h3 className={'mb-2'}>{'Warning'}</h3>
+              <h3 className={"mb-2"}>{"Warning"}</h3>
               {`Your network seed could not be derived automatically. We've
                 generated a random one for you, so you must download your Arvo
                 keyfile during this session after setting your keys.`}
@@ -163,8 +163,8 @@ class SetKeys extends React.Component {
 
           {pointDetails.keyRevisionNumber === 0 ? (
             <Warning>
-              <h3 className={'mb-2'}>{'Warning'}</h3>
-              {'Once these keys have been set, your point is considered ' +
+              <h3 className={"mb-2"}>{"Warning"}</h3>
+              {"Once these keys have been set, your point is considered " +
                 "'linked'.  This operation cannot be undone."}
             </Warning>
           ) : (

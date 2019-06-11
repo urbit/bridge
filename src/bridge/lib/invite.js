@@ -1,67 +1,67 @@
-import { Just, Nothing } from 'folktale/maybe';
-import Tx from 'ethereumjs-tx';
+import { Just, Nothing } from "folktale/maybe";
+import Tx from "ethereumjs-tx";
 
-import * as azimuth from 'azimuth-js';
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index';
-import * as wg from '../../walletgen/lib/lib.js';
-import * as tank from './tank';
+import * as azimuth from "azimuth-js";
+import * as kg from "urbit-key-generation/dist/index";
+import * as wg from "../../walletgen/lib/lib.js";
+import * as tank from "./tank";
 
-import JSZip from 'jszip';
-import saveAs from 'file-saver';
+import JSZip from "jszip";
+import saveAs from "file-saver";
 
-import { sendSignedTransaction } from './txn';
-import { BRIDGE_ERROR } from '../lib/error';
-import { attemptSeedDerivation } from './keys';
-import { addHexPrefix, WALLET_NAMES } from './wallet';
+import { sendSignedTransaction } from "./txn";
+import { BRIDGE_ERROR } from "../lib/error";
+import { attemptSeedDerivation } from "./keys";
+import { addHexPrefix, WALLET_NAMES } from "./wallet";
 
 const INVITE_STAGES = {
-  INVITE_LOGIN: 'invite login',
-  INVITE_WALLET: 'invite wallet',
-  INVITE_VERIFY: 'invite verify',
-  INVITE_TRANSACTIONS: 'invite transactions',
+  INVITE_LOGIN: "invite login",
+  INVITE_WALLET: "invite wallet",
+  INVITE_VERIFY: "invite verify",
+  INVITE_TRANSACTIONS: "invite transactions",
 };
 
 const WALLET_STATES = {
-  UNLOCKING: 'Unlocking invite wallet',
-  GENERATING: 'Generating your wallet',
-  RENDERING: 'Creating paper collateral',
-  PAPER_READY: 'Download your wallet',
-  DOWNLOADED: 'Wallet downloaded',
-  TRANSACTIONS: 'Sending transactions',
+  UNLOCKING: "Unlocking invite wallet",
+  GENERATING: "Generating your wallet",
+  RENDERING: "Creating paper collateral",
+  PAPER_READY: "Download your wallet",
+  DOWNLOADED: "Wallet downloaded",
+  TRANSACTIONS: "Sending transactions",
 };
 
 const TRANSACTION_STATES = {
   GENERATING: {
-    label: 'Generating transactions',
-    pct: '0%',
+    label: "Generating transactions",
+    pct: "0%",
   },
   SIGNING: {
-    label: 'Signing transactions',
-    pct: '15%',
+    label: "Signing transactions",
+    pct: "15%",
   },
   FUNDING_INVITE: {
-    label: 'Funding invite wallet',
-    pct: '30%',
+    label: "Funding invite wallet",
+    pct: "30%",
   },
   CLAIMING: {
-    label: 'Claiming invite',
-    pct: '55%',
+    label: "Claiming invite",
+    pct: "55%",
   },
   FUNDING_RECIPIENT: {
-    label: 'Funding recipient wallet',
-    pct: '65%',
+    label: "Funding recipient wallet",
+    pct: "65%",
   },
   CONFIGURING: {
-    label: 'Configuring planet',
-    pct: '85%',
+    label: "Configuring planet",
+    pct: "85%",
   },
   CLEANING: {
-    label: 'Cleaning up',
-    pct: '95%',
+    label: "Cleaning up",
+    pct: "95%",
   },
   DONE: {
-    label: 'Done',
-    pct: '100%',
+    label: "Done",
+    pct: "100%",
   },
 };
 
@@ -77,11 +77,11 @@ async function downloadWallet(paper) {
     const zip = new JSZip();
     //TODO the categories here aren't explained in bridge at all...
 
-    const bin0 = paper.filter(item => item.bin === '0');
-    const bin1 = paper.filter(item => item.bin === '1');
-    const bin2 = paper.filter(item => item.bin === '2');
-    const bin3 = paper.filter(item => item.bin === '3');
-    const bin4 = paper.filter(item => item.bin === '4');
+    const bin0 = paper.filter(item => item.bin === "0");
+    const bin1 = paper.filter(item => item.bin === "1");
+    const bin2 = paper.filter(item => item.bin === "2");
+    const bin3 = paper.filter(item => item.bin === "3");
+    const bin4 = paper.filter(item => item.bin === "4");
 
     const bin0Folder = zip.folder('0. Public');
     const bin1Folder = zip.folder('1. Very High Friction Custody');
@@ -95,8 +95,8 @@ async function downloadWallet(paper) {
     bin3.forEach(item => bin3Folder.file(`${item.pageTitle}.png`, item.png));
     bin4.forEach(item => bin4Folder.file(`${item.pageTitle}.png`, item.png));
 
-    zip.generateAsync({ type: 'blob' }).then(content => {
-      saveAs(content, 'urbit-wallet.zip');
+    zip.generateAsync({ type: "blob" }).then(content => {
+      saveAs(content, "urbit-wallet.zip");
       resolve(true);
     });
   });
@@ -115,7 +115,7 @@ async function startTransactions(args) {
 
   const askForFunding = (address, amount, current) => {
     updateProgress({
-      type: 'notify',
+      type: "notify",
       value: `Please make sure ${address} has at least ${amount} wei, we'll continue once that's true. Current balance: ${current}. Waiting`,
     });
   };
@@ -148,14 +148,14 @@ async function startTransactions(args) {
   const point = realPointM.value;
 
   const inviteAddress = inviteWallet.address;
-  console.log('working as', inviteAddress);
+  console.log("working as", inviteAddress);
 
   // transfer from invite wallet to new wallet
 
   let transferTx = azimuth.ecliptic.transferPoint(
     contracts,
     point,
-    realWallet.ownership.keys.address
+    realWallet.ownership.keys.address,
   );
   transferTx.gas = 500000; //TODO can maybe be lower?
 
@@ -169,11 +169,11 @@ async function startTransactions(args) {
   //NOTE using web3.eth.accounts.signTransaction is broken (1.0.0-beta51)
   let transferStx = new Tx(transferTx);
   transferStx.sign(inviteWallet.privateKey);
-  let rawTransferStx = '0x' + transferStx.serialize().toString('hex');
+  let rawTransferStx = "0x" + transferStx.serialize().toString("hex");
 
   const transferCost = transferTx.gas * transferTx.gasPrice;
   updateProgress({
-    type: 'progress',
+    type: "progress",
     value: TRANSACTION_STATES.FUNDING_INVITE,
   });
   let usedTank = await tank.ensureFundsFor(
@@ -182,11 +182,11 @@ async function startTransactions(args) {
     inviteAddress,
     transferCost,
     [rawTransferStx],
-    askForFunding
+    askForFunding,
   );
 
   updateProgress({
-    type: 'progress',
+    type: "progress",
     value: TRANSACTION_STATES.CLAIMING,
   });
 
@@ -205,7 +205,7 @@ async function startTransactions(args) {
   let managementTx = azimuth.ecliptic.setManagementProxy(
     contracts,
     point,
-    realWallet.management.keys.address
+    realWallet.management.keys.address,
   );
   managementTx.gas = 200000;
   managementTx.nonce = 0;
@@ -219,7 +219,7 @@ async function startTransactions(args) {
     pointCache: { [point]: { keyRevisionNumber: 0 } },
   });
   if (Nothing.hasInstance(networkSeed)) {
-    throw new Error('wtf network seed not derived');
+    throw new Error("wtf network seed not derived");
   }
   networkSeed = networkSeed.value;
   const networkKeys = kg.deriveNetworkKeys(networkSeed);
@@ -230,7 +230,7 @@ async function startTransactions(args) {
     addHexPrefix(networkKeys.crypt.public),
     addHexPrefix(networkKeys.auth.public),
     1,
-    false
+    false,
   );
   keysTx.gas = 150000;
   keysTx.nonce = 1;
@@ -247,12 +247,12 @@ async function startTransactions(args) {
 
   let rawStxs = txs.map(tx => {
     let stx = new Tx(tx);
-    stx.sign(Buffer.from(realWallet.ownership.keys.private, 'hex'));
-    return '0x' + stx.serialize().toString('hex');
+    stx.sign(Buffer.from(realWallet.ownership.keys.private, "hex"));
+    return "0x" + stx.serialize().toString("hex");
   });
 
   updateProgress({
-    type: 'progress',
+    type: "progress",
     value: TRANSACTION_STATES.FUNDING_RECIPIENT,
   });
   usedTank = await tank.ensureFundsFor(
@@ -261,18 +261,18 @@ async function startTransactions(args) {
     newAddress,
     totalCost,
     rawStxs,
-    askForFunding
+    askForFunding,
   );
 
   updateProgress({
-    type: 'progress',
+    type: "progress",
     value: TRANSACTION_STATES.CONFIGURING,
   });
 
   await sendAndAwaitConfirm(web3, rawStxs, usedTank);
 
   updateProgress({
-    type: 'progress',
+    type: "progress",
     value: TRANSACTION_STATES.CLEANING,
   });
 
@@ -283,7 +283,7 @@ async function startTransactions(args) {
   const sendEthCost = gasPrice * gasLimit;
   if (balance > sendEthCost) {
     const value = balance - sendEthCost;
-    console.log('sending', value);
+    console.log("sending", value);
     const tx = {
       to: newAddress,
       value: value,
@@ -293,15 +293,15 @@ async function startTransactions(args) {
     };
     let stx = new Tx(tx);
     stx.sign(inviteWallet.privateKey);
-    const rawTx = '0x' + stx.serialize().toString('hex');
+    const rawTx = "0x" + stx.serialize().toString("hex");
     web3.eth.sendSignedTransaction(rawTx).catch(err => {
-      console.log('error sending value tx, who cares', err);
+      console.log("error sending value tx, who cares", err);
     });
-    console.log('sent old balance');
+    console.log("sent old balance");
   }
 
   updateProgress({
-    type: 'progress',
+    type: "progress",
     value: TRANSACTION_STATES.DONE,
   });
 
@@ -315,7 +315,7 @@ async function sendAndAwaitConfirm(web3, signedTxs, usedTank) {
       return new Promise((resolve, reject) => {
         sendSignedTransaction(web3, tx, usedTank, resolve);
       });
-    })
+    }),
   );
 }
 

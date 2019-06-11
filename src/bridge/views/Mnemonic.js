@@ -1,25 +1,26 @@
-import * as bip39 from 'bip39';
-import { Just, Nothing } from 'folktale/maybe';
-import React from 'react';
-import { Button } from '../components/Base';
+import * as bip39 from "bip39";
+import { Just, Nothing } from "folktale/maybe";
+import React from "react";
+import { Button } from "../components/Base";
 import {
   Input,
   MnemonicInput,
   InnerLabel,
   InputCaption,
-} from '../components/Base';
-import { Row, Col, H1 } from '../components/Base';
+} from "../components/Base";
+import { Row, Col, H1 } from "../components/Base";
 
-import { ROUTE_NAMES } from '../lib/router';
-import { DEFAULT_HD_PATH, walletFromMnemonic } from '../lib/wallet';
+import { ROUTE_NAMES } from "../lib/routeNames";
+import { withHistory } from "../lib/history";
+import { DEFAULT_HD_PATH, walletFromMnemonic } from "../lib/wallet";
 
 class Mnemonic extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      mnemonic: '',
-      passphrase: '',
+      mnemonic: "",
+      passphrase: "",
       hdpath: DEFAULT_HD_PATH,
     };
 
@@ -43,8 +44,8 @@ class Mnemonic extends React.Component {
       const hdpath = state.hdpath;
       this.attemptWalletDerivation(
         mnemonic,
-        hdpath === '' ? DEFAULT_HD_PATH : hdpath,
-        passphrase
+        hdpath === "" ? DEFAULT_HD_PATH : hdpath,
+        passphrase,
       );
       return {
         passphrase,
@@ -58,8 +59,8 @@ class Mnemonic extends React.Component {
       const passphrase = state.passphrase;
       this.attemptWalletDerivation(
         mnemonic,
-        hdpath === '' ? DEFAULT_HD_PATH : hdpath,
-        passphrase
+        hdpath === "" ? DEFAULT_HD_PATH : hdpath,
+        passphrase,
       );
       return {
         mnemonic,
@@ -73,8 +74,8 @@ class Mnemonic extends React.Component {
       const passphrase = state.passphrase;
       this.attemptWalletDerivation(
         mnemonic,
-        hdpath === '' ? DEFAULT_HD_PATH : hdpath,
-        passphrase
+        hdpath === "" ? DEFAULT_HD_PATH : hdpath,
+        passphrase,
       );
       return {
         hdpath,
@@ -91,15 +92,15 @@ class Mnemonic extends React.Component {
   }
 
   render() {
-    const { pushRoute, popRoute, wallet } = this.props;
+    const { history, wallet } = this.props;
     const { mnemonic, hdpath, exampleMnemonic, passphrase } = this.state;
 
     return (
       <Row>
         <Col>
-          <H1 className={'mb-4'}>{'Enter Your Mnemonic'}</H1>
+          <H1 className={"mb-4"}>{"Enter Your Mnemonic"}</H1>
           <InputCaption>
-            {'Please enter your BIP39 mnemonic here.'}
+            {"Please enter your BIP39 mnemonic here."}
           </InputCaption>
 
           <MnemonicInput
@@ -112,8 +113,9 @@ class Mnemonic extends React.Component {
             onChange={this.handleMnemonicInput}
             value={mnemonic}
             autocomplete="off"
-            autoFocus>
-            <InnerLabel>{'Mnemonic'}</InnerLabel>
+            autoFocus
+          >
+            <InnerLabel>{"Mnemonic"}</InnerLabel>
           </MnemonicInput>
 
           <InputCaption>
@@ -128,8 +130,9 @@ class Mnemonic extends React.Component {
             type="password"
             value={passphrase}
             autocomplete="off"
-            onChange={this.handlePassphraseInput}>
-            <InnerLabel>{'Passphrase'}</InnerLabel>
+            onChange={this.handlePassphraseInput}
+          >
+            <InnerLabel>{"Passphrase"}</InnerLabel>
           </Input>
 
           <InputCaption>
@@ -143,18 +146,17 @@ class Mnemonic extends React.Component {
             name="hdpath"
             value={hdpath}
             autocomplete="off"
-            onChange={this.handleHdPathInput}>
-            <InnerLabel>{'HD Path'}</InnerLabel>
+            onChange={this.handleHdPathInput}
+          >
+            <InnerLabel>{"HD Path"}</InnerLabel>
           </Input>
 
           <Button
-            className={'mt-10'}
+            className={"mt-10"}
             disabled={Nothing.hasInstance(wallet)}
-            onClick={() => {
-              popRoute();
-              pushRoute(ROUTE_NAMES.SHIPS);
-            }}>
-            {'Continue →'}
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}
+          >
+            {"Continue →"}
           </Button>
         </Col>
       </Row>
@@ -162,4 +164,4 @@ class Mnemonic extends React.Component {
   }
 }
 
-export default Mnemonic;
+export default withHistory(Mnemonic);

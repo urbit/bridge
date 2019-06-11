@@ -1,19 +1,19 @@
-import { Just } from 'folktale/maybe';
-import React from 'react';
-import { Row, Col, H1, P } from '../components/Base';
+import { Just } from "folktale/maybe";
+import React from "react";
+import { Row, Col, H1, P } from "../components/Base";
 import {
   InnerLabel,
   AddressInput,
   ShowBlockie,
   Anchor,
-} from '../components/Base';
-import * as azimuth from 'azimuth-js';
-import * as ob from 'urbit-ob';
-import * as need from '../lib/need';
+} from "../components/Base";
+import * as azimuth from "azimuth-js";
+import * as ob from "urbit-ob";
+import * as need from "../lib/need";
 
-import StatelessTransaction from '../components/StatelessTransaction';
-import { NETWORK_NAMES } from '../lib/network';
-import { isValidAddress } from '../lib/wallet';
+import StatelessTransaction from "../components/StatelessTransaction";
+import { NETWORK_NAMES } from "../lib/network";
+import { isValidAddress } from "../lib/wallet";
 
 class AcceptTransfer extends React.Component {
   constructor(props) {
@@ -50,8 +50,8 @@ class AcceptTransfer extends React.Component {
         validContracts,
         validPoint,
         state.receivingAddress,
-        true
-      )
+        true,
+      ),
     );
   }
 
@@ -66,20 +66,20 @@ class AcceptTransfer extends React.Component {
 
     const esdomain =
       props.networkType === NETWORK_NAMES.ROPSTEN
-        ? 'ropsten.etherscan.io'
-        : 'etherscan.io';
+        ? "ropsten.etherscan.io"
+        : "etherscan.io";
 
     return (
       <Row>
         <Col>
           <H1>
-            {'Accept Transfer of '}{' '}
+            {"Accept Transfer of "}{" "}
             <code>{` ${ob.patp(state.incomingPoint)} `}</code>
           </H1>
 
           <P>
             {"By default, the recipient is the address you're logged in " +
-              'as.  But you can transfer to any address you like.'}
+              "as.  But you can transfer to any address you like."}
           </P>
 
           <AddressInput
@@ -87,20 +87,22 @@ class AcceptTransfer extends React.Component {
             prop-size="lg"
             prop-format="innerLabel"
             value={state.receivingAddress}
-            onChange={v => this.handleAddressInput(v)}>
-            <InnerLabel>{'Receiving Address'}</InnerLabel>
-            <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
+            onChange={v => this.handleAddressInput(v)}
+          >
+            <InnerLabel>{"Receiving Address"}</InnerLabel>
+            <ShowBlockie className={"mt-1"} address={state.receivingAddress} />
           </AddressInput>
 
           <Anchor
-            className={'mt-1 sm'}
+            className={"mt-1 sm"}
             prop-size="sm"
             prop-disabled={
               !isValidAddress(state.receivingAddress) || !esvisible
             }
-            target={'_blank'}
-            href={`https://${esdomain}/address/${state.receivingAddress}`}>
-            {'View on Etherscan ↗'}
+            target={"_blank"}
+            href={`https://${esdomain}/address/${state.receivingAddress}`}
+          >
+            {"View on Etherscan ↗"}
           </Anchor>
 
           <StatelessTransaction

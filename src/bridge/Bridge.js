@@ -1,24 +1,26 @@
-import { Just, Nothing } from 'folktale/maybe';
-import * as lodash from 'lodash';
-import * as azimuth from 'azimuth-js';
-import { Stack } from 'immutable';
-import { CONTRACT_ADDRESSES } from './lib/contracts';
-import React from 'react';
+import { Just, Nothing } from "folktale/maybe";
+import { includes } from "lodash";
+import * as azimuth from "azimuth-js";
+import { CONTRACT_ADDRESSES } from "./lib/contracts";
+import React from "react";
 
-import Web3 from 'web3';
-import Footer from './components/Footer';
-import Header from './components/Header';
-import { Container, Row, Col } from './components/Base';
+import Web3 from "web3";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
+import { Container, Row, Col } from "./components/Base";
 
-import { ROUTE_NAMES, router } from './lib/router';
-import { NETWORK_NAMES } from './lib/network';
+import { router } from "./lib/router";
+import { ROUTE_NAMES } from "./lib/routeNames";
+import { HistoryProvider, withHistory, useHistory } from "./lib/history";
+import { TxnConfirmationsProvider } from "./store/txnConfirmations";
+import { NETWORK_NAMES } from "./lib/network";
 import {
   WALLET_NAMES,
   DEFAULT_HD_PATH,
   walletFromMnemonic,
   addressFromSecp256k1Public,
-} from './lib/wallet';
-import { BRIDGE_ERROR } from './lib/error';
+} from "./lib/wallet";
+import { BRIDGE_ERROR } from "./lib/error";
 
 const initWeb3 = networkType => {
   if (networkType === NETWORK_NAMES.MAINNET) {
@@ -31,7 +33,7 @@ const initWeb3 = networkType => {
     const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.MAINNET);
     return { web3: web3, contracts: contracts };
   } else if (networkType === NETWORK_NAMES.LOCAL) {
-    const protocol = process.env.NODE_ENV === 'development' ? 'ws' : 'wss';
+    const protocol = process.env.NODE_ENV === "development" ? "ws" : "wss";
     const endpoint = `${protocol}://localhost:8545`;
     const provider = new Web3.providers.WebsocketProvider(endpoint);
     const web3 = new Web3(provider);
@@ -40,12 +42,36 @@ const initWeb3 = networkType => {
   }
 };
 
+export const View = function(props) {
+  const history = useHistory();
+  const Route = router(history.peek());
+
+  return <Route {...props} />;
+};
+
+const VariableWidthColumn = withHistory(({ history, children }) => (
+  // For the invite acceptance flow, widen the screen to use the full
+  // container, and hide the breadcrumbs
+  <Col
+    className={
+      history.includes(ROUTE_NAMES.INVITE_TICKET)
+        ? "col-md-12"
+        : "col-md-offset-1 col-md-10"
+    }
+    style={
+      history.includes(ROUTE_NAMES.INVITE_TICKET) ? {} : { maxWidth: "620px" }
+    }
+  >
+    {children}
+  </Col>
+));
+
 class Bridge extends React.Component {
   constructor(props) {
     super(props);
 
     const networkType =
-      process.env.NODE_ENV === 'development'
+      process.env.NODE_ENV === "development"
         ? NETWORK_NAMES.LOCAL
         : NETWORK_NAMES.MAINNET;
 
@@ -67,9 +93,6 @@ class Bridge extends React.Component {
     // 'EthereumWallet'.
 
     this.state = {
-      // routes
-      routeCrumbs: Stack([ROUTE_NAMES.LANDING]),
-      routeData: {},
       // network
       networkType: networkType,
       web3: Just(web3),
@@ -90,9 +113,6 @@ class Bridge extends React.Component {
       txnConfirmations: {},
     };
 
-    this.pushRoute = this.pushRoute.bind(this);
-    this.popRoute = this.popRoute.bind(this);
-    this.skipRoute = this.skipRoute.bind(this);
     this.setNetworkType = this.setNetworkType.bind(this);
     this.setNetwork = this.setNetwork.bind(this);
     this.setWalletType = this.setWalletType.bind(this);
@@ -102,24 +122,15 @@ class Bridge extends React.Component {
     this.setAuthMnemonic = this.setAuthMnemonic.bind(this);
     this.setPointCursor = this.setPointCursor.bind(this);
     this.setTxnHashCursor = this.setTxnHashCursor.bind(this);
-    this.setTxnConfirmations = this.setTxnConfirmations.bind(this);
     this.setNetworkSeedCache = this.setNetworkSeedCache.bind(this);
     this.addToPointCache = this.addToPointCache.bind(this);
   }
 
   componentDidMount() {
-    window.history.pushState(null, null, null);
-
-    window.onpopstate = e => {
-      window.history.pushState(null, null, null);
-      this.popRoute();
-    };
-
     // NB (jtobin):
     //
     // If running in development, the following can be tweaked to get you set
     // up with a desirable initial state.
-
     // if (process.env.NODE_ENV === 'development') {
     //
     //   const socket = 'ws://localhost:8545'
@@ -152,34 +163,8 @@ class Bridge extends React.Component {
     // }
   }
 
-  pushRoute(symbol, routeData) {
-    if (lodash.includes(ROUTE_NAMES, symbol)) {
-      this.setState((state, _) => ({
-        routeCrumbs: state.routeCrumbs.push(symbol),
-        routeData: routeData,
-      }));
-
-      // Scroll to top of page with each route transition.
-      window.scrollTo(0, 0);
-    } else {
-      throw BRIDGE_ERROR.INVALID_ROUTE;
-    }
-  }
-
-  skipRoute(len) {
-    this.setState((state, _) => ({
-      routeCrumbs: state.routeCrumbs.skip(len),
-    }));
-  }
-
-  popRoute() {
-    this.setState((state, _) => ({
-      routeCrumbs: state.routeCrumbs.shift(),
-    }));
-  }
-
   setNetworkType(symbol) {
-    if (lodash.includes(NETWORK_NAMES, symbol)) {
+    if (includes(NETWORK_NAMES, symbol)) {
       this.setState({
         networkType: symbol,
       });
@@ -203,7 +188,7 @@ class Bridge extends React.Component {
   }
 
   setWalletType(symbol) {
-    if (lodash.includes(WALLET_NAMES, symbol)) {
+    if (includes(WALLET_NAMES, symbol)) {
       this.setState({
         walletType: symbol,
       });
@@ -232,7 +217,7 @@ class Bridge extends React.Component {
       wallet = walletFromMnemonic(
         mnemonic,
         DEFAULT_HD_PATH,
-        urbitWallet.value.meta.passphrase
+        urbitWallet.value.meta.passphrase,
       );
       wallet.map(wal => {
         wal.address = urbitWallet.value.ownership.keys.address;
@@ -260,23 +245,8 @@ class Bridge extends React.Component {
     this.setState({ txnHashCursor });
   }
 
-  setTxnConfirmations(txnHash, txnConfirmations) {
-    this.setState((prevState, _) => {
-      return prevState.routeCrumbs.peek() === ROUTE_NAMES.SENT_TRANSACTION
-        ? {
-            txnConfirmations: {
-              ...prevState.txnConfirmations,
-              [txnHash]: txnConfirmations,
-            },
-          }
-        : null;
-    });
-  }
-
   render() {
     const {
-      routeCrumbs,
-      routeData,
       networkType,
       walletType,
       walletHdPath,
@@ -288,87 +258,66 @@ class Bridge extends React.Component {
       pointCursor,
       pointCache,
       txnHashCursor,
-      txnConfirmations,
       web3,
       contracts,
     } = this.state;
 
-    const View = router(routeCrumbs.peek());
-
-    // For the invite acceptance flow, widen the screen to use the full
-    // container, and hide the breadcrumbs
-    const colClass = routeCrumbs.contains(ROUTE_NAMES.INVITE_TICKET)
-      ? 'col-md-12'
-      : 'col-md-offset-1 col-md-10';
-
-    const colStyle = routeCrumbs.contains(ROUTE_NAMES.INVITE_TICKET)
-      ? {}
-      : { maxWidth: '620px' };
-
-    const showCrumbs = routeCrumbs.contains(ROUTE_NAMES.INVITE_TICKET)
-      ? false
-      : true;
-
     return (
-      <Container>
-        <Row>
-          <Col className={colClass} style={colStyle}>
-            <Header
-              routeCrumbs={routeCrumbs}
-              skipRoute={this.skipRoute}
-              networkType={networkType}
-              wallet={wallet}
-              showCrumbs={showCrumbs}
-              pointCursor={pointCursor}
-            />
+      <HistoryProvider initialRoutes={[{ name: ROUTE_NAMES.LANDING }]}>
+        <TxnConfirmationsProvider>
+          <Container>
+            <Row>
+              <VariableWidthColumn>
+                <Header
+                  skipRoute={this.skipRoute}
+                  networkType={networkType}
+                  wallet={wallet}
+                  pointCursor={pointCursor}
+                />
 
-            <Row className={'row wrapper'}>
-              <View
-                // router
-                pushRoute={this.pushRoute}
-                popRoute={this.popRoute}
-                routeData={routeData}
-                // network
-                setNetworkType={this.setNetworkType}
-                setNetwork={this.setNetwork}
-                networkType={networkType}
-                web3={web3}
-                contracts={contracts}
-                // wallet
-                setWalletType={this.setWalletType}
-                setWalletHdPath={this.setWalletHdPath}
-                setWallet={this.setWallet}
-                walletType={walletType}
-                walletHdPath={walletHdPath}
-                wallet={wallet}
-                // urbit wallet
-                urbitWallet={urbitWallet}
-                setUrbitWallet={this.setUrbitWallet}
-                authMnemonic={authMnemonic}
-                setAuthMnemonic={this.setAuthMnemonic}
-                // point
-                setPointCursor={this.setPointCursor}
-                addToPointCache={this.addToPointCache}
-                pointCursor={pointCursor}
-                pointCache={pointCache}
-                networkSeedCache={networkSeedCache}
-                networkRevisionCache={networkRevisionCache}
-                setNetworkSeedCache={this.setNetworkSeedCache}
-                // txn
-                onSent={this.setTxnHashCursor}
-                setTxnHashCursor={this.setTxnHashCursor}
-                txnHashCursor={txnHashCursor}
-                setTxnConfirmations={this.setTxnConfirmations}
-                txnConfirmations={txnConfirmations}
-              />
+                <Row className={"row wrapper"}>
+                  <View
+                    // network
+                    setNetworkType={this.setNetworkType}
+                    setNetwork={this.setNetwork}
+                    networkType={networkType}
+                    web3={web3}
+                    contracts={contracts}
+                    // wallet
+                    setWalletType={this.setWalletType}
+                    setWalletHdPath={this.setWalletHdPath}
+                    setWallet={this.setWallet}
+                    walletType={walletType}
+                    walletHdPath={walletHdPath}
+                    wallet={wallet}
+                    // urbit wallet
+                    urbitWallet={urbitWallet}
+                    setUrbitWallet={this.setUrbitWallet}
+                    authMnemonic={authMnemonic}
+                    setAuthMnemonic={this.setAuthMnemonic}
+                    // point
+                    setPointCursor={this.setPointCursor}
+                    addToPointCache={this.addToPointCache}
+                    pointCursor={pointCursor}
+                    pointCache={pointCache}
+                    networkSeedCache={networkSeedCache}
+                    networkRevisionCache={networkRevisionCache}
+                    setNetworkSeedCache={this.setNetworkSeedCache}
+                    // txn
+                    onSent={this.setTxnHashCursor}
+                    setTxnHashCursor={this.setTxnHashCursor}
+                    txnHashCursor={txnHashCursor}
+                  />
 
-              <div className={'push'} />
+                  <div className={"push"} />
+                </Row>
+
+                <Footer />
+              </VariableWidthColumn>
             </Row>
-
-            <Footer />
-          </Col>
-        </Row>
-      </Container>
+          </Container>
+        </TxnConfirmationsProvider>
+      </HistoryProvider>
     );
   }
 }

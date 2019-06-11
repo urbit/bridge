@@ -1,25 +1,27 @@
-import Maybe from 'folktale/maybe';
-import React from 'react';
-import * as need from '../lib/need';
-import { Row, Col, H1, H3, P, Warning, Anchor } from '../components/Base';
-import { Button } from '../components/Base';
+import Maybe from "folktale/maybe";
+import React from "react";
+import * as need from "../lib/need";
+import { Row, Col, H1, H3, P, Warning, Anchor } from "../components/Base";
+import { Button } from "../components/Base";
 
-import { ROUTE_NAMES } from '../lib/router';
-import { BRIDGE_ERROR, renderTxnError } from '../lib/error';
-import { NETWORK_NAMES } from '../lib/network';
+import { ROUTE_NAMES } from "../lib/routeNames";
+import { useHistory } from "../lib/history";
+import { BRIDGE_ERROR, renderTxnError } from "../lib/error";
+import { NETWORK_NAMES } from "../lib/network";
+import { withTxnConfirmations } from "../store/txnConfirmations";
 
 class Success extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      pending: '.',
+      pending: ".",
       interval: null,
     };
   }
 
   componentDidMount() {
-    const nextDot = { '.': '..', '..': '...', '...': '.' };
+    const nextDot = { ".": "..", "..": "...", "...": "." };
 
     const interval = setInterval(() => {
       this.setState(({ pending }) => ({ pending: nextDot[pending] }));
@@ -42,27 +44,28 @@ class Success extends React.Component {
 
     const esdomain =
       networkType === NETWORK_NAMES.ROPSTEN
-        ? 'ropsten.etherscan.io'
-        : 'etherscan.io';
+        ? "ropsten.etherscan.io"
+        : "etherscan.io";
 
     const esmessage =
       esvisible === true
-        ? 'If you’d like to keep track of it, click the Etherscan link below.'
-        : '';
+        ? "If you’d like to keep track of it, click the Etherscan link below."
+        : "";
 
     const esanchor =
       esvisible === false ? null : (
         <Anchor
-          className={'mb-4 mt-1'}
-          prop-size={'sm'}
-          target={'_blank'}
-          href={`https://${esdomain}/tx/${hash}`}>
-          {'View on Etherscan ↗'}
+          className={"mb-4 mt-1"}
+          prop-size={"sm"}
+          target={"_blank"}
+          href={`https://${esdomain}/tx/${hash}`}
+        >
+          {"View on Etherscan ↗"}
         </Anchor>
       );
 
     const confirmations = Maybe.fromNullable(txnConfirmations[hash]).getOrElse(
-      0
+      0,
     );
 
     const requiredConfirmations = 1;
@@ -75,17 +78,17 @@ class Success extends React.Component {
     return (
       <Row>
         <Col>
-          <H1>{'Your Transaction was Sent'}</H1>
+          <H1>{"Your Transaction was Sent"}</H1>
 
           <P>
             {`We sent your transaction to the chain. It can take some time to
             execute, especially if the network is busy. ${esmessage}`}
           </P>
 
-          <H3>{'Transaction Hash'}</H3>
+          <H3>{"Transaction Hash"}</H3>
           <P>{hash}</P>
 
-          <H3>{'Transaction Status'}</H3>
+          <H3>{"Transaction Status"}</H3>
           <P>{status}</P>
           <P>{esanchor}</P>
         </Col>
@@ -97,10 +100,10 @@ class Success extends React.Component {
 const Failure = props => (
   <Row>
     <Col>
-      <H1>{'Error!'}</H1>
+      <H1>{"Error!"}</H1>
 
       <Warning>
-        <H3>{'There was an error sending your transaction.'}</H3>
+        <H3>{"There was an error sending your transaction."}</H3>
         {renderTxnError(props.web3, props.message)}
       </Warning>
     </Col>
@@ -108,16 +111,11 @@ const Failure = props => (
 );
 
 const SentTransaction = props => {
-  const {
-    txnHashCursor,
-    networkType,
-    popRoute,
-    pushRoute,
-    txnConfirmations,
-  } = props;
+  const history = useHistory();
+  const { txnHashCursor, networkType, txnConfirmations } = props;
   const { setPointCursor, pointCursor } = props;
 
-  const promptKeyfile = props.routeData && props.routeData.promptKeyfile;
+  const promptKeyfile = history.data() && history.data().promptKeyfile;
 
   const w3 = need.web3(props);
 
@@ -143,12 +141,13 @@ const SentTransaction = props => {
     <Row>
       <Col>
         <Button
-          prop-type={'link'}
+          prop-type={"link"}
           onClick={() => {
             setPointCursor(pointCursor);
-            popRoute();
-          }}>
-          {'Ok →'}
+            history.pop();
+          }}
+        >
+          {"Ok →"}
         </Button>
       </Col>
     </Row>
@@ -161,12 +160,10 @@ const SentTransaction = props => {
       <Row>
         <Col>
           <Button
-            prop-type={'link'}
-            onClick={() => {
-              popRoute();
-              pushRoute(ROUTE_NAMES.GEN_KEYFILE);
-            }}>
-            {'Download Keyfile →'}
+            prop-type={"link"}
+            onClick={() => history.popAndPush(ROUTE_NAMES.GEN_KEYFILE)}
+          >
+            {"Download Keyfile →"}
           </Button>
         </Col>
       </Row>
@@ -182,4 +179,4 @@ const SentTransaction = props => {
   );
 };
 
-export default SentTransaction;
+export default withTxnConfirmations(SentTransaction);

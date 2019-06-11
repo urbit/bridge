@@ -1,23 +1,23 @@
-import React from 'react';
-import Maybe from 'folktale/maybe';
-import * as need from '../lib/need';
+import React from "react";
+import Maybe from "folktale/maybe";
+import * as need from "../lib/need";
 
-import { Button } from '../components/Base';
-import { Row, Col, H1, P } from '../components/Base';
+import { Button } from "../components/Base";
+import { Row, Col, H1, P } from "../components/Base";
 
-import * as ob from 'urbit-ob';
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index';
-import saveAs from 'file-saver';
+import * as ob from "urbit-ob";
+import * as kg from "urbit-key-generation/dist/index";
+import saveAs from "file-saver";
 
-import { attemptSeedDerivation, genKey } from '../lib/keys';
-import { addHexPrefix } from '../lib/wallet';
+import { attemptSeedDerivation, genKey } from "../lib/keys";
+import { addHexPrefix } from "../lib/wallet";
 
 class GenKeyfile extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      keyfile: '',
+      keyfile: "",
       loaded: false,
     };
   }
@@ -42,7 +42,7 @@ class GenKeyfile extends React.Component {
 
   async componentDidMount() {
     const { point, pointDetails, revision } = this.getPointDetails();
-    let keyfile = '';
+    let keyfile = "";
 
     const hexRegExp = /[0-9A-Fa-f]{64}/g;
     const networkSeed = await this.deriveSeed();
@@ -77,11 +77,11 @@ class GenKeyfile extends React.Component {
     const next = false;
     let seed = await attemptSeedDerivation(next, this.props);
 
-    if (seed.getOrElse('') === '' && this.props.networkSeedCache) {
+    if (seed.getOrElse("") === "" && this.props.networkSeedCache) {
       seed = Maybe.Just(this.props.networkSeedCache);
     }
 
-    return seed.getOrElse('');
+    return seed.getOrElse("");
   }
 
   render() {
@@ -90,14 +90,14 @@ class GenKeyfile extends React.Component {
 
     return (
       <Row>
-        <Col className={'col-md-8'}>
-          <H1>{'Generate keyfile'}</H1>
+        <Col className={"col-md-8"}>
+          <H1>{"Generate keyfile"}</H1>
 
-          <P>{'Download a private key file for booting this point in Arvo.'}</P>
+          <P>{"Download a private key file for booting this point in Arvo."}</P>
 
-          {keyfile === '' && !loaded && <P>{'Generating keyfile...'}</P>}
+          {keyfile === "" && !loaded && <P>{"Generating keyfile..."}</P>}
 
-          {keyfile === '' && loaded && (
+          {keyfile === "" && loaded && (
             <React.Fragment>
               <P>
                 <b>Warning: </b>
@@ -112,16 +112,17 @@ class GenKeyfile extends React.Component {
             </React.Fragment>
           )}
 
-          {keyfile !== '' && (
+          {keyfile !== "" && (
             <React.Fragment>
               <div className="pb-5 text-code keyfile">{keyfile}</div>
               <Button
                 onClick={() => {
                   let blob = new Blob([keyfile], {
-                    type: 'text/plain;charset=utf-8',
+                    type: "text/plain;charset=utf-8",
                   });
                   saveAs(blob, `${ob.patp(point).slice(1)}-${revision}.key`);
-                }}>
+                }}
+              >
                 Download →
               </Button>
             </React.Fragment>

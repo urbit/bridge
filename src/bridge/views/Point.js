@@ -1,15 +1,16 @@
-import { Just, Nothing } from 'folktale/maybe';
-import React from 'react';
-import { pour } from 'sigil-js';
-import * as ob from 'urbit-ob';
-import * as azimuth from 'azimuth-js';
-import * as need from '../lib/need';
+import { Just, Nothing } from "folktale/maybe";
+import React from "react";
+import { pour } from "sigil-js";
+import * as ob from "urbit-ob";
+import * as azimuth from "azimuth-js";
+import * as need from "../lib/need";
 
-import PointList from '../components/PointList';
-import ReactSVGComponents from '../components/ReactSVGComponents';
-import KeysAndMetadata from './Point/KeysAndMetadata';
-import Actions from './Point/Actions';
-import { Row, Col, H1, H3 } from '../components/Base';
+import PointList from "../components/PointList";
+import ReactSVGComponents from "../components/ReactSVGComponents";
+import KeysAndMetadata from "./Point/KeysAndMetadata";
+import Actions from "./Point/Actions";
+import { Row, Col, H1, H3 } from "../components/Base";
+import { withHistory } from "../lib/history";
 
 class Point extends React.Component {
   constructor(props) {
@@ -54,8 +55,8 @@ class Point extends React.Component {
             .getTotalUsableInvites(ctrcs, point)
             .then(count => this.setState({ invites: Just(count) }));
           this.updateSpawned(ctrcs, point);
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -73,14 +74,7 @@ class Point extends React.Component {
   };
 
   render() {
-    const {
-      web3,
-      popRoute,
-      pushRoute,
-      wallet,
-      setPointCursor,
-      pointCache,
-    } = this.props;
+    const { web3, history, wallet, setPointCursor, pointCache } = this.props;
 
     const { spawned } = this.state;
 
@@ -101,21 +95,16 @@ class Point extends React.Component {
 
     const authenticated = Just.hasInstance(wallet);
 
-    const routeHandler = route => {
-      popRoute();
-      pushRoute(route);
-    };
-
     const issuedPointList =
       spawned.length === 0 ? (
         <div />
       ) : (
         <div>
-          <H3>{'Issued Points'}</H3>
+          <H3>{"Issued Points"}</H3>
 
           <PointList
             setPointCursor={setPointCursor}
-            routeHandler={routeHandler}
+            routeHandler={history.popAndPush}
             points={spawned}
           />
         </div>
@@ -124,13 +113,12 @@ class Point extends React.Component {
     return (
       <Row>
         <Col>
-          <div className={'mt-12 pt-6'}>{sigil}</div>
+          <div className={"mt-12 pt-6"}>{sigil}</div>
           <H1>
             <code>{name}</code>
           </H1>
           {authenticated ? (
             <Actions
-              pushRoute={pushRoute}
               online={online}
               wallet={wallet}
               point={point}
@@ -147,4 +135,4 @@ class Point extends React.Component {
   }
 }
 
-export default Point;
+export default withHistory(Point);

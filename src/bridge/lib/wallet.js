@@ -1,85 +1,85 @@
-import * as bip32 from 'bip32';
-import * as bip39 from 'bip39';
-import keccak from 'keccak';
-import * as lodash from 'lodash';
-import Maybe from 'folktale/maybe';
-import * as secp256k1 from 'secp256k1';
-import * as ob from 'urbit-ob';
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index';
-import { isAddress } from 'web3-utils';
+import * as bip32 from "bip32";
+import * as bip39 from "bip39";
+import keccak from "keccak";
+import * as lodash from "lodash";
+import Maybe from "folktale/maybe";
+import * as secp256k1 from "secp256k1";
+import * as ob from "urbit-ob";
+import * as kg from "urbit-key-generation/dist/index";
+import { isAddress } from "web3-utils";
 
 const DEFAULT_HD_PATH = "m/44'/60'/0'/0/0";
 
-const ETH_ZERO_ADDR = '0x0000000000000000000000000000000000000000';
+const ETH_ZERO_ADDR = "0x0000000000000000000000000000000000000000";
 const CURVE_ZERO_ADDR =
-  '0x0000000000000000000000000000000000000000000000000000000000000000';
+  "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 const WALLET_NAMES = {
-  MNEMONIC: Symbol('MNEMONIC'),
-  TICKET: Symbol('TICKET'),
-  SHARDS: Symbol('SHARDS'),
-  LEDGER: Symbol('LEDGER'),
-  TREZOR: Symbol('TREZOR'),
-  PRIVATE_KEY: Symbol('PRIVATE_KEY'),
-  KEYSTORE: Symbol('KEYSTORE'),
+  MNEMONIC: Symbol("MNEMONIC"),
+  TICKET: Symbol("TICKET"),
+  SHARDS: Symbol("SHARDS"),
+  LEDGER: Symbol("LEDGER"),
+  TREZOR: Symbol("TREZOR"),
+  PRIVATE_KEY: Symbol("PRIVATE_KEY"),
+  KEYSTORE: Symbol("KEYSTORE"),
 };
 
 function EthereumWallet(privateKey) {
   this.privateKey = privateKey;
   this.publicKey = secp256k1.publicKeyCreate(this.privateKey);
-  const pub = this.publicKey.toString('hex');
+  const pub = this.publicKey.toString("hex");
   this.address = addressFromSecp256k1Public(pub);
 }
 
 const renderWalletType = wallet =>
   wallet === WALLET_NAMES.MNEMONIC
-    ? 'Mnemonic'
+    ? "Mnemonic"
     : wallet === WALLET_NAMES.TICKET
-    ? 'Ticket'
+    ? "Ticket"
     : wallet === WALLET_NAMES.SHARDS
-    ? 'Ticket Shards'
+    ? "Ticket Shards"
     : wallet === WALLET_NAMES.LEDGER
-    ? 'Ledger'
+    ? "Ledger"
     : wallet === WALLET_NAMES.TREZOR
-    ? 'Trezor'
+    ? "Trezor"
     : wallet === WALLET_NAMES.PRIVATE_KEY
-    ? 'Private Key'
+    ? "Private Key"
     : wallet === WALLET_NAMES.KEYSTORE
-    ? 'Keystore File'
-    : 'Wallet';
+    ? "Keystore File"
+    : "Wallet";
 
 const addressFromSecp256k1Public = pub => {
   const compressed = false;
   const uncompressed = secp256k1.publicKeyConvert(
-    Buffer.from(pub, 'hex'),
-    compressed
+    Buffer.from(pub, "hex"),
+    compressed,
   );
   const chopped = uncompressed.slice(1); // chop parity byte
   const hashed = keccak256(chopped);
-  const addr = addHexPrefix(hashed.slice(-20).toString('hex'));
+  const addr = addHexPrefix(hashed.slice(-20).toString("hex"));
   return toChecksumAddress(addr);
 };
 
-const addHexPrefix = hex => (hex.slice(0, 2) === '0x' ? hex : '0x' + hex);
+const addHexPrefix = hex => (hex.slice(0, 2) === "0x" ? hex : "0x" + hex);
 
-const stripHexPrefix = hex => (hex.slice(0, 2) === '0x' ? hex.slice(2) : hex);
+const stripHexPrefix = hex => (hex.slice(0, 2) === "0x" ? hex.slice(2) : hex);
 
 const keccak256 = str =>
-  keccak('keccak256')
+  keccak("keccak256")
     .update(str)
     .digest();
 
-const isValidAddress = a => '0x0' === a || isAddress(a);
+const isValidAddress = a => "0x0" === a || isAddress(a);
 
 const toChecksumAddress = address => {
   const addr = stripHexPrefix(address).toLowerCase();
-  const hash = keccak256(addr).toString('hex');
+  const hash = keccak256(addr).toString("hex");
 
   return lodash.reduce(
     addr,
     (acc, char, idx) =>
       parseInt(hash[idx], 16) >= 8 ? acc + char.toUpperCase() : acc + char,
-    '0x'
+    "0x",
   );
 };
 
@@ -87,7 +87,7 @@ const eqAddr = (addr0, addr1) =>
   toChecksumAddress(addr0) === toChecksumAddress(addr1);
 
 const urbitWalletFromTicket = async (ticket, point, passphrase) => {
-  if (typeof point === 'string') {
+  if (typeof point === "string") {
     //TODO why not in kg?
     point = ob.patp2dec(point);
   }
@@ -100,7 +100,7 @@ const urbitWalletFromTicket = async (ticket, point, passphrase) => {
 };
 
 const ownershipWalletFromTicket = async (ticket, point, passphrase) => {
-  if (typeof point === 'string') {
+  if (typeof point === "string") {
     //TODO why not in kg?
     point = ob.patp2dec(point);
   }

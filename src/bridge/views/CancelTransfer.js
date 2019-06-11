@@ -1,12 +1,12 @@
-import Maybe from 'folktale/maybe';
-import React from 'react';
-import { Row, Col, H1, P } from '../components/Base';
-import * as azimuth from 'azimuth-js';
-import * as ob from 'urbit-ob';
-import * as need from '../lib/need';
+import Maybe from "folktale/maybe";
+import React from "react";
+import { Row, Col, H1, P } from "../components/Base";
+import * as azimuth from "azimuth-js";
+import * as ob from "urbit-ob";
+import * as need from "../lib/need";
 
-import StatelessTransaction from '../components/StatelessTransaction';
-import { ETH_ZERO_ADDR } from '../lib/wallet';
+import StatelessTransaction from "../components/StatelessTransaction";
+import { ETH_ZERO_ADDR } from "../lib/wallet";
 
 class CancelTransfer extends React.Component {
   constructor(props) {
@@ -15,7 +15,7 @@ class CancelTransfer extends React.Component {
     const pointInTransfer = need.pointCursor(props);
 
     this.state = {
-      proxyAddress: '',
+      proxyAddress: "",
       pointInTransfer: pointInTransfer,
     };
 
@@ -32,7 +32,7 @@ class CancelTransfer extends React.Component {
     const txn = azimuth.ecliptic.setTransferProxy(
       validContracts,
       validPoint,
-      ETH_ZERO_ADDR
+      ETH_ZERO_ADDR,
     );
 
     return Maybe.Just(txn);
@@ -45,7 +45,7 @@ class CancelTransfer extends React.Component {
 
     const proxy = online
       ? props.pointCache[state.pointInTransfer].transferProxy
-      : 'any outgoing addresses';
+      : "any outgoing addresses";
 
     // const canGenerate = validAddress === true
 
@@ -55,7 +55,7 @@ class CancelTransfer extends React.Component {
       <Row>
         <Col>
           <H1>
-            {'Cancel Transfer of '}{' '}
+            {"Cancel Transfer of "}{" "}
             <code>{` ${ob.patp(state.pointInTransfer)} `}</code>
           </H1>
 

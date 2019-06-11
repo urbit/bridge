@@ -1,19 +1,20 @@
-import * as bip32 from 'bip32';
-import React from 'react';
-import Maybe from 'folktale/maybe';
-import { Button } from '../components/Base';
-import { Row, Col, H1, P, H2 } from '../components/Base';
-import { Input, InnerLabel, InnerLabelDropdown } from '../components/Base';
-import Transport from '@ledgerhq/hw-transport-u2f';
-import Eth from '@ledgerhq/hw-app-eth';
-import * as secp256k1 from 'secp256k1';
+import * as bip32 from "bip32";
+import React from "react";
+import Maybe from "folktale/maybe";
+import { Button } from "../components/Base";
+import { Row, Col, H1, P, H2 } from "../components/Base";
+import { Input, InnerLabel, InnerLabelDropdown } from "../components/Base";
+import Transport from "@ledgerhq/hw-transport-u2f";
+import Eth from "@ledgerhq/hw-app-eth";
+import * as secp256k1 from "secp256k1";
 
-import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from '../lib/ledger';
-import { ROUTE_NAMES } from '../lib/router';
+import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from "../lib/ledger";
+import { ROUTE_NAMES } from "../lib/routeNames";
+import { withHistory } from "../lib/history";
 
-const chopHdPrefix = str => (str.slice(0, 2) === 'm/' ? str.slice(2) : str);
+const chopHdPrefix = str => (str.slice(0, 2) === "m/" ? str.slice(2) : str);
 
-const addHdPrefix = str => (str.slice(0, 2) === 'm/' ? str : 'm/' + str);
+const addHdPrefix = str => (str.slice(0, 2) === "m/" ? str : "m/" + str);
 
 class Ledger extends React.Component {
   constructor(props) {
@@ -42,7 +43,7 @@ class Ledger extends React.Component {
 
   updateHdPath(basePath, account) {
     let hdpath = this.state.hdpath;
-    if (basePath !== 'custom') {
+    if (basePath !== "custom") {
       hdpath = basePath.replace(/x/g, account);
     }
     this.setState({ basePath, account, hdpath });
@@ -62,8 +63,8 @@ class Ledger extends React.Component {
 
     eth.getAddress(path, false, true).then(
       info => {
-        const publicKey = Buffer.from(info.publicKey, 'hex');
-        const chainCode = Buffer.from(info.chainCode, 'hex');
+        const publicKey = Buffer.from(info.publicKey, "hex");
+        const chainCode = Buffer.from(info.chainCode, "hex");
         const pub = secp256k1.publicKeyConvert(publicKey, true);
         const hd = bip32.fromPublicKey(pub, chainCode);
         setWallet(Maybe.Just(hd));
@@ -71,21 +72,21 @@ class Ledger extends React.Component {
       },
       _ => {
         setWallet(Maybe.Nothing());
-      }
+      },
     );
   }
 
   render() {
-    const { pushRoute, popRoute, wallet } = this.props;
+    const { history, wallet } = this.props;
     const { basePath, hdpath, account } = this.state;
     const { handlePathSelection, handleAccountSelection } = this;
 
     const pathOptions = [
-      { title: 'Ledger Live', value: LEDGER_LIVE_PATH },
-      { title: 'Ledger Legacy', value: LEDGER_LEGACY_PATH },
+      { title: "Ledger Live", value: LEDGER_LIVE_PATH },
+      { title: "Ledger Legacy", value: LEDGER_LEGACY_PATH },
       {
-        title: 'Custom path',
-        value: 'custom',
+        title: "Custom path",
+        value: "custom",
       },
     ];
     let basePathTitle = pathOptions.find(o => o.value === basePath).title;
@@ -93,7 +94,7 @@ class Ledger extends React.Component {
     let accountOptions = [];
     for (let i = 0; i < 20; i++) {
       accountOptions.push({
-        title: 'Account #' + (i + 1),
+        title: "Account #" + (i + 1),
         value: i,
       });
     }
@@ -104,14 +105,14 @@ class Ledger extends React.Component {
         className="mt-8"
         options={pathOptions}
         handleUpdate={handlePathSelection}
-        title={'Derivation path'}
+        title={"Derivation path"}
         currentSelectionTitle={basePathTitle}
         fullWidth={true}
       />
     );
 
     const truePathSelection =
-      basePath === 'custom' ? (
+      basePath === "custom" ? (
         <Input
           className="pt-8 mt-4 text-mono"
           prop-size="md"
@@ -119,8 +120,9 @@ class Ledger extends React.Component {
           name="hdpath"
           value={addHdPrefix(hdpath)}
           autocomplete="off"
-          onChange={this.handleHdPathInput}>
-          <InnerLabel>{'HD Path'}</InnerLabel>
+          onChange={this.handleHdPathInput}
+        >
+          <InnerLabel>{"HD Path"}</InnerLabel>
         </Input>
       ) : (
         <InnerLabelDropdown
@@ -129,7 +131,7 @@ class Ledger extends React.Component {
           prop-format="innerLabel"
           options={accountOptions}
           handleUpdate={handleAccountSelection}
-          title={'Account'}
+          title={"Account"}
           currentSelectionTitle={accountTitle}
           fullWidth={true}
         />
@@ -137,10 +139,10 @@ class Ledger extends React.Component {
 
     return (
       <Row>
-        <Col className={'measure-md'}>
-          <H1>{'Authenticate With Your Ledger'}</H1>
+        <Col className={"measure-md"}>
+          <H1>{"Authenticate With Your Ledger"}</H1>
 
-          <H2>{'Running on HTTPS?'}</H2>
+          <H2>{"Running on HTTPS?"}</H2>
 
           <P>
             {`Connect and authenticate to your Ledger, and then open the
@@ -155,41 +157,42 @@ class Ledger extends React.Component {
                  it below.`}
           </P>
 
-          <H2>{'Running on HTTP?'}</H2>
+          <H2>{"Running on HTTP?"}</H2>
 
           <P>{`To authenticate and sign transactions with a Ledger, Bridge
               must be serving over HTTPS on localhost. You can do this via the
               following:`}</P>
 
-          <ol className={'measure-md'}>
-            <li className={'mt-4'}>
-              {'Install'}{' '}
+          <ol className={"measure-md"}>
+            <li className={"mt-4"}>
+              {"Install"}{" "}
               <a
-                target={'_blank'}
-                href={'https://github.com/FiloSottile/mkcert'}>
-                {'mkcert'}
+                target={"_blank"}
+                href={"https://github.com/FiloSottile/mkcert"}
+              >
+                {"mkcert"}
               </a>
             </li>
-            <li className={'mt-4'}>
-              {'Install a local certificate authority via '}
-              <code>{'mkcert -install'}</code>
+            <li className={"mt-4"}>
+              {"Install a local certificate authority via "}
+              <code>{"mkcert -install"}</code>
             </li>
-            <li className={'mt-4'}>
-              {'In your '}
-              <code>{'bridge'}</code>
+            <li className={"mt-4"}>
+              {"In your "}
+              <code>{"bridge"}</code>
               {
-                ' directory, generate a certificate valid for localhost via '
-              }{' '}
-              <code>{'mkcert localhost'}</code>
-              {'.'}
-              {'This will produce two files: '}
-              <code>{'localhost.pem'}</code> {', the local certificate, and '}
-              <code>{'localhost-key.pem'}</code>
-              {', its corresponding private key.'}
+                " directory, generate a certificate valid for localhost via "
+              }{" "}
+              <code>{"mkcert localhost"}</code>
+              {"."}
+              {"This will produce two files: "}
+              <code>{"localhost.pem"}</code> {", the local certificate, and "}
+              <code>{"localhost-key.pem"}</code>
+              {", its corresponding private key."}
             </li>
-            <li className={'mt-4'}>
-              {'Run '}
-              <code>{'python bridge-https.py'}</code>
+            <li className={"mt-4"}>
+              {"Run "}
+              <code>{"python bridge-https.py"}</code>
             </li>
           </ol>
 
@@ -197,21 +200,20 @@ class Ledger extends React.Component {
           {truePathSelection}
 
           <Button
-            prop-size={'wide lg'}
-            className={'mt-8'}
-            onClick={this.pollDevice}>
-            {'Authenticate →'}
+            prop-size={"wide lg"}
+            className={"mt-8"}
+            onClick={this.pollDevice}
+          >
+            {"Authenticate →"}
           </Button>
 
           <Button
-            className={'mt-8'}
-            prop-size={'wide lg'}
+            className={"mt-8"}
+            prop-size={"wide lg"}
             disabled={Maybe.Nothing.hasInstance(wallet)}
-            onClick={() => {
-              popRoute();
-              pushRoute(ROUTE_NAMES.SHIPS);
-            }}>
-            {'Continue →'}
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}
+          >
+            {"Continue →"}
           </Button>
         </Col>
       </Row>
@@ -219,4 +221,4 @@ class Ledger extends React.Component {
   }
 }
 
-export default Ledger;
+export default withHistory(Ledger);

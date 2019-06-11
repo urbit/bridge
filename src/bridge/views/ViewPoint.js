@@ -1,19 +1,20 @@
-import Maybe from 'folktale/maybe';
-import React from 'react';
-import * as ob from 'urbit-ob';
+import Maybe from "folktale/maybe";
+import React from "react";
+import * as ob from "urbit-ob";
 
-import { Button } from '../components/Base';
-import { Row, Col, H1, P } from '../components/Base';
-import { InnerLabel, PointInput, ValidatedSigil } from '../components/Base';
+import { Button } from "../components/Base";
+import { Row, Col, H1, P } from "../components/Base";
+import { InnerLabel, PointInput, ValidatedSigil } from "../components/Base";
 
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from "../lib/routeNames";
+import { withHistory } from "../lib/history";
 
 class ViewPoint extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      pointName: '',
+      pointName: "",
     };
 
     this.handlePointInput = this.handlePointInput.bind(this);
@@ -27,7 +28,7 @@ class ViewPoint extends React.Component {
 
   render() {
     const { pointName } = this.state;
-    const { popRoute, pushRoute, setPointCursor } = this.props;
+    const { history, setPointCursor } = this.props;
 
     // NB (jtobin):
     //
@@ -42,9 +43,9 @@ class ViewPoint extends React.Component {
     return (
       <Row>
         <Col>
-          <H1>{'View a Point'}</H1>
+          <H1>{"View a Point"}</H1>
 
-          <P>{'Enter a point name to view its public information.'}</P>
+          <P>{"Enter a point name to view its public information."}</P>
 
           <PointInput
             autoFocus
@@ -53,10 +54,11 @@ class ViewPoint extends React.Component {
             className="mono"
             placeholder="e.g. ~zod"
             onChange={this.handlePointInput}
-            value={pointName}>
-            <InnerLabel>{'Point Name'}</InnerLabel>
+            value={pointName}
+          >
+            <InnerLabel>{"Point Name"}</InnerLabel>
             <ValidatedSigil
-              className={'tr-0 mt-05 mr-0 abs'}
+              className={"tr-0 mt-05 mr-0 abs"}
               patp={pointName}
               show
               size={68}
@@ -65,14 +67,14 @@ class ViewPoint extends React.Component {
           </PointInput>
 
           <Button
-            className={'mt-8'}
+            className={"mt-8"}
             disabled={valid === false}
             onClick={() => {
               setPointCursor(Maybe.Just(ob.patp2dec(pointName)));
-              popRoute();
-              pushRoute(ROUTE_NAMES.SHIP);
-            }}>
-            {'Continue  →'}
+              history.popAndPush(ROUTE_NAMES.SHIP);
+            }}
+          >
+            {"Continue  →"}
           </Button>
         </Col>
       </Row>
@@ -80,4 +82,4 @@ class ViewPoint extends React.Component {
   }
 }
 
-export default ViewPoint;
+export default withHistory(ViewPoint);
