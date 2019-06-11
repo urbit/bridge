@@ -143,7 +143,7 @@ const SentTransaction = props => {
           prop-type={'link'}
           onClick={() => {
             setPointCursor(pointCursor);
-            history.pop();
+            history.pop(2);
           }}>
           {'Ok →'}
         </Button>
