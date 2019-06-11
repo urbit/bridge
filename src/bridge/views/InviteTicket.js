@@ -28,6 +28,7 @@ import {
   TRANSACTION_STATES,
 } from '../lib/invite';
 import { generateWallet, startTransactions } from '../lib/invite';
+import { withNetwork } from '../store/network';
 
 class InviteTicket extends React.Component {
   constructor(props) {
@@ -305,8 +306,8 @@ class InviteTicket extends React.Component {
               realWalletM: realWallet,
               realPointM: realPoint,
               realTicket: verifyTicket,
-              web3M: web3,
-              contractsM: contracts,
+              web3,
+              contracts,
               setUrbitWallet,
               updateProgress: this.updateProgress,
             }).then(() => {
@@ -422,4 +423,4 @@ class InviteTicket extends React.Component {
   }
 }
 
-export default withHistory(InviteTicket);
+export default withNetwork(withHistory(InviteTicket));

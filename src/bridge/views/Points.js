@@ -4,10 +4,11 @@ import { Button } from '../components/Base';
 import * as azimuth from 'azimuth-js';
 
 import PointList from '../components/PointList';
-import { NETWORK_NAMES } from '../lib/network';
+import { NETWORK_TYPES } from '../lib/network';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { ETH_ZERO_ADDR, eqAddr } from '../lib/wallet';
+import { withNetwork } from '../store/network';
 
 const hasTransferProxy = (cache, point) =>
   point in cache ? !eqAddr(cache[point].transferProxy, ETH_ZERO_ADDR) : false;
@@ -17,7 +18,7 @@ class Points extends React.Component {
     super(props);
 
     const { networkType } = props;
-    const loading = networkType !== NETWORK_NAMES.OFFLINE;
+    const loading = networkType !== NETWORK_TYPES.OFFLINE;
 
     this.state = {
       points: [],
@@ -255,4 +256,4 @@ class Points extends React.Component {
   }
 }
 
-export default withHistory(Points);
+export default withNetwork(withHistory(Points));

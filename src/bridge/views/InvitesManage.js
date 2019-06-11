@@ -14,6 +14,7 @@ import {
   ValidatedSigil,
 } from '../components/Base';
 import StatelessTransaction from '../components/StatelessTransaction';
+import { withNetwork } from '../store/network';
 
 class InvitesManage extends React.Component {
   constructor(props) {
@@ -182,4 +183,4 @@ class InvitesManage extends React.Component {
   }
 }
 
-export default InvitesManage;
+export default withNetwork(InvitesManage);

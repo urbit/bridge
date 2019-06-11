@@ -18,6 +18,8 @@ import Download from './views/Download';
 import Done from './views/Done';
 
 import './style/index.css';
+
+// TODO: actually merge these two projects into one
 import { OnlineProvider } from '../bridge/store/online';
 
 const ROUTES = [

@@ -10,7 +10,7 @@ import { router } from './lib/router';
 import { ROUTE_NAMES } from './lib/routeNames';
 import { HistoryProvider, withHistory, useHistory } from './store/history';
 import { TxnConfirmationsProvider } from './store/txnConfirmations';
-import { NETWORK_NAMES } from './lib/network';
+import { NETWORK_TYPES } from './lib/network';
 import {
   WALLET_NAMES,
   DEFAULT_HD_PATH,
@@ -36,9 +36,12 @@ const kInitialRoutes = isStubbed
       { name: ROUTE_NAMES.LANDING },
     ]
   : [{ name: ROUTE_NAMES.LANDING }];
+const kInitialNetworkType = isDevelopment
+  ? NETWORK_TYPES.LOCAL
+  : NETWORK_TYPES.MAINNET;
 
-// the router itself is a component that renders a specific view
-// based on the latest history state
+// the router itself is just a component that renders a specific view
+// depending on the history
 const Router = function(props) {
   const history = useHistory();
   const Route = router(history.peek());
@@ -137,7 +140,7 @@ class Bridge extends React.Component {
   }
 
   setNetworkType(symbol) {
-    if (includes(NETWORK_NAMES, symbol)) {
+    if (includes(NETWORK_TYPES, symbol)) {
       this.setState({
         networkType: symbol,
       });
@@ -225,14 +228,10 @@ class Bridge extends React.Component {
       txnHashCursor,
     } = this.state;
 
-    const initialNetworkType = isDevelopment
-      ? NETWORK_NAMES.LOCAL
-      : NETWORK_NAMES.MAINNET;
-
     return (
       <AllProviders
         initialRoutes={kInitialRoutes}
-        initialNetworkType={initialNetworkType}>
+        initialNetworkType={kInitialNetworkType}>
         <Container>
           <Row>
             <VariableWidthColumn>

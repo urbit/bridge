@@ -7,6 +7,7 @@ import * as need from '../lib/need';
 
 import StatelessTransaction from '../components/StatelessTransaction';
 import { ETH_ZERO_ADDR } from '../lib/wallet';
+import { withNetwork } from '../store/network';
 
 class CancelTransfer extends React.Component {
   constructor(props) {
@@ -73,4 +74,4 @@ class CancelTransfer extends React.Component {
   }
 }
 
-export default CancelTransfer;
+export default withNetwork(CancelTransfer);

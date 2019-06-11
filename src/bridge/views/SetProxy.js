@@ -17,25 +17,14 @@ import * as ob from 'urbit-ob';
 
 import { PROXY_TYPE, renderProxyType } from '../lib/proxy';
 
-import { NETWORK_NAMES } from '../lib/network';
+import { NETWORK_TYPES } from '../lib/network';
 
 import StatelessTransaction from '../components/StatelessTransaction';
 
 import { isValidAddress } from '../lib/wallet';
+import { withNetwork } from '../store/network';
 
-const SetManagementProxy = props => (
-  <SetProxy {...props} proxyType={PROXY_TYPE.MANAGEMENT_PROXY} />
-);
-
-const SetSpawnProxy = props => (
-  <SetProxy {...props} proxyType={PROXY_TYPE.SPAWN_PROXY} />
-);
-
-const SetTransferProxy = props => (
-  <SetProxy {...props} proxyType={PROXY_TYPE.TRANSFER_PROXY} />
-);
-
-class SetProxy extends React.Component {
+class _SetProxy extends React.Component {
   constructor(props) {
     super(props);
 
@@ -99,11 +88,11 @@ class SetProxy extends React.Component {
     const canGenerate = validAddress === true;
 
     const esvisible =
-      props.networkType === NETWORK_NAMES.ROPSTEN ||
-      props.networkType === NETWORK_NAMES.MAINNET;
+      props.networkType === NETWORK_TYPES.ROPSTEN ||
+      props.networkType === NETWORK_TYPES.MAINNET;
 
     const esdomain =
-      props.networkType === NETWORK_NAMES.ROPSTEN
+      props.networkType === NETWORK_TYPES.ROPSTEN
         ? 'ropsten.etherscan.io'
         : 'etherscan.io';
 
@@ -179,4 +168,16 @@ class SetProxy extends React.Component {
   }
 }
 
-export { SetManagementProxy, SetSpawnProxy, SetTransferProxy };
+const SetProxy = withNetwork(_SetProxy);
+
+export const SetManagementProxy = props => (
+  <SetProxy {...props} proxyType={PROXY_TYPE.MANAGEMENT_PROXY} />
+);
+
+export const SetSpawnProxy = props => (
+  <SetProxy {...props} proxyType={PROXY_TYPE.SPAWN_PROXY} />
+);
+
+export const SetTransferProxy = props => (
+  <SetProxy {...props} proxyType={PROXY_TYPE.TRANSFER_PROXY} />
+);

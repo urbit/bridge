@@ -7,8 +7,9 @@ import { Button } from '../components/Base';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { useHistory } from '../store/history';
 import { BRIDGE_ERROR, renderTxnError } from '../lib/error';
-import { NETWORK_NAMES } from '../lib/network';
-import { withTxnConfirmations } from '../store/txnConfirmations';
+import { NETWORK_TYPES } from '../lib/network';
+import { useTxnConfirmations } from '../store/txnConfirmations';
+import { useNetwork } from '../store/network';
 
 class Success extends React.Component {
   constructor(props) {
@@ -39,11 +40,11 @@ class Success extends React.Component {
     const { pending } = state;
 
     const esvisible =
-      networkType === NETWORK_NAMES.ROPSTEN ||
-      networkType === NETWORK_NAMES.MAINNET;
+      networkType === NETWORK_TYPES.ROPSTEN ||
+      networkType === NETWORK_TYPES.MAINNET;
 
     const esdomain =
-      networkType === NETWORK_NAMES.ROPSTEN
+      networkType === NETWORK_TYPES.ROPSTEN
         ? 'ropsten.etherscan.io'
         : 'etherscan.io';
 
@@ -109,14 +110,18 @@ const Failure = props => (
   </Row>
 );
 
-const SentTransaction = props => {
+function SentTransaction(props) {
   const history = useHistory();
-  const { txnHashCursor, networkType, txnConfirmations } = props;
+  const { txnConfirmations } = useTxnConfirmations();
+  const { web3 } = useNetwork();
+
+  const { txnHashCursor, networkType } = props;
   const { setPointCursor, pointCursor } = props;
 
   const promptKeyfile = history.data && history.data.promptKeyfile;
 
-  const w3 = need.web3(props);
+  // TODO: remove need's assumption about accepting the props object
+  const w3 = need.web3({ web3 });
 
   const result = txnHashCursor.matchWith({
     Nothing: _ => {
@@ -174,6 +179,6 @@ const SentTransaction = props => {
       {keyfile}
     </div>
   );
-};
+}
 
-export default withTxnConfirmations(SentTransaction);
+export default SentTransaction;

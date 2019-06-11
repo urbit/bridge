@@ -11,6 +11,7 @@ import KeysAndMetadata from './Point/KeysAndMetadata';
 import Actions from './Point/Actions';
 import { Row, Col, H1, H3 } from '../components/Base';
 import { withHistory } from '../store/history';
+import { withNetwork } from '../store/network';
 
 class Point extends React.Component {
   constructor(props) {
@@ -135,4 +136,4 @@ class Point extends React.Component {
   }
 }
 
-export default withHistory(Point);
+export default withNetwork(withHistory(Point));

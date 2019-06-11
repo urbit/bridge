@@ -15,12 +15,13 @@ import {
 } from '../components/Base';
 import StatelessTransaction from '../components/StatelessTransaction';
 
-import { NETWORK_NAMES } from '../lib/network';
+import { NETWORK_TYPES } from '../lib/network';
 import { canDecodePatp } from '../lib/txn';
 
 import { ETH_ZERO_ADDR, isValidAddress, eqAddr } from '../lib/wallet';
 
 import { isValidGalaxy } from '../lib/lib';
+import { withNetwork } from '../store/network';
 
 const buttonTriState = status => {
   if (status === null) return 'blue';
@@ -117,11 +118,11 @@ class CreateGalaxy extends React.Component {
       state.isAvailable === true;
 
     const esvisible =
-      props.networkType === NETWORK_NAMES.ROPSTEN ||
-      props.networkType === NETWORK_NAMES.MAINNET;
+      props.networkType === NETWORK_TYPES.ROPSTEN ||
+      props.networkType === NETWORK_TYPES.MAINNET;
 
     const esdomain =
-      props.networkType === NETWORK_NAMES.ROPSTEN
+      props.networkType === NETWORK_TYPES.ROPSTEN
         ? 'ropsten.etherscan.io'
         : 'etherscan.io';
 
@@ -194,4 +195,4 @@ class CreateGalaxy extends React.Component {
   }
 }
 
-export default CreateGalaxy;
+export default withNetwork(CreateGalaxy);

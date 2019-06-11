@@ -10,14 +10,14 @@ import Web3 from 'web3';
 import Maybe from 'folktale/maybe';
 
 import { CONTRACT_ADDRESSES } from '../lib/contracts';
-import { NETWORK_NAMES } from '../lib/network';
+import { NETWORK_TYPES } from '../lib/network';
 import { isDevelopment } from '../lib/flags';
 
 function _useNetwork(initialNetworkType = null) {
   const [networkType, setNetworkType] = useState(initialNetworkType);
 
   const { web3, contracts } = useMemo(() => {
-    if (networkType === NETWORK_NAMES.LOCAL) {
+    if (networkType === NETWORK_TYPES.LOCAL) {
       const protocol = isDevelopment ? 'ws' : 'wss';
       const endpoint = `${protocol}://localhost:8545`;
       const provider = new Web3.providers.WebsocketProvider(endpoint);
@@ -27,7 +27,7 @@ function _useNetwork(initialNetworkType = null) {
       return { web3: Maybe.Just(web3), contracts: Maybe.Just(contracts) };
     }
 
-    if (networkType === NETWORK_NAMES.ROPSTEN) {
+    if (networkType === NETWORK_TYPES.ROPSTEN) {
       const endpoint = `https://ropsten.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
 
       const provider = new Web3.providers.HttpProvider(endpoint);
@@ -37,7 +37,7 @@ function _useNetwork(initialNetworkType = null) {
       return { web3: Maybe.Just(web3), contracts: Maybe.Just(contracts) };
     }
 
-    if (networkType === NETWORK_NAMES.MAINNET) {
+    if (networkType === NETWORK_TYPES.MAINNET) {
       const endpoint = `https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
 
       const provider = new Web3.providers.HttpProvider(endpoint);
@@ -47,7 +47,7 @@ function _useNetwork(initialNetworkType = null) {
       return { web3: Maybe.Just(web3), contracts: Maybe.Just(contracts) };
     }
 
-    if (networkType === NETWORK_NAMES.OFFLINE) {
+    if (networkType === NETWORK_TYPES.OFFLINE) {
       // NB (jtobin):
       //
       // The 'offline' network type targets the mainnet contracts, but does not

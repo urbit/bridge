@@ -105,8 +105,8 @@ async function downloadWallet(paper) {
 async function startTransactions(args) {
   let {
     realPointM,
-    web3M,
-    contractsM,
+    web3: web3M,
+    contracts: contractsM,
     inviteWalletM,
     realWalletM,
     setUrbitWallet,

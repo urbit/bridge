@@ -12,8 +12,9 @@ import * as ob from 'urbit-ob';
 import * as need from '../lib/need';
 
 import StatelessTransaction from '../components/StatelessTransaction';
-import { NETWORK_NAMES } from '../lib/network';
+import { NETWORK_TYPES } from '../lib/network';
 import { isValidAddress } from '../lib/wallet';
+import { withNetwork } from '../store/network';
 
 class AcceptTransfer extends React.Component {
   constructor(props) {
@@ -61,11 +62,11 @@ class AcceptTransfer extends React.Component {
     const canGenerate = validAddress === true;
 
     const esvisible =
-      props.networkType === NETWORK_NAMES.ROPSTEN ||
-      props.networkType === NETWORK_NAMES.MAINNET;
+      props.networkType === NETWORK_TYPES.ROPSTEN ||
+      props.networkType === NETWORK_TYPES.MAINNET;
 
     const esdomain =
-      props.networkType === NETWORK_NAMES.ROPSTEN
+      props.networkType === NETWORK_TYPES.ROPSTEN
         ? 'ropsten.etherscan.io'
         : 'etherscan.io';
 
@@ -117,4 +118,4 @@ class AcceptTransfer extends React.Component {
   }
 }
 
-export default AcceptTransfer;
+export default withNetwork(AcceptTransfer);

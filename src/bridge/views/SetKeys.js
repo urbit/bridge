@@ -11,6 +11,7 @@ import { attemptSeedDerivation } from '../lib/keys';
 import * as kg from 'urbit-key-generation/dist/index';
 
 import { addHexPrefix } from '../lib/wallet';
+import { withNetwork } from '../store/network';
 
 class SetKeys extends React.Component {
   constructor(props) {
@@ -196,4 +197,4 @@ class SetKeys extends React.Component {
   }
 }
 
-export default SetKeys;
+export default withNetwork(SetKeys);

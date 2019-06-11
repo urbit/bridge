@@ -67,9 +67,11 @@ const ROUTES = {
   [ROUTE_NAMES.GEN_KEYFILE]: GenKeyfile,
 };
 
-export const getRouteBreadcrumb = (props, route) => {
-  const { wallet, networkType } = props;
-
+export const getRouteBreadcrumb = ({
+  networkType,
+  wallet,
+  pointCursor,
+}) => route => {
   switch (route.name) {
     case ROUTE_NAMES.INVITE_TICKET:
       return 'Invite code';
@@ -80,7 +82,7 @@ export const getRouteBreadcrumb = (props, route) => {
     case ROUTE_NAMES.INVITES_MANAGE:
       return 'Manage invites';
     case ROUTE_NAMES.NETWORK:
-      return `${renderNetworkType(networkType)}`;
+      return renderNetworkType(networkType);
     case ROUTE_NAMES.WALLET:
       return wallet.matchWith({
         Nothing: () => 'Wallet',
@@ -110,7 +112,7 @@ export const getRouteBreadcrumb = (props, route) => {
     case ROUTE_NAMES.VIEW_SHIP:
       return 'View';
     case ROUTE_NAMES.SHIP:
-      return ob.patp(need.pointCursor(props));
+      return ob.patp(need.pointCursor({ pointCursor }));
     case ROUTE_NAMES.SET_TRANSFER_PROXY:
     case ROUTE_NAMES.SET_MANAGEMENT_PROXY:
     case ROUTE_NAMES.SET_SPAWN_PROXY:

@@ -22,6 +22,7 @@ import {
   signTransaction,
 } from '../lib/txn';
 import { withTxnConfirmations } from '../store/txnConfirmations';
+import { withNetwork } from '../store/network';
 
 const SUBMISSION_STATES = {
   PROMPT: 'Send transaction',
@@ -579,4 +580,6 @@ class StatelessTransaction extends React.Component {
   }
 }
 
-export default withTxnConfirmations(withHistory(StatelessTransaction));
+export default withNetwork(
+  withTxnConfirmations(withHistory(StatelessTransaction))
+);

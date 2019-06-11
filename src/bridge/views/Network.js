@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '../components/Base';
 import { InnerLabelDropdown } from '../components/Base';
 import { Row, Col, H1, P } from '../components/Base';
-import { NETWORK_NAMES, renderNetworkType } from '../lib/network';
+import { NETWORK_TYPES, renderNetworkType } from '../lib/network';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { useHistory } from '../store/history';
 import { useNetwork } from '../store/network';
@@ -11,22 +11,22 @@ import { useNetwork } from '../store/network';
 const kNetworkOptions = [
   {
     title: 'Main Network (default)',
-    value: NETWORK_NAMES.MAINNET,
+    value: NETWORK_TYPES.MAINNET,
   },
   {
     title: 'Local Node',
-    value: NETWORK_NAMES.LOCAL,
+    value: NETWORK_TYPES.LOCAL,
   },
   {
     title: 'Ropsten',
-    value: NETWORK_NAMES.ROPSTEN,
+    value: NETWORK_TYPES.ROPSTEN,
   },
   {
     type: 'divider',
   },
   {
     title: 'Offline',
-    value: NETWORK_NAMES.OFFLINE,
+    value: NETWORK_TYPES.OFFLINE,
   },
 ];
 
