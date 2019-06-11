@@ -233,32 +233,24 @@ class Bridge extends React.Component {
 
               <Row className={'row wrapper'}>
                 <Router
-                  setWalletType={
-                    this.setWalletType // wallet
-                  }
+                  setWalletType={this.setWalletType}
                   setWalletHdPath={this.setWalletHdPath}
                   setWallet={this.setWallet}
                   walletType={walletType}
                   walletHdPath={walletHdPath}
                   wallet={wallet}
-                  urbitWallet={
-                    urbitWallet // urbit wallet
-                  }
+                  urbitWallet={urbitWallet}
                   setUrbitWallet={this.setUrbitWallet}
                   authMnemonic={authMnemonic}
                   setAuthMnemonic={this.setAuthMnemonic}
-                  setPointCursor={
-                    this.setPointCursor // point
-                  }
+                  setPointCursor={this.setPointCursor}
                   addToPointCache={this.addToPointCache}
                   pointCursor={pointCursor}
                   pointCache={pointCache}
                   networkSeedCache={networkSeedCache}
                   networkRevisionCache={networkRevisionCache}
                   setNetworkSeedCache={this.setNetworkSeedCache}
-                  onSent={
-                    this.setTxnHashCursor // txn
-                  }
+                  onSent={this.setTxnHashCursor}
                   setTxnHashCursor={this.setTxnHashCursor}
                   txnHashCursor={txnHashCursor}
                 />
