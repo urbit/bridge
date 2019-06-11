@@ -6,12 +6,26 @@ import React, {
   useState,
 } from 'react';
 
+export const ONLINE_STATUS = {
+  ONLINE: Symbol('ONLINE'),
+  OFFLINE: Symbol('OFFLINE'),
+  UNKNOWN: Symbol('UNKNOWN'),
+};
+
+const getNetworkState = () => {
+  if ('onLine' in navigator) {
+    return navigator.onLine ? ONLINE_STATUS.ONLINE : ONLINE_STATUS.OFFLINE;
+  }
+
+  return ONLINE_STATUS.UNKNOWN;
+};
+
 function _useOnline() {
-  const [online, setOnline] = useState(window.navigator.onLine);
+  const [online, setOnline] = useState(getNetworkState());
 
   useEffect(() => {
     function handleOnlineStatus(event) {
-      setOnline(window.navigator.onLine);
+      setOnline(getNetworkState());
     }
 
     window.addEventListener('online', handleOnlineStatus);

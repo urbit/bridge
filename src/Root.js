@@ -15,7 +15,7 @@ class Root extends React.Component {
     super(props);
 
     this.state = {
-      appView: 'bridge',
+      appView: 'walletgen',
     };
 
     this.setView = this.setView.bind(this);
