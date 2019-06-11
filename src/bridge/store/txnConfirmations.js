@@ -1,8 +1,8 @@
-import React, { forwardRef, useContext, useState } from 'react';
+import React, { createContext, forwardRef, useContext, useState } from 'react';
 
-export const TxnConfirmationsContext = React.createContext(null);
+export const TxnConfirmationsContext = createContext(null);
 
-export function TxnConfirmationsProvider({ children }) {
+function _useTxnConfirmations() {
   const [confirmations, setConfirmations] = useState({});
 
   const setTxnConfirmations = (txnHash, txnConfirmations) => {
@@ -12,12 +12,17 @@ export function TxnConfirmationsProvider({ children }) {
     });
   };
 
+  return {
+    txnConfirmations: confirmations,
+    setTxnConfirmations,
+  };
+}
+
+export function TxnConfirmationsProvider({ children }) {
+  const value = _useTxnConfirmations();
+
   return (
-    <TxnConfirmationsContext.Provider
-      value={{
-        txnConfirmations: confirmations,
-        setTxnConfirmations,
-      }}>
+    <TxnConfirmationsContext.Provider value={value}>
       {children}
     </TxnConfirmationsContext.Provider>
   );

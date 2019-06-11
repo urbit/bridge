@@ -1,10 +1,16 @@
-import React, { forwardRef, useContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  forwardRef,
+  useContext,
+  useState,
+  useEffect,
+} from 'react';
 import { last, includes } from 'lodash';
 
 import { BRIDGE_ERROR } from '../lib/error';
 import { ROUTE_NAMES } from '../lib/routeNames';
 
-export const HistoryContext = React.createContext(null);
+export const HistoryContext = createContext(null);
 
 function _useHistory(initialRoutes = []) {
   const [history, setHistory] = useState(initialRoutes);

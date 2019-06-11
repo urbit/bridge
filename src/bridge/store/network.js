@@ -1,10 +1,15 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  forwardRef,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import * as azimuth from 'azimuth-js';
 import Web3 from 'web3';
 import Maybe from 'folktale/maybe';
 
 import { CONTRACT_ADDRESSES } from '../lib/contracts';
-
 import { NETWORK_NAMES } from '../lib/network';
 import { isDevelopment } from '../lib/flags';
 
@@ -72,7 +77,7 @@ function _useNetwork(initialNetworkType = null) {
   return { networkType, setNetworkType, web3, contracts };
 }
 
-const NetworkContext = React.createContext(null);
+const NetworkContext = createContext(null);
 
 // provider
 export function NetworkProvider({ initialNetworkType, children }) {
@@ -89,7 +94,7 @@ export function useNetwork() {
 
 // hoc consumer
 export const withNetwork = Component =>
-  React.forwardRef((props, ref) => {
+  forwardRef((props, ref) => {
     return (
       <NetworkContext.Consumer>
         {value => <Component ref={ref} {...value} {...props} />}

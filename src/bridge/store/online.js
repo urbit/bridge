@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  forwardRef,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
 function _useOnline() {
   const [online, setOnline] = useState(window.navigator.onLine);
@@ -20,7 +26,7 @@ function _useOnline() {
   return online;
 }
 
-const OnlineContext = React.createContext(null);
+const OnlineContext = createContext(null);
 
 // provider
 export function OnlineProvider({ children }) {
@@ -37,7 +43,7 @@ export function useOnline() {
 
 // hoc consumer
 export const withOnline = Component =>
-  React.forwardRef((props, ref) => {
+  forwardRef((props, ref) => {
     return (
       <OnlineContext.Consumer>
         {online => <Component ref={ref} online={online} {...props} />}
