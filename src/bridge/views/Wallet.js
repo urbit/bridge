@@ -71,9 +71,8 @@ class Wallet extends React.Component {
             title={'Wallet Type:'}
             options={walletOptions}
             handleUpdate={props.setWalletType}
-            currentSelectionTitle={renderWalletType(
-              props.walletType
-            )}></InnerLabelDropdown>
+            currentSelectionTitle={renderWalletType(props.walletType)}
+          />
 
           <Button
             className={'mt-10'}

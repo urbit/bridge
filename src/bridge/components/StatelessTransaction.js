@@ -455,7 +455,8 @@ class StatelessTransaction extends React.Component {
         title={'Chain ID'}
         options={chainOptions}
         handleUpdate={handleChainUpdate}
-        currentSelectionTitle={chainDialogueTitle}></InnerLabelDropdown>
+        currentSelectionTitle={chainDialogueTitle}
+      />
     );
 
     const customChainDialogue = !customChain ? null : (
@@ -509,7 +510,8 @@ class StatelessTransaction extends React.Component {
         disabled={!canApprove}
         onToggle={setUserApproval}
         state={userApproval}
-        label="I approve this transaction and wish to send."></CheckboxButton>
+        label="I approve this transaction and wish to send."
+      />
     );
 
     const sending = txStatus !== SUBMISSION_STATES.PROMPT;
@@ -521,7 +523,7 @@ class StatelessTransaction extends React.Component {
         disabled={!canSend || sending}
         onClick={sendTxn}>
         <span className="relative">
-          <span className={`btn-spinner ${sendTxnSpinner}`}></span>
+          <span className={`btn-spinner ${sendTxnSpinner}`} />
           {txStatus}
         </span>
       </Button>
