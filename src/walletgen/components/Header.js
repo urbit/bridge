@@ -1,7 +1,7 @@
 import React from 'react';
-import { seq } from '../lib/lib';
 
 import { useOnline, ONLINE_STATUS } from '../../bridge/store/online';
+import { seq } from '../../bridge/lib/lib';
 
 const StatusIndicator = props => (
   <div className={`flex h-9 align-center ${props.c2} flex-shrink-0`}>

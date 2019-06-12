@@ -66,6 +66,4 @@ const generateWallet = async (point, ticket, boot) => {
 const generateOwnershipWallet = (ship, ticket) =>
   kg.generateOwnershipWallet({ ship, ticket });
 
-const seq = num => Array.from(Array(num), (_, i) => i);
-
-export { makeTicket, generateWallet, generateOwnershipWallet, seq };
+export { makeTicket, generateWallet, generateOwnershipWallet };
