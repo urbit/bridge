@@ -56,18 +56,6 @@ function Landing(props) {
               <P>{'View an Azimuth point without signing into a wallet.'}</P>
             </Col>
           </Row>
-          //  FIXME add address view
-          //  <LinkButton
-          //    size={'l'}
-          //    className={'mb-4 mt-10'}
-          //    onClick={ () => history.push(ROUTE_NAMES.NETWORK) }
-          //  >
-          //    { 'View an Address  →' }
-          //  </LinkButton>
-
-          //  <p>
-          //  { "Lorem" }
-          //  </p>
         }
       </Col>
     </Row>
