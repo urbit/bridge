@@ -9,29 +9,29 @@ import { isLast } from '../lib/lib';
 function Crumbs(props) {
   const history = useHistory();
 
-  // FIXME probably more straightforward to render them normally and just
-  // return the reversed array of renders
-  const rendered = history.routes.map((route, idx) => {
-    return (
-      <div className={'flex items-center'} key={`history-${idx}`}>
-        <Button
-          prop-type={'link'}
-          prop-size={'sm'}
-          key={`history-button-${idx}`}
-          onClick={() => history.pop(history.size - idx - 1)}>
-          {getRouteBreadcrumb(props, route)}
-        </Button>
+  return (
+    <>
+      {history.routes.map((route, idx) => {
+        return (
+          <div key={`history-${idx}`} className={'flex items-center'}>
+            <Button
+              prop-type={'link'}
+              prop-size={'sm'}
+              key={`history-button-${idx}`}
+              onClick={() => history.pop(history.size - idx - 1)}>
+              {getRouteBreadcrumb(props, route)}
+            </Button>
 
-        {isLast(history.size, idx) ? (
-          <div />
-        ) : (
-          <Chevron className={'h-4 mh-2'} />
-        )}
-      </div>
-    );
-  });
-
-  return rendered;
+            {isLast(history.size, idx) ? (
+              <div />
+            ) : (
+              <Chevron className={'h-4 mh-2'} />
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
 }
 
 function Header(props) {
