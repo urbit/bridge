@@ -225,11 +225,7 @@ class Bridge extends React.Component {
         <Container>
           <Row>
             <VariableWidthColumn>
-              <Header
-                skipRoute={this.skipRoute}
-                wallet={wallet}
-                pointCursor={pointCursor}
-              />
+              <Header wallet={wallet} pointCursor={pointCursor} />
 
               <Row className={'row wrapper'}>
                 <Router
