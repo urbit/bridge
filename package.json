@@ -39,6 +39,7 @@
     "react-scripts": "3.0.1",
     "secp256k1": "^3.5.2",
     "sigil-js": "github:urbit/sigil-js#f7f29c5",
+    "source-map-explorer": "^2.0.0",
     "trezor-connect": "^7.0.1",
     "urbit-key-generation": "^0.16.0",
     "urbit-ob": "^3.1.0",
@@ -61,7 +62,8 @@
     "lint": "prettier src/**/*.js",
     "lint:check": "prettier -c 'src/**/*.js'",
     "lint:fix": "prettier --write 'src/**/*.js'",
-    "precommit": "npm-run-all lint:check"
+    "precommit": "npm-run-all lint:check",
+    "analyze": "source-map-explorer 'build/static/js/*.js'"
   },
   "devDependencies": {
     "eslint-plugin-prettier": "^3.1.0",
