@@ -5,7 +5,8 @@ import * as azimuth from 'azimuth-js';
 
 import PointList from '../components/PointList';
 import { NETWORK_NAMES } from '../lib/network';
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 import { ETH_ZERO_ADDR, eqAddr } from '../lib/wallet';
 
 const hasTransferProxy = (cache, point) =>
@@ -79,7 +80,7 @@ class Points extends React.Component {
   }
 
   render() {
-    const { setPointCursor, pushRoute } = this.props;
+    const { setPointCursor, history } = this.props;
     const { pointCache } = this.props;
 
     const {
@@ -98,7 +99,7 @@ class Points extends React.Component {
           <Button
             prop-type={'link'}
             prop-size={'md'}
-            onClick={() => pushRoute(ROUTE_NAMES.VIEW_SHIP)}>
+            onClick={() => history.push(ROUTE_NAMES.VIEW_SHIP)}>
             {'View a point  →'}
           </Button>
           <P>{'View a point on Azimuth.'}</P>
@@ -115,7 +116,7 @@ class Points extends React.Component {
             <Button
               prop-type={'link'}
               prop-size={'md'}
-              onClick={() => pushRoute(ROUTE_NAMES.CREATE_GALAXY)}>
+              onClick={() => history.push(ROUTE_NAMES.CREATE_GALAXY)}>
               {'Create a galaxy  →'}
             </Button>
             <P>
@@ -141,7 +142,7 @@ class Points extends React.Component {
           </P>
           <PointList
             setPointCursor={setPointCursor}
-            routeHandler={pushRoute}
+            routeHandler={history.push}
             points={outgoing}
           />
         </React.Fragment>
@@ -159,7 +160,7 @@ class Points extends React.Component {
           </P>
           <PointList
             setPointCursor={setPointCursor}
-            routeHandler={pushRoute}
+            routeHandler={history.push}
             points={incoming}
           />
         </React.Fragment>
@@ -177,7 +178,7 @@ class Points extends React.Component {
           </P>
           <PointList
             setPointCursor={setPointCursor}
-            routeHandler={pushRoute}
+            routeHandler={history.push}
             points={managing}
           />
         </React.Fragment>
@@ -195,7 +196,7 @@ class Points extends React.Component {
           </P>
           <PointList
             setPointCursor={setPointCursor}
-            routeHandler={pushRoute}
+            routeHandler={history.push}
             points={voting}
           />
         </React.Fragment>
@@ -210,7 +211,7 @@ class Points extends React.Component {
           <P>{`You can create new child ships under these points.`}</P>
           <PointList
             setPointCursor={setPointCursor}
-            routeHandler={pushRoute}
+            routeHandler={history.push}
             points={spawning}
           />
         </React.Fragment>
@@ -238,7 +239,7 @@ class Points extends React.Component {
 
           <PointList
             setPointCursor={setPointCursor}
-            routeHandler={pushRoute}
+            routeHandler={history.push}
             points={points}
             loading={loading}
           />
@@ -254,4 +255,4 @@ class Points extends React.Component {
   }
 }
 
-export default Points;
+export default withHistory(Points);

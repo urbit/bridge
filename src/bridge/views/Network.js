@@ -8,7 +8,8 @@ import Web3 from 'web3';
 
 import { CONTRACT_ADDRESSES } from '../lib/contracts';
 import { NETWORK_NAMES, renderNetworkType } from '../lib/network';
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 
 class Network extends React.Component {
   constructor(props) {
@@ -34,9 +35,7 @@ class Network extends React.Component {
     if (network === NETWORK_NAMES.ROPSTEN) {
       setNetworkType(network);
 
-      const endpoint = `https://ropsten.infura.io/v3/${
-        process.env.REACT_APP_INFURA_ENDPOINT
-      }`;
+      const endpoint = `https://ropsten.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
 
       const provider = new Web3.providers.HttpProvider(endpoint);
       const web3 = new Web3(provider);
@@ -48,9 +47,7 @@ class Network extends React.Component {
     if (network === NETWORK_NAMES.MAINNET) {
       setNetworkType(network);
 
-      const endpoint = `https://mainnet.infura.io/v3/${
-        process.env.REACT_APP_INFURA_ENDPOINT
-      }`;
+      const endpoint = `https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
 
       const provider = new Web3.providers.HttpProvider(endpoint);
       const web3 = new Web3(provider);
@@ -112,7 +109,7 @@ class Network extends React.Component {
   }
 
   render() {
-    const { networkType, pushRoute } = this.props;
+    const { networkType, history } = this.props;
     const networkOptions = this.getNetworkOptions();
 
     return (
@@ -136,7 +133,7 @@ class Network extends React.Component {
 
           <Button
             className={'mt-10'}
-            onClick={() => pushRoute(ROUTE_NAMES.WALLET)}>
+            onClick={() => history.push(ROUTE_NAMES.WALLET)}>
             {'Continue  →'}
           </Button>
         </Col>
@@ -145,4 +142,4 @@ class Network extends React.Component {
   }
 }
 
-export default Network;
+export default withHistory(Network);

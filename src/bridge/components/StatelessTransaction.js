@@ -9,7 +9,8 @@ import { CheckboxButton, Input, InnerLabel, InnerLabelDropdown } from './Base';
 import { Warning } from '../components/Base';
 
 import { BRIDGE_ERROR } from '../lib/error';
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 import * as tank from '../lib/tank';
 
 import {
@@ -20,6 +21,7 @@ import {
   renderSignedTx,
   signTransaction,
 } from '../lib/txn';
+import { withTxnConfirmations } from '../store/txnConfirmations';
 
 const SUBMISSION_STATES = {
   PROMPT: 'Send transaction',
@@ -234,14 +236,14 @@ class StatelessTransaction extends React.Component {
       )
         .then(txHash => {
           props.onSent(Just(Ok(txHash)), state.stx.value);
-          props.popRoute();
 
           let routeData = {};
           if (props.networkSeed) {
             props.setNetworkSeedCache(props.networkSeed);
             routeData.promptKeyfile = true;
           }
-          props.pushRoute(ROUTE_NAMES.SENT_TRANSACTION, routeData);
+
+          props.history.popAndPush(ROUTE_NAMES.SENT_TRANSACTION, routeData);
         })
         .catch(err => {
           this.setState({
@@ -577,4 +579,4 @@ class StatelessTransaction extends React.Component {
   }
 }
 
-export default StatelessTransaction;
+export default withTxnConfirmations(withHistory(StatelessTransaction));

@@ -4,7 +4,7 @@ import * as need from '../lib/need';
 
 import * as noun from '../nockjs/noun';
 import * as serial from '../nockjs/serial';
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index';
+import * as kg from 'urbit-key-generation/dist/index';
 
 import { BRIDGE_ERROR } from './error';
 import { WALLET_NAMES, eqAddr } from './wallet';
@@ -21,7 +21,7 @@ const b64 = buf => {
 
   // prettier-ignore
   const trans = j =>
-      10 > j
+    10 > j
     ? j + 48
     : 36 > j
     ? j + 87
@@ -29,7 +29,7 @@ const b64 = buf => {
     ? j + 29
     : 62 === j
     ? 45
-    : 126
+    : 126;
 
   return (
     '0w' +

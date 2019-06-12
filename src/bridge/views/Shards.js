@@ -10,10 +10,11 @@ import {
   Input,
 } from '../components/Base';
 import { Row, Col, H1, P } from '../components/Base';
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index';
+import * as kg from 'urbit-key-generation/dist/index';
 import * as ob from 'urbit-ob';
 
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 import { urbitWalletFromTicket } from '../lib/wallet';
 
 const placeholder = len => {
@@ -90,7 +91,7 @@ class Shards extends React.Component {
   }
 
   render() {
-    const { popRoute, pushRoute, wallet } = this.props;
+    const { history, wallet } = this.props;
     const { shard1, shard2, shard3, pointName, passphrase } = this.state;
 
     const phPoint = this.pointPlaceholder;
@@ -201,10 +202,7 @@ class Shards extends React.Component {
             className={'mt-4'}
             prop-size={'xl wide'}
             disabled={Nothing.hasInstance(wallet)}
-            onClick={() => {
-              popRoute();
-              pushRoute(ROUTE_NAMES.SHIPS);
-            }}>
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
             {'Continue →'}
           </Button>
         </Col>
@@ -213,4 +211,4 @@ class Shards extends React.Component {
   }
 }
 
-export default Shards;
+export default withHistory(Shards);

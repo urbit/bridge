@@ -10,6 +10,7 @@ import ReactSVGComponents from '../components/ReactSVGComponents';
 import KeysAndMetadata from './Point/KeysAndMetadata';
 import Actions from './Point/Actions';
 import { Row, Col, H1, H3 } from '../components/Base';
+import { withHistory } from '../store/history';
 
 class Point extends React.Component {
   constructor(props) {
@@ -73,14 +74,7 @@ class Point extends React.Component {
   };
 
   render() {
-    const {
-      web3,
-      popRoute,
-      pushRoute,
-      wallet,
-      setPointCursor,
-      pointCache,
-    } = this.props;
+    const { web3, history, wallet, setPointCursor, pointCache } = this.props;
 
     const { spawned } = this.state;
 
@@ -101,11 +95,6 @@ class Point extends React.Component {
 
     const authenticated = Just.hasInstance(wallet);
 
-    const routeHandler = route => {
-      popRoute();
-      pushRoute(route);
-    };
-
     const issuedPointList =
       spawned.length === 0 ? (
         <div />
@@ -115,7 +104,7 @@ class Point extends React.Component {
 
           <PointList
             setPointCursor={setPointCursor}
-            routeHandler={routeHandler}
+            routeHandler={history.popAndPush}
             points={spawned}
           />
         </div>
@@ -130,7 +119,6 @@ class Point extends React.Component {
           </H1>
           {authenticated ? (
             <Actions
-              pushRoute={pushRoute}
               online={online}
               wallet={wallet}
               point={point}
@@ -147,4 +135,4 @@ class Point extends React.Component {
   }
 }
 
-export default Point;
+export default withHistory(Point);

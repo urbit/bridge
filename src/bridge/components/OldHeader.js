@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Chevron } from '../components/Base';
 
-import { renderRoute } from '../lib/router';
+import { getRouteBreadcrumb } from '../lib/router';
 import { isLast } from '../lib/lib';
 
 const Crumbs = props => {
@@ -19,7 +19,7 @@ const Crumbs = props => {
           color={'black'}
           key={`history-button-${idx}`}
           onClick={() => skipRoute(history.size - idx - 1)}>
-          {`${renderRoute(props, route)}`}
+          {`${getRouteBreadcrumb(props, route)}`}
         </Button>
 
         {isLast(history.size, idx) ? (

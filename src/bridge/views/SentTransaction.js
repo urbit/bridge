@@ -4,9 +4,11 @@ import * as need from '../lib/need';
 import { Row, Col, H1, H3, P, Warning, Anchor } from '../components/Base';
 import { Button } from '../components/Base';
 
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { useHistory } from '../store/history';
 import { BRIDGE_ERROR, renderTxnError } from '../lib/error';
 import { NETWORK_NAMES } from '../lib/network';
+import { withTxnConfirmations } from '../store/txnConfirmations';
 
 class Success extends React.Component {
   constructor(props) {
@@ -108,16 +110,11 @@ const Failure = props => (
 );
 
 const SentTransaction = props => {
-  const {
-    txnHashCursor,
-    networkType,
-    popRoute,
-    pushRoute,
-    txnConfirmations,
-  } = props;
+  const history = useHistory();
+  const { txnHashCursor, networkType, txnConfirmations } = props;
   const { setPointCursor, pointCursor } = props;
 
-  const promptKeyfile = props.routeData && props.routeData.promptKeyfile;
+  const promptKeyfile = history.data && history.data.promptKeyfile;
 
   const w3 = need.web3(props);
 
@@ -146,7 +143,7 @@ const SentTransaction = props => {
           prop-type={'link'}
           onClick={() => {
             setPointCursor(pointCursor);
-            popRoute();
+            history.pop();
           }}>
           {'Ok →'}
         </Button>
@@ -162,10 +159,7 @@ const SentTransaction = props => {
         <Col>
           <Button
             prop-type={'link'}
-            onClick={() => {
-              popRoute();
-              pushRoute(ROUTE_NAMES.GEN_KEYFILE);
-            }}>
+            onClick={() => history.popAndPush(ROUTE_NAMES.GEN_KEYFILE)}>
             {'Download Keyfile →'}
           </Button>
         </Col>
@@ -182,4 +176,4 @@ const SentTransaction = props => {
   );
 };
 
-export default SentTransaction;
+export default withTxnConfirmations(SentTransaction);

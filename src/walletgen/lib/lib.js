@@ -1,5 +1,5 @@
 import * as ob from 'urbit-ob';
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index';
+import * as kg from 'urbit-key-generation/dist/index';
 import * as more from 'more-entropy';
 import lodash from 'lodash';
 import {

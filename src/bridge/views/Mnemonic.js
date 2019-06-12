@@ -10,7 +10,8 @@ import {
 } from '../components/Base';
 import { Row, Col, H1 } from '../components/Base';
 
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 import { DEFAULT_HD_PATH, walletFromMnemonic } from '../lib/wallet';
 
 class Mnemonic extends React.Component {
@@ -91,7 +92,7 @@ class Mnemonic extends React.Component {
   }
 
   render() {
-    const { pushRoute, popRoute, wallet } = this.props;
+    const { history, wallet } = this.props;
     const { mnemonic, hdpath, exampleMnemonic, passphrase } = this.state;
 
     return (
@@ -150,10 +151,7 @@ class Mnemonic extends React.Component {
           <Button
             className={'mt-10'}
             disabled={Nothing.hasInstance(wallet)}
-            onClick={() => {
-              popRoute();
-              pushRoute(ROUTE_NAMES.SHIPS);
-            }}>
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
             {'Continue →'}
           </Button>
         </Col>
@@ -162,4 +160,4 @@ class Mnemonic extends React.Component {
   }
 }
 
-export default Mnemonic;
+export default withHistory(Mnemonic);

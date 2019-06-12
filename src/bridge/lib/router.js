@@ -1,15 +1,11 @@
+import React from 'react';
 import * as ob from 'urbit-ob';
 import * as need from '../lib/need';
 
-import React from 'react';
-
 import Landing from '../views/Landing';
-
 import InviteTicket from '../views/InviteTicket';
-
 import InvitesSend from '../views/InvitesSend.js';
 import InvitesManage from '../views/InvitesManage.js';
-
 import AcceptTransfer from '../views/AcceptTransfer';
 import CancelTransfer from '../views/CancelTransfer';
 import CreateGalaxy from '../views/CreateGalaxy';
@@ -38,94 +34,55 @@ import Wallet from '../views/Wallet';
 
 import { EthereumWallet } from './wallet';
 import { renderNetworkType } from './network';
+import { ROUTE_NAMES } from './routeNames';
 
-const ROUTE_NAMES = {
-  DEFAULT: Symbol('DEFAULT'),
-  //
-  INVITE_TICKET: Symbol('INVITE_TICKET'),
-  INVITE_TRANSACTIONS: Symbol('INVITE_TRANSACTIONS'),
-  INVITES_SEND: Symbol('INVITES_SEND'),
-  INVITES_MANAGE: Symbol('INVITES_MANAGE'),
-  //
-  ACCEPT_TRANSFER: Symbol('ACCEPT_TRANSFER'),
-  CANCEL_TRANSFER: Symbol('CANCEL_TRANSFER'),
-  LANDING: Symbol('LANDING'),
-  NETWORK: Symbol('NETWORK'),
-  WALLET: Symbol('WALLET'),
-  MNEMONIC: Symbol('MNEMONIC'),
-  TICKET: Symbol('TICKET'),
-  SHARDS: Symbol('SHARDS'),
-  LEDGER: Symbol('LEDGER'),
-  TREZOR: Symbol('TREZOR'),
-  PRIVATE_KEY: Symbol('PRIVATE_KEY'),
-  KEYSTORE: Symbol('KEYSTORE'),
-  VIEW_SHIP: Symbol('VIEW_SHIP'),
-  SHIPS: Symbol('SHIPS'),
-  SHIP: Symbol('SHIP'),
-  SET_MANAGEMENT_PROXY: Symbol('SET_MANAGEMENT_PROXY'),
-  SET_SPAWN_PROXY: Symbol('SET_SPAWN_PROXY'),
-  SET_TRANSFER_PROXY: Symbol('SET_TRANSFER_PROXY'),
-  CREATE_GALAXY: Symbol('CREATE_GALAXY'),
-  ISSUE_CHILD: Symbol('ISSUE_CHILD'),
-  SET_KEYS: Symbol('SET_KEYS'),
-  TRANSFER: Symbol('TRANSFER'),
-  SENT_TRANSACTION: Symbol('SENT_TRANSACTION'),
-  GEN_KEYFILE: Symbol('GEN_KEYFILE'),
+const ROUTES = {
+  [ROUTE_NAMES.DEFAULT]: Landing,
+  [ROUTE_NAMES.LANDING]: Landing,
+  [ROUTE_NAMES.INVITE_TICKET]: InviteTicket,
+  [ROUTE_NAMES.INVITES_SEND]: InvitesSend,
+  [ROUTE_NAMES.INVITES_MANAGE]: InvitesManage,
+  [ROUTE_NAMES.ACCEPT_TRANSFER]: AcceptTransfer,
+  [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
+  [ROUTE_NAMES.NETWORK]: Network,
+  [ROUTE_NAMES.WALLET]: Wallet,
+  [ROUTE_NAMES.VIEW_SHIP]: ViewPoint,
+  [ROUTE_NAMES.MNEMONIC]: Mnemonic,
+  [ROUTE_NAMES.TICKET]: Ticket,
+  [ROUTE_NAMES.SHARDS]: Shards,
+  [ROUTE_NAMES.LEDGER]: Ledger,
+  [ROUTE_NAMES.TREZOR]: Trezor,
+  [ROUTE_NAMES.PRIVATE_KEY]: PrivateKey,
+  [ROUTE_NAMES.KEYSTORE]: Keystore,
+  [ROUTE_NAMES.SHIPS]: Points,
+  [ROUTE_NAMES.SHIP]: Point,
+  [ROUTE_NAMES.SET_MANAGEMENT_PROXY]: SetManagementProxy,
+  [ROUTE_NAMES.SET_SPAWN_PROXY]: SetSpawnProxy,
+  [ROUTE_NAMES.SET_TRANSFER_PROXY]: SetTransferProxy,
+  [ROUTE_NAMES.CREATE_GALAXY]: CreateGalaxy,
+  [ROUTE_NAMES.ISSUE_CHILD]: IssueChild,
+  [ROUTE_NAMES.SET_KEYS]: SetKeys,
+  [ROUTE_NAMES.TRANSFER]: Transfer,
+  [ROUTE_NAMES.SENT_TRANSACTION]: SentTransaction,
+  [ROUTE_NAMES.GEN_KEYFILE]: GenKeyfile,
 };
 
-const createRoutes = () => {
-  const routes = {};
-  routes[ROUTE_NAMES.DEFAULT] = Landing;
-  //
-  routes[ROUTE_NAMES.INVITE_TICKET] = InviteTicket;
-  routes[ROUTE_NAMES.INVITES_SEND] = InvitesSend;
-  routes[ROUTE_NAMES.INVITES_MANAGE] = InvitesManage;
-  //
-  routes[ROUTE_NAMES.ACCEPT_TRANSFER] = AcceptTransfer;
-  routes[ROUTE_NAMES.CANCEL_TRANSFER] = CancelTransfer;
-  routes[ROUTE_NAMES.LANDING] = Landing;
-  routes[ROUTE_NAMES.NETWORK] = Network;
-  routes[ROUTE_NAMES.WALLET] = Wallet;
-  routes[ROUTE_NAMES.VIEW_SHIP] = ViewPoint;
-  routes[ROUTE_NAMES.MNEMONIC] = Mnemonic;
-  routes[ROUTE_NAMES.TICKET] = Ticket;
-  routes[ROUTE_NAMES.SHARDS] = Shards;
-  routes[ROUTE_NAMES.LEDGER] = Ledger;
-  routes[ROUTE_NAMES.TREZOR] = Trezor;
-  routes[ROUTE_NAMES.PRIVATE_KEY] = PrivateKey;
-  routes[ROUTE_NAMES.KEYSTORE] = Keystore;
-  routes[ROUTE_NAMES.SHIPS] = Points;
-  routes[ROUTE_NAMES.SHIP] = Point;
-  routes[ROUTE_NAMES.SET_MANAGEMENT_PROXY] = SetManagementProxy;
-  routes[ROUTE_NAMES.SET_SPAWN_PROXY] = SetSpawnProxy;
-  routes[ROUTE_NAMES.SET_TRANSFER_PROXY] = SetTransferProxy;
-  routes[ROUTE_NAMES.CREATE_GALAXY] = CreateGalaxy;
-  routes[ROUTE_NAMES.ISSUE_CHILD] = IssueChild;
-  routes[ROUTE_NAMES.SET_KEYS] = SetKeys;
-  routes[ROUTE_NAMES.TRANSFER] = Transfer;
-  routes[ROUTE_NAMES.SENT_TRANSACTION] = SentTransaction;
-  routes[ROUTE_NAMES.GEN_KEYFILE] = GenKeyfile;
-  return routes;
-};
-
-const ROUTES = createRoutes();
-
-const renderRoute = (props, route) => {
+export const getRouteBreadcrumb = (props, route) => {
   const { wallet, networkType } = props;
-  return route === ROUTE_NAMES.LANDING
-    ? 'Bridge'
-    : route === ROUTE_NAMES.INVITE_TICKET
-    ? 'Invite code'
-    : route === ROUTE_NAMES.INVITE_TRANSACTIONS
-    ? 'Setting up new wallet'
-    : route === ROUTE_NAMES.INVITES_SEND
-    ? 'Send invites'
-    : route === ROUTE_NAMES.INVITES_MANAGE
-    ? 'Manage invites'
-    : route === ROUTE_NAMES.NETWORK
-    ? `${renderNetworkType(networkType)}`
-    : route === ROUTE_NAMES.WALLET
-    ? wallet.matchWith({
+
+  switch (route.name) {
+    case ROUTE_NAMES.INVITE_TICKET:
+      return 'Invite code';
+    case ROUTE_NAMES.INVITE_TRANSACTIONS:
+      return 'Setting up new wallet';
+    case ROUTE_NAMES.INVITES_SEND:
+      return 'Send invites';
+    case ROUTE_NAMES.INVITES_MANAGE:
+      return 'Manage invites';
+    case ROUTE_NAMES.NETWORK:
+      return `${renderNetworkType(networkType)}`;
+    case ROUTE_NAMES.WALLET:
+      return wallet.matchWith({
         Nothing: () => 'Wallet',
         Just: wal =>
           wal.value instanceof EthereumWallet ? (
@@ -133,50 +90,51 @@ const renderRoute = (props, route) => {
           ) : (
             <span className="text-mono">{wal.value.address}</span>
           ),
-      })
-    : route === ROUTE_NAMES.MNEMONIC
-    ? 'Mnemonic'
-    : route === ROUTE_NAMES.TICKET
-    ? 'Urbit Ticket'
-    : route === ROUTE_NAMES.SHARDS
-    ? 'Urbit Ticket'
-    : route === ROUTE_NAMES.LEDGER
-    ? 'Ledger'
-    : route === ROUTE_NAMES.TREZOR
-    ? 'Trezor'
-    : route === ROUTE_NAMES.PRIVATE_KEY
-    ? 'Private Key'
-    : route === ROUTE_NAMES.KEYSTORE
-    ? 'Keystore File'
-    : route === ROUTE_NAMES.SHIPS
-    ? 'Points'
-    : route === ROUTE_NAMES.VIEW_SHIP
-    ? 'View'
-    : route === ROUTE_NAMES.SHIP
-    ? ob.patp(need.pointCursor(props))
-    : route === ROUTE_NAMES.SET_TRANSFER_PROXY ||
-      route === ROUTE_NAMES.SET_MANAGEMENT_PROXY ||
-      route === ROUTE_NAMES.SET_SPAWN_PROXY
-    ? 'Set Proxy'
-    : route === ROUTE_NAMES.CREATE_GALAXY
-    ? 'Create Galaxy'
-    : route === ROUTE_NAMES.ISSUE_CHILD
-    ? 'Issue Child'
-    : route === ROUTE_NAMES.TRANSFER
-    ? 'Transfer'
-    : route === ROUTE_NAMES.ACCEPT_TRANSFER
-    ? 'Accept Transfer'
-    : route === ROUTE_NAMES.CANCEL_TRANSFER
-    ? 'Cancel Transfer'
-    : route === ROUTE_NAMES.GEN_KEYFILE
-    ? 'Keyfile'
-    : route === ROUTE_NAMES.SET_KEYS
-    ? 'Configure Keys'
-    : route === ROUTE_NAMES.SENT_TRANSACTION
-    ? 'Txn'
-    : 'Bridge';
+      });
+    case ROUTE_NAMES.MNEMONIC:
+      return 'Mnemonic';
+    case ROUTE_NAMES.TICKET:
+      return 'Urbit Ticket';
+    case ROUTE_NAMES.SHARDS:
+      return 'Urbit Ticket';
+    case ROUTE_NAMES.LEDGER:
+      return 'Ledger';
+    case ROUTE_NAMES.TREZOR:
+      return 'Trezor';
+    case ROUTE_NAMES.PRIVATE_KEY:
+      return 'Private Key';
+    case ROUTE_NAMES.KEYSTORE:
+      return 'Keystore File';
+    case ROUTE_NAMES.SHIPS:
+      return 'Points';
+    case ROUTE_NAMES.VIEW_SHIP:
+      return 'View';
+    case ROUTE_NAMES.SHIP:
+      return ob.patp(need.pointCursor(props));
+    case ROUTE_NAMES.SET_TRANSFER_PROXY:
+    case ROUTE_NAMES.SET_MANAGEMENT_PROXY:
+    case ROUTE_NAMES.SET_SPAWN_PROXY:
+      return 'Set Proxy';
+    case ROUTE_NAMES.CREATE_GALAXY:
+      return 'Create Galaxy';
+    case ROUTE_NAMES.ISSUE_CHILD:
+      return 'Issue Child';
+    case ROUTE_NAMES.TRANSFER:
+      return 'Transfer';
+    case ROUTE_NAMES.ACCEPT_TRANSFER:
+      return 'Accept Transfer';
+    case ROUTE_NAMES.CANCEL_TRANSFER:
+      return 'Cancel Transfer';
+    case ROUTE_NAMES.GEN_KEYFILE:
+      return 'Keyfile';
+    case ROUTE_NAMES.SET_KEYS:
+      return 'Configure Keys';
+    case ROUTE_NAMES.SENT_TRANSACTION:
+      return 'Txn';
+    case ROUTE_NAMES.LANDING:
+    default:
+      return 'Bridge';
+  }
 };
 
-const router = route => ROUTES[route];
-
-export { ROUTE_NAMES, router, renderRoute };
+export const router = route => ROUTES[route.name];

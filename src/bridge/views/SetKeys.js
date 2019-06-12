@@ -8,7 +8,7 @@ import { Row, Col, H1, P, Warning, CheckboxButton } from '../components/Base';
 import StatelessTransaction from '../components/StatelessTransaction';
 import { attemptSeedDerivation } from '../lib/keys';
 
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index';
+import * as kg from 'urbit-key-generation/dist/index';
 
 import { addHexPrefix } from '../lib/wallet';
 

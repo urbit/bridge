@@ -4,7 +4,8 @@ import { Button } from '../components/Base';
 import { RequiredInput, InnerLabel, InputCaption } from '../components/Base';
 import { Row, Col, H1 } from '../components/Base';
 
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 import { EthereumWallet } from '../lib/wallet';
 
 class PrivateKey extends React.Component {
@@ -35,7 +36,7 @@ class PrivateKey extends React.Component {
   }
 
   render() {
-    const { pushRoute, popRoute, wallet } = this.props;
+    const { history, wallet } = this.props;
     const { privateKey } = this.state;
 
     return (
@@ -63,10 +64,7 @@ class PrivateKey extends React.Component {
             className={'mt-10'}
             prop-size={'wide lg'}
             disabled={Maybe.Nothing.hasInstance(wallet)}
-            onClick={() => {
-              popRoute();
-              pushRoute(ROUTE_NAMES.SHIPS);
-            }}>
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
             {'Continue →'}
           </Button>
         </Col>
@@ -75,4 +73,4 @@ class PrivateKey extends React.Component {
   }
 }
 
-export default PrivateKey;
+export default withHistory(PrivateKey);

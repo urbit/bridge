@@ -7,7 +7,8 @@ import { Input, InnerLabel, InputCaption } from '../components/Base';
 import { Row, Col, H1, H3, Warning } from '../components/Base';
 
 import { BRIDGE_ERROR } from '../lib/error';
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 import { EthereumWallet } from '../lib/wallet';
 
 class Keystore extends React.Component {
@@ -80,7 +81,7 @@ class Keystore extends React.Component {
   };
 
   render() {
-    const { pushRoute, popRoute, wallet } = this.props;
+    const { history, wallet } = this.props;
     const { keystore, password, decryptionProblem } = this.state;
 
     const uploadButtonClass = keystore.matchWith({
@@ -149,10 +150,7 @@ class Keystore extends React.Component {
             className={'mt-10'}
             prop-size={'wide lg'}
             disabled={Nothing.hasInstance(wallet)}
-            onClick={() => {
-              popRoute();
-              pushRoute(ROUTE_NAMES.SHIPS);
-            }}>
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
             {'Continue →'}
           </Button>
         </Col>
@@ -161,4 +159,4 @@ class Keystore extends React.Component {
   }
 }
 
-export default Keystore;
+export default withHistory(Keystore);

@@ -1,17 +1,20 @@
 import React from 'react';
+import { azimuth } from 'azimuth-js';
 import * as need from '../../lib/need';
+
 import { ETH_ZERO_ADDR, CURVE_ZERO_ADDR, eqAddr } from '../../lib/wallet';
 import { Row, Col, H2, P } from '../../components/Base';
 import { Button } from '../../components/Base';
-import { ROUTE_NAMES } from '../../lib/router';
-import { azimuth } from 'azimuth-js';
+import { ROUTE_NAMES } from '../../lib/routeNames';
+import { useHistory } from '../../store/history';
 
 const isPlanet = point =>
   azimuth.getPointSize(point) === azimuth.PointSize.Planet;
 const isStar = point => azimuth.getPointSize(point) === azimuth.PointSize.Star;
 
-const Actions = props => {
-  const { pushRoute, online, point, pointDetails, invites } = props;
+function Actions(props) {
+  const history = useHistory();
+  const { online, point, pointDetails, invites } = props;
 
   const addr = need.address(props);
 
@@ -105,9 +108,7 @@ const Actions = props => {
         disabled={!isActiveOwner || !online || !hasInvites}
         prop-size={'sm'}
         prop-type={'link'}
-        onClick={() => {
-          pushRoute(ROUTE_NAMES.INVITES_SEND);
-        }}>
+        onClick={() => history.push(ROUTE_NAMES.INVITES_SEND)}>
         {'Send invites ('}
         {invites.matchWith({
           Nothing: () => '?',
@@ -124,7 +125,7 @@ const Actions = props => {
         prop-size={'sm'}
         prop-type={'link'}
         onClick={() => {
-          pushRoute(ROUTE_NAMES.INVITES_MANAGE);
+          history.push(ROUTE_NAMES.INVITES_MANAGE);
         }}>
         {'Manage invites'}
       </Button>
@@ -147,7 +148,7 @@ const Actions = props => {
             prop-type={'link'}
             disabled={(online || planet) && !canIssueChild}
             onClick={() => {
-              pushRoute(ROUTE_NAMES.ISSUE_CHILD);
+              history.push(ROUTE_NAMES.ISSUE_CHILD);
             }}>
             {'Issue child'}
           </Button>
@@ -157,7 +158,7 @@ const Actions = props => {
             prop-type={'link'}
             disabled={online && !canAcceptTransfer}
             onClick={() => {
-              pushRoute(ROUTE_NAMES.ACCEPT_TRANSFER);
+              history.push(ROUTE_NAMES.ACCEPT_TRANSFER);
             }}>
             {'Accept incoming transfer'}
           </Button>
@@ -167,7 +168,7 @@ const Actions = props => {
             prop-type={'link'}
             disabled={online && !canCancelTransfer}
             onClick={() => {
-              pushRoute(ROUTE_NAMES.CANCEL_TRANSFER);
+              history.push(ROUTE_NAMES.CANCEL_TRANSFER);
             }}>
             {'Cancel outgoing transfer'}
           </Button>
@@ -177,7 +178,7 @@ const Actions = props => {
             prop-type={'link'}
             disabled={online && !canGenKeyfile}
             onClick={() => {
-              pushRoute(ROUTE_NAMES.GEN_KEYFILE);
+              history.push(ROUTE_NAMES.GEN_KEYFILE);
             }}>
             {'Generate Arvo keyfile'}
           </Button>
@@ -188,7 +189,7 @@ const Actions = props => {
             prop-size={'sm'}
             prop-type={'link'}
             onClick={() => {
-              pushRoute(ROUTE_NAMES.SET_SPAWN_PROXY);
+              history.push(ROUTE_NAMES.SET_SPAWN_PROXY);
             }}>
             {'Change spawn proxy'}
           </Button>
@@ -198,7 +199,7 @@ const Actions = props => {
             prop-size={'sm'}
             prop-type={'link'}
             onClick={() => {
-              pushRoute(ROUTE_NAMES.SET_MANAGEMENT_PROXY);
+              history.push(ROUTE_NAMES.SET_MANAGEMENT_PROXY);
             }}>
             {'Change management proxy'}
           </Button>
@@ -208,7 +209,7 @@ const Actions = props => {
             prop-size={'sm'}
             prop-type={'link'}
             onClick={() => {
-              pushRoute(ROUTE_NAMES.SET_KEYS);
+              history.push(ROUTE_NAMES.SET_KEYS);
             }}>
             {'Set network keys'}
           </Button>
@@ -218,7 +219,7 @@ const Actions = props => {
             prop-size={'sm'}
             prop-type={'link'}
             onClick={() => {
-              pushRoute(ROUTE_NAMES.TRANSFER);
+              history.push(ROUTE_NAMES.TRANSFER);
             }}>
             {'Transfer'}
           </Button>
@@ -229,6 +230,6 @@ const Actions = props => {
       </Row>
     </div>
   );
-};
+}
 
 export default Actions;

@@ -14,7 +14,8 @@ import * as azimuth from 'azimuth-js';
 import * as need from '../lib/need';
 
 import { randomPatq } from '../lib/lib';
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 import {
   DEFAULT_HD_PATH,
   ownershipWalletFromTicket,
@@ -63,8 +64,8 @@ class InviteTicket extends React.Component {
   }
 
   navigateLogin() {
-    this.props.popRoute();
-    this.props.pushRoute(ROUTE_NAMES.NETWORK);
+    this.props.history.pop();
+    this.props.history.push(ROUTE_NAMES.NETWORK);
   }
 
   handleInviteTicketInput(inviteTicket) {
@@ -310,7 +311,7 @@ class InviteTicket extends React.Component {
               updateProgress: this.updateProgress,
             }).then(() => {
               setTimeout(() => {
-                this.props.popRoute();
+                this.props.history.pop();
               }, 5000);
             });
           }
@@ -421,4 +422,4 @@ class InviteTicket extends React.Component {
   }
 }
 
-export default InviteTicket;
+export default withHistory(InviteTicket);

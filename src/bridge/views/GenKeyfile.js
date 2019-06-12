@@ -6,7 +6,7 @@ import { Button } from '../components/Base';
 import { Row, Col, H1, P } from '../components/Base';
 
 import * as ob from 'urbit-ob';
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index';
+import * as kg from 'urbit-key-generation/dist/index';
 import saveAs from 'file-saver';
 
 import { attemptSeedDerivation, genKey } from '../lib/keys';

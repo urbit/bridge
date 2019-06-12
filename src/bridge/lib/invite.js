@@ -2,7 +2,7 @@ import { Just, Nothing } from 'folktale/maybe';
 import Tx from 'ethereumjs-tx';
 
 import * as azimuth from 'azimuth-js';
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index';
+import * as kg from 'urbit-key-generation/dist/index';
 import * as wg from '../../walletgen/lib/lib.js';
 import * as tank from './tank';
 

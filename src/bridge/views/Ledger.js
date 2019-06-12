@@ -9,7 +9,8 @@ import Eth from '@ledgerhq/hw-app-eth';
 import * as secp256k1 from 'secp256k1';
 
 import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from '../lib/ledger';
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 
 const chopHdPrefix = str => (str.slice(0, 2) === 'm/' ? str.slice(2) : str);
 
@@ -76,7 +77,7 @@ class Ledger extends React.Component {
   }
 
   render() {
-    const { pushRoute, popRoute, wallet } = this.props;
+    const { history, wallet } = this.props;
     const { basePath, hdpath, account } = this.state;
     const { handlePathSelection, handleAccountSelection } = this;
 
@@ -207,10 +208,7 @@ class Ledger extends React.Component {
             className={'mt-8'}
             prop-size={'wide lg'}
             disabled={Maybe.Nothing.hasInstance(wallet)}
-            onClick={() => {
-              popRoute();
-              pushRoute(ROUTE_NAMES.SHIPS);
-            }}>
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
             {'Continue →'}
           </Button>
         </Col>
@@ -219,4 +217,4 @@ class Ledger extends React.Component {
   }
 }
 
-export default Ledger;
+export default withHistory(Ledger);

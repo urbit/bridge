@@ -5,7 +5,7 @@ import * as lodash from 'lodash';
 import Maybe from 'folktale/maybe';
 import * as secp256k1 from 'secp256k1';
 import * as ob from 'urbit-ob';
-import * as kg from '../../../node_modules/urbit-key-generation/dist/index';
+import * as kg from 'urbit-key-generation/dist/index';
 import { isAddress } from 'web3-utils';
 
 const DEFAULT_HD_PATH = "m/44'/60'/0'/0/0";

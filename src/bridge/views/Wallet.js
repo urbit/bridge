@@ -4,7 +4,8 @@ import { Button, H1, P } from '../components/Base';
 import { InnerLabelDropdown } from '../components/Base';
 import { Row, Col } from '../components/Base';
 
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 import { WALLET_NAMES, renderWalletType } from '../lib/wallet';
 
 class Wallet extends React.Component {
@@ -77,7 +78,7 @@ class Wallet extends React.Component {
           <Button
             className={'mt-10'}
             onClick={() =>
-              props.pushRoute(
+              props.history.push(
                 props.walletType === WALLET_NAMES.MNEMONIC
                   ? ROUTE_NAMES.MNEMONIC
                   : props.walletType === WALLET_NAMES.TICKET
@@ -103,4 +104,4 @@ class Wallet extends React.Component {
   }
 }
 
-export default Wallet;
+export default withHistory(Wallet);

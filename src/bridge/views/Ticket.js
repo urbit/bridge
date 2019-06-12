@@ -12,7 +12,8 @@ import {
 import { Row, Col, H1, P } from '../components/Base';
 
 import { randomPatq } from '../lib/lib';
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 import { urbitWalletFromTicket } from '../lib/wallet';
 
 class Ticket extends React.Component {
@@ -62,7 +63,7 @@ class Ticket extends React.Component {
   }
 
   render() {
-    const { popRoute, pushRoute, wallet } = this.props;
+    const { history, wallet } = this.props;
     const { ticket, pointName, passphrase } = this.state;
 
     const phPoint = this.pointPlaceholder;
@@ -140,10 +141,7 @@ class Ticket extends React.Component {
             className={'mt-4'}
             prop-size={'xl wide'}
             disabled={Nothing.hasInstance(wallet)}
-            onClick={() => {
-              popRoute();
-              pushRoute(ROUTE_NAMES.SHIPS);
-            }}>
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
             {'Continue →'}
           </Button>
         </Col>
@@ -152,4 +150,4 @@ class Ticket extends React.Component {
   }
 }
 
-export default Ticket;
+export default withHistory(Ticket);

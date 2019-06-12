@@ -8,7 +8,8 @@ import TrezorConnect from 'trezor-connect';
 import * as secp256k1 from 'secp256k1';
 
 import { TREZOR_PATH } from '../lib/trezor';
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 
 class Trezor extends React.Component {
   constructor(props) {
@@ -60,7 +61,7 @@ class Trezor extends React.Component {
   }
 
   render() {
-    const { pushRoute, popRoute, wallet } = this.props;
+    const { history, wallet } = this.props;
     const { hdpath, account } = this.state;
     const { handleAccountSelection } = this;
 
@@ -129,10 +130,7 @@ class Trezor extends React.Component {
             className={'mt-8'}
             prop-size={'wide lg'}
             disabled={Maybe.Nothing.hasInstance(wallet)}
-            onClick={() => {
-              popRoute();
-              pushRoute(ROUTE_NAMES.SHIPS);
-            }}>
+            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
             {'Continue →'}
           </Button>
         </Col>
@@ -141,4 +139,4 @@ class Trezor extends React.Component {
   }
 }
 
-export default Trezor;
+export default withHistory(Trezor);

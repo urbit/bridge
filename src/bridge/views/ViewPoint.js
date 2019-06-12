@@ -6,7 +6,8 @@ import { Button } from '../components/Base';
 import { Row, Col, H1, P } from '../components/Base';
 import { InnerLabel, PointInput, ValidatedSigil } from '../components/Base';
 
-import { ROUTE_NAMES } from '../lib/router';
+import { ROUTE_NAMES } from '../lib/routeNames';
+import { withHistory } from '../store/history';
 
 class ViewPoint extends React.Component {
   constructor(props) {
@@ -27,7 +28,7 @@ class ViewPoint extends React.Component {
 
   render() {
     const { pointName } = this.state;
-    const { popRoute, pushRoute, setPointCursor } = this.props;
+    const { history, setPointCursor } = this.props;
 
     // NB (jtobin):
     //
@@ -69,8 +70,7 @@ class ViewPoint extends React.Component {
             disabled={valid === false}
             onClick={() => {
               setPointCursor(Maybe.Just(ob.patp2dec(pointName)));
-              popRoute();
-              pushRoute(ROUTE_NAMES.SHIP);
+              history.popAndPush(ROUTE_NAMES.SHIP);
             }}>
             {'Continue  →'}
           </Button>
@@ -80,4 +80,4 @@ class ViewPoint extends React.Component {
   }
 }
 
-export default ViewPoint;
+export default withHistory(ViewPoint);
