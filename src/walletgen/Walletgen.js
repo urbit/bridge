@@ -1,5 +1,5 @@
 import React from 'react';
-import * as lodash from 'lodash';
+import { find } from 'lodash';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -67,7 +67,7 @@ class Walletgen extends React.Component {
 
   router = path => {
     const route = key => {
-      const { Component } = lodash.find(ROUTES, { path: key });
+      const { Component } = find(ROUTES, { path: key });
       const globals = {
         setGlobalState: this.setGlobalState,
         ...this.state,

@@ -14,12 +14,11 @@
     "node": "11.0.0"
   },
   "dependencies": {
-    "@ledgerhq/hw-app-eth": "^4.35.0",
-    "@ledgerhq/hw-transport-u2f": "^4.35.0",
+    "@ledgerhq/hw-app-eth": "^4.61.0",
+    "@ledgerhq/hw-transport-u2f": "^4.61.0",
     "PaperCollateralRenderer": "github:urbit/PaperCollateralRenderer",
     "azimuth-js": "^0.14.0",
     "azimuth-solidity": "^1.2.0",
-    "babel-polyfill": "^6.26.0",
     "bip32": "^1.0.2",
     "bip39": "^2.5.0",
     "bn.js": "^4.11.8",
@@ -37,9 +36,10 @@
     "prop-types": "^15.6.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-scripts": "^2.1.1",
+    "react-scripts": "3.0.1",
     "secp256k1": "^3.5.2",
     "sigil-js": "github:urbit/sigil-js#f7f29c5",
+    "source-map-explorer": "^2.0.0",
     "trezor-connect": "^7.0.1",
     "urbit-key-generation": "^0.16.0",
     "urbit-ob": "^3.1.0",
@@ -62,7 +62,8 @@
     "lint": "prettier src/**/*.js",
     "lint:check": "prettier -c 'src/**/*.js'",
     "lint:fix": "prettier --write 'src/**/*.js'",
-    "precommit": "npm-run-all lint:check"
+    "precommit": "npm-run-all lint:check",
+    "analyze": "source-map-explorer 'build/static/js/*.js'"
   },
   "devDependencies": {
     "eslint-plugin-prettier": "^3.1.0",
@@ -73,10 +74,17 @@
     "serve": "10.1.1",
     "truffle": "4.1.11"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ]
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not ie <= 11",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

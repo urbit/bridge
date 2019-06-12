@@ -1,7 +1,7 @@
 import * as ob from 'urbit-ob';
 import * as kg from 'urbit-key-generation/dist/index';
 import * as more from 'more-entropy';
-import lodash from 'lodash';
+import { chunk, flatMap, zipWith } from 'lodash';
 import {
   MIN_STAR,
   MIN_PLANET,
@@ -30,10 +30,10 @@ const makeTicket = point => {
 
   return new Promise((resolve, reject) => {
     gen.generate(bits, result => {
-      const chunked = lodash.chunk(result, 2);
+      const chunked = chunk(result, 2);
       const desired = chunked.slice(0, bytes); // only take required entropy
-      const more = lodash.flatMap(desired, arr => arr[0] ^ arr[1]);
-      const entropy = lodash.zipWith(some, more, (x, y) => x ^ y);
+      const more = flatMap(desired, arr => arr[0] ^ arr[1]);
+      const entropy = zipWith(some, more, (x, y) => x ^ y);
       const buf = Buffer.from(entropy);
       const patq = ob.hex2patq(buf.toString('hex'));
       resolve(patq);
