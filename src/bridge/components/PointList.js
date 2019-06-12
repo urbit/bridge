@@ -1,5 +1,5 @@
 import React from 'react';
-import { chunk } from 'lodash-es';
+import { chunk } from 'lodash';
 
 import { Row } from './Base';
 import RenderedPoint from './RenderedPoint';

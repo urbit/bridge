@@ -1,5 +1,5 @@
 import React from 'react';
-import { find } from 'lodash-es';
+import { find } from 'lodash';
 
 import Header from './components/Header';
 import Footer from './components/Footer';

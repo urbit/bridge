@@ -1,6 +1,6 @@
 import React from 'react';
 import saveAs from 'file-saver';
-import { get } from 'lodash-es';
+import { get } from 'lodash';
 import JSZip from 'jszip';
 
 import Button from '../components/Button';

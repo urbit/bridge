@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isUndefined } from 'lodash-es';
+import { isUndefined } from 'lodash';
 
 const Spacing = ({ className, children, h, w }) => {
   const h_cn = isUndefined(h) ? '' : `mt-${h}`;

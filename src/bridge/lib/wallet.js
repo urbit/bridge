@@ -1,7 +1,7 @@
 import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
 import keccak from 'keccak';
-import { reduce } from 'lodash-es';
+import { reduce } from 'lodash';
 import Maybe from 'folktale/maybe';
 import * as secp256k1 from 'secp256k1';
 import * as ob from 'urbit-ob';

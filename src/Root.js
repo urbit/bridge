@@ -1,5 +1,5 @@
 import React from 'react';
-import { get } from 'lodash-es';
+import { get } from 'lodash';
 
 import Bridge from './bridge/Bridge';
 import Walletgen from './walletgen/Walletgen';

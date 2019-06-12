@@ -31,7 +31,7 @@
     "jszip": "^3.1.5",
     "keccak": "^1.4.0",
     "keythereum": "^1.0.4",
-    "lodash-es": "^4.17.11",
+    "lodash": "^4.17.11",
     "more-entropy": "^0.0.7",
     "prop-types": "^15.6.2",
     "react": "^16.8.6",
