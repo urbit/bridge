@@ -48,11 +48,7 @@ function Header(props) {
   if (showCrumbs) {
     return (
       <div className={'flex items-center h-10'}>
-        <Crumbs
-          networkType={props.networkType}
-          wallet={props.wallet}
-          pointCursor={props.pointCursor}
-        />
+        <Crumbs wallet={props.wallet} pointCursor={props.pointCursor} />
       </div>
     );
   }
