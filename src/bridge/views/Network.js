@@ -14,12 +14,12 @@ const kNetworkOptions = [
     value: NETWORK_TYPES.MAINNET,
   },
   {
-    title: 'Local Node',
-    value: NETWORK_TYPES.LOCAL,
-  },
-  {
     title: 'Ropsten',
     value: NETWORK_TYPES.ROPSTEN,
+  },
+  {
+    title: 'Local Node',
+    value: NETWORK_TYPES.LOCAL,
   },
   {
     type: 'divider',

@@ -26,60 +26,67 @@ function _useNetwork(initialNetworkType = null) {
   };
 
   const { web3, contracts } = useMemo(() => {
-    if (networkType === NETWORK_TYPES.LOCAL) {
-      const protocol = isDevelopment ? 'ws' : 'wss';
-      const endpoint = `${protocol}://localhost:8545`;
-      const provider = new Web3.providers.WebsocketProvider(endpoint);
+    // given a web3 provider and contract addresses,
+    // build the web3 and contracts objects
+    const initWeb3 = (provider, contractAddresses) => {
       const web3 = new Web3(provider);
-      const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.DEV);
+      const contracts = azimuth.initContracts(web3, contractAddresses);
 
-      return { web3: Maybe.Just(web3), contracts: Maybe.Just(contracts) };
-    }
+      return {
+        web3: Maybe.Just(web3),
+        contracts: Maybe.Just(contracts),
+      };
+    };
 
-    if (networkType === NETWORK_TYPES.ROPSTEN) {
-      const endpoint = `https://ropsten.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
+    switch (networkType) {
+      case NETWORK_TYPES.LOCAL: {
+        const protocol = isDevelopment ? 'ws' : 'wss';
+        const endpoint = `${protocol}://localhost:8545`;
 
-      const provider = new Web3.providers.HttpProvider(endpoint);
-      const web3 = new Web3(provider);
-      const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.ROPSTEN);
+        return initWeb3(
+          new Web3.providers.WebsocketProvider(endpoint),
+          CONTRACT_ADDRESSES.DEV
+        );
+      }
+      case NETWORK_TYPES.ROPSTEN: {
+        const endpoint = `https://ropsten.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
 
-      return { web3: Maybe.Just(web3), contracts: Maybe.Just(contracts) };
-    }
+        return initWeb3(
+          new Web3.providers.HttpProvider(endpoint),
+          CONTRACT_ADDRESSES.ROPSTEN
+        );
+      }
+      case NETWORK_TYPES.MAINNET: {
+        const endpoint = `https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
 
-    if (networkType === NETWORK_TYPES.MAINNET) {
-      const endpoint = `https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
+        return initWeb3(
+          new Web3.providers.HttpProvider(endpoint),
+          CONTRACT_ADDRESSES.MAINNET
+        );
+      }
+      case NETWORK_TYPES.OFFLINE:
+      default: {
+        // NB (jtobin):
+        //
+        // The 'offline' network type targets the mainnet contracts, but does not
+        // actually use a provider to connect.  We use a web3 instance to
+        // initalise the contracts, but the network itself is set to Nothing.
+        //
+        // We may want to offer the ability to select a target network for
+        // transactions when offline.
 
-      const provider = new Web3.providers.HttpProvider(endpoint);
-      const web3 = new Web3(provider);
-      const contracts = azimuth.initContracts(web3, CONTRACT_ADDRESSES.MAINNET);
-
-      return { web3: Maybe.Just(web3), contracts: Maybe.Just(contracts) };
-    }
-
-    if (networkType === NETWORK_TYPES.OFFLINE) {
-      // NB (jtobin):
-      //
-      // The 'offline' network type targets the mainnet contracts, but does not
-      // actually use a provider to connect.  We use a web3 instance to
-      // initalise the contracts, but the network itself is set to Nothing.
-      //
-      // We may want to offer the ability to select a target network for
-      // transactions when offline.
-
-      // Note: example.com:3456 doesn't actually point to anything, we just need
-      // a provider to initialize the Web3 object
-      const provider = new Web3.providers.HttpProvider(
-        'http://example.com:3456'
-      );
-      const web3 = new Web3(provider);
-
-      const target = isDevelopment
-        ? CONTRACT_ADDRESSES.DEV
-        : CONTRACT_ADDRESSES.MAINNET;
-
-      const contracts = azimuth.initContracts(web3, target);
-
-      return { web3: Maybe.Nothing(), contracts: Maybe.Just(contracts) };
+        // Note: example.com:3456 doesn't actually point to anything, we just need
+        // a provider to initialize the Web3 object
+        return {
+          ...initWeb3(
+            new Web3.providers.HttpProvider('http://example.com:3456'),
+            isDevelopment ? CONTRACT_ADDRESSES.DEV : CONTRACT_ADDRESSES.MAINNET
+          ),
+          web3: Maybe.Nothing(),
+          // ^ overwrite the web3 object from initWeb3 with a Maybe.Nothing
+          // to indicate that there is no valid web3 connection
+        };
+      }
     }
   }, [networkType]);
 
