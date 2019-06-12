@@ -7,6 +7,7 @@ import { Row, Col } from '../components/Base';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { WALLET_NAMES, renderWalletType } from '../lib/wallet';
+import { compose } from '../lib/lib';
 
 class Wallet extends React.Component {
   componentDidMount() {
@@ -104,4 +105,4 @@ class Wallet extends React.Component {
   }
 }
 
-export default withHistory(Wallet);
+export default compose(withHistory)(Wallet);

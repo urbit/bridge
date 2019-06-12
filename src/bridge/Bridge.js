@@ -7,11 +7,10 @@ import Header from './components/Header';
 import { Container, Row, Col } from './components/Base';
 
 import { router } from './lib/router';
-import { initWeb3 } from './lib/web3';
 import { ROUTE_NAMES } from './lib/routeNames';
 import { HistoryProvider, withHistory, useHistory } from './store/history';
 import { TxnConfirmationsProvider } from './store/txnConfirmations';
-import { NETWORK_NAMES } from './lib/network';
+import { NETWORK_TYPES } from './lib/network';
 import {
   WALLET_NAMES,
   DEFAULT_HD_PATH,
@@ -19,13 +18,16 @@ import {
   addressFromSecp256k1Public,
 } from './lib/wallet';
 import { BRIDGE_ERROR } from './lib/error';
-import { isLocal } from './lib/flags';
+import { isDevelopment } from './lib/flags';
+import nest from './lib/nest';
+import { OnlineProvider } from './store/online';
+import { NetworkProvider } from './store/network';
 
 // NB(shrugs): toggle this variable to use the default local state.
 // don't commit changes to this line, but there shouldn't be a problem
 // if you do because we'll never stub on a production build.
 const shouldStubLocal = false;
-const isStubbed = isLocal && shouldStubLocal;
+const isStubbed = isDevelopment && shouldStubLocal;
 const kInitialRoutes = isStubbed
   ? [
       { name: ROUTE_NAMES.SHIPS },
@@ -34,9 +36,12 @@ const kInitialRoutes = isStubbed
       { name: ROUTE_NAMES.LANDING },
     ]
   : [{ name: ROUTE_NAMES.LANDING }];
+const kInitialNetworkType = isDevelopment
+  ? NETWORK_TYPES.LOCAL
+  : NETWORK_TYPES.MAINNET;
 
-// the router itself is a component that renders a specific view
-// based on the latest history state
+// the router itself is just a component that renders a specific view
+// depending on the history
 const Router = function(props) {
   const history = useHistory();
   const Route = router(history.peek());
@@ -62,15 +67,17 @@ const VariableWidthColumn = withHistory(({ history, children }) => (
   </Col>
 ));
 
+// nest all of the providers within each other to avoid hella depth
+const AllProviders = nest([
+  HistoryProvider,
+  TxnConfirmationsProvider,
+  OnlineProvider,
+  NetworkProvider,
+]);
+
 class Bridge extends React.Component {
   constructor(props) {
     super(props);
-
-    const networkType = isLocal ? NETWORK_NAMES.LOCAL : NETWORK_NAMES.MAINNET;
-
-    // Sidestepping full network selection to allow for point viewing,
-    // but still respecting the networkType
-    const { web3, contracts } = initWeb3(networkType);
 
     // NB (jtobin):
     //
@@ -86,10 +93,6 @@ class Bridge extends React.Component {
     // 'EthereumWallet'.
 
     this.state = {
-      // network
-      networkType: networkType,
-      web3: Just(web3),
-      contracts: Just(contracts),
       // wallet
       walletType: WALLET_NAMES.MNEMONIC,
       wallet: Nothing(),
@@ -106,8 +109,6 @@ class Bridge extends React.Component {
       txnConfirmations: {},
     };
 
-    this.setNetworkType = this.setNetworkType.bind(this);
-    this.setNetwork = this.setNetwork.bind(this);
     this.setWalletType = this.setWalletType.bind(this);
     this.setWallet = this.setWallet.bind(this);
     this.setWalletHdPath = this.setWalletHdPath.bind(this);
@@ -138,27 +139,10 @@ class Bridge extends React.Component {
     }
   }
 
-  setNetworkType(symbol) {
-    if (includes(NETWORK_NAMES, symbol)) {
-      this.setState({
-        networkType: symbol,
-      });
-    } else {
-      throw BRIDGE_ERROR.INVALID_NETWORK_TYPE;
-    }
-  }
-
   setNetworkSeedCache(networkSeed, revision) {
     this.setState({
       networkSeedCache: networkSeed,
       networkRevisionCache: revision,
-    });
-  }
-
-  setNetwork(web3, contracts) {
-    this.setState({
-      web3: web3,
-      contracts: contracts,
     });
   }
 
@@ -222,7 +206,6 @@ class Bridge extends React.Component {
 
   render() {
     const {
-      networkType,
       walletType,
       walletHdPath,
       wallet,
@@ -233,66 +216,53 @@ class Bridge extends React.Component {
       pointCursor,
       pointCache,
       txnHashCursor,
-      web3,
-      contracts,
     } = this.state;
 
     return (
-      <HistoryProvider initialRoutes={kInitialRoutes}>
-        <TxnConfirmationsProvider>
-          <Container>
-            <Row>
-              <VariableWidthColumn>
-                <Header
-                  skipRoute={this.skipRoute}
-                  networkType={networkType}
+      <AllProviders
+        initialRoutes={kInitialRoutes}
+        initialNetworkType={kInitialNetworkType}>
+        <Container>
+          <Row>
+            <VariableWidthColumn>
+              <Header
+                skipRoute={this.skipRoute}
+                wallet={wallet}
+                pointCursor={pointCursor}
+              />
+
+              <Row className={'row wrapper'}>
+                <Router
+                  setWalletType={this.setWalletType}
+                  setWalletHdPath={this.setWalletHdPath}
+                  setWallet={this.setWallet}
+                  walletType={walletType}
+                  walletHdPath={walletHdPath}
                   wallet={wallet}
+                  urbitWallet={urbitWallet}
+                  setUrbitWallet={this.setUrbitWallet}
+                  authMnemonic={authMnemonic}
+                  setAuthMnemonic={this.setAuthMnemonic}
+                  setPointCursor={this.setPointCursor}
+                  addToPointCache={this.addToPointCache}
                   pointCursor={pointCursor}
+                  pointCache={pointCache}
+                  networkSeedCache={networkSeedCache}
+                  networkRevisionCache={networkRevisionCache}
+                  setNetworkSeedCache={this.setNetworkSeedCache}
+                  onSent={this.setTxnHashCursor}
+                  setTxnHashCursor={this.setTxnHashCursor}
+                  txnHashCursor={txnHashCursor}
                 />
 
-                <Row className={'row wrapper'}>
-                  <Router
-                    // network
-                    setNetworkType={this.setNetworkType}
-                    setNetwork={this.setNetwork}
-                    networkType={networkType}
-                    web3={web3}
-                    contracts={contracts}
-                    // wallet
-                    setWalletType={this.setWalletType}
-                    setWalletHdPath={this.setWalletHdPath}
-                    setWallet={this.setWallet}
-                    walletType={walletType}
-                    walletHdPath={walletHdPath}
-                    wallet={wallet}
-                    // urbit wallet
-                    urbitWallet={urbitWallet}
-                    setUrbitWallet={this.setUrbitWallet}
-                    authMnemonic={authMnemonic}
-                    setAuthMnemonic={this.setAuthMnemonic}
-                    // point
-                    setPointCursor={this.setPointCursor}
-                    addToPointCache={this.addToPointCache}
-                    pointCursor={pointCursor}
-                    pointCache={pointCache}
-                    networkSeedCache={networkSeedCache}
-                    networkRevisionCache={networkRevisionCache}
-                    setNetworkSeedCache={this.setNetworkSeedCache}
-                    // txn
-                    onSent={this.setTxnHashCursor}
-                    setTxnHashCursor={this.setTxnHashCursor}
-                    txnHashCursor={txnHashCursor}
-                  />
+                <div className={'push'} />
+              </Row>
 
-                  <div className={'push'} />
-                </Row>
-
-                <Footer />
-              </VariableWidthColumn>
-            </Row>
-          </Container>
-        </TxnConfirmationsProvider>
-      </HistoryProvider>
+              <Footer />
+            </VariableWidthColumn>
+          </Row>
+        </Container>
+      </AllProviders>
     );
   }
 }

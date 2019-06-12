@@ -1,7 +1,7 @@
 import React from 'react';
-import { seq } from '../lib/lib';
 
-import { NETWORK_STATES } from '../lib/constants';
+import { useOnline, ONLINE_STATUS } from '../../bridge/store/online';
+import { seq } from '../../bridge/lib/lib';
 
 const StatusIndicator = props => (
   <div className={`flex h-9 align-center ${props.c2} flex-shrink-0`}>
@@ -12,27 +12,38 @@ const StatusIndicator = props => (
   </div>
 );
 
-const ChooseIndicator = props =>
-  props.network === NETWORK_STATES.ONLINE ? (
-    <StatusIndicator
-      message={'You are online.'}
-      c1={'bg-red'}
-      c2={'bg-red'}
-      error
-    />
-  ) : props.network === NETWORK_STATES.OFFLINE ? (
-    <StatusIndicator
-      message={'You are offline.'}
-      c1={'bg-green'}
-      c2={'bg-green'}
-    />
-  ) : (
-    <StatusIndicator
-      message={'Checking network connection..'}
-      c1={'bg-orange'}
-      c2={'bg-orange'}
-    />
-  );
+function ChooseIndicator(props) {
+  const online = useOnline();
+
+  switch (online) {
+    case ONLINE_STATUS.ONLINE:
+      return (
+        <StatusIndicator
+          message={'You are online.'}
+          c1={'bg-red'}
+          c2={'bg-red'}
+          error
+        />
+      );
+    case ONLINE_STATUS.OFFLINE:
+      return (
+        <StatusIndicator
+          message={'You are offline.'}
+          c1={'bg-green'}
+          c2={'bg-green'}
+        />
+      );
+    case ONLINE_STATUS.UNKNOWN:
+    default:
+      return (
+        <StatusIndicator
+          message={'Checking network connection..'}
+          c1={'bg-orange'}
+          c2={'bg-orange'}
+        />
+      );
+  }
+}
 
 const ProgressIndicator = ({ currentStep, totalSteps }) => (
   <div className={'relative h-9 col- mb-0'}>
@@ -61,7 +72,7 @@ const Header = props => (
         totalSteps={props.totalSteps}
         currentStep={props.currentStep}
       />
-      <ChooseIndicator network={props.network} />
+      <ChooseIndicator />
     </div>
     <div className={'col-md-8 h-15 flex align-center'}>
       <h1 className={'m-0 p-0'}>{'Wallet Generator'}</h1>

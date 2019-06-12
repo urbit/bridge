@@ -13,6 +13,7 @@ import { Row, Col, H1 } from '../components/Base';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { DEFAULT_HD_PATH, walletFromMnemonic } from '../lib/wallet';
+import { compose } from '../lib/lib';
 
 class Mnemonic extends React.Component {
   constructor(props) {
@@ -160,4 +161,4 @@ class Mnemonic extends React.Component {
   }
 }
 
-export default withHistory(Mnemonic);
+export default compose(withHistory)(Mnemonic);

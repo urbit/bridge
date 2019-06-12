@@ -5,9 +5,16 @@ import { getRouteBreadcrumb } from '../lib/router';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { useHistory } from '../store/history';
 import { isLast } from '../lib/lib';
+import { useNetwork } from '../store/network';
+
+function useRouteBreadcrumbBuilder(props) {
+  const { networkType } = useNetwork();
+  return getRouteBreadcrumb({ ...props, networkType });
+}
 
 function Crumbs(props) {
   const history = useHistory();
+  const breadcrumbBuilder = useRouteBreadcrumbBuilder(props);
 
   return (
     <>
@@ -17,9 +24,8 @@ function Crumbs(props) {
             <Button
               prop-type={'link'}
               prop-size={'sm'}
-              key={`history-button-${idx}`}
               onClick={() => history.pop(history.size - idx - 1)}>
-              {getRouteBreadcrumb(props, route)}
+              {breadcrumbBuilder(route)}
             </Button>
 
             {isLast(history.size, idx) ? (
@@ -42,11 +48,7 @@ function Header(props) {
   if (showCrumbs) {
     return (
       <div className={'flex items-center h-10'}>
-        <Crumbs
-          networkType={props.networkType}
-          wallet={props.wallet}
-          pointCursor={props.pointCursor}
-        />
+        <Crumbs wallet={props.wallet} pointCursor={props.pointCursor} />
       </div>
     );
   }

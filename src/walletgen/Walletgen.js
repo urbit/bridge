@@ -4,7 +4,7 @@ import * as lodash from 'lodash';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
-import { NETWORK_STATES, PROFILE_STATES, GEN_STATES } from './lib/constants';
+import { PROFILE_STATES, GEN_STATES } from './lib/constants';
 
 import PrivacyPolicy from './views/PrivacyPolicy';
 import Welcome from './views/Welcome';
@@ -19,8 +19,7 @@ import Done from './views/Done';
 
 import './style/index.css';
 
-const checkNetwork = () =>
-  navigator.onLine ? NETWORK_STATES.ONLINE : NETWORK_STATES.OFFLINE;
+import { OnlineProvider } from '../bridge/store/online';
 
 const ROUTES = [
   { path: '/Welcome', Component: Welcome },
@@ -41,7 +40,6 @@ class Walletgen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      network: checkNetwork(),
       'profile.state': PROFILE_STATES.NOSTART,
       'profile.value': null,
       'profile.shipCount': 0,
@@ -65,18 +63,9 @@ class Walletgen extends React.Component {
     };
   }
 
-  componentDidMount = () => {
-    window.addEventListener('online', () =>
-      this.setState({ network: NETWORK_STATES.ONLINE })
-    );
-    window.addEventListener('offline', () =>
-      this.setState({ network: NETWORK_STATES.OFFLINE })
-    );
-  };
-
   setGlobalState = state => this.setState(state);
 
-  router = (network, path) => {
+  router = path => {
     const route = key => {
       const { Component } = lodash.find(ROUTES, { path: key });
       const globals = {
@@ -87,39 +76,30 @@ class Walletgen extends React.Component {
     };
 
     return route(path);
-
-    // return network === NETWORK_STATES.ONLINE
-    //   ? <NetworkWarning />
-    //   : !(network === NETWORK_STATES.OFFLINE)
-    //   ? <h1>Detecting your network state.</h1>
-    //   : route(path)
   };
 
   render() {
-    const { network, route, currentStep, lastRoute } = this.state;
+    const { route, currentStep, lastRoute } = this.state;
 
-    const routed = this.router(network, route); // hacky prod
-    // const routed = this.router(NETWORK_STATES.OFFLINE, true, route) // hacky dev
+    const routed = this.router(route);
 
     return (
-      <main className={'container'}>
-        <Header
-          network={network}
-          currentStep={currentStep}
-          totalSteps={TOTAL_STEPS}
-        />
+      <OnlineProvider>
+        <main className={'container'}>
+          <Header currentStep={currentStep} totalSteps={TOTAL_STEPS} />
 
-        <div className={'row wrapper'}>
-          <div className={'col-'}>{routed}</div>
-          <div className={'push'} />
-        </div>
+          <div className={'row wrapper'}>
+            <div className={'col-'}>{routed}</div>
+            <div className={'push'} />
+          </div>
 
-        <Footer
-          route={route}
-          lastRoute={lastRoute}
-          setGlobalState={this.setGlobalState}
-        />
-      </main>
+          <Footer
+            route={route}
+            lastRoute={lastRoute}
+            setGlobalState={this.setGlobalState}
+          />
+        </main>
+      </OnlineProvider>
     );
   }
 }

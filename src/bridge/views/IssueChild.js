@@ -19,11 +19,13 @@ import {
 
 import StatelessTransaction from '../components/StatelessTransaction';
 
-import { NETWORK_NAMES } from '../lib/network';
+import { NETWORK_TYPES } from '../lib/network';
 import { getSpawnCandidate } from '../lib/child';
 import { canDecodePatp } from '../lib/txn';
 
 import { isValidAddress } from '../lib/wallet';
+import { withNetwork } from '../store/network';
+import { compose } from '../lib/lib';
 
 const setFind = (set, pred) => {
   for (const e of set) {
@@ -151,11 +153,11 @@ class IssueChild extends React.Component {
     });
 
     const esvisible =
-      props.networkType === NETWORK_NAMES.ROPSTEN ||
-      props.networkType === NETWORK_NAMES.MAINNET;
+      props.networkType === NETWORK_TYPES.ROPSTEN ||
+      props.networkType === NETWORK_TYPES.MAINNET;
 
     const esdomain =
-      props.networkType === NETWORK_NAMES.ROPSTEN
+      props.networkType === NETWORK_TYPES.ROPSTEN
         ? 'ropsten.etherscan.io'
         : 'etherscan.io';
 
@@ -253,4 +255,4 @@ class IssueChild extends React.Component {
   }
 }
 
-export default IssueChild;
+export default compose(withNetwork)(IssueChild);

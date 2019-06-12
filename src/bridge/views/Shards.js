@@ -16,6 +16,7 @@ import * as ob from 'urbit-ob';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { urbitWalletFromTicket } from '../lib/wallet';
+import { compose } from '../lib/lib';
 
 const placeholder = len => {
   let bytes = window.crypto.getRandomValues(new Uint8Array(len));
@@ -211,4 +212,4 @@ class Shards extends React.Component {
   }
 }
 
-export default withHistory(Shards);
+export default compose(withHistory)(Shards);

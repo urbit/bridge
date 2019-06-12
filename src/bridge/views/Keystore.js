@@ -10,6 +10,7 @@ import { BRIDGE_ERROR } from '../lib/error';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { EthereumWallet } from '../lib/wallet';
+import { compose } from '../lib/lib';
 
 class Keystore extends React.Component {
   constructor(props) {
@@ -159,4 +160,4 @@ class Keystore extends React.Component {
   }
 }
 
-export default withHistory(Keystore);
+export default compose(withHistory)(Keystore);

@@ -11,7 +11,7 @@ import {
 } from '../components/Base';
 import { Row, Col, H1, P } from '../components/Base';
 
-import { randomPatq } from '../lib/lib';
+import { randomPatq, compose } from '../lib/lib';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { urbitWalletFromTicket } from '../lib/wallet';
@@ -150,4 +150,4 @@ class Ticket extends React.Component {
   }
 }
 
-export default withHistory(Ticket);
+export default compose(withHistory)(Ticket);

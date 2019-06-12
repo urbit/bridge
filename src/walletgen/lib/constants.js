@@ -11,12 +11,6 @@ const GALAXY_ENTROPY_BITS = 384;
 
 const SEED_ENTROPY_BITS = 128;
 
-const NETWORK_STATES = {
-  ONLINE: Symbol('ONLINE'),
-  OFFLINE: Symbol('OFFLINE'),
-  UNKNOWN: Symbol('UNKNOWN'),
-};
-
 const GEN_STATES = {
   ENY_NOSTART: Symbol('ENY_NOSTART'),
   ENY_PENDING: Symbol('ENY_PENDING'),
@@ -48,7 +42,6 @@ const PROFILE_STATES = {
 };
 
 export {
-  NETWORK_STATES,
   GEN_STATES,
   BUTTON_STATES,
   PROFILE_STATES,

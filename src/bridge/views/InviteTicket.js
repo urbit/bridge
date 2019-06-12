@@ -13,7 +13,7 @@ import {
 import * as azimuth from 'azimuth-js';
 import * as need from '../lib/need';
 
-import { randomPatq } from '../lib/lib';
+import { randomPatq, compose } from '../lib/lib';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import {
@@ -28,6 +28,7 @@ import {
   TRANSACTION_STATES,
 } from '../lib/invite';
 import { generateWallet, startTransactions } from '../lib/invite';
+import { withNetwork } from '../store/network';
 
 class InviteTicket extends React.Component {
   constructor(props) {
@@ -305,8 +306,8 @@ class InviteTicket extends React.Component {
               realWalletM: realWallet,
               realPointM: realPoint,
               realTicket: verifyTicket,
-              web3M: web3,
-              contractsM: contracts,
+              web3,
+              contracts,
               setUrbitWallet,
               updateProgress: this.updateProgress,
             }).then(() => {
@@ -422,4 +423,7 @@ class InviteTicket extends React.Component {
   }
 }
 
-export default withHistory(InviteTicket);
+export default compose(
+  withNetwork,
+  withHistory
+)(InviteTicket);

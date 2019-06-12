@@ -4,7 +4,7 @@ import Tx from 'ethereumjs-tx';
 import { toWei, fromWei, toHex } from 'web3-utils';
 
 import { BRIDGE_ERROR } from '../lib/error';
-import { NETWORK_NAMES } from '../lib/network';
+import { NETWORK_TYPES } from '../lib/network';
 import { ledgerSignTransaction } from '../lib/ledger';
 import { trezorSignTransaction } from '../lib/trezor';
 import { WALLET_NAMES, addHexPrefix } from '../lib/wallet';
@@ -90,9 +90,9 @@ const signTransaction = async config => {
   };
 
   const defaultEip155Networks = [
-    NETWORK_NAMES.MAINNET,
-    NETWORK_NAMES.ROPSTEN,
-    NETWORK_NAMES.OFFLINE,
+    NETWORK_TYPES.MAINNET,
+    NETWORK_TYPES.ROPSTEN,
+    NETWORK_TYPES.OFFLINE,
   ];
 
   const needEip155Params =

@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Button from '../components/Button';
 import UploadButton from '../components/UploadButton';
 
-import { compose } from '../lib/lib';
+import { compose } from '../../bridge/lib/lib';
 
 import { PROFILE_STATES } from '../lib/constants';
 

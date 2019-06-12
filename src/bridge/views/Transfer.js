@@ -16,9 +16,11 @@ import {
 import { AddressInput } from '../components/Base';
 import StatelessTransaction from '../components/StatelessTransaction';
 
-import { NETWORK_NAMES } from '../lib/network';
+import { NETWORK_TYPES } from '../lib/network';
 
 import { isValidAddress } from '../lib/wallet';
+import { withNetwork } from '../store/network';
+import { compose } from '../lib/lib';
 
 class Transfer extends React.Component {
   constructor(props) {
@@ -70,11 +72,11 @@ class Transfer extends React.Component {
     const canGenerate = validAddress === true;
 
     const esvisible =
-      props.networkType === NETWORK_NAMES.ROPSTEN ||
-      props.networkType === NETWORK_NAMES.MAINNET;
+      props.networkType === NETWORK_TYPES.ROPSTEN ||
+      props.networkType === NETWORK_TYPES.MAINNET;
 
     const esdomain =
-      props.networkType === NETWORK_NAMES.ROPSTEN
+      props.networkType === NETWORK_TYPES.ROPSTEN
         ? 'ropsten.etherscan.io'
         : 'etherscan.io';
 
@@ -130,4 +132,4 @@ class Transfer extends React.Component {
   }
 }
 
-export default Transfer;
+export default compose(withNetwork)(Transfer);
