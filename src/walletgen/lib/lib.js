@@ -1,7 +1,7 @@
 import * as ob from 'urbit-ob';
 import * as kg from 'urbit-key-generation/dist/index';
 import * as more from 'more-entropy';
-import lodash from 'lodash';
+import lodash from 'lodash-es';
 import {
   MIN_STAR,
   MIN_PLANET,

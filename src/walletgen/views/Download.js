@@ -1,6 +1,6 @@
 import React from 'react';
 import saveAs from 'file-saver';
-import * as lodash from 'lodash';
+import { get } from 'lodash-es';
 import JSZip from 'jszip';
 
 import Button from '../components/Button';
@@ -18,13 +18,13 @@ class Download extends React.Component {
 
     const urbit_registration = Object.entries(wallets).reduce(
       (acc, [k, v]) => {
-        const owner = lodash.get(v, 'ownership.keys.address', '');
+        const owner = get(v, 'ownership.keys.address', '');
         const transfer = '';
-        const spawn = lodash.get(v, 'spawn.keys.address', '');
-        const manage = lodash.get(v, 'management.keys.address', '');
-        const voting = lodash.get(v, 'voting.keys.address', '');
-        const auth = lodash.get(v, 'network.keys.auth.public', '');
-        const crypt = lodash.get(v, 'network.keys.crypt.public', '');
+        const spawn = get(v, 'spawn.keys.address', '');
+        const manage = get(v, 'management.keys.address', '');
+        const voting = get(v, 'voting.keys.address', '');
+        const auth = get(v, 'network.keys.auth.public', '');
+        const crypt = get(v, 'network.keys.crypt.public', '');
         return {
           ...acc,
           [k]: [owner, transfer, spawn, manage, voting, auth, crypt],

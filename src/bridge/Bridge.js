@@ -1,6 +1,6 @@
 import React from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { includes } from 'lodash';
+import { includes } from 'lodash-es';
 
 import Footer from './components/Footer';
 import Header from './components/Header';

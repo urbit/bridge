@@ -1,7 +1,5 @@
-import 'babel-polyfill'; // required for @ledgerhq/hw-transport-u2f
-
 import React from 'react';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 
 import Bridge from './bridge/Bridge';
 import Walletgen from './walletgen/Walletgen';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { get, map } from 'lodash';
+import { get, map } from 'lodash-es';
 
 const ReactSVGComponents = {
   svg: p => {
