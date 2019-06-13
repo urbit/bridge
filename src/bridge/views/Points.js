@@ -10,6 +10,7 @@ import { withHistory } from '../store/history';
 import { ETH_ZERO_ADDR, eqAddr } from '../lib/wallet';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
+import { withWallet } from '../store/wallet';
 
 const hasTransferProxy = (cache, point) =>
   point in cache ? !eqAddr(cache[point].transferProxy, ETH_ZERO_ADDR) : false;
@@ -82,8 +83,7 @@ class Points extends React.Component {
   }
 
   render() {
-    const { setPointCursor, history } = this.props;
-    const { pointCache } = this.props;
+    const { setPointCursor, history, pointCache } = this.props;
 
     const {
       points,
@@ -259,5 +259,6 @@ class Points extends React.Component {
 
 export default compose(
   withNetwork,
-  withHistory
+  withHistory,
+  withWallet
 )(Points);

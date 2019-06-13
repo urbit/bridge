@@ -11,6 +11,7 @@ import { TREZOR_PATH } from '../lib/trezor';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { compose } from '../lib/lib';
+import { withWallet } from '../store/wallet';
 
 class Trezor extends React.Component {
   constructor(props) {
@@ -140,4 +141,7 @@ class Trezor extends React.Component {
   }
 }
 
-export default compose(withHistory)(Trezor);
+export default compose(
+  withHistory,
+  withWallet
+)(Trezor);

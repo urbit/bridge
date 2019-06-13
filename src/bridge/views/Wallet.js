@@ -6,8 +6,9 @@ import { Row, Col } from '../components/Base';
 
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
-import { WALLET_NAMES, renderWalletType } from '../lib/wallet';
+import { WALLET_TYPES, renderWalletType } from '../lib/wallet';
 import { compose } from '../lib/lib';
+import { withWallet } from '../store/wallet';
 
 class Wallet extends React.Component {
   componentDidMount() {
@@ -19,37 +20,37 @@ class Wallet extends React.Component {
     return [
       {
         title: 'Urbit Master Ticket',
-        value: WALLET_NAMES.TICKET,
+        value: WALLET_TYPES.TICKET,
       },
       {
         title: 'Urbit Master Ticket (Shards)',
-        value: WALLET_NAMES.SHARDS,
+        value: WALLET_TYPES.SHARDS,
       },
       {
         type: 'divider',
       },
       {
         title: 'Ledger',
-        value: WALLET_NAMES.LEDGER,
+        value: WALLET_TYPES.LEDGER,
       },
       {
         title: 'Trezor',
-        value: WALLET_NAMES.TREZOR,
+        value: WALLET_TYPES.TREZOR,
       },
       {
         type: 'divider',
       },
       {
         title: 'BIP39 Mnemonic',
-        value: WALLET_NAMES.MNEMONIC,
+        value: WALLET_TYPES.MNEMONIC,
       },
       {
         title: 'Ethereum Private Key',
-        value: WALLET_NAMES.PRIVATE_KEY,
+        value: WALLET_TYPES.PRIVATE_KEY,
       },
       {
         title: 'Ethereum Keystore File',
-        value: WALLET_NAMES.KEYSTORE,
+        value: WALLET_TYPES.KEYSTORE,
       },
     ];
   }
@@ -80,19 +81,19 @@ class Wallet extends React.Component {
             className={'mt-10'}
             onClick={() =>
               props.history.push(
-                props.walletType === WALLET_NAMES.MNEMONIC
+                props.walletType === WALLET_TYPES.MNEMONIC
                   ? ROUTE_NAMES.MNEMONIC
-                  : props.walletType === WALLET_NAMES.TICKET
+                  : props.walletType === WALLET_TYPES.TICKET
                   ? ROUTE_NAMES.TICKET
-                  : props.walletType === WALLET_NAMES.SHARDS
+                  : props.walletType === WALLET_TYPES.SHARDS
                   ? ROUTE_NAMES.SHARDS
-                  : props.walletType === WALLET_NAMES.LEDGER
+                  : props.walletType === WALLET_TYPES.LEDGER
                   ? ROUTE_NAMES.LEDGER
-                  : props.walletType === WALLET_NAMES.TREZOR
+                  : props.walletType === WALLET_TYPES.TREZOR
                   ? ROUTE_NAMES.TREZOR
-                  : props.walletType === WALLET_NAMES.PRIVATE_KEY
+                  : props.walletType === WALLET_TYPES.PRIVATE_KEY
                   ? ROUTE_NAMES.PRIVATE_KEY
-                  : props.walletType === WALLET_NAMES.KEYSTORE
+                  : props.walletType === WALLET_TYPES.KEYSTORE
                   ? ROUTE_NAMES.KEYSTORE
                   : ROUTE_NAMES.DEFAULT
               )
@@ -105,4 +106,7 @@ class Wallet extends React.Component {
   }
 }
 
-export default compose(withHistory)(Wallet);
+export default compose(
+  withHistory,
+  withWallet
+)(Wallet);

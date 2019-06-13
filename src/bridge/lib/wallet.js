@@ -14,7 +14,7 @@ const ETH_ZERO_ADDR = '0x0000000000000000000000000000000000000000';
 const CURVE_ZERO_ADDR =
   '0x0000000000000000000000000000000000000000000000000000000000000000';
 
-const WALLET_NAMES = {
+const WALLET_TYPES = {
   MNEMONIC: Symbol('MNEMONIC'),
   TICKET: Symbol('TICKET'),
   SHARDS: Symbol('SHARDS'),
@@ -32,19 +32,19 @@ function EthereumWallet(privateKey) {
 }
 
 const renderWalletType = wallet =>
-  wallet === WALLET_NAMES.MNEMONIC
+  wallet === WALLET_TYPES.MNEMONIC
     ? 'Mnemonic'
-    : wallet === WALLET_NAMES.TICKET
+    : wallet === WALLET_TYPES.TICKET
     ? 'Ticket'
-    : wallet === WALLET_NAMES.SHARDS
+    : wallet === WALLET_TYPES.SHARDS
     ? 'Ticket Shards'
-    : wallet === WALLET_NAMES.LEDGER
+    : wallet === WALLET_TYPES.LEDGER
     ? 'Ledger'
-    : wallet === WALLET_NAMES.TREZOR
+    : wallet === WALLET_TYPES.TREZOR
     ? 'Trezor'
-    : wallet === WALLET_NAMES.PRIVATE_KEY
+    : wallet === WALLET_TYPES.PRIVATE_KEY
     ? 'Private Key'
-    : wallet === WALLET_NAMES.KEYSTORE
+    : wallet === WALLET_TYPES.KEYSTORE
     ? 'Keystore File'
     : 'Wallet';
 
@@ -135,7 +135,7 @@ const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
 
 export {
   DEFAULT_HD_PATH,
-  WALLET_NAMES,
+  WALLET_TYPES,
   ETH_ZERO_ADDR,
   CURVE_ZERO_ADDR,
   renderWalletType,

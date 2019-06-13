@@ -12,6 +12,7 @@ import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from '../lib/ledger';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { compose } from '../lib/lib';
+import { withWallet } from '../store/wallet';
 
 const chopHdPrefix = str => (str.slice(0, 2) === 'm/' ? str.slice(2) : str);
 
@@ -218,4 +219,7 @@ class Ledger extends React.Component {
   }
 }
 
-export default compose(withHistory)(Ledger);
+export default compose(
+  withHistory,
+  withWallet
+)(Ledger);

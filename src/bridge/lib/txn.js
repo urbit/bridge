@@ -7,7 +7,7 @@ import { BRIDGE_ERROR } from '../lib/error';
 import { NETWORK_TYPES } from '../lib/network';
 import { ledgerSignTransaction } from '../lib/ledger';
 import { trezorSignTransaction } from '../lib/trezor';
-import { WALLET_NAMES, addHexPrefix } from '../lib/wallet';
+import { WALLET_TYPES, addHexPrefix } from '../lib/wallet';
 
 const TXN_PURPOSE = {
   SET_MANAGEMENT_PROXY: Symbol('SET_MANAGEMENT_PROXY'),
@@ -96,7 +96,7 @@ const signTransaction = async config => {
   ];
 
   const needEip155Params =
-    walletType === WALLET_NAMES.LEDGER &&
+    walletType === WALLET_TYPES.LEDGER &&
     defaultEip155Networks.includes(networkType);
 
   const signingParams = needEip155Params
@@ -121,9 +121,9 @@ const signTransaction = async config => {
 
   const stx = new Tx(utx);
 
-  if (walletType === WALLET_NAMES.LEDGER) {
+  if (walletType === WALLET_TYPES.LEDGER) {
     await ledgerSignTransaction(stx, walletHdPath);
-  } else if (walletType === WALLET_NAMES.TREZOR) {
+  } else if (walletType === WALLET_TYPES.TREZOR) {
     await trezorSignTransaction(stx, walletHdPath);
   } else {
     stx.sign(sec);

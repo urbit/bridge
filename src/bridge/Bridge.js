@@ -1,44 +1,47 @@
 import React from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { includes } from 'lodash';
 
 import Footer from './components/Footer';
 import Header from './components/Header';
 import { Container, Row, Col } from './components/Base';
 
+import nest from './lib/nest';
 import { router } from './lib/router';
 import { ROUTE_NAMES } from './lib/routeNames';
+import { NETWORK_TYPES } from './lib/network';
+import { DEFAULT_HD_PATH, walletFromMnemonic } from './lib/wallet';
+import { isDevelopment } from './lib/flags';
+
 import { HistoryProvider, withHistory, useHistory } from './store/history';
 import { TxnConfirmationsProvider } from './store/txnConfirmations';
-import { NETWORK_TYPES } from './lib/network';
-import {
-  WALLET_NAMES,
-  DEFAULT_HD_PATH,
-  walletFromMnemonic,
-  addressFromSecp256k1Public,
-} from './lib/wallet';
-import { BRIDGE_ERROR } from './lib/error';
-import { isDevelopment } from './lib/flags';
-import nest from './lib/nest';
 import { OnlineProvider } from './store/online';
 import { NetworkProvider } from './store/network';
+import { WalletProvider } from './store/wallet';
 
-// NB(shrugs): toggle this variable to use the default local state.
-// don't commit changes to this line, but there shouldn't be a problem
-// if you do because we'll never stub on a production build.
-const shouldStubLocal = false;
-const isStubbed = isDevelopment && shouldStubLocal;
-const kInitialRoutes = isStubbed
-  ? [
-      { name: ROUTE_NAMES.SHIPS },
-      { name: ROUTE_NAMES.WALLET },
-      { name: ROUTE_NAMES.NETWORK },
-      { name: ROUTE_NAMES.LANDING },
-    ]
-  : [{ name: ROUTE_NAMES.LANDING }];
 const kInitialNetworkType = isDevelopment
   ? NETWORK_TYPES.LOCAL
   : NETWORK_TYPES.MAINNET;
+
+// NB(shrugs): toggle these variables to change the default local state.
+// try not to commit changes to this line, but there shouldn't be a problem
+// if you do because we'll never stub on a production build.
+const shouldStubLocal = false;
+const kIsStubbed = isDevelopment && shouldStubLocal;
+const kInitialRoutes = kIsStubbed
+  ? [
+      { name: ROUTE_NAMES.LANDING },
+      { name: ROUTE_NAMES.NETWORK },
+      { name: ROUTE_NAMES.WALLET },
+      { name: ROUTE_NAMES.SHIPS },
+    ]
+  : [{ name: ROUTE_NAMES.LANDING }];
+
+const kInitialWallet = kIsStubbed
+  ? walletFromMnemonic(
+      process.env.REACT_APP_DEV_MNEMONIC,
+      process.env.REACT_APP_HD_PATH
+    )
+  : undefined;
 
 // the router itself is just a component that renders a specific view
 // depending on the history
@@ -73,30 +76,14 @@ const AllProviders = nest([
   TxnConfirmationsProvider,
   OnlineProvider,
   NetworkProvider,
+  WalletProvider,
 ]);
 
 class Bridge extends React.Component {
   constructor(props) {
     super(props);
 
-    // NB (jtobin):
-    //
-    // Note that the 'wallet' prop has type depending on the 'walletType' prop.
-    // These could be bound together in a single structure (so that
-    // 'walletType' acted more explicitly as a data constructor of sorts) but
-    // it doesn't necessarily help us much, since we branch on 'walletType'
-    // before setting 'wallet'.
-    //
-    // Wallets are always wrapped in Maybe.  For most authentication
-    // mechanisms, Maybe wraps a BIP32 HD wallet; for Ethereum private keys,
-    // JSON keystore files, and Metamask authentication, it wraps an
-    // 'EthereumWallet'.
-
     this.state = {
-      // wallet
-      walletType: WALLET_NAMES.MNEMONIC,
-      wallet: Nothing(),
-      walletHdPath: DEFAULT_HD_PATH,
       // urbit wallet-related
       urbitWallet: Nothing(),
       authMnemonic: Nothing(),
@@ -109,9 +96,6 @@ class Bridge extends React.Component {
       txnConfirmations: {},
     };
 
-    this.setWalletType = this.setWalletType.bind(this);
-    this.setWallet = this.setWallet.bind(this);
-    this.setWalletHdPath = this.setWalletHdPath.bind(this);
     this.setUrbitWallet = this.setUrbitWallet.bind(this);
     this.setAuthMnemonic = this.setAuthMnemonic.bind(this);
     this.setPointCursor = this.setPointCursor.bind(this);
@@ -125,14 +109,11 @@ class Bridge extends React.Component {
     //
     // If running in development, the following can be tweaked to get you set
     // up with a desirable initial state.
-    if (isStubbed) {
+    if (kIsStubbed) {
       const mnemonic = process.env.REACT_APP_DEV_MNEMONIC;
-      const hdpath = process.env.REACT_APP_HD_PATH;
 
       this.setState({
         pointCursor: Just(0),
-        walletType: WALLET_NAMES.MNEMONIC,
-        wallet: walletFromMnemonic(mnemonic, hdpath),
         urbitWallet: Nothing(),
         authMnemonic: Just(mnemonic),
       });
@@ -144,28 +125,6 @@ class Bridge extends React.Component {
       networkSeedCache: networkSeed,
       networkRevisionCache: revision,
     });
-  }
-
-  setWalletType(symbol) {
-    if (includes(WALLET_NAMES, symbol)) {
-      this.setState({
-        walletType: symbol,
-      });
-    } else {
-      throw BRIDGE_ERROR.INVALID_WALLET_TYPE;
-    }
-  }
-
-  setWallet(wallet) {
-    wallet.map(wal => {
-      wal.address = wal.address || addressFromSecp256k1Public(wal.publicKey);
-      return wal;
-    });
-    this.setState({ wallet });
-  }
-
-  setWalletHdPath(walletHdPath) {
-    this.setState({ walletHdPath });
   }
 
   // also sets wallet to ownership address
@@ -206,9 +165,6 @@ class Bridge extends React.Component {
 
   render() {
     const {
-      walletType,
-      walletHdPath,
-      wallet,
       urbitWallet,
       authMnemonic,
       networkSeedCache,
@@ -221,20 +177,15 @@ class Bridge extends React.Component {
     return (
       <AllProviders
         initialRoutes={kInitialRoutes}
-        initialNetworkType={kInitialNetworkType}>
+        initialNetworkType={kInitialNetworkType}
+        initialWallet={kInitialWallet}>
         <Container>
           <Row>
             <VariableWidthColumn>
-              <Header wallet={wallet} pointCursor={pointCursor} />
+              <Header pointCursor={pointCursor} />
 
               <Row className={'row wrapper'}>
                 <Router
-                  setWalletType={this.setWalletType}
-                  setWalletHdPath={this.setWalletHdPath}
-                  setWallet={this.setWallet}
-                  walletType={walletType}
-                  walletHdPath={walletHdPath}
-                  wallet={wallet}
                   urbitWallet={urbitWallet}
                   setUrbitWallet={this.setUrbitWallet}
                   authMnemonic={authMnemonic}

@@ -8,6 +8,7 @@ import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { EthereumWallet } from '../lib/wallet';
 import { compose } from '../lib/lib';
+import { withWallet } from '../store/wallet';
 
 class PrivateKey extends React.Component {
   constructor(props) {
@@ -74,4 +75,7 @@ class PrivateKey extends React.Component {
   }
 }
 
-export default compose(withHistory)(PrivateKey);
+export default compose(
+  withHistory,
+  withWallet
+)(PrivateKey);

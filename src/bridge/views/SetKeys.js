@@ -3,16 +3,17 @@ import Maybe from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
 import * as need from '../lib/need';
+import * as kg from 'urbit-key-generation/dist/index';
 import { Row, Col, H1, P, Warning, CheckboxButton } from '../components/Base';
 
 import StatelessTransaction from '../components/StatelessTransaction';
 import { attemptSeedDerivation } from '../lib/keys';
 
-import * as kg from 'urbit-key-generation/dist/index';
-
 import { addHexPrefix } from '../lib/wallet';
-import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
+
+import { withNetwork } from '../store/network';
+import { withWallet } from '../store/wallet';
 
 class SetKeys extends React.Component {
   constructor(props) {
@@ -198,4 +199,7 @@ class SetKeys extends React.Component {
   }
 }
 
-export default compose(withNetwork)(SetKeys);
+export default compose(
+  withNetwork,
+  withWallet
+)(SetKeys);

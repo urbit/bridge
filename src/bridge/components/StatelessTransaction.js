@@ -24,6 +24,7 @@ import {
 import { withTxnConfirmations } from '../store/txnConfirmations';
 import { withNetwork } from '../store/network';
 import { withHistory } from '../store/history';
+import { withWallet } from '../store/wallet';
 
 const SUBMISSION_STATES = {
   PROMPT: 'Send transaction',
@@ -584,5 +585,6 @@ class StatelessTransaction extends React.Component {
 export default compose(
   withNetwork,
   withTxnConfirmations,
-  withHistory
+  withHistory,
+  withWallet
 )(StatelessTransaction);

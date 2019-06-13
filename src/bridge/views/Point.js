@@ -13,6 +13,7 @@ import { Row, Col, H1, H3 } from '../components/Base';
 import { withHistory } from '../store/history';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
+import { withWallet } from '../store/wallet';
 
 class Point extends React.Component {
   constructor(props) {
@@ -139,5 +140,6 @@ class Point extends React.Component {
 
 export default compose(
   withNetwork,
-  withHistory
+  withHistory,
+  withWallet
 )(Point);

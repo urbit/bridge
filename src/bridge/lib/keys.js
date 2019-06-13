@@ -7,7 +7,7 @@ import * as serial from '../nockjs/serial';
 import * as kg from 'urbit-key-generation/dist/index';
 
 import { BRIDGE_ERROR } from './error';
-import { WALLET_NAMES, eqAddr } from './wallet';
+import { WALLET_TYPES, eqAddr } from './wallet';
 
 // ctsy joemfb
 const b64 = buf => {
@@ -67,8 +67,7 @@ const genKey = (networkSeed, point, revision) => {
 // 'next' refers to setting the next set of keys
 // if false, we use revision - 1
 const attemptSeedDerivation = async (next, args) => {
-  const { walletType } = args;
-  const { urbitWallet, authMnemonic } = args;
+  const { walletType, urbitWallet, authMnemonic } = args;
 
   // NB (jtobin):
   //
@@ -84,7 +83,7 @@ const attemptSeedDerivation = async (next, args) => {
 
   let managementSeed = '';
 
-  const ticketLike = [WALLET_NAMES.TICKET, WALLET_NAMES.SHARDS];
+  const ticketLike = [WALLET_TYPES.TICKET, WALLET_TYPES.SHARDS];
 
   if (ticketLike.includes(walletType)) {
     const uwal = urbitWallet.matchWith({
@@ -95,7 +94,7 @@ const attemptSeedDerivation = async (next, args) => {
     });
 
     managementSeed = uwal.management.seed;
-  } else if (walletType === WALLET_NAMES.MNEMONIC) {
+  } else if (walletType === WALLET_TYPES.MNEMONIC) {
     const walProxy = need.address(args);
 
     const mnemonic = authMnemonic.matchWith({

@@ -15,6 +15,7 @@ import { randomPatq, compose } from '../lib/lib';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { urbitWalletFromTicket } from '../lib/wallet';
+import { withWallet } from '../store/wallet';
 
 class Ticket extends React.Component {
   constructor(props) {
@@ -150,4 +151,7 @@ class Ticket extends React.Component {
   }
 }
 
-export default compose(withHistory)(Ticket);
+export default compose(
+  withHistory,
+  withWallet
+)(Ticket);

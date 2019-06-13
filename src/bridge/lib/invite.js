@@ -12,7 +12,7 @@ import saveAs from 'file-saver';
 import { sendSignedTransaction } from './txn';
 import { BRIDGE_ERROR } from '../lib/error';
 import { attemptSeedDerivation } from './keys';
-import { addHexPrefix, WALLET_NAMES } from './wallet';
+import { addHexPrefix, WALLET_TYPES } from './wallet';
 
 const INVITE_STAGES = {
   INVITE_LOGIN: 'invite login',
@@ -213,7 +213,7 @@ async function startTransactions(args) {
   // configure networking public keys
   //TODO feels like more of this logic should live in a lib?
   let networkSeed = await attemptSeedDerivation(true, {
-    walletType: WALLET_NAMES.TICKET,
+    walletType: WALLET_TYPES.TICKET,
     urbitWallet: Just(realWallet),
     pointCursor: Just(point),
     pointCache: { [point]: { keyRevisionNumber: 0 } },
