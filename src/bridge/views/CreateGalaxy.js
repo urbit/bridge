@@ -22,6 +22,7 @@ import { ETH_ZERO_ADDR, isValidAddress, eqAddr } from '../lib/wallet';
 
 import { isValidGalaxy, compose } from '../lib/lib';
 import { withNetwork } from '../store/network';
+import { withWallet } from '../store/wallet';
 
 const buttonTriState = status => {
   if (status === null) return 'blue';
@@ -195,4 +196,7 @@ class CreateGalaxy extends React.Component {
   }
 }
 
-export default compose(withNetwork)(CreateGalaxy);
+export default compose(
+  withNetwork,
+  withWallet
+)(CreateGalaxy);

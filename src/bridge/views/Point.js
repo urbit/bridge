@@ -123,7 +123,6 @@ class Point extends React.Component {
           {authenticated ? (
             <Actions
               online={online}
-              wallet={wallet}
               point={point}
               pointDetails={pointDetails}
               invites={this.state.invites}

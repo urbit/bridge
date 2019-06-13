@@ -7,6 +7,7 @@ import { Row, Col, H2, P } from '../../components/Base';
 import { Button } from '../../components/Base';
 import { ROUTE_NAMES } from '../../lib/routeNames';
 import { useHistory } from '../../store/history';
+import { useWallet } from '../../store/wallet';
 
 const isPlanet = point =>
   azimuth.getPointSize(point) === azimuth.PointSize.Planet;
@@ -14,9 +15,10 @@ const isStar = point => azimuth.getPointSize(point) === azimuth.PointSize.Star;
 
 function Actions(props) {
   const history = useHistory();
+  const { wallet } = useWallet();
   const { online, point, pointDetails, invites } = props;
 
-  const addr = need.address(props);
+  const addr = need.address({ wallet });
 
   const isOwner = pointDetails.matchWith({
     Nothing: _ => false,
