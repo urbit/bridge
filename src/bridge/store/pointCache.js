@@ -6,7 +6,7 @@ function _usePointCache() {
   const [pointCache, _setPointCache] = useState({});
 
   const addToPointCache = entry =>
-    _setPointCache(cache => ({ ...cache, entry }));
+    _setPointCache(cache => ({ ...cache, ...entry }));
 
   return {
     pointCache,
