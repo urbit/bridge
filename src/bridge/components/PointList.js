@@ -1,11 +1,14 @@
 import React from 'react';
 import { chunk } from 'lodash';
 
+import { usePointCursor } from '../store/pointCursor';
+
 import { Row } from './Base';
 import RenderedPoint from './RenderedPoint';
 
-const PointList = props => {
-  const { setPointCursor, routeHandler, points, loading } = props;
+const PointList = function(props) {
+  const { setPointCursor } = usePointCursor();
+  const { routeHandler, points, loading } = props;
   const chunks = chunk(points, 3);
 
   return points.length === 0 ? (

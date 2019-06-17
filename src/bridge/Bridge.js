@@ -17,6 +17,8 @@ import { TxnConfirmationsProvider } from './store/txnConfirmations';
 import { OnlineProvider } from './store/online';
 import { NetworkProvider } from './store/network';
 import { WalletProvider } from './store/wallet';
+import { PointCursorProvider } from './store/pointCursor';
+import { PointCacheProvider } from './store/pointCache';
 
 const kInitialNetworkType = isDevelopment
   ? NETWORK_TYPES.LOCAL
@@ -45,6 +47,7 @@ const kInitialWallet = kIsStubbed
 const kInitialMnemonic = kIsStubbed
   ? process.env.REACT_APP_DEV_MNEMONIC
   : Nothing();
+const kInitialPointCursor = kIsStubbed ? Just(0) : Nothing();
 
 // the router itself is just a component that renders a specific view
 // depending on the history
@@ -83,6 +86,8 @@ const AllProviders = nest([
   OnlineProvider,
   NetworkProvider,
   WalletProvider,
+  PointCursorProvider,
+  PointCacheProvider,
 ]);
 
 class Bridge extends React.Component {
@@ -91,30 +96,13 @@ class Bridge extends React.Component {
 
     this.state = {
       networkSeedCache: null,
-      // point
-      pointCursor: Nothing(),
-      pointCache: {},
       // txn
       txnHashCursor: Nothing(),
       txnConfirmations: {},
     };
 
-    this.setPointCursor = this.setPointCursor.bind(this);
     this.setTxnHashCursor = this.setTxnHashCursor.bind(this);
     this.setNetworkSeedCache = this.setNetworkSeedCache.bind(this);
-    this.addToPointCache = this.addToPointCache.bind(this);
-  }
-
-  componentDidMount() {
-    // NB (jtobin, shrugs):
-    //
-    // If running in development, the following can be tweaked to get you set
-    // up with a desirable initial state.
-    if (kIsStubbed) {
-      this.setState({
-        pointCursor: Just(0),
-      });
-    }
   }
 
   setNetworkSeedCache(networkSeed, revision) {
@@ -122,16 +110,6 @@ class Bridge extends React.Component {
       networkSeedCache: networkSeed,
       networkRevisionCache: revision,
     });
-  }
-
-  setPointCursor(pointCursor) {
-    this.setState({ pointCursor });
-  }
-
-  addToPointCache(entry) {
-    this.setState((state, _) => ({
-      pointCache: Object.assign(state.pointCache, entry),
-    }));
   }
 
   setTxnHashCursor(txnHashCursor) {
@@ -142,8 +120,6 @@ class Bridge extends React.Component {
     const {
       networkSeedCache,
       networkRevisionCache,
-      pointCursor,
-      pointCache,
       txnHashCursor,
     } = this.state;
 
@@ -152,18 +128,15 @@ class Bridge extends React.Component {
         initialRoutes={kInitialRoutes}
         initialNetworkType={kInitialNetworkType}
         initialWallet={kInitialWallet}
-        initialMnemonic={kInitialMnemonic}>
+        initialMnemonic={kInitialMnemonic}
+        initialPointCursor={kInitialPointCursor}>
         <Container>
           <Row>
             <VariableWidthColumn>
-              <Header pointCursor={pointCursor} />
+              <Header />
 
               <Row className={'row wrapper'}>
                 <Router
-                  setPointCursor={this.setPointCursor}
-                  addToPointCache={this.addToPointCache}
-                  pointCursor={pointCursor}
-                  pointCache={pointCache}
                   networkSeedCache={networkSeedCache}
                   networkRevisionCache={networkRevisionCache}
                   setNetworkSeedCache={this.setNetworkSeedCache}

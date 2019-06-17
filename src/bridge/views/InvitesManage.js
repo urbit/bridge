@@ -16,6 +16,7 @@ import {
 import StatelessTransaction from '../components/StatelessTransaction';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
+import { withPointCursor } from '../store/pointCursor';
 
 class InvitesManage extends React.Component {
   constructor(props) {
@@ -184,4 +185,7 @@ class InvitesManage extends React.Component {
   }
 }
 
-export default compose(withNetwork)(InvitesManage);
+export default compose(
+  withNetwork,
+  withPointCursor
+)(InvitesManage);

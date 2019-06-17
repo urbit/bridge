@@ -10,6 +10,7 @@ import { BRIDGE_ERROR, renderTxnError } from '../lib/error';
 import { NETWORK_TYPES } from '../lib/network';
 import { useTxnConfirmations } from '../store/txnConfirmations';
 import { useNetwork } from '../store/network';
+import { usePointCursor } from '../store/pointCursor';
 
 class Success extends React.Component {
   constructor(props) {
@@ -113,10 +114,10 @@ const Failure = props => (
 function SentTransaction(props) {
   const history = useHistory();
   const { txnConfirmations } = useTxnConfirmations();
+  const { setPointCursor, pointCursor } = usePointCursor();
   const { web3 } = useNetwork();
 
   const { txnHashCursor, networkType } = props;
-  const { setPointCursor, pointCursor } = props;
 
   const promptKeyfile = history.data && history.data.promptKeyfile;
 

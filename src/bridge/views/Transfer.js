@@ -21,6 +21,7 @@ import { NETWORK_TYPES } from '../lib/network';
 import { isValidAddress } from '../lib/wallet';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
+import { withPointCursor } from '../store/pointCursor';
 
 class Transfer extends React.Component {
   constructor(props) {
@@ -132,4 +133,7 @@ class Transfer extends React.Component {
   }
 }
 
-export default compose(withNetwork)(Transfer);
+export default compose(
+  withNetwork,
+  withPointCursor
+)(Transfer);
