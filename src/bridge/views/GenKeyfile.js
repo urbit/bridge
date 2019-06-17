@@ -1,5 +1,4 @@
 import React from 'react';
-import Maybe from 'folktale/maybe';
 import * as need from '../lib/need';
 
 import { Button } from '../components/Base';
@@ -9,7 +8,7 @@ import * as ob from 'urbit-ob';
 import * as kg from 'urbit-key-generation/dist/index';
 import saveAs from 'file-saver';
 
-import { attemptSeedDerivation, genKey } from '../lib/keys';
+import { attemptNetworkSeedDerivation, genKey } from '../lib/keys';
 import { addHexPrefix } from '../lib/wallet';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
@@ -33,8 +32,10 @@ class GenKeyfile extends React.Component {
 
     // in case we did SetKeys earlier this session, make sure to generate the
     // newer keyfile, rather than the one that will expire soon
-    const revision =
-      this.props.networkRevision || parseInt(pointDetails.keyRevisionNumber);
+    const revision = this.props.networkRevision.matchWith({
+      Nothing: () => parseInt(pointDetails.keyRevisionNumber),
+      Just: p => p.value,
+    });
 
     return {
       point,
@@ -78,13 +79,14 @@ class GenKeyfile extends React.Component {
 
   async deriveSeed() {
     const next = false;
-    let seed = await attemptSeedDerivation(next, this.props);
 
-    if (seed.getOrElse('') === '' && this.props.networkSeed) {
-      seed = Maybe.Just(this.props.networkSeed);
-    }
+    const seed = await attemptNetworkSeedDerivation(next, this.props);
 
-    return seed.getOrElse('');
+    // either return the derived seed, the cached seed, or empty string
+    return seed.matchWith({
+      Nothing: () => this.props.networkSeed.getOrElse(''),
+      Just: p => p.value,
+    });
   }
 
   render() {

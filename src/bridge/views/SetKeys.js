@@ -7,7 +7,7 @@ import * as kg from 'urbit-key-generation/dist/index';
 import { Row, Col, H1, P, Warning, CheckboxButton } from '../components/Base';
 
 import StatelessTransaction from '../components/StatelessTransaction';
-import { attemptSeedDerivation } from '../lib/keys';
+import { attemptNetworkSeedDerivation } from '../lib/keys';
 
 import { addHexPrefix } from '../lib/wallet';
 import { compose } from '../lib/lib';
@@ -26,7 +26,7 @@ class SetKeys extends React.Component {
     this.state = {
       auth: '',
       encr: '',
-      networkSeed: '',
+      newNetworkSeed: '',
       nondeterministicSeed: false,
       point: point,
       cryptoSuiteVersion: 1,
@@ -93,17 +93,20 @@ class SetKeys extends React.Component {
 
   async deriveSeed() {
     const next = true;
-    let seed = await attemptSeedDerivation(next, this.props);
     let nondeterministicSeed = false;
 
-    if (seed.getOrElse('') === '') {
-      seed = Maybe.Just(this.randomHex(64));
-      nondeterministicSeed = true;
-    }
+    const seed = await attemptNetworkSeedDerivation(next, this.props);
+    const newNetworkSeed = seed.matchWith({
+      Nothing: () => {
+        nondeterministicSeed = true;
+        return this.randomHex(64);
+      },
+      Just: p => p.value,
+    });
 
     this.setState({
-      networkSeed: seed.getOrElse(''),
-      nondeterministicSeed: nondeterministicSeed,
+      newNetworkSeed,
+      nondeterministicSeed,
     });
   }
 
@@ -114,11 +117,12 @@ class SetKeys extends React.Component {
 
     const validPoint = need.pointCursor(props);
 
+    // TODO: move this to a lib for validating things
     const hexRegExp = /[0-9A-Fa-f]{64}/g;
 
-    if (hexRegExp.test(state.networkSeed)) {
+    if (hexRegExp.test(state.newNetworkSeed)) {
       // derive network keys
-      const pair = kg.deriveNetworkKeys(state.networkSeed);
+      const pair = kg.deriveNetworkKeys(state.newNetworkSeed);
 
       const pencr = addHexPrefix(pair.crypt.public);
       const pauth = addHexPrefix(pair.auth.public);
@@ -142,7 +146,7 @@ class SetKeys extends React.Component {
     const { props, state } = this;
 
     const canGenerate =
-      state.networkSeed.length === 64 && state.networkSeed.length === 64;
+      state.newNetworkSeed.length === 64 && state.newNetworkSeed.length === 64;
 
     const pointDetails = need.fromPointCache(props, state.point);
 
@@ -191,7 +195,7 @@ class SetKeys extends React.Component {
             // Tx
             canGenerate={canGenerate}
             createUnsignedTxn={this.createUnsignedTxn}
-            newNetworkSeed={state.networkSeed}
+            newNetworkSeed={state.newNetworkSeed}
             newRevision={parseInt(pointDetails.keyRevisionNumber) + 1}
           />
         </Col>

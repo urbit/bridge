@@ -3,6 +3,7 @@ import Maybe from 'folktale/maybe';
 
 export const PointCursorContext = createContext(null);
 
+// pointCursor is Maybe<number>
 function _usePointCursor(initialPointCursor = Maybe.Nothing()) {
   const [pointCursor, setPointCursor] = useState(initialPointCursor);
 

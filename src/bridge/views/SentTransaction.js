@@ -10,7 +10,6 @@ import { BRIDGE_ERROR, renderTxnError } from '../lib/error';
 import { NETWORK_TYPES } from '../lib/network';
 import { useTxnConfirmations } from '../store/txnConfirmations';
 import { useNetwork } from '../store/network';
-import { usePointCursor } from '../store/pointCursor';
 import { useTxnCursor } from '../store/txnCursor';
 
 class Success extends React.Component {
@@ -115,7 +114,6 @@ const Failure = props => (
 function SentTransaction(props) {
   const history = useHistory();
   const { txnConfirmations } = useTxnConfirmations();
-  const { setPointCursor, pointCursor } = usePointCursor();
   const { web3, networkType } = useNetwork();
   const { txnCursor } = useTxnCursor();
 
@@ -148,7 +146,6 @@ function SentTransaction(props) {
         <Button
           prop-type={'link'}
           onClick={() => {
-            setPointCursor(pointCursor);
             history.pop();
           }}>
           {'Ok →'}

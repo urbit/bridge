@@ -25,10 +25,8 @@ const kInitialNetworkType = isDevelopment
   ? NETWORK_TYPES.LOCAL
   : NETWORK_TYPES.MAINNET;
 
-// NB(shrugs): toggle these variables to change the default local state.
-// try not to commit changes to this line, but there shouldn't be a problem
-// if you do because we'll never stub on a production build.
-const shouldStubLocal = false;
+// NB(shrugs): modify these variables to change the default local state.
+const shouldStubLocal = process.env.REACT_APP_STUB_LOCAL === 'true';
 const kIsStubbed = isDevelopment && shouldStubLocal;
 const kInitialRoutes = kIsStubbed
   ? [
@@ -46,7 +44,7 @@ const kInitialWallet = kIsStubbed
     )
   : undefined;
 const kInitialMnemonic = kIsStubbed
-  ? process.env.REACT_APP_DEV_MNEMONIC
+  ? Just(process.env.REACT_APP_DEV_MNEMONIC)
   : Nothing();
 const kInitialPointCursor = kIsStubbed ? Just(0) : Nothing();
 

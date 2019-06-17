@@ -34,7 +34,7 @@ function _useWallet(
   const [urbitWallet, _setUrbitWallet] = useState(Maybe.Nothing());
   const [authMnemonic, setAuthMnemonic] = useState(initialMnemonic);
   const [networkSeed, setNetworkSeed] = useState(Maybe.Nothing());
-  const [networkRevision, setNetowrkRevision] = useState(Maybe.Nothing());
+  const [networkRevision, setNetworkRevision] = useState(Maybe.Nothing());
 
   const setWalletType = walletType => {
     if (!includes(WALLET_TYPES, walletType)) {
@@ -95,7 +95,7 @@ function _useWallet(
     networkSeed,
     setNetworkSeed,
     networkRevision,
-    setNetowrkRevision,
+    setNetworkRevision,
   };
 }
 

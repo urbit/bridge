@@ -84,7 +84,7 @@ class Points extends React.Component {
   }
 
   render() {
-    const { setPointCursor, history, pointCache } = this.props;
+    const { history, pointCache } = this.props;
 
     const {
       points,
@@ -93,8 +93,8 @@ class Points extends React.Component {
       voting,
       spawning,
       loading,
+      eclipticOwner,
     } = this.state;
-    const { eclipticOwner } = this.state;
 
     const lookupPointButton = (
       <Row>
@@ -143,11 +143,7 @@ class Points extends React.Component {
             {`You own these points until the recipient accepts the incoming
             transfer. You may cancel the transfer until accepted.`}
           </P>
-          <PointList
-            setPointCursor={setPointCursor}
-            routeHandler={history.push}
-            points={outgoing}
-          />
+          <PointList routeHandler={history.push} points={outgoing} />
         </React.Fragment>
       ) : (
         <div />
@@ -161,11 +157,7 @@ class Points extends React.Component {
             {`You do not own these points until you accept the incoming transfer.
             You may reject any incoming transfers.`}
           </P>
-          <PointList
-            setPointCursor={setPointCursor}
-            routeHandler={history.push}
-            points={incoming}
-          />
+          <PointList routeHandler={history.push} points={incoming} />
         </React.Fragment>
       ) : (
         <div />
@@ -179,11 +171,7 @@ class Points extends React.Component {
             {`You can configure or set network keys and conduct sponsorship
              related operations for these points.`}
           </P>
-          <PointList
-            setPointCursor={setPointCursor}
-            routeHandler={history.push}
-            points={managing}
-          />
+          <PointList routeHandler={history.push} points={managing} />
         </React.Fragment>
       ) : (
         <div />
@@ -197,11 +185,7 @@ class Points extends React.Component {
             {`Since you are part of the Galactic Senate, you can cast votes on
             new Azimuth proposals on behalf of these points.`}
           </P>
-          <PointList
-            setPointCursor={setPointCursor}
-            routeHandler={history.push}
-            points={voting}
-          />
+          <PointList routeHandler={history.push} points={voting} />
         </React.Fragment>
       ) : (
         <div />
@@ -212,11 +196,7 @@ class Points extends React.Component {
         <React.Fragment>
           <H2>{'You Are a Spawn Proxy For'}</H2>
           <P>{`You can create new child ships under these points.`}</P>
-          <PointList
-            setPointCursor={setPointCursor}
-            routeHandler={history.push}
-            points={spawning}
-          />
+          <PointList routeHandler={history.push} points={spawning} />
         </React.Fragment>
       ) : (
         <div />
@@ -241,7 +221,6 @@ class Points extends React.Component {
           <H2>{'Your Points'}</H2>
 
           <PointList
-            setPointCursor={setPointCursor}
             routeHandler={history.push}
             points={points}
             loading={loading}

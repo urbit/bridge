@@ -71,7 +71,8 @@ class ViewPoint extends React.Component {
             className={'mt-8'}
             disabled={valid === false}
             onClick={() => {
-              setPointCursor(Maybe.Just(ob.patp2dec(pointName)));
+              setPointCursor(Maybe.Just(parseInt(ob.patp2dec(pointName), 10)));
+              // ^ pointCursor expects native number type, not string
               history.popAndPush(ROUTE_NAMES.SHIP);
             }}>
             {'Continue  →'}
