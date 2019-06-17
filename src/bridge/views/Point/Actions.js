@@ -20,6 +20,9 @@ function Actions(props) {
 
   const addr = need.address({ wallet });
 
+  const planet = isPlanet(point);
+  const star = isStar(point);
+
   const isOwner = pointDetails.matchWith({
     Nothing: _ => false,
     Just: details => eqAddr(details.value.owner, addr),
@@ -29,7 +32,7 @@ function Actions(props) {
     Just: details => details.value.active,
   });
   const isActiveOwner = isOwner && isActive;
-  const canSetSpawnProxy = isActiveOwner;
+  const canSetSpawnProxy = isActiveOwner && !planet;
   const canSetManagementProxy = isActiveOwner;
 
   const canManage =
@@ -57,9 +60,6 @@ function Actions(props) {
     Nothing: () => false,
     Just: count => count.value > 0,
   });
-
-  const planet = isPlanet(point);
-  const star = isStar(point);
 
   const canTransfer = pointDetails.matchWith({
     Nothing: () => false,
