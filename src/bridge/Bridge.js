@@ -18,6 +18,7 @@ import { OnlineProvider } from './store/online';
 import { NetworkProvider } from './store/network';
 import { WalletProvider } from './store/wallet';
 import { PointCursorProvider } from './store/pointCursor';
+import { PointCacheProvider } from './store/pointCache';
 
 const kInitialNetworkType = isDevelopment
   ? NETWORK_TYPES.LOCAL
@@ -86,6 +87,7 @@ const AllProviders = nest([
   NetworkProvider,
   WalletProvider,
   PointCursorProvider,
+  PointCacheProvider,
 ]);
 
 class Bridge extends React.Component {
