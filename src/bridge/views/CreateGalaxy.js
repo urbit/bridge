@@ -183,9 +183,6 @@ class CreateGalaxy extends React.Component {
           </Button>
 
           <StatelessTransaction
-            // Upper scope
-            {...props}
-            // Other
             ref={this.statelessRef}
             canGenerate={canGenerate}
             createUnsignedTxn={this.createUnsignedTxn}

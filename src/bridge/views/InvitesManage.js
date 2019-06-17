@@ -172,9 +172,6 @@ class InvitesManage extends React.Component {
           </Input>
 
           <StatelessTransaction
-            // Upper scope
-            {...this.props}
-            // Other
             canGenerate={this.state.canGenerate}
             createUnsignedTxn={this.createUnsignedTxn}
             ref={this.statelessRef}
