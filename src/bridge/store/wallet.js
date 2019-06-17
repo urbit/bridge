@@ -6,6 +6,7 @@ import {
   WALLET_TYPES,
   DEFAULT_HD_PATH,
   addressFromSecp256k1Public,
+  walletFromMnemonic,
 } from '../lib/wallet';
 import { BRIDGE_ERROR } from '../lib/error';
 
@@ -23,10 +24,15 @@ export const WalletContext = createContext(null);
 // mechanisms, Maybe wraps a BIP32 HD wallet; for Ethereum private keys,
 // JSON keystore files, and Metamask authentication, it wraps an
 // 'EthereumWallet'.
-function _useWallet(initialWallet = Maybe.Nothing()) {
+function _useWallet(
+  initialWallet = Maybe.Nothing(),
+  initialMnemonic = Maybe.Nothing()
+) {
   const [walletType, _setWalletType] = useState(WALLET_TYPES.MNEMONIC);
   const [walletHdPath, setWalletHdPath] = useState(DEFAULT_HD_PATH);
   const [wallet, _setWallet] = useState(initialWallet);
+  const [urbitWallet, _setUrbitWallet] = useState(Maybe.Nothing());
+  const [authMnemonic, setAuthMnemonic] = useState(initialMnemonic);
 
   const setWalletType = walletType => {
     if (!includes(WALLET_TYPES, walletType)) {
@@ -46,6 +52,28 @@ function _useWallet(initialWallet = Maybe.Nothing()) {
     _setWallet(wallet);
   };
 
+  const setUrbitWallet = urbitWallet => {
+    if (Maybe.Just.hasInstance(urbitWallet)) {
+      // when an urbit wallet is set, also derive
+      // a normal bip32 wallet using the ownership address
+      const wallet = walletFromMnemonic(
+        urbitWallet.value.ownership.seed,
+        DEFAULT_HD_PATH,
+        urbitWallet.value.meta.passphrase
+      );
+
+      // manually set the public address
+      wallet.map(wal => {
+        wal.address = urbitWallet.value.ownership.keys.address;
+        return wal;
+      });
+
+      setWallet(wallet);
+    }
+
+    _setUrbitWallet(urbitWallet);
+  };
+
   return {
     //
     walletType,
@@ -57,15 +85,15 @@ function _useWallet(initialWallet = Maybe.Nothing()) {
     wallet,
     setWallet,
     //
-    // urbitWallet
-    // setUrbitWallet
-    // authMnemonic
-    // setAuthMnemonic
+    urbitWallet,
+    setUrbitWallet,
+    authMnemonic,
+    setAuthMnemonic,
   };
 }
 
-export function WalletProvider({ initialWallet, children }) {
-  const wallet = _useWallet(initialWallet);
+export function WalletProvider({ initialWallet, initialMnemonic, children }) {
+  const wallet = _useWallet(initialWallet, initialMnemonic);
 
   return (
     <WalletContext.Provider value={wallet}>{children}</WalletContext.Provider>

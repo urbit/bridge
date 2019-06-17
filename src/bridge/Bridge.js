@@ -9,10 +9,10 @@ import nest from './lib/nest';
 import { router } from './lib/router';
 import { ROUTE_NAMES } from './lib/routeNames';
 import { NETWORK_TYPES } from './lib/network';
-import { DEFAULT_HD_PATH, walletFromMnemonic } from './lib/wallet';
+import { walletFromMnemonic } from './lib/wallet';
 import { isDevelopment } from './lib/flags';
 
-import { HistoryProvider, withHistory, useHistory } from './store/history';
+import { HistoryProvider, useHistory } from './store/history';
 import { TxnConfirmationsProvider } from './store/txnConfirmations';
 import { OnlineProvider } from './store/online';
 import { NetworkProvider } from './store/network';
@@ -42,6 +42,9 @@ const kInitialWallet = kIsStubbed
       process.env.REACT_APP_HD_PATH
     )
   : undefined;
+const kInitialMnemonic = kIsStubbed
+  ? process.env.REACT_APP_DEV_MNEMONIC
+  : Nothing();
 
 // the router itself is just a component that renders a specific view
 // depending on the history
@@ -52,23 +55,26 @@ const Router = function(props) {
   return <Route {...props} />;
 };
 
-// NB(shrugs): separate component because it needs withHistory
+// NB(shrugs): separate component because it needs useHistory
 // this will be must better structured as part of the UI overhaul
-const VariableWidthColumn = withHistory(({ history, children }) => (
+const VariableWidthColumn = function({ children }) {
+  const history = useHistory();
   // For the invite acceptance flow, widen the screen to use the full
   // container, and hide the breadcrumbs
-  <Col
-    className={
-      history.includes(ROUTE_NAMES.INVITE_TICKET)
-        ? 'col-md-12'
-        : 'col-md-offset-1 col-md-10'
-    }
-    style={
-      history.includes(ROUTE_NAMES.INVITE_TICKET) ? {} : { maxWidth: '620px' }
-    }>
-    {children}
-  </Col>
-));
+  return (
+    <Col
+      className={
+        history.includes(ROUTE_NAMES.INVITE_TICKET)
+          ? 'col-md-12'
+          : 'col-md-offset-1 col-md-10'
+      }
+      style={
+        history.includes(ROUTE_NAMES.INVITE_TICKET) ? {} : { maxWidth: '620px' }
+      }>
+      {children}
+    </Col>
+  );
+};
 
 // nest all of the providers within each other to avoid hella depth
 const AllProviders = nest([
@@ -84,9 +90,6 @@ class Bridge extends React.Component {
     super(props);
 
     this.state = {
-      // urbit wallet-related
-      urbitWallet: Nothing(),
-      authMnemonic: Nothing(),
       networkSeedCache: null,
       // point
       pointCursor: Nothing(),
@@ -96,8 +99,6 @@ class Bridge extends React.Component {
       txnConfirmations: {},
     };
 
-    this.setUrbitWallet = this.setUrbitWallet.bind(this);
-    this.setAuthMnemonic = this.setAuthMnemonic.bind(this);
     this.setPointCursor = this.setPointCursor.bind(this);
     this.setTxnHashCursor = this.setTxnHashCursor.bind(this);
     this.setNetworkSeedCache = this.setNetworkSeedCache.bind(this);
@@ -110,12 +111,8 @@ class Bridge extends React.Component {
     // If running in development, the following can be tweaked to get you set
     // up with a desirable initial state.
     if (kIsStubbed) {
-      const mnemonic = process.env.REACT_APP_DEV_MNEMONIC;
-
       this.setState({
         pointCursor: Just(0),
-        urbitWallet: Nothing(),
-        authMnemonic: Just(mnemonic),
       });
     }
   }
@@ -125,28 +122,6 @@ class Bridge extends React.Component {
       networkSeedCache: networkSeed,
       networkRevisionCache: revision,
     });
-  }
-
-  // also sets wallet to ownership address
-  setUrbitWallet(urbitWallet) {
-    let wallet = this.state.wallet;
-    if (Just.hasInstance(urbitWallet)) {
-      const mnemonic = urbitWallet.value.ownership.seed;
-      wallet = walletFromMnemonic(
-        mnemonic,
-        DEFAULT_HD_PATH,
-        urbitWallet.value.meta.passphrase
-      );
-      wallet.map(wal => {
-        wal.address = urbitWallet.value.ownership.keys.address;
-        return wal;
-      });
-    }
-    this.setState({ urbitWallet, wallet });
-  }
-
-  setAuthMnemonic(authMnemonic) {
-    this.setState({ authMnemonic });
   }
 
   setPointCursor(pointCursor) {
@@ -165,8 +140,6 @@ class Bridge extends React.Component {
 
   render() {
     const {
-      urbitWallet,
-      authMnemonic,
       networkSeedCache,
       networkRevisionCache,
       pointCursor,
@@ -178,7 +151,8 @@ class Bridge extends React.Component {
       <AllProviders
         initialRoutes={kInitialRoutes}
         initialNetworkType={kInitialNetworkType}
-        initialWallet={kInitialWallet}>
+        initialWallet={kInitialWallet}
+        initialMnemonic={kInitialMnemonic}>
         <Container>
           <Row>
             <VariableWidthColumn>
@@ -186,10 +160,6 @@ class Bridge extends React.Component {
 
               <Row className={'row wrapper'}>
                 <Router
-                  urbitWallet={urbitWallet}
-                  setUrbitWallet={this.setUrbitWallet}
-                  authMnemonic={authMnemonic}
-                  setAuthMnemonic={this.setAuthMnemonic}
                   setPointCursor={this.setPointCursor}
                   addToPointCache={this.addToPointCache}
                   pointCursor={pointCursor}
