@@ -14,6 +14,7 @@ import { addHexPrefix } from '../lib/wallet';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
 import { withPointCursor } from '../store/pointCursor';
+import { withPointCache } from '../store/pointCache';
 
 class GenKeyfile extends React.Component {
   constructor(props) {
@@ -137,5 +138,6 @@ class GenKeyfile extends React.Component {
 
 export default compose(
   withWallet,
-  withPointCursor
+  withPointCursor,
+  withPointCache
 )(GenKeyfile);
