@@ -25,6 +25,7 @@ import { withTxnConfirmations } from '../store/txnConfirmations';
 import { withNetwork } from '../store/network';
 import { withHistory } from '../store/history';
 import { withWallet } from '../store/wallet';
+import { withTxnCursor } from '../store/txnCursor';
 
 const SUBMISSION_STATES = {
   PROMPT: 'Send transaction',
@@ -238,7 +239,7 @@ class StatelessTransaction extends React.Component {
         props.setTxnConfirmations
       )
         .then(txHash => {
-          props.onSent(Just(Ok(txHash)), state.stx.value);
+          props.setTxnCursor(Just(Ok(txHash)));
 
           let routeData = {};
           if (props.networkSeed) {
@@ -586,5 +587,6 @@ export default compose(
   withNetwork,
   withTxnConfirmations,
   withHistory,
-  withWallet
+  withWallet,
+  withTxnCursor
 )(StatelessTransaction);

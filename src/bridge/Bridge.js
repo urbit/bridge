@@ -19,6 +19,7 @@ import { NetworkProvider } from './store/network';
 import { WalletProvider } from './store/wallet';
 import { PointCursorProvider } from './store/pointCursor';
 import { PointCacheProvider } from './store/pointCache';
+import { TxnCursorProvider } from './store/txnCursor';
 
 const kInitialNetworkType = isDevelopment
   ? NETWORK_TYPES.LOCAL
@@ -88,6 +89,7 @@ const AllProviders = nest([
   WalletProvider,
   PointCursorProvider,
   PointCacheProvider,
+  TxnCursorProvider,
 ]);
 
 class Bridge extends React.Component {
@@ -96,12 +98,8 @@ class Bridge extends React.Component {
 
     this.state = {
       networkSeedCache: null,
-      // txn
-      txnHashCursor: Nothing(),
-      txnConfirmations: {},
     };
 
-    this.setTxnHashCursor = this.setTxnHashCursor.bind(this);
     this.setNetworkSeedCache = this.setNetworkSeedCache.bind(this);
   }
 
@@ -112,16 +110,8 @@ class Bridge extends React.Component {
     });
   }
 
-  setTxnHashCursor(txnHashCursor) {
-    this.setState({ txnHashCursor });
-  }
-
   render() {
-    const {
-      networkSeedCache,
-      networkRevisionCache,
-      txnHashCursor,
-    } = this.state;
+    const { networkSeedCache, networkRevisionCache } = this.state;
 
     return (
       <AllProviders
@@ -140,9 +130,6 @@ class Bridge extends React.Component {
                   networkSeedCache={networkSeedCache}
                   networkRevisionCache={networkRevisionCache}
                   setNetworkSeedCache={this.setNetworkSeedCache}
-                  onSent={this.setTxnHashCursor}
-                  setTxnHashCursor={this.setTxnHashCursor}
-                  txnHashCursor={txnHashCursor}
                 />
 
                 <div className={'push'} />

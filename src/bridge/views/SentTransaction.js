@@ -11,6 +11,7 @@ import { NETWORK_TYPES } from '../lib/network';
 import { useTxnConfirmations } from '../store/txnConfirmations';
 import { useNetwork } from '../store/network';
 import { usePointCursor } from '../store/pointCursor';
+import { useTxnCursor } from '../store/txnCursor';
 
 class Success extends React.Component {
   constructor(props) {
@@ -115,16 +116,15 @@ function SentTransaction(props) {
   const history = useHistory();
   const { txnConfirmations } = useTxnConfirmations();
   const { setPointCursor, pointCursor } = usePointCursor();
-  const { web3 } = useNetwork();
-
-  const { txnHashCursor, networkType } = props;
+  const { web3, networkType } = useNetwork();
+  const { txnCursor } = useTxnCursor();
 
   const promptKeyfile = history.data && history.data.promptKeyfile;
 
   // TODO: remove need's assumption about accepting the props object
   const w3 = need.web3({ web3 });
 
-  const result = txnHashCursor.matchWith({
+  const result = txnCursor.matchWith({
     Nothing: _ => {
       throw BRIDGE_ERROR.MISSING_TXN;
     },
