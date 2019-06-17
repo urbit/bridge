@@ -65,9 +65,6 @@ class CancelTransfer extends React.Component {
 
           <P>{`This action will cancel the transfer to ${proxy}.`}</P>
           <StatelessTransaction
-            // Upper scope
-            {...props}
-            // Other
             canGenerate={canGenerate}
             createUnsignedTxn={this.createUnsignedTxn}
           />

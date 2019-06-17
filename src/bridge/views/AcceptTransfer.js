@@ -108,9 +108,6 @@ class AcceptTransfer extends React.Component {
           </Anchor>
 
           <StatelessTransaction
-            // Upper scope
-            {...props}
-            // Other
             canGenerate={canGenerate}
             createUnsignedTxn={this.createUnsignedTxn}
             ref={this.statelessRef}

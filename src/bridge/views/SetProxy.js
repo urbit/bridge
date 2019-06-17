@@ -157,9 +157,6 @@ class _SetProxy extends React.Component {
           {addressInput}
 
           <StatelessTransaction
-            // Upper scope
-            {...props}
-            // Other
             ref={this.statelessRef}
             createUnsignedTxn={this.createUnsignedTxn}
             canGenerate={canGenerate}

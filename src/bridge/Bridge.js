@@ -50,11 +50,11 @@ const kInitialPointCursor = kIsStubbed ? Just(0) : Nothing();
 
 // the router itself is just a component that renders a specific view
 // depending on the history
-const Router = function(props) {
+const Router = function() {
   const history = useHistory();
   const Route = router(history.peek());
 
-  return <Route {...props} />;
+  return <Route />;
 };
 
 // NB(shrugs): separate component because it needs useHistory
@@ -90,33 +90,31 @@ const AllProviders = nest([
   TxnCursorProvider,
 ]);
 
-class Bridge extends React.Component {
-  render() {
-    return (
-      <AllProviders
-        initialRoutes={kInitialRoutes}
-        initialNetworkType={kInitialNetworkType}
-        initialWallet={kInitialWallet}
-        initialMnemonic={kInitialMnemonic}
-        initialPointCursor={kInitialPointCursor}>
-        <Container>
-          <Row>
-            <VariableWidthColumn>
-              <Header />
+function Bridge() {
+  return (
+    <AllProviders
+      initialRoutes={kInitialRoutes}
+      initialNetworkType={kInitialNetworkType}
+      initialWallet={kInitialWallet}
+      initialMnemonic={kInitialMnemonic}
+      initialPointCursor={kInitialPointCursor}>
+      <Container>
+        <Row>
+          <VariableWidthColumn>
+            <Header />
 
-              <Row className={'row wrapper'}>
-                <Router />
+            <Row className={'row wrapper'}>
+              <Router />
 
-                <div className={'push'} />
-              </Row>
+              <div className={'push'} />
+            </Row>
 
-              <Footer />
-            </VariableWidthColumn>
-          </Row>
-        </Container>
-      </AllProviders>
-    );
-  }
+            <Footer />
+          </VariableWidthColumn>
+        </Row>
+      </Container>
+    </AllProviders>
+  );
 }
 
 export default Bridge;
