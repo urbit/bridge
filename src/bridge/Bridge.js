@@ -26,7 +26,7 @@ const kInitialNetworkType = isDevelopment
   : NETWORK_TYPES.MAINNET;
 
 // NB(shrugs): modify these variables to change the default local state.
-const shouldStubLocal = process.env.REACT_APP_STUB_LOCAL === 'true';
+const shouldStubLocal = false;
 const kIsStubbed = isDevelopment && shouldStubLocal;
 const kInitialRoutes = kIsStubbed
   ? [

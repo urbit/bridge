@@ -52,13 +52,14 @@ To validate your downloaded file's integrity, compare the lines in checksum.txt 
 
 ### Install / Build
 
-Clone the repo, and use a simple `npm install`. You can then use a `npm run build` to create an optimised static build (serve it with e.g. [serve][serv]).
+Clone the repo, and use a simple `npm install`.  You can then use a `npm run
+build` to create an optimised static build (serve it with e.g. [serve][serv]).
 
 ### General notes
 
-For development, use `npm run pilot` to get going after a `npm install`. This
+For development, use `npm run pilot` to get going after a `npm install`.  This
 will boot up a Ganache node in the background, deploy the Azimuth contracts to
-it, and fire up a local webserver. Bridge will be served on `localhost:3000`.
+it, and fire up a local webserver.  Bridge will be served on `localhost:3000`.
 
 Note that one of our dependencies itself depends on a library called
 `handle-thing` which breaks under the Ledger support requirements (see below)
@@ -76,7 +77,7 @@ before running `npm run pilot`.
 ### Useful accounts
 
 The ecliptic owner is the only account that's able to create galaxies, so
-it's a good place to get started. On the testnet, it's the address:
+it's a good place to get started.  On the testnet, it's the address:
 
 ```
 0x6DEfFb0caFDB11D175F123F6891AA64F01c24F7d
@@ -113,15 +114,12 @@ You can also tweak a couple of things to change your development state
 somewhat (say, for example, you want to start on the points list screen, instead
 of having to re-authenticate whenever you make a change or refresh the page):
 
-- The `.env.development` file contains environment variables that you can
-  provide to the application when it's running in development. You can access
+* The `.env.development` file contains environment variables that you can
+  provide to the application when it's running in development.  You can access
   them via `process.env.REACT_APP_<whatever>`.
 
-- Make `REACT_APP_STUB_LOCAL='true'` to enabled stubbing of some methods
-  in a local development environment.
-
-- The top of the Bridge component in `src/Bridge.js`
-  can be tweaked for setting your initial state. You can provide a specific
+* The `componentDidMount` method of the Bridge component in `src/Bridge.js`
+  can be tweaked for setting your initial state.  You can provide a specific
   wallet, network type, and so on.
 
 ### HTTPS
@@ -138,14 +136,15 @@ websocket. Do this by going to `about:config` and setting the
 `network.websocket.allowInsecureFromHTTPS` flag to `true`.
 
 Additionally you need to run with the `HTTPS` environment variable set to
-`true`. Note that `npm run pilot` will handle this automatically.
+`true`.  Note that `npm run pilot` will handle this automatically.
 
 ### Releases
 
-To generate a release `bridge-$VERSION.zip` file, use a simple `npm run release`.
+To generate a release `bridge-$VERSION.zip` file, use a simple `npm run
+release`.
 
 This will pack the build directory together with the README, `bridge-https.py`
-script, and also generate a set of checksums for the build directory. You can
+script, and also generate a set of checksums for the build directory.  You can
 verify the checksums on e.g. OS X via `shasum -c checksums.txt`.
 
 [rele]: https://github.com/urbit/bridge/releases/latest
