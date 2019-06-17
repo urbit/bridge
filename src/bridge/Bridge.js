@@ -93,26 +93,7 @@ const AllProviders = nest([
 ]);
 
 class Bridge extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      networkSeedCache: null,
-    };
-
-    this.setNetworkSeedCache = this.setNetworkSeedCache.bind(this);
-  }
-
-  setNetworkSeedCache(networkSeed, revision) {
-    this.setState({
-      networkSeedCache: networkSeed,
-      networkRevisionCache: revision,
-    });
-  }
-
   render() {
-    const { networkSeedCache, networkRevisionCache } = this.state;
-
     return (
       <AllProviders
         initialRoutes={kInitialRoutes}
@@ -126,11 +107,7 @@ class Bridge extends React.Component {
               <Header />
 
               <Row className={'row wrapper'}>
-                <Router
-                  networkSeedCache={networkSeedCache}
-                  networkRevisionCache={networkRevisionCache}
-                  setNetworkSeedCache={this.setNetworkSeedCache}
-                />
+                <Router />
 
                 <div className={'push'} />
               </Row>

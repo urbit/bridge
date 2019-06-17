@@ -34,8 +34,7 @@ class GenKeyfile extends React.Component {
     // in case we did SetKeys earlier this session, make sure to generate the
     // newer keyfile, rather than the one that will expire soon
     const revision =
-      this.props.networkRevisionCache ||
-      parseInt(pointDetails.keyRevisionNumber);
+      this.props.networkRevision || parseInt(pointDetails.keyRevisionNumber);
 
     return {
       point,
@@ -81,8 +80,8 @@ class GenKeyfile extends React.Component {
     const next = false;
     let seed = await attemptSeedDerivation(next, this.props);
 
-    if (seed.getOrElse('') === '' && this.props.networkSeedCache) {
-      seed = Maybe.Just(this.props.networkSeedCache);
+    if (seed.getOrElse('') === '' && this.props.networkSeed) {
+      seed = Maybe.Just(this.props.networkSeed);
     }
 
     return seed.getOrElse('');
