@@ -25,9 +25,7 @@ const kInitialNetworkType = isDevelopment
   ? NETWORK_TYPES.LOCAL
   : NETWORK_TYPES.MAINNET;
 
-// NB(shrugs): toggle these variables to change the default local state.
-// try not to commit changes to this line, but there shouldn't be a problem
-// if you do because we'll never stub on a production build.
+// NB(shrugs): modify these variables to change the default local state.
 const shouldStubLocal = false;
 const kIsStubbed = isDevelopment && shouldStubLocal;
 const kInitialRoutes = kIsStubbed
@@ -46,7 +44,7 @@ const kInitialWallet = kIsStubbed
     )
   : undefined;
 const kInitialMnemonic = kIsStubbed
-  ? process.env.REACT_APP_DEV_MNEMONIC
+  ? Just(process.env.REACT_APP_DEV_MNEMONIC)
   : Nothing();
 const kInitialPointCursor = kIsStubbed ? Just(0) : Nothing();
 
@@ -93,26 +91,7 @@ const AllProviders = nest([
 ]);
 
 class Bridge extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      networkSeedCache: null,
-    };
-
-    this.setNetworkSeedCache = this.setNetworkSeedCache.bind(this);
-  }
-
-  setNetworkSeedCache(networkSeed, revision) {
-    this.setState({
-      networkSeedCache: networkSeed,
-      networkRevisionCache: revision,
-    });
-  }
-
   render() {
-    const { networkSeedCache, networkRevisionCache } = this.state;
-
     return (
       <AllProviders
         initialRoutes={kInitialRoutes}
@@ -126,11 +105,7 @@ class Bridge extends React.Component {
               <Header />
 
               <Row className={'row wrapper'}>
-                <Router
-                  networkSeedCache={networkSeedCache}
-                  networkRevisionCache={networkRevisionCache}
-                  setNetworkSeedCache={this.setNetworkSeedCache}
-                />
+                <Router />
 
                 <div className={'push'} />
               </Row>

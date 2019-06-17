@@ -55,7 +55,7 @@ const genKey = (networkSeed, point, revision) => {
   const bnsec = new BN(pair.crypt.private + pair.auth.private + '42', 'hex'); // '42' is curve parameter
 
   const sed = noun.dwim(
-    noun.Atom.fromString(point),
+    noun.Atom.fromInt(point),
     noun.Atom.fromInt(revision),
     noun.Atom.fromString(bnsec.toString()),
     noun.Atom.yes
@@ -66,7 +66,7 @@ const genKey = (networkSeed, point, revision) => {
 
 // 'next' refers to setting the next set of keys
 // if false, we use revision - 1
-const attemptSeedDerivation = async (next, args) => {
+const attemptNetworkSeedDerivation = async (next, args) => {
   const { walletType, urbitWallet, authMnemonic } = args;
 
   // NB (jtobin):
@@ -115,15 +115,17 @@ const attemptSeedDerivation = async (next, args) => {
     }
   }
 
-  let networkSeed = Maybe.Nothing();
-
   if (managementSeed !== '') {
     const seed = await kg.deriveNetworkSeed(managementSeed, '', revision);
 
-    networkSeed = Maybe.Just(seed);
+    if (seed === '') {
+      return Maybe.Nothing();
+    }
+
+    return Maybe.Just(seed);
   }
 
-  return networkSeed;
+  return Maybe.Nothing();
 };
 
-export { genKey, attemptSeedDerivation };
+export { genKey, attemptNetworkSeedDerivation };
