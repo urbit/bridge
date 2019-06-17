@@ -8,6 +8,8 @@ import { Button } from './Base';
 
 import { WALLET_STATES } from '../lib/invite';
 import { downloadWallet } from '../lib/invite';
+import { compose } from '../lib/lib';
+import { withWallet } from '../store/wallet';
 
 class Passport extends React.Component {
   constructor(props) {
@@ -231,4 +233,4 @@ Passport.defaultProps = {
   wallet: null,
 };
 
-export default Passport;
+export default compose(withWallet)(Passport);

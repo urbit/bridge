@@ -6,10 +6,15 @@ import { ROUTE_NAMES } from '../lib/routeNames';
 import { useHistory } from '../store/history';
 import { isLast } from '../lib/lib';
 import { useNetwork } from '../store/network';
+import { useWallet } from '../store/wallet';
 
+// hook to create a breadcrumb builder function based on the current
+// global states
 function useRouteBreadcrumbBuilder(props) {
   const { networkType } = useNetwork();
-  return getRouteBreadcrumb({ ...props, networkType });
+  const { wallet } = useWallet();
+
+  return getRouteBreadcrumb({ ...props, networkType, wallet });
 }
 
 function Crumbs(props) {
@@ -48,7 +53,7 @@ function Header(props) {
   if (showCrumbs) {
     return (
       <div className={'flex items-center h-10'}>
-        <Crumbs wallet={props.wallet} pointCursor={props.pointCursor} />
+        <Crumbs pointCursor={props.pointCursor} />
       </div>
     );
   }

@@ -11,6 +11,8 @@ import saveAs from 'file-saver';
 
 import { attemptSeedDerivation, genKey } from '../lib/keys';
 import { addHexPrefix } from '../lib/wallet';
+import { compose } from '../lib/lib';
+import { withWallet } from '../store/wallet';
 
 class GenKeyfile extends React.Component {
   constructor(props) {
@@ -132,4 +134,4 @@ class GenKeyfile extends React.Component {
   }
 }
 
-export default GenKeyfile;
+export default compose(withWallet)(GenKeyfile);

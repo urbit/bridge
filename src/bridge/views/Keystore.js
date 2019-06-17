@@ -11,6 +11,7 @@ import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { EthereumWallet } from '../lib/wallet';
 import { compose } from '../lib/lib';
+import { withWallet } from '../store/wallet';
 
 class Keystore extends React.Component {
   constructor(props) {
@@ -160,4 +161,7 @@ class Keystore extends React.Component {
   }
 }
 
-export default compose(withHistory)(Keystore);
+export default compose(
+  withHistory,
+  withWallet
+)(Keystore);

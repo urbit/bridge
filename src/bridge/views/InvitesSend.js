@@ -21,6 +21,7 @@ import {
 import * as tank from '../lib/tank';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
+import { withWallet } from '../store/wallet';
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = 350000;
@@ -493,4 +494,7 @@ class InvitesSend extends React.Component {
   }
 }
 
-export default compose(withNetwork)(InvitesSend);
+export default compose(
+  withNetwork,
+  withWallet
+)(InvitesSend);

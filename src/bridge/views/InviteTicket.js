@@ -29,6 +29,7 @@ import {
 } from '../lib/invite';
 import { generateWallet, startTransactions } from '../lib/invite';
 import { withNetwork } from '../store/network';
+import { withWallet } from '../store/wallet';
 
 class InviteTicket extends React.Component {
   constructor(props) {
@@ -425,5 +426,6 @@ class InviteTicket extends React.Component {
 
 export default compose(
   withNetwork,
-  withHistory
+  withHistory,
+  withWallet
 )(InviteTicket);
