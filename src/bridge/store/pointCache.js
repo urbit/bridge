@@ -1,10 +1,9 @@
 import React, { createContext, forwardRef, useContext, useState } from 'react';
-import Maybe from 'folktale/maybe';
 
 export const PointCacheContext = createContext(null);
 
-function _usePointCache(initialPointCache = Maybe.Nothing()) {
-  const [pointCache, _setPointCache] = useState(initialPointCache);
+function _usePointCache() {
+  const [pointCache, _setPointCache] = useState({});
 
   const addToPointCache = entry =>
     _setPointCache(cache => ({ ...cache, entry }));
@@ -15,8 +14,8 @@ function _usePointCache(initialPointCache = Maybe.Nothing()) {
   };
 }
 
-export function PointCacheProvider({ initialPointCache, children }) {
-  const pointCache = _usePointCache(initialPointCache);
+export function PointCacheProvider({ children }) {
+  const pointCache = _usePointCache();
 
   return (
     <PointCacheContext.Provider value={pointCache}>
