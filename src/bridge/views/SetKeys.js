@@ -14,6 +14,7 @@ import { compose } from '../lib/lib';
 
 import { withNetwork } from '../store/network';
 import { withWallet } from '../store/wallet';
+import { withPointCursor } from '../store/pointCursor';
 
 class SetKeys extends React.Component {
   constructor(props) {
@@ -201,5 +202,6 @@ class SetKeys extends React.Component {
 
 export default compose(
   withNetwork,
-  withWallet
+  withWallet,
+  withPointCursor
 )(SetKeys);

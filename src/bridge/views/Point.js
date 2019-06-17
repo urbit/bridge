@@ -14,6 +14,8 @@ import { withHistory } from '../store/history';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
+import { withPointCursor } from '../store/pointCursor';
+import { withPointCache } from '../store/pointCache';
 
 class Point extends React.Component {
   constructor(props) {
@@ -77,7 +79,7 @@ class Point extends React.Component {
   };
 
   render() {
-    const { web3, history, wallet, setPointCursor, pointCache } = this.props;
+    const { web3, history, wallet, pointCache } = this.props;
 
     const { spawned } = this.state;
 
@@ -105,11 +107,7 @@ class Point extends React.Component {
         <div>
           <H3>{'Issued Points'}</H3>
 
-          <PointList
-            setPointCursor={setPointCursor}
-            routeHandler={history.popAndPush}
-            points={spawned}
-          />
+          <PointList routeHandler={history.popAndPush} points={spawned} />
         </div>
       );
 
@@ -140,5 +138,7 @@ class Point extends React.Component {
 export default compose(
   withNetwork,
   withHistory,
-  withWallet
+  withWallet,
+  withPointCursor,
+  withPointCache
 )(Point);

@@ -26,6 +26,7 @@ import { canDecodePatp } from '../lib/txn';
 import { isValidAddress } from '../lib/wallet';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
+import { withPointCursor } from '../store/pointCursor';
 
 const setFind = (set, pred) => {
   for (const e of set) {
@@ -255,4 +256,7 @@ class IssueChild extends React.Component {
   }
 }
 
-export default compose(withNetwork)(IssueChild);
+export default compose(
+  withNetwork,
+  withPointCursor
+)(IssueChild);

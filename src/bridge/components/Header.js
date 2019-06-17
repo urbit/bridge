@@ -7,19 +7,21 @@ import { useHistory } from '../store/history';
 import { isLast } from '../lib/lib';
 import { useNetwork } from '../store/network';
 import { useWallet } from '../store/wallet';
+import { usePointCursor } from '../store/pointCursor';
 
 // hook to create a breadcrumb builder function based on the current
 // global states
-function useRouteBreadcrumbBuilder(props) {
+function useRouteBreadcrumbBuilder() {
   const { networkType } = useNetwork();
   const { wallet } = useWallet();
+  const { pointCursor } = usePointCursor();
 
-  return getRouteBreadcrumb({ ...props, networkType, wallet });
+  return getRouteBreadcrumb({ pointCursor, networkType, wallet });
 }
 
 function Crumbs(props) {
   const history = useHistory();
-  const breadcrumbBuilder = useRouteBreadcrumbBuilder(props);
+  const breadcrumbBuilder = useRouteBreadcrumbBuilder();
 
   return (
     <>
@@ -53,7 +55,7 @@ function Header(props) {
   if (showCrumbs) {
     return (
       <div className={'flex items-center h-10'}>
-        <Crumbs pointCursor={props.pointCursor} />
+        <Crumbs />
       </div>
     );
   }

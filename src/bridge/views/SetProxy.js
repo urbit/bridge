@@ -24,6 +24,7 @@ import StatelessTransaction from '../components/StatelessTransaction';
 import { isValidAddress } from '../lib/wallet';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
+import { withPointCursor } from '../store/pointCursor';
 
 class _SetProxy extends React.Component {
   constructor(props) {
@@ -169,7 +170,10 @@ class _SetProxy extends React.Component {
   }
 }
 
-const SetProxy = compose(withNetwork)(_SetProxy);
+const SetProxy = compose(
+  withNetwork,
+  withPointCursor
+)(_SetProxy);
 
 export const SetManagementProxy = props => (
   <SetProxy {...props} proxyType={PROXY_TYPE.MANAGEMENT_PROXY} />

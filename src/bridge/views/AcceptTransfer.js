@@ -17,6 +17,7 @@ import { isValidAddress } from '../lib/wallet';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
+import { withPointCursor } from '../store/pointCursor';
 
 class AcceptTransfer extends React.Component {
   constructor(props) {
@@ -122,5 +123,6 @@ class AcceptTransfer extends React.Component {
 
 export default compose(
   withNetwork,
-  withWallet
+  withWallet,
+  withPointCursor
 )(AcceptTransfer);

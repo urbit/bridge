@@ -68,9 +68,9 @@ const ROUTES = {
 };
 
 export const getRouteBreadcrumb = ({
+  pointCursor,
   networkType,
   wallet,
-  pointCursor,
 }) => route => {
   switch (route.name) {
     case ROUTE_NAMES.INVITE_TICKET:
