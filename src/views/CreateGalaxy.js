@@ -5,7 +5,7 @@ import * as ob from 'urbit-ob';
 import * as need from '../lib/need';
 
 import { Button } from '../components/old/Base';
-import { Row, Col, H1, P, Anchor } from '../components/old/Base';
+import { H1, P, Anchor } from '../components/old/Base';
 import {
   InnerLabel,
   GalaxyInput,
@@ -23,6 +23,7 @@ import { ETH_ZERO_ADDR, isValidAddress, eqAddr } from '../lib/wallet';
 import { isValidGalaxy, compose } from '../lib/lib';
 import { withNetwork } from '../store/network';
 import { withWallet } from '../store/wallet';
+import View from 'components/View';
 
 const buttonTriState = status => {
   if (status === null) return 'blue';
@@ -40,7 +41,7 @@ class CreateGalaxy extends React.Component {
   constructor(props) {
     super(props);
 
-    const galaxyOwner = need.address(props);
+    const galaxyOwner = need.addressFromWallet(props.wallet);
 
     this.state = {
       galaxyOwner: galaxyOwner,
@@ -72,7 +73,7 @@ class CreateGalaxy extends React.Component {
     if (canDecodePatp(state.galaxyName) === false) return Maybe.Nothing();
     if (isValidGalaxy(state.galaxyName) === false) return Maybe.Nothing();
 
-    const validContracts = need.contracts(props);
+    const validContracts = need.contracts(props.contracts);
 
     const galaxyDec = parseInt(ob.patp2dec(state.galaxyName), 10);
 
@@ -93,7 +94,7 @@ class CreateGalaxy extends React.Component {
       return;
     }
 
-    const validContracts = need.contracts(props);
+    const validContracts = need.contracts(props.contracts);
 
     const galaxyDec = ob.patp2dec(state.galaxyName);
 
@@ -128,67 +129,65 @@ class CreateGalaxy extends React.Component {
         : 'etherscan.io';
 
     return (
-      <Row>
-        <Col>
-          <H1> {'Create a Galaxy'} </H1>
+      <View>
+        <H1> {'Create a Galaxy'} </H1>
 
-          <P>
-            {'Enter the galaxy to create and the address that will own ' +
-              'it (defaulting to this account, if not provided).'}
-          </P>
+        <P>
+          {'Enter the galaxy to create and the address that will own ' +
+            'it (defaulting to this account, if not provided).'}
+        </P>
 
-          <GalaxyInput
-            className="mono"
-            prop-size="lg"
-            prop-format="innerLabel"
-            autoFocus
-            placeholder="e.g. ~zod"
-            value={state.galaxyName}
-            onChange={v => this.handleGalaxyNameInput(v)}>
-            <InnerLabel>{'Galaxy Name'}</InnerLabel>
-            <ValidatedSigil
-              className="tr-0 mt-05 mr-0 abs"
-              patp={state.galaxyName}
-              size={68}
-              margin={8}
-            />
-          </GalaxyInput>
-
-          <AddressInput
-            className="mono mt-8"
-            prop-size="lg"
-            prop-format="innerLabel"
-            value={state.galaxyOwner}
-            onChange={v => this.handleAddressInput(v)}>
-            <InnerLabel>{'Address that will own this galaxy'}</InnerLabel>
-            <ShowBlockie className={'mt-1'} address={state.galaxyOwner} />
-          </AddressInput>
-
-          <Anchor
-            className={'mt-1'}
-            prop-size={'sm'}
-            prop-disabled={!validAddress || !esvisible}
-            target={'_blank'}
-            href={`https://${esdomain}/address/${state.galaxyOwner}`}>
-            {'View on Etherscan ↗'}
-          </Anchor>
-
-          <Button
-            prop-size="lg wide"
-            className="mt-8"
-            prop-color={buttonTriState(state.isAvailable)}
-            disabled={!validGalaxy}
-            onClick={() => this.confirmAvailability()}>
-            {buttonTriStateText(state.isAvailable)}
-          </Button>
-
-          <StatelessTransaction
-            ref={this.statelessRef}
-            canGenerate={canGenerate}
-            createUnsignedTxn={this.createUnsignedTxn}
+        <GalaxyInput
+          className="mono"
+          prop-size="lg"
+          prop-format="innerLabel"
+          autoFocus
+          placeholder="e.g. ~zod"
+          value={state.galaxyName}
+          onChange={v => this.handleGalaxyNameInput(v)}>
+          <InnerLabel>{'Galaxy Name'}</InnerLabel>
+          <ValidatedSigil
+            className="tr-0 mt-05 mr-0 abs"
+            patp={state.galaxyName}
+            size={68}
+            margin={8}
           />
-        </Col>
-      </Row>
+        </GalaxyInput>
+
+        <AddressInput
+          className="mono mt-8"
+          prop-size="lg"
+          prop-format="innerLabel"
+          value={state.galaxyOwner}
+          onChange={v => this.handleAddressInput(v)}>
+          <InnerLabel>{'Address that will own this galaxy'}</InnerLabel>
+          <ShowBlockie className={'mt-1'} address={state.galaxyOwner} />
+        </AddressInput>
+
+        <Anchor
+          className={'mt-1'}
+          prop-size={'sm'}
+          prop-disabled={!validAddress || !esvisible}
+          target={'_blank'}
+          href={`https://${esdomain}/address/${state.galaxyOwner}`}>
+          {'View on Etherscan ↗'}
+        </Anchor>
+
+        <Button
+          prop-size="lg wide"
+          className="mt-8"
+          prop-color={buttonTriState(state.isAvailable)}
+          disabled={!validGalaxy}
+          onClick={() => this.confirmAvailability()}>
+          {buttonTriStateText(state.isAvailable)}
+        </Button>
+
+        <StatelessTransaction
+          ref={this.statelessRef}
+          canGenerate={canGenerate}
+          createUnsignedTxn={this.createUnsignedTxn}
+        />
+      </View>
     );
   }
 }

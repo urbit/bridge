@@ -8,13 +8,14 @@ import {
   InnerLabel,
   InputCaption,
 } from '../components/old/Base';
-import { Row, Col, H1 } from '../components/old/Base';
+import { H1 } from '../components/old/Base';
 
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { DEFAULT_HD_PATH, walletFromMnemonic } from '../lib/wallet';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
+import View from 'components/View';
 
 class Mnemonic extends React.Component {
   constructor(props) {
@@ -98,66 +99,62 @@ class Mnemonic extends React.Component {
     const { mnemonic, hdpath, exampleMnemonic, passphrase } = this.state;
 
     return (
-      <Row>
-        <Col>
-          <H1 className={'mb-4'}>{'Enter Your Mnemonic'}</H1>
-          <InputCaption>
-            {'Please enter your BIP39 mnemonic here.'}
-          </InputCaption>
+      <View>
+        <H1 className={'mb-4'}>{'Enter Your Mnemonic'}</H1>
+        <InputCaption>{'Please enter your BIP39 mnemonic here.'}</InputCaption>
 
-          <MnemonicInput
-            className="pt-8"
-            prop-size="md"
-            prop-format="innerLabel"
-            type="text"
-            name="mnemonic"
-            placeholder={`e.g. ${exampleMnemonic}`}
-            onChange={this.handleMnemonicInput}
-            value={mnemonic}
-            autocomplete="off"
-            autoFocus>
-            <InnerLabel>{'Mnemonic'}</InnerLabel>
-          </MnemonicInput>
+        <MnemonicInput
+          className="pt-8"
+          prop-size="md"
+          prop-format="innerLabel"
+          type="text"
+          name="mnemonic"
+          placeholder={`e.g. ${exampleMnemonic}`}
+          onChange={this.handleMnemonicInput}
+          value={mnemonic}
+          autocomplete="off"
+          autoFocus>
+          <InnerLabel>{'Mnemonic'}</InnerLabel>
+        </MnemonicInput>
 
-          <InputCaption>
-            {`If your wallet requires a passphrase, you may enter it below.`}
-          </InputCaption>
+        <InputCaption>
+          {`If your wallet requires a passphrase, you may enter it below.`}
+        </InputCaption>
 
-          <Input
-            className="pt-8"
-            prop-size="md"
-            prop-format="innerLabel"
-            name="passphrase"
-            type="password"
-            value={passphrase}
-            autocomplete="off"
-            onChange={this.handlePassphraseInput}>
-            <InnerLabel>{'Passphrase'}</InnerLabel>
-          </Input>
+        <Input
+          className="pt-8"
+          prop-size="md"
+          prop-format="innerLabel"
+          name="passphrase"
+          type="password"
+          value={passphrase}
+          autocomplete="off"
+          onChange={this.handlePassphraseInput}>
+          <InnerLabel>{'Passphrase'}</InnerLabel>
+        </Input>
 
-          <InputCaption>
-            {`If you'd like to use a custom derivation path, you may enter it below.`}
-          </InputCaption>
+        <InputCaption>
+          {`If you'd like to use a custom derivation path, you may enter it below.`}
+        </InputCaption>
 
-          <Input
-            className="pt-8 text-mono"
-            prop-size="md"
-            prop-format="innerLabel"
-            name="hdpath"
-            value={hdpath}
-            autocomplete="off"
-            onChange={this.handleHdPathInput}>
-            <InnerLabel>{'HD Path'}</InnerLabel>
-          </Input>
+        <Input
+          className="pt-8 text-mono"
+          prop-size="md"
+          prop-format="innerLabel"
+          name="hdpath"
+          value={hdpath}
+          autocomplete="off"
+          onChange={this.handleHdPathInput}>
+          <InnerLabel>{'HD Path'}</InnerLabel>
+        </Input>
 
-          <Button
-            className={'mt-10'}
-            disabled={Nothing.hasInstance(wallet)}
-            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
-            {'Continue →'}
-          </Button>
-        </Col>
-      </Row>
+        <Button
+          className={'mt-10'}
+          disabled={Nothing.hasInstance(wallet)}
+          onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+          {'Continue →'}
+        </Button>
+      </View>
     );
   }
 }

@@ -3,13 +3,14 @@ import React from 'react';
 import * as ob from 'urbit-ob';
 
 import { Button } from '../components/old/Base';
-import { Row, Col, H1, P } from '../components/old/Base';
+import { H1, P } from '../components/old/Base';
 import { InnerLabel, PointInput, ValidatedSigil } from '../components/old/Base';
 
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { compose } from '../lib/lib';
 import { withPointCursor } from '../store/pointCursor';
+import View from 'components/View';
 
 class ViewPoint extends React.Component {
   constructor(props) {
@@ -43,42 +44,40 @@ class ViewPoint extends React.Component {
     }
 
     return (
-      <Row>
-        <Col>
-          <H1>{'View a Point'}</H1>
+      <View>
+        <H1>{'View a Point'}</H1>
 
-          <P>{'Enter a point name to view its public information.'}</P>
+        <P>{'Enter a point name to view its public information.'}</P>
 
-          <PointInput
-            autoFocus
-            prop-size="lg"
-            prop-format="innerLabel"
-            className="mono"
-            placeholder="e.g. ~zod"
-            onChange={this.handlePointInput}
-            value={pointName}>
-            <InnerLabel>{'Point Name'}</InnerLabel>
-            <ValidatedSigil
-              className={'tr-0 mt-05 mr-0 abs'}
-              patp={pointName}
-              show
-              size={68}
-              margin={8}
-            />
-          </PointInput>
+        <PointInput
+          autoFocus
+          prop-size="lg"
+          prop-format="innerLabel"
+          className="mono"
+          placeholder="e.g. ~zod"
+          onChange={this.handlePointInput}
+          value={pointName}>
+          <InnerLabel>{'Point Name'}</InnerLabel>
+          <ValidatedSigil
+            className={'tr-0 mt-05 mr-0 abs'}
+            patp={pointName}
+            show
+            size={68}
+            margin={8}
+          />
+        </PointInput>
 
-          <Button
-            className={'mt-8'}
-            disabled={valid === false}
-            onClick={() => {
-              setPointCursor(Maybe.Just(parseInt(ob.patp2dec(pointName), 10)));
-              // ^ pointCursor expects native number type, not string
-              history.popAndPush(ROUTE_NAMES.SHIP);
-            }}>
-            {'Continue  →'}
-          </Button>
-        </Col>
-      </Row>
+        <Button
+          className={'mt-8'}
+          disabled={valid === false}
+          onClick={() => {
+            setPointCursor(Maybe.Just(parseInt(ob.patp2dec(pointName), 10)));
+            // ^ pointCursor expects native number type, not string
+            history.popAndPush(ROUTE_NAMES.SHIP);
+          }}>
+          {'Continue  →'}
+        </Button>
+      </View>
     );
   }
 }

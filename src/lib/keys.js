@@ -73,8 +73,8 @@ const attemptNetworkSeedDerivation = async (next, args) => {
   //
   // following code is intentionally verbose for sake of clarity
 
-  const point = need.pointCursor(args);
-  const pointDetails = need.fromPointCache(args, point);
+  const point = need.pointCursor(args.pointCursor);
+  const pointDetails = need.fromPointCache(args.pointCache, point);
 
   const revision =
     next === true
@@ -95,7 +95,7 @@ const attemptNetworkSeedDerivation = async (next, args) => {
 
     managementSeed = uwal.management.seed;
   } else if (walletType === WALLET_TYPES.MNEMONIC) {
-    const walProxy = need.address(args);
+    const walProxy = need.addressFromWallet(args.wallet);
 
     const mnemonic = authMnemonic.matchWith({
       Just: mnem => mnem.value,

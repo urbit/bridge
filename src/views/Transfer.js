@@ -4,15 +4,7 @@ import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
 import * as need from '../lib/need';
 
-import {
-  Row,
-  Col,
-  H1,
-  InnerLabel,
-  ShowBlockie,
-  P,
-  Anchor,
-} from '../components/old/Base';
+import { H1, InnerLabel, ShowBlockie, P, Anchor } from '../components/old/Base';
 import { AddressInput } from '../components/old/Base';
 import StatelessTransaction from '../components/old/StatelessTransaction';
 
@@ -22,12 +14,13 @@ import { isValidAddress } from '../lib/wallet';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
 import { withPointCursor } from '../store/pointCursor';
+import View from 'components/View';
 
 class Transfer extends React.Component {
   constructor(props) {
     super(props);
 
-    const issuingPoint = need.pointCursor(props);
+    const issuingPoint = need.pointCursor(props.pointCursor);
 
     this.state = {
       receivingAddress: '',
@@ -53,9 +46,8 @@ class Transfer extends React.Component {
   createUnsignedTxn() {
     const { state, props } = this;
 
-    const validContracts = need.contracts(props);
-
-    const validPoint = need.pointCursor(props);
+    const validContracts = need.contracts(props.contracts);
+    const validPoint = need.pointCursor(props.pointCursor);
 
     const txn = azimuth.ecliptic.setTransferProxy(
       validContracts,
@@ -82,53 +74,49 @@ class Transfer extends React.Component {
         : 'etherscan.io';
 
     return (
-      <Row>
-        <Col>
-          <H1>
-            {'Transfer'} <code>{` ${ob.patp(state.issuingPoint)} `}</code>
-            {'To a New Owner'}
-          </H1>
+      <View>
+        <H1>
+          {'Transfer'} <code>{` ${ob.patp(state.issuingPoint)} `}</code>
+          {'To a New Owner'}
+        </H1>
 
-          <P>
-            {`Please provide the Ethereum address of the new owner. You own these
+        <P>
+          {`Please provide the Ethereum address of the new owner. You own these
             points until the recipient accepts the incoming transfer.
             You may cancel the transfer until the transfer is accepted.`}
-          </P>
+        </P>
 
-          <AddressInput
-            className={'mono mt-8'}
-            prop-size="lg"
-            prop-format="innerLabel"
-            value={state.receivingAddress}
-            placeholder={`e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f`}
-            onChange={v => this.handleAddressInput(v)}>
-            <InnerLabel>{'New ownership address'}</InnerLabel>
-            <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
-          </AddressInput>
+        <AddressInput
+          className={'mono mt-8'}
+          prop-size="lg"
+          prop-format="innerLabel"
+          value={state.receivingAddress}
+          placeholder={`e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f`}
+          onChange={v => this.handleAddressInput(v)}>
+          <InnerLabel>{'New ownership address'}</InnerLabel>
+          <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
+        </AddressInput>
 
-          <Anchor
-            className={'mt-1'}
-            prop-size={'s'}
-            prop-disabled={
-              !isValidAddress(state.receivingAddress) || !esvisible
-            }
-            target={'_blank'}
-            href={`https://${esdomain}/address/${state.receivingAddress}`}>
-            {'View on Etherscan ↗'}
-          </Anchor>
+        <Anchor
+          className={'mt-1'}
+          prop-size={'s'}
+          prop-disabled={!isValidAddress(state.receivingAddress) || !esvisible}
+          target={'_blank'}
+          href={`https://${esdomain}/address/${state.receivingAddress}`}>
+          {'View on Etherscan ↗'}
+        </Anchor>
 
-          <StatelessTransaction
-            // Upper scope
-            {...props}
-            // Checks
-            userApproval={state.userApproval}
-            canGenerate={canGenerate}
-            // Methods
-            createUnsignedTxn={this.createUnsignedTxn}
-            ref={this.statelessRef}
-          />
-        </Col>
-      </Row>
+        <StatelessTransaction
+          // Upper scope
+          {...props}
+          // Checks
+          userApproval={state.userApproval}
+          canGenerate={canGenerate}
+          // Methods
+          createUnsignedTxn={this.createUnsignedTxn}
+          ref={this.statelessRef}
+        />
+      </View>
     );
   }
 }

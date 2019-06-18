@@ -2,12 +2,9 @@ import React from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { IndigoApp } from 'indigo-react';
 
-import View from 'components/View';
 import Router from 'components/Router';
 
 import Provider from 'store/Provider';
-
-import Header from './components/old/Header';
 
 import { ROUTE_NAMES } from 'lib/routeNames';
 import { NETWORK_TYPES } from 'lib/network';
@@ -52,10 +49,7 @@ export default function Bridge() {
       initialMnemonic={kInitialMnemonic}
       initialPointCursor={kInitialPointCursor}>
       <IndigoApp>
-        <View>
-          <Header />
-          <Router />
-        </View>
+        <Router />
       </IndigoApp>
     </Provider>
   );

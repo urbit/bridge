@@ -9,7 +9,7 @@ import {
   InputCaption,
   Input,
 } from '../components/old/Base';
-import { Row, Col, H1, P } from '../components/old/Base';
+import { H1, P } from '../components/old/Base';
 import * as kg from 'urbit-key-generation/dist';
 import * as ob from 'urbit-ob';
 
@@ -18,6 +18,7 @@ import { withHistory } from '../store/history';
 import { urbitWalletFromTicket } from '../lib/wallet';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
+import View from 'components/View';
 
 const placeholder = len => {
   let bytes = window.crypto.getRandomValues(new Uint8Array(len));
@@ -103,112 +104,104 @@ class Shards extends React.Component {
     const ready = shards.filter(x => x !== '').length > 1;
 
     return (
-      <Row>
-        <Col>
-          <H1>{'Authenticate'}</H1>
+      <View>
+        <H1>{'Authenticate'}</H1>
 
-          <P>
-            {`Enter your point and at least two of your three Urbit master
+        <P>
+          {`Enter your point and at least two of your three Urbit master
               ticket shards here. The index of the input field needs to
               match the index of the shard.`}
-          </P>
+        </P>
 
-          <PointInput
-            className="mono mt-8"
-            prop-size="lg"
-            prop-format="innerLabel"
-            type="text"
-            autoFocus
-            placeholder={`e.g. ${phPoint}`}
-            value={pointName}
-            onChange={this.handlePointNameInput}>
-            <InnerLabel>{'Point'}</InnerLabel>
-            <ValidatedSigil
-              className={'tr-0 mt-05 mr-0 abs'}
-              patp={pointName}
-              size={68}
-              margin={8}
-            />
-          </PointInput>
+        <PointInput
+          className="mono mt-8"
+          prop-size="lg"
+          prop-format="innerLabel"
+          type="text"
+          autoFocus
+          placeholder={`e.g. ${phPoint}`}
+          value={pointName}
+          onChange={this.handlePointNameInput}>
+          <InnerLabel>{'Point'}</InnerLabel>
+          <ValidatedSigil
+            className={'tr-0 mt-05 mr-0 abs'}
+            patp={pointName}
+            size={68}
+            margin={8}
+          />
+        </PointInput>
 
-          <ShardInput
-            className="mono mt-8"
-            prop-size="md"
-            prop-format="innerLabel"
-            type="text"
-            name="shard1"
-            placeholder={`e.g. ${phTick}`}
-            value={shard1}
-            onChange={inp => this.handleShardInput(SHARDS.SHARD1, inp)}>
-            <InnerLabel>{'Shard 1'}</InnerLabel>
-          </ShardInput>
+        <ShardInput
+          className="mono mt-8"
+          prop-size="md"
+          prop-format="innerLabel"
+          type="text"
+          name="shard1"
+          placeholder={`e.g. ${phTick}`}
+          value={shard1}
+          onChange={inp => this.handleShardInput(SHARDS.SHARD1, inp)}>
+          <InnerLabel>{'Shard 1'}</InnerLabel>
+        </ShardInput>
 
-          <ShardInput
-            className="mono mt-8"
-            prop-size="md"
-            prop-format="innerLabel"
-            type="text"
-            name="shard2"
-            placeholder={`e.g. ${phTick}`}
-            value={shard2}
-            onChange={inp => this.handleShardInput(SHARDS.SHARD2, inp)}>
-            <InnerLabel>{'Shard 2'}</InnerLabel>
-          </ShardInput>
+        <ShardInput
+          className="mono mt-8"
+          prop-size="md"
+          prop-format="innerLabel"
+          type="text"
+          name="shard2"
+          placeholder={`e.g. ${phTick}`}
+          value={shard2}
+          onChange={inp => this.handleShardInput(SHARDS.SHARD2, inp)}>
+          <InnerLabel>{'Shard 2'}</InnerLabel>
+        </ShardInput>
 
-          <ShardInput
-            className="mono mt-8"
-            prop-size="md"
-            prop-format="innerLabel"
-            type="text"
-            name="shard3"
-            placeholder={`e.g. ${phTick}`}
-            value={shard3}
-            onChange={inp => this.handleShardInput(SHARDS.SHARD3, inp)}>
-            <InnerLabel>{'Shard 3'}</InnerLabel>
-          </ShardInput>
+        <ShardInput
+          className="mono mt-8"
+          prop-size="md"
+          prop-format="innerLabel"
+          type="text"
+          name="shard3"
+          placeholder={`e.g. ${phTick}`}
+          value={shard3}
+          onChange={inp => this.handleShardInput(SHARDS.SHARD3, inp)}>
+          <InnerLabel>{'Shard 3'}</InnerLabel>
+        </ShardInput>
 
-          <InputCaption>
-            {'If your wallet requires a passphrase, you may enter it below.'}
-          </InputCaption>
+        <InputCaption>
+          {'If your wallet requires a passphrase, you may enter it below.'}
+        </InputCaption>
 
-          <Input
-            className="pt-8"
-            prop-size="md"
-            prop-format="innerLabel"
-            name="passphrase"
-            type="password"
-            value={passphrase}
-            autocomplete="off"
-            onChange={this.handlePassphraseInput}>
-            <InnerLabel>{'Passphrase'}</InnerLabel>
-          </Input>
+        <Input
+          className="pt-8"
+          prop-size="md"
+          prop-format="innerLabel"
+          name="passphrase"
+          type="password"
+          value={passphrase}
+          autocomplete="off"
+          onChange={this.handlePassphraseInput}>
+          <InnerLabel>{'Passphrase'}</InnerLabel>
+        </Input>
 
-          <Button
-            disabled={!ready}
-            className={'mt-8'}
-            prop-size={'lg wide'}
-            // prop-color={this.buttonTriState(wallet)}
-            onClick={() =>
-              this.walletFromShards(
-                shard1,
-                shard2,
-                shard3,
-                pointName,
-                passphrase
-              )
-            }>
-            {'Unlock Wallet →'}
-          </Button>
+        <Button
+          disabled={!ready}
+          className={'mt-8'}
+          prop-size={'lg wide'}
+          // prop-color={this.buttonTriState(wallet)}
+          onClick={() =>
+            this.walletFromShards(shard1, shard2, shard3, pointName, passphrase)
+          }>
+          {'Unlock Wallet →'}
+        </Button>
 
-          <Button
-            className={'mt-4'}
-            prop-size={'xl wide'}
-            disabled={Nothing.hasInstance(wallet)}
-            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
-            {'Continue →'}
-          </Button>
-        </Col>
-      </Row>
+        <Button
+          className={'mt-4'}
+          prop-size={'xl wide'}
+          disabled={Nothing.hasInstance(wallet)}
+          onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+          {'Continue →'}
+        </Button>
+      </View>
     );
   }
 }

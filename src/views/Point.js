@@ -9,13 +9,14 @@ import PointList from '../components/old/PointList';
 import ReactSVGComponents from '../components/old/ReactSVGComponents';
 import KeysAndMetadata from './Point/KeysAndMetadata';
 import Actions from './Point/Actions';
-import { Row, Col, H1, H3 } from '../components/old/Base';
+import { H1, H3 } from '../components/old/Base';
 import { withHistory } from '../store/history';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
 import { withPointCursor } from '../store/pointCursor';
 import { withPointCache } from '../store/pointCache';
+import View from 'components/View';
 
 class Point extends React.Component {
   constructor(props) {
@@ -83,7 +84,7 @@ class Point extends React.Component {
 
     const { spawned } = this.state;
 
-    const point = need.pointCursor(this.props);
+    const point = need.pointCursor(this.props.pointCursor);
 
     const pointDetails =
       point in pointCache ? Just(pointCache[point]) : Nothing();
@@ -112,25 +113,23 @@ class Point extends React.Component {
       );
 
     return (
-      <Row>
-        <Col>
-          <div className={'mt-12 pt-6'}>{sigil}</div>
-          <H1>
-            <code>{name}</code>
-          </H1>
-          {authenticated ? (
-            <Actions
-              online={online}
-              point={point}
-              pointDetails={pointDetails}
-              invites={this.state.invites}
-            />
-          ) : null}
+      <View>
+        <div className={'mt-12 pt-6'}>{sigil}</div>
+        <H1>
+          <code>{name}</code>
+        </H1>
+        {authenticated ? (
+          <Actions
+            online={online}
+            point={point}
+            pointDetails={pointDetails}
+            invites={this.state.invites}
+          />
+        ) : null}
 
-          {online ? <KeysAndMetadata pointDetails={pointDetails} /> : <div />}
-          {issuedPointList}
-        </Col>
-      </Row>
+        {online ? <KeysAndMetadata pointDetails={pointDetails} /> : <div />}
+        {issuedPointList}
+      </View>
     );
   }
 }

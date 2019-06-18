@@ -1,6 +1,6 @@
 import { Just } from 'folktale/maybe';
 import React from 'react';
-import { Row, Col, H1, P } from '../components/old/Base';
+import { H1, P } from '../components/old/Base';
 import {
   InnerLabel,
   AddressInput,
@@ -18,14 +18,14 @@ import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
 import { withPointCursor } from '../store/pointCursor';
+import View from 'components/View';
 
 class AcceptTransfer extends React.Component {
   constructor(props) {
     super(props);
 
-    const receivingAddress = need.address(props);
-
-    const incomingPoint = need.pointCursor(props);
+    const receivingAddress = need.addressFromWallet(props.wallet);
+    const incomingPoint = need.pointCursor(props.pointCursor);
 
     this.state = {
       receivingAddress: receivingAddress,
@@ -45,9 +45,9 @@ class AcceptTransfer extends React.Component {
   createUnsignedTxn() {
     const { state, props } = this;
 
-    const validContracts = need.contracts(props);
-
-    const validPoint = need.pointCursor(props); //TODO state.incomingPoint ?
+    const validContracts = need.contracts(props.contracts);
+    const validPoint = need.pointCursor(props.pointCursor);
+    //TODO state.incomingPoint ?
 
     return Just(
       azimuth.ecliptic.transferPoint(
@@ -74,46 +74,42 @@ class AcceptTransfer extends React.Component {
         : 'etherscan.io';
 
     return (
-      <Row>
-        <Col>
-          <H1>
-            {'Accept Transfer of '}{' '}
-            <code>{` ${ob.patp(state.incomingPoint)} `}</code>
-          </H1>
+      <View>
+        <H1>
+          {'Accept Transfer of '}{' '}
+          <code>{` ${ob.patp(state.incomingPoint)} `}</code>
+        </H1>
 
-          <P>
-            {"By default, the recipient is the address you're logged in " +
-              'as.  But you can transfer to any address you like.'}
-          </P>
+        <P>
+          {"By default, the recipient is the address you're logged in " +
+            'as.  But you can transfer to any address you like.'}
+        </P>
 
-          <AddressInput
-            className="mono mt-8"
-            prop-size="lg"
-            prop-format="innerLabel"
-            value={state.receivingAddress}
-            onChange={v => this.handleAddressInput(v)}>
-            <InnerLabel>{'Receiving Address'}</InnerLabel>
-            <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
-          </AddressInput>
+        <AddressInput
+          className="mono mt-8"
+          prop-size="lg"
+          prop-format="innerLabel"
+          value={state.receivingAddress}
+          onChange={v => this.handleAddressInput(v)}>
+          <InnerLabel>{'Receiving Address'}</InnerLabel>
+          <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
+        </AddressInput>
 
-          <Anchor
-            className={'mt-1 sm'}
-            prop-size="sm"
-            prop-disabled={
-              !isValidAddress(state.receivingAddress) || !esvisible
-            }
-            target={'_blank'}
-            href={`https://${esdomain}/address/${state.receivingAddress}`}>
-            {'View on Etherscan ↗'}
-          </Anchor>
+        <Anchor
+          className={'mt-1 sm'}
+          prop-size="sm"
+          prop-disabled={!isValidAddress(state.receivingAddress) || !esvisible}
+          target={'_blank'}
+          href={`https://${esdomain}/address/${state.receivingAddress}`}>
+          {'View on Etherscan ↗'}
+        </Anchor>
 
-          <StatelessTransaction
-            canGenerate={canGenerate}
-            createUnsignedTxn={this.createUnsignedTxn}
-            ref={this.statelessRef}
-          />
-        </Col>
-      </Row>
+        <StatelessTransaction
+          canGenerate={canGenerate}
+          createUnsignedTxn={this.createUnsignedTxn}
+          ref={this.statelessRef}
+        />
+      </View>
     );
   }
 }

@@ -5,8 +5,6 @@ import * as ob from 'urbit-ob';
 import * as need from '../lib/need';
 
 import {
-  Row,
-  Col,
   H1,
   P,
   Anchor,
@@ -27,6 +25,7 @@ import { isValidAddress } from '../lib/wallet';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
 import { withPointCursor } from '../store/pointCursor';
+import View from 'components/View';
 
 const setFind = (set, pred) => {
   for (const e of set) {
@@ -41,7 +40,7 @@ class IssueChild extends React.Component {
   constructor(props) {
     super(props);
 
-    const issuingPoint = parseInt(need.pointCursor(props), 10);
+    const issuingPoint = need.pointCursor(props.pointCursor);
 
     const getCandidate = () => ob.patp(getSpawnCandidate(issuingPoint));
 
@@ -76,7 +75,7 @@ class IssueChild extends React.Component {
   componentWillMount() {
     const { issuingPoint } = this.state;
 
-    const validContracts = need.contracts(this.props);
+    const validContracts = need.contracts(this.props.contracts);
 
     azimuth
       .getUnspawnedChildren(validContracts, issuingPoint)
@@ -110,7 +109,7 @@ class IssueChild extends React.Component {
     if (state.isAvailable === false) return Nothing();
     if (canDecodePatp(state.desiredPoint) === false) return Nothing();
 
-    const validContracts = need.contracts(props);
+    const validContracts = need.contracts(props.contracts);
 
     const pointDec = ob.patp2dec(state.desiredPoint);
 
@@ -163,92 +162,88 @@ class IssueChild extends React.Component {
         : 'etherscan.io';
 
     return (
-      <Row>
-        <Col>
-          <H1>
-            {'Issue a Child From '}{' '}
-            <code>{`${ob.patp(state.issuingPoint)}`}</code>
-          </H1>
+      <View>
+        <H1>
+          {'Issue a Child From '}{' '}
+          <code>{`${ob.patp(state.issuingPoint)}`}</code>
+        </H1>
 
-          <P>
-            {`Please enter the point you would like to issue, and specify the
+        <P>
+          {`Please enter the point you would like to issue, and specify the
             receiving Ethereum address.  If you need to create an address, you
             can also use Wallet Generator.`}
-          </P>
+        </P>
 
-          <P>
-            {`Your point can only issue children with particular names. Some
+        <P>
+          {`Your point can only issue children with particular names. Some
             valid suggestions for `}
-            {<code>{ob.patp(state.issuingPoint)}</code>}
-            {' are '}
-            <code>{state.suggestions[0]}</code>
-            {', '}
-            <code>{state.suggestions[1]}</code>
-            {', and '}
-            <code>{state.suggestions[2]}</code>
-            {'.'}
-          </P>
+          {<code>{ob.patp(state.issuingPoint)}</code>}
+          {' are '}
+          <code>{state.suggestions[0]}</code>
+          {', '}
+          <code>{state.suggestions[1]}</code>
+          {', and '}
+          <code>{state.suggestions[2]}</code>
+          {'.'}
+        </P>
 
-          <PointInput
-            prop-size="lg"
-            prop-format="innerLabel"
-            className={'mono mt-8'}
-            placeholder={`e.g. ${state.suggestions[3]}`}
-            value={state.desiredPoint}
-            onChange={this.handlePointInput}>
-            <InnerLabel>{'Point to Issue'}</InnerLabel>
-            <div
-              style={{
-                marginTop: '8.8rem',
-                marginLeft: '4.6rem',
-                fontSize: '5rem',
-                color: '#757575',
-                whiteSpace: 'pre-wrap',
-              }}
-              className="abs tl-0 mono">
-              {state.autoComplete}
-            </div>
-            <ValidatedSigil
-              className={'tr-0 mt-05 mr-0 abs'}
-              patp={state.desiredPoint}
-              size={68}
-              margin={8}
-              validator={() => this.validatePoint(state.desiredPoint)}
-            />
-          </PointInput>
-
-          <AddressInput
-            className="text-mono mt-8"
-            prop-size="lg"
-            prop-format="innerLabel"
-            placeholder={`e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f`}
-            value={state.receivingAddress}
-            disabled={
-              Nothing.hasInstance(state.isAvailable) || !state.isAvailable.value
-            }
-            onChange={v => this.handleAddressInput(v)}>
-            <InnerLabel>{'Receiving Address'}</InnerLabel>
-            <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
-          </AddressInput>
-
-          <Anchor
-            className={'mt-1'}
-            prop-size={'sm'}
-            prop-disabled={
-              !isValidAddress(state.receivingAddress) || !esvisible
-            }
-            target={'_blank'}
-            href={`https://${esdomain}/address/${state.receivingAddress}`}>
-            {'View on Etherscan ↗'}
-          </Anchor>
-
-          <StatelessTransaction
-            canGenerate={canGenerate}
-            createUnsignedTxn={this.createUnsignedTxn}
-            ref={this.statelessRef}
+        <PointInput
+          prop-size="lg"
+          prop-format="innerLabel"
+          className={'mono mt-8'}
+          placeholder={`e.g. ${state.suggestions[3]}`}
+          value={state.desiredPoint}
+          onChange={this.handlePointInput}>
+          <InnerLabel>{'Point to Issue'}</InnerLabel>
+          <div
+            style={{
+              marginTop: '8.8rem',
+              marginLeft: '4.6rem',
+              fontSize: '5rem',
+              color: '#757575',
+              whiteSpace: 'pre-wrap',
+            }}
+            className="abs tl-0 mono">
+            {state.autoComplete}
+          </div>
+          <ValidatedSigil
+            className={'tr-0 mt-05 mr-0 abs'}
+            patp={state.desiredPoint}
+            size={68}
+            margin={8}
+            validator={() => this.validatePoint(state.desiredPoint)}
           />
-        </Col>
-      </Row>
+        </PointInput>
+
+        <AddressInput
+          className="text-mono mt-8"
+          prop-size="lg"
+          prop-format="innerLabel"
+          placeholder={`e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f`}
+          value={state.receivingAddress}
+          disabled={
+            Nothing.hasInstance(state.isAvailable) || !state.isAvailable.value
+          }
+          onChange={v => this.handleAddressInput(v)}>
+          <InnerLabel>{'Receiving Address'}</InnerLabel>
+          <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
+        </AddressInput>
+
+        <Anchor
+          className={'mt-1'}
+          prop-size={'sm'}
+          prop-disabled={!isValidAddress(state.receivingAddress) || !esvisible}
+          target={'_blank'}
+          href={`https://${esdomain}/address/${state.receivingAddress}`}>
+          {'View on Etherscan ↗'}
+        </Anchor>
+
+        <StatelessTransaction
+          canGenerate={canGenerate}
+          createUnsignedTxn={this.createUnsignedTxn}
+          ref={this.statelessRef}
+        />
+      </View>
     );
   }
 }

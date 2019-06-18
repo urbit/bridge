@@ -5,8 +5,6 @@ import * as azimuth from 'azimuth-js';
 import * as need from '../lib/need';
 
 import {
-  Row,
-  Col,
   Warning,
   Input,
   PointInput,
@@ -17,6 +15,7 @@ import StatelessTransaction from '../components/old/StatelessTransaction';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
 import { withPointCursor } from '../store/pointCursor';
+import View from 'components/View';
 
 class InvitesManage extends React.Component {
   constructor(props) {
@@ -40,8 +39,8 @@ class InvitesManage extends React.Component {
   }
 
   componentDidMount() {
-    this.point = need.pointCursor(this.props);
-    this.contracts = need.contracts(this.props);
+    this.point = need.pointCursor(this.props.pointCursor);
+    this.contracts = need.contracts(this.props.contracts);
 
     azimuth.azimuth
       .isSpawnProxy(
@@ -140,44 +139,42 @@ class InvitesManage extends React.Component {
     });
 
     return (
-      <Row>
-        <Col>
-          <p>
-            {
-              'manage invites here, for stars. can only give invites to child planets'
-            }
-          </p>
+      <View>
+        <p>
+          {
+            'manage invites here, for stars. can only give invites to child planets'
+          }
+        </p>
 
-          {spawnProxyWarning}
+        {spawnProxyWarning}
 
-          <PointInput
-            prop-format="innerlabel"
-            prop-size="lg"
-            placeholder={'~sampel-sipnem'}
-            value={this.state.planetInput}
-            onChange={this.handlePointInput}>
-            <InnerLabel>{'Planet to set invites for'}</InnerLabel>
-            <ValidatedSigil
-              patp={this.state.targetPlanet}
-              validator={() => this.validatePoint}
-            />
-          </PointInput>
-
-          <Input
-            prop-format="innerlabel"
-            prop-size="lg"
-            value={this.state.targetPoolSize}
-            onChange={this.handlePoolSizeInput}>
-            <InnerLabel>{`Available invites ${poolSizeText}`}</InnerLabel>
-          </Input>
-
-          <StatelessTransaction
-            canGenerate={this.state.canGenerate}
-            createUnsignedTxn={this.createUnsignedTxn}
-            ref={this.statelessRef}
+        <PointInput
+          prop-format="innerlabel"
+          prop-size="lg"
+          placeholder={'~sampel-sipnem'}
+          value={this.state.planetInput}
+          onChange={this.handlePointInput}>
+          <InnerLabel>{'Planet to set invites for'}</InnerLabel>
+          <ValidatedSigil
+            patp={this.state.targetPlanet}
+            validator={() => this.validatePoint}
           />
-        </Col>
-      </Row>
+        </PointInput>
+
+        <Input
+          prop-format="innerlabel"
+          prop-size="lg"
+          value={this.state.targetPoolSize}
+          onChange={this.handlePoolSizeInput}>
+          <InnerLabel>{`Available invites ${poolSizeText}`}</InnerLabel>
+        </Input>
+
+        <StatelessTransaction
+          canGenerate={this.state.canGenerate}
+          createUnsignedTxn={this.createUnsignedTxn}
+          ref={this.statelessRef}
+        />
+      </View>
     );
   }
 }

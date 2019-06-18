@@ -2,7 +2,7 @@ import React from 'react';
 import * as need from '../lib/need';
 
 import { Button } from '../components/old/Base';
-import { Row, Col, H1, P } from '../components/old/Base';
+import { H1, P } from '../components/old/Base';
 
 import * as ob from 'urbit-ob';
 import * as kg from 'urbit-key-generation/dist';
@@ -14,6 +14,7 @@ import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
 import { withPointCursor } from '../store/pointCursor';
 import { withPointCache } from '../store/pointCache';
+import View from 'components/View';
 
 class GenKeyfile extends React.Component {
   constructor(props) {
@@ -26,9 +27,8 @@ class GenKeyfile extends React.Component {
   }
 
   getPointDetails() {
-    const point = need.pointCursor(this.props);
-
-    const pointDetails = need.fromPointCache(this.props, point);
+    const point = need.pointCursor(this.props.pointCursor);
+    const pointDetails = need.fromPointCache(this.props.pointCache, point);
 
     // in case we did SetKeys earlier this session, make sure to generate the
     // newer keyfile, rather than the one that will expire soon
@@ -94,45 +94,43 @@ class GenKeyfile extends React.Component {
     const { keyfile, loaded } = this.state;
 
     return (
-      <Row>
-        <Col className={'col-md-8'}>
-          <H1>{'Generate keyfile'}</H1>
+      <View>
+        <H1>{'Generate keyfile'}</H1>
 
-          <P>{'Download a private key file for booting this point in Arvo.'}</P>
+        <P>{'Download a private key file for booting this point in Arvo.'}</P>
 
-          {keyfile === '' && !loaded && <P>{'Generating keyfile...'}</P>}
+        {keyfile === '' && !loaded && <P>{'Generating keyfile...'}</P>}
 
-          {keyfile === '' && loaded && (
-            <React.Fragment>
-              <P>
-                <b>Warning: </b>
-                {`No valid network seed detected. To generate a keyfile, you
+        {keyfile === '' && loaded && (
+          <React.Fragment>
+            <P>
+              <b>Warning: </b>
+              {`No valid network seed detected. To generate a keyfile, you
                   must reset your networking keys, or try logging in with your
                   master ticket or management mnemonic.`}
-              </P>
+            </P>
 
-              <P>
-                {`If you've just reset your networking keys, you may need to wait for the transaction to go through. Check back shortly.`}
-              </P>
-            </React.Fragment>
-          )}
+            <P>
+              {`If you've just reset your networking keys, you may need to wait for the transaction to go through. Check back shortly.`}
+            </P>
+          </React.Fragment>
+        )}
 
-          {keyfile !== '' && (
-            <React.Fragment>
-              <div className="pb-5 text-code keyfile">{keyfile}</div>
-              <Button
-                onClick={() => {
-                  let blob = new Blob([keyfile], {
-                    type: 'text/plain;charset=utf-8',
-                  });
-                  saveAs(blob, `${ob.patp(point).slice(1)}-${revision}.key`);
-                }}>
-                Download →
-              </Button>
-            </React.Fragment>
-          )}
-        </Col>
-      </Row>
+        {keyfile !== '' && (
+          <React.Fragment>
+            <div className="pb-5 text-code keyfile">{keyfile}</div>
+            <Button
+              onClick={() => {
+                let blob = new Blob([keyfile], {
+                  type: 'text/plain;charset=utf-8',
+                });
+                saveAs(blob, `${ob.patp(point).slice(1)}-${revision}.key`);
+              }}>
+              Download →
+            </Button>
+          </React.Fragment>
+        )}
+      </View>
     );
   }
 }

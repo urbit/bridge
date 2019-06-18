@@ -2,7 +2,7 @@ import * as bip32 from 'bip32';
 import React from 'react';
 import Maybe from 'folktale/maybe';
 import { Button } from '../components/old/Base';
-import { Row, Col, H1, P, H2 } from '../components/old/Base';
+import { H1, P, H2 } from '../components/old/Base';
 import { Input, InnerLabel, InnerLabelDropdown } from '../components/old/Base';
 import Transport from '@ledgerhq/hw-transport-u2f';
 import Eth from '@ledgerhq/hw-app-eth';
@@ -13,6 +13,7 @@ import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
+import View from 'components/View';
 
 const chopHdPrefix = str => (str.slice(0, 2) === 'm/' ? str.slice(2) : str);
 
@@ -139,82 +140,76 @@ class Ledger extends React.Component {
       );
 
     return (
-      <Row>
-        <Col className={'measure-md'}>
-          <H1>{'Authenticate With Your Ledger'}</H1>
+      <View>
+        <H1>{'Authenticate With Your Ledger'}</H1>
 
-          <H2>{'Running on HTTPS?'}</H2>
+        <H2>{'Running on HTTPS?'}</H2>
 
-          <P>
-            {`Connect and authenticate to your Ledger, and then open the
+        <P>
+          {`Connect and authenticate to your Ledger, and then open the
                 "Ethereum" application.  If you're running on older firmware,
                 make sure the "browser support" option is turned on.  To sign
                 transactions, you'll also need to enable the "contract data"
                 option.`}
-          </P>
+        </P>
 
-          <P>
-            {`If you'd like to use a custom derivation path, you may enter
+        <P>
+          {`If you'd like to use a custom derivation path, you may enter
                  it below.`}
-          </P>
+        </P>
 
-          <H2>{'Running on HTTP?'}</H2>
+        <H2>{'Running on HTTP?'}</H2>
 
-          <P>{`To authenticate and sign transactions with a Ledger, Bridge
+        <P>{`To authenticate and sign transactions with a Ledger, Bridge
               must be serving over HTTPS on localhost. You can do this via the
               following:`}</P>
 
-          <ol className={'measure-md'}>
-            <li className={'mt-4'}>
-              {'Install'}{' '}
-              <a
-                target={'_blank'}
-                href={'https://github.com/FiloSottile/mkcert'}>
-                {'mkcert'}
-              </a>
-            </li>
-            <li className={'mt-4'}>
-              {'Install a local certificate authority via '}
-              <code>{'mkcert -install'}</code>
-            </li>
-            <li className={'mt-4'}>
-              {'In your '}
-              <code>{'bridge'}</code>
-              {
-                ' directory, generate a certificate valid for localhost via '
-              }{' '}
-              <code>{'mkcert localhost'}</code>
-              {'.'}
-              {'This will produce two files: '}
-              <code>{'localhost.pem'}</code> {', the local certificate, and '}
-              <code>{'localhost-key.pem'}</code>
-              {', its corresponding private key.'}
-            </li>
-            <li className={'mt-4'}>
-              {'Run '}
-              <code>{'python bridge-https.py'}</code>
-            </li>
-          </ol>
+        <ol className={'measure-md'}>
+          <li className={'mt-4'}>
+            {'Install'}{' '}
+            <a target={'_blank'} href={'https://github.com/FiloSottile/mkcert'}>
+              {'mkcert'}
+            </a>
+          </li>
+          <li className={'mt-4'}>
+            {'Install a local certificate authority via '}
+            <code>{'mkcert -install'}</code>
+          </li>
+          <li className={'mt-4'}>
+            {'In your '}
+            <code>{'bridge'}</code>
+            {' directory, generate a certificate valid for localhost via '}{' '}
+            <code>{'mkcert localhost'}</code>
+            {'.'}
+            {'This will produce two files: '}
+            <code>{'localhost.pem'}</code> {', the local certificate, and '}
+            <code>{'localhost-key.pem'}</code>
+            {', its corresponding private key.'}
+          </li>
+          <li className={'mt-4'}>
+            {'Run '}
+            <code>{'python bridge-https.py'}</code>
+          </li>
+        </ol>
 
-          {basePathSelection}
-          {truePathSelection}
+        {basePathSelection}
+        {truePathSelection}
 
-          <Button
-            prop-size={'wide lg'}
-            className={'mt-8'}
-            onClick={this.pollDevice}>
-            {'Authenticate →'}
-          </Button>
+        <Button
+          prop-size={'wide lg'}
+          className={'mt-8'}
+          onClick={this.pollDevice}>
+          {'Authenticate →'}
+        </Button>
 
-          <Button
-            className={'mt-8'}
-            prop-size={'wide lg'}
-            disabled={Maybe.Nothing.hasInstance(wallet)}
-            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
-            {'Continue →'}
-          </Button>
-        </Col>
-      </Row>
+        <Button
+          className={'mt-8'}
+          prop-size={'wide lg'}
+          disabled={Maybe.Nothing.hasInstance(wallet)}
+          onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+          {'Continue →'}
+        </Button>
+      </View>
     );
   }
 }

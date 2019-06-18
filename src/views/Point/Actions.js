@@ -3,11 +3,12 @@ import { azimuth } from 'azimuth-js';
 import * as need from '../../lib/need';
 
 import { ETH_ZERO_ADDR, CURVE_ZERO_ADDR, eqAddr } from '../../lib/wallet';
-import { Row, Col, H2, P } from '../../components/old/Base';
+import { H2, P } from '../../components/old/Base';
 import { Button } from '../../components/old/Base';
 import { ROUTE_NAMES } from '../../lib/routeNames';
 import { useHistory } from '../../store/history';
 import { useWallet } from '../../store/wallet';
+import Grid from 'components/Grid';
 
 const isPlanet = point =>
   azimuth.getPointSize(point) === azimuth.PointSize.Planet;
@@ -18,7 +19,7 @@ function Actions(props) {
   const { wallet } = useWallet();
   const { online, point, pointDetails, invites } = props;
 
-  const addr = need.address({ wallet });
+  const addr = need.addressFromWallet(wallet);
 
   const planet = isPlanet(point);
   const star = isStar(point);
@@ -143,8 +144,8 @@ function Actions(props) {
       ) : (
         ''
       )}
-      <Row>
-        <Col className={'flex flex-column items-start col-md-4'}>
+      <Grid>
+        <Grid.Item third={1}>
           <Button
             prop-size={'sm'}
             prop-type={'link'}
@@ -184,8 +185,8 @@ function Actions(props) {
             }}>
             {'Generate Arvo keyfile'}
           </Button>
-        </Col>
-        <Col className={'flex flex-column items-start col-md-4'}>
+        </Grid.Item>
+        <Grid.Item third={2}>
           <Button
             disabled={online && !canSetSpawnProxy}
             prop-size={'sm'}
@@ -225,11 +226,9 @@ function Actions(props) {
             }}>
             {'Transfer'}
           </Button>
-        </Col>
-        <Col className={'flex flex-column items-start col-md-4'}>
-          {inviteAction}
-        </Col>
-      </Row>
+        </Grid.Item>
+        <Grid.Item third={3}>{inviteAction}</Grid.Item>
+      </Grid>
     </div>
   );
 }

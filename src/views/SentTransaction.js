@@ -1,7 +1,7 @@
 import Maybe from 'folktale/maybe';
 import React from 'react';
 import * as need from '../lib/need';
-import { Row, Col, H1, H3, P, Warning, Anchor } from '../components/old/Base';
+import { H1, H3, P, Warning, Anchor } from '../components/old/Base';
 import { Button } from '../components/old/Base';
 
 import { ROUTE_NAMES } from '../lib/routeNames';
@@ -11,6 +11,8 @@ import { NETWORK_TYPES } from '../lib/network';
 import { useTxnConfirmations } from '../store/txnConfirmations';
 import { useNetwork } from '../store/network';
 import { useTxnCursor } from '../store/txnCursor';
+import View from 'components/View';
+import Grid from 'components/Grid';
 
 class Success extends React.Component {
   constructor(props) {
@@ -77,8 +79,8 @@ class Success extends React.Component {
         : `Confirmed! (x${confirmations} confirmations)!`;
 
     return (
-      <Row>
-        <Col>
+      <Grid>
+        <Grid.Item full>
           <H1>{'Your Transaction was Sent'}</H1>
 
           <P>
@@ -92,23 +94,23 @@ class Success extends React.Component {
           <H3>{'Transaction Status'}</H3>
           <P>{status}</P>
           <P>{esanchor}</P>
-        </Col>
-      </Row>
+        </Grid.Item>
+      </Grid>
     );
   }
 }
 
 const Failure = props => (
-  <Row>
-    <Col>
+  <Grid>
+    <Grid.Item full>
       <H1>{'Error!'}</H1>
 
       <Warning>
         <H3>{'There was an error sending your transaction.'}</H3>
         {renderTxnError(props.web3, props.message)}
       </Warning>
-    </Col>
-  </Row>
+    </Grid.Item>
+  </Grid>
 );
 
 function SentTransaction(props) {
@@ -119,8 +121,7 @@ function SentTransaction(props) {
 
   const promptKeyfile = history.data && history.data.promptKeyfile;
 
-  // TODO: remove need's assumption about accepting the props object
-  const w3 = need.web3({ web3 });
+  const w3 = need.web3(web3);
 
   const result = txnCursor.matchWith({
     Nothing: _ => {
@@ -141,8 +142,8 @@ function SentTransaction(props) {
   });
 
   const ok = (
-    <Row>
-      <Col>
+    <Grid>
+      <Grid.Item full>
         <Button
           prop-type={'link'}
           onClick={() => {
@@ -150,32 +151,32 @@ function SentTransaction(props) {
           }}>
           {'Ok →'}
         </Button>
-      </Col>
-    </Row>
+      </Grid.Item>
+    </Grid>
   );
 
   let keyfile;
 
   if (promptKeyfile) {
     keyfile = (
-      <Row>
-        <Col>
+      <Grid>
+        <Grid.Item full>
           <Button
             prop-type={'link'}
             onClick={() => history.popAndPush(ROUTE_NAMES.GEN_KEYFILE)}>
             {'Download Keyfile →'}
           </Button>
-        </Col>
-      </Row>
+        </Grid.Item>
+      </Grid>
     );
   }
 
   return (
-    <div>
+    <View>
       {body}
       {ok}
       {keyfile}
-    </div>
+    </View>
   );
 }
 

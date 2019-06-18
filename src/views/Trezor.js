@@ -2,7 +2,7 @@ import * as bip32 from 'bip32';
 import React from 'react';
 import Maybe from 'folktale/maybe';
 import { Button } from '../components/old/Base';
-import { Row, Col, H1, P } from '../components/old/Base';
+import { H1, P } from '../components/old/Base';
 import { InnerLabel, Input, InnerLabelDropdown } from '../components/old/Base';
 import TrezorConnect from 'trezor-connect';
 import * as secp256k1 from 'secp256k1';
@@ -12,6 +12,7 @@ import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
+import View from 'components/View';
 
 class Trezor extends React.Component {
   constructor(props) {
@@ -109,34 +110,32 @@ class Trezor extends React.Component {
       );
 
     return (
-      <Row>
-        <Col className={'measure-md'}>
-          <H1>{'Authenticate With Your Trezor'}</H1>
+      <View>
+        <H1>{'Authenticate With Your Trezor'}</H1>
 
-          <P>
-            {`Connect and authenticate to your Trezor.  If you'd like
+        <P>
+          {`Connect and authenticate to your Trezor.  If you'd like
                 to use a custom derivation path, you may enter it below.`}
-          </P>
+        </P>
 
-          {accountSelection}
-          {pathSelection}
+        {accountSelection}
+        {pathSelection}
 
-          <Button
-            className={'mt-8'}
-            prop-size={'wide lg'}
-            onClick={this.pollDevice}>
-            {'Authenticate →'}
-          </Button>
+        <Button
+          className={'mt-8'}
+          prop-size={'wide lg'}
+          onClick={this.pollDevice}>
+          {'Authenticate →'}
+        </Button>
 
-          <Button
-            className={'mt-8'}
-            prop-size={'wide lg'}
-            disabled={Maybe.Nothing.hasInstance(wallet)}
-            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
-            {'Continue →'}
-          </Button>
-        </Col>
-      </Row>
+        <Button
+          className={'mt-8'}
+          prop-size={'wide lg'}
+          disabled={Maybe.Nothing.hasInstance(wallet)}
+          onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+          {'Continue →'}
+        </Button>
+      </View>
     );
   }
 }

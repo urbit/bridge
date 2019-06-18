@@ -3,8 +3,6 @@ import React from 'react';
 import * as need from '../lib/need';
 import * as azimuth from 'azimuth-js';
 import {
-  Row,
-  Col,
   H1,
   P,
   InnerLabel,
@@ -25,12 +23,13 @@ import { isValidAddress } from '../lib/wallet';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
 import { withPointCursor } from '../store/pointCursor';
+import View from 'components/View';
 
 class _SetProxy extends React.Component {
   constructor(props) {
     super(props);
 
-    const issuingPoint = need.pointCursor(props);
+    const issuingPoint = need.pointCursor(props.pointCursor);
 
     this.state = {
       proxyAddress: '',
@@ -61,9 +60,8 @@ class _SetProxy extends React.Component {
   createUnsignedTxn(proxyAddress) {
     const { state, props } = this;
 
-    const validContracts = need.contracts(props);
-
-    const validPoint = need.pointCursor(props);
+    const validContracts = need.contracts(props.contracts);
+    const validPoint = need.pointCursor(props.pointCursor);
 
     const txArgs = [validContracts, validPoint, state.proxyAddress];
 
@@ -141,28 +139,26 @@ class _SetProxy extends React.Component {
     }
 
     return (
-      <Row>
-        <Col>
-          <H1>
-            {`${titleVerb} ${ucFirst(renderedProxyType)} Proxy For `}
-            <code>{`${ob.patp(state.issuingPoint)}`}</code>
-          </H1>
+      <View>
+        <H1>
+          {`${titleVerb} ${ucFirst(renderedProxyType)} Proxy For `}
+          <code>{`${ob.patp(state.issuingPoint)}`}</code>
+        </H1>
 
-          <HorizontalSelector
-            options={setUnset}
-            onChange={this.handleSetUnset}
-            className="mt-8"
-          />
+        <HorizontalSelector
+          options={setUnset}
+          onChange={this.handleSetUnset}
+          className="mt-8"
+        />
 
-          {addressInput}
+        {addressInput}
 
-          <StatelessTransaction
-            ref={this.statelessRef}
-            createUnsignedTxn={this.createUnsignedTxn}
-            canGenerate={canGenerate}
-          />
-        </Col>
-      </Row>
+        <StatelessTransaction
+          ref={this.statelessRef}
+          createUnsignedTxn={this.createUnsignedTxn}
+          canGenerate={canGenerate}
+        />
+      </View>
     );
   }
 }

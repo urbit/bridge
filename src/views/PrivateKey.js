@@ -6,13 +6,14 @@ import {
   InnerLabel,
   InputCaption,
 } from '../components/old/Base';
-import { Row, Col, H1 } from '../components/old/Base';
+import { H1 } from '../components/old/Base';
 
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { EthereumWallet } from '../lib/wallet';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
+import View from 'components/View';
 
 class PrivateKey extends React.Component {
   constructor(props) {
@@ -46,35 +47,33 @@ class PrivateKey extends React.Component {
     const { privateKey } = this.state;
 
     return (
-      <Row>
-        <Col className={'measure-md'}>
-          <H1 className={'mb-4'}>{'Enter Your Private Key'}</H1>
-          <InputCaption>
-            {`Please enter your raw Ethereum private key here.`}
-          </InputCaption>
+      <View>
+        <H1 className={'mb-4'}>{'Enter Your Private Key'}</H1>
+        <InputCaption>
+          {`Please enter your raw Ethereum private key here.`}
+        </InputCaption>
 
-          <RequiredInput
-            className="pt-8 mt-8"
-            prop-size="md"
-            prop-format="innerLabel"
-            type="password"
-            name="privateKey"
-            onChange={this.handlePrivateKeyInput}
-            value={privateKey}
-            autocomplete="off"
-            autoFocus>
-            <InnerLabel>{'Private Key'}</InnerLabel>
-          </RequiredInput>
+        <RequiredInput
+          className="pt-8 mt-8"
+          prop-size="md"
+          prop-format="innerLabel"
+          type="password"
+          name="privateKey"
+          onChange={this.handlePrivateKeyInput}
+          value={privateKey}
+          autocomplete="off"
+          autoFocus>
+          <InnerLabel>{'Private Key'}</InnerLabel>
+        </RequiredInput>
 
-          <Button
-            className={'mt-10'}
-            prop-size={'wide lg'}
-            disabled={Maybe.Nothing.hasInstance(wallet)}
-            onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
-            {'Continue →'}
-          </Button>
-        </Col>
-      </Row>
+        <Button
+          className={'mt-10'}
+          prop-size={'wide lg'}
+          disabled={Maybe.Nothing.hasInstance(wallet)}
+          onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+          {'Continue →'}
+        </Button>
+      </View>
     );
   }
 }

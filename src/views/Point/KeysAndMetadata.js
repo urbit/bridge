@@ -1,7 +1,8 @@
 import React from 'react';
-import { Row, Col, H2, H4 } from '../../components/old/Base';
+import { H2, H4 } from '../../components/old/Base';
 
 import { ETH_ZERO_ADDR, eqAddr } from '../../lib/wallet';
+import Grid from 'components/Grid';
 
 const NULL_KEY =
   '0x0000000000000000000000000000000000000000000000000000000000000000';
@@ -53,47 +54,42 @@ const KeysAndMetadata = props => {
   const { pointDetails } = props;
 
   return (
-    <Row>
-      <Col>
+    <Grid>
+      <Grid.Item full>
         <H2>{'Ownership and Proxy Addresses'}</H2>
-
-        <Row>
-          <Col className={'flex flex-column items-start col-md-3'}>
-            <H4>{'Owner'}</H4>
-            {pointDetails.matchWith({
-              Nothing: () => <div />,
-              Just: deets => renderAddress(deets.value.owner),
-            })}
-          </Col>
-
-          <Col className={'flex flex-column items-start col-md-3'}>
-            <H4>{'Transfer Proxy'}</H4>
-            {pointDetails.matchWith({
-              Nothing: () => <div />,
-              Just: deets => renderAddress(deets.value.transferProxy),
-            })}
-          </Col>
-
-          <Col className={'flex flex-column items-start col-md-3'}>
-            <H4>{'Spawn Proxy'}</H4>
-            {pointDetails.matchWith({
-              Nothing: () => <div />,
-              Just: deets => renderAddress(deets.value.spawnProxy),
-            })}
-          </Col>
-
-          <Col className={'flex flex-column items-start col-md-3'}>
-            <H4>{'Mgmt Proxy'}</H4>
-            {pointDetails.matchWith({
-              Nothing: () => <div />,
-              Just: deets => renderAddress(deets.value.managementProxy),
-            })}
-          </Col>
-        </Row>
-
+      </Grid.Item>
+      <Grid.Item fourth={1}>
+        <H4>{'Owner'}</H4>
+        {pointDetails.matchWith({
+          Nothing: () => <div />,
+          Just: deets => renderAddress(deets.value.owner),
+        })}
+      </Grid.Item>
+      <Grid.Item fourth={2}>
+        <H4>{'Transfer Proxy'}</H4>
+        {pointDetails.matchWith({
+          Nothing: () => <div />,
+          Just: deets => renderAddress(deets.value.transferProxy),
+        })}
+      </Grid.Item>
+      <Grid.Item fourth={3}>
+        <H4>{'Spawn Proxy'}</H4>
+        {pointDetails.matchWith({
+          Nothing: () => <div />,
+          Just: deets => renderAddress(deets.value.spawnProxy),
+        })}
+      </Grid.Item>
+      <Grid.Item fourth={4}>
+        <H4>{'Mgmt Proxy'}</H4>
+        {pointDetails.matchWith({
+          Nothing: () => <div />,
+          Just: deets => renderAddress(deets.value.managementProxy),
+        })}
+      </Grid.Item>
+      <Grid.Item full>
         <UrbitNetworking pointDetails={pointDetails} />
-      </Col>
-    </Row>
+      </Grid.Item>
+    </Grid>
   );
 };
 
@@ -108,24 +104,22 @@ const UrbitNetworking = props => {
   const body = !booted ? (
     <div>{'(not set)'}</div>
   ) : (
-    <Row>
-      <Col className={'flex flex-column items-start col-md-4'}>
+    <Grid>
+      <Grid.Item third={1}>
         <H4>{'Authentication'}</H4>
         {pointDetails.matchWith({
           Nothing: () => <div />,
           Just: deets => renderNetworkKey(deets.value.authenticationKey),
         })}
-      </Col>
-
-      <Col className={'flex flex-column items-start col-md-4'}>
+      </Grid.Item>
+      <Grid.Item third={2}>
         <H4>{'Encryption'}</H4>
         {pointDetails.matchWith({
           Nothing: () => <div />,
           Just: deets => renderNetworkKey(deets.value.encryptionKey),
         })}
-      </Col>
-
-      <Col className={'flex flex-column items-start col-md-4'}>
+      </Grid.Item>
+      <Grid.Item third={3}>
         <H4>{'Revision'}</H4>
         {pointDetails.matchWith({
           Nothing: () => '-',
@@ -143,8 +137,8 @@ const UrbitNetworking = props => {
           Nothing: () => '-',
           Just: deets => deets.value.cryptoSuiteVersion,
         })}
-      </Col>
-    </Row>
+      </Grid.Item>
+    </Grid>
   );
 
   return (

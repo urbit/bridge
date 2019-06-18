@@ -69,7 +69,7 @@ class StatelessTransaction extends React.Component {
   componentDidMount() {
     const { props } = this;
 
-    const addr = need.address(props);
+    const addr = need.addressFromWallet(props.wallet);
 
     props.web3.matchWith({
       Nothing: () => {},
@@ -208,7 +208,7 @@ class StatelessTransaction extends React.Component {
     const rawTx = hexify(stx.serialize());
     const cost = state.gasLimit * toWei(state.gasPrice, 'gwei');
 
-    const address = need.address(props);
+    const address = need.addressFromWallet(props.wallet);
     let balance = await web3.eth.getBalance(address);
     let hasBalance = balance >= cost;
 

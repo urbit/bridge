@@ -4,7 +4,7 @@ import * as azimuth from 'azimuth-js';
 import * as need from '../lib/need';
 
 import { hasReceived, sendMail } from '../lib/inviteMail';
-import { Row, Col, Button, Input, H3, Warning } from '../components/old/Base';
+import { Button, Input, H3, Warning } from '../components/old/Base';
 
 // for wallet generation
 import * as wg from '../_walletgen/lib/lib';
@@ -23,6 +23,7 @@ import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
 import { withPointCursor } from '../store/pointCursor';
+import View from 'components/View';
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = 350000;
@@ -72,10 +73,10 @@ class InvitesSend extends React.Component {
   }
 
   componentDidMount() {
-    this.point = parseInt(need.pointCursor(this.props), 10);
-    this.address = need.address(this.props);
-    this.contracts = need.contracts(this.props);
-    this.web3 = need.web3(this.props);
+    this.point = need.pointCursor(this.props.pointCursor);
+    this.address = need.addressFromWallet(this.props.wallet);
+    this.contracts = need.contracts(this.props.contracts);
+    this.web3 = need.web3(this.props.web3);
 
     console.log(azimuth.delegatedSending);
     azimuth.delegatedSending
@@ -476,21 +477,19 @@ class InvitesSend extends React.Component {
     }
 
     return (
-      <Row>
-        <Col>
-          <p>{'send invites here, for planets'}</p>
+      <View>
+        <p>{'send invites here, for planets'}</p>
 
-          <p>{invitesAvailable}</p>
+        <p>{invitesAvailable}</p>
 
-          <ul>{invitesSent}</ul>
+        <ul>{invitesSent}</ul>
 
-          {error}
+        {error}
 
-          {fundingMessage}
+        {fundingMessage}
 
-          {inputs}
-        </Col>
-      </Row>
+        {inputs}
+      </View>
     );
   }
 }

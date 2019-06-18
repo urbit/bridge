@@ -1,17 +1,18 @@
 import { Just, Nothing } from 'folktale/maybe';
 import React from 'react';
+import * as azimuth from 'azimuth-js';
+import * as need from 'lib/need';
+
+import View from 'components/View';
+
 import {
   InnerLabel,
   Warning,
   TicketInput,
   VerifyTicketInput,
   Button,
-  Row,
-  Col,
   Passport,
 } from '../components/old/Base';
-import * as azimuth from 'azimuth-js';
-import * as need from '../lib/need';
 
 import { randomPatq, compose } from '../lib/lib';
 import { ROUTE_NAMES } from '../lib/routeNames';
@@ -30,6 +31,7 @@ import {
 import { generateWallet, startTransactions } from '../lib/invite';
 import { withNetwork } from '../store/network';
 import { withWallet } from '../store/wallet';
+import Grid from 'components/Grid';
 
 class InviteTicket extends React.Component {
   constructor(props) {
@@ -104,9 +106,9 @@ class InviteTicket extends React.Component {
 
     const addr = inviteWallet.address;
 
-    const ctrcs = need.contracts(this.props);
+    const contracts = need.contracts(this.props.contracts);
 
-    const incoming = await azimuth.azimuth.getTransferringFor(ctrcs, addr);
+    const incoming = await azimuth.azimuth.getTransferringFor(contracts, addr);
 
     this.setState({
       walletStates: this.state.walletStates.concat(WALLET_STATES.GENERATING),
@@ -393,33 +395,35 @@ class InviteTicket extends React.Component {
     let errorDisplay = this.getErrors();
 
     return (
-      <Row>
-        <Col className="col-md-4 mt-">
-          {stageDisplay}
-          {errorDisplay}
-          {stageText}
-          {ticketElem}
-          {continueButton}
+      <View.Full>
+        <Grid>
+          <Grid.Item half={1}>
+            {stageDisplay}
+            {errorDisplay}
+            {stageText}
+            {ticketElem}
+            {continueButton}
 
-          {this.state.stage === INVITE_STAGES.INVITE_LOGIN && (
-            <Button
-              prop-type={`link`}
-              prop-size={`sm`}
-              className={`block mt-4`}
-              onClick={this.navigateLogin}>
-              {`Log in`}
-            </Button>
-          )}
-        </Col>
-        <Col className="col-md-offset-3 col-md-5 mt-18">
-          <Passport
-            point={this.state.realPoint}
-            wallet={this.state.realWallet}
-            walletStates={this.state.walletStates}
-            pushWalletState={this.pushWalletState}
-          />
-        </Col>
-      </Row>
+            {this.state.stage === INVITE_STAGES.INVITE_LOGIN && (
+              <Button
+                prop-type={`link`}
+                prop-size={`sm`}
+                className={`block mt-4`}
+                onClick={this.navigateLogin}>
+                {`Log in`}
+              </Button>
+            )}
+          </Grid.Item>
+          <Grid.Item half={2}>
+            <Passport
+              point={this.state.realPoint}
+              wallet={this.state.realWallet}
+              walletStates={this.state.walletStates}
+              pushWalletState={this.pushWalletState}
+            />
+          </Grid.Item>
+        </Grid>
+      </View.Full>
     );
   }
 }

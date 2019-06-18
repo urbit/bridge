@@ -112,7 +112,7 @@ export const getRouteBreadcrumb = ({
     case ROUTE_NAMES.VIEW_SHIP:
       return 'View';
     case ROUTE_NAMES.SHIP:
-      return ob.patp(need.pointCursor({ pointCursor }));
+      return ob.patp(need.pointCursor(pointCursor));
     case ROUTE_NAMES.SET_TRANSFER_PROXY:
     case ROUTE_NAMES.SET_MANAGEMENT_PROXY:
     case ROUTE_NAMES.SET_SPAWN_PROXY:

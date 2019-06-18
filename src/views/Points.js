@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, H1, H2, P } from '../components/old/Base';
+import { H1, H2, P } from '../components/old/Base';
 import { Button } from '../components/old/Base';
 import * as azimuth from 'azimuth-js';
 
@@ -12,6 +12,8 @@ import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
 import { withPointCache } from '../store/pointCache';
+import View from 'components/View';
+import Grid from 'components/Grid';
 
 const hasTransferProxy = (cache, point) =>
   point in cache ? !eqAddr(cache[point].transferProxy, ETH_ZERO_ADDR) : false;
@@ -97,8 +99,8 @@ class Points extends React.Component {
     } = this.state;
 
     const lookupPointButton = (
-      <Row>
-        <Col>
+      <Grid>
+        <Grid.Item full>
           <Button
             prop-type={'link'}
             prop-size={'md'}
@@ -106,16 +108,16 @@ class Points extends React.Component {
             {'View a point  →'}
           </Button>
           <P>{'View a point on Azimuth.'}</P>
-        </Col>
-      </Row>
+        </Grid.Item>
+      </Grid>
     );
 
     const createGalaxyButton =
       eclipticOwner === false ? (
         <div />
       ) : (
-        <Row>
-          <Col>
+        <Grid>
+          <Grid.Item full>
             <Button
               prop-type={'link'}
               prop-size={'md'}
@@ -127,8 +129,8 @@ class Points extends React.Component {
                 'You have the authority to create a new Galaxy and you can do so here.'
               }
             </P>
-          </Col>
-        </Row>
+          </Grid.Item>
+        </Grid>
       );
 
     const outgoing = points.filter(point =>
@@ -203,36 +205,34 @@ class Points extends React.Component {
       );
 
     return (
-      <Row>
-        <Col>
-          <H1>{'Points'}</H1>
+      <View>
+        <H1>{'Points'}</H1>
 
-          <P>{`A point is an identity on the Ethereum blockchain.
+        <P>{`A point is an identity on the Ethereum blockchain.
             Points declare keys for ships on the Arvo network.`}</P>
 
-          {lookupPointButton}
+        {lookupPointButton}
 
-          {createGalaxyButton}
+        {createGalaxyButton}
 
-          {incomingPoints}
+        {incomingPoints}
 
-          {outgoingPoints}
+        {outgoingPoints}
 
-          <H2>{'Your Points'}</H2>
+        <H2>{'Your Points'}</H2>
 
-          <PointList
-            routeHandler={history.push}
-            points={points}
-            loading={loading}
-          />
+        <PointList
+          routeHandler={history.push}
+          points={points}
+          loading={loading}
+        />
 
-          {managingPoints}
+        {managingPoints}
 
-          {votingPoints}
+        {votingPoints}
 
-          {spawningPoints}
-        </Col>
-      </Row>
+        {spawningPoints}
+      </View>
     );
   }
 }

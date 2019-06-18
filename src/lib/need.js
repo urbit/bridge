@@ -1,75 +1,32 @@
 // need.js: +need but worse
 //
-// generally, pass the props object into these functions
 
 import { BRIDGE_ERROR } from './error';
 
-function web3(obj) {
-  return 'web3' in obj === false
-    ? (() => {
-        throw BRIDGE_ERROR.MISSING_WEB3;
-      })()
-    : obj.web3.matchWith({
-        Nothing: () => {
-          throw BRIDGE_ERROR.MISSING_WEB3;
-        },
-        Just: w => w.value,
-      });
-}
+const needBuilder = error => obj => {
+  if (!obj) {
+    throw error;
+  }
 
-function contracts(obj) {
-  return 'contracts' in obj === false
-    ? (() => {
-        throw BRIDGE_ERROR.MISSING_CONTRACTS;
-      })()
-    : obj.contracts.matchWith({
-        Nothing: () => {
-          throw BRIDGE_ERROR.MISSING_CONTRACTS;
-        },
-        Just: c => c.value,
-      });
-}
+  return obj.matchWith({
+    Nothing: () => {
+      throw error;
+    },
+    Just: p => p.value,
+  });
+};
 
-function wallet(obj) {
-  return 'wallet' in obj === false
-    ? (() => {
-        throw BRIDGE_ERROR.MISSING_WALLET;
-      })()
-    : obj.wallet.matchWith({
-        Nothing: () => {
-          throw BRIDGE_ERROR.MISSING_WALLET;
-        },
-        Just: w => w.value,
-      });
-}
+export const web3 = needBuilder(BRIDGE_ERROR.MISSING_WEB3);
+export const contracts = needBuilder(BRIDGE_ERROR.MISSING_CONTRACTS);
+export const wallet = needBuilder(BRIDGE_ERROR.MISSING_WALLET);
+export const addressFromWallet = obj => wallet(obj).address;
+export const pointCursor = needBuilder(BRIDGE_ERROR.MISSING_POINT);
+export const pointCache = needBuilder(BRIDGE_ERROR.MISSING_POINT);
+export const fromPointCache = (obj, point) => {
+  const cache = pointCache(obj);
+  if (!(point in cache)) {
+    throw BRIDGE_ERROR.MISSING_POINT;
+  }
 
-function address(obj) {
-  return wallet(obj).address;
-}
-
-function pointCursor(obj) {
-  return 'pointCursor' in obj === false
-    ? (() => {
-        throw BRIDGE_ERROR.MISSING_POINT;
-      })()
-    : obj.pointCursor.matchWith({
-        Nothing: () => {
-          throw BRIDGE_ERROR.MISSING_POINT;
-        },
-        Just: p => p.value,
-      });
-}
-
-function fromPointCache(obj, point) {
-  return 'pointCache' in obj === false
-    ? (() => {
-        throw BRIDGE_ERROR.MISSING_POINT;
-      })()
-    : point in obj.pointCache
-    ? obj.pointCache[point]
-    : (() => {
-        throw BRIDGE_ERROR.MISSING_POINT;
-      })();
-}
-
-export { web3, contracts, wallet, address, pointCursor, fromPointCache };
+  return cache[point];
+};
