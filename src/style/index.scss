@@ -1,22 +1,9 @@
 /* Indigo */
 @import '../indigo-react/indigo.css';
+@import './indigo-proposals.scss';
 
-/* SF */
-@import './fonts64/SF-Pro-Text-Light.css';
-@import './fonts64/SF-Pro-Text-Regular.css';
-@import './fonts64/SF-Pro-Text-Medium.css';
-@import './fonts64/SF-Pro-Text-Semibold.css';
-
-/* Source Code Pro */
-@import './fonts64/SourceCodePro-Regular.css';
-@import './fonts64/SourceCodePro-Bold.css';
-
-/* Work Sans */
-@import './fonts64/WorkSans-SemiBold.css';
-@import './fonts64/WorkSans-Medium.css';
-
-/* Inter UI */
-@import './fontstack/Inter-UI/inter-ui.css';
+/* Fonts */
+@import './fonts.scss';
 
 /* Bridge Styles */
 @import './bridge.scss';
