@@ -85,6 +85,8 @@ export const getRouteBreadcrumb = ({
       return 'Send invites';
     case ROUTE_NAMES.INVITES_MANAGE:
       return 'Manage invites';
+    case ROUTE_NAMES.LOGIN:
+      return 'Login to Bridge';
     case ROUTE_NAMES.POINT_HOME:
       return 'Overview: ' + ob.patp(need.pointCursor({ pointCursor }));
     case ROUTE_NAMES.NETWORK:
