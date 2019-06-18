@@ -139,4 +139,5 @@ export const getRouteBreadcrumb = ({
   }
 };
 
-export const router = route => ROUTES[route.name];
+const router = route => ROUTES[route.name];
+export default router;
