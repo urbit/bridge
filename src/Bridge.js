@@ -9,12 +9,12 @@ import Provider from 'store/Provider';
 
 import Header from './components/old/Header';
 
-import { ROUTE_NAMES } from './lib/routeNames';
-import { NETWORK_TYPES } from './lib/network';
-import { walletFromMnemonic } from './lib/wallet';
-import { isDevelopment } from './lib/flags';
+import { ROUTE_NAMES } from 'lib/routeNames';
+import { NETWORK_TYPES } from 'lib/network';
+import { walletFromMnemonic } from 'lib/wallet';
+import { isDevelopment } from 'lib/flags';
 
-import './style/index.scss';
+import 'style/index.scss';
 
 const kInitialNetworkType = isDevelopment
   ? NETWORK_TYPES.LOCAL
