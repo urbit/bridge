@@ -16,6 +16,7 @@ import {
 import * as need from '../lib/need';
 import { compose } from '../lib/lib';
 import { urbitWalletFromTicket } from '../lib/wallet';
+import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';
 import { withNetwork } from '../store/network';
 
@@ -98,10 +99,11 @@ class Login extends React.Component {
     return Just.hasInstance(this.state.wallet);
   }
 
-  continue() {
-    //TODO slightly different for other login methods
-    this.props.setUrbitWallet(this.state.wallet);
-    //TODO history.popAndPush(ROUTE_NAMES.POINT_HOME);
+    if (Just.hasInstance(this.props.pointCursor)) {
+      this.props.history.popAndPush(ROUTE_NAMES.POINT_HOME);
+    } else {
+      this.props.history.popAndPush(ROUTE_NAMES.SHIPS);
+    }
   }
 
   render() {
