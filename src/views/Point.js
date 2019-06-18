@@ -5,11 +5,11 @@ import * as ob from 'urbit-ob';
 import * as azimuth from 'azimuth-js';
 import * as need from '../lib/need';
 
-import PointList from '../components/PointList';
-import ReactSVGComponents from '../components/ReactSVGComponents';
+import PointList from '../components/old/PointList';
+import ReactSVGComponents from '../components/old/ReactSVGComponents';
 import KeysAndMetadata from './Point/KeysAndMetadata';
 import Actions from './Point/Actions';
-import { Row, Col, H1, H3 } from '../components/Base';
+import { Row, Col, H1, H3 } from '../components/old/Base';
 import { withHistory } from '../store/history';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';

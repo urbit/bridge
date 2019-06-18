@@ -3,8 +3,8 @@ import { azimuth } from 'azimuth-js';
 import * as need from '../../lib/need';
 
 import { ETH_ZERO_ADDR, CURVE_ZERO_ADDR, eqAddr } from '../../lib/wallet';
-import { Row, Col, H2, P } from '../../components/Base';
-import { Button } from '../../components/Base';
+import { Row, Col, H2, P } from '../../components/old/Base';
+import { Button } from '../../components/old/Base';
 import { ROUTE_NAMES } from '../../lib/routeNames';
 import { useHistory } from '../../store/history';
 import { useWallet } from '../../store/wallet';

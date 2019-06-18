@@ -1,17 +1,17 @@
 import { Nothing, Just } from 'folktale/maybe';
 import { Ok } from 'folktale/result';
 import React from 'react';
-import * as need from '../lib/need';
+import * as need from '../../lib/need';
 
 import { Code, H3 } from './Base';
 import { Button } from './Base';
 import { CheckboxButton, Input, InnerLabel, InnerLabelDropdown } from './Base';
 import { Warning } from './Base';
 
-import { BRIDGE_ERROR } from '../lib/error';
-import { ROUTE_NAMES } from '../lib/routeNames';
-import { compose } from '../lib/lib';
-import * as tank from '../lib/tank';
+import { BRIDGE_ERROR } from '../../lib/error';
+import { ROUTE_NAMES } from '../../lib/routeNames';
+import { compose } from '../../lib/lib';
+import * as tank from '../../lib/tank';
 import {
   sendSignedTransaction,
   fromWei,
@@ -19,13 +19,13 @@ import {
   hexify,
   renderSignedTx,
   signTransaction,
-} from '../lib/txn';
+} from '../../lib/txn';
 
-import { withTxnConfirmations } from '../store/txnConfirmations';
-import { withNetwork } from '../store/network';
-import { withHistory } from '../store/history';
-import { withWallet } from '../store/wallet';
-import { withTxnCursor } from '../store/txnCursor';
+import { withTxnConfirmations } from '../../store/txnConfirmations';
+import { withNetwork } from '../../store/network';
+import { withHistory } from '../../store/history';
+import { withWallet } from '../../store/wallet';
+import { withTxnCursor } from '../../store/txnCursor';
 
 const SUBMISSION_STATES = {
   PROMPT: 'Send transaction',

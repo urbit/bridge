@@ -4,16 +4,16 @@ import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
 import * as need from '../lib/need';
 
-import { Button } from '../components/Base';
-import { Row, Col, H1, P, Anchor } from '../components/Base';
+import { Button } from '../components/old/Base';
+import { Row, Col, H1, P, Anchor } from '../components/old/Base';
 import {
   InnerLabel,
   GalaxyInput,
   AddressInput,
   ValidatedSigil,
   ShowBlockie,
-} from '../components/Base';
-import StatelessTransaction from '../components/StatelessTransaction';
+} from '../components/old/Base';
+import StatelessTransaction from '../components/old/StatelessTransaction';
 
 import { NETWORK_TYPES } from '../lib/network';
 import { canDecodePatp } from '../lib/txn';

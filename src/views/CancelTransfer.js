@@ -1,11 +1,11 @@
 import Maybe from 'folktale/maybe';
 import React from 'react';
-import { Row, Col, H1, P } from '../components/Base';
+import { Row, Col, H1, P } from '../components/old/Base';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
 import * as need from '../lib/need';
 
-import StatelessTransaction from '../components/StatelessTransaction';
+import StatelessTransaction from '../components/old/StatelessTransaction';
 import { ETH_ZERO_ADDR } from '../lib/wallet';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';

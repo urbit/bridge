@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, H2, H4 } from '../../components/Base';
+import { Row, Col, H2, H4 } from '../../components/old/Base';
 
 import { ETH_ZERO_ADDR, eqAddr } from '../../lib/wallet';
 

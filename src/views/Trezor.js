@@ -1,9 +1,9 @@
 import * as bip32 from 'bip32';
 import React from 'react';
 import Maybe from 'folktale/maybe';
-import { Button } from '../components/Base';
-import { Row, Col, H1, P } from '../components/Base';
-import { InnerLabel, Input, InnerLabelDropdown } from '../components/Base';
+import { Button } from '../components/old/Base';
+import { Row, Col, H1, P } from '../components/old/Base';
+import { InnerLabel, Input, InnerLabelDropdown } from '../components/old/Base';
 import TrezorConnect from 'trezor-connect';
 import * as secp256k1 from 'secp256k1';
 

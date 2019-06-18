@@ -12,8 +12,8 @@ import {
   PointInput,
   InnerLabel,
   ValidatedSigil,
-} from '../components/Base';
-import StatelessTransaction from '../components/StatelessTransaction';
+} from '../components/old/Base';
+import StatelessTransaction from '../components/old/StatelessTransaction';
 import { withNetwork } from '../store/network';
 import { compose } from '../lib/lib';
 import { withPointCursor } from '../store/pointCursor';

@@ -11,15 +11,15 @@ import {
   ShowBlockie,
   Anchor,
   HorizontalSelector,
-} from '../components/Base';
-import { AddressInput } from '../components/Base';
+} from '../components/old/Base';
+import { AddressInput } from '../components/old/Base';
 import * as ob from 'urbit-ob';
 
 import { PROXY_TYPE, renderProxyType } from '../lib/proxy';
 
 import { NETWORK_TYPES } from '../lib/network';
 
-import StatelessTransaction from '../components/StatelessTransaction';
+import StatelessTransaction from '../components/old/StatelessTransaction';
 
 import { isValidAddress } from '../lib/wallet';
 import { withNetwork } from '../store/network';

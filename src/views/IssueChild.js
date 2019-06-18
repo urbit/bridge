@@ -15,9 +15,9 @@ import {
   PointInput,
   AddressInput,
   InnerLabel,
-} from '../components/Base';
+} from '../components/old/Base';
 
-import StatelessTransaction from '../components/StatelessTransaction';
+import StatelessTransaction from '../components/old/StatelessTransaction';
 
 import { NETWORK_TYPES } from '../lib/network';
 import { getSpawnCandidate } from '../lib/child';

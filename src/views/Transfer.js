@@ -12,9 +12,9 @@ import {
   ShowBlockie,
   P,
   Anchor,
-} from '../components/Base';
-import { AddressInput } from '../components/Base';
-import StatelessTransaction from '../components/StatelessTransaction';
+} from '../components/old/Base';
+import { AddressInput } from '../components/old/Base';
+import StatelessTransaction from '../components/old/StatelessTransaction';
 
 import { NETWORK_TYPES } from '../lib/network';
 

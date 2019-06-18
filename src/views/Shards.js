@@ -1,6 +1,6 @@
 import { Just, Nothing } from 'folktale/maybe';
 import React from 'react';
-import { Button } from '../components/Base';
+import { Button } from '../components/old/Base';
 import {
   InnerLabel,
   ValidatedSigil,
@@ -8,8 +8,8 @@ import {
   ShardInput,
   InputCaption,
   Input,
-} from '../components/Base';
-import { Row, Col, H1, P } from '../components/Base';
+} from '../components/old/Base';
+import { Row, Col, H1, P } from '../components/old/Base';
 import * as kg from 'urbit-key-generation/dist';
 import * as ob from 'urbit-ob';
 

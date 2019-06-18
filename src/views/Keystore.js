@@ -2,9 +2,9 @@ import { Just, Nothing } from 'folktale/maybe';
 import { Ok, Error } from 'folktale/result';
 import React from 'react';
 import * as keythereum from 'keythereum';
-import { Button, UploadButton } from '../components/Base';
-import { Input, InnerLabel, InputCaption } from '../components/Base';
-import { Row, Col, H1, H3, Warning } from '../components/Base';
+import { Button, UploadButton } from '../components/old/Base';
+import { Input, InnerLabel, InputCaption } from '../components/old/Base';
+import { Row, Col, H1, H3, Warning } from '../components/old/Base';
 
 import { BRIDGE_ERROR } from '../lib/error';
 import { ROUTE_NAMES } from '../lib/routeNames';

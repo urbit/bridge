@@ -2,9 +2,9 @@ import Maybe from 'folktale/maybe';
 import React from 'react';
 import * as ob from 'urbit-ob';
 
-import { Button } from '../components/Base';
-import { Row, Col, H1, P } from '../components/Base';
-import { InnerLabel, PointInput, ValidatedSigil } from '../components/Base';
+import { Button } from '../components/old/Base';
+import { Row, Col, H1, P } from '../components/old/Base';
+import { InnerLabel, PointInput, ValidatedSigil } from '../components/old/Base';
 
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';

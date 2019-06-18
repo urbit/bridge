@@ -1,6 +1,6 @@
 import { Just, Nothing } from 'folktale/maybe';
 import React from 'react';
-import { Button } from '../components/Base';
+import { Button } from '../components/old/Base';
 import {
   InnerLabel,
   ValidatedSigil,
@@ -8,8 +8,8 @@ import {
   TicketInput,
   Input,
   InputCaption,
-} from '../components/Base';
-import { Row, Col, H1, P } from '../components/Base';
+} from '../components/old/Base';
+import { Row, Col, H1, P } from '../components/old/Base';
 
 import { randomPatq, compose } from '../lib/lib';
 import { ROUTE_NAMES } from '../lib/routeNames';

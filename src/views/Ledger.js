@@ -1,9 +1,9 @@
 import * as bip32 from 'bip32';
 import React from 'react';
 import Maybe from 'folktale/maybe';
-import { Button } from '../components/Base';
-import { Row, Col, H1, P, H2 } from '../components/Base';
-import { Input, InnerLabel, InnerLabelDropdown } from '../components/Base';
+import { Button } from '../components/old/Base';
+import { Row, Col, H1, P, H2 } from '../components/old/Base';
+import { Input, InnerLabel, InnerLabelDropdown } from '../components/old/Base';
 import Transport from '@ledgerhq/hw-transport-u2f';
 import Eth from '@ledgerhq/hw-app-eth';
 import * as secp256k1 from 'secp256k1';

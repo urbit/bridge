@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import makeBlockie from 'ethereum-blockies-base64';
 import Button from './Button';
-import { invert } from '../lib/state';
+import { invert } from '../../lib/state';
 
 const isValidAddress = address => /^0x[0-9a-fA-F]{40}$/.test(address);
 

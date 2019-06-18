@@ -4,7 +4,7 @@ import * as azimuth from 'azimuth-js';
 import * as need from '../lib/need';
 
 import { hasReceived, sendMail } from '../lib/inviteMail';
-import { Row, Col, Button, Input, H3, Warning } from '../components/Base';
+import { Row, Col, Button, Input, H3, Warning } from '../components/old/Base';
 
 // for wallet generation
 import * as wg from '../_walletgen/lib/lib';

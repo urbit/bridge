@@ -4,9 +4,16 @@ import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
 import * as need from '../lib/need';
 import * as kg from 'urbit-key-generation/dist';
-import { Row, Col, H1, P, Warning, CheckboxButton } from '../components/Base';
+import {
+  Row,
+  Col,
+  H1,
+  P,
+  Warning,
+  CheckboxButton,
+} from '../components/old/Base';
 
-import StatelessTransaction from '../components/StatelessTransaction';
+import StatelessTransaction from '../components/old/StatelessTransaction';
 import { attemptNetworkSeedDerivation } from '../lib/keys';
 
 import { addHexPrefix } from '../lib/wallet';

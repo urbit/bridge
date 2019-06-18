@@ -1,8 +1,8 @@
 import Maybe from 'folktale/maybe';
 import React from 'react';
 import * as need from '../lib/need';
-import { Row, Col, H1, H3, P, Warning, Anchor } from '../components/Base';
-import { Button } from '../components/Base';
+import { Row, Col, H1, H3, P, Warning, Anchor } from '../components/old/Base';
+import { Button } from '../components/old/Base';
 
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { useHistory } from '../store/history';

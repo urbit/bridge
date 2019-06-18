@@ -6,10 +6,10 @@ import PropTypes from 'prop-types';
 import PaperCollateralRenderer from 'PaperCollateralRenderer';
 import { Button } from './Base';
 
-import { WALLET_STATES } from '../lib/invite';
-import { downloadWallet } from '../lib/invite';
-import { compose } from '../lib/lib';
-import { withWallet } from '../store/wallet';
+import { WALLET_STATES } from '../../lib/invite';
+import { downloadWallet } from '../../lib/invite';
+import { compose } from '../../lib/lib';
+import { withWallet } from '../../store/wallet';
 
 class Passport extends React.Component {
   constructor(props) {

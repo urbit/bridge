@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { compose, defaultTo, t, f } from '../lib/lib';
+import { compose, defaultTo, t, f } from '../../lib/lib';
 
 // =============================================================================
 // Utils

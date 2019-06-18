@@ -1,8 +1,8 @@
 import React from 'react';
 import * as need from '../lib/need';
 
-import { Button } from '../components/Base';
-import { Row, Col, H1, P } from '../components/Base';
+import { Button } from '../components/old/Base';
+import { Row, Col, H1, P } from '../components/old/Base';
 
 import * as ob from 'urbit-ob';
 import * as kg from 'urbit-key-generation/dist';

@@ -10,9 +10,9 @@ import {
   validateNetworkKey,
   validateNetworkSeed,
   validateShard,
-} from '../lib/validators';
+} from '../../lib/validators';
 
-import { prependSig } from '../lib/transformers';
+import { prependSig } from '../../lib/transformers';
 
 // Buttons
 import Button from './Button';
@@ -44,7 +44,6 @@ import Breadcrumb from './Breadcrumb';
 import BreadcrumbItem from './BreadcrumbItem';
 
 // Layout
-import Container from './Container';
 import Col from './Col';
 import Row from './Row';
 // import FlexRow from './FlexRow';
@@ -63,7 +62,6 @@ import Warning from './Warning';
 // Misc
 import ValidatedSigil from './ValidatedSigil';
 import ValidatedBlockie from './ValidatedBlockie';
-import Chevron from './icons/Chevron';
 import ShowBlockie from './ShowBlockie';
 import Passport from './Passport';
 
@@ -168,7 +166,6 @@ export {
   HorizontalSelector,
   Breadcrumb,
   BreadcrumbItem,
-  Container,
   Col,
   Row,
   // FlexRow,
@@ -181,6 +178,5 @@ export {
   P,
   Code,
   Warning,
-  Chevron,
   Passport,
 };

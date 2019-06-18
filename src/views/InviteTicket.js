@@ -9,7 +9,7 @@ import {
   Row,
   Col,
   Passport,
-} from '../components/Base';
+} from '../components/old/Base';
 import * as azimuth from 'azimuth-js';
 import * as need from '../lib/need';
 

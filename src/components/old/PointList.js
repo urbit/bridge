@@ -1,7 +1,7 @@
 import React from 'react';
 import { chunk } from 'lodash';
 
-import { usePointCursor } from '../store/pointCursor';
+import { usePointCursor } from '../../store/pointCursor';
 
 import { Row } from './Base';
 import RenderedPoint from './RenderedPoint';

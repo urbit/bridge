@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button } from '../components/Base';
-import { Row, Col } from '../components/Base';
-import { H1, P } from '../components/Base';
+import { Button } from '../components/old/Base';
+import { Row, Col } from '../components/old/Base';
+import { H1, P } from '../components/old/Base';
 
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { useHistory } from '../store/history';

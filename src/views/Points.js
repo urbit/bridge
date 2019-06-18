@@ -1,9 +1,9 @@
 import React from 'react';
-import { Row, Col, H1, H2, P } from '../components/Base';
-import { Button } from '../components/Base';
+import { Row, Col, H1, H2, P } from '../components/old/Base';
+import { Button } from '../components/old/Base';
 import * as azimuth from 'azimuth-js';
 
-import PointList from '../components/PointList';
+import PointList from '../components/old/PointList';
 import { NETWORK_TYPES } from '../lib/network';
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { withHistory } from '../store/history';

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getDomProps } from '../lib/base';
+import { getDomProps } from '../../lib/base';
 
 const ProtoButton = props => {
   return (
