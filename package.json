@@ -62,7 +62,6 @@
     "lint": "prettier src/**/*.js",
     "lint:check": "prettier -c 'src/**/*.js'",
     "lint:fix": "prettier --write 'src/**/*.js'",
-    "precommit": "npm-run-all lint:check",
     "analyze": "source-map-explorer 'build/static/js/*.js'"
   },
   "devDependencies": {
@@ -86,5 +85,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm-run-all lint:check"
+    }
   }
 }
