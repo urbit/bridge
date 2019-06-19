@@ -34,7 +34,7 @@ function Landing(props) {
         here. You'll need either your Urbit ticket or a keypair.
       </P>
 
-      <ForwardButton onClick={() => history.push(ROUTE_NAMES.VIEW_SHIP)}>
+      <ForwardButton onClick={() => history.push(ROUTE_NAMES.VIEW_POINT)}>
         View a point
       </ForwardButton>
       <P>{'View an Azimuth point without signing into a wallet.'}</P>

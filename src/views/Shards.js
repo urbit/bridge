@@ -198,7 +198,7 @@ class Shards extends React.Component {
           className={'mt-4'}
           prop-size={'xl wide'}
           disabled={Nothing.hasInstance(wallet)}
-          onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+          onClick={() => history.popAndPush(ROUTE_NAMES.POINTS)}>
           {'Continue →'}
         </Button>
       </View>

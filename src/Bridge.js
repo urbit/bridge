@@ -25,7 +25,7 @@ const kInitialRoutes = kIsStubbed
       { name: ROUTE_NAMES.LANDING },
       { name: ROUTE_NAMES.NETWORK },
       { name: ROUTE_NAMES.WALLET },
-      { name: ROUTE_NAMES.SHIPS },
+      { name: ROUTE_NAMES.POINTS },
     ]
   : [{ name: ROUTE_NAMES.LANDING }];
 

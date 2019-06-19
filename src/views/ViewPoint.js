@@ -52,7 +52,7 @@ export default function ViewPoint() {
         onClick={() => {
           setPointCursor(Maybe.Just(parseInt(ob.patp2dec(pointName), 10)));
           // ^ pointCursor expects native number type, not string
-          history.popAndPush(ROUTE_NAMES.SHIP);
+          history.popAndPush(ROUTE_NAMES.POINT);
         }}
         solid>
         Continue

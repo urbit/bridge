@@ -46,7 +46,7 @@ const ROUTES = {
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
   [ROUTE_NAMES.NETWORK]: Network,
   [ROUTE_NAMES.WALLET]: Wallet,
-  [ROUTE_NAMES.VIEW_SHIP]: ViewPoint,
+  [ROUTE_NAMES.VIEW_POINT]: ViewPoint,
   [ROUTE_NAMES.MNEMONIC]: Mnemonic,
   [ROUTE_NAMES.TICKET]: Ticket,
   [ROUTE_NAMES.SHARDS]: Shards,
@@ -54,8 +54,8 @@ const ROUTES = {
   [ROUTE_NAMES.TREZOR]: Trezor,
   [ROUTE_NAMES.PRIVATE_KEY]: PrivateKey,
   [ROUTE_NAMES.KEYSTORE]: Keystore,
-  [ROUTE_NAMES.SHIPS]: Points,
-  [ROUTE_NAMES.SHIP]: Point,
+  [ROUTE_NAMES.POINTS]: Points,
+  [ROUTE_NAMES.POINT]: Point,
   [ROUTE_NAMES.SET_MANAGEMENT_PROXY]: SetManagementProxy,
   [ROUTE_NAMES.SET_SPAWN_PROXY]: SetSpawnProxy,
   [ROUTE_NAMES.SET_TRANSFER_PROXY]: SetTransferProxy,
@@ -107,11 +107,11 @@ export const getRouteBreadcrumb = ({
       return 'Private Key';
     case ROUTE_NAMES.KEYSTORE:
       return 'Keystore File';
-    case ROUTE_NAMES.SHIPS:
+    case ROUTE_NAMES.POINTS:
       return 'Points';
-    case ROUTE_NAMES.VIEW_SHIP:
+    case ROUTE_NAMES.VIEW_POINT:
       return 'View';
-    case ROUTE_NAMES.SHIP:
+    case ROUTE_NAMES.POINT:
       return ob.patp(need.pointCursor(pointCursor));
     case ROUTE_NAMES.SET_TRANSFER_PROXY:
     case ROUTE_NAMES.SET_MANAGEMENT_PROXY:

@@ -25,7 +25,7 @@ const RenderedPoint = props => {
         className="clickable"
         onClick={() => {
           setPointCursor(Maybe.Just(point));
-          routeHandler(ROUTE_NAMES.SHIP);
+          routeHandler(ROUTE_NAMES.POINT);
         }}>
         {sigil}
       </div>
@@ -34,7 +34,7 @@ const RenderedPoint = props => {
         className="clickable"
         onClick={() => {
           setPointCursor(Maybe.Just(point));
-          routeHandler(ROUTE_NAMES.SHIP);
+          routeHandler(ROUTE_NAMES.POINT);
         }}>
         <code>{name}</code>
       </div>
@@ -45,7 +45,7 @@ const RenderedPoint = props => {
           prop-size={'sm'}
           onClick={() => {
             setPointCursor(Maybe.Just(point));
-            routeHandler(ROUTE_NAMES.SHIP);
+            routeHandler(ROUTE_NAMES.POINT);
           }}>
           {'Details →'}
         </Button>

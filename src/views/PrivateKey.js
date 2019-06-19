@@ -70,7 +70,7 @@ class PrivateKey extends React.Component {
           className={'mt-10'}
           prop-size={'wide lg'}
           disabled={Maybe.Nothing.hasInstance(wallet)}
-          onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+          onClick={() => history.popAndPush(ROUTE_NAMES.POINTS)}>
           {'Continue →'}
         </Button>
       </View>

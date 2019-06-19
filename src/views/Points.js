@@ -104,7 +104,7 @@ class Points extends React.Component {
           <Button
             prop-type={'link'}
             prop-size={'md'}
-            onClick={() => history.push(ROUTE_NAMES.VIEW_SHIP)}>
+            onClick={() => history.push(ROUTE_NAMES.VIEW_POINT)}>
             {'View a point  →'}
           </Button>
           <P>{'View a point on Azimuth.'}</P>

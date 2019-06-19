@@ -132,7 +132,7 @@ class Trezor extends React.Component {
           className={'mt-8'}
           prop-size={'wide lg'}
           disabled={Maybe.Nothing.hasInstance(wallet)}
-          onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+          onClick={() => history.popAndPush(ROUTE_NAMES.POINTS)}>
           {'Continue →'}
         </Button>
       </View>

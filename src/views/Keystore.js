@@ -152,7 +152,7 @@ class Keystore extends React.Component {
           className={'mt-10'}
           prop-size={'wide lg'}
           disabled={Nothing.hasInstance(wallet)}
-          onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
+          onClick={() => history.popAndPush(ROUTE_NAMES.POINTS)}>
           {'Continue →'}
         </Button>
       </View>
