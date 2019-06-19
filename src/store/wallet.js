@@ -1,4 +1,10 @@
-import React, { createContext, forwardRef, useContext, useState } from 'react';
+import React, {
+  createContext,
+  forwardRef,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
 import Maybe from 'folktale/maybe';
 import { includes } from 'lodash';
 
@@ -36,15 +42,15 @@ function _useWallet(
   const [networkSeed, setNetworkSeed] = useState(Maybe.Nothing());
   const [networkRevision, setNetworkRevision] = useState(Maybe.Nothing());
 
-  const setWalletType = walletType => {
+  const setWalletType = useCallback(walletType => {
     if (!includes(WALLET_TYPES, walletType)) {
       throw BRIDGE_ERROR.INVALID_WALLET_TYPE;
     }
 
     _setWalletType(walletType);
-  };
+  }, []);
 
-  const setWallet = wallet => {
+  const setWallet = useCallback(wallet => {
     // force that public addresses are derived for each wallet
     wallet.map(wal => {
       wal.address = wal.address || addressFromSecp256k1Public(wal.publicKey);
@@ -52,29 +58,32 @@ function _useWallet(
     });
 
     _setWallet(wallet);
-  };
+  }, []);
 
-  const setUrbitWallet = urbitWallet => {
-    if (Maybe.Just.hasInstance(urbitWallet)) {
-      // when an urbit wallet is set, also derive
-      // a normal bip32 wallet using the ownership address
-      const wallet = walletFromMnemonic(
-        urbitWallet.value.ownership.seed,
-        DEFAULT_HD_PATH,
-        urbitWallet.value.meta.passphrase
-      );
+  const setUrbitWallet = useCallback(
+    urbitWallet => {
+      if (Maybe.Just.hasInstance(urbitWallet)) {
+        // when an urbit wallet is set, also derive
+        // a normal bip32 wallet using the ownership address
+        const wallet = walletFromMnemonic(
+          urbitWallet.value.ownership.seed,
+          DEFAULT_HD_PATH,
+          urbitWallet.value.meta.passphrase
+        );
 
-      // manually set the public address
-      wallet.map(wal => {
-        wal.address = urbitWallet.value.ownership.keys.address;
-        return wal;
-      });
+        // manually set the public address
+        wallet.map(wal => {
+          wal.address = urbitWallet.value.ownership.keys.address;
+          return wal;
+        });
 
-      setWallet(wallet);
-    }
+        setWallet(wallet);
+      }
 
-    _setUrbitWallet(urbitWallet);
-  };
+      _setUrbitWallet(urbitWallet);
+    },
+    [setWallet]
+  );
 
   return {
     //

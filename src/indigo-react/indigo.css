@@ -13,7 +13,7 @@
   * git+https://github.com/urbit/Indigo.git
   * Bugs: https://github.com/urbit/Indigo/issues
   * License: MIT
-  * Timestamp: Tue Jun 18 2019 15:01:04 GMT-0700 (Pacific Daylight Time)
+  * Timestamp: Tue Jun 18 2019 18:39:16 GMT-0700 (Pacific Daylight Time)
   *******************************************************************************/
 /**********************
 Color variables
@@ -324,8 +324,8 @@ button {
   -webkit-font-smoothing: antialiased; }
 
 * {
-  font-family: "Inter";
-  color: black; }
+  font-family: "Inter UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
+  color: #000000; }
 
 h1,
 h2,
@@ -338,7 +338,7 @@ h6 {
   padding: 0; }
 
 a {
-  color: black;
+  color: #000000;
   text-decoration: none; }
 
 h1,
@@ -646,12 +646,8 @@ caption,
   .measure-wide-lg {
     max-width: 34rem; } }
 
-.sans,
-.inter {
-  font-family: "Inter UI", sans-serif; }
-
-.sys {
-  font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji"; }
+.sans {
+  font-family: "Inter UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji"; }
 
 .mono {
   font-family: "Source Code Pro", "Roboto mono", "Courier New", monospace; }
@@ -1889,6 +1885,15 @@ caption,
 .half-2 {
   grid-area: auto / 7 / auto / 13; }
 
+.third-1 {
+  grid-area: auto / 1 / auto / 4; }
+
+.third-2 {
+  grid-area: auto / 4 / auto / 8; }
+
+.third-3 {
+  grid-area: auto / 8 / auto / 13; }
+
 .fourth-1 {
   grid-area: auto / 1 / auto / 4; }
 
@@ -1908,6 +1913,12 @@ caption,
     grid-area: auto / 1 / auto / 7; }
   .half-2-ns {
     grid-area: auto / 7 / auto / 13; }
+  .third-1-ns {
+    grid-area: auto / 1 / auto / 4; }
+  .third-2-ns {
+    grid-area: auto / 4 / auto / 8; }
+  .third-3-ns {
+    grid-area: auto / 8 / auto / 13; }
   .fourth-1-ns {
     grid-area: auto / 1 / auto / 4; }
   .fourth-2-ns {
@@ -1924,6 +1935,12 @@ caption,
     grid-area: auto / 1 / auto / 7; }
   .half-2-md {
     grid-area: auto / 7 / auto / 13; }
+  .third-1-md {
+    grid-area: auto / 1 / auto / 4; }
+  .third-2-md {
+    grid-area: auto / 4 / auto / 8; }
+  .third-3-md {
+    grid-area: auto / 8 / auto / 13; }
   .fourth-1-md {
     grid-area: auto / 1 / auto / 4; }
   .fourth-2-md {
@@ -1940,6 +1957,12 @@ caption,
     grid-area: auto / 1 / auto / 7; }
   .half-2-lg {
     grid-area: auto / 7 / auto / 13; }
+  .third-1-lg {
+    grid-area: auto / 1 / auto / 4; }
+  .third-2-lg {
+    grid-area: auto / 4 / auto / 8; }
+  .third-3-lg {
+    grid-area: auto / 8 / auto / 13; }
   .fourth-1-lg {
     grid-area: auto / 1 / auto / 4; }
   .fourth-2-lg {
@@ -1972,42 +1995,6 @@ caption,
 
 .gap32 {
   gap: 32px; }
-
-.fr1 {
-  width: 1fr; }
-
-.fr2 {
-  width: 2fr; }
-
-.fr3 {
-  width: 3fr; }
-
-.fr4 {
-  width: 4fr; }
-
-.fr5 {
-  width: 5fr; }
-
-.fr6 {
-  width: 6fr; }
-
-.fr7 {
-  width: 7fr; }
-
-.fr8 {
-  width: 8fr; }
-
-.fr9 {
-  width: 9fr; }
-
-.fr10 {
-  width: 10fr; }
-
-.fr11 {
-  width: 11fr; }
-
-.fr12 {
-  width: 12fr; }
 
 .c1-2 {
   grid-column-start: 1;
