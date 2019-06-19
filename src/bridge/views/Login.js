@@ -64,27 +64,32 @@ class Login extends React.Component {
     const contracts = need.contracts(this.props);
 
     // if no point cursor set by login logic, try to deduce it
+    let deduced = Nothing();
     if (Nothing.hasInstance(this.props.pointCursor)) {
       const owned = await azimuth.azimuth.getOwnedPoints(
         contracts,
         wallet.address
       );
       if (owned.length === 1) {
-        this.props.setPointCursor(Just(owned[0]));
+        deduced = Just(owned[0]);
       } else if (owned.length === 0) {
         const canOwn = await azimuth.azimuth.getTransferringFor(
           contracts,
           wallet.address
         );
         if (canOwn.length === 1) {
-          this.props.setPointCursor(Just(canOwn[0]));
+          deduced = Just(canOwn[0]);
         }
       }
     }
 
-    if (Just.hasInstance(this.props.pointCursor)) {
+    if (Just.hasInstance(deduced)) {
+      this.props.setPointCursor(deduced);
+      this.props.history.popAndPush(ROUTE_NAMES.POINT_HOME);
+    } else if (Just.hasInstance(this.props.pointCursor)) {
       this.props.history.popAndPush(ROUTE_NAMES.POINT_HOME);
     } else {
+      //TODO to new overview (maybe should be merged into point home?)
       this.props.history.popAndPush(ROUTE_NAMES.SHIPS);
     }
   }
