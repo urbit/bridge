@@ -129,11 +129,12 @@ export default function Input({
   autoFocus = false,
   ...rest
 }) {
+  const actuallyAutoFocus = autoFocus && !disabled;
   const { focused, pass, visiblyPassed, error, data, bind } = useInput({
     validators,
     transformers,
     initialValue,
-    autoFocus,
+    autoFocus: actuallyAutoFocus,
   });
 
   // notify parent of value only when passing
@@ -171,7 +172,7 @@ export default function Input({
             { mono },
             {
               'bg-white': !disabled,
-              'bg-gray3': disabled,
+              'bg-gray1': disabled,
             },
             {
               gray4: !focused,
@@ -190,7 +191,7 @@ export default function Input({
           }}
           id={name}
           name={name}
-          autoFocus={autoFocus}
+          autoFocus={actuallyAutoFocus}
           {...bind}
         />
       </Grid.Item>
