@@ -42,23 +42,29 @@ function _useWallet(
   const [networkSeed, setNetworkSeed] = useState(Maybe.Nothing());
   const [networkRevision, setNetworkRevision] = useState(Maybe.Nothing());
 
-  const setWalletType = useCallback(walletType => {
-    if (!includes(WALLET_TYPES, walletType)) {
-      throw BRIDGE_ERROR.INVALID_WALLET_TYPE;
-    }
+  const setWalletType = useCallback(
+    walletType => {
+      if (!includes(WALLET_TYPES, walletType)) {
+        throw BRIDGE_ERROR.INVALID_WALLET_TYPE;
+      }
 
-    _setWalletType(walletType);
-  }, []);
+      _setWalletType(walletType);
+    },
+    [_setWalletType]
+  );
 
-  const setWallet = useCallback(wallet => {
-    // force that public addresses are derived for each wallet
-    wallet.map(wal => {
-      wal.address = wal.address || addressFromSecp256k1Public(wal.publicKey);
-      return wal;
-    });
+  const setWallet = useCallback(
+    wallet => {
+      // force that public addresses are derived for each wallet
+      wallet.map(wal => {
+        wal.address = wal.address || addressFromSecp256k1Public(wal.publicKey);
+        return wal;
+      });
 
-    _setWallet(wallet);
-  }, []);
+      _setWallet(wallet);
+    },
+    [_setWallet]
+  );
 
   const setUrbitWallet = useCallback(
     urbitWallet => {
