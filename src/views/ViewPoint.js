@@ -48,12 +48,13 @@ export default function ViewPoint() {
       />
 
       <ForwardButton
-        disabled={error}
+        disabled={!pass}
         onClick={() => {
           setPointCursor(Maybe.Just(parseInt(ob.patp2dec(pointName), 10)));
           // ^ pointCursor expects native number type, not string
           history.popAndPush(ROUTE_NAMES.SHIP);
-        }}>
+        }}
+        solid>
         Continue
       </ForwardButton>
     </View>

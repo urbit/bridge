@@ -171,7 +171,7 @@ export default function Input({
             { mono },
             {
               'bg-white': !disabled,
-              'bg-gray1': disabled,
+              'bg-gray3': disabled,
             },
             {
               gray4: !focused,
@@ -185,6 +185,9 @@ export default function Input({
             },
             className
           )}
+          style={{
+            ...(disabled && { pointerEvents: 'none', cursor: 'not-allowed' }),
+          }}
           id={name}
           name={name}
           autoFocus={autoFocus}
