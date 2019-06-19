@@ -36,7 +36,6 @@ const TABS = {
   ADVANCED: Symbol('ADVANCED'),
 };
 
-//TODO support "advances" login methods. design under discussion...
 class Login extends React.Component {
   constructor(props) {
     super(props);
@@ -51,8 +50,9 @@ class Login extends React.Component {
   }
 
   componentDidMount() {
-    //TODO send help, want to use initialNetworkType
-    this.props.setNetworkType(NETWORK_TYPES.LOCAL);
+    this.props.setNetworkType(this.props.networkType);
+    // we expect pointCursor to not be set yet
+    this.props.setPointCursor(Nothing());
   }
 
   handleTabChange(currentTab) {
