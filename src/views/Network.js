@@ -1,6 +1,6 @@
 import React from 'react';
+import { Button } from 'indigo-react';
 
-import { Button } from '../components/old/Base';
 import { InnerLabelDropdown } from '../components/old/Base';
 import { H1, P } from '../components/old/Base';
 import { NETWORK_TYPES, renderNetworkType } from '../lib/network';
@@ -46,17 +46,14 @@ function Network() {
       </P>
 
       <InnerLabelDropdown
-        className={'mt-6'}
         title={'Node:'}
         handleUpdate={setNetworkType}
         options={kNetworkOptions}
         currentSelectionTitle={renderNetworkType(networkType)}
       />
 
-      <Button
-        className={'mt-10'}
-        onClick={() => history.push(ROUTE_NAMES.WALLET)}>
-        {'Continue  →'}
+      <Button icon="→" onClick={() => history.push(ROUTE_NAMES.WALLET)}>
+        Continue
       </Button>
     </View>
   );

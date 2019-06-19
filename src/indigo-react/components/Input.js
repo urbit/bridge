@@ -10,10 +10,10 @@ function useInput({
   validators = [],
   transformers = [],
   initialValue = '',
-  autofocus = false,
+  autoFocus = false,
 }) {
   const [value, setValue] = useState(initialValue);
-  const [focused, setFocused] = useState(autofocus);
+  const [focused, setFocused] = useState(autoFocus);
   const [hasBeenFocused, setHasBeenFocused] = useState(false);
 
   // NB(shrugs)
@@ -92,13 +92,13 @@ function useInput({
 
   // only set error if it should be visible
   const error = !pass && hasBeenFocused && !focused && _error;
-  // whether or not the 'pass' effect should be shown
-  const visiblePass = pass && hasBeenFocused && !focused;
+  // visibly tell the user that their input has passed if it has passed
+  // and they are or have interacted with the input before
+  const visiblyPassed = pass && (hasBeenFocused || focused);
 
   return {
     pass,
-    // TODO: need a better name for `visiblePass`
-    visiblePass,
+    visiblyPassed,
     error,
     data,
     focused,
@@ -119,23 +119,42 @@ export default function Input({
   initialValue = '',
   className = '',
   validators = [],
-  onSuccess,
-  onFailure,
+  transformers = [],
+  onValue,
+  onPass,
+  onError,
+  onFocus,
   disabled = false,
   mono = false,
-  autofocus = false,
+  autoFocus = false,
   ...rest
 }) {
-  const { focused, pass, visiblePass, error, data, bind } = useInput({
+  const { focused, pass, visiblyPassed, error, data, bind } = useInput({
     validators,
+    transformers,
     initialValue,
-    autofocus,
+    autoFocus,
   });
 
+  // notify parent of value only when passing
   useEffect(() => {
-    onSuccess && onSuccess(data);
-    onFailure && onFailure(error);
-  }, [pass, error, data, onSuccess, onFailure]);
+    pass && onValue && onValue(data);
+  }, [pass, data, onValue]);
+
+  // notify parent of pass
+  useEffect(() => {
+    onPass && onPass(pass);
+  }, [pass, onPass]);
+
+  // notify parent of error whenever error changes
+  useEffect(() => {
+    onError && onError(error);
+  }, [error, onError]);
+
+  // notify parent of focus
+  useEffect(() => {
+    onFocus && onFocus(focused);
+  }, [focused, onFocus]);
 
   return (
     <Grid>
@@ -159,15 +178,16 @@ export default function Input({
               black: focused,
             },
             {
-              'b-black': focused,
-              'b-gray3': !focused && !error && !visiblePass,
-              'b-yellow3': !focused && error && !visiblePass,
-              'b-green3': !focused && !error && visiblePass,
+              'b-green3': visiblyPassed,
+              'b-black': focused && !visiblyPassed,
+              'b-yellow3': !focused && !visiblyPassed && error,
+              'b-gray3': !focused && !error && !visiblyPassed,
             },
             className
           )}
           id={name}
           name={name}
+          autoFocus={autoFocus}
           {...bind}
         />
       </Grid.Item>

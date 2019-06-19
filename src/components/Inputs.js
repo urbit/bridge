@@ -2,8 +2,13 @@ import React from 'react';
 import { Input } from 'indigo-react';
 import * as bip39 from 'bip39';
 
-import { validateNotEmpty, validateMnemonic } from 'lib/validators';
 import { DEFAULT_HD_PATH } from 'lib/wallet';
+import {
+  validateNotEmpty,
+  validateMnemonic,
+  validatePoint,
+} from 'lib/validators';
+import { prependSig } from 'lib/transformers';
 
 const kExampleMnemonic = bip39.generateMnemonic();
 
@@ -68,11 +73,18 @@ export function HdPathInput(props) {
 //   transformers: [prependSig],
 // });
 
-// const PointInput = advancedInput({
-//   WrappedComponent: Input,
-//   validators: [validatePoint, validateNotEmpty],
-//   transformers: [prependSig],
-// });
+export function PointInput(props) {
+  return (
+    <Input
+      type="text"
+      placeholder="e.g. ~zod"
+      validators={[validatePoint, validateNotEmpty]}
+      transformers={[prependSig]}
+      mono
+      {...props}
+    />
+  );
+}
 
 // const TicketInput = advancedInput({
 //   WrappedComponent: Input,

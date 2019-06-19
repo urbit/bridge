@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { pour } from 'sigil-js';
 import * as ob from 'urbit-ob';
-import ReactSVGComponents from './ReactSVGComponents';
+import ReactSVGComponents from '../ReactSVGComponents';
 
 const isValidPatp = patp => {
   let isValid = false;

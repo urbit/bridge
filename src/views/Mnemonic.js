@@ -1,15 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 
-import { Button } from '../components/old/Base';
+import View from 'components/View';
+import { MnemonicInput, PassphraseInput, HdPathInput } from 'components/Inputs';
+import { ForwardButton } from 'components/Buttons';
 
 import { ROUTE_NAMES } from 'lib/routeNames';
 import { useHistory } from 'store/history';
 import { walletFromMnemonic } from 'lib/wallet';
 import { useWallet } from 'store/wallet';
-
-import View from 'components/View';
-import { MnemonicInput, PassphraseInput, HdPathInput } from 'components/Inputs';
 
 export default function Mnemonic() {
   const history = useHistory();
@@ -47,28 +46,29 @@ export default function Mnemonic() {
         name="mnemonic"
         label="BIP39 Mnemonic"
         initialValue={mnemonic}
-        onSuccess={_setAuthMnemonic}
+        onValue={_setAuthMnemonic}
+        autoFocus
       />
 
       <PassphraseInput
         name="passphrase"
         label="(Optional) Wallet Passphrase"
         initialValue={passphrase}
-        onSuccess={setPassphrase}
+        onValue={setPassphrase}
       />
 
       <HdPathInput
         name="hdpath"
         label="HD Path"
         initialValue={walletHdPath}
-        onSuccess={setWalletHdPath}
+        onValue={setWalletHdPath}
       />
 
-      <Button
+      <ForwardButton
         disabled={Nothing.hasInstance(wallet)}
         onClick={() => history.popAndPush(ROUTE_NAMES.SHIPS)}>
-        {'Continue →'}
-      </Button>
+        Continue
+      </ForwardButton>
     </View>
   );
 }

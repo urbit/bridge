@@ -6,7 +6,7 @@ import * as azimuth from 'azimuth-js';
 import * as need from '../lib/need';
 
 import PointList from '../components/old/PointList';
-import ReactSVGComponents from '../components/old/ReactSVGComponents';
+import ReactSVGComponents from '../components/ReactSVGComponents';
 import KeysAndMetadata from './Point/KeysAndMetadata';
 import Actions from './Point/Actions';
 import { H1, H3 } from '../components/old/Base';

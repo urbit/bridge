@@ -1,7 +1,7 @@
 import React from 'react';
 import { pour } from 'sigil-js';
 import * as ob from 'urbit-ob';
-import ReactSVGComponents from './ReactSVGComponents';
+import ReactSVGComponents from '../ReactSVGComponents';
 import PropTypes from 'prop-types';
 import PaperCollateralRenderer from 'PaperCollateralRenderer';
 import { Button } from './Base';

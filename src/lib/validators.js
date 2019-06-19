@@ -17,7 +17,7 @@ export const simpleValidatorWrapper = config => {
 
   // Run the validator and return the result.
   return config.validator(config.prevMessage.data)
-    ? newMessage(config.prevMessage.data, true, '')
+    ? newMessage(config.prevMessage.data, true, null)
     : newMessage(config.prevMessage.data, false, config.errorMessage);
 };
 
@@ -38,7 +38,7 @@ const newMessage = (data, pass, error) => ({
 });
 
 // A validator that always passes.
-export const kDefaultValidator = data => newMessage(data, true, '');
+export const kDefaultValidator = data => newMessage(data, true, null);
 
 // Validates a bip39 mnemonic
 export const validateMnemonic = m =>

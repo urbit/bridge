@@ -6,7 +6,7 @@ import { pour } from 'sigil-js';
 import * as ob from 'urbit-ob';
 
 import { ROUTE_NAMES } from '../../lib/routeNames';
-import ReactSVGComponents from './ReactSVGComponents';
+import ReactSVGComponents from '../ReactSVGComponents';
 
 const RenderedPoint = props => {
   const { setPointCursor, routeHandler, point } = props;
