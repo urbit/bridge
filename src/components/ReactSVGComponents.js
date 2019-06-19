@@ -3,12 +3,17 @@ import { get, map } from 'lodash';
 
 const ReactSVGComponents = {
   svg: (p, key) => {
+    const { width, height, ...attrs } = p.attr;
     return (
       <svg
-        {...p.attr}
+        {...attrs}
+        width="100%"
+        height="100%"
         version={'1.1'}
         xmlns={'http://www.w3.org/2000/svg'}
-        key={key}>
+        key={key}
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="xMidYMid meet">
         {map(get(p, 'children', []), (child, idx) =>
           ReactSVGComponents[child.tag](child, idx)
         )}
