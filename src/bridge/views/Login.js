@@ -3,7 +3,7 @@ import React from 'react';
 import * as azimuth from 'azimuth-js';
 
 import { H1, Row, Col } from '../components/Base';
-import HorizontalSelector from '../components/HorizontalSelector';
+import Tabs from '../components/Tabs';
 
 import Ticket from './Login/Ticket';
 import Mnemonic from './Login/Mnemonic';
@@ -89,34 +89,25 @@ class Login extends React.Component {
       { title: 'Advanced', value: TABS.ADVANCED },
     ];
 
-    //TODO probably needs a dedicated component because styling
-    const tabs = (
-      <HorizontalSelector
-        options={tabOptions}
-        onChange={this.handleTabChange}
-      />
-    );
-
-    const login = (() => {
-      switch (this.state.currentTab) {
-        case TABS.TICKET:
-          return <Ticket loginCompleted={this.continue} />;
-        case TABS.MNEMONIC:
-          return <Mnemonic loginCompleted={this.continue} />;
-        case TABS.ADVANCED:
-          return <Advanced loginCompleted={this.continue} />;
-        default:
-          throw new Error('weird tab ' + this.status.currentTab);
-      }
-    })();
+    const tabViews = {
+      [TABS.TICKET]: Ticket,
+      [TABS.MNEMONIC]: Mnemonic,
+      [TABS.ADVANCED]: Advanced,
+    };
 
     return (
       <Row>
         <Col>
           <H1>{'Login'}</H1>
 
-          {tabs}
-          {login}
+          <Tabs
+            tabViews={tabViews}
+            tabOptions={tabOptions}
+            currentTab={this.state.currentTab}
+            onTabChance={this.handleTabChange}
+            //
+            loginCompleted={this.continue}
+          />
         </Col>
       </Row>
     );
