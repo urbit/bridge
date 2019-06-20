@@ -5,8 +5,12 @@ import { InnerLabelDropdown } from '../../components/Base';
 import { Row, Col } from '../../components/Base';
 
 import Ticket from './Ticket';
+import Shards from './Shards';
+import Ledger from './Ledger';
+import Trezor from './Trezor';
 import Mnemonic from './Mnemonic';
-//TODO more
+import PrivateKey from './PrivateKey';
+import Keystore from './Keystore';
 
 import { ROUTE_NAMES } from '../../lib/routeNames';
 import { BRIDGE_ERROR } from '../../lib/error';
@@ -70,24 +74,28 @@ class Advanced extends React.Component {
   }
 
   render() {
+    const loginCompleted = this.props.loginCompleted;
     const inputs = (() => {
       switch (this.state.selected) {
         case WALLET_TYPES.TICKET:
-          return (
-            <Ticket
-              advanced={true}
-              loginCompleted={this.props.loginCompleted}
-            />
-          );
+          return <Ticket advanced={true} loginCompleted={loginCompleted} />;
+        case WALLET_TYPES.SHARDS:
+          return <Shards loginCompleted={loginCompleted} />;
+        //
+        case WALLET_TYPES.LEDGER:
+          return <Ledger loginCompleted={loginCompleted} />;
+        case WALLET_TYPES.TREZOR:
+          return <Trezor loginCompleted={loginCompleted} />;
+        //
         case WALLET_TYPES.MNEMONIC:
-          return (
-            <Mnemonic
-              advanced={true}
-              loginCompleted={this.props.loginCompleted}
-            />
-          );
+          return <Mnemonic advanced={true} loginCompleted={loginCompleted} />;
+        case WALLET_TYPES.PRIVATE_KEY:
+          return <PrivateKey loginCompleted={loginCompleted} />;
+        case WALLET_TYPES.KEYSTORE:
+          return <Keystore loginCompleted={loginCompleted} />;
+        //
         default:
-          return <P>{'Coming soon'}</P>;
+          return <P>{'Coming soon.'}</P>;
       }
     })();
 
