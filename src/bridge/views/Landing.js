@@ -33,6 +33,16 @@ function Landing(props) {
           prop-type="link"
           prop-size="lg"
           className={'mb-4 mt-8'}
+          onClick={() => history.push(ROUTE_NAMES.LOGIN)}>
+          {'Login (mino)  →'}
+        </Button>
+
+        <P>{'This landing page needs to be revamped too.'}</P>
+
+        <Button
+          prop-type="link"
+          prop-size="lg"
+          className={'mb-4 mt-8'}
           onClick={() => history.push(ROUTE_NAMES.NETWORK)}>
           {'Unlock a Wallet  →'}
         </Button>
