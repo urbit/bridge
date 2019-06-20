@@ -72,4 +72,31 @@ function fromPointCache(obj, point) {
       })();
 }
 
-export { web3, contracts, wallet, address, pointCursor, fromPointCache };
+function keystore(obj) {
+  return 'keystore' in obj === false
+    ? (() => {
+        throw BRIDGE_ERROR.MISSING_KEYSTORE;
+      })()
+    : obj.keystore.matchWith({
+        Nothing: _ => {
+          throw BRIDGE_ERROR.MISSING_KEYSTORE;
+        },
+        Just: ks =>
+          ks.value.matchWith({
+            Ok: result => result.value,
+            Error: _ => {
+              throw BRIDGE_ERROR.MISSING_KEYSTORE;
+            },
+          }),
+      });
+}
+
+export {
+  web3,
+  contracts,
+  wallet,
+  address,
+  pointCursor,
+  fromPointCache,
+  keystore,
+};

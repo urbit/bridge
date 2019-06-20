@@ -6,7 +6,7 @@ import { Button, UploadButton } from '../../components/Base';
 import { Input, InnerLabel, InputCaption } from '../../components/Base';
 import { Row, Col, H1, H3, Warning } from '../../components/Base';
 
-import { BRIDGE_ERROR } from '../../lib/error';
+import * as need from '../../lib/need';
 import { EthereumWallet } from '../../lib/wallet';
 import { compose } from '../../lib/lib';
 import { withWallet } from '../../store/wallet';
@@ -32,21 +32,10 @@ class Keystore extends React.Component {
 
   constructWallet() {
     const { setWallet } = this.props;
-    const { keystore, password } = this.state;
+    const { password } = this.state;
 
     try {
-      const text = keystore.matchWith({
-        Nothing: _ => {
-          throw BRIDGE_ERROR.MISSING_KEYSTORE;
-        },
-        Just: ks =>
-          ks.value.matchWith({
-            Ok: result => result.value,
-            Error: _ => {
-              throw BRIDGE_ERROR.MISSING_KEYSTORE;
-            },
-          }),
-      });
+      const text = need.keystore(this.state);
 
       const json = JSON.parse(text);
       const privateKey = keythereum.recover(password, json);
