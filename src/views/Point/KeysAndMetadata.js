@@ -2,7 +2,7 @@ import React from 'react';
 import { H2, H4 } from '../../components/old/Base';
 
 import { ETH_ZERO_ADDR, eqAddr } from '../../lib/wallet';
-import Grid from 'components/Grid';
+import { Grid } from 'indigo-react';
 
 const NULL_KEY =
   '0x0000000000000000000000000000000000000000000000000000000000000000';

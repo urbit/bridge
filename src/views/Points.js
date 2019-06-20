@@ -13,7 +13,7 @@ import { compose } from '../lib/lib';
 import { withWallet } from '../store/wallet';
 import { withPointCache } from '../store/pointCache';
 import View from 'components/View';
-import Grid from 'components/Grid';
+import { Grid } from 'indigo-react';
 
 const hasTransferProxy = (cache, point) =>
   point in cache ? !eqAddr(cache[point].transferProxy, ETH_ZERO_ADDR) : false;

@@ -1,16 +1,42 @@
-import React, { createContext, forwardRef, useContext, useState } from 'react';
+import React, {
+  createContext,
+  forwardRef,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
+import * as azimuth from 'azimuth-js';
+
+import { useNetwork } from './network';
 
 export const PointCacheContext = createContext(null);
 
 function _usePointCache() {
+  const { contracts } = useNetwork();
   const [pointCache, _setPointCache] = useState({});
 
-  const addToPointCache = entry =>
-    _setPointCache(cache => ({ ...cache, ...entry }));
+  const addToPointCache = useCallback(
+    entry => _setPointCache(cache => ({ ...cache, ...entry })),
+    [_setPointCache]
+  );
+
+  const fetchPoint = useCallback(
+    async point => {
+      const _contracts = contracts.getOrElse(null);
+      if (!_contracts) {
+        return;
+      }
+
+      const details = await azimuth.azimuth.getPoint(_contracts, point);
+      addToPointCache({ [point]: details });
+    },
+    [contracts, addToPointCache]
+  );
 
   return {
     pointCache,
     addToPointCache,
+    fetchPoint,
   };
 }
 

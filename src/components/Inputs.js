@@ -78,6 +78,7 @@ export function PointInput(props) {
     <Input
       type="text"
       placeholder="e.g. ~zod"
+      initialValue={props.initialValue || '~'}
       validators={[validatePoint, validateNotEmpty]}
       transformers={[prependSig]}
       mono

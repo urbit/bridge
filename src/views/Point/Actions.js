@@ -8,7 +8,7 @@ import { Button } from '../../components/old/Base';
 import { ROUTE_NAMES } from '../../lib/routeNames';
 import { useHistory } from '../../store/history';
 import { useWallet } from '../../store/wallet';
-import Grid from 'components/Grid';
+import { Grid } from 'indigo-react';
 
 const isPlanet = point =>
   azimuth.getPointSize(point) === azimuth.PointSize.Planet;

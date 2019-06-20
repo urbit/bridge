@@ -31,7 +31,7 @@ import {
 import { generateWallet, startTransactions } from '../lib/invite';
 import { withNetwork } from '../store/network';
 import { withWallet } from '../store/wallet';
-import Grid from 'components/Grid';
+import { Grid } from 'indigo-react';
 
 class InviteTicket extends React.Component {
   constructor(props) {

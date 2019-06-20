@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Maybe from 'folktale/maybe';
 import * as ob from 'urbit-ob';
 
@@ -22,11 +22,18 @@ export default function ViewPoint() {
   const [error, setError] = useState();
   const [focused, setFocused] = useState(true);
 
+  const disabled = !pass;
+  const goForward = useCallback(() => {
+    setPointCursor(Maybe.Just(parseInt(ob.patp2dec(pointName), 10)));
+    // ^ pointCursor expects native number type, not string
+    history.popAndPush(ROUTE_NAMES.POINT);
+  }, [setPointCursor, history, pointName]);
+
   return (
     <View>
-      <H1>{'View a Point'}</H1>
+      <H1>View a Point</H1>
 
-      <P>{'Enter a point name to view its public information.'}</P>
+      <P>Enter a point name to view its public information.</P>
 
       <PointInput
         name="point"
@@ -35,25 +42,24 @@ export default function ViewPoint() {
         onPass={setPass}
         onError={setError}
         onFocus={setFocused}
+        onEnter={goForward}
+        accessory={
+          <InputSigil
+            patp={pointName}
+            size={68}
+            margin={8}
+            pass={pass}
+            focused={focused}
+            error={error}
+          />
+        }
         autoFocus
       />
 
-      <InputSigil
-        patp={pointName}
-        size={68}
-        margin={8}
-        pass={pass}
-        focused={focused}
-        error={error}
-      />
-
       <ForwardButton
-        disabled={!pass}
-        onClick={() => {
-          setPointCursor(Maybe.Just(parseInt(ob.patp2dec(pointName), 10)));
-          // ^ pointCursor expects native number type, not string
-          history.popAndPush(ROUTE_NAMES.POINT);
-        }}
+        className="mt3"
+        disabled={disabled}
+        onClick={goForward}
         solid>
         Continue
       </ForwardButton>

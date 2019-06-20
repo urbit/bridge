@@ -1,4 +1,5 @@
 import React from 'react';
+import cn from 'classnames';
 import * as ob from 'urbit-ob';
 
 import Sigil from './Sigil';
@@ -31,19 +32,9 @@ export default function ValidatedSigil({
   const colorway = selectColorway(pass, error, focused);
   const valid = ob.isValidPatp(patp);
 
-  return (
-    <div className={className}>
-      {valid ? (
-        <Sigil patp={patp} size={size} colorway={colorway} {...rest} />
-      ) : (
-        <div
-          className="bg-transparent"
-          style={{
-            width: size,
-            height: size,
-          }}
-        />
-      )}
-    </div>
+  return valid ? (
+    <Sigil patp={patp} size={size} colorway={colorway} margin={0} {...rest} />
+  ) : (
+    <div className={cn('bg-transparent', className)} />
   );
 }

@@ -12,7 +12,7 @@ import { useTxnConfirmations } from '../store/txnConfirmations';
 import { useNetwork } from '../store/network';
 import { useTxnCursor } from '../store/txnCursor';
 import View from 'components/View';
-import Grid from 'components/Grid';
+import { Grid } from 'indigo-react';
 
 class Success extends React.Component {
   constructor(props) {

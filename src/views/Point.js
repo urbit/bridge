@@ -1,143 +1,62 @@
-import { Just, Nothing } from 'folktale/maybe';
-import React from 'react';
-import { pour } from 'sigil-js';
-import * as ob from 'urbit-ob';
-import * as azimuth from 'azimuth-js';
-import * as need from '../lib/need';
+import React, { useCallback } from 'react';
+import * as need from 'lib/need';
 
-import PointList from '../components/old/PointList';
-import ReactSVGComponents from '../components/ReactSVGComponents';
-import KeysAndMetadata from './Point/KeysAndMetadata';
-import Actions from './Point/Actions';
-import { H1, H3 } from '../components/old/Base';
-import { withHistory } from '../store/history';
-import { withNetwork } from '../store/network';
-import { compose } from '../lib/lib';
-import { withWallet } from '../store/wallet';
-import { withPointCursor } from '../store/pointCursor';
-import { withPointCache } from '../store/pointCache';
+import { usePointCursor } from 'store/pointCursor';
+// import { usePointCache } from 'store/pointCache';
+
 import View from 'components/View';
+import useInvites from 'lib/useInvites';
+import useSyncPoint from 'lib/useSyncPoint';
+import Passport from 'components/Passport';
+import { Grid } from 'indigo-react';
+import { ForwardButton } from 'components/Buttons';
+import { useHistory } from 'store/history';
+import { ROUTE_NAMES } from 'lib/routeNames';
+import Footer from 'components/Footer';
 
-class Point extends React.Component {
-  constructor(props) {
-    super(props);
+export default function Point() {
+  const history = useHistory();
+  const { pointCursor } = usePointCursor();
+  // const { pointCache } = usePointCache();
 
-    this.state = {
-      spawned: [],
-      invites: Nothing(),
-    };
-  }
+  const point = need.pointCursor(pointCursor);
 
-  componentDidMount() {
-    this.cachePoints();
-  }
+  // fetch the invites for the current cursor
+  const { invites } = useInvites(point);
 
-  componentDidUpdate(prevProps) {
-    //
-    // NB (jtobin)
-    //
-    // When a link in the 'issued points' component is clicked, we don't
-    // actually leave the Point component, and componentDidMount will not fire
-    // again.  But, we can force a call to cachePoints here.
-    //
-    const oldCursor = prevProps.pointCursor.getOrElse(true);
-    const newCursor = this.props.pointCursor.getOrElse(true);
+  const goAdmin = useCallback(() => {}, []);
+  // ^ TODO: push .ADMIN
+  const goInvite = useCallback(() => history.push(ROUTE_NAMES.INVITES_MANAGE), [
+    history,
+  ]);
 
-    if (oldCursor !== newCursor) {
-      this.cachePoints();
-    }
-  }
+  // sync the current cursor
+  useSyncPoint(point);
 
-  cachePoints() {
-    const { web3, contracts, pointCursor, addToPointCache } = this.props;
+  // const pointDetails = need.fromPointCache(pointCache, point);
 
-    web3.chain(_ =>
-      contracts.chain(ctrcs =>
-        pointCursor.chain(point => {
-          azimuth.azimuth
-            .getPoint(ctrcs, point)
-            .then(details => addToPointCache({ [point]: details }));
-          azimuth.delegatedSending
-            .getTotalUsableInvites(ctrcs, point)
-            .then(count => this.setState({ invites: Just(count) }));
-          this.updateSpawned(ctrcs, point);
-        })
-      )
-    );
-  }
-
-  updateSpawned = contracts => {
-    const { pointCursor } = this.props;
-
-    pointCursor.matchWith({
-      Nothing: _ => {},
-      Just: point => {
-        azimuth.azimuth
-          .getSpawned(contracts, point.value)
-          .then(spawned => this.setState({ spawned }));
-      },
-    });
-  };
-
-  render() {
-    const { web3, history, wallet, pointCache } = this.props;
-
-    const { spawned } = this.state;
-
-    const point = need.pointCursor(this.props.pointCursor);
-
-    const pointDetails =
-      point in pointCache ? Just(pointCache[point]) : Nothing();
-
-    const name = ob.patp(point);
-
-    const sigil = pour({
-      patp: name,
-      renderer: ReactSVGComponents,
-      size: 256,
-    });
-
-    const online = Just.hasInstance(web3);
-
-    const authenticated = Just.hasInstance(wallet);
-
-    const issuedPointList =
-      spawned.length === 0 ? (
-        <div />
-      ) : (
-        <div>
-          <H3>{'Issued Points'}</H3>
-
-          <PointList routeHandler={history.popAndPush} points={spawned} />
-        </div>
-      );
-
-    return (
-      <View>
-        <div className={'mt-12 pt-6'}>{sigil}</div>
-        <H1>
-          <code>{name}</code>
-        </H1>
-        {authenticated ? (
-          <Actions
-            online={online}
-            point={point}
-            pointDetails={pointDetails}
-            invites={this.state.invites}
-          />
-        ) : null}
-
-        {online ? <KeysAndMetadata pointDetails={pointDetails} /> : <div />}
-        {issuedPointList}
-      </View>
-    );
-  }
+  return (
+    <View>
+      <Passport point={point} />
+      <Grid className="pt2">
+        <Grid.Item full>
+          <ForwardButton onClick={goAdmin}>Admin</ForwardButton>
+        </Grid.Item>
+        <Grid.Divider />
+        <Grid.Item full>
+          <ForwardButton detail="Boot your computer" disabled>
+            Boot Arvo
+          </ForwardButton>
+        </Grid.Item>
+      </Grid>
+      <Footer>
+        <Grid className="pt2">
+          <Grid.Divider />
+          <Grid.Item full>
+            <ForwardButton onClick={goInvite}>Invite</ForwardButton>
+          </Grid.Item>
+        </Grid>
+      </Footer>
+    </View>
+  );
 }
-
-export default compose(
-  withNetwork,
-  withHistory,
-  withWallet,
-  withPointCursor,
-  withPointCache
-)(Point);

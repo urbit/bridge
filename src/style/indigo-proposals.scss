@@ -20,6 +20,10 @@
   background-color: #333333;
 }
 
-.bg-transparent {
-  background-color: transparent;
+.clickable {
+  cursor: pointer;
+}
+
+.minh-100 {
+  min-height: 100vh;
 }

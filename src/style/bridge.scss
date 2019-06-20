@@ -13,3 +13,16 @@ input:-webkit-autofill {
   -webkit-animation-name: autofill;
   -webkit-animation-fill-mode: both;
 }
+
+// min-height the top elements so footer behavior works correctly
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+}
+
+#root {
+  min-height: 100vh;
+}

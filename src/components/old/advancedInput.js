@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { compose, defaultTo, t, f } from '../../lib/lib';
+import { compose, defaultTo } from '../../lib/lib';
 
 // =============================================================================
 // Utils
@@ -14,10 +14,10 @@ const initMessage = data => ({
 
 // Validation display triggers
 const displayTriggers = {
-  eagerSuccess: r => t(r.pass),
-  eagerFailure: r => f(r.pass),
-  tactfulSuccess: r => t(r.pass) && t(r.beenFocussed),
-  tactfulFailure: r => f(r.pass) && t(r.beenFocussed) && f(r.focussed),
+  eagerSuccess: r => r.pass,
+  eagerFailure: r => !r.pass,
+  tactfulSuccess: r => r.pass && r.beenFocussed,
+  tactfulFailure: r => !r.pass && r.beenFocussed && !r.focussed,
 };
 
 // =============================================================================

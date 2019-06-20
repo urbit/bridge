@@ -12,10 +12,10 @@ import { TxnCursorProvider } from './txnCursor';
 // nest all of the providers within each other to avoid hella depth
 export default nest([
   HistoryProvider,
-  TxnConfirmationsProvider,
   OnlineProvider,
   NetworkProvider,
   WalletProvider,
+  TxnConfirmationsProvider,
   PointCursorProvider,
   PointCacheProvider,
   TxnCursorProvider,

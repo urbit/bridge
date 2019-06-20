@@ -15,11 +15,6 @@ const seq = n => Array.from(Array(n), (_, i) => i);
 
 const fill = (n, v) => Array.from(Array(n), () => v);
 
-// Terse true/false checks
-const t = v => v === true;
-
-const f = v => v === false;
-
 const isValidGalaxy = name => {
   let point;
   try {
@@ -47,8 +42,6 @@ export {
   defaultTo,
   seq,
   fill,
-  t,
-  f,
   isValidGalaxy,
   randomPatq,
 };
