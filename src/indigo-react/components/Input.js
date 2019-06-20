@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 
-import Grid from 'components/Grid';
+import { Flex } from 'indigo-react';
 
 import { compose } from 'lib/lib';
 import { kDefaultValidator } from 'lib/validators';
@@ -124,6 +124,8 @@ export default function Input({
   onPass,
   onError,
   onFocus,
+  onEnter,
+  accessory,
   disabled = false,
   mono = false,
   autoFocus = false,
@@ -136,6 +138,12 @@ export default function Input({
     initialValue,
     autoFocus: actuallyAutoFocus,
   });
+
+  // notify parent of enter keypress iff not disabled
+  const onKeyPress = useCallback(
+    e => !disabled && e.key === 'Enter' && onEnter && onEnter(),
+    [disabled, onEnter]
+  );
 
   // notify parent of value only when passing
   useEffect(() => {
@@ -158,15 +166,15 @@ export default function Input({
   }, [focused, onFocus]);
 
   return (
-    <Grid>
-      <Grid.Item full>
-        <label className="f6 lh-tall" htmlFor={name}>
-          {label}
-        </label>
-      </Grid.Item>
-      <Grid.Item full>
-        <input
+    <Flex col>
+      <Flex.Item as="label" className="f6 lh-tall" htmlFor={name}>
+        {label}
+      </Flex.Item>
+      <Flex row>
+        <Flex.Item
+          as="input"
           {...rest}
+          cols={[1, accessory ? 11 : 13]}
           className={cn(
             'b b1 p3',
             { mono },
@@ -189,12 +197,18 @@ export default function Input({
           style={{
             ...(disabled && { pointerEvents: 'none', cursor: 'not-allowed' }),
           }}
+          onKeyPress={onKeyPress}
           id={name}
-          name={name}
           autoFocus={actuallyAutoFocus}
           {...bind}
+          flex
         />
-      </Grid.Item>
-    </Grid>
+        {accessory && (
+          <Flex.Item style={{ height: '45px', overflow: 'hidden' }}>
+            {accessory}
+          </Flex.Item>
+        )}
+      </Flex>
+    </Flex>
   );
 }
