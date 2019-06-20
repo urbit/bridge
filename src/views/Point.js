@@ -1,18 +1,20 @@
 import React, { useCallback } from 'react';
 import * as need from 'lib/need';
+import { Grid } from 'indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
 // import { usePointCache } from 'store/pointCache';
 
 import View from 'components/View';
+import Passport from 'components/Passport';
+import { ForwardButton } from 'components/Buttons';
+import Footer from 'components/Footer';
+
 import useInvites from 'lib/useInvites';
 import useSyncPoint from 'lib/useSyncPoint';
-import Passport from 'components/Passport';
-import { Grid } from 'indigo-react';
-import { ForwardButton } from 'components/Buttons';
-import { useHistory } from 'store/history';
 import { ROUTE_NAMES } from 'lib/routeNames';
-import Footer from 'components/Footer';
+
+import { useHistory } from 'store/history';
 
 export default function Point() {
   const history = useHistory();
@@ -53,7 +55,13 @@ export default function Point() {
         <Grid className="pt2">
           <Grid.Divider />
           <Grid.Item full>
-            <ForwardButton onClick={goInvite}>Invite</ForwardButton>
+            <ForwardButton onClick={goInvite}>
+              Invite
+              {invites.matchWith({
+                Nothing: () => null,
+                Just: p => <sup className="ml1">{p.value}</sup>,
+              })}
+            </ForwardButton>
           </Grid.Item>
         </Grid>
       </Footer>
