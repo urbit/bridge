@@ -5,6 +5,8 @@ import * as need from './need';
 import Landing from '../views/Landing';
 import InviteTicket from '../views/InviteTicket';
 import InvitesManage from '../views/InvitesManage.js';
+import Login from '../views/Login.js';
+import PointHome from '../views/PointHome.js';
 import AcceptTransfer from '../views/AcceptTransfer';
 import CancelTransfer from '../views/CancelTransfer';
 import CreateGalaxy from '../views/CreateGalaxy';
@@ -42,6 +44,8 @@ export const ROUTES = {
   [ROUTE_NAMES.INVITE_TICKET]: InviteTicket,
   [ROUTE_NAMES.INVITE]: Invite,
   [ROUTE_NAMES.INVITES_MANAGE]: InvitesManage,
+  [ROUTE_NAMES.LOGIN]: Login,
+  [ROUTE_NAMES.POINT_HOME]: PointHome,
   [ROUTE_NAMES.ACCEPT_TRANSFER]: AcceptTransfer,
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
   [ROUTE_NAMES.NETWORK]: Network,
@@ -81,6 +85,10 @@ export const getRouteBreadcrumb = ({
       return 'Send invites';
     case ROUTE_NAMES.INVITES_MANAGE:
       return 'Manage invites';
+    case ROUTE_NAMES.LOGIN:
+      return 'Login to Bridge';
+    case ROUTE_NAMES.POINT_HOME:
+      return 'Overview: ' + ob.patp(need.pointCursor({ pointCursor }));
     case ROUTE_NAMES.NETWORK:
       return renderNetworkType(networkType);
     case ROUTE_NAMES.WALLET:

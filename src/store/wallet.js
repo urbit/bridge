@@ -84,6 +84,8 @@ function _useWallet(
         });
 
         setWallet(wallet);
+      } else {
+        setWallet(Maybe.Nothing());
       }
 
       _setUrbitWallet(urbitWallet);

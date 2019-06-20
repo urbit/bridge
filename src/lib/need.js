@@ -30,3 +30,12 @@ export const fromPointCache = (obj, point) => {
 
   return cache[point];
 };
+export const keystore = obj => {
+  const ks = needBuilder(BRIDGE_ERROR.MISSING_KEYSTORE)();
+  return ks.value.matchWith({
+    Ok: result => result.value,
+    Error: _ => {
+      throw BRIDGE_ERROR.MISSING_KEYSTORE;
+    },
+  });
+};
