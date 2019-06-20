@@ -111,7 +111,7 @@ function Actions(props) {
         disabled={!isActiveOwner || !online || !hasInvites}
         prop-size={'sm'}
         prop-type={'link'}
-        onClick={() => history.push(ROUTE_NAMES.INVITES_SEND)}>
+        onClick={() => history.push(ROUTE_NAMES.INVITE)}>
         {'Send invites ('}
         {invites.matchWith({
           Nothing: () => '?',

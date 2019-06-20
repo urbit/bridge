@@ -65,8 +65,10 @@ export default function Mnemonic() {
       />
 
       <ForwardButton
+        className="mt3"
         disabled={Nothing.hasInstance(wallet)}
-        onClick={() => history.popAndPush(ROUTE_NAMES.POINTS)}>
+        onClick={() => history.popAndPush(ROUTE_NAMES.POINTS)}
+        solid>
         Continue
       </ForwardButton>
     </View>

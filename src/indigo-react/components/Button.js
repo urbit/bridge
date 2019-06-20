@@ -1,13 +1,16 @@
 import React from 'react';
 import cn from 'classnames';
+
 import Grid from './Grid';
+import Flex from './Flex';
+import { HelpText } from './Typography';
 
 export default function Button({
   solid = false,
   disabled = false,
   detail,
   className,
-  icon,
+  icon = '→',
   children,
   ...rest
 }) {
@@ -31,16 +34,19 @@ export default function Button({
         className
       )}
       style={{
-        ...(disabled && { pointerEvents: 'none', cursor: 'not-allowed' }),
+        ...(disabled && {
+          pointerEvents: 'none',
+          cursor: 'not-allowed',
+        }),
       }}
       {...rest}>
-      <Grid.Item className="flex-row justify-between" full>
+      <Grid.Item as={Flex} justify="between" full>
         <span className={cn(textColor)}>{children}</span>
         <div className={cn('pl4', textColor)}>{icon}</div>
       </Grid.Item>
       {detail && (
-        <Grid.Item full>
-          <span className="gray4 f6">{detail}</span>
+        <Grid.Item as={HelpText} full>
+          {detail}
         </Grid.Item>
       )}
     </Grid>

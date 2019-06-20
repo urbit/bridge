@@ -4,7 +4,6 @@ import * as need from './need';
 
 import Landing from '../views/Landing';
 import InviteTicket from '../views/InviteTicket';
-import InvitesSend from '../views/InvitesSend.js';
 import InvitesManage from '../views/InvitesManage.js';
 import AcceptTransfer from '../views/AcceptTransfer';
 import CancelTransfer from '../views/CancelTransfer';
@@ -31,16 +30,17 @@ import Shards from '../views/Shards';
 import Ticket from '../views/Ticket';
 import Transfer from '../views/Transfer';
 import Wallet from '../views/Wallet';
+import Invite from 'views/Invite';
 
 import { EthereumWallet } from './wallet';
 import { renderNetworkType } from './network';
 import { ROUTE_NAMES } from './routeNames';
 
-const ROUTES = {
+export const ROUTES = {
   [ROUTE_NAMES.DEFAULT]: Landing,
   [ROUTE_NAMES.LANDING]: Landing,
   [ROUTE_NAMES.INVITE_TICKET]: InviteTicket,
-  [ROUTE_NAMES.INVITES_SEND]: InvitesSend,
+  [ROUTE_NAMES.INVITE]: Invite,
   [ROUTE_NAMES.INVITES_MANAGE]: InvitesManage,
   [ROUTE_NAMES.ACCEPT_TRANSFER]: AcceptTransfer,
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
@@ -77,7 +77,7 @@ export const getRouteBreadcrumb = ({
       return 'Invite code';
     case ROUTE_NAMES.INVITE_TRANSACTIONS:
       return 'Setting up new wallet';
-    case ROUTE_NAMES.INVITES_SEND:
+    case ROUTE_NAMES.INVITE:
       return 'Send invites';
     case ROUTE_NAMES.INVITES_MANAGE:
       return 'Manage invites';
@@ -138,6 +138,3 @@ export const getRouteBreadcrumb = ({
       return 'Bridge';
   }
 };
-
-const router = route => ROUTES[route.name];
-export default router;

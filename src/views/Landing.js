@@ -1,5 +1,5 @@
 import React from 'react';
-import { H1, P } from '../components/old/Base';
+import { H1, P, HelpText } from 'indigo-react';
 
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { useHistory } from '../store/history';
@@ -19,25 +19,26 @@ function Landing(props) {
         address space.
       </P>
 
-      <ForwardButton onClick={() => history.push(ROUTE_NAMES.INVITE_TICKET)}>
+      <ForwardButton
+        className="mt3"
+        detail="If you were sent an Azimuth invite code."
+        onClick={() => history.push(ROUTE_NAMES.INVITE_TICKET)}>
         Claim an invite
       </ForwardButton>
 
-      <P>If you were sent an Azimuth invite code, start here.</P>
-
-      <ForwardButton onClick={() => history.push(ROUTE_NAMES.NETWORK)}>
+      <ForwardButton
+        className="mt3"
+        detail="If you own Azimuth assets and want to manage them in some way."
+        onClick={() => history.push(ROUTE_NAMES.NETWORK)}>
         Unlock a Wallet
       </ForwardButton>
 
-      <P>
-        If you own Azimuth assets and want to manage them in some way, start
-        here. You'll need either your Urbit ticket or a keypair.
-      </P>
-
-      <ForwardButton onClick={() => history.push(ROUTE_NAMES.VIEW_POINT)}>
+      <ForwardButton
+        className="mt3"
+        detail="View an Azimuth point without signing into a wallet."
+        onClick={() => history.push(ROUTE_NAMES.VIEW_POINT)}>
         View a point
       </ForwardButton>
-      <P>{'View an Azimuth point without signing into a wallet.'}</P>
     </View>
   );
 }

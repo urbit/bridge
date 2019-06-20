@@ -8,13 +8,13 @@ import { usePointCursor } from 'store/pointCursor';
 import View from 'components/View';
 import Passport from 'components/Passport';
 import { ForwardButton } from 'components/Buttons';
-import Footer from 'components/Footer';
 
 import useInvites from 'lib/useInvites';
 import useSyncPoint from 'lib/useSyncPoint';
 import { ROUTE_NAMES } from 'lib/routeNames';
 
 import { useHistory } from 'store/history';
+import FooterButton from 'components/FooterButton';
 
 export default function Point() {
   const history = useHistory();
@@ -24,11 +24,9 @@ export default function Point() {
   const point = need.pointCursor(pointCursor);
 
   // fetch the invites for the current cursor
-  const { invites } = useInvites(point);
+  const { availableInvites } = useInvites(point);
 
-  const goAdmin = useCallback(() => {}, []);
-  // ^ TODO: push .ADMIN
-  const goInvite = useCallback(() => history.push(ROUTE_NAMES.INVITES_MANAGE), [
+  const goInvite = useCallback(() => history.push(ROUTE_NAMES.INVITE), [
     history,
   ]);
 
@@ -42,7 +40,7 @@ export default function Point() {
       <Passport point={point} />
       <Grid className="pt2">
         <Grid.Item full>
-          <ForwardButton onClick={goAdmin}>Admin</ForwardButton>
+          <ForwardButton disabled>Admin</ForwardButton>
         </Grid.Item>
         <Grid.Divider />
         <Grid.Item full>
@@ -51,20 +49,14 @@ export default function Point() {
           </ForwardButton>
         </Grid.Item>
       </Grid>
-      <Footer>
-        <Grid className="pt2">
-          <Grid.Divider />
-          <Grid.Item full>
-            <ForwardButton onClick={goInvite}>
-              Invite
-              {invites.matchWith({
-                Nothing: () => null,
-                Just: p => <sup className="ml1">{p.value}</sup>,
-              })}
-            </ForwardButton>
-          </Grid.Item>
-        </Grid>
-      </Footer>
+
+      <FooterButton onClick={goInvite}>
+        Invite
+        {availableInvites.matchWith({
+          Nothing: () => null,
+          Just: p => <sup className="ml1">{p.value}</sup>,
+        })}
+      </FooterButton>
     </View>
   );
 }

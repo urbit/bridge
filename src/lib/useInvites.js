@@ -9,7 +9,7 @@ import useLifecycle from './useLifecycle';
 export default function useInvites(point) {
   const { contracts } = useNetwork();
 
-  const [invites, _setInvites] = useState(Maybe.Nothing());
+  const [availableInvites, _setAvailableInvites] = useState(Maybe.Nothing());
 
   const fetchInvites = useCallback(() => {
     const _contracts = contracts.getOrElse(null);
@@ -23,12 +23,18 @@ export default function useInvites(point) {
         _contracts,
         point
       );
-      _setInvites(Maybe.Just(count));
+      _setAvailableInvites(Maybe.Just(count));
     })();
-  }, [_setInvites, point, contracts]);
+  }, [_setAvailableInvites, point, contracts]);
 
   // fetch invites on first render
   useLifecycle(fetchInvites);
 
-  return { invites, fetchInvites };
+  return {
+    availableInvites,
+    fetchInvites,
+    // TODO: look up sent/accepted
+    sentInvites: Maybe.Just(6),
+    acceptedInvites: Maybe.Just(5),
+  };
 }
