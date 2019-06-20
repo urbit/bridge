@@ -1,7 +1,5 @@
-import { Just, Nothing } from 'folktale/maybe';
 import React from 'react';
-import { Button, H1, P } from '../../components/Base';
-import { InnerLabelDropdown } from '../../components/Base';
+import { P, InnerLabelDropdown } from '../../components/Base';
 import { Row, Col } from '../../components/Base';
 
 import Ticket from './Ticket';
@@ -12,9 +10,6 @@ import Mnemonic from './Mnemonic';
 import PrivateKey from './PrivateKey';
 import Keystore from './Keystore';
 
-import { ROUTE_NAMES } from '../../lib/routeNames';
-import { BRIDGE_ERROR } from '../../lib/error';
-import { withHistory } from '../../store/history';
 import { WALLET_TYPES, renderWalletType } from '../../lib/wallet';
 import { compose } from '../../lib/lib';
 import { withWallet } from '../../store/wallet';
@@ -117,7 +112,4 @@ class Advanced extends React.Component {
   }
 }
 
-export default compose(
-  withHistory,
-  withWallet
-)(Advanced);
+export default compose(withWallet)(Advanced);

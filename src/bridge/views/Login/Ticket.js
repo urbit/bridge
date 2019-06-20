@@ -7,22 +7,17 @@ import {
   Button,
   Row,
   Col,
-  H1,
-  P,
+  Input,
   InnerLabel,
   ValidatedSigil,
   PointInput,
   TicketInput,
-  Input,
-  InputCaption,
 } from '../../components/Base';
 
 import * as need from '../../lib/need';
-import { randomPatq, compose } from '../../lib/lib';
-import { ROUTE_NAMES } from '../../lib/routeNames';
+import { compose } from '../../lib/lib';
 import { WALLET_TYPES, urbitWalletFromTicket } from '../../lib/wallet';
 
-import { withHistory } from '../../store/history';
 import { withWallet } from '../../store/wallet';
 import { withNetwork } from '../../store/network';
 import { withPointCursor } from '../../store/pointCursor';
@@ -116,8 +111,6 @@ class Ticket extends React.Component {
   }
 
   render() {
-    const { history, wallet } = this.props;
-
     const pointInput = (
       <PointInput
         className="mono mt-8"
@@ -202,7 +195,6 @@ class Ticket extends React.Component {
 }
 
 export default compose(
-  withHistory,
   withWallet,
   withNetwork,
   withPointCursor

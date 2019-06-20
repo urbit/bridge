@@ -1,18 +1,8 @@
 import { Nothing, Just } from 'folktale/maybe';
 import React from 'react';
 import * as azimuth from 'azimuth-js';
-import * as ob from 'urbit-ob';
 
-import {
-  Button,
-  H1,
-  InnerLabel,
-  PointInput,
-  ValidatedSigil,
-  TicketInput,
-  Row,
-  Col,
-} from '../components/Base';
+import { H1, Row, Col } from '../components/Base';
 import HorizontalSelector from '../components/HorizontalSelector';
 
 import Ticket from './Login/Ticket';
@@ -21,9 +11,7 @@ import Advanced from './Login/Advanced';
 
 import * as need from '../lib/need';
 import { compose } from '../lib/lib';
-import { urbitWalletFromTicket } from '../lib/wallet';
 import { ROUTE_NAMES } from '../lib/routeNames';
-import { NETWORK_TYPES } from '../lib/network';
 
 import { withHistory } from '../store/history';
 import { withNetwork } from '../store/network';

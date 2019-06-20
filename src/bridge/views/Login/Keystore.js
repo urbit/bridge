@@ -7,8 +7,6 @@ import { Input, InnerLabel, InputCaption } from '../../components/Base';
 import { Row, Col, H1, H3, Warning } from '../../components/Base';
 
 import { BRIDGE_ERROR } from '../../lib/error';
-import { ROUTE_NAMES } from '../../lib/routeNames';
-import { withHistory } from '../../store/history';
 import { EthereumWallet } from '../../lib/wallet';
 import { compose } from '../../lib/lib';
 import { withWallet } from '../../store/wallet';
@@ -83,7 +81,7 @@ class Keystore extends React.Component {
   };
 
   render() {
-    const { history, wallet } = this.props;
+    const { wallet } = this.props;
     const { keystore, password, decryptionProblem } = this.state;
 
     const uploadButtonClass = keystore.matchWith({
@@ -161,7 +159,4 @@ class Keystore extends React.Component {
   }
 }
 
-export default compose(
-  withHistory,
-  withWallet
-)(Keystore);
+export default compose(withWallet)(Keystore);

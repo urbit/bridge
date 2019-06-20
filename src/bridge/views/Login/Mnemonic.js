@@ -1,4 +1,3 @@
-import * as bip39 from 'bip39';
 import { Just, Nothing } from 'folktale/maybe';
 import React from 'react';
 import { Button } from '../../components/Base';
@@ -8,10 +7,8 @@ import {
   InnerLabel,
   InputCaption,
 } from '../../components/Base';
-import { Row, Col, H1 } from '../../components/Base';
+import { Row, Col } from '../../components/Base';
 
-import { ROUTE_NAMES } from '../../lib/routeNames';
-import { withHistory } from '../../store/history';
 import { DEFAULT_HD_PATH, walletFromMnemonic } from '../../lib/wallet';
 import { compose } from '../../lib/lib';
 import { withWallet } from '../../store/wallet';
@@ -90,7 +87,7 @@ class Mnemonic extends React.Component {
   }
 
   render() {
-    const { history, wallet } = this.props;
+    const { wallet } = this.props;
     const { mnemonic, hdpath, passphrase } = this.state;
 
     return (
@@ -160,7 +157,4 @@ class Mnemonic extends React.Component {
   }
 }
 
-export default compose(
-  withHistory,
-  withWallet
-)(Mnemonic);
+export default compose(withWallet)(Mnemonic);

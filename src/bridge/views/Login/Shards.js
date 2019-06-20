@@ -13,8 +13,6 @@ import { Row, Col, H1, P } from '../../components/Base';
 import * as kg from 'urbit-key-generation/dist/index';
 import * as ob from 'urbit-ob';
 
-import { ROUTE_NAMES } from '../../lib/routeNames';
-import { withHistory } from '../../store/history';
 import { urbitWalletFromTicket } from '../../lib/wallet';
 import { compose } from '../../lib/lib';
 import { withWallet } from '../../store/wallet';
@@ -93,7 +91,7 @@ class Shards extends React.Component {
   }
 
   render() {
-    const { history, wallet } = this.props;
+    const { wallet } = this.props;
     const { shard1, shard2, shard3, pointName, passphrase } = this.state;
 
     const phPoint = this.pointPlaceholder;
@@ -213,7 +211,4 @@ class Shards extends React.Component {
   }
 }
 
-export default compose(
-  withHistory,
-  withWallet
-)(Shards);
+export default compose(withWallet)(Shards);

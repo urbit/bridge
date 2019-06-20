@@ -4,8 +4,6 @@ import { Button } from '../../components/Base';
 import { RequiredInput, InnerLabel, InputCaption } from '../../components/Base';
 import { Row, Col, H1 } from '../../components/Base';
 
-import { ROUTE_NAMES } from '../../lib/routeNames';
-import { withHistory } from '../../store/history';
 import { EthereumWallet } from '../../lib/wallet';
 import { compose } from '../../lib/lib';
 import { withWallet } from '../../store/wallet';
@@ -38,7 +36,7 @@ class PrivateKey extends React.Component {
   }
 
   render() {
-    const { history, wallet } = this.props;
+    const { wallet } = this.props;
     const { privateKey } = this.state;
 
     return (
@@ -75,7 +73,4 @@ class PrivateKey extends React.Component {
   }
 }
 
-export default compose(
-  withHistory,
-  withWallet
-)(PrivateKey);
+export default compose(withWallet)(PrivateKey);

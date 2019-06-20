@@ -8,8 +8,6 @@ import TrezorConnect from 'trezor-connect';
 import * as secp256k1 from 'secp256k1';
 
 import { TREZOR_PATH } from '../../lib/trezor';
-import { ROUTE_NAMES } from '../../lib/routeNames';
-import { withHistory } from '../../store/history';
 import { compose } from '../../lib/lib';
 import { withWallet } from '../../store/wallet';
 
@@ -63,7 +61,7 @@ class Trezor extends React.Component {
   }
 
   render() {
-    const { history, wallet } = this.props;
+    const { wallet } = this.props;
     const { hdpath, account } = this.state;
     const { handleAccountSelection } = this;
 
@@ -141,7 +139,4 @@ class Trezor extends React.Component {
   }
 }
 
-export default compose(
-  withHistory,
-  withWallet
-)(Trezor);
+export default compose(withWallet)(Trezor);

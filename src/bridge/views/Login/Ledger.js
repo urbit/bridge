@@ -9,8 +9,6 @@ import Eth from '@ledgerhq/hw-app-eth';
 import * as secp256k1 from 'secp256k1';
 
 import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from '../../lib/ledger';
-import { ROUTE_NAMES } from '../../lib/routeNames';
-import { withHistory } from '../../store/history';
 import { compose } from '../../lib/lib';
 import { withWallet } from '../../store/wallet';
 
@@ -79,7 +77,7 @@ class Ledger extends React.Component {
   }
 
   render() {
-    const { history, wallet } = this.props;
+    const { wallet } = this.props;
     const { basePath, hdpath, account } = this.state;
     const { handlePathSelection, handleAccountSelection } = this;
 
@@ -219,7 +217,4 @@ class Ledger extends React.Component {
   }
 }
 
-export default compose(
-  withHistory,
-  withWallet
-)(Ledger);
+export default compose(withWallet)(Ledger);
