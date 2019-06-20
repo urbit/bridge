@@ -1,5 +1,5 @@
 import React from 'react';
-import { H1, P, HelpText } from 'indigo-react';
+import { H1, P } from 'indigo-react';
 
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { useHistory } from '../store/history';

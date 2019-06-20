@@ -1,13 +1,13 @@
 import { Just, Nothing } from 'folktale/maybe';
 import React from 'react';
 import * as azimuth from 'azimuth-js';
-import * as need from '../lib/need';
+import * as need from 'lib/need';
 
-import { hasReceived, sendMail } from '../lib/inviteMail';
-import { Button, Input, H3, Warning } from '../components/old/Base';
+import { hasReceived, sendMail } from 'lib/inviteMail';
+import { Button, Input, H3, Warning } from 'components/old/Base';
 
 // for wallet generation
-import * as wg from '../_walletgen/lib/lib';
+import * as wg from '_walletgen/lib/lib';
 
 // for transaction generation and signing
 import {
@@ -17,12 +17,12 @@ import {
   hexify,
   fromWei,
   toWei,
-} from '../lib/txn';
-import * as tank from '../lib/tank';
-import { withNetwork } from '../store/network';
-import { compose } from '../lib/lib';
-import { withWallet } from '../store/wallet';
-import { withPointCursor } from '../store/pointCursor';
+} from 'lib/txn';
+import * as tank from 'lib/tank';
+import { withNetwork } from 'store/network';
+import { compose } from 'lib/lib';
+import { withWallet } from 'store/wallet';
+import { withPointCursor } from 'store/pointCursor';
 import View from 'components/View';
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
@@ -45,7 +45,7 @@ const EMAIL_STATUS = {
   FAIL: '×',
 };
 
-class InvitesSend extends React.Component {
+class InviteEmail extends React.Component {
   constructor(props) {
     super(props);
 
@@ -498,4 +498,4 @@ export default compose(
   withNetwork,
   withWallet,
   withPointCursor
-)(InvitesSend);
+)(InviteEmail);
