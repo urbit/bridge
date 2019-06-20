@@ -30,7 +30,6 @@ class Login extends React.Component {
 
     this.state = {
       currentTab: TABS.TICKET,
-      wallet: Nothing(),
     };
 
     this.handleTabChange = this.handleTabChange.bind(this);
@@ -38,8 +37,9 @@ class Login extends React.Component {
   }
 
   componentDidMount() {
-    this.props.setNetworkType(this.props.networkType);
-    // we expect pointCursor to not be set yet
+    // we expect wallet and pointCursor to not be set yet
+    this.props.setUrbitWallet(Nothing());
+    this.props.setWallet(Nothing());
     this.props.setPointCursor(Nothing());
   }
 

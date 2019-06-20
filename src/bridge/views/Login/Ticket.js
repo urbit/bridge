@@ -38,7 +38,6 @@ class Ticket extends React.Component {
       ticket: '',
       ticketStatus: Nothing(),
       passphrase: '',
-      wallet: Nothing(),
     };
 
     this.handlePointNameInput = this.handlePointNameInput.bind(this);
@@ -72,7 +71,8 @@ class Ticket extends React.Component {
   //TODO maybe want to do this only on-go, because wallet derivation is slow...
   async verifyTicket(pointName, ticket, passphrase) {
     if (!ob.isValidPatq(ticket) || !ob.isValidPatp(pointName)) {
-      this.setState({ ticketStatus: Nothing(), wallet: Nothing() });
+      this.props.setUrbitWallet(Nothing());
+      this.setState({ ticketStatus: Nothing() });
       return;
     }
     this.setState({ ticketStatus: Just(INPUT_STATUS.SPIN) });
@@ -89,23 +89,24 @@ class Ticket extends React.Component {
       pointNumber,
       uhdw.ownership.keys.address
     );
-    let newState = { wallet: Just(uhdw) };
-    newState.ticketStatus =
-      (await isOwner) || (await isTransferProxy)
-        ? Just(INPUT_STATUS.GOOD)
-        : Just(INPUT_STATUS.FAIL);
-    this.setState(newState);
+    this.props.setUrbitWallet(Just(uhdw));
+    this.setState({
+      ticketStatus:
+        (await isOwner) || (await isTransferProxy)
+          ? Just(INPUT_STATUS.GOOD)
+          : Just(INPUT_STATUS.FAIL),
+    });
   }
 
   canContinue() {
     // this is our only requirement, since we still want people with
     // non-standard wallet setups to be able to log in
-    return Just.hasInstance(this.state.wallet);
+    return Just.hasInstance(this.props.wallet);
   }
 
   continue() {
+    //TODO maybe do on-mount?
     this.props.setWalletType(WALLET_TYPES.TICKET);
-    this.props.setUrbitWallet(this.state.wallet.value); //TODO wrap
     this.props.setPointCursor(Just(ob.patp2dec(this.state.pointName)));
     this.props.loginCompleted();
   }
