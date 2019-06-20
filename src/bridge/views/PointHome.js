@@ -1,20 +1,12 @@
 import { Just, Nothing } from 'folktale/maybe';
 import React from 'react';
-import { pour } from 'sigil-js';
-import * as ob from 'urbit-ob';
 import * as azimuth from 'azimuth-js';
 import * as need from '../lib/need';
 
-import PointList from '../components/PointList';
-import ReactSVGComponents from '../components/ReactSVGComponents';
-import KeysAndMetadata from './Point/KeysAndMetadata';
-import Actions from './Point/Actions';
-import { Row, Col, H1, H3 } from '../components/Base';
+import { Row, Col, P } from '../components/Base';
 
 import { compose } from '../lib/lib';
-import { ROUTE_NAMES } from '../lib/routeNames';
 
-import { withHistory } from '../store/history';
 import { withNetwork } from '../store/network';
 import { withPointCursor } from '../store/pointCursor';
 import { withPointCache } from '../store/pointCache';
@@ -70,7 +62,7 @@ class PointHome extends React.Component {
     );
   }
 
-  async updateBirthday(blockNumber) {
+  async updateBirthday() {
     const birthBlock = await azimuth.azimuth.getActivationBlock(
       need.contracts(this.props),
       need.pointCursor(this.props)
@@ -79,6 +71,7 @@ class PointHome extends React.Component {
       this.setState({ birthday: Nothing() });
     } else {
       const block = await need.web3(this.props).eth.getBlock(birthBlock);
+      //TODO add to point cache
       this.setState({ birthday: Just(new Date(block.timestamp * 1000)) });
     }
   }
@@ -97,43 +90,14 @@ class PointHome extends React.Component {
   };
 
   render() {
-    const { web3, history, wallet, setPointCursor, pointCache } = this.props;
-
-    const point = need.pointCursor(this.props);
-
-    const pointDetails =
-      point in pointCache ? Just(pointCache[point]) : Nothing();
-
-    const name = ob.patp(point);
-
-    const sigil = pour({
-      patp: name,
-      renderer: ReactSVGComponents,
-      size: 256,
-    });
-
-    const online = Just.hasInstance(web3);
-
-    const authenticated = Just.hasInstance(wallet);
-
     return (
       <Row>
         <Col>
-          <div className={'mt-12 pt-6'}>{sigil}</div>
-          <H1>
-            <code>{name}</code>
-          </H1>
-          {authenticated ? (
-            <Actions
-              online={online}
-              wallet={wallet}
-              point={point}
-              pointDetails={pointDetails}
-              invites={this.state.invites}
-            />
-          ) : null}
+          <P>Admin</P>
 
-          {online ? <KeysAndMetadata pointDetails={pointDetails} /> : <div />}
+          <P>Boot Arvo</P>
+
+          <P>Invite</P>
         </Col>
       </Row>
     );
@@ -142,7 +106,6 @@ class PointHome extends React.Component {
 
 export default compose(
   withNetwork,
-  withHistory,
   withPointCursor,
   withPointCache
 )(PointHome);
