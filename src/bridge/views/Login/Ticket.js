@@ -168,25 +168,26 @@ class Ticket extends React.Component {
       </TicketInput>
     );
 
-    // const passphraseInput = !this.props.advanced ? null : (
-    //   <Input
-    //     className="mt-8"
-    //     prop-size="md"
-    //     prop-format="innerLabel"
-    //     name="passphrase"
-    //     type="password"
-    //     value={this.state.passphrase}
-    //     autocomplete="off"
-    //     onChange={this.handlePassphraseInput}>
-    //     <InnerLabel>{'Passphrase'}</InnerLabel>
-    //   </Input>
-    // );
+    const passphraseInput = !this.props.advanced ? null : (
+      <Input
+        className="mt-8"
+        prop-size="md"
+        prop-format="innerLabel"
+        name="passphrase"
+        type="password"
+        value={this.state.passphrase}
+        autocomplete="off"
+        onChange={this.handlePassphraseInput}>
+        <InnerLabel>{'Passphrase'}</InnerLabel>
+      </Input>
+    );
 
     return (
       <Row>
         <Col>
           {pointInput}
           {ticketInput}
+          {passphraseInput}
 
           <Button
             className={'mt-10'}
