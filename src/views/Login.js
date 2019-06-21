@@ -49,7 +49,7 @@ export default function Login() {
 
     // if no point cursor set by login logic, try to deduce it
     let deduced = Nothing();
-    if (Nothing.hasInstance(this.props.pointCursor)) {
+    if (Nothing.hasInstance(pointCursor)) {
       const owned = await azimuth.azimuth.getOwnedPoints(
         realContracts,
         realWallet.address
