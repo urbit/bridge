@@ -1,5 +1,5 @@
 import { Nothing, Just } from 'folktale/maybe';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as azimuth from 'azimuth-js';
 
 import { H1 } from 'indigo-react';
@@ -28,17 +28,20 @@ export default function Login() {
   // globals
   const history = useHistory();
   const { contracts } = useNetwork();
-  const { wallet } = useWallet();
+  const { wallet, setUrbitWallet } = useWallet();
   const { pointCursor, setPointCursor } = usePointCursor();
 
   // inputs
   const [currentTab, setCurrentTab] = useState(TABS.TICKET);
 
-  //TODO figure out how to do things once
-  // // we expect wallet and pointCursor to not be set yet
-  // setUrbitWallet(Nothing());
-  // setWallet(Nothing());
-  // setPointCursor(Nothing());
+  useEffect(() => {
+    // on-mount
+    setUrbitWallet(Nothing());
+    setPointCursor(Nothing());
+
+    // on-unmount
+    return () => {};
+  }, []);
 
   const doContinue = async () => {
     const realWallet = need.wallet(wallet);
