@@ -7,6 +7,7 @@ import {
   validateNotEmpty,
   validateMnemonic,
   validatePoint,
+  validateTicket,
 } from 'lib/validators';
 import { prependSig } from 'lib/transformers';
 
@@ -87,8 +88,16 @@ export function PointInput(props) {
   );
 }
 
-// const TicketInput = advancedInput({
-//   WrappedComponent: Input,
-//   validators: [validateTicket, validateNotEmpty],
-//   transformers: [prependSig],
-// });
+//TODO needs to be fancier, displaying sig and dashes instead of •ing all
+export function TicketInput(props) {
+  return (
+    <Input
+      type="password"
+      placeholder="~master-ticket"
+      validators={[validateTicket, validateNotEmpty]}
+      transformers={[prependSig]}
+      mono
+      {...props}
+    />
+  );
+}
