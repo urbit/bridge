@@ -22,7 +22,6 @@
     "bip32": "^1.0.2",
     "bip39": "^2.5.0",
     "bn.js": "^4.11.8",
-    "bootstrap": "^4.3.1",
     "classnames": "^2.2.6",
     "ethereum-blockies-base64": "^1.0.2",
     "ethereumjs-tx": "^1.3.7",
@@ -39,12 +38,24 @@
     "react-scripts": "3.0.1",
     "secp256k1": "^3.5.2",
     "sigil-js": "github:urbit/sigil-js#f7f29c5",
-    "source-map-explorer": "^2.0.0",
     "trezor-connect": "^7.0.1",
     "urbit-key-generation": "^0.16.0",
     "urbit-ob": "^4.0.1",
     "web3": "1.0.0-beta.54",
     "web3-utils": "^1.0.0-beta.52"
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^5.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react-hooks": "^1.6.0",
+    "ganache-cli": "^6.2.1",
+    "husky": "^2.4.0",
+    "node-sass": "^4.12.0",
+    "npm-run-all": "^4.1.3",
+    "prettier": "^1.18.2",
+    "serve": "^11.0.1",
+    "source-map-explorer": "^2.0.0",
+    "truffle": "4.1.11"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -62,17 +73,7 @@
     "lint": "prettier src/**/*.js",
     "lint:check": "prettier -c 'src/**/*.js'",
     "lint:fix": "prettier --write 'src/**/*.js'",
-    "precommit": "npm-run-all lint:check",
     "analyze": "source-map-explorer 'build/static/js/*.js'"
-  },
-  "devDependencies": {
-    "eslint-plugin-prettier": "^3.1.0",
-    "ganache-cli": "^6.2.1",
-    "husky": "^2.4.0",
-    "npm-run-all": "^4.1.3",
-    "prettier": "^1.18.2",
-    "serve": "10.1.1",
-    "truffle": "4.1.11"
   },
   "browserslist": {
     "production": [
@@ -86,5 +87,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm-run-all lint:check"
+    }
   }
 }

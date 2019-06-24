@@ -1,0 +1,28 @@
+@keyframes autofill {
+  to {
+    color: #000;
+    background: transparent;
+  }
+}
+
+/* avoid yellow autofill highlight on browsers that respect this attribute */
+input:-webkit-autofill {
+  animation-name: autofill;
+  animation-fill-mode: both;
+
+  -webkit-animation-name: autofill;
+  -webkit-animation-fill-mode: both;
+}
+
+// min-height the top elements so footer behavior works correctly
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+}
+
+#root {
+  min-height: 100vh;
+}
