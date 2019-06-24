@@ -1,5 +1,7 @@
+export const kLoadingCharacter = '▓';
+
 export default val =>
   val.matchWith({
-    Nothing: () => '▓',
+    Nothing: () => kLoadingCharacter,
     Just: p => p.value,
   });

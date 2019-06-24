@@ -71,14 +71,15 @@ class Login extends React.Component {
       }
     }
 
+    // if we have a deduced point or one in the global context,
+    // navigate to that specific point, otherwise navigate to list of points
     if (Just.hasInstance(deduced)) {
       this.props.setPointCursor(deduced);
-      this.props.history.popAndPush(ROUTE_NAMES.POINT_HOME);
+      this.props.history.popAndPush(ROUTE_NAMES.POINT);
     } else if (Just.hasInstance(this.props.pointCursor)) {
-      this.props.history.popAndPush(ROUTE_NAMES.POINT_HOME);
+      this.props.history.popAndPush(ROUTE_NAMES.POINT);
     } else {
-      //TODO to new overview (maybe should be merged into point home?)
-      this.props.history.popAndPush(ROUTE_NAMES.SHIPS);
+      this.props.history.popAndPush(ROUTE_NAMES.POINTS);
     }
   }
 
