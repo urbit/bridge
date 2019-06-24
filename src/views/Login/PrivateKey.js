@@ -1,80 +1,50 @@
-import Maybe from 'folktale/maybe';
-import React from 'react';
-import { Button } from '../../components/old/Base';
-import {
-  RequiredInput,
-  InnerLabel,
-  InputCaption,
-} from '../../components/old/Base';
-import { Row, Col, H1 } from '../../components/old/Base';
+import { Just, Nothing } from 'folktale/maybe';
+import React, { useState } from 'react';
+
+import View from '../../components/View';
+import { PassphraseInput } from '../../components/Inputs';
+import { ForwardButton } from '../../components/Buttons';
 
 import { EthereumWallet } from '../../lib/wallet';
-import { compose } from '../../lib/lib';
-import { withWallet } from '../../store/wallet';
+import { useWallet } from '../../store/wallet';
 
-class PrivateKey extends React.Component {
-  constructor(props) {
-    super(props);
+export default function PrivateKey({ loginCompleted }) {
+  const { wallet, setWallet } = useWallet();
 
-    this.state = {
-      privateKey: '',
-    };
+  const [privateKey, setPrivateKey] = useState('');
 
-    this.handlePrivateKeyInput = this.handlePrivateKeyInput.bind(this);
-  }
+  const handlePrivateKeyInput = privateKey => {
+    setPrivateKey(privateKey);
+    constructWallet(privateKey);
+  };
 
-  handlePrivateKeyInput(privateKey) {
-    this.setState({ privateKey });
-    this.constructWallet(privateKey);
-  }
-
-  constructWallet(privateKey) {
-    const { setWallet } = this.props;
+  const constructWallet = privateKey => {
     if (/^[0-9A-Fa-f]{64}$/g.test(privateKey) === true) {
       const sec = Buffer.from(privateKey, 'hex');
-      const wallet = new EthereumWallet(sec);
-      setWallet(Maybe.Just(wallet));
+      const newWallet = new EthereumWallet(sec);
+      setWallet(Just(newWallet));
     } else {
-      setWallet(Maybe.Nothing());
+      setWallet(Nothing());
     }
-  }
+  };
 
-  render() {
-    const { wallet } = this.props;
-    const { privateKey } = this.state;
-
-    return (
-      <Row>
-        <Col className={'measure-md'}>
-          <H1 className={'mb-4'}>{'Enter Your Private Key'}</H1>
-          <InputCaption>
-            {`Please enter your raw Ethereum private key here.`}
-          </InputCaption>
-
-          <RequiredInput
-            className="pt-8 mt-8"
-            prop-size="md"
-            prop-format="innerLabel"
-            type="password"
-            name="privateKey"
-            onChange={this.handlePrivateKeyInput}
-            value={privateKey}
-            autocomplete="off"
-            autoFocus>
-            <InnerLabel>{'Private Key'}</InnerLabel>
-          </RequiredInput>
-
-          <Button
-            className={'mt-10'}
-            prop-size={'wide lg'}
-            disabled={Maybe.Nothing.hasInstance(wallet)}
-            onClick={this.props.loginCompleted}>
-            {'Continue →'}
-          </Button>
-        </Col>
-      </Row>
-    );
-  }
+  return (
+    <View>
+      Please enter your raw Ethereum private key here.
+      <PassphraseInput
+        type="password"
+        name="privateKey"
+        label="Private key"
+        initialValue={privateKey}
+        onValue={handlePrivateKeyInput}
+        autocomplete="off"
+        autoFocus></PassphraseInput>
+      <ForwardButton
+        className={'mt3'}
+        disabled={Nothing.hasInstance(wallet)}
+        onClick={loginCompleted}>
+        {'Continue →'}
+      </ForwardButton>
+    </View>
+  );
 }
-
-export default compose(withWallet)(PrivateKey);
