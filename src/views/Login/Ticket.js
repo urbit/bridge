@@ -12,7 +12,6 @@ import {
 import { ForwardButton } from '../../components/Buttons';
 
 import * as need from '../../lib/need';
-import { compose } from '../../lib/lib';
 import { WALLET_TYPES, urbitWalletFromTicket } from '../../lib/wallet';
 
 import { useNetwork } from '../../store/network';

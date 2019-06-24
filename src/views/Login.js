@@ -67,13 +67,14 @@ export default function Login() {
       }
     }
 
+    // if we have a deduced point or one in the global context,
+    // navigate to that specific point, otherwise navigate to list of points
     if (Just.hasInstance(deduced)) {
       setPointCursor(deduced);
-      history.popAndPush(ROUTE_NAMES.POINT_HOME);
+      history.popAndPush(ROUTE_NAMES.POINT);
     } else if (Just.hasInstance(pointCursor)) {
-      history.popAndPush(ROUTE_NAMES.POINT_HOME);
+      history.popAndPush(ROUTE_NAMES.POINT);
     } else {
-      //TODO to new overview (maybe should be merged into point home?)
       history.popAndPush(ROUTE_NAMES.POINTS);
     }
   };

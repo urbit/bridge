@@ -33,6 +33,8 @@ export default function Mnemonic() {
   // when the properties change, re-derive wallet
   useEffect(() => {
     let mounted = true;
+    // allow the browser to do something else while we derive this wallet
+    // on the main thread by making this an async function
     (async () => {
       const wallet = walletFromMnemonic(mnemonic, walletHdPath, passphrase);
       mounted && setWallet(wallet);
