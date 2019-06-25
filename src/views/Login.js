@@ -1,5 +1,5 @@
 import { Nothing, Just } from 'folktale/maybe';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import * as azimuth from 'azimuth-js';
 
 import { H1 } from 'indigo-react';
@@ -10,6 +10,7 @@ import Ticket from './Login/Ticket';
 import Mnemonic from './Login/Mnemonic';
 import Advanced from './Login/Advanced';
 
+import useLifecycle from 'lib/useLifecycle';
 import * as need from 'lib/need';
 import { ROUTE_NAMES } from 'lib/routeNames';
 
@@ -46,14 +47,11 @@ export default function Login() {
   // inputs
   const [currentTab, setCurrentTab] = useState(TABS.TICKET);
 
-  useEffect(() => {
-    // on-mount
+  // on-mount
+  useLifecycle(() => {
     setUrbitWallet(Nothing());
     setPointCursor(Nothing());
-
-    // on-unmount
-    return () => {};
-  }, []);
+  });
 
   const doContinue = async () => {
     const _wallet = need.wallet(wallet);
