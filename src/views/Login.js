@@ -3,20 +3,20 @@ import React, { useState, useEffect } from 'react';
 import * as azimuth from 'azimuth-js';
 
 import { H1 } from 'indigo-react';
-import View from '../components/View';
-import Tabs from '../components/Tabs';
+import View from 'components/View';
+import Tabs from 'components/Tabs';
 
 import Ticket from './Login/Ticket';
 import Mnemonic from './Login/Mnemonic';
 import Advanced from './Login/Advanced';
 
-import * as need from '../lib/need';
-import { ROUTE_NAMES } from '../lib/routeNames';
+import * as need from 'lib/need';
+import { ROUTE_NAMES } from 'lib/routeNames';
 
-import { useHistory } from '../store/history';
-import { useNetwork } from '../store/network';
-import { useWallet } from '../store/wallet';
-import { usePointCursor } from '../store/pointCursor';
+import { useHistory } from 'store/history';
+import { useNetwork } from 'store/network';
+import { useWallet } from 'store/wallet';
+import { usePointCursor } from 'store/pointCursor';
 
 const TABS = {
   TICKET: Symbol('TICKET'),

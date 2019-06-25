@@ -2,16 +2,12 @@ import { Just, Nothing } from 'folktale/maybe';
 import React, { useState } from 'react';
 import * as kg from 'urbit-key-generation/dist/index';
 
-import View from '../../components/View';
-import {
-  PointInput,
-  TicketInput,
-  PassphraseInput,
-} from '../../components/Inputs';
-import { ForwardButton } from '../../components/Buttons';
+import View from 'components/View';
+import { PointInput, TicketInput, PassphraseInput } from 'components/Inputs';
+import { ForwardButton } from 'components/Buttons';
 
-import { urbitWalletFromTicket } from '../../lib/wallet';
-import { useWallet } from '../../store/wallet';
+import { urbitWalletFromTicket } from 'lib/wallet';
+import { useWallet } from 'store/wallet';
 
 export default function Shards({ loginCompleted }) {
   const { wallet, setUrbitWallet } = useWallet();

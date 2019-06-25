@@ -3,20 +3,16 @@ import React, { useState, useEffect } from 'react';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
 
-import View from '../../components/View';
-import {
-  PointInput,
-  TicketInput,
-  PassphraseInput,
-} from '../../components/Inputs';
-import { ForwardButton } from '../../components/Buttons';
+import View from 'components/View';
+import { PointInput, TicketInput, PassphraseInput } from 'components/Inputs';
+import { ForwardButton } from 'components/Buttons';
 
-import * as need from '../../lib/need';
-import { WALLET_TYPES, urbitWalletFromTicket } from '../../lib/wallet';
+import * as need from 'lib/need';
+import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
 
-import { useNetwork } from '../../store/network';
-import { useWallet } from '../../store/wallet';
-import { usePointCursor } from '../../store/pointCursor';
+import { useNetwork } from 'store/network';
+import { useWallet } from 'store/wallet';
+import { usePointCursor } from 'store/pointCursor';
 
 //TODO should be part of InputWithStatus component
 const INPUT_STATUS = {

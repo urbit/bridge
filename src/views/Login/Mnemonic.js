@@ -1,16 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 
-import View from '../../components/View';
-import {
-  MnemonicInput,
-  PassphraseInput,
-  HdPathInput,
-} from '../../components/Inputs';
-import { ForwardButton } from '../../components/Buttons';
+import View from 'components/View';
+import { MnemonicInput, PassphraseInput, HdPathInput } from 'components/Inputs';
+import { ForwardButton } from 'components/Buttons';
 
-import { walletFromMnemonic } from '../../lib/wallet';
-import { useWallet } from '../../store/wallet';
+import { walletFromMnemonic } from 'lib/wallet';
+import { useWallet } from 'store/wallet';
 
 export default function Mnemonic({ advanced, loginCompleted }) {
   const {

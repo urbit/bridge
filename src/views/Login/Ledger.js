@@ -5,8 +5,8 @@ import Transport from '@ledgerhq/hw-transport-u2f';
 import Eth from '@ledgerhq/hw-app-eth';
 import * as secp256k1 from 'secp256k1';
 
-import View from '../../components/View';
-import { ForwardButton } from '../../components/Buttons';
+import View from 'components/View';
+import { ForwardButton } from 'components/Buttons';
 import {
   H1,
   P,
@@ -14,10 +14,10 @@ import {
   Input,
   InnerLabel,
   InnerLabelDropdown,
-} from '../../components/old/Base';
+} from 'components/old/Base';
 
-import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from '../../lib/ledger';
-import { useWallet } from '../../store/wallet';
+import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from 'lib/ledger';
+import { useWallet } from 'store/wallet';
 
 const chopHdPrefix = str => (str.slice(0, 2) === 'm/' ? str.slice(2) : str);
 

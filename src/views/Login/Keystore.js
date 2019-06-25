@@ -3,19 +3,14 @@ import { Ok, Error } from 'folktale/result';
 import React, { useState } from 'react';
 import * as keythereum from 'keythereum';
 
-import View from '../../components/View';
-import { PassphraseInput } from '../../components/Inputs';
-import { ForwardButton } from '../../components/Buttons';
-import {
-  InputCaption,
-  UploadButton,
-  H3,
-  Warning,
-} from '../../components/old/Base';
+import View from 'components/View';
+import { PassphraseInput } from 'components/Inputs';
+import { ForwardButton } from 'components/Buttons';
+import { InputCaption, UploadButton, H3, Warning } from 'components/old/Base';
 
-import * as need from '../../lib/need';
-import { EthereumWallet } from '../../lib/wallet';
-import { useWallet } from '../../store/wallet';
+import * as need from 'lib/need';
+import { EthereumWallet } from 'lib/wallet';
+import { useWallet } from 'store/wallet';
 
 export default function Keystore({ loginCompleted }) {
   // globals
