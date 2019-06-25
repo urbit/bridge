@@ -13,6 +13,11 @@ import { InnerLabel, InnerLabelDropdown } from 'components/old/Base';
 import { TREZOR_PATH } from 'lib/trezor';
 import { useWallet } from 'store/wallet';
 
+const accountOptions = [
+  { title: 'Custom path', value: 'custom' },
+  ...times(20, i => ({ title: `Account #${i + 1}`, value: i })),
+];
+
 export default function Trezor({ loginCompleted }) {
   const { wallet, setWallet, setWalletHdPath } = useWallet();
 
@@ -46,10 +51,6 @@ export default function Trezor({ loginCompleted }) {
     });
   };
 
-  let accountOptions = [{ title: 'Custom path', value: 'custom' }];
-  times(20, i => {
-    accountOptions.push({ title: `Account #${i + 1}`, value: i });
-  });
   let accountTitle = accountOptions.find(o => o.value === account).title;
 
   const accountSelection = (
