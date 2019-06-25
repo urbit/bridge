@@ -34,6 +34,12 @@ export default function useForm(configs = []) {
     (name, value) => _setValues(values => ({ ...values, [name]: value })),
     [_setValues]
   );
+  // ^ NB(shrugs): because we're not syncing the initialValue of _additional_
+  // configs that are added, we won't be able to set an initialValue for a
+  // dynamic form that then triggers validation. for initial configs,
+  // initialValue can be a validated string and everything will be happy,
+  // but for dynamically added input configs, we won't get validation, etc
+  // until there's a traditional state update.
 
   // track focused states
   const [focused, _setFocused] = useState(() =>
@@ -139,7 +145,7 @@ export default function useForm(configs = []) {
         autoFocus: config.autoFocus && !config.disabled,
         // dom properties below:
         bind: {
-          value: values[config.name],
+          value: values[config.name] || config.initialValue,
           onChange: onChange(config.name),
           onFocus: onFocus(config.name),
           onBlur: onBlur(config.name),
