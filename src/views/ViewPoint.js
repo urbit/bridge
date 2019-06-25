@@ -12,7 +12,6 @@ import { ROUTE_NAMES } from 'lib/routeNames';
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
 import { PointInput } from 'components/Inputs';
-import InputSigil from 'components/InputSigil';
 
 export default function ViewPoint() {
   const history = useHistory();
@@ -38,21 +37,15 @@ export default function ViewPoint() {
       <PointInput
         name="point"
         label="Point Name"
+        initialValue={pointName}
         onValue={setPointName}
+        pass={pass}
         onPass={setPass}
+        error={error}
         onError={setError}
+        focused={focused}
         onFocus={setFocused}
         onEnter={goForward}
-        accessory={
-          <InputSigil
-            patp={pointName}
-            size={68}
-            margin={8}
-            pass={pass}
-            focused={focused}
-            error={error}
-          />
-        }
         autoFocus
       />
 

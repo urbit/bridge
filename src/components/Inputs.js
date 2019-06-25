@@ -2,11 +2,14 @@ import React from 'react';
 import { Input } from 'indigo-react';
 import * as bip39 from 'bip39';
 
+import InputSigil from 'components/InputSigil';
+
 import { DEFAULT_HD_PATH } from 'lib/wallet';
 import {
   validateNotEmpty,
   validateMnemonic,
   validatePoint,
+  validateTicket,
 } from 'lib/validators';
 import { prependSig } from 'lib/transformers';
 
@@ -82,13 +85,34 @@ export function PointInput(props) {
       validators={[validatePoint, validateNotEmpty]}
       transformers={[prependSig]}
       mono
+      accessory={
+        <InputSigil
+          patp={props.initialValue || '~'}
+          size={68}
+          margin={8}
+          pass={props.pass}
+          onPass={props.setPass}
+          focused={props.focused}
+          onFocus={props.setFocused}
+          error={props.error}
+          onError={props.setError}
+        />
+      }
       {...props}
     />
   );
 }
 
-// const TicketInput = advancedInput({
-//   WrappedComponent: Input,
-//   validators: [validateTicket, validateNotEmpty],
-//   transformers: [prependSig],
-// });
+//TODO needs to be fancier, displaying sig and dashes instead of •ing all
+export function TicketInput(props) {
+  return (
+    <Input
+      type="password"
+      placeholder="~master-ticket"
+      validators={[validateTicket, validateNotEmpty]}
+      transformers={[prependSig]}
+      mono
+      {...props}
+    />
+  );
+}

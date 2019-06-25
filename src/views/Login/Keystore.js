@@ -1,66 +1,56 @@
 import { Just, Nothing } from 'folktale/maybe';
 import { Ok, Error } from 'folktale/result';
-import React from 'react';
+import React, { useState } from 'react';
 import * as keythereum from 'keythereum';
-import { Button, UploadButton } from '../../components/old/Base';
-import { Input, InnerLabel, InputCaption } from '../../components/old/Base';
-import { Row, Col, H1, H3, Warning } from '../../components/old/Base';
 
-import * as need from '../../lib/need';
-import { EthereumWallet } from '../../lib/wallet';
-import { compose } from '../../lib/lib';
-import { withWallet } from '../../store/wallet';
+import View from 'components/View';
+import { PassphraseInput } from 'components/Inputs';
+import { ForwardButton } from 'components/Buttons';
+import { H3 } from 'indigo-react';
+import { InputCaption, UploadButton, Warning } from 'components/old/Base';
 
-class Keystore extends React.Component {
-  constructor(props) {
-    super(props);
+import * as need from 'lib/need';
+import { EthereumWallet } from 'lib/wallet';
+import { useWallet } from 'store/wallet';
 
-    this.state = {
-      keystore: Nothing(), // Maybe<Result<String, String>>
-      password: '',
-      decryptionProblem: false,
-    };
+export default function Keystore({ loginCompleted }) {
+  // globals
+  const { wallet, setWallet } = useWallet();
 
-    this.handleKeystoreUpload = this.handleKeystoreUpload.bind(this);
-    this.handlePasswordInput = this.handlePasswordInput.bind(this);
-    this.constructWallet = this.constructWallet.bind(this);
-  }
+  // inputs
+  // keystore: Maybe<Result<String, String>>
+  const [keystore, setKeystore] = useState(Nothing());
+  const [password, setPassword] = useState('');
+  const [decryptionProblem, setDecryptionProblem] = useState(false);
 
-  handlePasswordInput(password) {
-    this.setState({ password });
-  }
-
-  constructWallet() {
-    const { setWallet } = this.props;
-    const { password } = this.state;
-
+  const constructWallet = () => {
     try {
-      const text = need.keystore(this.state);
+      const text = need.keystore(keystore);
 
       const json = JSON.parse(text);
       const privateKey = keythereum.recover(password, json);
 
-      const wallet = new EthereumWallet(privateKey);
-      this.setState({ decryptionProblem: false });
-      setWallet(Just(wallet));
+      const newWallet = new EthereumWallet(privateKey);
+      setDecryptionProblem(false);
+      setWallet(Just(newWallet));
     } catch (err) {
-      this.setState({ decryptionProblem: true });
+      setDecryptionProblem(true);
       setWallet(Nothing());
     }
-  }
+  };
 
-  handleKeystoreUpload = event => {
+  const handleKeystoreUpload = event => {
     const file = event.files.item(0);
     const reader = new FileReader();
 
     reader.onload = e => {
       const keystore = e.target.result;
-      this.setState({ keystore: Just(Ok(keystore)) });
+      setKeystore(Just(Ok(keystore)));
     };
 
     const failure = _ => {
       const message = 'There was a problem uploading your Keystore file';
-      this.setState({ keystore: Just(Error(message)) });
+      setKeystore(Just(Error(message)));
     };
 
     reader.onerror = failure;
@@ -69,83 +59,64 @@ class Keystore extends React.Component {
     reader.readAsText(file);
   };
 
-  render() {
-    const { wallet } = this.props;
-    const { keystore, password, decryptionProblem } = this.state;
+  const uploadButtonClass = keystore.matchWith({
+    Nothing: _ => 'bg-blue white',
+    Just: ks =>
+      ks.value.matchWith({
+        Ok: _ => 'bg-green white',
+        Error: _ => 'bg-yellow black',
+      }),
+  });
 
-    const uploadButtonClass = keystore.matchWith({
-      Nothing: _ => 'bg-blue white',
-      Just: ks =>
-        ks.value.matchWith({
-          Ok: _ => 'bg-green white',
-          Error: _ => 'bg-yellow black',
-        }),
-    });
-
-    const decryptMessage =
-      decryptionProblem === false ? (
-        <div />
-      ) : (
-        <Warning className={'mt-8'}>
-          <H3 style={{ marginTop: 0, paddingTop: 0 }}>
-            {"Couldn't decrypt wallet."}
-          </H3>
-          {'You may have entered an incorrect password.'}
-        </Warning>
-      );
-
-    return (
-      <Row>
-        <Col className={'measure-md'}>
-          <H1 className={'mb-4'}>{'Upload Your Keystore File'}</H1>
-          <InputCaption>
-            {`Please upload your Ethereum keystore file.  If your keystore
-             file is encrypted with a password, you'll also need to enter
-             that below.`}
-          </InputCaption>
-
-          <UploadButton
-            className={`btn ${uploadButtonClass} mt-10`}
-            onChange={this.handleKeystoreUpload}>
-            <div className={'flex-center-all fs-4 h-11 pointer'}>
-              {'Upload Keystore file'}
-            </div>
-          </UploadButton>
-
-          <Input
-            className="pt-8 mt-8"
-            prop-size="md"
-            prop-format="innerLabel"
-            type="password"
-            name="password"
-            onChange={this.handlePasswordInput}
-            value={password}
-            autocomplete="off"
-            autoFocus>
-            <InnerLabel>{'Password'}</InnerLabel>
-          </Input>
-
-          <Button
-            className={` mt-10`}
-            prop-size={'wide lg'}
-            disabled={Nothing.hasInstance(keystore)}
-            onClick={this.constructWallet}>
-            {'Decrypt'}
-          </Button>
-
-          {decryptMessage}
-
-          <Button
-            className={'mt-10'}
-            prop-size={'wide lg'}
-            disabled={Nothing.hasInstance(wallet)}
-            onClick={this.props.loginCompleted}>
-            {'Continue →'}
-          </Button>
-        </Col>
-      </Row>
+  const decryptMessage =
+    decryptionProblem === false ? (
+      <div />
+    ) : (
+      <Warning className="mt-8">
+        <H3 style={{ marginTop: 0, paddingTop: 0 }}>
+          Couldn't decrypt wallet.
+        </H3>
+        You may have entered an incorrect password.
+      </Warning>
     );
-  }
-}
 
-export default compose(withWallet)(Keystore);
+  return (
+    <View>
+      <InputCaption>
+        Please upload your Ethereum keystore file. If your keystore file is
+        encrypted with a password, you'll also need to enter that below.
+      </InputCaption>
+
+      <UploadButton
+        className={`${uploadButtonClass} mt3`}
+        onChange={handleKeystoreUpload}>
+        <div className="flex-center-all fs-4 h-11 pointer">
+          Upload Keystore file
+        </div>
+      </UploadButton>
+
+      <PassphraseInput
+        name="password"
+        label="Keystore password"
+        initialValue={password}
+        onValue={setPassword}
+        autoFocus></PassphraseInput>
+
+      <ForwardButton
+        className="mt3"
+        disabled={Nothing.hasInstance(keystore)}
+        onClick={constructWallet}>
+        Decrypt
+      </ForwardButton>
+
+      {decryptMessage}
+
+      <ForwardButton
+        className="mt3"
+        disabled={Nothing.hasInstance(wallet)}
+        onClick={loginCompleted}>
+        Continue
+      </ForwardButton>
+    </View>
+  );
+}
