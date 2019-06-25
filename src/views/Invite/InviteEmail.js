@@ -53,9 +53,8 @@ const EMAIL_STATUS = {
 
 // world's simplest uid
 let id = 0;
-
 const buildInputConfig = (extra = {}) =>
-  buildEmailInputConfig({ name: (id++).toString(), ...extra });
+  buildEmailInputConfig({ name: `email-${id++}`, ...extra });
 
 export default function NewInviteEmail() {
   const { pop } = useLocalRouter();
