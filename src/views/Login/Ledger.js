@@ -7,14 +7,8 @@ import * as secp256k1 from 'secp256k1';
 
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
-import {
-  H1,
-  P,
-  H2,
-  Input,
-  InnerLabel,
-  InnerLabelDropdown,
-} from 'components/old/Base';
+import { H1, H2, P, Input } from 'indigo-react';
+import { InnerLabel, InnerLabelDropdown } from 'components/old/Base';
 
 import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from 'lib/ledger';
 import { useWallet } from 'store/wallet';

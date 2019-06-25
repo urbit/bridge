@@ -6,13 +6,8 @@ import * as secp256k1 from 'secp256k1';
 
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
-import {
-  H1,
-  P,
-  InnerLabel,
-  Input,
-  InnerLabelDropdown,
-} from 'components/old/Base';
+import { H1, P, Input } from 'indigo-react';
+import { InnerLabel, InnerLabelDropdown } from 'components/old/Base';
 
 import { TREZOR_PATH } from 'lib/trezor';
 import { useWallet } from 'store/wallet';

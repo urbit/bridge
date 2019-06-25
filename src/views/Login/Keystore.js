@@ -6,7 +6,8 @@ import * as keythereum from 'keythereum';
 import View from 'components/View';
 import { PassphraseInput } from 'components/Inputs';
 import { ForwardButton } from 'components/Buttons';
-import { InputCaption, UploadButton, H3, Warning } from 'components/old/Base';
+import { H3 } from 'indigo-react';
+import { InputCaption, UploadButton, Warning } from 'components/old/Base';
 
 import * as need from 'lib/need';
 import { EthereumWallet } from 'lib/wallet';
