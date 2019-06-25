@@ -109,64 +109,72 @@ export default function Ledger({ loginCompleted }) {
       />
     );
 
+  // when not on https, tell user how to get there
+  const body =
+    document.location.protocol !== 'https:' ? (
+      <>
+        <H2>Running on HTTP?</H2>
+
+        <P>
+          To authenticate and sign transactions with a Ledger, Bridge must be
+          serving over HTTPS on localhost. You can do this via the following:
+        </P>
+
+        <ol className="measure-md">
+          <li className="mt-4">
+            Install
+            <a target="_blank" href="https://github.com/FiloSottile/mkcert">
+              mkcert
+            </a>
+          </li>
+          <li className="mt-4">
+            Install a local certificate authority via{' '}
+            <code>mkcert -install</code>
+          </li>
+          <li className="mt-4">
+            In your <code>bridge</code> directory, generate a certificate valid
+            for localhost via <code>mkcert localhost</code>. This will produce
+            two files: <code>localhost.pem</code>, the local certificate, and
+            <code>localhost-key.pem</code> , its corresponding private key.
+          </li>
+          <li className="mt-4">
+            Run <code>python bridge-https.py</code>
+          </li>
+        </ol>
+      </>
+    ) : (
+      <>
+        <P>
+          Connect and authenticate to your Ledger, and then open the "Ethereum"
+          application. If you're running on older firmware, make sure the
+          "browser support" option is turned on. To sign transactions, you'll
+          also need to enable the "contract data" option.
+        </P>
+
+        <P>
+          If you'd like to use a custom derivation path, you may enter it below.
+        </P>
+
+        {basePathSelection}
+        {truePathSelection}
+
+        <ForwardButton className={'mt3'} onClick={pollDevice}>
+          {'Authenticate'}
+        </ForwardButton>
+
+        <ForwardButton
+          className={'mt3'}
+          disabled={Maybe.Nothing.hasInstance(wallet)}
+          onClick={loginCompleted}>
+          {'Continue'}
+        </ForwardButton>
+      </>
+    );
+
   return (
     <View>
       <H1>Authenticate With Your Ledger</H1>
-
-      <H2>Running on HTTPS?</H2>
-
-      <P>
-        Connect and authenticate to your Ledger, and then open the "Ethereum"
-        application. If you're running on older firmware, make sure the "browser
-        support" option is turned on. To sign transactions, you'll also need to
-        enable the "contract data" option.
-      </P>
-
-      <P>
-        If you'd like to use a custom derivation path, you may enter it below.
-      </P>
-
-      <H2>Running on HTTP?</H2>
-
-      <P>
-        To authenticate and sign transactions with a Ledger, Bridge must be
-        serving over HTTPS on localhost. You can do this via the following:
-      </P>
-
-      <ol className="measure-md">
-        <li className="mt-4">
-          Install
-          <a target="_blank" href="https://github.com/FiloSottile/mkcert">
-            mkcert
-          </a>
-        </li>
-        <li className="mt-4">
-          Install a local certificate authority via <code>mkcert -install</code>
-        </li>
-        <li className="mt-4">
-          In your <code>bridge</code> directory, generate a certificate valid
-          for localhost via <code>mkcert localhost</code>. This will produce two
-          files: <code>localhost.pem</code>, the local certificate, and
-          <code>localhost-key.pem</code> , its corresponding private key.
-        </li>
-        <li className="mt-4">
-          Run <code>python bridge-https.py</code>
-        </li>
-      </ol>
-
-      {basePathSelection}
-      {truePathSelection}
-
-      <ForwardButton className={'mt3'} onClick={pollDevice}>
-        {'Authenticate'}
-      </ForwardButton>
-
-      <ForwardButton
-        className={'mt3'}
-        disabled={Maybe.Nothing.hasInstance(wallet)}
-        onClick={loginCompleted}>
-        {'Continue'}
-      </ForwardButton>
+      {body}
     </View>
   );
 }
