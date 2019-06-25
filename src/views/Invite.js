@@ -7,17 +7,17 @@ import { useHistory } from 'store/history';
 
 import View from 'components/View';
 import Crumbs from 'components/Crumbs';
+import Highlighted from 'components/Highlighted';
+import { matchBlinky } from 'components/Blinky';
 
 import useInvites from 'lib/useInvites';
-import useSyncPoint from 'lib/useSyncPoint';
+import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useCurrentPointName from 'lib/useCurrentPointName';
 import useRouter from 'lib/useRouter';
-import loadingCharacter from 'lib/loadingCharacter';
 import { LocalRouterProvider } from 'lib/LocalRouter';
 
 import InviteUrl from './Invite/InviteUrl';
 import InviteEmail from './Invite/InviteEmail';
-import Highlighted from 'components/Highlighted';
 
 const kInviteNames = {
   URL: 'URL',
@@ -41,15 +41,15 @@ export default function Invite() {
   const name = useCurrentPointName();
 
   // sync the current point
-  useSyncPoint(point);
+  useSyncOwnedPoints([point]);
 
   // get the invites for the current point
   const { availableInvites, sentInvites, acceptedInvites } = useInvites(point);
 
   // number or loading character
-  const availableInvitesText = loadingCharacter(availableInvites);
-  const sentInvitesText = loadingCharacter(sentInvites);
-  const acceptedInvitesText = loadingCharacter(acceptedInvites);
+  const availableInvitesText = matchBlinky(availableInvites);
+  const sentInvitesText = matchBlinky(sentInvites);
+  const acceptedInvitesText = matchBlinky(acceptedInvites);
 
   return (
     <LocalRouterProvider value={router}>

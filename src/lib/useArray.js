@@ -11,7 +11,6 @@ export default function useArray(initialItems = [], itemBuilder) {
   const removeAt = i =>
     _setItems(items => {
       const newItems = [...items.slice(0, i), ...items.slice(i + 1)];
-      console.log(items.length, newItems.length);
       return newItems;
     });
 

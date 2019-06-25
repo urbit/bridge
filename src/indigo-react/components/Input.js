@@ -41,10 +41,10 @@ export default function Input({
   // state that we already know
   // this also happens to prevent render loops when rendering a map of inputs
 
-  // notify parent of enter keypress iff not disabled
+  // notify parent of enter keypress iff not disabled and passing
   const onKeyPress = useCallback(
-    e => !disabled && e.key === 'Enter' && onEnter && onEnter(),
-    [disabled] // eslint-disable-line react-hooks/exhaustive-deps
+    e => !disabled && pass && e.key === 'Enter' && onEnter && onEnter(),
+    [disabled, pass] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   // notify parent of value only when passing

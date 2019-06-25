@@ -3,18 +3,18 @@ import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
+import { useHistory } from 'store/history';
 
 import View from 'components/View';
 import Passport from 'components/Passport';
 import { ForwardButton } from 'components/Buttons';
+import FooterButton from 'components/FooterButton';
+import { matchBlinky } from 'components/Blinky';
 
 import useInvites from 'lib/useInvites';
-import useSyncPoint from 'lib/useSyncPoint';
+import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import { ROUTE_NAMES } from 'lib/routeNames';
 
-import { useHistory } from 'store/history';
-import FooterButton from 'components/FooterButton';
-import loadingCharacter from 'lib/loadingCharacter';
 import Actions from './Point/Actions';
 
 export default function Point() {
@@ -26,14 +26,14 @@ export default function Point() {
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);
-  const availableInvitesText = loadingCharacter(availableInvites);
+  const availableInvitesText = matchBlinky(availableInvites);
 
   const goInvite = useCallback(() => history.push(ROUTE_NAMES.INVITE), [
     history,
   ]);
 
   // sync the current cursor
-  useSyncPoint(point);
+  useSyncOwnedPoints([point]);
 
   return (
     <View>
