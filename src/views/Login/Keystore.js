@@ -2,18 +2,22 @@ import { Just, Nothing } from 'folktale/maybe';
 import { Ok, Error } from 'folktale/result';
 import React, { useState } from 'react';
 import * as keythereum from 'keythereum';
+import { H3, Input } from 'indigo-react';
 
 import View from 'components/View';
 import { usePassphraseInput } from 'components/Inputs';
 import { ForwardButton } from 'components/Buttons';
-import { H3, Input } from 'indigo-react';
 import { InputCaption, UploadButton, Warning } from 'components/old/Base';
 
-import * as need from 'lib/need';
-import { EthereumWallet } from 'lib/wallet';
 import { useWallet } from 'store/wallet';
 
+import * as need from 'lib/need';
+import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
+import useWalletType from 'lib/useWalletType';
+
 export default function Keystore({ loginCompleted }) {
+  useWalletType(WALLET_TYPES.KEYSTORE);
+
   // globals
   const { wallet, setWallet } = useWallet();
 

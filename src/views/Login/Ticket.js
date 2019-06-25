@@ -2,6 +2,7 @@ import { Just, Nothing } from 'folktale/maybe';
 import React, { useCallback, useState, useEffect } from 'react';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
+import { Input } from 'indigo-react';
 
 import View from 'components/View';
 import {
@@ -11,13 +12,13 @@ import {
 } from 'components/Inputs';
 import { ForwardButton } from 'components/Buttons';
 
-import * as need from 'lib/need';
-import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
-
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
-import { Input } from 'indigo-react';
+
+import * as need from 'lib/need';
+import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
+import useWalletType from 'lib/useWalletType';
 
 //TODO should be part of InputWithStatus component
 const INPUT_STATUS = {
@@ -27,9 +28,10 @@ const INPUT_STATUS = {
 };
 
 export default function Ticket({ advanced, loginCompleted }) {
+  useWalletType(WALLET_TYPES.TICKET);
   // globals
   const { contracts } = useNetwork();
-  const { wallet, setWalletType, setUrbitWallet } = useWallet();
+  const { wallet, setUrbitWallet } = useWallet();
   const { setPointCursor } = usePointCursor();
 
   // inputs
@@ -100,7 +102,6 @@ export default function Ticket({ advanced, loginCompleted }) {
   };
 
   const doContinue = () => {
-    setWalletType(WALLET_TYPES.TICKET);
     setPointCursor(Just(ob.patp2dec(pointName)));
     loginCompleted();
   };

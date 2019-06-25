@@ -1,15 +1,18 @@
 import { Just, Nothing } from 'folktale/maybe';
 import React, { useEffect } from 'react';
+import { Input } from 'indigo-react';
 
 import View from 'components/View';
 import { usePassphraseInput } from 'components/Inputs';
 import { ForwardButton } from 'components/Buttons';
 
-import { EthereumWallet } from 'lib/wallet';
 import { useWallet } from 'store/wallet';
-import { Input } from 'indigo-react';
+
+import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
+import useWalletType from 'lib/useWalletType';
 
 export default function PrivateKey({ loginCompleted }) {
+  useWalletType(WALLET_TYPES.PRIVATE_KEY);
   const { wallet, setWallet } = useWallet();
 
   const privateKeyInput = usePassphraseInput({

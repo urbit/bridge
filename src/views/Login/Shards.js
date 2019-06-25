@@ -1,6 +1,7 @@
 import { Just, Nothing } from 'folktale/maybe';
 import React from 'react';
 import * as kg from 'urbit-key-generation/dist/index';
+import { Input } from 'indigo-react';
 
 import View from 'components/View';
 import {
@@ -10,11 +11,14 @@ import {
 } from 'components/Inputs';
 import { ForwardButton } from 'components/Buttons';
 
-import { urbitWalletFromTicket } from 'lib/wallet';
 import { useWallet } from 'store/wallet';
-import { Input } from 'indigo-react';
+
+import { urbitWalletFromTicket, WALLET_TYPES } from 'lib/wallet';
+import useWalletType from 'lib/useWalletType';
 
 export default function Shards({ loginCompleted }) {
+  useWalletType(WALLET_TYPES.SHARDS);
+
   const { wallet, setUrbitWallet } = useWallet();
 
   const pointInput = usePointInput({

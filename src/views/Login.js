@@ -41,7 +41,7 @@ export default function Login() {
   // globals
   const history = useHistory();
   const { contracts } = useNetwork();
-  const { wallet, setUrbitWallet } = useWallet();
+  const { wallet, resetWallet } = useWallet();
   const { pointCursor, setPointCursor } = usePointCursor();
 
   // inputs
@@ -49,8 +49,7 @@ export default function Login() {
 
   // on-mount
   useLifecycle(() => {
-    setUrbitWallet(Nothing());
-    setPointCursor(Nothing());
+    resetWallet();
   });
 
   const doContinue = async () => {

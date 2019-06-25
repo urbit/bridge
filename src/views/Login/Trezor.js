@@ -4,13 +4,16 @@ import Maybe from 'folktale/maybe';
 import { times } from 'lodash';
 import TrezorConnect from 'trezor-connect';
 import * as secp256k1 from 'secp256k1';
+import { H1, P, Input } from 'indigo-react';
 
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
-import { H1, P, Input } from 'indigo-react';
 import { InnerLabelDropdown } from 'components/old/Base';
 
 import { TREZOR_PATH } from 'lib/trezor';
+import useWalletType from 'lib/useWalletType';
+import { WALLET_TYPES } from 'lib/wallet';
+
 import { useWallet } from 'store/wallet';
 
 const accountOptions = [
@@ -19,6 +22,8 @@ const accountOptions = [
 ];
 
 export default function Trezor({ loginCompleted }) {
+  useWalletType(WALLET_TYPES.TREZOR);
+
   const { wallet, setWallet, setWalletHdPath } = useWallet();
 
   const [hdPath, setHdPath] = useState(TREZOR_PATH.replace(/x/g, 0));

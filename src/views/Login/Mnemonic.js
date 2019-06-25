@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
+import { Input } from 'indigo-react';
 
 import View from 'components/View';
 import {
@@ -9,11 +10,13 @@ import {
 } from 'components/Inputs';
 import { ForwardButton } from 'components/Buttons';
 
-import { walletFromMnemonic } from 'lib/wallet';
 import { useWallet } from 'store/wallet';
-import { Input } from 'indigo-react';
+
+import { walletFromMnemonic, WALLET_TYPES } from 'lib/wallet';
+import useWalletType from 'lib/useWalletType';
 
 export default function Mnemonic({ advanced, loginCompleted }) {
+  useWalletType(WALLET_TYPES.MNEMONIC);
   const {
     wallet,
     setWallet,
