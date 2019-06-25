@@ -24,6 +24,18 @@ const TABS = {
   ADVANCED: Symbol('ADVANCED'),
 };
 
+const tabViews = {
+  [TABS.TICKET]: Ticket,
+  [TABS.MNEMONIC]: Mnemonic,
+  [TABS.ADVANCED]: Advanced,
+};
+
+const tabOptions = [
+  { title: 'Ticket', value: TABS.TICKET },
+  { title: 'Mnemonic', value: TABS.MNEMONIC },
+  { title: 'Advanced', value: TABS.ADVANCED },
+];
+
 export default function Login() {
   // globals
   const history = useHistory();
@@ -78,18 +90,6 @@ export default function Login() {
       history.popAndPush(ROUTE_NAMES.POINTS);
     }
   };
-
-  const tabViews = {
-    [TABS.TICKET]: Ticket,
-    [TABS.MNEMONIC]: Mnemonic,
-    [TABS.ADVANCED]: Advanced,
-  };
-
-  const tabOptions = [
-    { title: 'Ticket', value: TABS.TICKET },
-    { title: 'Mnemonic', value: TABS.MNEMONIC },
-    { title: 'Advanced', value: TABS.ADVANCED },
-  ];
 
   return (
     <View>

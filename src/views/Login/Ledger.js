@@ -14,6 +14,12 @@ import { InnerLabel, InnerLabelDropdown } from 'components/old/Base';
 import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from 'lib/ledger';
 import { useWallet } from 'store/wallet';
 
+const pathOptions = [
+  { title: 'Ledger Live', value: LEDGER_LIVE_PATH },
+  { title: 'Ledger Legacy', value: LEDGER_LEGACY_PATH },
+  { title: 'Custom path', value: 'custom' },
+];
+
 const chopHdPrefix = str => (str.slice(0, 2) === 'm/' ? str.slice(2) : str);
 
 const addHdPrefix = str => (str.slice(0, 2) === 'm/' ? str : 'm/' + str);
@@ -61,11 +67,6 @@ export default function Ledger({ loginCompleted }) {
     );
   };
 
-  const pathOptions = [
-    { title: 'Ledger Live', value: LEDGER_LIVE_PATH },
-    { title: 'Ledger Legacy', value: LEDGER_LEGACY_PATH },
-    { title: 'Custom path', value: 'custom' },
-  ];
   const basePathTitle = pathOptions.find(o => o.value === basePath).title;
 
   const accountOptions = times(20, i => ({
