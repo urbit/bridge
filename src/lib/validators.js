@@ -3,10 +3,10 @@ import * as ob from 'urbit-ob';
 
 import { isValidAddress } from './wallet';
 
-// via: https://emailregex.com/
-const emailRegExp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+// W3C HTML5 type="email" validation regex via: https://emailregex.com/
+const emailRegExp = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
-// is this hex?
+// is this 64 hex chars?
 const hexRegExp = /[0-9A-Fa-f]{64}/g;
 
 // Wraps single validation functions in a controlled and predictable way.
