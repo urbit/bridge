@@ -1,6 +1,7 @@
 import * as bip32 from 'bip32';
 import React, { useState } from 'react';
 import Maybe from 'folktale/maybe';
+import { times } from 'lodash';
 import TrezorConnect from 'trezor-connect';
 import * as secp256k1 from 'secp256k1';
 
@@ -46,12 +47,9 @@ export default function Trezor({ loginCompleted }) {
   };
 
   let accountOptions = [{ title: 'Custom path', value: 'custom' }];
-  for (let i = 0; i < 20; i++) {
-    accountOptions.push({
-      title: 'Account #' + (i + 1),
-      value: i,
-    });
-  }
+  times(20, i => {
+    accountOptions.push({ title: `Account #${i + 1}`, value: i });
+  });
   let accountTitle = accountOptions.find(o => o.value === account).title;
 
   const accountSelection = (

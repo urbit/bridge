@@ -1,5 +1,6 @@
 import * as bip32 from 'bip32';
 import React, { useState } from 'react';
+import { times } from 'lodash';
 import Maybe from 'folktale/maybe';
 import Transport from '@ledgerhq/hw-transport-u2f';
 import Eth from '@ledgerhq/hw-app-eth';
@@ -67,13 +68,10 @@ export default function Ledger({ loginCompleted }) {
   ];
   const basePathTitle = pathOptions.find(o => o.value === basePath).title;
 
-  let accountOptions = [];
-  for (let i = 0; i < 20; i++) {
-    accountOptions.push({
-      title: 'Account #' + (i + 1),
-      value: i,
-    });
-  }
+  const accountOptions = times(20, i => ({
+    title: `Account #${i + 1}`,
+    value: i,
+  }));
   const accountTitle = accountOptions.find(o => o.value === account).title;
 
   const basePathSelection = (
