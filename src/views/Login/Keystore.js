@@ -30,9 +30,9 @@ export default function Keystore({ loginCompleted }) {
       const json = JSON.parse(text);
       const privateKey = keythereum.recover(password, json);
 
-      const wallet = new EthereumWallet(privateKey);
+      const newWallet = new EthereumWallet(privateKey);
       setDecryptionProblem(false);
-      setWallet(Just(wallet));
+      setWallet(Just(newWallet));
     } catch (err) {
       setDecryptionProblem(true);
       setWallet(Nothing());

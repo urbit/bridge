@@ -44,22 +44,22 @@ export default function Login() {
   }, []);
 
   const doContinue = async () => {
-    const realWallet = need.wallet(wallet);
-    const realContracts = need.contracts(contracts);
+    const _wallet = need.wallet(wallet);
+    const _contracts = need.contracts(contracts);
 
     // if no point cursor set by login logic, try to deduce it
     let deduced = Nothing();
     if (Nothing.hasInstance(pointCursor)) {
       const owned = await azimuth.azimuth.getOwnedPoints(
-        realContracts,
-        realWallet.address
+        _contracts,
+        _wallet.address
       );
       if (owned.length === 1) {
         deduced = Just(owned[0]);
       } else if (owned.length === 0) {
         const canOwn = await azimuth.azimuth.getTransferringFor(
-          realContracts,
-          realWallet.address
+          _contracts,
+          _wallet.address
         );
         if (canOwn.length === 1) {
           deduced = Just(canOwn[0]);

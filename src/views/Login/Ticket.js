@@ -49,16 +49,16 @@ export default function Ticket({ advanced, loginCompleted }) {
       return;
     }
     setTicketStatus(Just(INPUT_STATUS.SPIN));
-    const realContracts = need.contracts(contracts);
+    const _contracts = need.contracts(contracts);
     const pointNumber = ob.patp2dec(pointName);
     const uhdw = await urbitWalletFromTicket(ticket, pointName, passphrase);
     const isOwner = azimuth.azimuth.isOwner(
-      realContracts,
+      _contracts,
       pointNumber,
       uhdw.ownership.keys.address
     );
     const isTransferProxy = azimuth.azimuth.isTransferProxy(
-      realContracts,
+      _contracts,
       pointNumber,
       uhdw.ownership.keys.address
     );
