@@ -21,6 +21,8 @@ Grid.Item = function GridItem({
   fourth = 0,
   rows = [],
   cols = [],
+  justifySelf,
+  alignSelf,
   className,
   ...rest
 }) {
@@ -37,6 +39,10 @@ Grid.Item = function GridItem({
         {
           [`r${rows[0]}-${rows[1]}`]: rows.length === 2,
           [`c${cols[0]}-${cols[1]}`]: cols.length === 2,
+        },
+        {
+          [`justify-self-${justifySelf}`]: justifySelf,
+          [`align-self-${alignSelf}`]: alignSelf,
         },
         className
       )}

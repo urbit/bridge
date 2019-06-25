@@ -5,18 +5,14 @@ import { getRouteBreadcrumb } from '../../lib/router';
 import { ROUTE_NAMES } from '../../lib/routeNames';
 import { useHistory } from '../../store/history';
 import { isLast } from '../../lib/lib';
-import { useNetwork } from '../../store/network';
-import { useWallet } from '../../store/wallet';
 import { usePointCursor } from '../../store/pointCursor';
 
 // hook to create a breadcrumb builder function based on the current
 // global states
 function useRouteBreadcrumbBuilder() {
-  const { networkType } = useNetwork();
-  const { wallet } = useWallet();
   const { pointCursor } = usePointCursor();
 
-  return getRouteBreadcrumb({ pointCursor, networkType, wallet });
+  return getRouteBreadcrumb({ pointCursor });
 }
 
 function Crumbs(props) {

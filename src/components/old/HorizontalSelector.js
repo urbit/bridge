@@ -22,8 +22,8 @@ class HorizontalSelector extends React.Component {
       let active = opt.value === this.state.option ? 'btn-primary active' : '';
       return (
         <button
+          key={opt.value.toString()}
           className={`btn ${active} h-10 ph-4 flex sans ${this.props.className}`}
-          value={opt.value}
           onClick={() => this.selectOption(opt.value)}>
           {opt.title}
         </button>

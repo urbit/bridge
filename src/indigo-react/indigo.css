@@ -13,7 +13,7 @@
   * git+https://github.com/urbit/Indigo.git
   * Bugs: https://github.com/urbit/Indigo/issues
   * License: MIT
-  * Timestamp: Wed Jun 19 2019 17:17:14 GMT-0700 (Pacific Daylight Time)
+  * Timestamp: Mon Jun 24 2019 19:57:25 GMT-0700 (Pacific Daylight Time)
   *******************************************************************************/
 /**********************
 Color variables
@@ -1575,19 +1575,34 @@ caption,
   justify-content: center;
   align-items: center; }
 
-.self-start {
+.align-self-start {
   align-self: flex-start; }
 
-.self-end {
+.align-self-end {
   align-self: flex-end; }
 
-.self-center {
+.align-self-center {
   align-self: center; }
 
-.self-baseline {
+.align-self-baseline {
   align-self: baseline; }
 
-.self-stretch {
+.align-self-stretch {
+  align-self: stretch; }
+
+.justify-self-start {
+  justify-self: flex-start; }
+
+.justify-self-end {
+  justify-self: flex-end; }
+
+.justify-self-center {
+  justify-self: center; }
+
+.justify-self-baseline {
+  justify-self: baseline; }
+
+.align-self-stretch {
   align-self: stretch; }
 
 .content-start {
@@ -1648,16 +1663,26 @@ caption,
   .flex-center-ns {
     justify-content: center;
     align-items: center; }
-  .self-start-ns {
+  .align-self-start-ns {
     align-self: flex-start; }
-  .self-end-ns {
+  .align-self-end-ns {
     align-self: flex-end; }
-  .self-center-ns {
+  .align-self-center-ns {
     align-self: center; }
-  .self-baseline-ns {
+  .align-self-baseline-ns {
     align-self: baseline; }
-  .self-stretch-ns {
+  .align-self-stretch-ns {
     align-self: stretch; }
+  .justify-self-start-ns {
+    justify-self: flex-start; }
+  .justify-self-end-ns {
+    justify-self: flex-end; }
+  .justify-self-center-ns {
+    justify-self: center; }
+  .justify-self-baseline-ns {
+    justify-self: baseline; }
+  .justify-self-stretch-ns {
+    justify-self: stretch; }
   .content-start-ns {
     align-content: flex-start; }
   .content-end-ns {
@@ -1711,16 +1736,26 @@ caption,
   .flex-center-md {
     justify-content: center;
     align-items: center; }
-  .self-start-md {
+  .align-self-start-md {
     align-self: flex-start; }
-  .self-end-md {
+  .align-self-end-md {
     align-self: flex-end; }
-  .self-center-md {
+  .align-self-center-md {
     align-self: center; }
-  .self-baseline-md {
+  .align-self-baseline-md {
     align-self: baseline; }
-  .self-stretch-md {
+  .align-self-stretch-md {
     align-self: stretch; }
+  .justify-self-start-md {
+    justify-self: flex-start; }
+  .justify-self-end-md {
+    justify-self: flex-end; }
+  .justify-self-center-md {
+    justify-self: center; }
+  .justify-self-baseline-md {
+    justify-self: baseline; }
+  .justify-self-stretch-md {
+    justify-self: stretch; }
   .content-start-md {
     align-content: flex-start; }
   .content-end-md {
@@ -1774,16 +1809,26 @@ caption,
   .flex-center-lg {
     justify-content: center;
     align-items: center; }
-  .self-start-lg {
+  .align-self-start-lg {
     align-self: flex-start; }
-  .self-end-lg {
+  .align-self-end-lg {
     align-self: flex-end; }
-  .self-center-lg {
+  .align-self-center-lg {
     align-self: center; }
-  .self-baseline-lg {
+  .align-self-baseline-lg {
     align-self: baseline; }
-  .self-stretch-lg {
+  .align-self-stretch-lg {
     align-self: stretch; }
+  .justify-self-start-lg {
+    justify-self: flex-start; }
+  .justify-self-end-lg {
+    justify-self: flex-end; }
+  .justify-self-center-lg {
+    justify-self: center; }
+  .justify-self-baseline-lg {
+    justify-self: baseline; }
+  .justify-self-stretch-lg {
+    justify-self: stretch; }
   .content-start-lg {
     align-content: flex-start; }
   .content-end-lg {

@@ -1,13 +1,13 @@
-import { Just, Nothing } from 'folktale/maybe';
-import React from 'react';
+import Maybe, { Just, Nothing } from 'folktale/maybe';
+import React, { useState } from 'react';
 import * as azimuth from 'azimuth-js';
+import { Grid, Flex, Button, Input, IconButton } from 'indigo-react';
+
 import * as need from 'lib/need';
-
 import { hasReceived, sendMail } from 'lib/inviteMail';
-import { Button, Input, H3, Warning } from 'components/old/Base';
+import * as wg from 'lib/walletgen';
 
-// for wallet generation
-import * as wg from '_walletgen/lib/lib';
+import { H3, Warning } from 'components/old/Base';
 
 // for transaction generation and signing
 import {
@@ -19,11 +19,17 @@ import {
   toWei,
 } from 'lib/txn';
 import * as tank from 'lib/tank';
-import { withNetwork } from 'store/network';
-import { compose } from 'lib/lib';
-import { withWallet } from 'store/wallet';
-import { withPointCursor } from 'store/pointCursor';
+import { useLocalRouter } from 'lib/LocalRouter';
+
 import View from 'components/View';
+import MiniBackButton from 'components/MiniBackButton';
+import useRenderCount from 'lib/useRenderCount';
+import useInvites from 'lib/useInvites';
+import { usePointCursor } from 'store/pointCursor';
+import LoadableButton from 'components/LoadableButton';
+import useArray from 'lib/useArray';
+import useForm from 'indigo-react/lib/useForm';
+import { buildEmailInputConfig } from 'components/Inputs';
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = 350000;
@@ -45,13 +51,90 @@ const EMAIL_STATUS = {
   FAIL: '×',
 };
 
+// world's simplest uid
+let id = 0;
+
+const buildInputConfig = (extra = {}) =>
+  buildEmailInputConfig({ name: (id++).toString(), ...extra });
+
+export default function NewInviteEmail() {
+  const { pop } = useLocalRouter();
+  const { pointCursor } = usePointCursor();
+  const point = need.pointCursor(pointCursor);
+
+  const { availableInvites } = useInvites(point);
+  const maxInvitesToSend = availableInvites.matchWith({
+    Nothing: () => 0,
+    Just: p => p.value,
+  });
+
+  const [
+    inputConfigs,
+    { append: appendInput, removeAt: removeInputAt },
+  ] = useArray(
+    [buildInputConfig({ placeholder: 'Email Addresss' })],
+    buildInputConfig
+  );
+
+  const [hovered, _setHovered] = useState({});
+  const setHovered = (name, value) => () =>
+    _setHovered((value = { ...value, [name]: value }));
+
+  console.log(inputConfigs.length, inputConfigs.map(c => c.name));
+
+  const { inputs, pass } = useForm(inputConfigs);
+
+  const canAddInvite = inputs.length < maxInvitesToSend;
+
+  useRenderCount('InviteEmail');
+
+  return (
+    <Grid gap={12}>
+      <Grid.Item as={Grid} className="mb4" full>
+        <Grid.Item as={Flex} cols={[1, 11]} align="center">
+          <MiniBackButton onClick={() => pop()} />
+        </Grid.Item>
+        <Grid.Item cols={[11, 13]} justifySelf="end">
+          <IconButton onClick={appendInput} disabled={!canAddInvite} solid>
+            +
+          </IconButton>
+        </Grid.Item>
+      </Grid.Item>
+
+      {/* email inputs */}
+      {inputs.map((input, i) => {
+        const isFirst = i === 0;
+        return (
+          <Grid.Item
+            key={input.name}
+            as={Grid}
+            gap={12}
+            onMouseEnter={setHovered(input.name, true)}
+            onMouseLeave={setHovered(input.name, false)}
+            full>
+            <Grid.Item as={Input} cols={[1, 11]} {...input} />
+            {!isFirst && (input.focused || hovered[input.name]) && (
+              <Grid.Item cols={[11, 13]} justifySelf="end" alignSelf="center">
+                <IconButton onClick={() => removeInputAt(i)}>-</IconButton>
+              </Grid.Item>
+            )}
+          </Grid.Item>
+        );
+      })}
+
+      <Grid.Item as={LoadableButton} full disabled={!pass} solid>
+        Generate Invites
+      </Grid.Item>
+    </Grid>
+  );
+}
+
 class InviteEmail extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       invitesAvailable: Nothing(),
-      invited: Nothing(),
       targets: [{ email: '', hasReceived: Nothing(), status: Nothing() }],
       status: STATUS.INPUT,
       errors: Nothing(),
@@ -60,7 +143,6 @@ class InviteEmail extends React.Component {
       wipInvites: [],
     };
 
-    this.findInvited = this.findInvited.bind(this);
     this.generateInvites = this.generateInvites.bind(this);
     this.sendInvites = this.sendInvites.bind(this);
     this.canSend = this.canSend.bind(this);
@@ -78,33 +160,11 @@ class InviteEmail extends React.Component {
     this.contracts = need.contracts(this.props.contracts);
     this.web3 = need.web3(this.props.web3);
 
-    console.log(azimuth.delegatedSending);
     azimuth.delegatedSending
       .getTotalUsableInvites(this.contracts, this.point)
       .then(count => {
         this.setState({ invitesAvailable: Just(count) });
       });
-    this.findInvited();
-  }
-
-  componentDidUpdate(prevProps) {
-    //
-  }
-
-  async findInvited() {
-    let invited = await azimuth.delegatedSending.getInvited(
-      this.contracts,
-      this.point
-    );
-    invited = invited.map(async point => {
-      const active = await azimuth.azimuth.isActive(this.contracts, point);
-      const res = { point: Number(point), active: active };
-      return res;
-    });
-    invited = await Promise.all(invited);
-    const total = invited.length;
-    const accepted = invited.filter(i => i.active).length;
-    this.setState({ invited: Just({ total, accepted }) });
   }
 
   async getTemporaryWallet() {
@@ -347,30 +407,6 @@ class InviteEmail extends React.Component {
     const dif =
       this.state.status === STATUS.DONE ? this.state.targets.length : null;
 
-    const invitesAvailable = this.state.invitesAvailable.matchWith({
-      Nothing: () => 'Loading...',
-      Just: invites => {
-        const dia = dif ? `(-${dif})` : '';
-        return `You currently have ${invites.value}${dia} invitations left.`;
-      },
-    });
-
-    const invitesSent = this.state.invited.matchWith({
-      Nothing: () => <>{'Loading...'}</>,
-      Just: invited => {
-        const dit = dif ? `(+${dif})` : '';
-        return (
-          <>
-            {'Out of the '}
-            {invited.value.total + dit}
-            {' invites you sent, '}
-            {invited.value.accepted}
-            {' have been accepted.'}
-          </>
-        );
-      },
-    });
-
     const error = this.state.errors.matchWith({
       Nothing: () => null,
       Just: errors => (
@@ -478,12 +514,6 @@ class InviteEmail extends React.Component {
 
     return (
       <View>
-        <p>{'send invites here, for planets'}</p>
-
-        <p>{invitesAvailable}</p>
-
-        <ul>{invitesSent}</ul>
-
         {error}
 
         {fundingMessage}
@@ -494,8 +524,8 @@ class InviteEmail extends React.Component {
   }
 }
 
-export default compose(
-  withNetwork,
-  withWallet,
-  withPointCursor
-)(InviteEmail);
+// export default compose(
+//   withNetwork,
+//   withWallet,
+//   withPointCursor
+// )(InviteEmail);

@@ -35,13 +35,6 @@ function Landing(props) {
 
       <ForwardButton
         className="mt3"
-        detail="If you own Azimuth assets and want to manage them in some way."
-        onClick={() => history.push(ROUTE_NAMES.NETWORK)}>
-        Unlock a Wallet
-      </ForwardButton>
-
-      <ForwardButton
-        className="mt3"
         detail="View an Azimuth point without signing into a wallet."
         onClick={() => history.push(ROUTE_NAMES.VIEW_POINT)}>
         View a point

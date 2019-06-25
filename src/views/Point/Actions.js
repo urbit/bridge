@@ -1,4 +1,5 @@
 import React from 'react';
+import Maybe from 'folktale/maybe';
 import { azimuth } from 'azimuth-js';
 import * as need from '../../lib/need';
 
@@ -9,20 +10,25 @@ import { ROUTE_NAMES } from '../../lib/routeNames';
 import { useHistory } from '../../store/history';
 import { useWallet } from '../../store/wallet';
 import { Grid } from 'indigo-react';
+import { usePointCursor } from 'store/pointCursor';
+import { usePointCache } from 'store/pointCache';
 
 const isPlanet = point =>
   azimuth.getPointSize(point) === azimuth.PointSize.Planet;
-const isStar = point => azimuth.getPointSize(point) === azimuth.PointSize.Star;
 
 function Actions(props) {
   const history = useHistory();
   const { wallet } = useWallet();
-  const { online, point, pointDetails, invites } = props;
+  const { pointCursor } = usePointCursor();
+  const point = need.pointCursor(pointCursor);
+  const { pointCache } = usePointCache();
+  const pointDetails = Maybe.Just(
+    need.fromPointCache(Maybe.Just(pointCache), point)
+  );
 
   const addr = need.addressFromWallet(wallet);
 
   const planet = isPlanet(point);
-  const star = isStar(point);
 
   const isOwner = pointDetails.matchWith({
     Nothing: _ => false,
@@ -55,11 +61,6 @@ function Actions(props) {
 
       return hasPermission && isBooted && isNotPlanet;
     },
-  });
-
-  const hasInvites = invites.matchWith({
-    Nothing: () => false,
-    Just: count => count.value > 0,
   });
 
   const canTransfer = pointDetails.matchWith({
@@ -104,37 +105,6 @@ function Actions(props) {
     },
   });
 
-  let inviteAction = null;
-  if (planet) {
-    inviteAction = (
-      <Button
-        disabled={!isActiveOwner || !online || !hasInvites}
-        prop-size={'sm'}
-        prop-type={'link'}
-        onClick={() => history.push(ROUTE_NAMES.INVITE)}>
-        {'Send invites ('}
-        {invites.matchWith({
-          Nothing: () => '?',
-          Just: count => count.value,
-        })}
-        {')'}
-      </Button>
-    );
-  }
-  if (star) {
-    inviteAction = (
-      <Button
-        disabled={!(isActiveOwner && canIssueChild) || !online}
-        prop-size={'sm'}
-        prop-type={'link'}
-        onClick={() => {
-          history.push(ROUTE_NAMES.INVITES_MANAGE);
-        }}>
-        {'Manage invites'}
-      </Button>
-    );
-  }
-
   return (
     <div>
       <H2>{'Actions'}</H2>
@@ -149,7 +119,7 @@ function Actions(props) {
           <Button
             prop-size={'sm'}
             prop-type={'link'}
-            disabled={(online || planet) && !canIssueChild}
+            disabled={planet && !canIssueChild}
             onClick={() => {
               history.push(ROUTE_NAMES.ISSUE_CHILD);
             }}>
@@ -159,7 +129,7 @@ function Actions(props) {
           <Button
             prop-size={'sm'}
             prop-type={'link'}
-            disabled={online && !canAcceptTransfer}
+            disabled={!canAcceptTransfer}
             onClick={() => {
               history.push(ROUTE_NAMES.ACCEPT_TRANSFER);
             }}>
@@ -169,7 +139,7 @@ function Actions(props) {
           <Button
             prop-size={'sm'}
             prop-type={'link'}
-            disabled={online && !canCancelTransfer}
+            disabled={!canCancelTransfer}
             onClick={() => {
               history.push(ROUTE_NAMES.CANCEL_TRANSFER);
             }}>
@@ -179,7 +149,7 @@ function Actions(props) {
           <Button
             prop-size={'sm'}
             prop-type={'link'}
-            disabled={online && !canGenKeyfile}
+            disabled={!canGenKeyfile}
             onClick={() => {
               history.push(ROUTE_NAMES.GEN_KEYFILE);
             }}>
@@ -188,7 +158,7 @@ function Actions(props) {
         </Grid.Item>
         <Grid.Item third={2}>
           <Button
-            disabled={online && !canSetSpawnProxy}
+            disabled={!canSetSpawnProxy}
             prop-size={'sm'}
             prop-type={'link'}
             onClick={() => {
@@ -198,7 +168,7 @@ function Actions(props) {
           </Button>
 
           <Button
-            disabled={online && !canSetManagementProxy}
+            disabled={!canSetManagementProxy}
             prop-size={'sm'}
             prop-type={'link'}
             onClick={() => {
@@ -208,7 +178,7 @@ function Actions(props) {
           </Button>
 
           <Button
-            disabled={online && !canConfigureKeys}
+            disabled={!canConfigureKeys}
             prop-size={'sm'}
             prop-type={'link'}
             onClick={() => {
@@ -218,7 +188,7 @@ function Actions(props) {
           </Button>
 
           <Button
-            disabled={online && !canTransfer}
+            disabled={!canTransfer}
             prop-size={'sm'}
             prop-type={'link'}
             onClick={() => {
@@ -226,8 +196,15 @@ function Actions(props) {
             }}>
             {'Transfer'}
           </Button>
+          <Button
+            prop-size={'sm'}
+            prop-type={'link'}
+            onClick={() => {
+              history.push(ROUTE_NAMES.INVITES_MANAGE);
+            }}>
+            {'Invite'}
+          </Button>
         </Grid.Item>
-        <Grid.Item third={3}>{inviteAction}</Grid.Item>
       </Grid>
     </div>
   );

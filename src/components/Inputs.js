@@ -10,10 +10,10 @@ import {
   validateMnemonic,
   validatePoint,
   validateTicket,
+  validateEmail,
 } from 'lib/validators';
 import { prependSig } from 'lib/transformers';
-
-const kExampleMnemonic = bip39.generateMnemonic();
+import useForm from 'indigo-react/lib/useForm';
 
 // const RequiredInput = advancedInput({
 //   WrappedComponent: Input,
@@ -35,38 +35,47 @@ const kExampleMnemonic = bip39.generateMnemonic();
 //   validators: [validateEthereumAddress, validateNotEmpty],
 // });
 
-export function PassphraseInput(props) {
-  return (
-    <Input
-      type="password"
-      autoComplete="off"
-      placeholder="Passphrase"
-      {...props}
-    />
+const firstOf = state => state.inputs[0];
+
+export function usePassphraseInput(props) {
+  return firstOf(
+    useForm([
+      {
+        type: 'password',
+        autoComplete: 'off',
+        placeholder: 'Passphrase',
+        ...props,
+      },
+    ])
   );
 }
 
-export function MnemonicInput(props) {
-  return (
-    <Input
-      type="text"
-      autoComplete="off"
-      placeholder={`e.g. ${kExampleMnemonic}`}
-      validators={[validateMnemonic, validateNotEmpty]}
-      {...props}
-    />
+const kExampleMnemonic = bip39.generateMnemonic();
+const kMnemonicValidators = [validateMnemonic, validateNotEmpty];
+export function useMnemonicInput(props) {
+  return firstOf(
+    useForm([
+      {
+        type: 'text',
+        autoComplete: 'off',
+        placeholder: `e.g. ${kExampleMnemonic}`,
+        validators: kMnemonicValidators,
+        ...props,
+      },
+    ])
   );
 }
 
-export function HdPathInput(props) {
-  return (
-    <Input
-      type="text"
-      autoComplete="off"
-      placeholder={`${DEFAULT_HD_PATH}`}
-      validators={[validateNotEmpty]}
-      {...props}
-    />
+export function useHdPathInput(props) {
+  return firstOf(
+    useForm([
+      {
+        type: 'text',
+        autoComplete: 'off',
+        placeholder: `e.g. ${DEFAULT_HD_PATH}`,
+        ...props,
+      },
+    ])
   );
 }
 
@@ -77,42 +86,81 @@ export function HdPathInput(props) {
 // });
 
 export function PointInput(props) {
+  const input = usePointInput({
+    name: 'point',
+    label: 'Point Name',
+    autoFocus: true,
+  });
+  const { data: validPointName, pass, focused, error } = input;
+
   return (
     <Input
-      type="text"
-      placeholder="e.g. ~zod"
-      initialValue={props.initialValue || '~'}
-      validators={[validatePoint, validateNotEmpty]}
-      transformers={[prependSig]}
-      mono
-      accessory={
-        <InputSigil
-          patp={props.initialValue || '~'}
-          size={68}
-          margin={8}
-          pass={props.pass}
-          onPass={props.setPass}
-          focused={props.focused}
-          onFocus={props.setFocused}
-          error={props.error}
-          onError={props.setError}
-        />
-      }
       {...props}
+      {...input}
+      accessory={
+        validPointName && (
+          <InputSigil
+            patp={validPointName}
+            size={68}
+            margin={8}
+            pass={pass}
+            focused={focused}
+            error={error}
+          />
+        )
+      }
     />
   );
 }
 
+const kTicketValidators = [validateTicket, validateNotEmpty];
+const kTicketTransformers = [prependSig];
 //TODO needs to be fancier, displaying sig and dashes instead of •ing all
-export function TicketInput(props) {
-  return (
-    <Input
-      type="password"
-      placeholder="~master-ticket"
-      validators={[validateTicket, validateNotEmpty]}
-      transformers={[prependSig]}
-      mono
-      {...props}
-    />
+export function useTicketInput({ initialValue = '~', ...rest }) {
+  return firstOf(
+    useForm([
+      {
+        type: 'password',
+        placeholder: '~master-ticket',
+        validators: kTicketValidators,
+        transformers: kTicketTransformers,
+        mono: true,
+        initialValue,
+        ...rest,
+      },
+    ])
   );
 }
+
+const kPointValidators = [validatePoint, validateNotEmpty];
+const kPointTransformers = [prependSig];
+export function usePointInput({ initialValue = '~', ...rest }) {
+  return firstOf(
+    useForm([
+      {
+        type: 'text',
+        placeholder: 'e.g. ~zod',
+        validators: kPointValidators,
+        transformers: kPointTransformers,
+        mono: true,
+        initialValue,
+        ...rest,
+      },
+    ])
+  );
+}
+
+const kEmailValidators = [validateEmail, validateNotEmpty];
+export const buildEmailInputConfig = extra => ({
+  type: 'email',
+  autoComplete: 'off',
+  validators: kEmailValidators,
+  initialValue: '',
+  ...extra,
+});
+
+// const TicketInput = advancedInput({
+//   WrappedComponent: Input,
+//   validators: [validateTicket, validateNotEmpty],
+//   transformers: [prependSig],
+// });

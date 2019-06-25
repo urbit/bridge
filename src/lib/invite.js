@@ -3,7 +3,7 @@ import Tx from 'ethereumjs-tx';
 
 import * as azimuth from 'azimuth-js';
 import * as kg from 'urbit-key-generation/dist';
-import * as wg from '../_walletgen/lib/lib.js';
+import * as wg from './walletgen';
 import * as tank from './tank';
 
 import JSZip from 'jszip';

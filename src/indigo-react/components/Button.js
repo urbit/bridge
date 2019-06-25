@@ -10,7 +10,8 @@ export default function Button({
   disabled = false,
   detail,
   className,
-  icon = '→',
+  accessory = '→',
+  onClick,
   children,
   ...rest
 }) {
@@ -24,12 +25,14 @@ export default function Button({
       as="a"
       gap={4}
       className={cn(
-        'pointer p4 truncate flex-row justify-between',
+        'pointer pv4 truncate flex-row justify-between',
         {
-          'bg-black bg-gray6-hover': solid && !disabled,
+          p4: solid,
+        },
+        {
+          'bg-black': solid && !disabled,
           'bg-gray3': solid && disabled,
-          'bg-transparent bg-gray1-hover': !solid && !disabled,
-          'bg-transparent': !solid && disabled,
+          'bg-transparent': !solid,
         },
         className
       )}
@@ -39,10 +42,11 @@ export default function Button({
           cursor: 'not-allowed',
         }),
       }}
+      onClick={onClick ? () => !disabled && onClick() : undefined}
       {...rest}>
       <Grid.Item as={Flex} justify="between" full>
         <span className={cn(textColor)}>{children}</span>
-        <div className={cn('pl4', textColor)}>{icon}</div>
+        <div className={cn('pl4', textColor)}>{accessory}</div>
       </Grid.Item>
       {detail && (
         <Grid.Item as={HelpText} full>

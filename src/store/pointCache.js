@@ -19,6 +19,8 @@ const kEmptyInvites = {
   acceptedInvites: Maybe.Nothing(),
 };
 
+// TODO(shrugs): this hook is too big -> refactor into individual hooks for
+// details, birthday, invites, etc
 function _usePointCache() {
   const { contracts, web3 } = useNetwork();
   const [pointCache, _setPointCache] = useState({});
@@ -41,6 +43,10 @@ function _usePointCache() {
   );
 
   // TODO: refactor pointCache access to use accessor like bithday
+  const getDetails = useCallback(
+    point => pointCache[point] || Maybe.Nothing(),
+    [pointCache]
+  );
   const getBirthday = useCallback(
     point => birthdayCache[point] || Maybe.Nothing(),
     [birthdayCache]
@@ -50,33 +56,31 @@ function _usePointCache() {
     [invitesCache]
   );
 
-  const fetchPoint = useCallback(
+  const syncDetails = useCallback(
     async point => {
       const _contracts = contracts.getOrElse(null);
-      const _web3 = web3.getOrElse(null);
-      if (!_contracts || !_web3) {
+      if (!_contracts) {
         return;
       }
 
       // fetch point details
       const details = await azimuth.azimuth.getPoint(_contracts, point);
-      addToPointCache({ [point]: details });
-
-      // fetch invites
-      const count = await azimuth.delegatedSending.getTotalUsableInvites(
-        _contracts,
-        point
-      );
-      addToInvitesCache({
-        [point]: {
-          availableInvites: Maybe.Just(count),
-          // TODO: look up sent/accepted on-chain
-          sentInvites: Maybe.Just(6),
-          acceptedInvites: Maybe.Just(5),
-        },
+      addToPointCache({
+        [point]: details,
       });
+    },
+    [contracts, addToPointCache]
+  );
 
-      // fetch birthday (if not already known — will not change after being set)
+  const syncBirthday = useCallback(
+    async point => {
+      const _contracts = contracts.getOrElse(null);
+      const _web3 = web3.getOrElse(null);
+      if (!_contracts || !web3) {
+        return;
+      }
+
+      // fetch birthday if not already known—will not change after being set
       if (Maybe.Nothing.hasInstance(getBirthday(point))) {
         const birthBlock = await azimuth.azimuth.getActivationBlock(
           _contracts,
@@ -91,22 +95,71 @@ function _usePointCache() {
         }
       }
     },
-    [
-      contracts,
-      web3,
-      addToPointCache,
-      addToBirthdayCache,
-      getBirthday,
-      addToInvitesCache,
-    ]
+    [contracts, web3, addToBirthdayCache, getBirthday]
+  );
+
+  const syncInvites = useCallback(
+    async point => {
+      const _contracts = contracts.getOrElse(null);
+      if (!_contracts) {
+        return;
+      }
+
+      const availableInvites = await azimuth.delegatedSending.getTotalUsableInvites(
+        _contracts,
+        point
+      );
+
+      const invitedPoints = await azimuth.delegatedSending.getInvited(
+        _contracts,
+        point
+      );
+      const invitedPointDetails = await Promise.all(
+        invitedPoints.map(async invitedPoint => {
+          console.log('invitedPoint', invitedPoint, typeof invitedPoint);
+          const active = await azimuth.azimuth.isActive(
+            _contracts,
+            invitedPoint
+          );
+          return {
+            point: Number(invitedPoint),
+            active,
+          };
+        })
+      );
+      const sentInvites = invitedPointDetails.length;
+      const acceptedInvites = invitedPointDetails.filter(i => i.active).length;
+
+      addToInvitesCache({
+        [point]: {
+          availableInvites: Maybe.Just(availableInvites),
+          sentInvites: Maybe.Just(sentInvites),
+          acceptedInvites: Maybe.Just(acceptedInvites),
+        },
+      });
+    },
+    [contracts, addToInvitesCache]
+  );
+
+  // sync all of the on-chain info required for a point that the user owns
+  const syncOwnedPoint = useCallback(
+    async point => {
+      await Promise.all([
+        syncDetails(point),
+        syncInvites(point),
+        syncBirthday(point),
+      ]);
+    },
+    [syncDetails, syncInvites, syncBirthday]
   );
 
   return {
     pointCache,
+    getDetails,
     getBirthday,
     getInvites,
     addToPointCache,
-    fetchPoint,
+    syncOwnedPoint,
   };
 }
 

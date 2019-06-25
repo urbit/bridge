@@ -1,7 +1,7 @@
 import React from 'react';
 import cn from 'classnames';
 
-import getComponent from 'indigo-react/lib/getComponent';
+import getComponent from '../lib/getComponent';
 
 function Flex({
   as = 'div',
