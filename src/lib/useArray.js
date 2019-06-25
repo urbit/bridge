@@ -6,23 +6,32 @@ import { useCallback, useState } from 'react';
 export default function useArray(initialItems = [], itemBuilder) {
   const [items, _setItems] = useState(initialItems);
 
-  const append = () => _setItems(items => [...items, itemBuilder()]);
+  const append = useCallback(
+    () => _setItems(items => [...items, itemBuilder()]),
+    [_setItems, itemBuilder]
+  );
 
-  const removeAt = i =>
-    _setItems(items => {
-      const newItems = [...items.slice(0, i), ...items.slice(i + 1)];
-      return newItems;
-    });
+  const removeAt = useCallback(
+    i =>
+      _setItems(items => {
+        const newItems = [...items.slice(0, i), ...items.slice(i + 1)];
+        return newItems;
+      }),
+    [_setItems]
+  );
 
-  const updateAt = (i, update = {}) =>
-    _setItems(items => [
-      ...items.slice(0, i),
-      {
-        ...items[i],
-        ...update,
-      },
-      ...items.slice(i + 1),
-    ]);
+  const updateAt = useCallback(
+    (i, update = {}) =>
+      _setItems(items => [
+        ...items.slice(0, i),
+        {
+          ...items[i],
+          ...update,
+        },
+        ...items.slice(i + 1),
+      ]),
+    [_setItems]
+  );
 
   return [
     items,
