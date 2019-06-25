@@ -77,16 +77,16 @@ export default function Shards({ loginCompleted }) {
         onValue={setPassphrase}
       />
       <ForwardButton
-        className={'mt3'}
+        className="mt3"
         disabled={!ready}
         onClick={walletFromShards}>
-        {'Unlock Wallet →'}
+        Unlock Wallet
       </ForwardButton>
       <ForwardButton
-        className={'mt3'}
+        className="mt3"
         disabled={Nothing.hasInstance(wallet)}
         onClick={loginCompleted}>
-        {'Continue →'}
+        Continue
       </ForwardButton>
     </View>
   );

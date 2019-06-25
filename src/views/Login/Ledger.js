@@ -69,10 +69,7 @@ export default function Ledger({ loginCompleted }) {
   const pathOptions = [
     { title: 'Ledger Live', value: LEDGER_LIVE_PATH },
     { title: 'Ledger Legacy', value: LEDGER_LEGACY_PATH },
-    {
-      title: 'Custom path',
-      value: 'custom',
-    },
+    { title: 'Custom path', value: 'custom' },
   ];
   const basePathTitle = pathOptions.find(o => o.value === basePath).title;
 
@@ -90,7 +87,7 @@ export default function Ledger({ loginCompleted }) {
       className="mt-8"
       options={pathOptions}
       handleUpdate={handlePathSelection}
-      title={'Derivation path'}
+      title="Derivation path"
       currentSelectionTitle={basePathTitle}
       fullWidth={true}
     />
@@ -106,7 +103,7 @@ export default function Ledger({ loginCompleted }) {
         value={addHdPrefix(hdPath)}
         autocomplete="off"
         onChange={setHdPath}>
-        <InnerLabel>{'HD Path'}</InnerLabel>
+        <InnerLabel>HD Path</InnerLabel>
       </Input>
     ) : (
       <InnerLabelDropdown
@@ -115,7 +112,7 @@ export default function Ledger({ loginCompleted }) {
         prop-format="innerLabel"
         options={accountOptions}
         handleUpdate={handleAccountSelection}
-        title={'Account'}
+        title="Account"
         currentSelectionTitle={accountTitle}
         fullWidth={true}
       />
@@ -123,54 +120,46 @@ export default function Ledger({ loginCompleted }) {
 
   return (
     <View>
-      <H1>{'Authenticate With Your Ledger'}</H1>
+      <H1>Authenticate With Your Ledger</H1>
 
-      <H2>{'Running on HTTPS?'}</H2>
+      <H2>Running on HTTPS?</H2>
 
       <P>
-        {`Connect and authenticate to your Ledger, and then open the
-            "Ethereum" application.  If you're running on older firmware,
-            make sure the "browser support" option is turned on.  To sign
-            transactions, you'll also need to enable the "contract data"
-            option.`}
+        Connect and authenticate to your Ledger, and then open the "Ethereum"
+        application. If you're running on older firmware, make sure the "browser
+        support" option is turned on. To sign transactions, you'll also need to
+        enable the "contract data" option.
       </P>
 
       <P>
-        {`If you'd like to use a custom derivation path, you may enter
-             it below.`}
+        If you'd like to use a custom derivation path, you may enter it below.
       </P>
 
-      <H2>{'Running on HTTP?'}</H2>
+      <H2>Running on HTTP?</H2>
 
-      <P>{`To authenticate and sign transactions with a Ledger, Bridge
-          must be serving over HTTPS on localhost. You can do this via the
-          following:`}</P>
+      <P>
+        To authenticate and sign transactions with a Ledger, Bridge must be
+        serving over HTTPS on localhost. You can do this via the following:
+      </P>
 
-      <ol className={'measure-md'}>
-        <li className={'mt-4'}>
-          {'Install'}{' '}
-          <a target={'_blank'} href={'https://github.com/FiloSottile/mkcert'}>
-            {'mkcert'}
+      <ol className="measure-md">
+        <li className="mt-4">
+          Install
+          <a target="_blank" href="https://github.com/FiloSottile/mkcert">
+            mkcert
           </a>
         </li>
-        <li className={'mt-4'}>
-          {'Install a local certificate authority via '}
-          <code>{'mkcert -install'}</code>
+        <li className="mt-4">
+          Install a local certificate authority via <code>mkcert -install</code>
         </li>
-        <li className={'mt-4'}>
-          {'In your '}
-          <code>{'bridge'}</code>
-          {' directory, generate a certificate valid for localhost via '}{' '}
-          <code>{'mkcert localhost'}</code>
-          {'.'}
-          {'This will produce two files: '}
-          <code>{'localhost.pem'}</code> {', the local certificate, and '}
-          <code>{'localhost-key.pem'}</code>
-          {', its corresponding private key.'}
+        <li className="mt-4">
+          In your <code>bridge</code> directory, generate a certificate valid
+          for localhost via <code>mkcert localhost</code>. This will produce two
+          files: <code>localhost.pem</code>, the local certificate, and
+          <code>localhost-key.pem</code> , its corresponding private key.
         </li>
-        <li className={'mt-4'}>
-          {'Run '}
-          <code>{'python bridge-https.py'}</code>
+        <li className="mt-4">
+          Run <code>python bridge-https.py</code>
         </li>
       </ol>
 

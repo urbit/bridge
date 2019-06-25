@@ -38,12 +38,13 @@ export default function PrivateKey({ loginCompleted }) {
         initialValue={privateKey}
         onValue={handlePrivateKeyInput}
         autocomplete="off"
-        autoFocus></PassphraseInput>
+        autoFocus
+      />
       <ForwardButton
-        className={'mt3'}
+        className="mt3"
         disabled={Nothing.hasInstance(wallet)}
         onClick={loginCompleted}>
-        {'Continue →'}
+        Continue
       </ForwardButton>
     </View>
   );

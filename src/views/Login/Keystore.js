@@ -76,27 +76,26 @@ export default function Keystore({ loginCompleted }) {
     decryptionProblem === false ? (
       <div />
     ) : (
-      <Warning className={'mt-8'}>
+      <Warning className="mt-8">
         <H3 style={{ marginTop: 0, paddingTop: 0 }}>
-          {"Couldn't decrypt wallet."}
+          Couldn't decrypt wallet.
         </H3>
-        {'You may have entered an incorrect password.'}
+        You may have entered an incorrect password.
       </Warning>
     );
 
   return (
     <View>
       <InputCaption>
-        {`Please upload your Ethereum keystore file.  If your keystore
-         file is encrypted with a password, you'll also need to enter
-         that below.`}
+        Please upload your Ethereum keystore file. If your keystore file is
+        encrypted with a password, you'll also need to enter that below.
       </InputCaption>
 
       <UploadButton
         className={`${uploadButtonClass} mt3`}
         onChange={handleKeystoreUpload}>
-        <div className={'flex-center-all fs-4 h-11 pointer'}>
-          {'Upload Keystore file'}
+        <div className="flex-center-all fs-4 h-11 pointer">
+          Upload Keystore file
         </div>
       </UploadButton>
 
@@ -108,7 +107,7 @@ export default function Keystore({ loginCompleted }) {
         autoFocus></PassphraseInput>
 
       <ForwardButton
-        className={`mt3`}
+        className="mt3"
         disabled={Nothing.hasInstance(keystore)}
         onClick={constructWallet}>
         Decrypt
@@ -117,7 +116,7 @@ export default function Keystore({ loginCompleted }) {
       {decryptMessage}
 
       <ForwardButton
-        className={'mt3'}
+        className="mt3"
         disabled={Nothing.hasInstance(wallet)}
         onClick={loginCompleted}>
         Continue

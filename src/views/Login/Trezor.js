@@ -50,12 +50,7 @@ export default function Trezor({ loginCompleted }) {
     });
   };
 
-  let accountOptions = [
-    {
-      title: 'Custom path',
-      value: 'custom',
-    },
-  ];
+  let accountOptions = [{ title: 'Custom path', value: 'custom' }];
   for (let i = 0; i < 20; i++) {
     accountOptions.push({
       title: 'Account #' + (i + 1),
@@ -71,7 +66,7 @@ export default function Trezor({ loginCompleted }) {
       prop-format="innerLabel"
       options={accountOptions}
       handleUpdate={handleAccountSelection}
-      title={'Account'}
+      title="Account"
       currentSelectionTitle={accountTitle}
       fullWidth={true}
     />
@@ -87,31 +82,31 @@ export default function Trezor({ loginCompleted }) {
         value={hdPath}
         autocomplete="off"
         onChange={setHdPath}>
-        <InnerLabel>{'HD Path'}</InnerLabel>
+        <InnerLabel>HD Path</InnerLabel>
       </Input>
     );
 
   return (
     <View>
-      <H1>{'Authenticate With Your Trezor'}</H1>
+      <H1>Authenticate With Your Trezor</H1>
 
       <P>
-        {`Connect and authenticate to your Trezor.  If you'd like
-            to use a custom derivation path, you may enter it below.`}
+        Connect and authenticate to your Trezor. If you'd like to use a custom
+        derivation path, you may enter it below.
       </P>
 
       {accountSelection}
       {pathSelection}
 
-      <ForwardButton className={'mt3'} onClick={pollDevice}>
-        {'Authenticate'}
+      <ForwardButton className="mt3" onClick={pollDevice}>
+        Authenticate
       </ForwardButton>
 
       <ForwardButton
-        className={'mt3'}
+        className="mt3"
         disabled={Maybe.Nothing.hasInstance(wallet)}
         onClick={loginCompleted}>
-        {'Continue'}
+        Continue
       </ForwardButton>
     </View>
   );

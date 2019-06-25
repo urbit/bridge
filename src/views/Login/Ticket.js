@@ -41,7 +41,6 @@ export default function Ticket({ advanced, loginCompleted }) {
   const [ticketStatus, setTicketStatus] = useState(Nothing());
 
   useEffect(() => {
-    console.log('something changed?');
     verifyTicket(pointName, ticket, passphrase);
     return () => {};
   }, [pointName, ticket, passphrase]);
