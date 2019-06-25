@@ -90,15 +90,13 @@ export default function Ledger({ loginCompleted }) {
   const truePathSelection =
     basePath === 'custom' ? (
       <Input
-        className="pt-8 mt-4 text-mono"
-        prop-size="md"
-        prop-format="innerLabel"
+        className="mt3"
         name="hdPath"
-        value={addHdPrefix(hdPath)}
+        label="HD path"
         autocomplete="off"
-        onChange={setHdPath}>
-        <InnerLabel>HD Path</InnerLabel>
-      </Input>
+        initialValue={addHdPrefix(hdPath)}
+        onValue={setHdPath}
+      />
     ) : (
       <InnerLabelDropdown
         className="mt-4"

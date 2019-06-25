@@ -70,15 +70,13 @@ export default function Trezor({ loginCompleted }) {
   const pathSelection =
     account !== 'custom' ? null : (
       <Input
-        className="mt-8 pt-8 text-mono"
-        prop-size="md"
-        prop-format="innerLabel"
+        className="mt3"
         name="hdPath"
-        value={hdPath}
+        label="HD path"
         autocomplete="off"
-        onChange={setHdPath}>
-        <InnerLabel>HD Path</InnerLabel>
-      </Input>
+        initialValue={hdPath}
+        onValue={setHdPath}
+      />
     );
 
   return (
