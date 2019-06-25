@@ -2,6 +2,8 @@ import React from 'react';
 import { Input } from 'indigo-react';
 import * as bip39 from 'bip39';
 
+import InputSigil from 'components/InputSigil';
+
 import { DEFAULT_HD_PATH } from 'lib/wallet';
 import {
   validateNotEmpty,
@@ -83,6 +85,19 @@ export function PointInput(props) {
       validators={[validatePoint, validateNotEmpty]}
       transformers={[prependSig]}
       mono
+      accessory={
+        <InputSigil
+          patp={props.initialValue || '~'}
+          size={68}
+          margin={8}
+          pass={props.pass}
+          onPass={props.setPass}
+          focused={props.focused}
+          onFocus={props.setFocused}
+          error={props.error}
+          onError={props.setError}
+        />
+      }
       {...props}
     />
   );
