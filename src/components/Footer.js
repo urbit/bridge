@@ -1,17 +1,8 @@
-import React, { Children } from 'react';
-import { createPortal } from 'react-dom';
+import { createTeleporter } from 'react-teleporter';
 
-const kFooterPortalId = 'footer-portal';
+const FooterTeleporter = createTeleporter();
 
-function Footer({ children }) {
-  return createPortal(
-    Children.only(children),
-    document.getElementById(kFooterPortalId)
-  );
-}
-
-Footer.Portal = function FooterPortal(props) {
-  return <div {...props} id={kFooterPortalId} />;
-};
+const Footer = FooterTeleporter.Source;
+Footer.Target = FooterTeleporter.Target;
 
 export default Footer;

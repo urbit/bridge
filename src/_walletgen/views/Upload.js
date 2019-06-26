@@ -5,7 +5,7 @@ import UploadButton from '../components/UploadButton';
 
 import { compose } from '../../bridge/lib/lib';
 
-import { PROFILE_STATES } from '../lib/constants';
+import { PROFILE_STATES } from '../../lib/constants';
 
 const NEXT_STEP_NUM = 3;
 

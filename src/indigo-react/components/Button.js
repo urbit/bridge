@@ -7,10 +7,12 @@ import { HelpText } from './Typography';
 
 export default function Button({
   solid = false,
+  success = false,
   disabled = false,
   detail,
   className,
-  icon = '→',
+  accessory = '→',
+  onClick,
   children,
   ...rest
 }) {
@@ -24,12 +26,16 @@ export default function Button({
       as="a"
       gap={4}
       className={cn(
-        'pointer p4 truncate flex-row justify-between',
+        'pointer pv4 truncate flex-row justify-between',
         {
-          'bg-black bg-gray6-hover': solid && !disabled,
-          'bg-gray3': solid && disabled,
-          'bg-transparent bg-gray1-hover': !solid && !disabled,
-          'bg-transparent': !solid && disabled,
+          p4: solid,
+        },
+        {
+          'bg-green3': success && !disabled,
+          'bg-green1': success && disabled,
+          'bg-black': !success && solid && !disabled,
+          'bg-gray3': !success && solid && disabled,
+          'bg-transparent': !success && !solid,
         },
         className
       )}
@@ -39,10 +45,11 @@ export default function Button({
           cursor: 'not-allowed',
         }),
       }}
+      onClick={!disabled && onClick ? onClick : undefined}
       {...rest}>
       <Grid.Item as={Flex} justify="between" full>
         <span className={cn(textColor)}>{children}</span>
-        <div className={cn('pl4', textColor)}>{icon}</div>
+        <div className={cn('pl4', textColor)}>{accessory}</div>
       </Grid.Item>
       {detail && (
         <Grid.Item as={HelpText} full>

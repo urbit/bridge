@@ -2,25 +2,35 @@ import { Just, Nothing } from 'folktale/maybe';
 import { Ok, Error } from 'folktale/result';
 import React, { useState } from 'react';
 import * as keythereum from 'keythereum';
+import { H3, Input } from 'indigo-react';
 
 import View from 'components/View';
-import { PassphraseInput } from 'components/Inputs';
+import { usePassphraseInput } from 'components/Inputs';
 import { ForwardButton } from 'components/Buttons';
-import { H3 } from 'indigo-react';
 import { InputCaption, UploadButton, Warning } from 'components/old/Base';
 
-import * as need from 'lib/need';
-import { EthereumWallet } from 'lib/wallet';
 import { useWallet } from 'store/wallet';
 
+import * as need from 'lib/need';
+import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
+import useWalletType from 'lib/useWalletType';
+
 export default function Keystore({ loginCompleted }) {
+  useWalletType(WALLET_TYPES.KEYSTORE);
+
   // globals
   const { wallet, setWallet } = useWallet();
 
   // inputs
   // keystore: Maybe<Result<String, String>>
   const [keystore, setKeystore] = useState(Nothing());
-  const [password, setPassword] = useState('');
+  const passphraseInput = usePassphraseInput({
+    name: 'password',
+    label: 'Keystore password',
+    autoFocus: true,
+  });
+  const passphrase = passphraseInput.data;
+
   const [decryptionProblem, setDecryptionProblem] = useState(false);
 
   const constructWallet = () => {
@@ -28,7 +38,7 @@ export default function Keystore({ loginCompleted }) {
       const text = need.keystore(keystore);
 
       const json = JSON.parse(text);
-      const privateKey = keythereum.recover(password, json);
+      const privateKey = keythereum.recover(passphrase, json);
 
       const newWallet = new EthereumWallet(privateKey);
       setDecryptionProblem(false);
@@ -95,12 +105,7 @@ export default function Keystore({ loginCompleted }) {
         </div>
       </UploadButton>
 
-      <PassphraseInput
-        name="password"
-        label="Keystore password"
-        initialValue={password}
-        onValue={setPassword}
-        autoFocus></PassphraseInput>
+      <Input {...passphraseInput} />
 
       <ForwardButton
         className="mt3"

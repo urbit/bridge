@@ -41,7 +41,7 @@ export default function Login() {
   // globals
   const history = useHistory();
   const { contracts } = useNetwork();
-  const { wallet, setUrbitWallet } = useWallet();
+  const { wallet, resetWallet } = useWallet();
   const { pointCursor, setPointCursor } = usePointCursor();
 
   // inputs
@@ -49,8 +49,7 @@ export default function Login() {
 
   // on-mount
   useLifecycle(() => {
-    setUrbitWallet(Nothing());
-    setPointCursor(Nothing());
+    resetWallet();
   });
 
   const doContinue = async () => {
@@ -58,8 +57,8 @@ export default function Login() {
     const _contracts = need.contracts(contracts);
 
     // if no point cursor set by login logic, try to deduce it
-    let deduced = Nothing();
-    if (Nothing.hasInstance(pointCursor)) {
+    let deduced = pointCursor;
+    if (Nothing.hasInstance(deduced)) {
       const owned = await azimuth.azimuth.getOwnedPoints(
         _contracts,
         _wallet.address
@@ -81,9 +80,8 @@ export default function Login() {
     // navigate to that specific point, otherwise navigate to list of points
     if (Just.hasInstance(deduced)) {
       setPointCursor(deduced);
-      history.popAndPush(ROUTE_NAMES.POINT);
-    } else if (Just.hasInstance(pointCursor)) {
-      history.popAndPush(ROUTE_NAMES.POINT);
+      history.popAndPush(ROUTE_NAMES.POINTS);
+      history.push(ROUTE_NAMES.POINT);
     } else {
       history.popAndPush(ROUTE_NAMES.POINTS);
     }

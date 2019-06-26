@@ -4,7 +4,7 @@ import { find } from 'lodash';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
-import { PROFILE_STATES, GEN_STATES } from './lib/constants';
+import { PROFILE_STATES, GEN_STATES } from '../lib/constants';
 
 import PrivacyPolicy from './views/PrivacyPolicy';
 import Welcome from './views/Welcome';

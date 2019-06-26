@@ -1,18 +1,24 @@
 import { Just, Nothing } from 'folktale/maybe';
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
+import { Input, AccessoryIcon } from 'indigo-react';
 
 import View from 'components/View';
-import { PointInput, TicketInput, PassphraseInput } from 'components/Inputs';
+import {
+  usePointInput,
+  useTicketInput,
+  usePassphraseInput,
+} from 'components/Inputs';
 import { ForwardButton } from 'components/Buttons';
-
-import * as need from 'lib/need';
-import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
+
+import * as need from 'lib/need';
+import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
+import useWalletType from 'lib/useWalletType';
 
 //TODO should be part of InputWithStatus component
 const INPUT_STATUS = {
@@ -22,53 +28,72 @@ const INPUT_STATUS = {
 };
 
 export default function Ticket({ advanced, loginCompleted }) {
+  useWalletType(WALLET_TYPES.TICKET);
   // globals
   const { contracts } = useNetwork();
-  const { wallet, setWalletType, setUrbitWallet } = useWallet();
+  const { wallet, setUrbitWallet } = useWallet();
   const { setPointCursor } = usePointCursor();
 
   // inputs
-  //TODO deduce point name from URL if we can, prefill input if we found it
-  const [pointName, setPointName] = useState('');
-  const [ticket, setTicket] = useState('');
-  const [passphrase, setPassphrase] = useState('');
+  const pointInput = usePointInput({
+    name: 'point',
+    label: 'Point',
+    //TODO deduce point name from URL if we can, prefill input if we found it
+    // initialValue: '~',
+    autoFocus: true,
+  });
+  const pointName = pointInput.data;
+
+  const ticketInput = useTicketInput({
+    name: 'ticket',
+    label: 'Master ticket',
+  });
+  const ticket = ticketInput.data;
+
+  const passphraseInput = usePassphraseInput({
+    name: 'passphrase',
+    label: '(Optional) Wallet Passphrase',
+  });
+  const passphrase = passphraseInput.data;
 
   // display state
   const [ticketStatus, setTicketStatus] = useState(Nothing());
 
+  //TODO maybe want to do this only on-go, because wallet derivation is slow...
+  const verifyTicket = useCallback(
+    async (pointName, ticket, passphrase) => {
+      setUrbitWallet(Nothing());
+      if (!ob.isValidPatq(ticket) || !ob.isValidPatp(pointName)) {
+        setTicketStatus(Nothing());
+        return;
+      }
+      setTicketStatus(Just(INPUT_STATUS.SPIN));
+      const _contracts = need.contracts(contracts);
+      const pointNumber = ob.patp2dec(pointName);
+      const uhdw = await urbitWalletFromTicket(ticket, pointName, passphrase);
+      const isOwner = azimuth.azimuth.isOwner(
+        _contracts,
+        pointNumber,
+        uhdw.ownership.keys.address
+      );
+      const isTransferProxy = azimuth.azimuth.isTransferProxy(
+        _contracts,
+        pointNumber,
+        uhdw.ownership.keys.address
+      );
+      setUrbitWallet(Just(uhdw));
+      const newStatus =
+        (await isOwner) || (await isTransferProxy)
+          ? INPUT_STATUS.GOOD
+          : INPUT_STATUS.FAIL;
+      setTicketStatus(Just(newStatus));
+    },
+    [contracts, setUrbitWallet, setTicketStatus]
+  );
+
   useEffect(() => {
     verifyTicket(pointName, ticket, passphrase);
-    return () => {};
-  }, [pointName, ticket, passphrase]);
-
-  //TODO maybe want to do this only on-go, because wallet derivation is slow...
-  const verifyTicket = async (pointName, ticket, passphrase) => {
-    setUrbitWallet(Nothing());
-    if (!ob.isValidPatq(ticket) || !ob.isValidPatp(pointName)) {
-      setTicketStatus(Nothing());
-      return;
-    }
-    setTicketStatus(Just(INPUT_STATUS.SPIN));
-    const _contracts = need.contracts(contracts);
-    const pointNumber = ob.patp2dec(pointName);
-    const uhdw = await urbitWalletFromTicket(ticket, pointName, passphrase);
-    const isOwner = azimuth.azimuth.isOwner(
-      _contracts,
-      pointNumber,
-      uhdw.ownership.keys.address
-    );
-    const isTransferProxy = azimuth.azimuth.isTransferProxy(
-      _contracts,
-      pointNumber,
-      uhdw.ownership.keys.address
-    );
-    setUrbitWallet(Just(uhdw));
-    const newStatus =
-      (await isOwner) || (await isTransferProxy)
-        ? INPUT_STATUS.GOOD
-        : INPUT_STATUS.FAIL;
-    setTicketStatus(Just(newStatus));
-  };
+  }, [verifyTicket, pointName, ticket, passphrase]);
 
   const canContinue = () => {
     // this is our only requirement, since we still want people with
@@ -77,20 +102,9 @@ export default function Ticket({ advanced, loginCompleted }) {
   };
 
   const doContinue = () => {
-    setWalletType(WALLET_TYPES.TICKET);
     setPointCursor(Just(ob.patp2dec(pointName)));
     loginCompleted();
   };
-
-  const pointInput = (
-    <PointInput
-      name="point"
-      label="Point"
-      initialValue={pointName}
-      onValue={setPointName}
-      autoFocus
-    />
-  );
 
   //TODO integrate into TicketInput?
   const displayTicketStatus = ticketStatus.matchWith({
@@ -98,40 +112,22 @@ export default function Ticket({ advanced, loginCompleted }) {
     Just: status => {
       switch (status.value) {
         case INPUT_STATUS.SPIN:
-          return <span>⋯</span>;
+          return <AccessoryIcon.Pending />;
         case INPUT_STATUS.GOOD:
-          return <span>✓</span>;
+          return <AccessoryIcon.Success />;
         case INPUT_STATUS.FAIL:
-          return <span>𐄂</span>;
+          return <AccessoryIcon.Failure />;
         default:
-          throw new Error('weird input status ' + status.value);
+          return null;
       }
     },
   });
 
-  const ticketInput = (
-    <TicketInput
-      name="ticket"
-      label="Master ticket"
-      initialValue={ticket}
-      onValue={setTicket}
-    />
-  );
-
-  const passphraseInput = !advanced ? null : (
-    <PassphraseInput
-      name="passphrase"
-      label="(Optional) Wallet Passphrase"
-      initialValue={passphrase}
-      onValue={setPassphrase}
-    />
-  );
-
   return (
     <View>
-      {pointInput}
-      {ticketInput}
-      {passphraseInput}
+      <Input {...pointInput} />
+      <Input {...ticketInput} accessory={displayTicketStatus} />
+      {advanced && <Input {...passphraseInput} />}
 
       <ForwardButton
         className={'mt3'}

@@ -13,10 +13,12 @@ import {
   DEFAULT_HD_PATH,
   addressFromSecp256k1Public,
   walletFromMnemonic,
-} from '../lib/wallet';
-import { BRIDGE_ERROR } from '../lib/error';
+} from 'lib/wallet';
+import { BRIDGE_ERROR } from 'lib/error';
 
 export const WalletContext = createContext(null);
+
+const kDefaultWalletType = WALLET_TYPES.TICKET;
 
 // NB (jtobin):
 //
@@ -34,7 +36,7 @@ function _useWallet(
   initialWallet = Maybe.Nothing(),
   initialMnemonic = Maybe.Nothing()
 ) {
-  const [walletType, _setWalletType] = useState(WALLET_TYPES.MNEMONIC);
+  const [walletType, _setWalletType] = useState(kDefaultWalletType);
   const [walletHdPath, setWalletHdPath] = useState(DEFAULT_HD_PATH);
   const [wallet, _setWallet] = useState(initialWallet);
   const [urbitWallet, _setUrbitWallet] = useState(Maybe.Nothing());
@@ -93,6 +95,24 @@ function _useWallet(
     [setWallet]
   );
 
+  const resetWallet = useCallback(() => {
+    _setWalletType(kDefaultWalletType);
+    setWalletHdPath(DEFAULT_HD_PATH);
+    _setWallet(Maybe.Nothing());
+    _setUrbitWallet(Maybe.Nothing());
+    setAuthMnemonic(Maybe.Nothing());
+    setNetworkSeed(Maybe.Nothing());
+    setNetworkRevision(Maybe.Nothing());
+  }, [
+    _setWalletType,
+    setWalletHdPath,
+    _setWallet,
+    _setUrbitWallet,
+    setAuthMnemonic,
+    setNetworkSeed,
+    setNetworkRevision,
+  ]);
+
   return {
     //
     walletType,
@@ -113,6 +133,8 @@ function _useWallet(
     setNetworkSeed,
     networkRevision,
     setNetworkRevision,
+    //
+    resetWallet,
   };
 }
 

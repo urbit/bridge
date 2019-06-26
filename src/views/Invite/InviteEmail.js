@@ -1,13 +1,21 @@
-import { Just, Nothing } from 'folktale/maybe';
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import cn from 'classnames';
+import Maybe from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
+import {
+  Grid,
+  Flex,
+  Input,
+  IconButton,
+  HelpText,
+  Text,
+  ErrorText,
+  AccessoryIcon,
+} from 'indigo-react';
+import { uniq } from 'lodash';
+
 import * as need from 'lib/need';
-
-import { hasReceived, sendMail } from 'lib/inviteMail';
-import { Button, Input, H3, Warning } from 'components/old/Base';
-
-// for wallet generation
-import * as wg from '_walletgen/lib/lib';
+import * as wg from 'lib/walletgen';
 
 // for transaction generation and signing
 import {
@@ -19,483 +27,471 @@ import {
   toWei,
 } from 'lib/txn';
 import * as tank from 'lib/tank';
-import { withNetwork } from 'store/network';
-import { compose } from 'lib/lib';
-import { withWallet } from 'store/wallet';
-import { withPointCursor } from 'store/pointCursor';
-import View from 'components/View';
+import { useLocalRouter } from 'lib/LocalRouter';
+
+import MiniBackButton from 'components/MiniBackButton';
+import { usePointCursor } from 'store/pointCursor';
+import LoadableButton from 'components/LoadableButton';
+import useArray from 'lib/useArray';
+import useForm from 'indigo-react/lib/useForm';
+import { buildEmailInputConfig } from 'components/Inputs';
+import { MIN_PLANET } from 'lib/constants';
+import Highlighted from 'components/Highlighted';
+import { useNetwork } from 'store/network';
+import { usePointCache } from 'store/pointCache';
+import { useWallet } from 'store/wallet';
+import useSetState from 'lib/useSetState';
+import pluralize from 'lib/pluralize';
+import useMailer from 'lib/useMailer';
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
-const GAS_LIMIT = 350000;
+const GAS_LIMIT = 400000;
 const INVITE_COST = toWei((GAS_PRICE_GWEI * GAS_LIMIT).toString(), 'gwei');
+const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
 
 const STATUS = {
-  INPUT: 'Generate invites',
-  GENERATING: 'Generating invites',
-  CAN_SEND: 'Send invites',
-  FUNDING: 'Funding invites',
-  SENDING: 'Sending invites',
-  DONE: 'Done',
-  FAIL: 'Some failed',
+  INPUT: 'INPUT',
+  GENERATING: 'GENERATING',
+  CAN_SEND: 'CAN_SEND',
+  FUNDING: 'FUNDING',
+  SENDING: 'SENDING',
+  SUCCESS: 'SUCCESS',
+  FAILURE: 'FAILURE',
 };
 
-const EMAIL_STATUS = {
-  BUSY: '⋯',
-  DONE: '✔',
-  FAIL: '×',
+const buttonText = (status, count) => {
+  switch (status) {
+    case STATUS.INPUT:
+      return `Generate ${pluralize(count, 'Invite')}`;
+    case STATUS.GENERATING:
+      return `Generating ${pluralize(count, 'Invite')}...`;
+    case STATUS.CAN_SEND:
+      return `Send ${pluralize(count, 'Invite')}`;
+    case STATUS.FUNDING:
+      return `Waiting on Funds...`;
+    case STATUS.SENDING:
+      return `Sending ${pluralize(count, 'Invite')}...`;
+    case STATUS.FAILURE:
+    default:
+      return 'Error';
+  }
 };
 
-class InviteEmail extends React.Component {
-  constructor(props) {
-    super(props);
+// world's simplest uid
+let id = 0;
+const buildInputConfig = (extra = {}) =>
+  buildEmailInputConfig({
+    name: `email-${id++}`,
+    placeholder: 'Email Address',
+    ...extra,
+  });
 
-    this.state = {
-      invitesAvailable: Nothing(),
-      invited: Nothing(),
-      targets: [{ email: '', hasReceived: Nothing(), status: Nothing() }],
-      status: STATUS.INPUT,
-      errors: Nothing(),
-      //
-      fundingMessage: Nothing(),
-      wipInvites: [],
-    };
+const buildAccessoryFor = (dones, errors) => name => {
+  if (dones[name]) return <AccessoryIcon.Success />;
+  if (errors[name]) return <AccessoryIcon.Failure />;
+  return <AccessoryIcon.Pending />;
+};
 
-    this.findInvited = this.findInvited.bind(this);
-    this.generateInvites = this.generateInvites.bind(this);
-    this.sendInvites = this.sendInvites.bind(this);
-    this.canSend = this.canSend.bind(this);
-    this.addError = this.addError.bind(this);
-    this.handleEmailInput = this.handleEmailInput.bind(this);
-    this.addTarget = this.addTarget.bind(this);
-    this.removeTarget = this.removeTarget.bind(this);
-    this.setEmailStatus = this.setEmailStatus.bind(this);
-    this.askForFunding = this.askForFunding.bind(this);
-  }
+// TODO: test with tank, successful txs
+export default function InviteEmail() {
+  // TODO: resumption after error?
+  const { pop } = useLocalRouter();
+  const { contracts, web3, networkType } = useNetwork();
+  const { wallet, walletType, walletHdPath } = useWallet();
+  const { syncInvites, getInvites } = usePointCache();
+  const { pointCursor } = usePointCursor();
+  const point = need.pointCursor(pointCursor);
+  const { getHasRecieved, syncHasReceivedForEmail, sendMail } = useMailer();
 
-  componentDidMount() {
-    this.point = need.pointCursor(this.props.pointCursor);
-    this.address = need.addressFromWallet(this.props.wallet);
-    this.contracts = need.contracts(this.props.contracts);
-    this.web3 = need.web3(this.props.web3);
+  const { availableInvites } = getInvites(point);
+  const maxInvitesToSend = availableInvites.matchWith({
+    Nothing: () => 0,
+    Just: p => p.value,
+  });
 
-    console.log(azimuth.delegatedSending);
-    azimuth.delegatedSending
-      .getTotalUsableInvites(this.contracts, this.point)
-      .then(count => {
-        this.setState({ invitesAvailable: Just(count) });
-      });
-    this.findInvited();
-  }
+  // manage the array of input configs
+  const [
+    inputConfigs,
+    { append: appendInput, removeAt: removeInputAt },
+  ] = useArray(
+    [buildInputConfig({ label: 'Email Address' })],
+    buildInputConfig
+  );
 
-  componentDidUpdate(prevProps) {
-    //
-  }
+  // manage per-input state
+  const [hovered, setHovered] = useSetState();
+  const [invites, addInvite, clearInvites] = useSetState();
+  const [receipts, addReceipt, clearReceipts] = useSetState();
+  const [errors, addError, clearErrors] = useSetState();
 
-  async findInvited() {
-    let invited = await azimuth.delegatedSending.getInvited(
-      this.contracts,
-      this.point
-    );
-    invited = invited.map(async point => {
-      const active = await azimuth.azimuth.isActive(this.contracts, point);
-      const res = { point: Number(point), active: active };
-      return res;
-    });
-    invited = await Promise.all(invited);
-    const total = invited.length;
-    const accepted = invited.filter(i => i.active).length;
-    this.setState({ invited: Just({ total, accepted }) });
-  }
+  // manage general state that affects the whole form
+  const [status, setStatus] = useState(STATUS.INPUT);
+  const [needFunds, setNeedFunds] = useState(null);
+  const [generalError, setGeneralError] = useState(null);
 
-  async getTemporaryWallet() {
-    const ticket = await wg.makeTicket(0x10000); // planet-sized ticket
-    const owner = await wg.generateOwnershipWallet(0, ticket);
-    return { ticket, owner: owner.keys.address };
-  }
+  // derive booleans from status
+  const canInput = status === STATUS.INPUT;
+  const canSend = status === STATUS.CAN_SEND;
+  const isGenerating = status === STATUS.GENERATING;
+  const isSending = status === STATUS.SENDING;
+  const isFailed = status === STATUS.FAILURE;
+  const isDone = status === STATUS.SUCCESS;
 
-  async generateInvites() {
-    this.setState({ status: STATUS.GENERATING });
+  // add disabled, error info to input configs
+  const dynamicConfigs = useMemo(
+    () =>
+      inputConfigs.map(config => {
+        config.disabled = !canInput;
+        const hasReceivedError = getHasRecieved(config.name).matchWith({
+          Nothing: () => null, // loading
+          Just: p => p.value && HAS_RECEIVED_TEXT,
+        });
+        config.error = hasReceivedError || errors[config.name];
+        return config;
+      }),
+    [inputConfigs, errors, canInput, getHasRecieved]
+  );
 
-    const web3 = this.web3;
-    const targets = this.state.targets;
+  // construct the state of the set of inputs we're rendering below
+  const { inputs, pass } = useForm(dynamicConfigs);
+  // did all of the inputs pass inspection (and there are no general errors)?
+  const allPass = pass && !generalError;
+  // the form is submittable iff passing and input is allowed
+  const canGenerate = allPass && canInput;
+  // additional inputs can be added iff input is allowed and we have enough
+  // invites to send
+  const canAddInvite = canInput && inputConfigs.length < maxInvitesToSend;
+
+  // progress is [0, .length] of invites or receipts, as we're generating them
+  const progress = isGenerating
+    ? Object.keys(invites).length
+    : isSending
+    ? Object.keys(receipts).length
+    : null;
+  const visualProgress = progress === null ? '-' : `${progress + 1}`;
+
+  // build a builder for the accessory to the input, depending on status
+  const accessoryFor = (() => {
+    if (isGenerating || canSend) return buildAccessoryFor(invites, errors);
+    if (isSending) return buildAccessoryFor(receipts, errors);
+    if (isFailed) return buildAccessoryFor({}, errors);
+    return () => null;
+  })();
+
+  const generateInvites = useCallback(async () => {
+    const _contracts = contracts.getOrElse(null);
+    const _web3 = web3.getOrElse(null);
+    const _wallet = wallet.getOrElse(null);
+    if (!_contracts || !_web3 || !_wallet) {
+      // not using need because we want a custom error
+      throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
+    }
+
+    const nonce = await _web3.eth.getTransactionCount(_wallet.address);
+    const chainId = await _web3.eth.net.getId();
     const planets = await azimuth.delegatedSending.getPlanetsToSend(
-      this.contracts,
-      this.point,
-      targets.length
+      _contracts,
+      point,
+      inputs.length
     );
 
     // account for the race condition where invites got used up while we were
     // composing our target list
-    if (planets.length < targets.length) {
-      this.addError('Can currently only send ' + planets.length + ' invites!');
-      return;
-    }
+    if (planets.length < inputs.length) {
+      // resync invites to the cache, since they're out of date
+      syncInvites(point);
 
-    const nonce = await web3.eth.getTransactionCount(this.address);
-    const chainId = await web3.eth.net.getId();
-
-    // create invite wallets and transactions
-    let invites = []; // { email, ticket, signedTx, rawTx }
-    for (let i = 0; i < targets.length; i++) {
-      console.log('generating email', i, targets[i].email);
-      this.setEmailStatus(i, EMAIL_STATUS.BUSY);
-
-      const email = targets[i].email;
-      const wallet = await this.getTemporaryWallet();
-
-      let inviteTx = azimuth.delegatedSending.sendPoint(
-        this.contracts,
-        this.point,
-        planets[i],
-        wallet.owner
+      throw new Error(
+        `Can currently only send ${planets.length} invites. ` +
+          `Please remove invites until you are within the limit.`
       );
-      const signedTx = await signTransaction({
-        ...this.props,
-        txn: Just(inviteTx),
-        gasPrice: GAS_PRICE_GWEI.toString(),
-        gasLimit: GAS_LIMIT.toString(),
-        nonce: nonce + i,
-        chainId: chainId,
-        setStx: () => {},
-      });
-      const rawTx = hexify(signedTx.serialize());
-
-      invites.push({ email, ticket: wallet.ticket, signedTx, rawTx });
-      this.setEmailStatus(i, EMAIL_STATUS.DONE);
     }
 
-    this.setState({ wipInvites: invites, status: STATUS.CAN_SEND });
-  }
+    let errorCount = 0;
+    clearInvites();
+    // NB(shrugs) - must be processed in serial because main thread, etc
+    for (let i = 0; i < inputs.length; i++) {
+      const input = inputs[i];
+      try {
+        const { data: email, name } = inputs[i];
 
-  async sendInvites() {
-    const invites = this.state.wipInvites;
-    const web3 = this.web3;
+        const { ticket, owner } = await wg.generateTemporaryTicketAndWallet(
+          MIN_PLANET
+          // we're always giving planets, so generate a ticket of the correct size
+        );
 
-    //TODO invite status isn't changing/re-rendering... why?
-    this.setState({
-      status: STATUS.FUNDING,
-      invites: invites.map(i => {
-        return { ...i, status: Nothing() };
-      }),
-    });
+        const inviteTx = azimuth.delegatedSending.sendPoint(
+          _contracts,
+          point,
+          planets[i],
+          owner.keys.address
+        );
+        const signedTx = await signTransaction({
+          wallet,
+          walletType,
+          walletHdPath,
+          networkType,
+          // TODO: ^ make a useTransactionSigner to encapsulate this logic
+          txn: Maybe.Just(inviteTx),
+          gasPrice: GAS_PRICE_GWEI.toString(),
+          gasLimit: GAS_LIMIT.toString(),
+          nonce: nonce + i,
+          chainId,
+          setStx: () => {},
+        });
+        const rawTx = hexify(signedTx.serialize());
 
-    const tankWasUsed = await tank.ensureFundsFor(
-      web3,
-      this.point,
-      this.address,
-      INVITE_COST * invites.length,
-      invites.map(i => i.rawTx),
-      this.askForFunding,
-      () => {
-        this.setState({ fundingMessage: Nothing() });
+        addInvite({ [name]: { email, ticket, signedTx, rawTx } });
+      } catch (error) {
+        console.error(error);
+        errorCount++;
+        addError({ [input.name]: `Wallet Error: ${input.email}` });
       }
+    }
+
+    if (errorCount > 0) {
+      throw new Error(
+        `There ${pluralize(errorCount, 'was', 'were')} ${pluralize(
+          errorCount,
+          'error'
+        )} while generating wallets.`
+      );
+    }
+  }, [
+    point,
+    contracts,
+    web3,
+    addInvite,
+    clearInvites,
+    syncInvites,
+    inputs,
+    networkType,
+    wallet,
+    walletType,
+    walletHdPath,
+    addError,
+  ]);
+
+  const sendInvites = useCallback(async () => {
+    const _web3 = web3.getOrElse(null);
+    const _wallet = wallet.getOrElse(null);
+    if (!_web3 || !_wallet) {
+      throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
+    }
+
+    setStatus(STATUS.FUNDING);
+    const tankWasUsed = await tank.ensureFundsFor(
+      _web3,
+      point,
+      _wallet.address,
+      INVITE_COST * inputs.length,
+      inputs.map(input => invites[input.name].rawTx),
+      (address, minBalance, balance) =>
+        setNeedFunds({ address, minBalance, balance }),
+      () => setNeedFunds(false)
     );
 
-    this.setState({ status: STATUS.SENDING });
+    setStatus(STATUS.SENDING);
+    clearReceipts();
 
-    //TODO nasty loop, probably move into lib... but so many callbacks!
-    let promises = [];
-    for (let i = 0; i < invites.length; i++) {
-      const invite = invites[i];
-
-      // send transaction. if it fails, inform the user and skip to next
-      let txHash;
+    let errorCount = 0;
+    const txAndMailings = inputs.map(async input => {
+      const invite = invites[input.name];
       try {
-        txHash = await sendSignedTransaction(
-          web3,
-          Just(invite.signedTx),
+        const txHash = await sendSignedTransaction(
+          _web3,
+          Maybe.Just(invite.signedTx),
           tankWasUsed,
           () => {}
         );
-      } catch (err) {
-        console.error('invite tx sending failed', err);
-        this.addError('Invite transaction not sent for ' + invite.email);
-        this.setEmailStatus(i, EMAIL_STATUS.FAIL);
-        continue;
-      }
 
-      // ask the email sender to send this. we can do this prior to tx confirm,
-      // because the sender service waits for confirm & success for us.
-      // if this fails, inform the user and skip to next
-      try {
-        const mailSuccess = await sendMail(
-          invite.email,
-          invite.ticket,
-          invite.rawTx
-        );
-        if (!mailSuccess) throw new Error();
-        this.setEmailStatus(i, EMAIL_STATUS.DONE);
-      } catch (e) {
-        console.log('email send failed');
-        //NOTE this assumes that the transaction succeeds, but we don't know
-        //     that for a fact yet...
-        this.addError(
-          'Invite email failed to send for ' +
-            invite.email +
-            '. Please give them this ticket: ' +
-            invite.ticket
-        );
-        this.setEmailStatus(i, EMAIL_STATUS.FAIL);
-        continue;
-      }
-
-      // update status on transaction confirm, but don't block on it
-      promises.push(
-        waitForTransactionConfirm(web3, txHash).then(success => {
-          if (success) {
-            this.setEmailStatus(i, EMAIL_STATUS.DONE);
-          } else {
-            console.log('invite tx rejected');
-            this.addError('Invite transaction failed for ' + invite.email);
-            this.setEmailStatus(i, EMAIL_STATUS.FAIL);
-          }
-          return success;
-        })
-      );
-    }
-
-    const txStatus = await Promise.all(promises);
-    if (txStatus.every(e => e)) {
-      this.setState({ status: STATUS.DONE });
-    } else {
-      this.setState({ status: STATUS.FAIL });
-    }
-  }
-
-  setEmailStatus(i, status) {
-    const targets = this.state.targets;
-    targets[i].status = Just(status);
-    this.setState({ targets });
-  }
-
-  addError(error) {
-    const newError = this.state.errors.matchWith({
-      Nothing: () => [error],
-      Just: errs => {
-        errs.value.push(error);
-        return errs.value;
-      },
-    });
-    this.setState({ errors: Just(newError) });
-  }
-
-  askForFunding(address, minBalance, balance) {
-    this.setState({
-      fundingMessage: Just(
-        `Please make sure ${address} has at least ${fromWei(minBalance)} ETH,` +
-          `we'll continue once that's true. Current balance: ${fromWei(
-            balance
-          )}.` +
-          `Waiting...`
-      ),
-    });
-  }
-
-  handleEmailInput(i, email) {
-    let targets = this.state.targets;
-    targets[i].email = email;
-
-    // if it's a valid address, check if it has received an invite before
-    if (email.match(/.*@.*\...+/)) {
-      hasReceived(email).then(res => {
-        targets[i].hasReceived = Just(res);
-        this.setState({ targets });
-      });
-    } else {
-      targets[i].hasReceived = Nothing();
-    }
-
-    this.setState({ targets });
-  }
-
-  canSend() {
-    const targets = this.state.targets;
-
-    // may not have duplicate targets
-    if (new Set(targets.map(t => t.email)).size !== targets.length)
-      return false;
-
-    // none may have received invites already
-    for (let i = 0; i < targets.length; i++) {
-      const target = targets[i];
-      const res = target.hasReceived.matchWith({
-        Nothing: () => true,
-        Just: has => has.value,
-      });
-      if (res) return false;
-    }
-
-    return this.state.invitesAvailable.matchWith({
-      Nothing: () => false,
-      Just: invites => invites.value > 0,
-    });
-  }
-
-  addTarget() {
-    let targets = this.state.targets;
-    targets.push({ email: '', hasReceived: Nothing(), status: Nothing() });
-    this.setState({ targets });
-  }
-
-  removeTarget() {
-    let targets = this.state.targets;
-    targets.length = targets.length - 1;
-    this.setState({ targets });
-  }
-
-  render() {
-    const dif =
-      this.state.status === STATUS.DONE ? this.state.targets.length : null;
-
-    const invitesAvailable = this.state.invitesAvailable.matchWith({
-      Nothing: () => 'Loading...',
-      Just: invites => {
-        const dia = dif ? `(-${dif})` : '';
-        return `You currently have ${invites.value}${dia} invitations left.`;
-      },
-    });
-
-    const invitesSent = this.state.invited.matchWith({
-      Nothing: () => <>{'Loading...'}</>,
-      Just: invited => {
-        const dit = dif ? `(+${dif})` : '';
-        return (
-          <>
-            {'Out of the '}
-            {invited.value.total + dit}
-            {' invites you sent, '}
-            {invited.value.accepted}
-            {' have been accepted.'}
-          </>
-        );
-      },
-    });
-
-    const error = this.state.errors.matchWith({
-      Nothing: () => null,
-      Just: errors => (
-        <Warning className={'mt-8'}>
-          <H3 style={{ marginTop: 0, paddingTop: 0 }}>
-            {'Something went wrong!'}
-          </H3>
-          {errors.value.map(err => (
-            <p>{err}</p>
-          ))}
-        </Warning>
-      ),
-    });
-
-    const fundingMessage = this.state.fundingMessage.matchWith({
-      Nothing: () => null,
-      Just: msg => <Warning className={'mt-8'}>{msg.value}</Warning>,
-    });
-
-    let inputs;
-    if (this.state.status === STATUS.DONE) {
-      //TODO proper clickable router thing
-      inputs = '<- Back to Home';
-    } else {
-      const inputDisabled = this.state.status !== STATUS.INPUT;
-
-      const lessButton = (
-        <Button
-          prop-size={'s narrow'}
-          className={'mt-8'}
-          disabled={inputDisabled || this.state.targets.length === 1}
-          onClick={this.removeTarget}>
-          {'-'}
-        </Button>
-      );
-
-      const moreButton = (
-        <Button
-          prop-size={'s narrow'}
-          className={'mt-8'}
-          disabled={
-            inputDisabled ||
-            this.state.invitesAvailable.matchWith({
-              Nothing: () => true,
-              Just: inv => inv.value <= this.state.targets.length,
-            })
-          }
-          onClick={this.addTarget}>
-          {'+'}
-        </Button>
-      );
-
-      let targetInputs = [];
-      for (let i = 0; i < this.state.targets.length; i++) {
-        const target = this.state.targets[i];
-        let progress = target.status.matchWith({
-          Nothing: () => '',
-          Just: status => status.value,
+        // TODO: waitForTransactionConfirm never rejects
+        const didConfirm = await waitForTransactionConfirm(_web3, txHash);
+        if (!didConfirm) throw new Error();
+      } catch (error) {
+        console.error(error);
+        errorCount++;
+        addError({
+          [input.name]: `Transaction Failure for ${invite.email}`,
         });
-        targetInputs.push(
-          <>
-            <Input
-              value={target.email}
-              onChange={value => {
-                this.handleEmailInput(i, value);
-              }}
-              placeholder={'Email address'}
-              disabled={inputDisabled}
-            />
-            {target.hasReceived.matchWith({
-              Nothing: () => null,
-              Just: has =>
-                has.value ? <span>{'×'}</span> : <span>{'°'}</span>,
-            })}
-            {progress}
-          </>
-        );
+        return;
       }
 
-      const submitButton = (
-        <Button
-          prop-size={'xl wide'}
-          className={'mt-8'}
-          disabled={
-            (inputDisabled && this.state.status !== STATUS.CAN_SEND) ||
-            !this.canSend()
-          }
-          onClick={() => {
-            if (this.state.status === STATUS.INPUT) this.generateInvites();
-            if (this.state.status === STATUS.CAN_SEND) this.sendInvites();
-          }}>
-          {this.state.status}
-        </Button>
-      );
+      try {
+        await sendMail(invite.email, invite.ticket, invite.rawTx);
+      } catch (error) {
+        console.error(error);
+        errorCount++;
+        addError({
+          [input.name]: `Mailing Failure for ${invite.email}`,
+        });
+      }
 
-      inputs = (
-        <>
-          {lessButton}
-          {moreButton}
-          {targetInputs}
-          {submitButton}
-        </>
+      addReceipt({ [input.name]: true });
+    });
+
+    await Promise.all(txAndMailings);
+    // if there are any receipt errors, throw a general error
+    if (errorCount > 0) {
+      throw new Error(
+        `There ${pluralize(errorCount, 'was', 'were')} ${pluralize(
+          errorCount,
+          'error'
+        )} while sending transactions.`
       );
     }
+  }, [
+    web3,
+    inputs,
+    addReceipt,
+    clearReceipts,
+    invites,
+    point,
+    wallet,
+    addError,
+    sendMail,
+  ]);
 
-    return (
-      <View>
-        <p>{'send invites here, for planets'}</p>
+  const onClick = useCallback(async () => {
+    setGeneralError(null);
+    try {
+      if (canGenerate) {
+        setStatus(STATUS.GENERATING);
+        await generateInvites();
+        setStatus(STATUS.CAN_SEND);
+      } else if (canSend) {
+        setStatus(STATUS.SENDING);
+        await sendInvites();
+        setStatus(STATUS.SUCCESS);
+      }
+    } catch (error) {
+      console.error(error);
+      setGeneralError(error);
+      setStatus(STATUS.FAILURE);
+    }
+  }, [canGenerate, canSend, generateInvites, sendInvites]);
 
-        <p>{invitesAvailable}</p>
+  // when inputs update, check to see if any of them are duplicates
+  useEffect(() => {
+    // compute the list of valid emails
+    const emails = inputs.map(i => i.data).filter(d => !!d);
+    if (uniq(emails).length !== emails.length) {
+      setGeneralError(new Error(`Duplicate email.`));
+    } else {
+      setGeneralError(null);
+    }
+  }, [inputs]);
 
-        <ul>{invitesSent}</ul>
+  // when we transition to done, sync invites because we just sent some
+  // and therefore know that state has changed
+  useEffect(() => {
+    if (isDone) {
+      syncInvites(point);
+    }
+  }, [isDone, syncInvites, point]);
 
-        {error}
+  return (
+    <Grid gap={12}>
+      <Grid.Item as={Grid} full>
+        <Grid.Item as={Flex} cols={[1, 11]} align="center">
+          <MiniBackButton onClick={() => pop()} />
+        </Grid.Item>
+        <Grid.Item cols={[11, 13]} justifySelf="end">
+          {/* use hidden class instead of removing component from dom */}
+          {/* in order to avoid janky reflow */}
+          <IconButton
+            onClick={() => appendInput()}
+            disabled={!canAddInvite}
+            className={cn({ hidden: isDone })}
+            solid>
+            +
+          </IconButton>
+        </Grid.Item>
+      </Grid.Item>
 
-        {fundingMessage}
+      {isDone && (
+        <>
+          <Grid.Item as={Text} full>
+            <Highlighted>{pluralize(inputs.length, 'invite')}</Highlighted>{' '}
+            {pluralize(inputs.length, 'has', 'have')} been successfully sent
+          </Grid.Item>
+          {inputs.map(input => (
+            <Grid.Item as={HelpText} key={input.name} full>
+              {invites[input.name].email}
+            </Grid.Item>
+          ))}
+        </>
+      )}
 
-        {inputs}
-      </View>
-    );
-  }
+      {!isDone && (
+        <>
+          {/* email inputs */}
+          {inputs.map((input, i) => {
+            const isFirst = i === 0;
+            return (
+              <Grid.Item
+                key={input.name}
+                as={Grid}
+                gap={12}
+                onMouseOver={() => setHovered({ [input.name]: true })}
+                onMouseLeave={() => setHovered({ [input.name]: false })}
+                full>
+                <Grid.Item
+                  as={Input}
+                  cols={[1, 11]}
+                  {...input}
+                  onValue={email => syncHasReceivedForEmail(email)}
+                  // NB(shrugs): ^ this feels like a hack?
+                  accessory={accessoryFor(input.name)}
+                />
+                {!isFirst &&
+                  (input.focused || hovered[input.name]) &&
+                  canInput && (
+                    <Grid.Item
+                      cols={[11, 13]}
+                      justifySelf="end"
+                      alignSelf="center">
+                      <IconButton
+                        onClick={() => removeInputAt(i)}
+                        solid
+                        secondary>
+                        -
+                      </IconButton>
+                    </Grid.Item>
+                  )}
+              </Grid.Item>
+            );
+          })}
+
+          <Grid.Item
+            full
+            as={LoadableButton}
+            disabled={!canGenerate && !canSend}
+            accessory={`${visualProgress}/${inputs.length}`}
+            onClick={onClick}
+            success={canSend}
+            solid>
+            {buttonText(status, inputs.length)}
+          </Grid.Item>
+
+          {needFunds && (
+            <Grid.Item full>
+              <Highlighted>
+                Your ownership address {needFunds.address} needs at least{' '}
+                {fromWei(needFunds.minBalance)} ETH and currently has{' '}
+                {fromWei(needFunds.balance)} ETH. Waiting until the account has
+                enough funds.
+              </Highlighted>
+            </Grid.Item>
+          )}
+
+          {generalError && (
+            <Grid.Item full>
+              <ErrorText>{generalError.message.toString()}</ErrorText>
+            </Grid.Item>
+          )}
+        </>
+      )}
+    </Grid>
+  );
 }
-
-export default compose(
-  withNetwork,
-  withWallet,
-  withPointCursor
-)(InviteEmail);

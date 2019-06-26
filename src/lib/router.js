@@ -1,22 +1,15 @@
-import React from 'react';
 import * as ob from 'urbit-ob';
 import * as need from './need';
 
 import Landing from '../views/Landing';
+import Login from '../views/Login.js';
 import InviteTicket from '../views/InviteTicket';
 import InvitesManage from '../views/InvitesManage.js';
-import Login from '../views/Login.js';
 import AcceptTransfer from '../views/AcceptTransfer';
 import CancelTransfer from '../views/CancelTransfer';
 import CreateGalaxy from '../views/CreateGalaxy';
 import GenKeyfile from '../views/GenKeyfile';
 import IssueChild from '../views/IssueChild';
-import Network from '../views/Network';
-import Mnemonic from '../views/Mnemonic';
-import Ledger from '../views/Ledger';
-import Trezor from '../views/Trezor';
-import PrivateKey from '../views/PrivateKey';
-import Keystore from '../views/Keystore';
 import ViewPoint from '../views/ViewPoint';
 import SentTransaction from '../views/SentTransaction';
 import SetKeys from '../views/SetKeys';
@@ -27,14 +20,9 @@ import {
 } from '../views/SetProxy';
 import Point from '../views/Point';
 import Points from '../views/Points';
-import Shards from '../views/Shards';
-import Ticket from '../views/Ticket';
 import Transfer from '../views/Transfer';
-import Wallet from '../views/Wallet';
 import Invite from 'views/Invite';
 
-import { EthereumWallet } from './wallet';
-import { renderNetworkType } from './network';
 import { ROUTE_NAMES } from './routeNames';
 
 export const ROUTES = {
@@ -46,16 +34,7 @@ export const ROUTES = {
   [ROUTE_NAMES.LOGIN]: Login,
   [ROUTE_NAMES.ACCEPT_TRANSFER]: AcceptTransfer,
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
-  [ROUTE_NAMES.NETWORK]: Network,
-  [ROUTE_NAMES.WALLET]: Wallet,
   [ROUTE_NAMES.VIEW_POINT]: ViewPoint,
-  [ROUTE_NAMES.MNEMONIC]: Mnemonic,
-  [ROUTE_NAMES.TICKET]: Ticket,
-  [ROUTE_NAMES.SHARDS]: Shards,
-  [ROUTE_NAMES.LEDGER]: Ledger,
-  [ROUTE_NAMES.TREZOR]: Trezor,
-  [ROUTE_NAMES.PRIVATE_KEY]: PrivateKey,
-  [ROUTE_NAMES.KEYSTORE]: Keystore,
   [ROUTE_NAMES.POINTS]: Points,
   [ROUTE_NAMES.POINT]: Point,
   [ROUTE_NAMES.SET_MANAGEMENT_PROXY]: SetManagementProxy,
@@ -69,11 +48,7 @@ export const ROUTES = {
   [ROUTE_NAMES.GEN_KEYFILE]: GenKeyfile,
 };
 
-export const getRouteBreadcrumb = ({
-  pointCursor,
-  networkType,
-  wallet,
-}) => route => {
+export const getRouteBreadcrumb = ({ pointCursor }) => route => {
   switch (route.name) {
     case ROUTE_NAMES.INVITE_TICKET:
       return 'Invite code';
@@ -87,32 +62,6 @@ export const getRouteBreadcrumb = ({
       return 'Login to Bridge';
     case ROUTE_NAMES.POINT:
       return `Overview: ${ob.patp(need.pointCursor(pointCursor))}`;
-    case ROUTE_NAMES.NETWORK:
-      return renderNetworkType(networkType);
-    case ROUTE_NAMES.WALLET:
-      return wallet.matchWith({
-        Nothing: () => 'Wallet',
-        Just: wal =>
-          wal.value instanceof EthereumWallet ? (
-            <span className="text-mono">{wal.value.address}</span>
-          ) : (
-            <span className="text-mono">{wal.value.address}</span>
-          ),
-      });
-    case ROUTE_NAMES.MNEMONIC:
-      return 'Mnemonic';
-    case ROUTE_NAMES.TICKET:
-      return 'Urbit Ticket';
-    case ROUTE_NAMES.SHARDS:
-      return 'Urbit Ticket';
-    case ROUTE_NAMES.LEDGER:
-      return 'Ledger';
-    case ROUTE_NAMES.TREZOR:
-      return 'Trezor';
-    case ROUTE_NAMES.PRIVATE_KEY:
-      return 'Private Key';
-    case ROUTE_NAMES.KEYSTORE:
-      return 'Keystore File';
     case ROUTE_NAMES.POINTS:
       return 'Points';
     case ROUTE_NAMES.VIEW_POINT:

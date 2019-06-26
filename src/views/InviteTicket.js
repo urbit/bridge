@@ -68,8 +68,7 @@ class InviteTicket extends React.Component {
   }
 
   navigateLogin() {
-    this.props.history.pop();
-    this.props.history.push(ROUTE_NAMES.NETWORK);
+    this.props.history.popAndPush(ROUTE_NAMES.LOGIN);
   }
 
   handleInviteTicketInput(inviteTicket) {

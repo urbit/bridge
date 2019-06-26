@@ -4,20 +4,20 @@ import { Grid, H5, Text } from 'indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useHistory } from 'store/history';
-// import { usePointCache } from 'store/pointCache';
 
 import View from 'components/View';
 import Crumbs from 'components/Crumbs';
+import Highlighted from 'components/Highlighted';
+import { matchBlinky } from 'components/Blinky';
 
 import useInvites from 'lib/useInvites';
-import useSyncPoint from 'lib/useSyncPoint';
+import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useCurrentPointName from 'lib/useCurrentPointName';
 import useRouter from 'lib/useRouter';
-import loadingCharacter from 'lib/loadingCharacter';
+import { LocalRouterProvider } from 'lib/LocalRouter';
 
 import InviteUrl from './Invite/InviteUrl';
 import InviteEmail from './Invite/InviteEmail';
-import Highlighted from 'components/Highlighted';
 
 const kInviteNames = {
   URL: 'URL',
@@ -31,7 +31,7 @@ const kInviteViews = {
 
 export default function Invite() {
   const history = useHistory();
-  const { Route, ...routeProps } = useRouter({
+  const { Route, ...router } = useRouter({
     names: kInviteNames,
     views: kInviteViews,
     initialRoutes: [{ key: kInviteNames.URL }],
@@ -40,45 +40,48 @@ export default function Invite() {
   const point = need.pointCursor(pointCursor);
   const name = useCurrentPointName();
 
-  // sync the current cursor
-  useSyncPoint(point);
+  // sync the current point
+  useSyncOwnedPoints([point]);
 
-  // fetch the invites for the current cursor
+  // get the invites for the current point
   const { availableInvites, sentInvites, acceptedInvites } = useInvites(point);
-  const availableInvitesText = loadingCharacter(availableInvites);
-  const sentInvitesText = loadingCharacter(sentInvites);
-  const acceptedInvitesText = loadingCharacter(acceptedInvites);
+
+  // number or loading character
+  const availableInvitesText = matchBlinky(availableInvites);
+  const sentInvitesText = matchBlinky(sentInvites);
+  const acceptedInvitesText = matchBlinky(acceptedInvites);
 
   return (
-    <View>
-      <Grid className="mb3">
-        <Grid.Item
-          as={Crumbs}
-          routes={[
-            {
-              text: name,
-              action: () => history.pop(),
-            },
-            {
-              text: 'Invite',
-            },
-          ]}
-          full
-        />
-        <Grid.Item as={H5} className="mv4" full>
-          Invite
-        </Grid.Item>
-        <Grid.Item as={Text} full>
-          You currently have{' '}
-          <Highlighted>{availableInvitesText} invitations</Highlighted> left.
-          <br />
-          Out of the <Highlighted>{sentInvitesText}</Highlighted> invites you
-          sent, <Highlighted>{acceptedInvitesText}</Highlighted> have been
-          accepted.
-        </Grid.Item>
-      </Grid>
-      {/* TODO(shrugs): use context isntead of this routeProps nonsense */}
-      <Route {...routeProps} />
-    </View>
+    <LocalRouterProvider value={router}>
+      <View>
+        <Grid className="mb4">
+          <Grid.Item
+            as={Crumbs}
+            routes={[
+              {
+                text: name,
+                action: () => history.pop(),
+              },
+              {
+                text: 'Invite',
+              },
+            ]}
+            full
+          />
+          <Grid.Item as={H5} className="mv4" full>
+            Invite
+          </Grid.Item>
+          <Grid.Item as={Text} full>
+            You currently have{' '}
+            <Highlighted>{availableInvitesText} invitations</Highlighted> left.
+            <br />
+            Out of the <Highlighted>{sentInvitesText}</Highlighted> invites you
+            sent, <Highlighted>{acceptedInvitesText}</Highlighted> have been
+            accepted.
+          </Grid.Item>
+        </Grid>
+        <Route />
+      </View>
+    </LocalRouterProvider>
   );
 }

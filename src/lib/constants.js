@@ -11,6 +11,7 @@ const GALAXY_ENTROPY_BITS = 384;
 
 const SEED_ENTROPY_BITS = 128;
 
+// TODO: this is walletgen-ui specific, move into a wallet router later
 const GEN_STATES = {
   ENY_NOSTART: Symbol('ENY_NOSTART'),
   ENY_PENDING: Symbol('ENY_PENDING'),

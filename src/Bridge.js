@@ -24,9 +24,10 @@ const kIsStubbed = isDevelopment && shouldStubLocal;
 const kInitialRoutes = kIsStubbed
   ? [
       { key: ROUTE_NAMES.LANDING },
-      { key: ROUTE_NAMES.NETWORK },
-      { key: ROUTE_NAMES.WALLET },
+      { key: ROUTE_NAMES.LOGIN },
       { key: ROUTE_NAMES.POINTS },
+      { key: ROUTE_NAMES.POINT },
+      { key: ROUTE_NAMES.INVITE },
     ]
   : [{ key: ROUTE_NAMES.LANDING }];
 
@@ -39,7 +40,7 @@ const kInitialWallet = kIsStubbed
 const kInitialMnemonic = kIsStubbed
   ? Just(process.env.REACT_APP_DEV_MNEMONIC)
   : Nothing();
-const kInitialPointCursor = kIsStubbed ? Just(0) : Nothing();
+const kInitialPointCursor = kIsStubbed ? Just(65792) : Nothing();
 
 export default function Bridge() {
   return (

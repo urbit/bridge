@@ -3,19 +3,21 @@ import * as ob from 'urbit-ob';
 import { Grid, Flex } from 'indigo-react';
 import { times } from 'lodash';
 
-import Sigil from './Sigil';
 import usePointBirthday from 'lib/usePointBirthday';
 import { formatDots } from 'lib/dateFormat';
-import { kLoadingCharacter } from 'lib/loadingCharacter';
 
-const kLoadingDate = [4, 2, 2]
-  .map(t => times(t, () => kLoadingCharacter).join(''))
-  .join('.');
+import Sigil from './Sigil';
+import Blinky, { kLoadingCharacter, kInterstitialCharacter } from './Blinky';
+
+const buildDate = char =>
+  [4, 2, 2].map(t => times(t, () => char).join('')).join('.');
+const kDateA = buildDate(kLoadingCharacter);
+const kDateB = buildDate(kInterstitialCharacter);
 
 export default function Passport({ point }) {
   const birthday = usePointBirthday(point);
   const birthDate = birthday.matchWith({
-    Nothing: () => kLoadingDate,
+    Nothing: () => <Blinky a={kDateA} b={kDateB} />,
     Just: p => formatDots(p.value),
   });
   const name = ob.patp(point);

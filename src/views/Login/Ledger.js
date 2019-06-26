@@ -5,14 +5,17 @@ import Maybe from 'folktale/maybe';
 import Transport from '@ledgerhq/hw-transport-u2f';
 import Eth from '@ledgerhq/hw-app-eth';
 import * as secp256k1 from 'secp256k1';
+import { H1, H2, P, Input } from 'indigo-react';
 
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
-import { H1, H2, P, Input } from 'indigo-react';
-import { InnerLabel, InnerLabelDropdown } from 'components/old/Base';
+import { InnerLabelDropdown } from 'components/old/Base';
+
+import { useWallet } from 'store/wallet';
 
 import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from 'lib/ledger';
-import { useWallet } from 'store/wallet';
+import useWalletType from 'lib/useWalletType';
+import { WALLET_TYPES } from 'lib/wallet';
 
 const pathOptions = [
   { title: 'Ledger Live', value: LEDGER_LIVE_PATH },
@@ -25,6 +28,8 @@ const chopHdPrefix = str => (str.slice(0, 2) === 'm/' ? str.slice(2) : str);
 const addHdPrefix = str => (str.slice(0, 2) === 'm/' ? str : 'm/' + str);
 
 export default function Ledger({ loginCompleted }) {
+  useWalletType(WALLET_TYPES.LEDGER);
+
   const { wallet, setWallet, setWalletHdPath } = useWallet();
 
   const [basePath, setBasePath] = useState(LEDGER_LIVE_PATH);
@@ -123,7 +128,10 @@ export default function Ledger({ loginCompleted }) {
         <ol className="measure-md">
           <li className="mt-4">
             Install
-            <a target="_blank" href="https://github.com/FiloSottile/mkcert">
+            <a
+              target="_blank"
+              href="https://github.com/FiloSottile/mkcert"
+              rel="noopener noreferrer">
               mkcert
             </a>
           </li>

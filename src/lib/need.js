@@ -22,8 +22,7 @@ export const wallet = needBuilder(BRIDGE_ERROR.MISSING_WALLET);
 export const addressFromWallet = obj => wallet(obj).address;
 export const pointCursor = needBuilder(BRIDGE_ERROR.MISSING_POINT);
 export const pointCache = needBuilder(BRIDGE_ERROR.MISSING_POINT);
-export const fromPointCache = (obj, point) => {
-  const cache = pointCache(obj);
+export const fromPointCache = (cache, point) => {
   if (!(point in cache)) {
     throw BRIDGE_ERROR.MISSING_POINT;
   }

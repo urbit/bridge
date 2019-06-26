@@ -1,24 +1,28 @@
 import { Just, Nothing } from 'folktale/maybe';
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { Input } from 'indigo-react';
 
 import View from 'components/View';
-import { PassphraseInput } from 'components/Inputs';
+import { usePassphraseInput } from 'components/Inputs';
 import { ForwardButton } from 'components/Buttons';
 
-import { EthereumWallet } from 'lib/wallet';
 import { useWallet } from 'store/wallet';
 
+import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
+import useWalletType from 'lib/useWalletType';
+
 export default function PrivateKey({ loginCompleted }) {
+  useWalletType(WALLET_TYPES.PRIVATE_KEY);
   const { wallet, setWallet } = useWallet();
 
-  const [privateKey, setPrivateKey] = useState('');
+  const privateKeyInput = usePassphraseInput({
+    name: 'privateKey',
+    label: 'Private key',
+    autoFocus: true,
+  });
+  const privateKey = privateKeyInput.data;
 
-  const handlePrivateKeyInput = privateKey => {
-    setPrivateKey(privateKey);
-    constructWallet(privateKey);
-  };
-
-  const constructWallet = privateKey => {
+  useEffect(() => {
     if (/^[0-9A-Fa-f]{64}$/g.test(privateKey) === true) {
       const sec = Buffer.from(privateKey, 'hex');
       const newWallet = new EthereumWallet(sec);
@@ -26,20 +30,12 @@ export default function PrivateKey({ loginCompleted }) {
     } else {
       setWallet(Nothing());
     }
-  };
+  }, [privateKey, setWallet]);
 
   return (
     <View>
       Please enter your raw Ethereum private key here.
-      <PassphraseInput
-        type="password"
-        name="privateKey"
-        label="Private key"
-        initialValue={privateKey}
-        onValue={handlePrivateKeyInput}
-        autocomplete="off"
-        autoFocus
-      />
+      <Input {...privateKeyInput} />
       <ForwardButton
         className="mt3"
         disabled={Nothing.hasInstance(wallet)}

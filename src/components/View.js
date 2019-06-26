@@ -20,7 +20,7 @@ function View({ className, children, full = false, ...rest }) {
       )}
       {...rest}>
       <Flex.Item className="pv5">{children}</Flex.Item>
-      <Footer.Portal />
+      <Footer.Target />
     </Flex>
   );
 }

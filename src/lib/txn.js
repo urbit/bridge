@@ -9,6 +9,9 @@ import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
 import { WALLET_TYPES, addHexPrefix } from './wallet';
 
+const CHECK_BLOCK_EVERY_MS =
+  process.env.NODE_ENV === 'development' ? 1000 : 5000;
+
 const TXN_PURPOSE = {
   SET_MANAGEMENT_PROXY: Symbol('SET_MANAGEMENT_PROXY'),
   SET_TRANSFER_PROXY: Symbol('SET_TRANSFER_PROXY'),
@@ -161,7 +164,7 @@ const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
         // if there's a nonce error, but we used the gas tank, it's likely
         // that it's because the tank already submitted our transaction.
         // we just wait for first confirmation here.
-        console.log('sent and got error', err);
+        console.error(err);
         if (
           doubtNonceError &&
           (err.message || '').includes("the tx doesn't have the correct nonce.")
@@ -194,7 +197,7 @@ const waitForTransactionConfirm = (web3, txHash) => {
       console.log('tried, got', receipt);
       let confirmed = receipt !== null;
       if (confirmed) resolve(receipt.status === true);
-      else setTimeout(checkForConfirm, 13000);
+      else setTimeout(checkForConfirm, CHECK_BLOCK_EVERY_MS);
     };
     checkForConfirm();
   });

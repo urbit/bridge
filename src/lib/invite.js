@@ -3,7 +3,7 @@ import Tx from 'ethereumjs-tx';
 
 import * as azimuth from 'azimuth-js';
 import * as kg from 'urbit-key-generation/dist';
-import * as wg from '../_walletgen/lib/lib.js';
+import * as wg from './walletgen';
 import * as tank from './tank';
 
 import JSZip from 'jszip';
@@ -191,7 +191,7 @@ async function startTransactions(args) {
   });
 
   // send transaction
-  await sendAndAwaitConfirm(web3, [rawTransferStx], usedTank);
+  await sendAndAwaitConfirm(web3, [Just(transferStx)], usedTank);
 
   //
   // we're gonna be operating as the new wallet from here on out, so change
@@ -249,10 +249,13 @@ async function startTransactions(args) {
     return tx;
   });
 
-  let rawStxs = txs.map(tx => {
+  let txPairs = txs.map(tx => {
     let stx = new Tx(tx);
     stx.sign(Buffer.from(realWallet.ownership.keys.private, 'hex'));
-    return '0x' + stx.serialize().toString('hex');
+    return {
+      raw: '0x' + stx.serialize().toString('hex'),
+      signed: stx,
+    };
   });
 
   updateProgress({
@@ -264,7 +267,7 @@ async function startTransactions(args) {
     point,
     newAddress,
     totalCost,
-    rawStxs,
+    txPairs.map(p => p.raw),
     askForFunding
   );
 
@@ -273,7 +276,7 @@ async function startTransactions(args) {
     value: TRANSACTION_STATES.CONFIGURING,
   });
 
-  await sendAndAwaitConfirm(web3, rawStxs, usedTank);
+  await sendAndAwaitConfirm(web3, txPairs.map(p => Just(p.signed)), usedTank);
 
   updateProgress({
     type: 'progress',

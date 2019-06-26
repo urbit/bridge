@@ -115,7 +115,12 @@ async function waitForBalance(
         resolve();
       } else {
         if (balance !== oldBalance) {
-          askForFunding(address, minBalance, balance);
+          // TODO: minBalance is a `number` type
+          // but we want to display ETH, which will never accept a number
+          // but instead wants string or BN/BigNumber.
+          // this will be heavily refactored to correctly do BN math, but until
+          // then we'll manually convert this number to an integer string
+          askForFunding(address, minBalance.toFixed(), balance);
         }
         setTimeout(checkForBalance, 13000);
       }
