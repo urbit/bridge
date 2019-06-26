@@ -4,7 +4,7 @@ import Maybe from 'folktale/maybe';
 import { hasReceived, sendMail } from './inviteMail';
 import useSetState from './useSetState';
 
-const kStubMailer = process.env.REACT_APP_STUB_MAILER === 'true';
+const STUB_MAILER = process.env.REACT_APP_STUB_MAILER === 'true';
 
 function useHasReceivedCache() {
   const [cache, addToCache] = useSetState();
@@ -21,7 +21,7 @@ function useHasReceivedCache() {
         return;
       }
 
-      if (kStubMailer) {
+      if (STUB_MAILER) {
         // always allow sending emails when stubbing
         return addToCache({ [email]: Maybe.Just(false) });
       }
@@ -41,7 +41,7 @@ export default function useMailer(emails) {
   // prefix to avoid clobbering sendMail import
   // also throws if return value is false
   const _sendMail = useCallback(async (email, ticket, rawTx) => {
-    if (kStubMailer) {
+    if (STUB_MAILER) {
       console.log(`${email} - ${ticket}`);
       return;
     }

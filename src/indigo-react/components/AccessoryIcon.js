@@ -2,9 +2,9 @@ import React from 'react';
 
 import Flex from './Flex';
 
-const kPendingAccessory = '⋯';
-const kSuccessAccessory = '✔';
-const kFailureAccessory = '×';
+const PENDING_ACCESSORY = '⋯';
+const SUCCESS_ACCESSORY = '✔';
+const FAILURE_ACCESSORY = '×';
 
 function AccessoryIcon({ ...props }) {
   return (
@@ -18,15 +18,15 @@ function AccessoryIcon({ ...props }) {
 }
 
 AccessoryIcon.Pending = () => (
-  <AccessoryIcon>{kPendingAccessory}</AccessoryIcon>
+  <AccessoryIcon>{PENDING_ACCESSORY}</AccessoryIcon>
 );
 
 AccessoryIcon.Success = () => (
-  <AccessoryIcon>{kSuccessAccessory}</AccessoryIcon>
+  <AccessoryIcon>{SUCCESS_ACCESSORY}</AccessoryIcon>
 );
 
 AccessoryIcon.Failure = () => (
-  <AccessoryIcon>{kFailureAccessory}</AccessoryIcon>
+  <AccessoryIcon>{FAILURE_ACCESSORY}</AccessoryIcon>
 );
 
 export default AccessoryIcon;

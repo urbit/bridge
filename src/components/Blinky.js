@@ -5,7 +5,7 @@ import useInterval from 'lib/useInterval';
 // TODO: make these characters display as the same width
 export const kLoadingCharacter = '▓';
 export const kInterstitialCharacter = '░';
-const kBlinkAfterMs = 2500; // ms
+const BLINK_AFTER_MS = 2500; // ms
 
 export const matchBlinky = obj =>
   obj.matchWith({
@@ -22,7 +22,7 @@ export default function Blinky({
 
   useInterval(() => {
     // only start blinking if we've elapsed enough time
-    if (new Date() - now.current > kBlinkAfterMs) {
+    if (new Date() - now.current > BLINK_AFTER_MS) {
       setValue(val => !val);
     }
   }, 1000);

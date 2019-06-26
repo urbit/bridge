@@ -47,8 +47,7 @@ import useMailer from 'lib/useMailer';
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = 400000;
 const INVITE_COST = toWei((GAS_PRICE_GWEI * GAS_LIMIT).toString(), 'gwei');
-
-const kHasReceivedText = 'This email has already received an invite.';
+const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
 
 const STATUS = {
   INPUT: 'INPUT',
@@ -145,7 +144,7 @@ export default function InviteEmail() {
         config.disabled = !canInput;
         const hasReceivedError = getHasRecieved(config.name).matchWith({
           Nothing: () => null, // loading
-          Just: p => p.value && kHasReceivedText,
+          Just: p => p.value && HAS_RECEIVED_TEXT,
         });
         config.error = hasReceivedError || errors[config.name];
         return config;
