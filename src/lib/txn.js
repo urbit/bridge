@@ -9,8 +9,7 @@ import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
 import { WALLET_TYPES, addHexPrefix } from './wallet';
 
-const kAverageBlockTimeMs =
-  process.env.NODE_ENV === 'development' ? 1000 : 13000;
+const kCheckBlockEveryMs = process.env.NODE_ENV === 'development' ? 1000 : 5000;
 
 const TXN_PURPOSE = {
   SET_MANAGEMENT_PROXY: Symbol('SET_MANAGEMENT_PROXY'),
@@ -197,7 +196,7 @@ const waitForTransactionConfirm = (web3, txHash) => {
       console.log('tried, got', receipt);
       let confirmed = receipt !== null;
       if (confirmed) resolve(receipt.status === true);
-      else setTimeout(checkForConfirm, kAverageBlockTimeMs);
+      else setTimeout(checkForConfirm, kCheckBlockEveryMs);
     };
     checkForConfirm();
   });
