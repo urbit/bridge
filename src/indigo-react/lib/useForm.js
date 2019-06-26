@@ -99,40 +99,42 @@ export default function useForm(configs = []) {
   );
 
   const datas = useMemo(() => validations.map(v => v.data), [validations]);
-  const passes = useMemo(() => validations.map(v => v.pass), [validations]);
 
   // the input has errored if it
-  // 1) did not pass validation
-  // 2) has an error text
-  // 3) has been focused before
-  // 4) is not currently focused
-  // returning the error text at the end
+  // 1) has been focused before
+  // 2)
+  //   a) did not pass validation and has an error text
+  //   b) or has a specific error from parent state
+  // (and we implicitly return the error text at the end)
   const errors = useMemo(
     () =>
       configs.map(
         (config, i) =>
-          config.error ||
-          (!validations[i].pass &&
-            hasBeenFocused[config.name] &&
-            !focused[config.name] &&
-            validations[i].error)
+          hasBeenFocused[config.name] && //
+          (validations[i].error || config.error)
       ),
-    [configs, validations, hasBeenFocused, focused]
+    [configs, validations, hasBeenFocused]
+  );
+
+  // this input has passed if
+  // 1) it has passed local validation
+  // 2) there are no errors
+  const passes = useMemo(
+    () => validations.map((v, i) => v.pass && !errors[i]),
+    [validations, errors]
   );
 
   // visibly tell the user that their input has passed if
-  // 1) it has passed
-  // 2) there are no errors
-  // 3) they are or have interacted with the input before
+  // 1) they are or have interacted with the input before
+  // 2) and it has passed as defined above
   const visiblePasses = useMemo(
     () =>
       configs.map(
         (config, i) =>
-          validations[i].pass &&
-          !errors[i] &&
-          (hasBeenFocused[config.name] || focused[config.name])
+          (focused[config.name] || hasBeenFocused[config.name]) && //
+          passes[i]
       ),
-    [configs, validations, errors, hasBeenFocused, focused]
+    [configs, hasBeenFocused, focused, passes]
   );
 
   const inputs = useMemo(

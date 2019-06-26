@@ -2,7 +2,15 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 import Maybe from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
-import { Grid, Flex, Input, IconButton, HelpText, Text } from 'indigo-react';
+import {
+  Grid,
+  Flex,
+  Input,
+  IconButton,
+  HelpText,
+  Text,
+  ErrorText,
+} from 'indigo-react';
 import { uniq } from 'lodash';
 
 import * as need from 'lib/need';
@@ -35,8 +43,7 @@ import { useWallet } from 'store/wallet';
 import useSetState from 'lib/useSetState';
 import pluralize from 'lib/pluralize';
 import useMailer from 'lib/useMailer';
-
-const kStubMailer = process.env.REACT_APP_STUB_MAILER === 'true';
+import useRenderCount from 'lib/useRenderCount';
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = 350000;
@@ -89,7 +96,6 @@ const buildAccessoryFor = (dones, errors) => name => (
   </Flex>
 );
 
-// TODO: how to handle dependency loop between inputConfigs and hasReceived?
 // TODO: test with tank, successful txs
 // TODO: put accessory inside of input
 export default function InviteEmail() {
@@ -111,10 +117,11 @@ export default function InviteEmail() {
     inputConfigs,
     { append: appendInput, removeAt: removeInputAt },
   ] = useArray(
-    [buildInputConfig({ placeholder: 'Email Addresss' })],
+    [buildInputConfig({ placeholder: 'Email Address' })],
     buildInputConfig
   );
 
+  const { getHasRecieved, syncHasReceivedForEmail, sendMail } = useMailer();
   const [hovered, setHovered] = useSetState();
   const [invites, addInvite, clearInvites] = useSetState();
   const [receipts, addReceipt, clearReceipts] = useSetState();
@@ -136,16 +143,19 @@ export default function InviteEmail() {
     () =>
       inputConfigs.map(config => {
         config.disabled = !canInput;
-        config.error = errors[config.name];
+        const hasReceivedError = getHasRecieved(config.name).matchWith({
+          Nothing: () => null, // loading
+          Just: p => p.value && 'This email has already received an invite.',
+        });
+        config.error = hasReceivedError || errors[config.name];
         return config;
       }),
-    [inputConfigs, errors, canInput]
+    [inputConfigs, errors, canInput, getHasRecieved]
   );
   const { inputs, pass } = useForm(dynamicConfigs);
   const emails = useMemo(() => inputs.map(i => i.data).filter(d => !!d), [
     inputs,
   ]);
-  const { getHasRecieved, sendMail } = useMailer(emails);
 
   const canAddInvite = canInput && inputs.length < maxInvitesToSend;
   const allPass = pass && !generalError;
@@ -301,14 +311,10 @@ export default function InviteEmail() {
         addError({
           [input.name]: `Transaction Failure for ${invite.email}`,
         });
+        return;
       }
 
       try {
-        if (kStubMailer) {
-          console.log(`${invite.email} - ${invite.ticket}`);
-          return;
-        }
-
         const mailSuccess = await sendMail(
           invite.email,
           invite.ticket,
@@ -345,6 +351,7 @@ export default function InviteEmail() {
     point,
     wallet,
     addError,
+    sendMail,
   ]);
 
   const onClickGenerate = useCallback(async () => {
@@ -439,6 +446,8 @@ export default function InviteEmail() {
                   as={Input}
                   cols={[1, 11]}
                   {...input}
+                  onValue={email => syncHasReceivedForEmail(email)}
+                  // NB(shrugs): ^ this feels like a hack?
                   accessory={accessoryFor(input.name)}
                 />
                 {!isFirst &&
@@ -483,7 +492,7 @@ export default function InviteEmail() {
 
           {generalError && (
             <Grid.Item full>
-              <Highlighted>{generalError.message.toString()}</Highlighted>
+              <ErrorText>{generalError.message.toString()}</ErrorText>
             </Grid.Item>
           )}
         </>

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import cn from 'classnames';
 
 import Flex from './Flex';
+import { ErrorText } from './Typography';
 
 export default function Input({
   // visuals
@@ -72,7 +73,7 @@ export default function Input({
       <Flex.Item as="label" className="f6 lh-tall" htmlFor={name}>
         {label}
       </Flex.Item>
-      <Flex row>
+      <Flex.Item as={Flex} row>
         <Flex.Item
           as="input"
           {...rest}
@@ -114,7 +115,12 @@ export default function Input({
             {accessory}
           </Flex.Item>
         )}
-      </Flex>
+      </Flex.Item>
+      {error && (
+        <Flex.Item as={ErrorText} className="mv1">
+          {error}
+        </Flex.Item>
+      )}
     </Flex>
   );
 }

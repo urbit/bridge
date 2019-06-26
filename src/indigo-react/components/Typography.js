@@ -21,3 +21,4 @@ export const P = typeWith('p');
 export const Breadcrumb = typeWith('span', 'f6');
 export const Text = typeWith('span', 'f5');
 export const HelpText = typeWith('span', 'f6 gray4');
+export const ErrorText = typeWith('span', 'f6 red3');
