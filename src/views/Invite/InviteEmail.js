@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
-import Maybe, { Just, Nothing } from 'folktale/maybe';
+import Maybe from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import { Grid, Flex, Input, IconButton, HelpText, Text } from 'indigo-react';
 import { uniq } from 'lodash';
@@ -90,7 +90,6 @@ const buildAccessoryFor = (dones, errors) => name => (
 );
 
 // TODO: refactor transactions + mailer into hooks
-// TODO: include input-specific error info in form elements
 // TODO: put accessory inside of input
 // TODO: implement hasReceived cache with useHasReceived
 export default function NewInviteEmail() {
@@ -116,13 +115,7 @@ export default function NewInviteEmail() {
     buildInputConfig
   );
 
-  const [hovered, _setHovered] = useState({});
-  const setHovered = (name, value) => () =>
-    _setHovered((value = { ...value, [name]: value }));
-
-  // TODO: pass disabled, error info into the useForm hook?
-  const { inputs, pass } = useForm(inputConfigs);
-
+  const [hovered, setHovered] = useSetState({});
   const [invites, addInvite, clearInvites] = useSetState({});
   const [receipts, addReceipt, clearReceipts] = useSetState({});
   const [errors, addError, clearError] = useSetState({});
@@ -131,17 +124,29 @@ export default function NewInviteEmail() {
   const [needFunds, setNeedFunds] = useState(null);
   const [generalError, setGeneralError] = useState(null);
 
-  const allPass = pass && !generalError;
-
   const canInput = status === STATUS.INPUT;
-  const canGenerate = allPass && status === STATUS.INPUT;
   const canSend = status === STATUS.CAN_SEND;
   const isGenerating = status === STATUS.GENERATING;
   const isSending = status === STATUS.SENDING;
   const isFunding = status === STATUS.FUNDING;
   const isFailed = status === STATUS.FAILURE;
   const isDone = status === STATUS.SUCCESS;
+
+  const dynamicConfigs = useMemo(
+    () =>
+      inputConfigs.map(config => {
+        config.disabled = !canInput;
+        console.log(config.name, errors[config.name]);
+        config.error = errors[config.name];
+        return config;
+      }),
+    [inputConfigs, errors, canInput]
+  );
+  const { inputs, pass } = useForm(dynamicConfigs);
+
   const canAddInvite = canInput && inputs.length < maxInvitesToSend;
+  const allPass = pass && !generalError;
+  const canGenerate = allPass && status === STATUS.INPUT;
 
   const progress = isGenerating
     ? Object.keys(invites).length
@@ -211,7 +216,7 @@ export default function NewInviteEmail() {
           walletHdPath,
           networkType,
           // TODO: ^ make a useTransactionSigner to encapsulate this logic
-          txn: Just(inviteTx),
+          txn: Maybe.Just(inviteTx),
           gasPrice: GAS_PRICE_GWEI.toString(),
           gasLimit: GAS_LIMIT.toString(),
           nonce: nonce + i,
@@ -230,7 +235,10 @@ export default function NewInviteEmail() {
 
     if (errorCount > 0) {
       throw new Error(
-        `There were ${errorCount} errors while generating wallets.`
+        `There ${pluralize(errorCount, 'was', 'were')} ${pluralize(
+          errorCount,
+          'error'
+        )} while generating wallets.`
       );
     }
   }, [
@@ -276,7 +284,7 @@ export default function NewInviteEmail() {
       try {
         const txHash = await sendSignedTransaction(
           _web3,
-          Just(invite.signedTx),
+          Maybe.Just(invite.signedTx),
           tankWasUsed,
           () => {}
         );
@@ -288,7 +296,7 @@ export default function NewInviteEmail() {
         console.error(error);
         errorCount++;
         addError({
-          [input.name]: `Transaction Failure for ${invite.email}}`,
+          [input.name]: `Transaction Failure for ${invite.email}`,
         });
       }
 
@@ -308,7 +316,7 @@ export default function NewInviteEmail() {
         console.error(error);
         errorCount++;
         addError({
-          [input.name]: `Mailing Failure for ${invite.email}}`,
+          [input.name]: `Mailing Failure for ${invite.email}`,
         });
       }
 
@@ -319,7 +327,10 @@ export default function NewInviteEmail() {
     // if there are any receipt errors, throw a general error
     if (errorCount > 0) {
       throw new Error(
-        `There were ${errorCount} errors while sending transactions.`
+        `There ${pluralize(errorCount, 'was', 'were')} ${pluralize(
+          errorCount,
+          'error'
+        )} while sending transactions.`
       );
     }
   }, [
@@ -368,7 +379,8 @@ export default function NewInviteEmail() {
   }, [canGenerate, canSend, onClickGenerate, onClickSend]);
 
   useEffect(() => {
-    if (uniq(inputs.map(i => i.data)).length !== inputs.length) {
+    const emails = inputs.map(i => i.data).filter(d => !!d);
+    if (uniq(emails).length !== emails.length) {
       setGeneralError(new Error(`Duplicate email.`));
     } else {
       setGeneralError(null);
@@ -418,15 +430,14 @@ export default function NewInviteEmail() {
                 key={input.name}
                 as={Grid}
                 gap={12}
-                onMouseEnter={setHovered(input.name, true)}
-                onMouseLeave={setHovered(input.name, false)}
+                onMouseOver={() => setHovered({ [input.name]: true })}
+                onMouseLeave={() => setHovered({ [input.name]: false })}
                 full>
                 <Grid.Item
                   as={Input}
                   cols={[1, 11]}
                   {...input}
                   accessory={accessoryFor(input.name)}
-                  disabled={!canInput}
                 />
                 {!isFirst &&
                   (input.focused || hovered[input.name]) &&

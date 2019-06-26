@@ -111,47 +111,54 @@ export default function useForm(configs = []) {
     () =>
       configs.map(
         (config, i) =>
-          !validations[i].pass &&
-          hasBeenFocused[config.name] &&
-          !focused[config.name] &&
-          validations[i].error
+          config.error ||
+          (!validations[i].pass &&
+            hasBeenFocused[config.name] &&
+            !focused[config.name] &&
+            validations[i].error)
       ),
     [configs, validations, hasBeenFocused, focused]
   );
 
   // visibly tell the user that their input has passed if
   // 1) it has passed
-  // 2) they are or have interacted with the input before
+  // 2) there are no errors
+  // 3) they are or have interacted with the input before
   const visiblePasses = useMemo(
     () =>
       configs.map(
         (config, i) =>
           validations[i].pass &&
+          !errors[i] &&
           (hasBeenFocused[config.name] || focused[config.name])
       ),
-    [configs, validations, hasBeenFocused, focused]
+    [configs, validations, errors, hasBeenFocused, focused]
   );
 
   const inputs = useMemo(
     () =>
-      configs.map((config, i) => ({
-        // Input props
-        data: datas[i],
-        pass: passes[i],
-        visiblyPassed: visiblePasses[i],
-        error: errors[i],
-        focused: focuses[i],
-        ...config,
-        autoFocus: config.autoFocus && !config.disabled,
-        // dom properties below:
-        bind: {
-          value: values[config.name] || config.initialValue,
-          onChange: onChange(config.name),
-          onFocus: onFocus(config.name),
-          onBlur: onBlur(config.name),
-          autoFocus: config.autoFocus && !config.disabled,
-        },
-      })),
+      configs.map(
+        ({ name, error, autoFocus, disabled, initialValue, ...rest }, i) => ({
+          // Input props
+          name,
+          data: datas[i],
+          pass: passes[i],
+          visiblyPassed: visiblePasses[i],
+          error: errors[i],
+          focused: focuses[i],
+          autoFocus: autoFocus && !disabled,
+          disabled,
+          ...rest,
+          // dom properties below:
+          bind: {
+            value: values[name] || initialValue,
+            onChange: onChange(name),
+            onFocus: onFocus(name),
+            onBlur: onBlur(name),
+            autoFocus: autoFocus && !disabled,
+          },
+        })
+      ),
     [
       configs,
       datas,
