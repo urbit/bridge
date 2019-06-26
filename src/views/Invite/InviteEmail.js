@@ -29,7 +29,6 @@ import * as tank from 'lib/tank';
 import { useLocalRouter } from 'lib/LocalRouter';
 
 import MiniBackButton from 'components/MiniBackButton';
-import useInvites from 'lib/useInvites';
 import { usePointCursor } from 'store/pointCursor';
 import LoadableButton from 'components/LoadableButton';
 import useArray from 'lib/useArray';
@@ -48,6 +47,8 @@ import useRenderCount from 'lib/useRenderCount';
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = 400000;
 const INVITE_COST = toWei((GAS_PRICE_GWEI * GAS_LIMIT).toString(), 'gwei');
+
+const kHasReceivedText = 'This email has already received an invite.';
 
 const STATUS = {
   INPUT: 'INPUT',
@@ -104,22 +105,23 @@ const buildAccessoryFor = (dones, errors) => name => (
 );
 
 // TODO: test with tank, successful txs
-// TODO: put accessory inside of input
 export default function InviteEmail() {
   // TODO: resumption after error?
   const { pop } = useLocalRouter();
   const { contracts, web3, networkType } = useNetwork();
   const { wallet, walletType, walletHdPath } = useWallet();
-  const { syncInvites } = usePointCache();
+  const { syncInvites, getInvites } = usePointCache();
   const { pointCursor } = usePointCursor();
   const point = need.pointCursor(pointCursor);
+  const { getHasRecieved, syncHasReceivedForEmail, sendMail } = useMailer();
 
-  const { availableInvites } = useInvites(point);
+  const { availableInvites } = getInvites(point);
   const maxInvitesToSend = availableInvites.matchWith({
     Nothing: () => 0,
     Just: p => p.value,
   });
 
+  // manage the array of input configs
   const [
     inputConfigs,
     { append: appendInput, removeAt: removeInputAt },
@@ -128,16 +130,18 @@ export default function InviteEmail() {
     buildInputConfig
   );
 
-  const { getHasRecieved, syncHasReceivedForEmail, sendMail } = useMailer();
+  // manage per-input state
   const [hovered, setHovered] = useSetState();
   const [invites, addInvite, clearInvites] = useSetState();
   const [receipts, addReceipt, clearReceipts] = useSetState();
   const [errors, addError, clearErrors] = useSetState();
 
+  // manage general state that affects the whole form
   const [status, setStatus] = useState(STATUS.INPUT);
   const [needFunds, setNeedFunds] = useState(null);
   const [generalError, setGeneralError] = useState(null);
 
+  // derive booleans from status
   const canInput = status === STATUS.INPUT;
   const canSend = status === STATUS.CAN_SEND;
   const isGenerating = status === STATUS.GENERATING;
@@ -145,28 +149,32 @@ export default function InviteEmail() {
   const isFailed = status === STATUS.FAILURE;
   const isDone = status === STATUS.SUCCESS;
 
+  // add disabled, error info to input configs
   const dynamicConfigs = useMemo(
     () =>
       inputConfigs.map(config => {
         config.disabled = !canInput;
         const hasReceivedError = getHasRecieved(config.name).matchWith({
           Nothing: () => null, // loading
-          Just: p => p.value && 'This email has already received an invite.',
+          Just: p => p.value && kHasReceivedText,
         });
         config.error = hasReceivedError || errors[config.name];
         return config;
       }),
     [inputConfigs, errors, canInput, getHasRecieved]
   );
+
+  // construct the state of the set of inputs we're rendering below
   const { inputs, pass } = useForm(dynamicConfigs);
-  const emails = useMemo(() => inputs.map(i => i.data).filter(d => !!d), [
-    inputs,
-  ]);
-
-  const canAddInvite = canInput && inputs.length < maxInvitesToSend;
+  // did all of the inputs pass inspection (and there are no general errors)?
   const allPass = pass && !generalError;
-  const canGenerate = allPass && status === STATUS.INPUT;
+  // the form is submittable iff passing and input is allowed
+  const canGenerate = allPass && canInput;
+  // additional inputs can be added iff input is allowed and we have enough
+  // invites to send
+  const canAddInvite = canInput && inputConfigs.length < maxInvitesToSend;
 
+  // progress is [0, .length] of invites or receipts, as we're generating them
   const progress = isGenerating
     ? Object.keys(invites).length
     : isSending
@@ -174,6 +182,7 @@ export default function InviteEmail() {
     : null;
   const visualProgress = progress === null ? '-' : `${progress + 1}`;
 
+  // build a builder for the accessory to the input, depending on status
   const accessoryFor = (() => {
     if (isGenerating || canSend) return buildAccessoryFor(invites, errors);
     if (isSending) return buildAccessoryFor(receipts, errors);
@@ -355,49 +364,38 @@ export default function InviteEmail() {
     sendMail,
   ]);
 
-  const onClickGenerate = useCallback(async () => {
+  const onClick = useCallback(async () => {
     setGeneralError(null);
-    setStatus(STATUS.GENERATING);
     try {
-      await generateInvites();
-      setStatus(STATUS.CAN_SEND);
+      if (canGenerate) {
+        setStatus(STATUS.GENERATING);
+        await generateInvites();
+        setStatus(STATUS.CAN_SEND);
+      } else if (canSend) {
+        setStatus(STATUS.SENDING);
+        await sendInvites();
+        setStatus(STATUS.SUCCESS);
+      }
     } catch (error) {
       console.error(error);
       setGeneralError(error);
       setStatus(STATUS.FAILURE);
     }
-  }, [setStatus, setGeneralError, generateInvites]);
+  }, [canGenerate, canSend, generateInvites, sendInvites]);
 
-  const onClickSend = useCallback(async () => {
-    setGeneralError(null);
-    setStatus(STATUS.SENDING);
-    try {
-      await sendInvites();
-      setStatus(STATUS.SUCCESS);
-    } catch (error) {
-      console.error(error);
-      setGeneralError(error);
-      setStatus(STATUS.FAILURE);
-    }
-  }, [setStatus, sendInvites, setGeneralError]);
-
-  const onClick = useCallback(() => {
-    if (canGenerate) {
-      onClickGenerate();
-    } else if (canSend) {
-      onClickSend();
-    }
-  }, [canGenerate, canSend, onClickGenerate, onClickSend]);
-
+  // when inputs update, check to see if any of them are duplicates
   useEffect(() => {
+    // compute the list of valid emails
+    const emails = inputs.map(i => i.data).filter(d => !!d);
     if (uniq(emails).length !== emails.length) {
       setGeneralError(new Error(`Duplicate email.`));
     } else {
       setGeneralError(null);
     }
-  }, [emails]);
+  }, [inputs]);
 
   // when we transition to done, sync invites because we just sent some
+  // and therefore know that state has changed
   useEffect(() => {
     if (isDone) {
       syncInvites(point);
