@@ -1,5 +1,4 @@
 import React from 'react';
-import Maybe from 'folktale/maybe';
 import { azimuth } from 'azimuth-js';
 import * as need from '../../lib/need';
 
@@ -21,10 +20,8 @@ function Actions(props) {
   const { wallet } = useWallet();
   const { pointCursor } = usePointCursor();
   const point = need.pointCursor(pointCursor);
-  const { pointCache } = usePointCache();
-  const pointDetails = Maybe.Just(
-    need.fromPointCache(Maybe.Just(pointCache), point)
-  );
+  const { getDetails } = usePointCache();
+  const pointDetails = getDetails(point);
 
   const addr = need.addressFromWallet(wallet);
 

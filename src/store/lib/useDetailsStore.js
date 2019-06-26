@@ -18,8 +18,10 @@ export default function useDetailsStore() {
   );
 
   // TODO: refactor detailsCache access to use accessor like bithday
+  // Maybe<{}>
   const getDetails = useCallback(
-    point => detailsCache[point] || Maybe.Nothing(),
+    point =>
+      point in detailsCache ? Maybe.Just(detailsCache[point]) : Maybe.Nothing(),
     [detailsCache]
   );
 
