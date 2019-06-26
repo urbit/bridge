@@ -1,15 +1,16 @@
 import { useCallback, useState } from 'react';
 
-const kEmptyObject = {};
-
-export default function useSetState() {
-  const [state, _setState] = useState(kEmptyObject);
+export default function useSetState(initialState = {}) {
+  const [state, _setState] = useState(initialState);
   const setState = useCallback(
     items => _setState(state => ({ ...state, ...items })),
     [_setState]
   );
 
-  const reset = useCallback(() => _setState(kEmptyObject), [_setState]);
+  const reset = useCallback(() => _setState(initialState), [
+    _setState,
+    initialState,
+  ]);
 
   return [state, setState, reset];
 }
