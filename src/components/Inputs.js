@@ -1,5 +1,4 @@
-import React from 'react';
-import { Input } from 'indigo-react';
+import React, { useState } from 'react';
 import * as bip39 from 'bip39';
 
 import InputSigil from 'components/InputSigil';
@@ -85,34 +84,6 @@ export function useHdPathInput(props) {
 //   transformers: [prependSig],
 // });
 
-export function PointInput(props) {
-  const input = usePointInput({
-    name: 'point',
-    label: 'Point Name',
-    autoFocus: true,
-  });
-  const { data: validPointName, pass, focused, error } = input;
-
-  return (
-    <Input
-      {...props}
-      {...input}
-      accessory={
-        validPointName && (
-          <InputSigil
-            patp={validPointName}
-            size={68}
-            margin={8}
-            pass={pass}
-            focused={focused}
-            error={error}
-          />
-        )
-      }
-    />
-  );
-}
-
 const kTicketValidators = [validateTicket, validateNotEmpty];
 const kTicketTransformers = [prependSig];
 //TODO needs to be fancier, displaying sig and dashes instead of •ing all
@@ -135,7 +106,8 @@ export function useTicketInput({ initialValue = '~', ...rest }) {
 const kPointValidators = [validatePoint, validateNotEmpty];
 const kPointTransformers = [prependSig];
 export function usePointInput({ initialValue = '~', ...rest }) {
-  return firstOf(
+  const [lastValidPoint, setLastValidPoint] = useState('');
+  const input = firstOf(
     useForm([
       {
         type: 'text',
@@ -144,10 +116,27 @@ export function usePointInput({ initialValue = '~', ...rest }) {
         transformers: kPointTransformers,
         mono: true,
         initialValue,
+        onValue: setLastValidPoint,
         ...rest,
       },
     ])
   );
+
+  const { pass, focused, error } = input;
+
+  return {
+    ...input,
+    accessory: lastValidPoint && (
+      <InputSigil
+        patp={lastValidPoint}
+        size={68}
+        margin={8}
+        pass={pass}
+        focused={focused}
+        error={error}
+      />
+    ),
+  };
 }
 
 const kEmailValidators = [validateEmail, validateNotEmpty];

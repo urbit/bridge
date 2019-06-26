@@ -10,6 +10,7 @@ import {
   HelpText,
   Text,
   ErrorText,
+  AccessoryIcon,
 } from 'indigo-react';
 import { uniq } from 'lodash';
 
@@ -42,7 +43,6 @@ import { useWallet } from 'store/wallet';
 import useSetState from 'lib/useSetState';
 import pluralize from 'lib/pluralize';
 import useMailer from 'lib/useMailer';
-import useRenderCount from 'lib/useRenderCount';
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = 400000;
@@ -78,10 +78,6 @@ const buttonText = (status, count) => {
   }
 };
 
-const kPendingAccessory = '⋯';
-const kSuccessAccessory = '✔';
-const kFailureAccessory = '×';
-
 // world's simplest uid
 let id = 0;
 const buildInputConfig = (extra = {}) =>
@@ -91,18 +87,11 @@ const buildInputConfig = (extra = {}) =>
     ...extra,
   });
 
-const buildAccessoryFor = (dones, errors) => name => (
-  <Flex
-    justify="center"
-    align="center"
-    style={{ height: '100%', width: '100%' }}>
-    {(() => {
-      if (dones[name]) return kSuccessAccessory;
-      if (errors[name]) return kFailureAccessory;
-      return kPendingAccessory;
-    })()}
-  </Flex>
-);
+const buildAccessoryFor = (dones, errors) => name => {
+  if (dones[name]) return <AccessoryIcon.Success />;
+  if (errors[name]) return <AccessoryIcon.Failure />;
+  return <AccessoryIcon.Pending />;
+};
 
 // TODO: test with tank, successful txs
 export default function InviteEmail() {

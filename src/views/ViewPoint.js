@@ -13,19 +13,16 @@ import { ROUTE_NAMES } from 'lib/routeNames';
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
 import { usePointInput } from 'components/Inputs';
-import InputSigil from 'components/InputSigil';
 
 export default function ViewPoint() {
   const history = useHistory();
   const { setPointCursor } = usePointCursor();
-  const [lastValidPoint, setLastValidPoint] = useState('');
   const pointInput = usePointInput({
     name: 'point',
     label: 'Point Name',
     autoFocus: true,
-    onValue: setLastValidPoint,
   });
-  const { data: pointName, pass, error, focused } = pointInput;
+  const { data: pointName, pass } = pointInput;
 
   const disabled = !pass;
   const goForward = useCallback(() => {
@@ -40,22 +37,7 @@ export default function ViewPoint() {
 
       <P>Enter a point name to view its public information.</P>
 
-      <Input
-        {...pointInput}
-        onEnter={goForward}
-        accessory={
-          lastValidPoint && (
-            <InputSigil
-              patp={lastValidPoint}
-              size={68}
-              margin={8}
-              pass={pass}
-              focused={focused}
-              error={error}
-            />
-          )
-        }
-      />
+      <Input {...pointInput} onEnter={goForward} />
 
       <ForwardButton
         className="mt3"

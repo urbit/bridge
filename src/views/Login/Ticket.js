@@ -2,7 +2,7 @@ import { Just, Nothing } from 'folktale/maybe';
 import React, { useCallback, useState, useEffect } from 'react';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
-import { Input } from 'indigo-react';
+import { Input, AccessoryIcon } from 'indigo-react';
 
 import View from 'components/View';
 import {
@@ -112,13 +112,13 @@ export default function Ticket({ advanced, loginCompleted }) {
     Just: status => {
       switch (status.value) {
         case INPUT_STATUS.SPIN:
-          return <span>⋯</span>;
+          return <AccessoryIcon.Pending />;
         case INPUT_STATUS.GOOD:
-          return <span>✓</span>;
+          return <AccessoryIcon.Success />;
         case INPUT_STATUS.FAIL:
-          return <span>𐄂</span>;
+          return <AccessoryIcon.Failure />;
         default:
-          throw new Error('weird input status ' + status.value);
+          return null;
       }
     },
   });

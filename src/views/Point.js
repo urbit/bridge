@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import Maybe from 'folktale/maybe';
 import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
 
@@ -16,17 +17,20 @@ import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import { ROUTE_NAMES } from 'lib/routeNames';
 
 import Actions from './Point/Actions';
+import { useWallet } from 'store/wallet';
 
 export default function Point() {
   const history = useHistory();
   const { pointCursor } = usePointCursor();
-  // const { pointCache } = usePointCache();
+  const { wallet } = useWallet();
 
   const point = need.pointCursor(pointCursor);
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);
   const availableInvitesText = matchBlinky(availableInvites);
+
+  const showActions = Maybe.Just.hasInstance(wallet);
 
   const goInvite = useCallback(() => history.push(ROUTE_NAMES.INVITE), [
     history,
@@ -48,9 +52,11 @@ export default function Point() {
             Boot Arvo
           </ForwardButton>
         </Grid.Item>
-        <Grid.Item full>
-          <Actions />
-        </Grid.Item>
+        {showActions && (
+          <Grid.Item full>
+            <Actions />
+          </Grid.Item>
+        )}
       </Grid>
 
       <FooterButton onClick={goInvite}>
