@@ -45,7 +45,7 @@ export default function Button({
           cursor: 'not-allowed',
         }),
       }}
-      onClick={onClick ? () => !disabled && onClick() : undefined}
+      onClick={!disabled && onClick ? onClick : undefined}
       {...rest}>
       <Grid.Item as={Flex} justify="between" full>
         <span className={cn(textColor)}>{children}</span>

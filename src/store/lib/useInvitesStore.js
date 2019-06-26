@@ -36,29 +36,19 @@ export default function useInvitesStore() {
         return;
       }
 
-      const availableInvites = await azimuth.delegatedSending.getTotalUsableInvites(
-        _contracts,
-        point
+      const [availableInvites, invitedPoints] = await Promise.all([
+        azimuth.delegatedSending.getTotalUsableInvites(_contracts, point),
+        azimuth.delegatedSending.getInvited(_contracts, point),
+      ]);
+
+      const activity = await Promise.all(
+        invitedPoints.map(invitedPoint =>
+          azimuth.azimuth.isActive(_contracts, invitedPoint)
+        )
       );
 
-      const invitedPoints = await azimuth.delegatedSending.getInvited(
-        _contracts,
-        point
-      );
-      const invitedPointDetails = await Promise.all(
-        invitedPoints.map(async invitedPoint => {
-          const active = await azimuth.azimuth.isActive(
-            _contracts,
-            invitedPoint
-          );
-          return {
-            point: invitedPoint,
-            active,
-          };
-        })
-      );
-      const sentInvites = invitedPointDetails.length;
-      const acceptedInvites = invitedPointDetails.filter(i => i.active).length;
+      const sentInvites = invitedPoints.length;
+      const acceptedInvites = activity.filter(i => i.active).length;
 
       addToInvitesCache({
         [point]: {

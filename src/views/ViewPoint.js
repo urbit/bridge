@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import Maybe from 'folktale/maybe';
 import * as ob from 'urbit-ob';
 import { Input } from 'indigo-react';

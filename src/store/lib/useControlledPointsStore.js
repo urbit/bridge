@@ -34,26 +34,19 @@ export default function useControlledPointsStore() {
 
     const address = _wallet.address;
 
-    const ownedPoints = await azimuth.azimuth.getOwnedPoints(
-      _contracts,
-      address
-    );
-    const incomingPoints = await azimuth.azimuth.getTransferringFor(
-      _contracts,
-      address
-    );
-    const managingPoints = await azimuth.azimuth.getManagerFor(
-      _contracts,
-      address
-    );
-    const votingPoints = await azimuth.azimuth.getVotingFor(
-      _contracts,
-      address
-    );
-    const spawningPoints = await azimuth.azimuth.getSpawningFor(
-      _contracts,
-      address
-    );
+    const [
+      ownedPoints,
+      incomingPoints,
+      managingPoints,
+      votingPoints,
+      spawningPoints,
+    ] = await Promise.all([
+      azimuth.azimuth.getOwnedPoints(_contracts, address),
+      azimuth.azimuth.getTransferringFor(_contracts, address),
+      azimuth.azimuth.getManagerFor(_contracts, address),
+      azimuth.azimuth.getVotingFor(_contracts, address),
+      azimuth.azimuth.getSpawningFor(_contracts, address),
+    ]);
 
     _setControlledPointsCache({
       ownedPoints: Maybe.Just(ownedPoints),

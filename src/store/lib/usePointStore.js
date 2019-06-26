@@ -15,15 +15,17 @@ export default function usePointStore() {
   } = useControlledPointsStore();
 
   // sync all of the on-chain info required to display a foreign point
-  const syncForeignPoint = useCallback(
-    async point => Promise.all([syncDetails(point), syncBirthday(point)]),
-    [syncDetails, syncBirthday]
-  );
+  const syncForeignPoint = useCallback(async point => Promise.all([]), []);
 
   // sync all of the on-chain info required for a point that the user owns
   const syncOwnedPoint = useCallback(
-    async point => Promise.all([syncForeignPoint(point), syncInvites(point)]),
-    [syncForeignPoint, syncInvites]
+    async point =>
+      Promise.all([
+        syncDetails(point),
+        syncBirthday(point),
+        syncInvites(point),
+      ]),
+    [syncDetails, syncBirthday, syncInvites]
   );
 
   return {

@@ -30,19 +30,21 @@ export default function useBirthdayStore() {
         return;
       }
 
-      // fetch birthday if not already known—will not change after being set
-      if (Maybe.Nothing.hasInstance(getBirthday(point))) {
-        const birthBlock = await azimuth.azimuth.getActivationBlock(
-          _contracts,
-          point
-        );
+      // birthday will not change after being set, so bail if we already know
+      if (Maybe.Just.hasInstance(getBirthday(point))) {
+        return;
+      }
 
-        if (birthBlock > 0) {
-          const block = await _web3.eth.getBlock(birthBlock);
-          addToBirthdayCache({
-            [point]: Maybe.Just(new Date(block.timestamp * 1000)),
-          });
-        }
+      const birthBlock = await azimuth.azimuth.getActivationBlock(
+        _contracts,
+        point
+      );
+
+      if (birthBlock > 0) {
+        const block = await _web3.eth.getBlock(birthBlock);
+        addToBirthdayCache({
+          [point]: Maybe.Just(new Date(block.timestamp * 1000)),
+        });
       }
     },
     [contracts, web3, addToBirthdayCache, getBirthday]

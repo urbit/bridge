@@ -3,6 +3,7 @@ import { keyBy, get, every, some } from 'lodash';
 
 import { compose } from 'lib/lib';
 import { kDefaultValidator } from 'lib/validators';
+import useSetState from 'lib/useSetState';
 
 // interface InputConfig {
 //   name: string;
@@ -21,7 +22,7 @@ const defaultsFor = (configs, mapper) =>
   );
 
 /**
- * useForm managest a set of inputs for rendering them in a loop
+ * useForm manages a set of inputs for rendering them in a loop
  */
 export default function useForm(configs = []) {
   const byName = useMemo(() => keyBy(configs, 'name'), [configs]);
@@ -42,7 +43,7 @@ export default function useForm(configs = []) {
   // until there's a traditional state update.
 
   // track focused states
-  const [focused, _setFocused] = useState(() =>
+  const [focused, setFocused] = useSetState(() =>
     defaultsFor(configs, config => config.autoFocus && !config.disabled)
   );
   const focuses = useMemo(
@@ -50,23 +51,16 @@ export default function useForm(configs = []) {
     [configs, focused]
   );
 
-  const setFocused = useCallback(
-    (name, value) => _setFocused(values => ({ ...values, [name]: value })),
-    [_setFocused]
-  );
-
   // track whether or not input has been focused
-  const [hasBeenFocused, _setHasBeenFocused] = useState({});
-  const setHasBeenFocused = useCallback(
-    (name, value) =>
-      _setHasBeenFocused(values => ({ ...values, [name]: value })),
-    [_setHasBeenFocused]
-  );
+  const [hasBeenFocused, setHasBeenFocused] = useSetState({});
 
+  // build fn that transforms a value by input name
   const transform = useCallback(
     (name, value) => compose(...get(byName, [name, 'transformers'], []))(value),
     [byName]
   );
+
+  // build fn that validates a value by input name
   const validate = useCallback(
     (name, value) =>
       compose(
@@ -76,28 +70,33 @@ export default function useForm(configs = []) {
     [byName]
   );
 
+  // on change, transform and set value
   const onChange = useCallback(
     name => e => setValue(name, transform(name, e.target.value)), //
     [setValue, transform]
   );
+  // on focus, update focus
   const onFocus = useCallback(
-    name => e => setFocused(name, true), //
+    name => e => setFocused({ [name]: true }), //
     [setFocused]
   );
+
+  // on blur, defocus and set has been focused
   const onBlur = useCallback(
     name => e => {
-      setFocused(name, false);
-      setHasBeenFocused(name, true);
+      setFocused({ [name]: false });
+      setHasBeenFocused({ [name]: false });
     },
     [setFocused, setHasBeenFocused]
   );
 
-  // memo-compute whether or not the current value is valid
+  // memo-compute validations of curent values
   const validations = useMemo(
     () => configs.map(config => validate(config.name, values[config.name])), //
     [configs, validate, values]
   );
 
+  // memo-compute the set of (perhaps changed by validation) data
   const datas = useMemo(() => validations.map(v => v.data), [validations]);
 
   // the input has errored if it
@@ -137,6 +136,7 @@ export default function useForm(configs = []) {
     [configs, hasBeenFocused, focused, passes]
   );
 
+  // generate the list of input states
   const inputs = useMemo(
     () =>
       configs.map(
@@ -175,8 +175,10 @@ export default function useForm(configs = []) {
     ]
   );
 
-  const pass = every(passes);
-  const error = some(errors);
+  // did all of the inputs pass validation?
+  const pass = useMemo(() => every(passes), [passes]);
+  // did any of the inputs error?
+  const error = useMemo(() => some(errors), [errors]);
 
   return {
     inputs,
