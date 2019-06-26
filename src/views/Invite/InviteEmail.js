@@ -6,7 +6,6 @@ import { Grid, Flex, Input, IconButton, HelpText, Text } from 'indigo-react';
 import { uniq } from 'lodash';
 
 import * as need from 'lib/need';
-import { hasReceived, sendMail } from 'lib/inviteMail';
 import * as wg from 'lib/walletgen';
 
 // for transaction generation and signing
@@ -35,6 +34,7 @@ import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';
 import useSetState from 'lib/useSetState';
 import pluralize from 'lib/pluralize';
+import useMailer from 'lib/useMailer';
 
 const kStubMailer = process.env.REACT_APP_STUB_MAILER === 'true';
 
@@ -89,10 +89,10 @@ const buildAccessoryFor = (dones, errors) => name => (
   </Flex>
 );
 
-// TODO: refactor transactions + mailer into hooks
+// TODO: how to handle dependency loop between inputConfigs and hasReceived?
+// TODO: test with tank, successful txs
 // TODO: put accessory inside of input
-// TODO: implement hasReceived cache with useHasReceived
-export default function NewInviteEmail() {
+export default function InviteEmail() {
   // TODO: resumption after error?
   const { pop } = useLocalRouter();
   const { contracts, web3, networkType } = useNetwork();
@@ -115,10 +115,10 @@ export default function NewInviteEmail() {
     buildInputConfig
   );
 
-  const [hovered, setHovered] = useSetState({});
-  const [invites, addInvite, clearInvites] = useSetState({});
-  const [receipts, addReceipt, clearReceipts] = useSetState({});
-  const [errors, addError, clearError] = useSetState({});
+  const [hovered, setHovered] = useSetState();
+  const [invites, addInvite, clearInvites] = useSetState();
+  const [receipts, addReceipt, clearReceipts] = useSetState();
+  const [errors, addError, clearError] = useSetState();
 
   const [status, setStatus] = useState(STATUS.INPUT);
   const [needFunds, setNeedFunds] = useState(null);
@@ -136,13 +136,16 @@ export default function NewInviteEmail() {
     () =>
       inputConfigs.map(config => {
         config.disabled = !canInput;
-        console.log(config.name, errors[config.name]);
         config.error = errors[config.name];
         return config;
       }),
     [inputConfigs, errors, canInput]
   );
   const { inputs, pass } = useForm(dynamicConfigs);
+  const emails = useMemo(() => inputs.map(i => i.data).filter(d => !!d), [
+    inputs,
+  ]);
+  const { getHasRecieved, sendMail } = useMailer(emails);
 
   const canAddInvite = canInput && inputs.length < maxInvitesToSend;
   const allPass = pass && !generalError;
@@ -379,13 +382,12 @@ export default function NewInviteEmail() {
   }, [canGenerate, canSend, onClickGenerate, onClickSend]);
 
   useEffect(() => {
-    const emails = inputs.map(i => i.data).filter(d => !!d);
     if (uniq(emails).length !== emails.length) {
       setGeneralError(new Error(`Duplicate email.`));
     } else {
       setGeneralError(null);
     }
-  }, [inputs]);
+  }, [emails]);
 
   return (
     <Grid gap={12}>
