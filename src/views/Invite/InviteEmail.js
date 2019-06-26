@@ -46,7 +46,7 @@ import useMailer from 'lib/useMailer';
 import useRenderCount from 'lib/useRenderCount';
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
-const GAS_LIMIT = 350000;
+const GAS_LIMIT = 400000;
 const INVITE_COST = toWei((GAS_PRICE_GWEI * GAS_LIMIT).toString(), 'gwei');
 
 const STATUS = {
