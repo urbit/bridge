@@ -73,13 +73,13 @@ export default function Input({
       <Flex.Item as="label" className="f6 lh-tall" htmlFor={name}>
         {label}
       </Flex.Item>
-      <Flex.Item as={Flex} row>
+      <Flex.Item as={Flex} className="rel" row>
         <Flex.Item
           as="input"
           {...rest}
           cols={[1, accessory ? 11 : 13]}
           className={cn(
-            'b b1 p3 outline-none',
+            'rel b b1 p3 outline-none',
             { mono },
             {
               'bg-white': !disabled,
@@ -110,10 +110,17 @@ export default function Input({
           flex
         />
         {accessory && (
-          <Flex.Item
-            style={{ height: '45px', width: '45px', overflow: 'hidden' }}>
+          <div
+            className="abs"
+            style={{
+              top: 0,
+              right: 0,
+              height: '100%',
+              width: '44px',
+              overflow: 'hidden',
+            }}>
             {accessory}
-          </Flex.Item>
+          </div>
         )}
       </Flex.Item>
       {error && (

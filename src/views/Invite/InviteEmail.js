@@ -84,10 +84,17 @@ const kFailureAccessory = '×';
 // world's simplest uid
 let id = 0;
 const buildInputConfig = (extra = {}) =>
-  buildEmailInputConfig({ name: `email-${id++}`, ...extra });
+  buildEmailInputConfig({
+    name: `email-${id++}`,
+    placeholder: 'Email Address',
+    ...extra,
+  });
 
 const buildAccessoryFor = (dones, errors) => name => (
-  <Flex justify="center" align="center" style={{ height: '100%' }}>
+  <Flex
+    justify="center"
+    align="center"
+    style={{ height: '100%', width: '100%' }}>
     {(() => {
       if (dones[name]) return kSuccessAccessory;
       if (errors[name]) return kFailureAccessory;
@@ -117,7 +124,7 @@ export default function InviteEmail() {
     inputConfigs,
     { append: appendInput, removeAt: removeInputAt },
   ] = useArray(
-    [buildInputConfig({ placeholder: 'Email Address' })],
+    [buildInputConfig({ label: 'Email Address' })],
     buildInputConfig
   );
 
@@ -125,7 +132,7 @@ export default function InviteEmail() {
   const [hovered, setHovered] = useSetState();
   const [invites, addInvite, clearInvites] = useSetState();
   const [receipts, addReceipt, clearReceipts] = useSetState();
-  const [errors, addError, clearError] = useSetState();
+  const [errors, addError, clearErrors] = useSetState();
 
   const [status, setStatus] = useState(STATUS.INPUT);
   const [needFunds, setNeedFunds] = useState(null);
@@ -135,7 +142,6 @@ export default function InviteEmail() {
   const canSend = status === STATUS.CAN_SEND;
   const isGenerating = status === STATUS.GENERATING;
   const isSending = status === STATUS.SENDING;
-  const isFunding = status === STATUS.FUNDING;
   const isFailed = status === STATUS.FAILURE;
   const isDone = status === STATUS.SUCCESS;
 
