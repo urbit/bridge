@@ -128,7 +128,10 @@ export default function Ledger({ loginCompleted }) {
         <ol className="measure-md">
           <li className="mt-4">
             Install
-            <a target="_blank" href="https://github.com/FiloSottile/mkcert">
+            <a
+              target="_blank"
+              href="https://github.com/FiloSottile/mkcert"
+              rel="noopener noreferrer">
               mkcert
             </a>
           </li>

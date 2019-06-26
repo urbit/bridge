@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import useInterval from 'lib/useInterval';
 
+// TODO: make these characters display as the same width
 export const kLoadingCharacter = '▓';
 export const kInterstitialCharacter = '░';
 

@@ -7,6 +7,7 @@ import { HelpText } from './Typography';
 
 export default function Button({
   solid = false,
+  success = false,
   disabled = false,
   detail,
   className,
@@ -30,9 +31,11 @@ export default function Button({
           p4: solid,
         },
         {
-          'bg-black': solid && !disabled,
-          'bg-gray3': solid && disabled,
-          'bg-transparent': !solid,
+          'bg-green3': success && !disabled,
+          'bg-green1': success && disabled,
+          'bg-black': !success && solid && !disabled,
+          'bg-gray3': !success && solid && disabled,
+          'bg-transparent': !success && !solid,
         },
         className
       )}

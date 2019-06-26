@@ -161,7 +161,7 @@ const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
         // if there's a nonce error, but we used the gas tank, it's likely
         // that it's because the tank already submitted our transaction.
         // we just wait for first confirmation here.
-        console.log('sent and got error', err);
+        console.error(err);
         if (
           doubtNonceError &&
           (err.message || '').includes("the tx doesn't have the correct nonce.")

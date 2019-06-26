@@ -15,7 +15,7 @@ import {
 const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8;
 
 // returns a promise for a ticket string
-const makeTicket = point => {
+export const makeTicket = point => {
   const bits =
     point < MIN_STAR
       ? GALAXY_ENTROPY_BITS
@@ -44,7 +44,7 @@ const makeTicket = point => {
 };
 
 // return a wallet object
-const generateWallet = async (point, ticket, boot) => {
+export const generateWallet = async (point, ticket, boot) => {
   const config = {
     ticket: ticket,
     seedSize: SEED_LENGTH_BYTES,
@@ -63,8 +63,12 @@ const generateWallet = async (point, ticket, boot) => {
   return wallet;
 };
 
-// returns a promise
-const generateOwnershipWallet = (ship, ticket) =>
+export const generateOwnershipWallet = (ship, ticket) =>
   kg.generateOwnershipWallet({ ship, ticket });
 
-export { makeTicket, generateWallet, generateOwnershipWallet };
+export const generateTemporaryTicketAndWallet = async point => {
+  const ticket = await makeTicket(point);
+  const owner = await generateOwnershipWallet(0, ticket);
+
+  return { ticket, owner };
+};

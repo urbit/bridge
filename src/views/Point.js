@@ -48,9 +48,9 @@ export default function Point() {
             Boot Arvo
           </ForwardButton>
         </Grid.Item>
-        {/* <Grid.Item full>
+        <Grid.Item full>
           <Actions />
-        </Grid.Item> */}
+        </Grid.Item>
       </Grid>
 
       <FooterButton onClick={goInvite}>

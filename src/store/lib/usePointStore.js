@@ -31,6 +31,7 @@ export default function usePointStore() {
     ...birthdays,
     ...invites,
     ...controlledPoints,
+    syncInvites,
     syncControlledPoints,
     syncOwnedPoint,
     syncForeignPoint,

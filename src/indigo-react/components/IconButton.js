@@ -8,6 +8,7 @@ export default function IconButton({
   className,
   onClick,
   disabled = false,
+  secondary = false,
   solid = false,
   ...rest
 }) {
@@ -19,8 +20,10 @@ export default function IconButton({
       className={cn(
         'pointer p2',
         {
-          'bg-black': solid && !disabled,
-          'bg-gray3': !solid || disabled,
+          'bg-black': solid && !secondary && !disabled,
+          'bg-gray3': (solid && disabled) || (solid && secondary),
+          'bg-gray2': !solid && secondary && disabled,
+          'bg-transparent': !solid,
         },
         {
           white: solid,

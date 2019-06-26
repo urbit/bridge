@@ -1,13 +1,14 @@
 import { useCallback, useState } from 'react';
+import { identity } from 'lodash';
 
 /**
  * Manages an immutable array of items.
  */
-export default function useArray(initialItems = [], itemBuilder) {
+export default function useArray(initialItems = [], itemBuilder = identity) {
   const [items, _setItems] = useState(initialItems);
 
   const append = useCallback(
-    () => _setItems(items => [...items, itemBuilder()]),
+    item => _setItems(items => [...items, itemBuilder(item)]),
     [_setItems, itemBuilder]
   );
 
@@ -33,12 +34,15 @@ export default function useArray(initialItems = [], itemBuilder) {
     [_setItems]
   );
 
+  const clear = useCallback(() => _setItems([]), [_setItems]);
+
   return [
     items,
     {
       append,
       removeAt,
       updateAt,
+      clear,
     },
   ];
 }
