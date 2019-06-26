@@ -39,6 +39,7 @@ export default function useMailer(emails) {
   const hasReceivedCache = useHasReceivedCache(emails);
 
   // prefix to avoid clobbering sendMail import
+  // also throws if return value is false
   const _sendMail = useCallback(async (email, ticket, rawTx) => {
     if (kStubMailer) {
       console.log(`${email} - ${ticket}`);

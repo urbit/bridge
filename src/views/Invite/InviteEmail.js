@@ -196,7 +196,7 @@ export default function InviteEmail() {
     // composing our target list
     if (planets.length < inputs.length) {
       // resync invites to the cache, since they're out of date
-      syncInvites();
+      syncInvites(point);
 
       throw new Error(
         `Can currently only send ${planets.length} invites. ` +
@@ -315,12 +315,7 @@ export default function InviteEmail() {
       }
 
       try {
-        const mailSuccess = await sendMail(
-          invite.email,
-          invite.ticket,
-          invite.rawTx
-        );
-        if (!mailSuccess) throw new Error();
+        await sendMail(invite.email, invite.ticket, invite.rawTx);
       } catch (error) {
         console.error(error);
         errorCount++;
@@ -395,6 +390,13 @@ export default function InviteEmail() {
       setGeneralError(null);
     }
   }, [emails]);
+
+  // when we transition to done, sync invites because we just sent some
+  useEffect(() => {
+    if (isDone) {
+      syncInvites(point);
+    }
+  }, [isDone, syncInvites, point]);
 
   return (
     <Grid gap={12}>

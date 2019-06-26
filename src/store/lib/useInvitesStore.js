@@ -47,13 +47,12 @@ export default function useInvitesStore() {
       );
       const invitedPointDetails = await Promise.all(
         invitedPoints.map(async invitedPoint => {
-          console.log('invitedPoint', invitedPoint, typeof invitedPoint);
           const active = await azimuth.azimuth.isActive(
             _contracts,
             invitedPoint
           );
           return {
-            point: Number(invitedPoint),
+            point: invitedPoint,
             active,
           };
         })

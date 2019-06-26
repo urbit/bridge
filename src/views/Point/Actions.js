@@ -15,7 +15,7 @@ import { usePointCache } from 'store/pointCache';
 const isPlanet = point =>
   azimuth.getPointSize(point) === azimuth.PointSize.Planet;
 
-function Actions(props) {
+function Actions() {
   const history = useHistory();
   const { wallet } = useWallet();
   const { pointCursor } = usePointCursor();
