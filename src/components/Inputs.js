@@ -92,6 +92,7 @@ export function useTicketInput({ initialValue = '~', ...rest }) {
     useForm([
       {
         type: 'password',
+        label: 'Ticket',
         placeholder: '~master-ticket',
         validators: kTicketValidators,
         transformers: kTicketTransformers,
@@ -111,6 +112,7 @@ export function usePointInput({ initialValue = '~', ...rest }) {
     useForm([
       {
         type: 'text',
+        label: 'Point',
         placeholder: 'e.g. ~zod',
         validators: kPointValidators,
         transformers: kPointTransformers,

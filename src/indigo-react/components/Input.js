@@ -68,6 +68,7 @@ export default function Input({
     onFocus && onFocus(focused);
   }, [focused]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  console.log(name, visiblyPassed, error);
   return (
     <Flex className={className} col>
       <Flex.Item as="label" className="f6 lh-tall" htmlFor={name}>
@@ -92,7 +93,7 @@ export default function Input({
             {
               'b-green3': visiblyPassed,
               'b-black': focused && !visiblyPassed,
-              'b-yellow3': !focused && !visiblyPassed && error,
+              'b-yellow3': !focused && error,
               'b-gray3': !focused && !error && !visiblyPassed,
             }
             // TODO: inputClassName ?

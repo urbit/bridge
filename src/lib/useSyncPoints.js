@@ -1,39 +1,32 @@
 import { useEffect } from 'react';
-import { isEqual } from 'lodash';
+import { difference } from 'lodash';
 
 import { usePointCache } from 'store/pointCache';
 import usePreviousValue from 'lib/usePreviousValue';
 
-// sync a known (i.e. mine) point to the cache (i.e display values)
-export function useSyncKnownPoints(points = []) {
-  // TBD: right now we don't need anything more than the point itself
-  // but soon we'll need to know information around "key type"
-}
+const buildSyncHook = getFn =>
+  function SyncPoint(points = []) {
+    const fn = getFn();
+    const prevPoints = usePreviousValue(points);
 
-// sync a foreign (not the user's) point to the cache
-export function useSyncForeignPoints(points = []) {
+    useEffect(() => {
+      // sync points that are new between renders
+      const newPoints = difference(points, prevPoints);
+      Promise.all(newPoints.map(fn));
+    }, [fn, prevPoints, points]);
+  };
+
+export const useSyncKnownPoints = buildSyncHook(function() {
+  const { syncKnownPoint } = usePointCache();
+  return syncKnownPoint;
+});
+
+export const useSyncForeignPoints = buildSyncHook(function() {
   const { syncForeignPoint } = usePointCache();
-  const prevPoints = usePreviousValue(points);
+  return syncForeignPoint;
+});
 
-  useEffect(() => {
-    if (!isEqual(prevPoints, points)) {
-      // if the actual set of points changes, sync the whole array
-      // TODO: we should get clever about caching
-      points.forEach(point => syncForeignPoint(point));
-    }
-  }, [syncForeignPoint, prevPoints, points]);
-}
-
-// sync an owned point to the cache
-export function useSyncOwnedPoints(points = []) {
+export const useSyncOwnedPoints = buildSyncHook(function() {
   const { syncOwnedPoint } = usePointCache();
-  const prevPoints = usePreviousValue(points);
-
-  useEffect(() => {
-    if (!isEqual(prevPoints, points)) {
-      // if the actual set of points changes, sync the whole array
-      // TODO: we should get clever about caching
-      points.forEach(point => syncOwnedPoint(point));
-    }
-  }, [syncOwnedPoint, prevPoints, points]);
-}
+  return syncOwnedPoint;
+});

@@ -85,7 +85,7 @@ export default function useForm(configs = []) {
   const onBlur = useCallback(
     name => e => {
       setFocused({ [name]: false });
-      setHasBeenFocused({ [name]: false });
+      setHasBeenFocused({ [name]: true });
     },
     [setFocused, setHasBeenFocused]
   );

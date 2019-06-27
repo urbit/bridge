@@ -22,13 +22,7 @@ const kInitialNetworkType = isDevelopment
 const shouldStubLocal = process.env.REACT_APP_STUB_LOCAL === 'true';
 const kIsStubbed = isDevelopment && shouldStubLocal;
 const kInitialRoutes = kIsStubbed
-  ? [
-      { key: ROUTE_NAMES.LANDING },
-      { key: ROUTE_NAMES.LOGIN },
-      { key: ROUTE_NAMES.POINTS },
-      { key: ROUTE_NAMES.POINT },
-      { key: ROUTE_NAMES.INVITE },
-    ]
+  ? [{ key: ROUTE_NAMES.LANDING }, { key: ROUTE_NAMES.ACTIVATE }]
   : [{ key: ROUTE_NAMES.LANDING }];
 
 const kInitialWallet = kIsStubbed

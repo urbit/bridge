@@ -37,16 +37,14 @@ export default function Ticket({ advanced, loginCompleted }) {
   // inputs
   const pointInput = usePointInput({
     name: 'point',
-    label: 'Point',
     //TODO deduce point name from URL if we can, prefill input if we found it
-    // initialValue: '~',
     autoFocus: true,
   });
   const pointName = pointInput.data;
 
   const ticketInput = useTicketInput({
     name: 'ticket',
-    label: 'Master ticket',
+    label: 'Master Ticket',
   });
   const ticket = ticketInput.data;
 

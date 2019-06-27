@@ -23,7 +23,6 @@ export default function Shards({ loginCompleted }) {
 
   const pointInput = usePointInput({
     name: 'point',
-    label: 'Point',
     autoFocus: true,
   });
   const pointName = pointInput.data;

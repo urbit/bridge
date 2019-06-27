@@ -1,8 +1,8 @@
 import React from 'react';
-import cn from 'classnames';
 import * as ob from 'urbit-ob';
 
 import Sigil from './Sigil';
+import AspectRatio from './AspectRatio';
 
 const selectColorway = (pass, fail, focused) => {
   if (pass) {
@@ -20,7 +20,7 @@ const selectColorway = (pass, fail, focused) => {
   return ['#FFFFFF', '#7F7F7F'];
 };
 
-export default function ValidatedSigil({
+export default function InputSigil({
   className,
   patp,
   size,
@@ -35,6 +35,6 @@ export default function ValidatedSigil({
   return valid ? (
     <Sigil patp={patp} size={size} colorway={colorway} margin={0} {...rest} />
   ) : (
-    <div className={cn('bg-transparent', className)} />
+    <AspectRatio aspectRatio={1} />
   );
 }

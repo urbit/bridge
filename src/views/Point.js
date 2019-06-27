@@ -41,7 +41,7 @@ export default function Point() {
 
   return (
     <View>
-      <Passport point={point} />
+      <Passport point={Maybe.Just(point)} />
       <Grid className="pt2">
         <Grid.Item full>
           <ForwardButton disabled>Admin</ForwardButton>
