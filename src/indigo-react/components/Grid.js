@@ -1,20 +1,14 @@
 import React from 'react';
 import cn from 'classnames';
 
-import getComponent from '../lib/getComponent';
-
-function Grid({ as = 'div', gap = 0, className, ...rest }) {
-  const Component = getComponent(as);
+function Grid({ as: As = 'div', gap = 0, className, ...rest }) {
   return (
-    <Component
-      className={cn('grid12', gap && `gap${gap}`, className)}
-      {...rest}
-    />
+    <As className={cn('grid12', gap && `gap${gap}`, className)} {...rest} />
   );
 }
 
 Grid.Item = function GridItem({
-  as = 'div',
+  as: As = 'div',
   full = false,
   half = 0,
   third = 0,
@@ -26,9 +20,8 @@ Grid.Item = function GridItem({
   className,
   ...rest
 }) {
-  const Component = getComponent(as);
   return (
-    <Component
+    <As
       className={cn(
         {
           full,

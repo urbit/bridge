@@ -75,6 +75,7 @@ export default function useForm(configs = []) {
     name => e => setValue(name, transform(name, e.target.value)), //
     [setValue, transform]
   );
+
   // on focus, update focus
   const onFocus = useCallback(
     name => e => setFocused({ [name]: true }), //

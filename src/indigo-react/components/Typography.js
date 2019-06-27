@@ -1,12 +1,9 @@
 import React from 'react';
 import cn from 'classnames';
 
-import getComponent from '../lib/getComponent';
-
 const typeWith = (DefaultComponent, defaultClassName) =>
-  function({ as = DefaultComponent, className, ...rest }) {
-    const Component = getComponent(as);
-    return <Component className={cn(defaultClassName, className)} {...rest} />;
+  function({ as: As = DefaultComponent, className, ...rest }) {
+    return <As className={cn(defaultClassName, className)} {...rest} />;
   };
 
 export const H1 = typeWith('h1');

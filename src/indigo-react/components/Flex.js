@@ -1,10 +1,8 @@
 import React from 'react';
 import cn from 'classnames';
 
-import getComponent from '../lib/getComponent';
-
 function Flex({
-  as = 'div',
+  as: As = 'div',
   row = false,
   wrap = false,
   col = false,
@@ -16,10 +14,8 @@ function Flex({
   if (row && col) {
     throw new Error('Only one of row or col must be true, not both.');
   }
-
-  const Component = getComponent(as);
   return (
-    <Component
+    <As
       className={cn(
         'flex',
         {
@@ -39,14 +35,13 @@ function Flex({
 }
 
 // flex can be boolean {true} or integer flex
-Flex.Item = function FlexItem({ as = 'div', flex, className, ...rest }) {
+Flex.Item = function FlexItem({ as: As = 'div', flex, className, ...rest }) {
   if (flex === true) {
     flex = 1;
   }
 
-  const Component = getComponent(as);
   return (
-    <Component
+    <As
       className={cn(
         {
           [`flex${flex}`]: flex,
