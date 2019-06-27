@@ -68,6 +68,7 @@ export const generateOwnershipWallet = (ship, ticket) =>
 
 export const generateTemporaryTicketAndWallet = async point => {
   const ticket = await makeTicket(point);
+  // ~zod is used as a constant here
   const owner = await generateOwnershipWallet(0, ticket);
 
   return { ticket, owner };
