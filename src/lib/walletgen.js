@@ -67,7 +67,8 @@ export const generateWallet = async (point, ticket, boot) => {
 export const generateOwnershipWallet = (ship, ticket) =>
   kg.generateOwnershipWallet({ ship, ticket });
 
-// ~zod is a constant in temporary wallets used for invitations
+// temporary wallets need to be derivable from just the ticket,
+// so we always use ~zod as the wallet point.
 export const generateTemporaryOwnershipWallet = ticket =>
   generateOwnershipWallet(ZOD, ticket);
 export const generateTemporaryTicketAndWallet = async point => {
