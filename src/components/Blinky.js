@@ -9,20 +9,21 @@ const BLINK_AFTER_MS = 2500; // ms
 
 export const matchBlinky = obj =>
   obj.matchWith({
-    Nothing: () => <Blinky />,
+    Nothing: () => <Blinky delayed />,
     Just: p => p.value,
   });
 
 export default function Blinky({
   a = kLoadingCharacter,
   b = kInterstitialCharacter,
+  delayed = false,
 }) {
   const [value, setValue] = useState(true);
   const now = useRef(new Date());
 
   useInterval(() => {
-    // only start blinking if we've elapsed enough time
-    if (new Date() - now.current > BLINK_AFTER_MS) {
+    // only start blinking if we've elapsed enough time and want to delay
+    if (!delayed || new Date() - now.current > BLINK_AFTER_MS) {
       setValue(val => !val);
     }
   }, 1000);

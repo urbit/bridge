@@ -45,6 +45,12 @@ export default function useBirthdayStore() {
         addToBirthdayCache({
           [point]: Maybe.Just(new Date(block.timestamp * 1000)),
         });
+      } else {
+        // TODO: better encoding for "no birthday" state?
+        // if there's no birthday, just use today
+        addToBirthdayCache({
+          [point]: Maybe.Just(new Date()),
+        });
       }
     },
     [contracts, web3, addToBirthdayCache, getBirthday]

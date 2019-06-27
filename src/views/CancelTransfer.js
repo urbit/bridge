@@ -17,7 +17,7 @@ class CancelTransfer extends React.Component {
   constructor(props) {
     super(props);
 
-    const pointInTransfer = need.pointCursor(props.pointCursor);
+    const pointInTransfer = need.point(props.pointCursor);
 
     this.state = {
       proxyAddress: '',
@@ -31,7 +31,7 @@ class CancelTransfer extends React.Component {
     const { props } = this;
 
     const validContracts = need.contracts(props.contracts);
-    const validPoint = need.pointCursor(props.pointCursor);
+    const validPoint = need.point(props.pointCursor);
     //TODO this.state.pointInTransfer ?
 
     const txn = azimuth.ecliptic.setTransferProxy(

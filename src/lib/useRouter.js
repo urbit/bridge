@@ -62,12 +62,8 @@ export default function useRouter({
   const data = useMemo(() => last(routes).data, [routes]);
   const Route = useMemo(() => views[peek().key], [views, peek]);
 
-  // Scroll to top of page with each route transition on primary navigation
+  // Scroll to top of page with each route transition
   useEffect(() => {
-    if (!primary) {
-      return;
-    }
-
     window.scrollTo(0, 0);
   }, [routes, primary]);
 

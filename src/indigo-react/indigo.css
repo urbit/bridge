@@ -13,7 +13,7 @@
   * git+https://github.com/urbit/Indigo.git
   * Bugs: https://github.com/urbit/Indigo/issues
   * License: MIT
-  * Timestamp: Mon Jun 24 2019 19:57:25 GMT-0700 (Pacific Daylight Time)
+  * Timestamp: Thu Jun 27 2019 14:14:25 GMT-0700 (Pacific Daylight Time)
   *******************************************************************************/
 /**********************
 Color variables
@@ -2032,29 +2032,44 @@ caption,
   .fourth-4-lg {
     grid-area: auto / 10 / auto / 13; } }
 
+.gap0 {
+  gap: 0px; }
+
 .gap1 {
-  gap: 1px; }
-
-.gap2 {
-  gap: 2px; }
-
-.gap4 {
   gap: 4px; }
 
-.gap8 {
+.gap2 {
   gap: 8px; }
 
-.gap12 {
+.gap3 {
   gap: 12px; }
 
-.gap16 {
+.gap4 {
   gap: 16px; }
 
-.gap24 {
+.gap5 {
+  gap: 20px; }
+
+.gap6 {
   gap: 24px; }
 
-.gap32 {
+.gap7 {
   gap: 32px; }
+
+.gap8 {
+  gap: 48px; }
+
+.gap9 {
+  gap: 64px; }
+
+.gap10 {
+  gap: 96px; }
+
+.gap11 {
+  gap: 160px; }
+
+.gap12 {
+  gap: 288px; }
 
 .c1-2 {
   grid-column-start: 1;

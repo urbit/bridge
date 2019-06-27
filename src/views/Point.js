@@ -24,7 +24,7 @@ export default function Point() {
   const { pointCursor } = usePointCursor();
   const { wallet } = useWallet();
 
-  const point = need.pointCursor(pointCursor);
+  const point = need.point(pointCursor);
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);

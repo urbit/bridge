@@ -29,7 +29,7 @@ export const simpleValidatorWrapper = ({
   // Run the validator and return the result.
   const pass = validator(prevMessage.data);
   const data = pass ? transform(prevMessage.data) : prevMessage.data;
-  console.log(pass, data);
+
   return newMessage(data, pass, !pass && error);
 };
 

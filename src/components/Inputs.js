@@ -141,6 +141,17 @@ export function usePointInput({ initialValue = '~', ...rest }) {
   };
 }
 
+export function useCheckboxInput({ initialValue, ...rest }) {
+  return firstOf(
+    useForm([
+      {
+        type: 'checkbox',
+        ...rest,
+      },
+    ])
+  );
+}
+
 const kEmailValidators = [validateEmail, validateNotEmpty];
 export const buildEmailInputConfig = extra => ({
   type: 'email',

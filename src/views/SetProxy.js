@@ -29,7 +29,7 @@ class _SetProxy extends React.Component {
   constructor(props) {
     super(props);
 
-    const issuingPoint = need.pointCursor(props.pointCursor);
+    const issuingPoint = need.point(props.pointCursor);
 
     this.state = {
       proxyAddress: '',
@@ -61,7 +61,7 @@ class _SetProxy extends React.Component {
     const { state, props } = this;
 
     const validContracts = need.contracts(props.contracts);
-    const validPoint = need.pointCursor(props.pointCursor);
+    const validPoint = need.point(props.pointCursor);
 
     const txArgs = [validContracts, validPoint, state.proxyAddress];
 

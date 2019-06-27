@@ -39,7 +39,7 @@ class InvitesManage extends React.Component {
   }
 
   componentDidMount() {
-    this.point = need.pointCursor(this.props.pointCursor);
+    this.point = need.point(this.props.pointCursor);
     this.contracts = need.contracts(this.props.contracts);
 
     azimuth.azimuth

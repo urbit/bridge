@@ -37,7 +37,7 @@ export default function Invite() {
     initialRoutes: [{ key: kInviteNames.URL }],
   });
   const { pointCursor } = usePointCursor();
-  const point = need.pointCursor(pointCursor);
+  const point = need.point(pointCursor);
   const name = useCurrentPointName();
 
   // sync the current point

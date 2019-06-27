@@ -70,10 +70,21 @@ export default function useForm(configs = []) {
     [byName]
   );
 
+  const getValue = useCallback(
+    (name, e) => {
+      if (byName[name].type === 'checkbox') {
+        return e.target.checked;
+      }
+
+      return e.target.value;
+    },
+    [byName]
+  );
+
   // on change, transform and set value
   const onChange = useCallback(
-    name => e => setValue(name, transform(name, e.target.value)), //
-    [setValue, transform]
+    name => e => setValue(name, transform(name, getValue(name, e))), //
+    [setValue, transform, getValue]
   );
 
   // on focus, update focus
@@ -155,6 +166,7 @@ export default function useForm(configs = []) {
           // dom properties below:
           bind: {
             value: values[name] || initialValue,
+            checked: !!values[name],
             onChange: onChange(name),
             onFocus: onFocus(name),
             onBlur: onBlur(name),

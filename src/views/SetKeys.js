@@ -22,7 +22,7 @@ class SetKeys extends React.Component {
   constructor(props) {
     super(props);
 
-    const point = need.pointCursor(props.pointCursor);
+    const point = need.point(props.pointCursor);
 
     this.state = {
       auth: '',
@@ -115,7 +115,7 @@ class SetKeys extends React.Component {
     const { state, props } = this;
 
     const validContracts = need.contracts(props.contracts);
-    const validPoint = need.pointCursor(props.pointCursor);
+    const validPoint = need.point(props.pointCursor);
 
     // TODO: move this to a lib for validating things
     const hexRegExp = /[0-9A-Fa-f]{64}/g;

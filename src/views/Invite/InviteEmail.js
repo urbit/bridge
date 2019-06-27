@@ -100,7 +100,7 @@ export default function InviteEmail() {
   const { wallet, walletType, walletHdPath } = useWallet();
   const { syncInvites, getInvites } = usePointCache();
   const { pointCursor } = usePointCursor();
-  const point = need.pointCursor(pointCursor);
+  const point = need.point(pointCursor);
   const { getHasRecieved, syncHasReceivedForEmail, sendMail } = useMailer();
 
   const { availableInvites } = getInvites(point);
@@ -391,7 +391,7 @@ export default function InviteEmail() {
   }, [isDone, syncInvites, point]);
 
   return (
-    <Grid gap={12}>
+    <Grid gap={3}>
       <Grid.Item as={Grid} full>
         <Grid.Item as={Flex} cols={[1, 11]} align="center">
           <MiniBackButton onClick={() => pop()} />
@@ -432,7 +432,7 @@ export default function InviteEmail() {
               <Grid.Item
                 key={input.name}
                 as={Grid}
-                gap={12}
+                gap={3}
                 onMouseOver={() => setHovered({ [input.name]: true })}
                 onMouseLeave={() => setHovered({ [input.name]: false })}
                 full>

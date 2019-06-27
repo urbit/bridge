@@ -3,34 +3,49 @@
 
 import { BRIDGE_ERROR } from './error';
 
-const needBuilder = error => obj => {
+const needBuilder = fn => obj => {
   if (!obj) {
-    throw error;
+    fn();
   }
 
   return obj.matchWith({
-    Nothing: () => {
-      throw error;
-    },
+    Nothing: fn,
     Just: p => p.value,
   });
 };
 
-export const web3 = needBuilder(BRIDGE_ERROR.MISSING_WEB3);
-export const contracts = needBuilder(BRIDGE_ERROR.MISSING_CONTRACTS);
-export const wallet = needBuilder(BRIDGE_ERROR.MISSING_WALLET);
+export const web3 = needBuilder(() => {
+  throw new Error(BRIDGE_ERROR.MISSING_WEB3.message);
+});
+
+export const contracts = needBuilder(() => {
+  throw new Error(BRIDGE_ERROR.MISSING_CONTRACTS.message);
+});
+
+export const wallet = needBuilder(() => {
+  throw new Error(BRIDGE_ERROR.MISSING_WALLET.message);
+});
+
 export const addressFromWallet = obj => wallet(obj).address;
-export const pointCursor = needBuilder(BRIDGE_ERROR.MISSING_POINT);
-export const pointCache = needBuilder(BRIDGE_ERROR.MISSING_POINT);
+
+export const point = needBuilder(() => {
+  throw new Error(BRIDGE_ERROR.MISSING_POINT.message);
+});
+
+export const pointCache = needBuilder(() => {
+  throw new Error(BRIDGE_ERROR.MISSING_POINT.message);
+});
+
 export const fromPointCache = (cache, point) => {
   if (!(point in cache)) {
-    throw BRIDGE_ERROR.MISSING_POINT;
+    throw new Error(BRIDGE_ERROR.MISSING_POINT.message);
   }
 
   return cache[point];
 };
+
 export const keystore = obj => {
-  const ks = needBuilder(BRIDGE_ERROR.MISSING_KEYSTORE)();
+  const ks = needBuilder(BRIDGE_ERROR.MISSING_KEYSTORE)(obj);
   return ks.value.matchWith({
     Ok: result => result.value,
     Error: _ => {

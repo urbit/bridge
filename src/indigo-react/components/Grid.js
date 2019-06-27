@@ -44,14 +44,19 @@ Grid.Item = function GridItem({
   );
 };
 
-Grid.Divider = function GridDivider({ vertical = false, className, ...rest }) {
+Grid.Divider = function GridDivider({
+  vertical = false,
+  color = 'gray2',
+  className,
+  ...rest
+}) {
   return (
     <div
       style={{
         height: vertical ? 'auto' : '1px',
         width: vertical ? '1px' : 'auto',
       }}
-      className={cn('full', className || 'bg-gray2')}
+      className={cn('full', `bg-${color}`, className)}
       {...rest}
     />
   );
