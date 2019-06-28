@@ -2,10 +2,15 @@ import { useWallet } from 'store/wallet';
 import { usePointCache } from 'store/pointCache';
 
 import { eqAddr } from 'lib/wallet';
+import useLifecycle from './useLifecycle';
 
 export default function useIsEclipticOwner() {
   const { wallet } = useWallet();
-  const { eclipticOwner } = usePointCache();
+  const { eclipticOwner, syncEclipticOwner } = usePointCache();
+
+  useLifecycle(() => {
+    syncEclipticOwner();
+  });
 
   return wallet.matchWith({
     Nothing: () => false,

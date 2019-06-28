@@ -4,11 +4,13 @@ import useDetailsStore from './useDetailsStore';
 import useBirthdaysStore from './useBirthdaysStore';
 import useInvitesStore from './useInvitesStore';
 import useControlledPointsStore from './useControlledPointsStore';
+import useEclipticOwnerStore from './useEclipticOwnerStore';
 
 export default function usePointStore() {
   const { syncDetails, ...details } = useDetailsStore();
   const { syncBirthday, ...birthdays } = useBirthdaysStore();
   const { syncInvites, ...invites } = useInvitesStore();
+  const ecliptic = useEclipticOwnerStore();
   const {
     syncControlledPoints,
     ...controlledPoints
@@ -33,6 +35,7 @@ export default function usePointStore() {
     ...birthdays,
     ...invites,
     ...controlledPoints,
+    ...ecliptic,
     syncInvites,
     syncControlledPoints,
     syncOwnedPoint,
