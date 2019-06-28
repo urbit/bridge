@@ -185,3 +185,10 @@ export const validateInt = m =>
     },
     error: 'This is not a valid number',
   });
+
+export const validateExactly = (value, error) => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => d === value,
+    error,
+  });

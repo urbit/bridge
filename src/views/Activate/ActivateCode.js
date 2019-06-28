@@ -68,32 +68,22 @@ export default function ActivateCode() {
         );
 
         //TODO isn't all this accessible in the ownership object?
-        const inviteWallet = walletFromMnemonic(
-          seed,
-          DEFAULT_HD_PATH
-        ).matchWith({
-          Just: w => w.value,
-          Nothing: () => {
-            setGeneralError('Derivation Error: invalid derived seed.');
-            throw new Error();
-          },
-        });
+        const inviteWallet = walletFromMnemonic(seed, DEFAULT_HD_PATH);
+        const _inviteWallet = need.wallet(inviteWallet);
 
         const incoming = await azimuth.azimuth.getTransferringFor(
           _contracts,
-          inviteWallet.address
+          _inviteWallet.address
         );
 
         let realPoint = Maybe.Nothing();
-        let realWallet = Maybe.Nothing();
+        let wallet = Maybe.Nothing();
 
         if (incoming.length > 0) {
-          let pointNum = parseInt(incoming[0], 10);
+          const pointNum = parseInt(incoming[0], 10);
           realPoint = Maybe.Just(pointNum);
+          wallet = Maybe.Just(await generateWallet(pointNum));
 
-          const genWallet = await generateWallet(pointNum);
-
-          realWallet = Maybe.Just(genWallet);
           if (incoming.length > 1) {
             setGeneralError(
               'This invite code has multiple points available.\n' +
@@ -108,8 +98,8 @@ export default function ActivateCode() {
         }
 
         setDerivedPoint(realPoint);
-        setDerivedWallet(realWallet);
-        setInviteWallet(Maybe.Just(inviteWallet));
+        setDerivedWallet(wallet);
+        setInviteWallet(inviteWallet);
         setDeriving(false);
       })();
     } else {

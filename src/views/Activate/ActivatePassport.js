@@ -1,82 +1,64 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
+import cn from 'classnames';
 import Maybe from 'folktale/maybe';
-import { Grid, H4, P } from 'indigo-react';
-import PaperCollateralRenderer from 'PaperCollateralRenderer';
+import { Grid } from 'indigo-react';
 
-import * as need from 'lib/need';
-import { useLocalRouter } from 'lib/LocalRouter';
+import { LocalRouterProvider } from 'lib/LocalRouter';
 
 import View from 'components/View';
-import { ForwardButton, DownloadButton } from 'components/Buttons';
 import Passport from 'components/Passport';
 
 import { useActivateFlow } from './ActivateFlow';
-import { downloadWallet } from 'lib/invite';
+import useBreakpoints from 'lib/useBreakpoints';
+import useRouter from 'lib/useRouter';
+
+import PassportDownload from './PassportDownload';
+import PassportVerify from './PassportVerify';
+import PassportTransfer from './PassportTransfer';
+
+const kPassportNames = {
+  DOWNLOAD: 'DOWNLOAD',
+  VERIFY: 'VERIFY',
+  TRANSFER: 'TRANSFER',
+};
+
+const kPassportViews = {
+  [kPassportNames.DOWNLOAD]: PassportDownload,
+  [kPassportNames.VERIFY]: PassportVerify,
+  [kPassportNames.TRANSFER]: PassportTransfer,
+};
 
 export default function ActivatePassport() {
-  const { push, names } = useLocalRouter();
-  const { derivedPoint, derivedWallet } = useActivateFlow();
-  // const point = need.point(derivedPoint);
-  const wallet = need.wallet(derivedWallet);
+  const { derivedPoint, generated } = useActivateFlow();
 
-  const [paper, setPaper] = useState(Maybe.Nothing());
-
-  const goToPassport = useCallback(() => push(names.PASSPORT), [push, names]);
-
-  const pointAsString = derivedPoint.matchWith({
-    Nothing: () => '',
-    Just: p => p.value.toFixed(),
+  const { Route, ...router } = useRouter({
+    names: kPassportNames,
+    views: kPassportViews,
+    initialRoutes: [{ key: kPassportNames.DOWNLOAD }],
   });
 
-  const generated = paper.matchWith({
-    Nothing: () => false,
-    Just: () => true,
-  });
-
-  const download = useCallback(() => downloadWallet(paper.getOrElse([])), [
-    paper,
-  ]);
+  const fullView = useBreakpoints([false, false, true]);
+  const gap = useBreakpoints([4, 4, 7]);
+  const marginTop = useBreakpoints([false, false, 8]);
+  const full = useBreakpoints([true, true, false]);
+  const leftHalf = useBreakpoints([false, false, 1]);
+  const rightHalf = useBreakpoints([false, false, 2]);
 
   return (
-    <View.Full>
-      <Grid gap={10} className="mt8 mb10" align="center">
-        <Grid.Item half={1} alignSelf="center">
-          <Passport point={derivedPoint} ticket={generated} />
-        </Grid.Item>
-        <Grid.Item half={2} as={Grid} gap={5} alignSelf="center">
-          <Grid.Item full>Step 1 of 3</Grid.Item>
-          <Grid.Item full as={H4}>
-            Passport
+    <LocalRouterProvider value={router}>
+      <View full={fullView}>
+        <Grid gap={gap} className="mt8 mb10">
+          <Grid.Item half={leftHalf} full={full}>
+            <Passport
+              className={cn({ [`mt${marginTop}`]: marginTop })}
+              point={derivedPoint}
+              ticket={generated}
+              address={Maybe.Nothing()}
+            />
           </Grid.Item>
-          <Grid.Item full as={P}>
-            After you’ve downloaded your passport, back up the ticket manually
-            or store on a trusted device.
-          </Grid.Item>
-          <Grid.Item full as={P}>
-            What is digital identity? A passport is your digital identity. You
-            will use your passport to access your true computer, send payments,
-            and administer your identity. So naturally, you must keep this
-            secure.
-          </Grid.Item>
-          <Grid.Item
-            full
-            as={DownloadButton}
-            disabled={!generated}
-            onClick={download}
-            solid>
-            Download Passport
-          </Grid.Item>
-        </Grid.Item>
-      </Grid>
-      <PaperCollateralRenderer
-        className="super-hidden"
-        wallet={{ [pointAsString]: wallet }}
-        callback={data => {
-          console.log(data);
-          setPaper(Maybe.Just(data));
-        }}
-        mode="REGISTRATION"
-      />
-    </View.Full>
+          <Grid.Item half={rightHalf} full={full} as={Route} />
+        </Grid>
+      </View>
+    </LocalRouterProvider>
   );
 }

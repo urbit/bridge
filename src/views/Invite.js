@@ -71,7 +71,7 @@ export default function Invite() {
           <Grid.Item as={H5} className="mv4" full>
             Invite
           </Grid.Item>
-          <Grid.Item as={Text} full>
+          <Grid.Item as={Text} className="f5" full>
             You currently have{' '}
             <Highlighted>{availableInvitesText} invitations</Highlighted> left.
             <br />

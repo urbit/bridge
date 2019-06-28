@@ -17,6 +17,6 @@ export const P = typeWith('p');
 export const B = typeWith('b');
 
 export const Breadcrumb = typeWith('span', 'f6');
-export const Text = typeWith('span', 'f5');
+export const Text = typeWith('span');
 export const HelpText = typeWith('span', 'f6 gray4');
 export const ErrorText = typeWith('span', 'f6 red3');

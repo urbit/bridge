@@ -1,9 +1,20 @@
 import React from 'react';
 import cn from 'classnames';
 
-function Grid({ as: As = 'div', gap = 0, className, ...rest }) {
+function Grid({ as: As = 'div', gap = 0, align, justify, className, ...rest }) {
   return (
-    <As className={cn('grid12', gap && `gap${gap}`, className)} {...rest} />
+    <As
+      className={cn(
+        'grid12',
+        gap && `gap${gap}`,
+        {
+          [`justify-${justify}`]: justify,
+          [`align-${align}`]: align,
+        },
+        className
+      )}
+      {...rest}
+    />
   );
 }
 

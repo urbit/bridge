@@ -411,7 +411,7 @@ export default function InviteEmail() {
 
       {isDone && (
         <>
-          <Grid.Item as={Text} full>
+          <Grid.Item as={Text} className="f5" full>
             <Highlighted>{pluralize(inputs.length, 'invite')}</Highlighted>{' '}
             {pluralize(inputs.length, 'has', 'have')} been successfully sent
           </Grid.Item>

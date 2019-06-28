@@ -5,6 +5,7 @@ import View from 'components/View';
 import { useCheckboxInput } from 'components/Inputs';
 import { ForwardButton } from 'components/Buttons';
 import { useLocalRouter } from 'lib/LocalRouter';
+import WarningBox from 'components/WarningBox';
 
 export default function ActivateDisclaimer() {
   const { push, names } = useLocalRouter();
@@ -63,10 +64,8 @@ export default function ActivateDisclaimer() {
             problems that may arise in connection with your wallet.
           </P>
         </Grid.Item>
-        <Grid.Item as={Flex} className="bg-red1 pv3 ph4" align="center" full>
-          <Text className="red3 fw-bold">
-            Warning: We Can't Restore of Reset Your Master Ticket
-          </Text>
+        <Grid.Item full as={WarningBox}>
+          Warning: We Can't Restore of Reset Your Master Ticket
         </Grid.Item>
         <Grid.Item as={CheckboxInput} {...checkboxInput} full />
         <Grid.Item

@@ -16,21 +16,20 @@ const buildDate = char =>
 const kDateA = buildDate(kLoadingCharacter);
 const kDateB = buildDate(kInterstitialCharacter);
 
-const kTicketCharacterLength = 40;
-const kPendingTicket = times(
-  kTicketCharacterLength,
-  () => kLoadingCharacter
+const kTicketCharacterLength = 30;
+const kTicket = times(kTicketCharacterLength, i =>
+  i % 2 === 0 ? kLoadingCharacter : kInterstitialCharacter
 ).join('');
-const kValidTicket =
-  times(kTicketCharacterLength, () => kLoadingCharacter).join('') + '◆';
+const kPendingTicket = kTicket;
+const kValidTicket = `${kTicket} ◆`;
 
 const kVisibleAddressCharacters = 20;
 const kEmptyHalfAddress = times(kVisibleAddressCharacters, () => '<').join('');
-const bufferAddressCharacters = times(40, () => '<').join('');
+const kBufferAddressCharacters = times(40, () => '<').join('');
 
 /**
  * point is Maybe<number>
- * ticket is boolean
+ * ticket is null | boolean
  * address is null | Maybe<string>
  */
 export default function Passport({
@@ -63,7 +62,7 @@ export default function Passport({
     `${address.matchWith({
       Nothing: () => kEmptyHalfAddress,
       Just: p => p.value.slice(0, kVisibleAddressCharacters),
-    })}${bufferAddressCharacters}`;
+    })}${kBufferAddressCharacters}`;
 
   return (
     <Grid gap={4} className={cn('bg-black r8 p7', className)}>
@@ -73,27 +72,27 @@ export default function Passport({
       <Grid.Item as={Flex} cols={[4, 13]} col justify="between">
         <Flex.Item className="mono white f5">{visualName}</Flex.Item>
         <Flex.Item as={Flex} col>
-          <Flex.Item as={Text} className="mono gray4 uppercase">
+          <Flex.Item as={Text} className="mono f6 f5-ns gray4 uppercase">
             Birth Time
           </Flex.Item>
-          <Flex.Item as={Text} className="mono gray4">
+          <Flex.Item as={Text} className="mono f6 f5-ns gray4 ">
             {visualBirthday}
           </Flex.Item>
         </Flex.Item>
       </Grid.Item>
       {!mini && showTicket && (
         <Grid.Item full className="mv3" as={Flex} col>
-          <Flex.Item as={Text} className="mono gray4 uppercase">
+          <Flex.Item as={Text} className="mono f6 f5-ns gray4 uppercase">
             Master Ticket
           </Flex.Item>
           <Flex.Item
             as={Text}
-            className={cn('mono gray4', {
+            className={cn('mono f6 f5-ns gray4 wrap', {
               green3: showValidTicket,
             })}>
             {visibleTicket}
           </Flex.Item>
-          <Flex.Item as={Text} className="mono gray4">
+          <Flex.Item as={Text} className="mono f6 f5-ns gray4 wrap">
             {visibleAddress}
           </Flex.Item>
         </Grid.Item>
