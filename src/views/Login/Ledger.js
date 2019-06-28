@@ -16,6 +16,7 @@ import { useWallet } from 'store/wallet';
 import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from 'lib/ledger';
 import useWalletType from 'lib/useWalletType';
 import { WALLET_TYPES } from 'lib/wallet';
+import useResetPointCursor from 'lib/useResetPointCursor';
 
 const pathOptions = [
   { title: 'Ledger Live', value: LEDGER_LIVE_PATH },
@@ -28,6 +29,7 @@ const chopHdPrefix = str => (str.slice(0, 2) === 'm/' ? str.slice(2) : str);
 const addHdPrefix = str => (str.slice(0, 2) === 'm/' ? str : 'm/' + str);
 
 export default function Ledger({ loginCompleted }) {
+  useResetPointCursor();
   useWalletType(WALLET_TYPES.LEDGER);
 
   const { wallet, setWallet, setWalletHdPath } = useWallet();

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Grid, H4, P, Input } from 'indigo-react';
+import { Grid, H4, P, Input, Text } from 'indigo-react';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -36,12 +36,10 @@ export default function PassportVerify({ className }) {
       <Grid.Item full as={H4}>
         Verify Passport
       </Grid.Item>
-      <Grid.Item full>
-        <P>
-          After you download your passport, verify your custody. Your passport
-          should be a folder of image files. One of them is your Master Ticket.
-          Open it and enter the 4 word phrase below (with hyphens).
-        </P>
+      <Grid.Item full as={Text} className="f5">
+        After you download your passport, verify your custody. Your passport
+        should be a folder of image files. One of them is your Master Ticket.
+        Open it and enter the 4 word phrase below (with hyphens).
       </Grid.Item>
       <Grid.Item full as={Input} {...ticketInput} />
       <Grid.Item

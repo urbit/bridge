@@ -28,7 +28,7 @@ import {
   WALLET_STATES,
   TRANSACTION_STATES,
 } from '../lib/invite';
-import { generateWallet, startTransactions } from '../lib/invite';
+import { generateWallet, claimPointFromInvite } from '../lib/invite';
 import { withNetwork } from '../store/network';
 import { withWallet } from '../store/wallet';
 import { Grid } from 'indigo-react';
@@ -303,7 +303,7 @@ class InviteTicket extends React.Component {
               ),
             });
 
-            startTransactions({
+            claimPointFromInvite({
               inviteWalletM: inviteWallet,
               realWalletM: realWallet,
               realPointM: realPoint,

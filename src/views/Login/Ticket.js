@@ -19,6 +19,7 @@ import { usePointCursor } from 'store/pointCursor';
 import * as need from 'lib/need';
 import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
 import useWalletType from 'lib/useWalletType';
+import useResetPointCursor from 'lib/useResetPointCursor';
 
 //TODO should be part of InputWithStatus component
 const INPUT_STATUS = {
@@ -28,6 +29,7 @@ const INPUT_STATUS = {
 };
 
 export default function Ticket({ advanced, loginCompleted }) {
+  useResetPointCursor();
   useWalletType(WALLET_TYPES.TICKET);
   // globals
   const { contracts } = useNetwork();

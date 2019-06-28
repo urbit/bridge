@@ -14,7 +14,7 @@ export const H5 = typeWith('h5');
 export const H6 = typeWith('h6');
 export const Caption = typeWith('caption');
 export const P = typeWith('p');
-export const B = typeWith('b');
+export const B = typeWith('b', 'fw-bold');
 
 export const Breadcrumb = typeWith('span', 'f6');
 export const Text = typeWith('span');

@@ -14,9 +14,12 @@ import { useWallet } from 'store/wallet';
 
 import { walletFromMnemonic, WALLET_TYPES } from 'lib/wallet';
 import useWalletType from 'lib/useWalletType';
+import useResetPointCursor from 'lib/useResetPointCursor';
 
 export default function Mnemonic({ advanced, loginCompleted }) {
+  useResetPointCursor();
   useWalletType(WALLET_TYPES.MNEMONIC);
+
   const {
     wallet,
     setWallet,
