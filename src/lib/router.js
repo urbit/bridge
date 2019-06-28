@@ -5,6 +5,7 @@ import Landing from '../views/Landing';
 import Login from '../views/Login.js';
 import InviteTicket from '../views/InviteTicket';
 import InvitesManage from '../views/InvitesManage.js';
+import Admin from '../views/Admin';
 import AcceptTransfer from '../views/AcceptTransfer';
 import CancelTransfer from '../views/CancelTransfer';
 import CreateGalaxy from '../views/CreateGalaxy';
@@ -32,6 +33,7 @@ export const ROUTES = {
   [ROUTE_NAMES.INVITE]: Invite,
   [ROUTE_NAMES.INVITES_MANAGE]: InvitesManage,
   [ROUTE_NAMES.LOGIN]: Login,
+  [ROUTE_NAMES.ADMIN]: Admin,
   [ROUTE_NAMES.ACCEPT_TRANSFER]: AcceptTransfer,
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
   [ROUTE_NAMES.VIEW_POINT]: ViewPoint,
@@ -60,6 +62,8 @@ export const getRouteBreadcrumb = ({ pointCursor }) => route => {
       return 'Manage invites';
     case ROUTE_NAMES.LOGIN:
       return 'Login to Bridge';
+    case ROUTE_NAMES.ADMIN:
+      return 'Admin';
     case ROUTE_NAMES.POINT:
       return `Overview: ${ob.patp(need.pointCursor(pointCursor))}`;
     case ROUTE_NAMES.POINTS:

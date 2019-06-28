@@ -32,6 +32,8 @@ export default function Point() {
 
   const showActions = Maybe.Just.hasInstance(wallet);
 
+  const goAdmin = useCallback(() => history.push(ROUTE_NAMES.ADMIN), [history]);
+
   const goInvite = useCallback(() => history.push(ROUTE_NAMES.INVITE), [
     history,
   ]);
@@ -44,7 +46,7 @@ export default function Point() {
       <Passport point={point} />
       <Grid className="pt2">
         <Grid.Item full>
-          <ForwardButton disabled>Admin</ForwardButton>
+          <ForwardButton onClick={goAdmin}>Admin</ForwardButton>
         </Grid.Item>
         <Grid.Divider />
         <Grid.Item full>
