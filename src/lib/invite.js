@@ -196,7 +196,8 @@ async function startTransactions(args) {
   //
   // we're gonna be operating as the new wallet from here on out, so change
   // the relevant values
-  //
+  //TODO though, should we be? it might be better, especially for the
+  //     reticketing case, to try and exhaust the old wallet first
   setUrbitWallet(Just(realWallet));
   const newAddress = realWallet.ownership.keys.address;
 
@@ -239,9 +240,35 @@ async function startTransactions(args) {
   keysTx.gas = 150000;
   keysTx.nonce = 1;
 
-  //TODO  refactor this process into function
-  let totalCost = 0;
   let txs = [managementTx, keysTx];
+
+  if (
+    azimuth.azimuth.getPointSize(point) !== azimuth.azimuth.PointSize.Planet
+  ) {
+    let spawnTx = azimuth.ecliptic.setSpawnProxy(
+      contracts,
+      point,
+      realWallet.spawn.keys.address
+    );
+    spawnTx.gas = 200000;
+    spawnTx.nonce = 2;
+    txs.push(spawnTx);
+
+    if (
+      azimuth.azimuth.getPointSize(point) === azimuth.azimuth.PointSize.Galaxy
+    ) {
+      let votingTx = azimuth.ecliptic.setVotingProxy(
+        contracts,
+        point,
+        realWallet.voting.keys.address
+      );
+      votingTx.gas = 200000;
+      votingTx.nonce = 3;
+      txs.push(votingTx);
+    }
+  }
+
+  let totalCost = 0;
   txs = txs.map(tx => {
     tx.gasPrice = 20000000000;
     tx.from = newAddress;
