@@ -11,6 +11,8 @@ import { useTicketInput } from 'components/Inputs';
 import { useActivateFlow } from './ActivateFlow';
 import { validateExactly } from 'lib/validators';
 
+const STUB_VERIFY_TICKET = process.env.NODE_ENV === 'development';
+
 export default function PassportVerify({ className }) {
   const { push, names } = useLocalRouter();
   const { derivedWallet } = useActivateFlow();
@@ -24,10 +26,10 @@ export default function PassportVerify({ className }) {
   const ticketInput = useTicketInput({
     name: 'ticket',
     label: 'Master Ticket',
+    initialValue: STUB_VERIFY_TICKET ? ticket : undefined,
     autoFocus: true,
     validators,
   });
-  console.log(ticket, ticketInput.data);
   const { pass } = ticketInput;
 
   return (
