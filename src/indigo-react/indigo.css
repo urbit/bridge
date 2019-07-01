@@ -13,7 +13,7 @@
   * git+https://github.com/urbit/Indigo.git
   * Bugs: https://github.com/urbit/Indigo/issues
   * License: MIT
-  * Timestamp: Thu Jun 27 2019 18:03:00 GMT-0700 (Pacific Daylight Time)
+  * Timestamp: Mon Jul 01 2019 12:26:43 GMT-0700 (Pacific Daylight Time)
   *******************************************************************************/
 /**********************
 Color variables
@@ -735,7 +735,7 @@ caption,
   white-space: pre; }
 
 .wrap {
-  word-break: break-all; }
+  word-break: break-word; }
 
 @media only screen and (min-width: 550px) {
   .ws-normal-ns {
@@ -745,7 +745,7 @@ caption,
   .pre-ns {
     white-space: pre; }
   .wrap-ns {
-    word-break: break-all; } }
+    word-break: break-word; } }
 
 @media only screen and (min-width: 750px) and (max-width: 960px) {
   .ws-normal-md {
@@ -755,7 +755,7 @@ caption,
   .pre-md {
     white-space: pre; }
   .wrap-md {
-    word-break: break-all; } }
+    word-break: break-word; } }
 
 @media only screen and (min-width: 960px) {
   .ws-normal-lg {
@@ -765,7 +765,7 @@ caption,
   .pre-lg {
     white-space: pre; }
   .wrap-lg {
-    word-break: break-all; } }
+    word-break: break-word; } }
 
 /*******************************************************************************
   Border Radius
