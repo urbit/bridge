@@ -24,7 +24,7 @@ export default function Point() {
   const { pointCursor } = usePointCursor();
   const { wallet } = useWallet();
 
-  const point = need.pointCursor(pointCursor);
+  const point = need.point(pointCursor);
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);
@@ -41,7 +41,7 @@ export default function Point() {
 
   return (
     <View>
-      <Passport point={point} />
+      <Passport point={Maybe.Just(point)} />
       <Grid className="pt2">
         <Grid.Item full>
           <ForwardButton disabled>Admin</ForwardButton>

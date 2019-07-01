@@ -24,7 +24,7 @@ export default function Button({
   return (
     <Grid
       as="a"
-      gap={4}
+      gap={1}
       className={cn(
         'pointer pv4 truncate flex-row justify-between',
         {

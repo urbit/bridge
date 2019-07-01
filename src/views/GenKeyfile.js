@@ -27,7 +27,7 @@ class GenKeyfile extends React.Component {
   }
 
   getPointDetails() {
-    const point = need.pointCursor(this.props.pointCursor);
+    const point = need.point(this.props.pointCursor);
     const pointDetails = need.fromPointCache(this.props.pointCache, point);
 
     // in case we did SetKeys earlier this session, make sure to generate the

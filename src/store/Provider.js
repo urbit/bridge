@@ -8,6 +8,7 @@ import { WalletProvider } from './wallet';
 import { PointCursorProvider } from './pointCursor';
 import { PointCacheProvider } from './pointCache';
 import { TxnCursorProvider } from './txnCursor';
+import { MediaQueryProvider } from 'lib/MediaQuery';
 
 // nest all of the providers within each other to avoid hella depth
 export default nest([
@@ -19,4 +20,5 @@ export default nest([
   PointCursorProvider,
   PointCacheProvider,
   TxnCursorProvider,
+  MediaQueryProvider,
 ]);

@@ -13,7 +13,7 @@ import FooterButton from 'components/FooterButton';
 export default function InviteUrl() {
   const { names, push } = useLocalRouter();
   const { pointCursor } = usePointCursor();
-  const point = need.pointCursor(pointCursor);
+  const point = need.point(pointCursor);
   const { availableInvites } = useInvites(point);
   const canInvite = availableInvites.matchWith({
     Nothing: () => false,

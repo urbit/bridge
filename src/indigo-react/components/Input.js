@@ -69,7 +69,15 @@ export default function Input({
   }, [focused]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <Flex className={className} col>
+    <Flex
+      className={className}
+      col
+      style={{
+        ...(disabled && {
+          pointerEvents: 'none',
+          cursor: 'not-allowed',
+        }),
+      }}>
       <Flex.Item as="label" className="f6 lh-tall" htmlFor={name}>
         {label}
       </Flex.Item>
@@ -77,9 +85,8 @@ export default function Input({
         <Flex.Item
           as="input"
           {...rest}
-          cols={[1, accessory ? 11 : 13]}
           className={cn(
-            'rel b b1 p3 outline-none',
+            'b b1 p3 outline-none',
             { mono },
             {
               'bg-white': !disabled,
@@ -92,17 +99,11 @@ export default function Input({
             {
               'b-green3': visiblyPassed,
               'b-black': focused && !visiblyPassed,
-              'b-yellow3': !focused && !visiblyPassed && error,
+              'b-yellow3': !focused && error,
               'b-gray3': !focused && !error && !visiblyPassed,
             }
             // TODO: inputClassName ?
           )}
-          style={{
-            ...(disabled && {
-              pointerEvents: 'none',
-              cursor: 'not-allowed',
-            }),
-          }}
           id={name}
           name={name}
           onKeyPress={onKeyPress}

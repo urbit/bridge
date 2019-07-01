@@ -40,7 +40,7 @@ class IssueChild extends React.Component {
   constructor(props) {
     super(props);
 
-    const issuingPoint = need.pointCursor(props.pointCursor);
+    const issuingPoint = need.point(props.pointCursor);
 
     const getCandidate = () => ob.patp(getSpawnCandidate(issuingPoint));
 

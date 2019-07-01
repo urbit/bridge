@@ -19,12 +19,12 @@ import { LocalRouterProvider } from 'lib/LocalRouter';
 import InviteUrl from './Invite/InviteUrl';
 import InviteEmail from './Invite/InviteEmail';
 
-const kInviteNames = {
+const NAMES = {
   URL: 'URL',
   EMAIL: 'EMAIL',
 };
 
-const kInviteViews = {
+const VIEWS = {
   URL: InviteUrl,
   EMAIL: InviteEmail,
 };
@@ -32,12 +32,12 @@ const kInviteViews = {
 export default function Invite() {
   const history = useHistory();
   const { Route, ...router } = useRouter({
-    names: kInviteNames,
-    views: kInviteViews,
-    initialRoutes: [{ key: kInviteNames.URL }],
+    names: NAMES,
+    views: VIEWS,
+    initialRoutes: [{ key: NAMES.URL }],
   });
   const { pointCursor } = usePointCursor();
-  const point = need.pointCursor(pointCursor);
+  const point = need.point(pointCursor);
   const name = useCurrentPointName();
 
   // sync the current point
@@ -71,7 +71,7 @@ export default function Invite() {
           <Grid.Item as={H5} className="mv4" full>
             Invite
           </Grid.Item>
-          <Grid.Item as={Text} full>
+          <Grid.Item as={Text} className="f5" full>
             You currently have{' '}
             <Highlighted>{availableInvitesText} invitations</Highlighted> left.
             <br />

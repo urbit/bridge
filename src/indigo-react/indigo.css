@@ -13,7 +13,7 @@
   * git+https://github.com/urbit/Indigo.git
   * Bugs: https://github.com/urbit/Indigo/issues
   * License: MIT
-  * Timestamp: Mon Jun 24 2019 19:57:25 GMT-0700 (Pacific Daylight Time)
+  * Timestamp: Mon Jul 01 2019 12:26:43 GMT-0700 (Pacific Daylight Time)
   *******************************************************************************/
 /**********************
 Color variables
@@ -734,13 +734,18 @@ caption,
 .pre {
   white-space: pre; }
 
+.wrap {
+  word-break: break-word; }
+
 @media only screen and (min-width: 550px) {
   .ws-normal-ns {
     white-space: normal; }
   .nowrap-ns {
     white-space: nowrap; }
   .pre-ns {
-    white-space: pre; } }
+    white-space: pre; }
+  .wrap-ns {
+    word-break: break-word; } }
 
 @media only screen and (min-width: 750px) and (max-width: 960px) {
   .ws-normal-md {
@@ -748,7 +753,9 @@ caption,
   .nowrap-md {
     white-space: nowrap; }
   .pre-md {
-    white-space: pre; } }
+    white-space: pre; }
+  .wrap-md {
+    word-break: break-word; } }
 
 @media only screen and (min-width: 960px) {
   .ws-normal-lg {
@@ -756,7 +763,9 @@ caption,
   .nowrap-lg {
     white-space: nowrap; }
   .pre-lg {
-    white-space: pre; } }
+    white-space: pre; }
+  .wrap-lg {
+    word-break: break-word; } }
 
 /*******************************************************************************
   Border Radius
@@ -1531,43 +1540,33 @@ caption,
   flex-wrap: wrap; }
 
 .align-start {
-  display: flex;
   align-items: flex-start; }
 
 .align-end {
-  display: flex;
   align-items: flex-end; }
 
 .align-center {
-  display: flex;
   align-items: center; }
 
 .align-baseline {
-  display: flex;
   align-items: baseline; }
 
 .align-stretch {
-  display: flex;
   align-items: stretch; }
 
 .justify-start {
-  display: flex;
   justify-content: flex-start; }
 
 .justify-end {
-  display: flex;
   justify-content: flex-end; }
 
 .justify-center {
-  display: flex;
   justify-content: center; }
 
 .justify-between {
-  display: flex;
   justify-content: space-between; }
 
 .justify-around {
-  display: flex;
   justify-content: space-around; }
 
 .flex-center {
@@ -1627,16 +1626,12 @@ caption,
   .flex-ns {
     display: flex; }
   .flex-row-ns {
-    display: flex;
     flex-direction: row; }
   .flex-row-r-ns {
-    display: flex;
     flex-direction: row-reverse; }
   .flex-col-ns {
-    display: flex;
     flex-direction: column; }
   .flex-col-r-ns {
-    display: flex;
     flex-direction: column-reverse; }
   .flex-wrap-ns {
     flex-wrap: wrap; }
@@ -1700,16 +1695,12 @@ caption,
   .flex-md {
     display: flex; }
   .flex-row-md {
-    display: flex;
     flex-direction: row; }
   .flex-row-r-md {
-    display: flex;
     flex-direction: row-reverse; }
   .flex-col-md {
-    display: flex;
     flex-direction: column; }
   .flex-col-r-md {
-    display: flex;
     flex-direction: column-reverse; }
   .flex-wrap-md {
     flex-wrap: wrap; }
@@ -1773,16 +1764,12 @@ caption,
   .flex-lg {
     display: flex; }
   .flex-row-lg {
-    display: flex;
     flex-direction: row; }
   .flex-row-r-lg {
-    display: flex;
     flex-direction: row-reverse; }
   .flex-col-lg {
-    display: flex;
     flex-direction: column; }
   .flex-col-r-lg {
-    display: flex;
     flex-direction: column-reverse; }
   .flex-wrap-lg {
     flex-wrap: wrap; }
@@ -2032,29 +2019,44 @@ caption,
   .fourth-4-lg {
     grid-area: auto / 10 / auto / 13; } }
 
+.gap0 {
+  gap: 0px; }
+
 .gap1 {
-  gap: 1px; }
-
-.gap2 {
-  gap: 2px; }
-
-.gap4 {
   gap: 4px; }
 
-.gap8 {
+.gap2 {
   gap: 8px; }
 
-.gap12 {
+.gap3 {
   gap: 12px; }
 
-.gap16 {
+.gap4 {
   gap: 16px; }
 
-.gap24 {
+.gap5 {
+  gap: 20px; }
+
+.gap6 {
   gap: 24px; }
 
-.gap32 {
+.gap7 {
   gap: 32px; }
+
+.gap8 {
+  gap: 48px; }
+
+.gap9 {
+  gap: 64px; }
+
+.gap10 {
+  gap: 96px; }
+
+.gap11 {
+  gap: 160px; }
+
+.gap12 {
+  gap: 288px; }
 
 .c1-2 {
   grid-column-start: 1;

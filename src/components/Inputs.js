@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import * as bip39 from 'bip39';
 
 import InputSigil from 'components/InputSigil';
@@ -13,6 +13,7 @@ import {
 } from 'lib/validators';
 import { prependSig } from 'lib/transformers';
 import useForm from 'indigo-react/lib/useForm';
+import { AccessoryIcon } from 'indigo-react';
 
 // const RequiredInput = advancedInput({
 //   WrappedComponent: Input,
@@ -87,35 +88,39 @@ export function useHdPathInput(props) {
 const kTicketValidators = [validateTicket, validateNotEmpty];
 const kTicketTransformers = [prependSig];
 //TODO needs to be fancier, displaying sig and dashes instead of •ing all
-export function useTicketInput({ initialValue = '~', ...rest }) {
-  return firstOf(
+export function useTicketInput({ validators = [], ...rest }) {
+  const input = firstOf(
     useForm([
       {
         type: 'password',
-        placeholder: '~master-ticket',
-        validators: kTicketValidators,
+        label: 'Ticket',
+        placeholder: '~ragtyd-modwen-bostec-hinsep',
+        validators: useMemo(() => [...validators, ...kTicketValidators], [
+          validators,
+        ]),
         transformers: kTicketTransformers,
         mono: true,
-        initialValue,
         ...rest,
       },
     ])
   );
+
+  return { ...input, accessory: input.pass ? <AccessoryIcon.Success /> : null };
 }
 
 const kPointValidators = [validatePoint, validateNotEmpty];
 const kPointTransformers = [prependSig];
-export function usePointInput({ initialValue = '~', ...rest }) {
+export function usePointInput(rest) {
   const [lastValidPoint, setLastValidPoint] = useState('');
   const input = firstOf(
     useForm([
       {
         type: 'text',
+        label: 'Point',
         placeholder: 'e.g. ~zod',
         validators: kPointValidators,
         transformers: kPointTransformers,
         mono: true,
-        initialValue,
         onValue: setLastValidPoint,
         ...rest,
       },
@@ -137,6 +142,17 @@ export function usePointInput({ initialValue = '~', ...rest }) {
       />
     ),
   };
+}
+
+export function useCheckboxInput({ initialValue, ...rest }) {
+  return firstOf(
+    useForm([
+      {
+        type: 'checkbox',
+        ...rest,
+      },
+    ])
+  );
 }
 
 const kEmailValidators = [validateEmail, validateNotEmpty];

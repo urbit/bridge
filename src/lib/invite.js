@@ -1,4 +1,4 @@
-import { Just, Nothing } from 'folktale/maybe';
+import { Just } from 'folktale/maybe';
 import Tx from 'ethereumjs-tx';
 
 import * as azimuth from 'azimuth-js';
@@ -9,8 +9,7 @@ import * as tank from './tank';
 import JSZip from 'jszip';
 import saveAs from 'file-saver';
 
-import { sendSignedTransaction } from './txn';
-import { BRIDGE_ERROR } from './error';
+import { sendSignedTransaction, hexify } from './txn';
 import { attemptNetworkSeedDerivation } from './keys';
 import { addHexPrefix, WALLET_TYPES } from './wallet';
 
@@ -32,36 +31,36 @@ const WALLET_STATES = {
 
 const TRANSACTION_STATES = {
   GENERATING: {
-    label: 'Generating transactions',
-    pct: '0%',
+    label: 'Generating Transactions...',
+    progress: 0.0,
   },
   SIGNING: {
-    label: 'Signing transactions',
-    pct: '15%',
+    label: 'Signing Transactions...',
+    progress: 0.15,
   },
   FUNDING_INVITE: {
-    label: 'Funding invite wallet',
-    pct: '30%',
+    label: 'Funding Invite Wallet...',
+    progress: 0.3,
   },
   CLAIMING: {
-    label: 'Claiming invite',
-    pct: '55%',
+    label: 'Claiming Invite...',
+    progress: 0.55,
   },
   FUNDING_RECIPIENT: {
-    label: 'Funding recipient wallet',
-    pct: '65%',
+    label: 'Funding Recipient Wallet...',
+    progress: 0.65,
   },
   CONFIGURING: {
-    label: 'Configuring planet',
-    pct: '85%',
+    label: 'Configuring Point...',
+    progress: 0.85,
   },
   CLEANING: {
-    label: 'Cleaning up',
-    pct: '95%',
+    label: 'Cleaning Up...',
+    progress: 0.95,
   },
   DONE: {
     label: 'Done',
-    pct: '100%',
+    progress: 1.0,
   },
 };
 
@@ -102,93 +101,61 @@ async function downloadWallet(paper) {
   });
 }
 
-async function startTransactions(args) {
-  let {
-    realPointM,
-    web3: web3M,
-    contracts: contractsM,
-    inviteWalletM,
-    realWalletM,
-    setUrbitWallet,
-    updateProgress,
-  } = args;
-
-  const askForFunding = (address, amount, current) => {
-    updateProgress({
-      type: 'notify',
-      value: `Please make sure ${address} has at least ${amount} wei, we'll continue once that's true. Current balance: ${current}. Waiting`,
+async function claimPointFromInvite({
+  inviteWallet,
+  wallet,
+  point,
+  web3,
+  contracts,
+  onUpdate,
+}) {
+  const askForFunding = (address, minBalance, balance) =>
+    onUpdate({
+      type: 'askFunding',
+      value: { address, minBalance, balance },
     });
-  };
 
-  if (Nothing.hasInstance(web3M)) {
-    throw BRIDGE_ERROR.MISSING_WEB3;
-  }
-  const web3 = web3M.value;
-
-  if (Nothing.hasInstance(contractsM)) {
-    throw BRIDGE_ERROR.MISSING_CONTRACTS;
-  }
-  const contracts = contractsM.value;
-
-  if (Nothing.hasInstance(inviteWalletM)) {
-    throw BRIDGE_ERROR.MISSING_WALLET;
-  }
-  const inviteWallet = inviteWalletM.value;
-
-  if (Nothing.hasInstance(realWalletM)) {
-    throw BRIDGE_ERROR.MISSING_WALLET;
-  }
-  const realWallet = realWalletM.value;
-
-  // const realWallet = await urbitWalletFromTicket(args.realTicket, point);
-
-  if (Nothing.hasInstance(realPointM)) {
-    throw BRIDGE_ERROR.MISSING_POINT;
-  }
-  const point = realPointM.value;
+  const gotFunding = () => onUpdate({ type: 'gotFunding' });
+  const progress = state => onUpdate({ type: 'progress', state });
 
   const inviteAddress = inviteWallet.address;
-  console.log('working as', inviteAddress);
+
+  progress(TRANSACTION_STATES.GENERATING);
 
   // transfer from invite wallet to new wallet
-
-  let transferTx = azimuth.ecliptic.transferPoint(
+  const transferTx = azimuth.ecliptic.transferPoint(
     contracts,
     point,
-    realWallet.ownership.keys.address
+    wallet.ownership.keys.address
   );
   transferTx.gas = 500000; //TODO can maybe be lower?
 
   // ping gas tank with txs if needed
-
   let inviteNonce = await web3.eth.getTransactionCount(inviteAddress);
   transferTx.nonce = inviteNonce++;
   transferTx.gasPrice = 20000000000; //NOTE we pay the premium for faster ux
   transferTx.from = inviteAddress;
 
-  //NOTE using web3.eth.accounts.signTransaction is broken (1.0.0-beta51)
-  let transferStx = new Tx(transferTx);
+  progress(TRANSACTION_STATES.SIGNING);
+  // NOTE: using web3.eth.accounts.signTransaction is broken (1.0.0-beta51)
+  const transferStx = new Tx(transferTx);
   transferStx.sign(inviteWallet.privateKey);
-  let rawTransferStx = '0x' + transferStx.serialize().toString('hex');
-
+  const rawTransferStx = hexify(transferStx.serialize());
   const transferCost = transferTx.gas * transferTx.gasPrice;
-  updateProgress({
-    type: 'progress',
-    value: TRANSACTION_STATES.FUNDING_INVITE,
-  });
+
+  progress(TRANSACTION_STATES.FUNDING_INVITE);
+
   let usedTank = await tank.ensureFundsFor(
     web3,
     point,
     inviteAddress,
     transferCost,
     [rawTransferStx],
-    askForFunding
+    askForFunding,
+    gotFunding
   );
 
-  updateProgress({
-    type: 'progress',
-    value: TRANSACTION_STATES.CLAIMING,
-  });
+  progress(TRANSACTION_STATES.CLAIMING);
 
   // send transaction
   await sendAndAwaitConfirm(web3, [Just(transferStx)], usedTank);
@@ -197,15 +164,13 @@ async function startTransactions(args) {
   // we're gonna be operating as the new wallet from here on out, so change
   // the relevant values
   //
-  setUrbitWallet(Just(realWallet));
-  const newAddress = realWallet.ownership.keys.address;
+  const newAddress = wallet.ownership.keys.address;
 
   // configure management proxy
-
-  let managementTx = azimuth.ecliptic.setManagementProxy(
+  const managementTx = azimuth.ecliptic.setManagementProxy(
     contracts,
     point,
-    realWallet.management.keys.address
+    wallet.management.keys.address
   );
   managementTx.gas = 200000;
   managementTx.nonce = 0;
@@ -214,7 +179,7 @@ async function startTransactions(args) {
   //TODO feels like more of this logic should live in a lib?
   const seed = await attemptNetworkSeedDerivation(true, {
     walletType: WALLET_TYPES.TICKET,
-    urbitWallet: Just(realWallet),
+    urbitWallet: Just(wallet),
     pointCursor: Just(point),
     pointCache: { [point]: { keyRevisionNumber: 0 } },
   });
@@ -251,17 +216,15 @@ async function startTransactions(args) {
 
   let txPairs = txs.map(tx => {
     let stx = new Tx(tx);
-    stx.sign(Buffer.from(realWallet.ownership.keys.private, 'hex'));
+    stx.sign(Buffer.from(wallet.ownership.keys.private, 'hex'));
     return {
       raw: '0x' + stx.serialize().toString('hex'),
       signed: stx,
     };
   });
 
-  updateProgress({
-    type: 'progress',
-    value: TRANSACTION_STATES.FUNDING_RECIPIENT,
-  });
+  progress(TRANSACTION_STATES.FUNDING_RECIPIENT);
+
   usedTank = await tank.ensureFundsFor(
     web3,
     point,
@@ -271,17 +234,11 @@ async function startTransactions(args) {
     askForFunding
   );
 
-  updateProgress({
-    type: 'progress',
-    value: TRANSACTION_STATES.CONFIGURING,
-  });
+  progress(TRANSACTION_STATES.CONFIGURING);
 
   await sendAndAwaitConfirm(web3, txPairs.map(p => Just(p.signed)), usedTank);
 
-  updateProgress({
-    type: 'progress',
-    value: TRANSACTION_STATES.CLEANING,
-  });
+  progress(TRANSACTION_STATES.CLEANING);
 
   // if non-trivial eth left in invite wallet, transfer to new ownership
   let balance = await web3.eth.getBalance(inviteAddress);
@@ -300,20 +257,14 @@ async function startTransactions(args) {
     };
     let stx = new Tx(tx);
     stx.sign(inviteWallet.privateKey);
-    const rawTx = '0x' + stx.serialize().toString('hex');
+    const rawTx = hexify(stx.serialize());
     web3.eth.sendSignedTransaction(rawTx).catch(err => {
       console.log('error sending value tx, who cares', err);
     });
     console.log('sent old balance');
   }
 
-  updateProgress({
-    type: 'progress',
-    value: TRANSACTION_STATES.DONE,
-  });
-
-  // proceed without waiting for confirm
-  setUrbitWallet(Just(realWallet));
+  progress(TRANSACTION_STATES.DONE);
 }
 
 async function sendAndAwaitConfirm(web3, signedTxs, usedTank) {
@@ -329,7 +280,7 @@ async function sendAndAwaitConfirm(web3, signedTxs, usedTank) {
 export {
   generateWallet,
   downloadWallet,
-  startTransactions,
+  claimPointFromInvite,
   INVITE_STAGES,
   WALLET_STATES,
   TRANSACTION_STATES,

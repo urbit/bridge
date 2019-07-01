@@ -1,7 +1,9 @@
 import * as bip39 from 'bip39';
 import * as ob from 'urbit-ob';
+import { identity } from 'lodash';
 
 import { isValidAddress } from './wallet';
+import patp2dec from './patp2dec';
 
 // via: https://emailregex.com/
 const emailRegExp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -10,19 +12,25 @@ const emailRegExp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))
 const hexRegExp = /[0-9A-Fa-f]{64}/g;
 
 // Wraps single validation functions in a controlled and predictable way.
-export const simpleValidatorWrapper = config => {
+export const simpleValidatorWrapper = ({
+  prevMessage,
+  transform = identity,
+  validator,
+  error,
+}) => {
   // If a previous validation has already failed, skip this validation and
   // return the prev message to the next stage in the validation function chain.
   // Failed validations should drop all the way down the chain and drop out of
   // the output.
-  if (!config.prevMessage.pass) {
-    return config.prevMessage;
+  if (!prevMessage.pass) {
+    return prevMessage;
   }
 
   // Run the validator and return the result.
-  return config.validator(config.prevMessage.data)
-    ? newMessage(config.prevMessage.data, true, null)
-    : newMessage(config.prevMessage.data, false, config.error);
+  const pass = validator(prevMessage.data);
+  const data = pass ? transform(prevMessage.data) : prevMessage.data;
+
+  return newMessage(data, pass, !pass && error);
 };
 
 // Validation message
@@ -73,7 +81,7 @@ export const validateGalaxy = m =>
     validator: d => {
       let point;
       try {
-        point = parseInt(ob.patp2dec(d), 10);
+        point = patp2dec(d);
         return point >= 0 && point < 256;
       } catch (e) {
         return false;
@@ -161,4 +169,26 @@ export const validateEmail = m =>
     prevMessage: m,
     validator: d => emailRegExp.test(d),
     error: 'This is not a valid email address',
+  });
+
+export const validateInt = m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    transform: d => parseInt(d, 10),
+    validator: d => {
+      try {
+        parseInt(d, 10);
+        return;
+      } catch {
+        return false;
+      }
+    },
+    error: 'This is not a valid number',
+  });
+
+export const validateExactly = (value, error) => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => d === value,
+    error,
   });

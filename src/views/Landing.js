@@ -7,7 +7,7 @@ import { useHistory } from '../store/history';
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
 
-function Landing(props) {
+function Landing() {
   const history = useHistory();
 
   return (
@@ -22,13 +22,13 @@ function Landing(props) {
       <ForwardButton
         className="mt3"
         detail="If you were sent an Azimuth invite code."
-        onClick={() => history.push(ROUTE_NAMES.INVITE_TICKET)}>
-        Claim an invite
+        onClick={() => history.push(ROUTE_NAMES.ACTIVATE)}>
+        Activate a Point
       </ForwardButton>
 
       <ForwardButton
         className="mt3"
-        detail="Shiny new Login flow."
+        detail="Login to an activated point."
         onClick={() => history.push(ROUTE_NAMES.LOGIN)}>
         Login
       </ForwardButton>
@@ -37,7 +37,7 @@ function Landing(props) {
         className="mt3"
         detail="View an Azimuth point without signing into a wallet."
         onClick={() => history.push(ROUTE_NAMES.VIEW_POINT)}>
-        View a point
+        View a Point
       </ForwardButton>
     </View>
   );

@@ -10,8 +10,10 @@ import { useWallet } from 'store/wallet';
 
 import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
 import useWalletType from 'lib/useWalletType';
+import useResetPointCursor from 'lib/useResetPointCursor';
 
 export default function PrivateKey({ loginCompleted }) {
+  useResetPointCursor();
   useWalletType(WALLET_TYPES.PRIVATE_KEY);
   const { wallet, setWallet } = useWallet();
 

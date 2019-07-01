@@ -15,15 +15,16 @@ import { useWallet } from 'store/wallet';
 
 import { urbitWalletFromTicket, WALLET_TYPES } from 'lib/wallet';
 import useWalletType from 'lib/useWalletType';
+import useResetPointCursor from 'lib/useResetPointCursor';
 
 export default function Shards({ loginCompleted }) {
+  useResetPointCursor();
   useWalletType(WALLET_TYPES.SHARDS);
 
   const { wallet, setUrbitWallet } = useWallet();
 
   const pointInput = usePointInput({
     name: 'point',
-    label: 'Point',
     autoFocus: true,
   });
   const pointName = pointInput.data;

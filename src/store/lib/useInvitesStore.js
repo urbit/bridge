@@ -5,7 +5,7 @@ import * as azimuth from 'azimuth-js';
 import { useNetwork } from '../network';
 
 // the default value of a point's invites
-const kEmptyInvites = {
+const EMPTY_INVITES = {
   availableInvites: Maybe.Nothing(),
   sentInvites: Maybe.Nothing(),
   acceptedInvites: Maybe.Nothing(),
@@ -25,7 +25,7 @@ export default function useInvitesStore() {
   );
 
   const getInvites = useCallback(
-    point => invitesCache[point] || kEmptyInvites,
+    point => invitesCache[point] || EMPTY_INVITES,
     [invitesCache]
   );
 
