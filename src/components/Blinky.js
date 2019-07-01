@@ -3,8 +3,8 @@ import React, { useState, useRef } from 'react';
 import useInterval from 'lib/useInterval';
 
 // TODO: make these characters display as the same width
-export const kLoadingCharacter = '▓';
-export const kInterstitialCharacter = '░';
+export const LOADING_CHARACTER = '▓';
+export const INTERSTITIAL_CHARACTER = '░';
 const BLINK_AFTER_MS = 2500; // ms
 
 export const matchBlinky = obj =>
@@ -14,8 +14,8 @@ export const matchBlinky = obj =>
   });
 
 export default function Blinky({
-  a = kLoadingCharacter,
-  b = kInterstitialCharacter,
+  a = LOADING_CHARACTER,
+  b = INTERSTITIAL_CHARACTER,
   delayed = false,
 }) {
   const [value, setValue] = useState(true);

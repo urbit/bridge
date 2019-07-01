@@ -9,24 +9,24 @@ import ActivateDisclaimer from './Activate/ActivateDisclaimer';
 import { LocalRouterProvider } from 'lib/LocalRouter';
 import ActivatePassport from './Activate/ActivatePassport';
 
-const kActivateNames = {
+const NAMES = {
   CODE: 'CODE',
   DISCLAIMER: 'DISCLAIMER',
   PASSPORT: 'PASSPORT',
 };
 
-const kActivateViews = {
-  [kActivateNames.CODE]: ActivateCode,
-  [kActivateNames.DISCLAIMER]: ActivateDisclaimer,
-  [kActivateNames.PASSPORT]: ActivatePassport,
+const VIEWS = {
+  [NAMES.CODE]: ActivateCode,
+  [NAMES.DISCLAIMER]: ActivateDisclaimer,
+  [NAMES.PASSPORT]: ActivatePassport,
 };
 
 export default function Activate() {
   const state = useActivateFlowState();
   const { Route, ...router } = useRouter({
-    names: kActivateNames,
-    views: kActivateViews,
-    initialRoutes: [{ key: kActivateNames.CODE }],
+    names: NAMES,
+    views: VIEWS,
+    initialRoutes: [{ key: NAMES.CODE }],
   });
 
   return (

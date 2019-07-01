@@ -19,12 +19,12 @@ import { LocalRouterProvider } from 'lib/LocalRouter';
 import InviteUrl from './Invite/InviteUrl';
 import InviteEmail from './Invite/InviteEmail';
 
-const kInviteNames = {
+const NAMES = {
   URL: 'URL',
   EMAIL: 'EMAIL',
 };
 
-const kInviteViews = {
+const VIEWS = {
   URL: InviteUrl,
   EMAIL: InviteEmail,
 };
@@ -32,9 +32,9 @@ const kInviteViews = {
 export default function Invite() {
   const history = useHistory();
   const { Route, ...router } = useRouter({
-    names: kInviteNames,
-    views: kInviteViews,
-    initialRoutes: [{ key: kInviteNames.URL }],
+    names: NAMES,
+    views: VIEWS,
+    initialRoutes: [{ key: NAMES.URL }],
   });
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);

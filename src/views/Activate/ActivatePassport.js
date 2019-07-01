@@ -21,16 +21,16 @@ import {
   addressFromSecp256k1Public,
 } from 'lib/wallet';
 
-const kPassportNames = {
+const NAMES = {
   DOWNLOAD: 'DOWNLOAD',
   VERIFY: 'VERIFY',
   TRANSFER: 'TRANSFER',
 };
 
-const kPassportViews = {
-  [kPassportNames.DOWNLOAD]: PassportDownload,
-  [kPassportNames.VERIFY]: PassportVerify,
-  [kPassportNames.TRANSFER]: PassportTransfer,
+const VIEWS = {
+  [NAMES.DOWNLOAD]: PassportDownload,
+  [NAMES.VERIFY]: PassportVerify,
+  [NAMES.TRANSFER]: PassportTransfer,
 };
 
 export default function ActivatePassport() {
@@ -38,9 +38,9 @@ export default function ActivatePassport() {
   // pull the reset function out of the 'activate' router
   const { reset: resetActivateRouter } = useLocalRouter();
   const { Route, ...router } = useRouter({
-    names: kPassportNames,
-    views: kPassportViews,
-    initialRoutes: [{ key: kPassportNames.DOWNLOAD }],
+    names: NAMES,
+    views: VIEWS,
+    initialRoutes: [{ key: NAMES.DOWNLOAD }],
   });
 
   const fullView = useBreakpoints([false, false, true]);

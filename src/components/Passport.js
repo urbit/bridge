@@ -8,24 +8,24 @@ import { times } from 'lodash';
 import usePointBirthday from 'lib/usePointBirthday';
 import { formatDots } from 'lib/dateFormat';
 
-import Blinky, { kLoadingCharacter, kInterstitialCharacter } from './Blinky';
+import Blinky, { LOADING_CHARACTER, INTERSTITIAL_CHARACTER } from './Blinky';
 import MaybeSigil from './MaybeSigil';
 
 const buildDate = char =>
   [4, 2, 2].map(t => times(t, () => char).join('')).join('.');
-const kDateA = buildDate(kLoadingCharacter);
-const kDateB = buildDate(kInterstitialCharacter);
+const DATE_A = buildDate(LOADING_CHARACTER);
+const DATE_B = buildDate(INTERSTITIAL_CHARACTER);
 
-const kTicketCharacterLength = 30;
-const kTicket = times(kTicketCharacterLength, i =>
-  i % 2 === 0 ? kLoadingCharacter : kInterstitialCharacter
+const TICKET_CHAR_LENGTH = 30;
+const TICKET = times(TICKET_CHAR_LENGTH, i =>
+  i % 2 === 0 ? LOADING_CHARACTER : INTERSTITIAL_CHARACTER
 ).join('');
-const kPendingTicket = kTicket;
-const kValidTicket = `${kTicket} ◆`;
+const PENDING_TICKET = TICKET;
+const VALID_TICKET = `${TICKET} ◆`;
 
-const kVisibleAddressCharacters = 20;
-const kEmptyHalfAddress = times(kVisibleAddressCharacters, () => '<').join('');
-const kBufferAddressCharacters = times(40, () => '<').join('');
+const VISIBLE_ADDRESS_CHAR_COUNT = 20;
+const EMPTY_ADDRESS = times(VISIBLE_ADDRESS_CHAR_COUNT, () => '<').join('');
+const ADDRESS_BUFFER_CHARS = times(40, () => '<').join('');
 
 /**
  * point is Maybe<number>
@@ -41,7 +41,7 @@ export default function Passport({
 }) {
   const birthday = usePointBirthday(point.getOrElse(null));
   const visualBirthday = birthday.matchWith({
-    Nothing: () => <Blinky a={kDateA} b={kDateB} delayed />,
+    Nothing: () => <Blinky a={DATE_A} b={DATE_B} delayed />,
     Just: p => formatDots(p.value),
   });
 
@@ -56,11 +56,11 @@ export default function Passport({
 
   const showTicket = ticket !== null;
   const isValidTiket = !!ticket;
-  const visibleTicket = isValidTiket ? kValidTicket : kPendingTicket;
+  const visibleTicket = isValidTiket ? VALID_TICKET : PENDING_TICKET;
   const visibleAddress = `${address.matchWith({
-    Nothing: () => kEmptyHalfAddress,
-    Just: p => p.value.slice(0, kVisibleAddressCharacters),
-  })}${kBufferAddressCharacters}`;
+    Nothing: () => EMPTY_ADDRESS,
+    Just: p => p.value.slice(0, VISIBLE_ADDRESS_CHAR_COUNT),
+  })}${ADDRESS_BUFFER_CHARS}`;
 
   return (
     <Grid gap={4} className={cn('bg-black r8 p7', className)}>

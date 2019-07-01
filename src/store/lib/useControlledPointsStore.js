@@ -5,7 +5,7 @@ import * as azimuth from 'azimuth-js';
 import { useNetwork } from '../network';
 import { useWallet } from 'store/wallet';
 
-const kEmptyControlledPoints = {
+const EMPTY_CONTROLLED_POINTS = {
   ownedPoints: Maybe.Nothing(),
   incomingPoints: Maybe.Nothing(),
   managingPoints: Maybe.Nothing(),
@@ -17,11 +17,11 @@ export default function useControlledPointsStore() {
   const { contracts } = useNetwork();
   const { wallet } = useWallet();
   const [controlledPointsCache, _setControlledPointsCache] = useState(
-    kEmptyControlledPoints
+    EMPTY_CONTROLLED_POINTS
   );
 
   const getControlledPoints = useCallback(
-    () => controlledPointsCache || kEmptyControlledPoints,
+    () => controlledPointsCache || EMPTY_CONTROLLED_POINTS,
     [controlledPointsCache]
   );
 
