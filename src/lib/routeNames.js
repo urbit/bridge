@@ -8,6 +8,7 @@ export const ROUTE_NAMES = {
   //
   LOGIN: Symbol('LOGIN'),
   ADMIN: Symbol('ADMIN'),
+  REDOWNLOAD: Symbol('REDOWNLOAD'),
   RETICKET: Symbol('RETICKET'),
   //
   ACCEPT_TRANSFER: Symbol('ACCEPT_TRANSFER'),

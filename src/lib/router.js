@@ -6,6 +6,7 @@ import Login from '../views/Login.js';
 import InviteTicket from '../views/InviteTicket';
 import InvitesManage from '../views/InvitesManage.js';
 import Admin from '../views/Admin';
+import Redownload from '../views/Redownload';
 import Reticket from '../views/Reticket';
 import AcceptTransfer from '../views/AcceptTransfer';
 import CancelTransfer from '../views/CancelTransfer';
@@ -35,6 +36,7 @@ export const ROUTES = {
   [ROUTE_NAMES.INVITES_MANAGE]: InvitesManage,
   [ROUTE_NAMES.LOGIN]: Login,
   [ROUTE_NAMES.ADMIN]: Admin,
+  [ROUTE_NAMES.REDOWNLOAD]: Redownload,
   [ROUTE_NAMES.RETICKET]: Reticket,
   [ROUTE_NAMES.ACCEPT_TRANSFER]: AcceptTransfer,
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
