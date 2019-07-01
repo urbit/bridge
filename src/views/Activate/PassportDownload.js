@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import cn from 'classnames';
 import Maybe from 'folktale/maybe';
 import { Grid, H4, P } from 'indigo-react';
 import PaperCollateralRenderer from 'PaperCollateralRenderer';
@@ -50,7 +51,7 @@ export default function PassportDownload({ className }) {
   const goToVerify = useCallback(() => push(names.VERIFY), [push, names]);
 
   return (
-    <Grid gap={4} className={className}>
+    <Grid className={cn(className, 'auto-rows-min')}>
       <Grid.Item full as={Steps} num={1} total={3} />
       <Grid.Item full as={H4}>
         Passport
@@ -76,12 +77,9 @@ export default function PassportDownload({ className }) {
         {!downloaded ? 'Download Passport' : 'Continue'}
       </Grid.Item>
       <PaperCollateralRenderer
-        className="super-hidden"
+        className="abs super-hidden"
         wallet={{ [pointAsString]: wallet }}
-        callback={data => {
-          console.log(data);
-          setPaper(Maybe.Just(data));
-        }}
+        callback={data => setPaper(Maybe.Just(data))}
         mode="REGISTRATION"
       />
     </Grid>

@@ -114,7 +114,7 @@ export default function InviteEmail() {
     inputConfigs,
     { append: appendInput, removeAt: removeInputAt },
   ] = useArray(
-    [buildInputConfig({ label: 'Email Address' })],
+    [buildInputConfig({ label: 'Email Address', autoFocus: true })],
     buildInputConfig
   );
 

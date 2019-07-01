@@ -79,12 +79,6 @@ function _useWallet(
           urbitWallet.value.meta.passphrase
         );
 
-        // manually set the public address
-        wallet.map(wal => {
-          wal.address = urbitWallet.value.ownership.keys.address;
-          return wal;
-        });
-
         setWallet(wallet);
       } else {
         setWallet(Maybe.Nothing());

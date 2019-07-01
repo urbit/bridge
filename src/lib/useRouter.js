@@ -24,7 +24,6 @@ export default function useRouter({
           )}`
         );
       }
-
       setRoutes(routes => [...routes, { key, data }]);
     },
     [setRoutes, views]
@@ -55,7 +54,13 @@ export default function useRouter({
     [setRoutes]
   );
   const peek = useCallback(() => last(routes), [routes]);
-  const replaceWith = useCallback(routes => setRoutes(routes), [setRoutes]);
+  const replaceWith = useCallback(routes => setRoutes(() => routes), [
+    setRoutes,
+  ]);
+  const reset = useCallback(() => setRoutes(initialRoutes), [
+    setRoutes,
+    initialRoutes,
+  ]);
   const includes = useCallback(key => _includes(routes.map(r => r.key), key), [
     routes,
   ]);
@@ -92,6 +97,7 @@ export default function useRouter({
     popAndPush,
     pop,
     replaceWith,
+    reset,
     peek,
     size,
     includes,

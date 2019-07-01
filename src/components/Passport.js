@@ -36,7 +36,7 @@ export default function Passport({
   point,
   className,
   ticket = null,
-  address = null,
+  address = Maybe.Nothing(),
   mini = false,
 }) {
   const birthday = usePointBirthday(point.getOrElse(null));
@@ -55,14 +55,12 @@ export default function Passport({
   });
 
   const showTicket = ticket !== null;
-  const showValidTicket = !!ticket;
-  const visibleTicket = showValidTicket ? kValidTicket : kPendingTicket;
-  const visibleAddress =
-    address &&
-    `${address.matchWith({
-      Nothing: () => kEmptyHalfAddress,
-      Just: p => p.value.slice(0, kVisibleAddressCharacters),
-    })}${kBufferAddressCharacters}`;
+  const isValidTiket = !!ticket;
+  const visibleTicket = isValidTiket ? kValidTicket : kPendingTicket;
+  const visibleAddress = `${address.matchWith({
+    Nothing: () => kEmptyHalfAddress,
+    Just: p => p.value.slice(0, kVisibleAddressCharacters),
+  })}${kBufferAddressCharacters}`;
 
   return (
     <Grid gap={4} className={cn('bg-black r8 p7', className)}>
@@ -87,8 +85,9 @@ export default function Passport({
           </Flex.Item>
           <Flex.Item
             as={Text}
-            className={cn('mono f6 f5-ns gray4 wrap', {
-              green3: showValidTicket,
+            className={cn('mono f6 f5-ns wrap', {
+              gray4: !isValidTiket,
+              green3: isValidTiket,
             })}>
             {visibleTicket}
           </Flex.Item>

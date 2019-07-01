@@ -13,3 +13,9 @@ export const OfflineButton = props => (
     Offline
   </OutButton>
 );
+
+export const RestartButton = props => (
+  <Button accessory="↺" solid {...props}>
+    Restart
+  </Button>
+);

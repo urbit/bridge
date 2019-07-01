@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import cn from 'classnames';
 import Maybe from 'folktale/maybe';
 import { Grid } from 'indigo-react';
 
-import { LocalRouterProvider } from 'lib/LocalRouter';
+import { LocalRouterProvider, useLocalRouter } from 'lib/LocalRouter';
 
 import View from 'components/View';
 import Passport from 'components/Passport';
@@ -15,6 +15,11 @@ import useRouter from 'lib/useRouter';
 import PassportDownload from './PassportDownload';
 import PassportVerify from './PassportVerify';
 import PassportTransfer from './PassportTransfer';
+import {
+  walletFromMnemonic,
+  DEFAULT_HD_PATH,
+  addressFromSecp256k1Public,
+} from 'lib/wallet';
 
 const kPassportNames = {
   DOWNLOAD: 'DOWNLOAD',
@@ -29,8 +34,9 @@ const kPassportViews = {
 };
 
 export default function ActivatePassport() {
-  const { derivedPoint, generated } = useActivateFlow();
-
+  const { derivedPoint, generated, derivedWallet } = useActivateFlow();
+  // pull the reset function out of the 'activate' router
+  const { reset: resetActivateRouter } = useLocalRouter();
   const { Route, ...router } = useRouter({
     names: kPassportNames,
     views: kPassportViews,
@@ -44,6 +50,21 @@ export default function ActivatePassport() {
   const leftHalf = useBreakpoints([false, false, 1]);
   const rightHalf = useBreakpoints([false, false, 2]);
 
+  // addresses are not derived until we set[Urbit]Wallet(), so do that inline
+  const address = useMemo(
+    () =>
+      derivedWallet
+        .chain(wallet =>
+          walletFromMnemonic(
+            wallet.ownership.seed,
+            DEFAULT_HD_PATH,
+            wallet.meta.passphrase
+          )
+        )
+        .map(wallet => addressFromSecp256k1Public(wallet.publicKey)),
+    [derivedWallet]
+  );
+
   return (
     <LocalRouterProvider value={router}>
       <View full={fullView}>
@@ -53,10 +74,15 @@ export default function ActivatePassport() {
               className={cn({ [`mt${marginTop}`]: marginTop })}
               point={derivedPoint}
               ticket={generated}
-              address={Maybe.Nothing()}
+              address={address}
             />
           </Grid.Item>
-          <Grid.Item half={rightHalf} full={full} as={Route} />
+          <Grid.Item
+            half={rightHalf}
+            full={full}
+            as={Route}
+            resetActivateRouter={resetActivateRouter}
+          />
         </Grid>
       </View>
     </LocalRouterProvider>

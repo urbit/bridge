@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import cn from 'classnames';
 import { Grid, H4, Text, ErrorText } from 'indigo-react';
 
 import { useNetwork } from 'store/network';
@@ -18,13 +19,19 @@ import LoadingBar from 'components/LoadingBar';
 import Highlighted from 'components/Highlighted';
 
 import { useActivateFlow } from './ActivateFlow';
+import { RestartButton } from 'components/Buttons';
 
-export default function PassportTransfer({ className }) {
+export default function PassportTransfer({ className, resetActivateRouter }) {
   const { replaceWith, names } = useHistory();
   const { setUrbitWallet } = useWallet();
   const { setPointCursor } = usePointCursor();
   const { web3, contracts } = useNetwork();
-  const { derivedWallet, derivedPoint, inviteWallet } = useActivateFlow();
+  const {
+    derivedWallet,
+    derivedPoint,
+    inviteWallet,
+    reset: resetActivateFlow,
+  } = useActivateFlow();
   const [generalError, setGeneralError] = useState();
   const [{ label, progress }, setState] = useState({
     label: 'Verify Passport',
@@ -43,10 +50,21 @@ export default function PassportTransfer({ className }) {
     [replaceWith, names]
   );
 
-  const goToRestart = useCallback(
-    () => replaceWith([{ key: names.LANDING }, { key: names.ACTIVATE }]),
-    [replaceWith, names]
-  );
+  const goToRestart = useCallback(() => {
+    // NOTE: because we're already on the ACTIVATE view in the history,
+    // react (intelligently) doesn't trigger a re-render and that means the
+    // current state of the two nested routers (activate & passport) stick
+    // around unless we manually clear them.
+    // we only need to clear activate because that will unmount the passport
+    // router (which will be set to initialRoutes when mounted again)
+
+    // 1) replace history
+    replaceWith([{ key: names.LANDING }, { key: names.ACTIVATE }]);
+    // 2) reset local router
+    resetActivateRouter();
+    // 3) clear the state
+    resetActivateFlow();
+  }, [replaceWith, names, resetActivateRouter, resetActivateFlow]);
 
   const handleUpdate = useCallback(
     ({ type, state, value }) => {
@@ -65,13 +83,15 @@ export default function PassportTransfer({ className }) {
   );
 
   const claimPoint = useCallback(async () => {
-    const _inviteWallet = need.wallet(inviteWallet);
-    const _wallet = need.wallet(derivedWallet);
-    const _point = need.point(derivedPoint);
-    const _web3 = need.web3(web3);
-    const _contracts = need.contracts(contracts);
+    setGeneralError(false);
 
     try {
+      const _inviteWallet = need.wallet(inviteWallet);
+      const _wallet = need.wallet(derivedWallet);
+      const _point = need.point(derivedPoint);
+      const _web3 = need.web3(web3);
+      const _contracts = need.contracts(contracts);
+
       await claimPointFromInvite({
         inviteWallet: _inviteWallet,
         wallet: _wallet,
@@ -80,11 +100,13 @@ export default function PassportTransfer({ className }) {
         contracts: _contracts,
         onUpdate: handleUpdate,
       });
+
       // set the global wallet
       setUrbitWallet(derivedWallet);
       setPointCursor(derivedPoint);
-      await timeout(3000);
+
       // and redirect to login
+      await timeout(3000);
       goToLogin();
     } catch (error) {
       // some generic error
@@ -106,13 +128,54 @@ export default function PassportTransfer({ className }) {
     claimPoint();
   });
 
+  const renderAdditionalInfo = () => {
+    if (generalError) {
+      return (
+        <>
+          <Grid.Item full className="mt8">
+            <ErrorText>{generalError.message.toString()}</ErrorText>
+          </Grid.Item>
+          <Grid.Item
+            full
+            className="mt3"
+            as={RestartButton}
+            onClick={goToRestart}
+          />
+        </>
+      );
+    }
+
+    if (needFunds) {
+      return (
+        <Grid.Item full className="mt8">
+          <Highlighted>
+            The address {needFunds.address} needs at least{' '}
+            {fromWei(needFunds.minBalance)} ETH and currently has{' '}
+            {fromWei(needFunds.balance)} ETH. Waiting until the account has
+            enough funds.
+          </Highlighted>
+        </Grid.Item>
+      );
+    }
+
+    if (progress < 100) {
+      return (
+        <Grid.Item full as={WarningBox} className="mt8">
+          Never give your Master Ticket to anyone
+        </Grid.Item>
+      );
+    }
+
+    return null;
+  };
+
   return (
-    <Grid gap={4} className={className}>
-      <Grid.Item full as={Steps} num={2} total={3} />
+    <Grid className={cn(className, 'auto-rows-min')}>
+      <Grid.Item full as={Steps} num={3} total={3} />
       <Grid.Item full as={H4}>
         {label}
       </Grid.Item>
-      <Grid.Item full as={Grid}>
+      <Grid.Item full as={Grid} className="mt3" gap={3}>
         <Grid.Item full as={LoadingBar} progress={progress} />
         <Grid.Item full>
           <Text className="f5 green4">
@@ -122,28 +185,7 @@ export default function PassportTransfer({ className }) {
         </Grid.Item>
       </Grid.Item>
 
-      {progress < 0 && (
-        <Grid.Item full as={WarningBox}>
-          Never give your Master Ticket to anyone
-        </Grid.Item>
-      )}
-
-      {needFunds && (
-        <Grid.Item full>
-          <Highlighted>
-            The address {needFunds.address} needs at least{' '}
-            {fromWei(needFunds.minBalance)} ETH and currently has{' '}
-            {fromWei(needFunds.balance)} ETH. Waiting until the account has
-            enough funds.
-          </Highlighted>
-        </Grid.Item>
-      )}
-
-      {generalError && (
-        <Grid.Item full>
-          <ErrorText>{generalError.message.toString()}</ErrorText>
-        </Grid.Item>
-      )}
+      {renderAdditionalInfo()}
     </Grid>
   );
 }

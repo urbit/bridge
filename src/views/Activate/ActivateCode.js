@@ -5,7 +5,7 @@ import { useTicketInput } from 'components/Inputs';
 import { Grid, Input, H4, ErrorText } from 'indigo-react';
 
 import View from 'components/View';
-import { ForwardButton, OfflineButton } from 'components/Buttons';
+import { ForwardButton } from 'components/Buttons';
 import Passport from 'components/Passport';
 
 import { useHistory } from 'store/history';
