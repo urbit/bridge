@@ -134,20 +134,17 @@ export default function ActivateCode() {
           as={ForwardButton}
           className="mt4"
           disabled={!pass || deriving}
-          accessory={deriving ? <Blinky /> : null}
+          accessory={deriving ? <Blinky /> : undefined}
           onClick={goToDisclaimer}
           solid
           full>
           {deriving && 'Deriving...'}
           {!deriving && 'Go'}
         </Grid.Item>
-        <Grid.Divider className="mt3" />
-        <Grid.Item as={ForwardButton} onClick={goToLogin} full>
-          Login
-        </Grid.Item>
-        <Grid.Divider />
       </Grid>
-      <FooterButton as={OfflineButton} />
+      <FooterButton as={ForwardButton} onClick={goToLogin}>
+        Login
+      </FooterButton>
     </View>
   );
 }
