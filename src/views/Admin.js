@@ -1,19 +1,29 @@
 import React, { useCallback } from 'react';
 import { Just } from 'folktale/maybe';
 import { Grid } from 'indigo-react';
+import * as need from 'lib/need';
 
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
 
 import { ROUTE_NAMES } from 'lib/routeNames';
+import { eqAddr } from 'lib/wallet';
 
 import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
+import { usePointCursor } from 'store/pointCursor';
+import { usePointCache } from 'store/pointCache';
 import FooterButton from 'components/FooterButton';
 
 export default function Admin() {
   const history = useHistory();
-  const { urbitWallet } = useWallet();
+  const { urbitWallet, wallet } = useWallet();
+  const { pointCursor } = usePointCursor();
+  const { pointCache } = usePointCache();
+
+  const point = need.point(pointCursor);
+  const pointDetails = need.fromPointCache(pointCache, point);
+  const userAddress = need.wallet(wallet).address;
 
   const goRedownload = useCallback(() => history.push(ROUTE_NAMES.REDOWNLOAD), [
     history,
@@ -27,7 +37,12 @@ export default function Admin() {
     history,
   ]);
 
+  const goTransfer = useCallback(() => history.push(ROUTE_NAMES.TRANSFER), [
+    history,
+  ]);
+
   const canDownloadPassport = Just.hasInstance(urbitWallet);
+  const isOwner = eqAddr(userAddress, pointDetails.owner);
 
   return (
     <View>
@@ -57,7 +72,10 @@ export default function Admin() {
         </Grid.Item>
       </Grid>
 
-      <FooterButton detail="Transfer this identity to a new owner" disabled>
+      <FooterButton
+        detail="Transfer this identity to a new owner"
+        disabled={!isOwner}
+        onClick={goTransfer}>
         Transfer
       </FooterButton>
     </View>
