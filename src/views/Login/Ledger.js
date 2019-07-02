@@ -1,22 +1,20 @@
-import * as bip32 from 'bip32';
 import React, { useState } from 'react';
-import { times } from 'lodash';
 import Maybe from 'folktale/maybe';
+import { P, Input, Grid, H4, H5 } from 'indigo-react';
+import { times } from 'lodash';
+import * as bip32 from 'bip32';
 import Transport from '@ledgerhq/hw-transport-u2f';
 import Eth from '@ledgerhq/hw-app-eth';
 import * as secp256k1 from 'secp256k1';
-import { H1, H2, P, Input } from 'indigo-react';
 
-import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
 import { InnerLabelDropdown } from 'components/old/Base';
 
 import { useWallet } from 'store/wallet';
 
 import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from 'lib/ledger';
-import useWalletType from 'lib/useWalletType';
 import { WALLET_TYPES } from 'lib/wallet';
-import useResetPointCursor from 'lib/useResetPointCursor';
+import useLoginView from 'lib/useLoginView';
 
 const pathOptions = [
   { title: 'Ledger Live', value: LEDGER_LIVE_PATH },
@@ -24,15 +22,18 @@ const pathOptions = [
   { title: 'Custom path', value: 'custom' },
 ];
 
-const chopHdPrefix = str => (str.slice(0, 2) === 'm/' ? str.slice(2) : str);
+const accountOptions = times(20, i => ({
+  title: `Account #${i + 1}`,
+  value: i,
+}));
 
+const chopHdPrefix = str => (str.slice(0, 2) === 'm/' ? str.slice(2) : str);
 const addHdPrefix = str => (str.slice(0, 2) === 'm/' ? str : 'm/' + str);
 
-export default function Ledger({ loginCompleted }) {
-  useResetPointCursor();
-  useWalletType(WALLET_TYPES.LEDGER);
+export default function Ledger({ className }) {
+  useLoginView(WALLET_TYPES.LEDGER);
 
-  const { wallet, setWallet, setWalletHdPath } = useWallet();
+  const { setWallet, setWalletHdPath } = useWallet();
 
   const [basePath, setBasePath] = useState(LEDGER_LIVE_PATH);
   const [account, setAccount] = useState(0);
@@ -75,116 +76,107 @@ export default function Ledger({ loginCompleted }) {
   };
 
   const basePathTitle = pathOptions.find(o => o.value === basePath).title;
-
-  const accountOptions = times(20, i => ({
-    title: `Account #${i + 1}`,
-    value: i,
-  }));
   const accountTitle = accountOptions.find(o => o.value === account).title;
 
-  const basePathSelection = (
-    <InnerLabelDropdown
-      className="mt-8"
-      options={pathOptions}
-      handleUpdate={handlePathSelection}
-      title="Derivation path"
-      currentSelectionTitle={basePathTitle}
-      fullWidth={true}
-    />
-  );
-
-  const truePathSelection =
-    basePath === 'custom' ? (
-      <Input
-        className="mt3"
-        name="hdPath"
-        label="HD path"
-        autocomplete="off"
-        initialValue={addHdPrefix(hdPath)}
-        onValue={setHdPath}
-      />
-    ) : (
-      <InnerLabelDropdown
-        className="mt-4"
-        prop-size="md"
-        prop-format="innerLabel"
-        options={accountOptions}
-        handleUpdate={handleAccountSelection}
-        title="Account"
-        currentSelectionTitle={accountTitle}
-        fullWidth={true}
-      />
-    );
+  const isHTTPS = document.location.protocol === 'https:';
 
   // when not on https, tell user how to get there
-  const body =
-    document.location.protocol !== 'https:' ? (
-      <>
-        <H2>Running on HTTP?</H2>
+  const renderHTTP = () => (
+    <>
+      <Grid.Item full as={H5}>
+        Running on HTTP?
+      </Grid.Item>
 
-        <P>
-          To authenticate and sign transactions with a Ledger, Bridge must be
-          serving over HTTPS on localhost. You can do this via the following:
-        </P>
+      <Grid.Item full as={P}>
+        To authenticate and sign transactions with a Ledger, Bridge must be
+        serving over HTTPS on localhost. You can do this via the following:
+      </Grid.Item>
 
-        <ol className="measure-md">
-          <li className="mt-4">
-            Install
-            <a
-              target="_blank"
-              href="https://github.com/FiloSottile/mkcert"
-              rel="noopener noreferrer">
-              mkcert
-            </a>
-          </li>
-          <li className="mt-4">
-            Install a local certificate authority via{' '}
-            <code>mkcert -install</code>
-          </li>
-          <li className="mt-4">
-            In your <code>bridge</code> directory, generate a certificate valid
-            for localhost via <code>mkcert localhost</code>. This will produce
-            two files: <code>localhost.pem</code>, the local certificate, and
-            <code>localhost-key.pem</code> , its corresponding private key.
-          </li>
-          <li className="mt-4">
-            Run <code>python bridge-https.py</code>
-          </li>
-        </ol>
-      </>
-    ) : (
-      <>
-        <P>
-          Connect and authenticate to your Ledger, and then open the "Ethereum"
-          application. If you're running on older firmware, make sure the
-          "browser support" option is turned on. To sign transactions, you'll
-          also need to enable the "contract data" option.
-        </P>
+      <Grid.Item full as="ol">
+        <li>
+          Install{' '}
+          <a
+            target="_blank"
+            href="https://github.com/FiloSottile/mkcert"
+            rel="noopener noreferrer">
+            mkcert
+          </a>
+        </li>
+        <li className="mt3">
+          Install a local certificate authority via <code>mkcert -install</code>
+        </li>
+        <li className="mt3">
+          In your <code>bridge</code> directory, generate a certificate valid
+          for localhost via <code>mkcert localhost</code>. This will produce two
+          files: <code>localhost.pem</code>, the local certificate, and
+          <code>localhost-key.pem</code> , its corresponding private key.
+        </li>
+        <li className="mt3">
+          Run <code>python bridge-https.py</code>
+        </li>
+      </Grid.Item>
+    </>
+  );
 
-        <P>
-          If you'd like to use a custom derivation path, you may enter it below.
-        </P>
+  const renderHTTPS = () => (
+    <>
+      <Grid.Item full as={P}>
+        Connect and authenticate to your Ledger, and then open the "Ethereum"
+        application. If you're running on older firmware, make sure the "browser
+        support" option is turned on. To sign transactions, you'll also need to
+        enable the "contract data" option.
+      </Grid.Item>
 
-        {basePathSelection}
-        {truePathSelection}
+      <Grid.Item full as={P}>
+        If you'd like to use a custom derivation path, you may enter it below.
+      </Grid.Item>
 
-        <ForwardButton className={'mt3'} onClick={pollDevice}>
-          {'Authenticate'}
-        </ForwardButton>
+      <Grid.Item
+        full
+        as={InnerLabelDropdown}
+        className="mv4"
+        title="Derivation path"
+        options={pathOptions}
+        handleUpdate={handlePathSelection}
+        currentSelectionTitle={basePathTitle}
+      />
 
-        <ForwardButton
-          className={'mt3'}
-          disabled={Maybe.Nothing.hasInstance(wallet)}
-          onClick={loginCompleted}>
-          {'Continue'}
-        </ForwardButton>
-      </>
-    );
+      {basePath === 'custom' ? (
+        <Grid.Item
+          full
+          as={Input}
+          className="mv3"
+          name="hdPath"
+          label="HD path"
+          autoComplete="off"
+          initialValue={addHdPrefix(hdPath)}
+          onValue={setHdPath}
+        />
+      ) : (
+        <Grid.Item
+          full
+          as={InnerLabelDropdown}
+          className="mt4"
+          title="Account"
+          options={accountOptions}
+          handleUpdate={handleAccountSelection}
+          currentSelectionTitle={accountTitle}
+        />
+      )}
+
+      <ForwardButton className="mt3" onClick={pollDevice}>
+        Authenticate
+      </ForwardButton>
+    </>
+  );
 
   return (
-    <View>
-      <H1>Authenticate With Your Ledger</H1>
-      {body}
-    </View>
+    <Grid className={className}>
+      <Grid.Item full as={H4}>
+        Authenticate With Your Ledger
+      </Grid.Item>
+      {isHTTPS && renderHTTPS()}
+      {!isHTTPS && renderHTTP()}
+    </Grid>
   );
 }

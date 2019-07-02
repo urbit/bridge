@@ -1,21 +1,18 @@
 import { Just, Nothing } from 'folktale/maybe';
 import React, { useEffect } from 'react';
-import { Input } from 'indigo-react';
+import { Grid, Input } from 'indigo-react';
 
-import View from 'components/View';
 import { usePassphraseInput } from 'components/Inputs';
-import { ForwardButton } from 'components/Buttons';
 
 import { useWallet } from 'store/wallet';
 
 import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
-import useWalletType from 'lib/useWalletType';
-import useResetPointCursor from 'lib/useResetPointCursor';
+import useLoginView from 'lib/useLoginView';
 
-export default function PrivateKey({ loginCompleted }) {
-  useResetPointCursor();
-  useWalletType(WALLET_TYPES.PRIVATE_KEY);
-  const { wallet, setWallet } = useWallet();
+export default function PrivateKey({ className }) {
+  useLoginView(WALLET_TYPES.PRIVATE_KEY);
+
+  const { setWallet } = useWallet();
 
   const privateKeyInput = usePassphraseInput({
     name: 'privateKey',
@@ -35,15 +32,8 @@ export default function PrivateKey({ loginCompleted }) {
   }, [privateKey, setWallet]);
 
   return (
-    <View>
-      Please enter your raw Ethereum private key here.
-      <Input {...privateKeyInput} />
-      <ForwardButton
-        className="mt3"
-        disabled={Nothing.hasInstance(wallet)}
-        onClick={loginCompleted}>
-        Continue
-      </ForwardButton>
-    </View>
+    <Grid className={className}>
+      <Grid.Item full as={Input} {...privateKeyInput} />
+    </Grid>
   );
 }

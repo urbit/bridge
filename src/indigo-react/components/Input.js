@@ -70,7 +70,7 @@ export default function Input({
 
   return (
     <Flex
-      className={className}
+      className={cn(className, 'mb1')}
       col
       style={{
         ...(disabled && {

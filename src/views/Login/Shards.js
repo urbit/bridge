@@ -14,12 +14,10 @@ import { ForwardButton } from 'components/Buttons';
 import { useWallet } from 'store/wallet';
 
 import { urbitWalletFromTicket, WALLET_TYPES } from 'lib/wallet';
-import useWalletType from 'lib/useWalletType';
-import useResetPointCursor from 'lib/useResetPointCursor';
+import useLoginView from 'lib/useLoginView';
 
 export default function Shards({ loginCompleted }) {
-  useResetPointCursor();
-  useWalletType(WALLET_TYPES.SHARDS);
+  useLoginView(WALLET_TYPES.SHARDS);
 
   const { wallet, setUrbitWallet } = useWallet();
 
@@ -72,7 +70,7 @@ export default function Shards({ loginCompleted }) {
   const ready = shards.filter(x => x !== '').length > 1;
 
   return (
-    <View>
+    <>
       Enter your point and at least two of your three Urbit master ticket shards
       here. The index of the input field needs to match the index of the shard.
       <Input {...pointInput} />
@@ -93,6 +91,6 @@ export default function Shards({ loginCompleted }) {
         onClick={loginCompleted}>
         Continue
       </ForwardButton>
-    </View>
+    </>
   );
 }

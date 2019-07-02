@@ -88,7 +88,7 @@ export function useHdPathInput(props) {
 const kTicketValidators = [validateTicket, validateNotEmpty];
 const kTicketTransformers = [prependSig];
 //TODO needs to be fancier, displaying sig and dashes instead of •ing all
-export function useTicketInput({ validators = [], ...rest }) {
+export function useTicketInput({ validators = [], deriving = false, ...rest }) {
   const input = firstOf(
     useForm([
       {
@@ -105,7 +105,18 @@ export function useTicketInput({ validators = [], ...rest }) {
     ])
   );
 
-  return { ...input, accessory: input.pass ? <AccessoryIcon.Success /> : null };
+  const accessory = input.error ? (
+    <AccessoryIcon.Failure />
+  ) : deriving ? (
+    <AccessoryIcon.Pending />
+  ) : input.pass ? (
+    <AccessoryIcon.Success />
+  ) : null;
+
+  return {
+    ...input,
+    accessory,
+  };
 }
 
 const kPointValidators = [validatePoint, validateNotEmpty];

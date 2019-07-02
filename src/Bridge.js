@@ -23,7 +23,7 @@ const INITIAL_NETWORK_TYPE = isDevelopment
 const SHOULD_STUB_LOCAL = process.env.REACT_APP_STUB_LOCAL === 'true';
 const IS_STUBBED = isDevelopment && SHOULD_STUB_LOCAL;
 const INITIAL_ROUTES = IS_STUBBED
-  ? [{ key: ROUTE_NAMES.LANDING }, { key: ROUTE_NAMES.ACTIVATE }]
+  ? [{ key: ROUTE_NAMES.LANDING }, { key: ROUTE_NAMES.LOGIN }]
   : [{ key: ROUTE_NAMES.LANDING }];
 
 const INITIAL_WALLET = IS_STUBBED

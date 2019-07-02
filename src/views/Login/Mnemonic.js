@@ -1,27 +1,23 @@
 import React, { useCallback, useEffect } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Input } from 'indigo-react';
+import { Grid, Input, CheckboxInput } from 'indigo-react';
 
-import View from 'components/View';
 import {
   usePassphraseInput,
   useMnemonicInput,
   useHdPathInput,
+  useCheckboxInput,
 } from 'components/Inputs';
-import { ForwardButton } from 'components/Buttons';
 
 import { useWallet } from 'store/wallet';
 
 import { walletFromMnemonic, WALLET_TYPES } from 'lib/wallet';
-import useWalletType from 'lib/useWalletType';
-import useResetPointCursor from 'lib/useResetPointCursor';
+import useLoginView from 'lib/useLoginView';
 
-export default function Mnemonic({ advanced, loginCompleted }) {
-  useResetPointCursor();
-  useWalletType(WALLET_TYPES.MNEMONIC);
+export default function Mnemonic({ className }) {
+  useLoginView(WALLET_TYPES.MNEMONIC);
 
   const {
-    wallet,
     setWallet,
     authMnemonic,
     setAuthMnemonic,
@@ -29,6 +25,11 @@ export default function Mnemonic({ advanced, loginCompleted }) {
     setWalletHdPath,
   } = useWallet();
 
+  const advancedInput = useCheckboxInput({
+    name: 'advanced',
+    label: 'Passphrase & HD Path',
+    initialValue: false,
+  });
   const mnemonic = authMnemonic.getOrElse('');
   // TODO: move this into transformers?
   // transform the result of the mnemonic to Maybe<string>
@@ -69,24 +70,17 @@ export default function Mnemonic({ advanced, loginCompleted }) {
   }, [mnemonic, passphrase, walletHdPath, setWallet]);
 
   return (
-    <View>
-      <Input {...mnemonicInput} />
+    <Grid className={className}>
+      <Grid.Item full as={Input} {...mnemonicInput} />
 
-      {!advanced ? null : (
+      {advancedInput.data && (
         <>
-          <Input {...passphraseInput} />
-
-          <Input {...hdPathInput} />
+          <Grid.Item full as={Input} {...passphraseInput} />
+          <Grid.Item full as={Input} {...hdPathInput} />
         </>
       )}
 
-      <ForwardButton
-        className="mt3"
-        disabled={Nothing.hasInstance(wallet)}
-        onClick={loginCompleted}
-        solid>
-        Continue
-      </ForwardButton>
-    </View>
+      <Grid.Item as={CheckboxInput} {...advancedInput} full />
+    </Grid>
   );
 }

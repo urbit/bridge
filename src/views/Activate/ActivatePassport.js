@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import cn from 'classnames';
-import Maybe from 'folktale/maybe';
 import { Grid } from 'indigo-react';
 
 import { LocalRouterProvider, useLocalRouter } from 'lib/LocalRouter';

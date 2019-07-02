@@ -6,6 +6,7 @@ import Flex from './Flex';
 import { HelpText } from './Typography';
 
 export default function Button({
+  as: As = 'a',
   solid = false,
   success = false,
   disabled = false,
@@ -23,7 +24,7 @@ export default function Button({
   };
   return (
     <Grid
-      as="a"
+      as={As}
       gap={1}
       className={cn(
         'pointer pv4 truncate flex-row justify-between',
