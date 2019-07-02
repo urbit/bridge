@@ -23,12 +23,15 @@ export default function Admin() {
     history,
   ]);
 
+  const goEditPerms = useCallback(() => history.push(ROUTE_NAMES.PERMISSIONS), [
+    history,
+  ]);
 
   const canDownloadPassport = Just.hasInstance(urbitWallet);
 
   return (
     <View>
-      <Grid className="pt2">
+      <Grid className="pt3">
         <Grid.Item full>
           <ForwardButton
             disabled={!canDownloadPassport}
@@ -43,6 +46,13 @@ export default function Admin() {
             onClick={goReticket}
             detail="//TODO disable if not logged in as owner">
             Reticket
+          </ForwardButton>
+        </Grid.Item>
+        <Grid.Item full>
+          <ForwardButton
+            onClick={goEditPerms}
+            detail="Management, networking keys, etc.">
+            Edit permissions
           </ForwardButton>
         </Grid.Item>
       </Grid>

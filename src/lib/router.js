@@ -4,6 +4,7 @@ import InvitesManage from '../views/InvitesManage.js';
 import Admin from '../views/Admin';
 import Redownload from '../views/Redownload';
 import Reticket from '../views/Reticket';
+import Permissions from '../views/Permissions';
 import AcceptTransfer from '../views/AcceptTransfer';
 import CancelTransfer from '../views/CancelTransfer';
 import CreateGalaxy from '../views/CreateGalaxy';
@@ -34,6 +35,7 @@ export const ROUTES = {
   [ROUTE_NAMES.ADMIN]: Admin,
   [ROUTE_NAMES.REDOWNLOAD]: Redownload,
   [ROUTE_NAMES.RETICKET]: Reticket,
+  [ROUTE_NAMES.PERMISSIONS]: Permissions,
   [ROUTE_NAMES.ACCEPT_TRANSFER]: AcceptTransfer,
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
   [ROUTE_NAMES.VIEW_POINT]: ViewPoint,
