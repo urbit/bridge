@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import { AccessoryIcon, useForm } from 'indigo-react';
+import { identity } from 'lodash';
 import * as bip39 from 'bip39';
 
 import InputSigil from 'components/InputSigil';
@@ -45,10 +46,35 @@ const EXAMPLE_PRIVATE_KEY =
 //   transformers: [prependSig],
 // });
 
-const firstOf = state => state.inputs[0];
+// pulls out the first input from a useForm() call
+function useFirstOf({ inputs, setValue, ...rest }, mapper = identity) {
+  // ask the mapper function for any values to overwrite
+  const input = {
+    ...inputs[0],
+    ...mapper(inputs[0]),
+  };
+  // memoize the setValue callback for manually setting the value
+  // in response to some imperative event
+  const _setValue = useCallback(value => setValue(input.name, value), [
+    setValue,
+    input.name,
+  ]);
+
+  // provide the first input as the first element
+  // _and_ as the second element to facilitate destructuring
+  // and then provide the pass/error/setValue/etc properties at the end
+  return [
+    input,
+    input,
+    {
+      ...rest,
+      setValue: _setValue,
+    },
+  ];
+}
 
 export function usePassphraseInput(props) {
-  return firstOf(
+  return useFirstOf(
     useForm([
       {
         type: 'password',
@@ -61,7 +87,7 @@ export function usePassphraseInput(props) {
 }
 
 export function useHexInput({ length, ...rest }) {
-  return firstOf(
+  return useFirstOf(
     useForm([
       {
         type: 'text', // or password
@@ -84,7 +110,7 @@ export function useHexInput({ length, ...rest }) {
 const kExampleMnemonic = bip39.generateMnemonic();
 const kMnemonicValidators = [validateMnemonic, validateNotEmpty];
 export function useMnemonicInput(props) {
-  return firstOf(
+  return useFirstOf(
     useForm([
       {
         type: 'text',
@@ -98,7 +124,7 @@ export function useMnemonicInput(props) {
 }
 
 export function useHdPathInput(props) {
-  return firstOf(
+  return useFirstOf(
     useForm([
       {
         type: 'text',
@@ -114,7 +140,7 @@ const kTicketValidators = [validateTicket, validateNotEmpty];
 const kTicketTransformers = [prependSig];
 //TODO needs to be fancier, displaying sig and dashes instead of •ing all
 export function useTicketInput({ validators = [], deriving = false, ...rest }) {
-  const input = firstOf(
+  return useFirstOf(
     useForm([
       {
         type: 'password',
@@ -127,28 +153,24 @@ export function useTicketInput({ validators = [], deriving = false, ...rest }) {
         mono: true,
         ...rest,
       },
-    ])
+    ]),
+    ({ error, pass }) => ({
+      accessory: error ? (
+        <AccessoryIcon.Failure />
+      ) : deriving ? (
+        <AccessoryIcon.Pending />
+      ) : pass ? (
+        <AccessoryIcon.Success />
+      ) : null,
+    })
   );
-
-  const accessory = input.error ? (
-    <AccessoryIcon.Failure />
-  ) : deriving ? (
-    <AccessoryIcon.Pending />
-  ) : input.pass ? (
-    <AccessoryIcon.Success />
-  ) : null;
-
-  return {
-    ...input,
-    accessory,
-  };
 }
 
 const kPointValidators = [validatePoint, validateNotEmpty];
 const kPointTransformers = [prependSig];
 export function usePointInput(rest) {
   const [lastValidPoint, setLastValidPoint] = useState('');
-  const input = firstOf(
+  return useFirstOf(
     useForm([
       {
         type: 'text',
@@ -160,28 +182,24 @@ export function usePointInput(rest) {
         onValue: setLastValidPoint,
         ...rest,
       },
-    ])
+    ]),
+    ({ error, pass, focused }) => ({
+      accessory: lastValidPoint ? (
+        <InputSigil
+          patp={lastValidPoint}
+          size={68}
+          margin={8}
+          pass={pass}
+          focused={focused}
+          error={error}
+        />
+      ) : null,
+    })
   );
-
-  const { pass, focused, error } = input;
-
-  return {
-    ...input,
-    accessory: lastValidPoint && (
-      <InputSigil
-        patp={lastValidPoint}
-        size={68}
-        margin={8}
-        pass={pass}
-        focused={focused}
-        error={error}
-      />
-    ),
-  };
 }
 
 export function useCheckboxInput({ initialValue, ...rest }) {
-  return firstOf(
+  return useFirstOf(
     useForm([
       {
         type: 'checkbox',

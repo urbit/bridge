@@ -33,6 +33,7 @@ export default function Input({
   initialValue,
   validators,
   transformers,
+  setValue,
 
   // extra
   ...rest

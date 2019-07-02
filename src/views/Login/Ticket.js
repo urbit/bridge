@@ -23,30 +23,26 @@ import useLoginView from 'lib/useLoginView';
 
 export default function Ticket({ className }) {
   useLoginView(WALLET_TYPES.TICKET);
-  // globals
+
   const { contracts } = useNetwork();
   const { setUrbitWallet } = useWallet();
   const { setPointCursor } = usePointCursor();
   const impliedPoint = useImpliedPoint();
 
-  // inputs
-
   // point
-  const pointInput = usePointInput({
+  const [pointInput, { data: pointName }] = usePointInput({
     name: 'point',
     initialValue: impliedPoint,
     autoFocus: true,
   });
-  const pointName = pointInput.data;
 
   // passphrase
-  const passphraseInput = usePassphraseInput({
+  const [passphraseInput, { data: passphrase }] = usePassphraseInput({
     name: 'passphrase',
-    label: '(Optional) Wallet Passphrase',
+    label: 'Wallet Passphrase',
   });
-  const passphrase = passphraseInput.data;
 
-  const hasPassphraseInput = useCheckboxInput({
+  const [hasPassphraseInput] = useCheckboxInput({
     name: 'has-passphrase',
     label: 'Passphrase',
     initialValue: false,
@@ -55,40 +51,36 @@ export default function Ticket({ className }) {
   // ticket
   const [error, setError] = useState();
   const [deriving, setDeriving] = useState(false);
-  const ticketInput = useTicketInput({
+  const [ticketInput, { data: ticket, pass: validTicket }] = useTicketInput({
     name: 'ticket',
     label: 'Master Ticket',
     error,
     deriving,
   });
-  const ticket = ticketInput.data;
 
   // shards
-  const shardsInput = useCheckboxInput({
+  const [shardsInput, { data: isUsingShards }] = useCheckboxInput({
     name: 'shards',
     label: 'Shards',
     initialValue: false,
   });
 
-  const shard1Input = useTicketInput({
+  const [shard1Input, { data: shard1, pass: shard1Pass }] = useTicketInput({
     name: 'shard1',
     label: 'Shard 1',
   });
-  const shard1 = shard1Input.data;
-  const shard2Input = useTicketInput({
+
+  const [shard2Input, { data: shard2, pass: shard2Pass }] = useTicketInput({
     name: 'shard2',
     label: 'Shard 2',
   });
-  const shard2 = shard2Input.data;
-  const shard3Input = useTicketInput({
+
+  const [shard3Input, { data: shard3, pass: shard3Pass }] = useTicketInput({
     name: 'shard3',
     label: 'Shard 3',
   });
-  const shard3 = shard3Input.data;
 
-  const isUsingShards = !!shardsInput.data;
-  const shards = [shard1, shard2, shard3];
-  const shardsReady = shards.filter(x => x !== '').length > 1;
+  const shardsReady = shard1Pass && shard2Pass && shard3Pass;
 
   // TODO: maybe want to do this only on-go, because wallet derivation is slow...
   const deriveWalletFromTicket = useCallback(async () => {
@@ -144,10 +136,6 @@ export default function Ticket({ className }) {
   ]);
 
   const deriveWalletFromShards = useCallback(async () => {
-    if (!shardsReady) {
-      return;
-    }
-
     const s1 = shard1 || undefined;
     const s2 = shard2 || undefined;
     const s3 = shard3 || undefined;
@@ -159,29 +147,22 @@ export default function Ticket({ className }) {
     } catch (_) {
       // do nothing
     }
-  }, [
-    passphrase,
-    pointName,
-    shardsReady,
-    setUrbitWallet,
-    shard1,
-    shard2,
-    shard3,
-  ]);
+  }, [passphrase, pointName, setUrbitWallet, shard1, shard2, shard3]);
 
-  // use shards if
+  // derive wallet on change
   useEffect(() => {
     if (isUsingShards && shardsReady) {
       deriveWalletFromShards();
-    }
-  }, [isUsingShards, shardsReady, deriveWalletFromShards]);
-
-  // verify ticket if not using shards
-  useEffect(() => {
-    if (!isUsingShards) {
+    } else if (validTicket) {
       deriveWalletFromTicket();
     }
-  }, [isUsingShards, deriveWalletFromTicket]);
+  }, [
+    isUsingShards,
+    validTicket,
+    shardsReady,
+    deriveWalletFromShards,
+    deriveWalletFromTicket,
+  ]);
 
   return (
     <Grid className={className}>

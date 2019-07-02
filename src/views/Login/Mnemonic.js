@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from 'react';
-import { Just, Nothing } from 'folktale/maybe';
+import React, { useEffect } from 'react';
+import Maybe from 'folktale/maybe';
 import { Grid, Input, CheckboxInput } from 'indigo-react';
 
 import {
@@ -19,61 +19,59 @@ export default function Mnemonic({ className }) {
 
   const {
     setWallet,
-    authMnemonic,
     setAuthMnemonic,
     walletHdPath,
     setWalletHdPath,
   } = useWallet();
 
-  const advancedInput = useCheckboxInput({
+  const [advancedInput, { data: useAdvanced }] = useCheckboxInput({
     name: 'advanced',
     label: 'Passphrase & HD Path',
     initialValue: false,
   });
-  const mnemonic = authMnemonic.getOrElse('');
-  // TODO: move this into transformers?
-  // transform the result of the mnemonic to Maybe<string>
-  const _setAuthMnemonic = useCallback(
-    mnemonic => setAuthMnemonic(mnemonic === '' ? Nothing() : Just(mnemonic)),
-    [setAuthMnemonic]
-  );
 
-  const mnemonicInput = useMnemonicInput({
+  const [mnemonicInput, { pass, data: mnemonic }] = useMnemonicInput({
     name: 'mnemonic',
     label: 'BIP39 Mnemonic',
-    initialValue: mnemonic,
-    onValue: _setAuthMnemonic,
     autoFocus: true,
   });
 
-  const passphraseInput = usePassphraseInput({
+  const [passphraseInput, { data: passphrase }] = usePassphraseInput({
     name: 'passphrase',
     label: '(Optional) Wallet Passphrase',
   });
-  const passphrase = passphraseInput.data;
 
-  const hdPathInput = useHdPathInput({
+  const [hdPathInput, { data: hdPath }] = useHdPathInput({
     name: 'hdpath',
     label: 'HD Path',
     initialValue: walletHdPath,
-    onValue: setWalletHdPath,
   });
 
-  // when the properties change, re-derive wallet
+  // when the properties change, re-derive wallet and set global state
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const wallet = walletFromMnemonic(mnemonic, walletHdPath, passphrase);
-      mounted && setWallet(wallet);
-    })();
-    return () => (mounted = false);
-  }, [mnemonic, passphrase, walletHdPath, setWallet]);
+    if (pass) {
+      setWalletHdPath(hdPath);
+      setAuthMnemonic(Maybe.Just(mnemonic));
+      setWallet(walletFromMnemonic(mnemonic, hdPath, passphrase));
+    } else {
+      setAuthMnemonic(Maybe.Nothing());
+      setWallet(Maybe.Nothing());
+    }
+  }, [
+    pass,
+    mnemonic,
+    passphrase,
+    hdPath,
+    setWallet,
+    setAuthMnemonic,
+    setWalletHdPath,
+  ]);
 
   return (
     <Grid className={className}>
       <Grid.Item full as={Input} {...mnemonicInput} />
 
-      {advancedInput.data && (
+      {useAdvanced && (
         <>
           <Grid.Item full as={Input} {...passphraseInput} />
           <Grid.Item full as={Input} {...hdPathInput} />

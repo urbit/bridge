@@ -36,12 +36,11 @@ export default function ActivateCode() {
     setDerivedPoint,
   } = useActivateFlow();
 
-  const ticketInput = useTicketInput({
+  const [ticketInput, { pass: validTicket }] = useTicketInput({
     name: 'ticket',
     label: 'Code',
     autoFocus: true,
   });
-  const validTicket = ticketInput.pass;
 
   const goToLogin = useCallback(() => history.popAndPush(ROUTE_NAMES.LOGIN), [
     history,

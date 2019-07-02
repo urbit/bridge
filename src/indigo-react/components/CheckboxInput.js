@@ -31,6 +31,7 @@ export default function CheckboxInput({
   initialValue,
   validators,
   transformers,
+  setValue,
 
   // extra
   ...rest

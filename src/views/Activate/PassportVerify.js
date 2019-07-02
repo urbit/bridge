@@ -24,14 +24,13 @@ export default function PassportVerify({ className }) {
     () => [validateExactly(ticket, 'Does not match expected master ticket.')],
     [ticket]
   );
-  const ticketInput = useTicketInput({
+  const [ticketInput, { pass }] = useTicketInput({
     name: 'ticket',
     label: 'Master Ticket',
     initialValue: STUB_VERIFY_TICKET ? ticket : undefined,
     autoFocus: true,
     validators,
   });
-  const { pass } = ticketInput;
 
   return (
     <Grid className={cn(className, 'auto-rows-min')}>

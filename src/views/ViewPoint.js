@@ -17,11 +17,10 @@ import { usePointInput } from 'components/Inputs';
 export default function ViewPoint() {
   const history = useHistory();
   const { setPointCursor } = usePointCursor();
-  const pointInput = usePointInput({
+  const [pointInput, { data: pointName, pass }] = usePointInput({
     name: 'point',
     autoFocus: true,
   });
-  const { data: pointName, pass } = pointInput;
 
   const disabled = !pass;
   const goForward = useCallback(() => {

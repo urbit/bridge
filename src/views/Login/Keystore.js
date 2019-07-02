@@ -23,12 +23,11 @@ export default function Keystore({ className }) {
   // inputs
   // keystore: Maybe<String>
   const [keystore, setKeystore] = useState(Maybe.Nothing());
-  const passphraseInput = usePassphraseInput({
+  const [passphraseInput, { data: passphrase }] = usePassphraseInput({
     name: 'password',
     label: 'Keystore password',
     autoFocus: true,
   });
-  const passphrase = passphraseInput.data;
 
   const constructWallet = () => {
     try {

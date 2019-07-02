@@ -1,10 +1,10 @@
-import * as bip32 from 'bip32';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Maybe from 'folktale/maybe';
+import * as bip32 from 'bip32';
 import { times } from 'lodash';
 import TrezorConnect from 'trezor-connect';
 import * as secp256k1 from 'secp256k1';
-import { P, Input, Grid, H5 } from 'indigo-react';
+import { Text, Input, Grid, H5, CheckboxInput } from 'indigo-react';
 
 import { ForwardButton } from 'components/Buttons';
 import { InnerLabelDropdown } from 'components/old/Base';
@@ -14,26 +14,39 @@ import { WALLET_TYPES } from 'lib/wallet';
 
 import { useWallet } from 'store/wallet';
 import useLoginView from 'lib/useLoginView';
+import { useHdPathInput, useCheckboxInput } from 'components/Inputs';
 
-const accountOptions = [
-  { title: 'Custom path', value: 'custom' },
-  ...times(20, i => ({ title: `Account #${i + 1}`, value: i })),
-];
+const accountOptions = times(20, i => ({
+  title: `Account #${i + 1}`,
+  value: i,
+}));
 
+// see Ledger.js for context — Trezor is basicaly Ledger with less complexity
 export default function Trezor({ className }) {
   useLoginView(WALLET_TYPES.TREZOR);
 
   const { setWallet, setWalletHdPath } = useWallet();
 
-  const [hdPath, setHdPath] = useState(TREZOR_PATH.replace(/x/g, 0));
-  const [account, setAccount] = useState(0);
+  const [accountIndex, setAccountIndex] = useState(0);
 
-  const handleAccountSelection = account => {
-    setAccount(account);
-    if (account !== 'custom') {
-      setHdPath(TREZOR_PATH.replace(/x/g, account));
-    }
-  };
+  // custom toggle
+  const [customPathInput, { data: useCustomPath }] = useCheckboxInput({
+    name: 'customPath',
+    label: 'Custom HD Path',
+    autoComplete: 'off',
+    initialValue: false,
+  });
+
+  // hd path input
+  const [
+    hdPathInput,
+    { data: hdPath },
+    { setValue: setHdPath },
+  ] = useHdPathInput({
+    name: 'hdpath',
+    label: 'HD Path',
+    initialValue: TREZOR_PATH.replace(/x/g, 0),
+  });
 
   const pollDevice = async () => {
     TrezorConnect.manifest({
@@ -41,22 +54,32 @@ export default function Trezor({ className }) {
       appUrl: 'https://github.com/urbit/bridge',
     });
 
-    TrezorConnect.getPublicKey({ path: hdPath }).then(info => {
-      if (info.success === true) {
-        const payload = info.payload;
-        const publicKey = Buffer.from(payload.publicKey, 'hex');
-        const chainCode = Buffer.from(payload.chainCode, 'hex');
-        const pub = secp256k1.publicKeyConvert(publicKey, true);
-        const hd = bip32.fromPublicKey(pub, chainCode);
-        setWallet(Maybe.Just(hd));
-        setWalletHdPath(hdPath);
-      } else {
-        setWallet(Maybe.Nothing());
-      }
+    const info = await TrezorConnect.getPublicKey({
+      path: hdPath,
     });
+
+    if (info.success === true) {
+      const payload = info.payload;
+      const publicKey = Buffer.from(payload.publicKey, 'hex');
+      const chainCode = Buffer.from(payload.chainCode, 'hex');
+      const pub = secp256k1.publicKeyConvert(publicKey, true);
+      const hd = bip32.fromPublicKey(pub, chainCode);
+      setWallet(Maybe.Just(hd));
+      setWalletHdPath(hdPath);
+    } else {
+      setWallet(Maybe.Nothing());
+    }
   };
 
-  const accountTitle = accountOptions.find(o => o.value === account).title;
+  useEffect(() => {
+    if (useCustomPath) {
+      // updated by useForm
+    } else {
+      setHdPath(TREZOR_PATH.replace(/x/g, accountIndex));
+    }
+  }, [useCustomPath, setHdPath, accountIndex]);
+
+  const accountTitle = accountOptions.find(o => o.value === accountIndex).title;
 
   return (
     <Grid className={className}>
@@ -64,33 +87,28 @@ export default function Trezor({ className }) {
         Authenticate With Your Trezor
       </Grid.Item>
 
-      <Grid.Item full as={P}>
+      <Grid.Item full as={Text} className="f6">
         Connect and authenticate to your Trezor. If you'd like to use a custom
         derivation path, you may enter it below.
       </Grid.Item>
 
-      <Grid.Item
-        full
-        as={InnerLabelDropdown}
-        className="mv4"
-        title="Account"
-        options={accountOptions}
-        handleUpdate={handleAccountSelection}
-        currentSelectionTitle={accountTitle}
-      />
+      {useCustomPath && (
+        <Grid.Item full as={Input} className="mv3" {...hdPathInput} />
+      )}
 
-      {account === 'custom' && (
+      {!useCustomPath && (
         <Grid.Item
           full
-          as={Input}
+          as={InnerLabelDropdown}
           className="mv4"
-          name="hdPath"
-          label="HD path"
-          autoComplete="off"
-          initialValue={hdPath}
-          onValue={setHdPath}
+          title="Account"
+          options={accountOptions}
+          handleUpdate={setAccountIndex}
+          currentSelectionTitle={accountTitle}
         />
       )}
+
+      <Grid.Item full as={CheckboxInput} {...customPathInput} />
 
       <Grid.Item
         full

@@ -1,9 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
-import { keyBy, get, every, some } from 'lodash';
+import { isEqual, keyBy, get, every, some } from 'lodash';
 
 import { compose } from 'lib/lib';
 import { kDefaultValidator } from 'lib/validators';
 import useSetState from 'lib/useSetState';
+import usePreviousValue from 'lib/usePreviousValue';
 
 // interface InputConfig {
 //   name: string;
@@ -24,7 +25,15 @@ const defaultsFor = (configs, mapper) =>
 /**
  * useForm manages a set of inputs for rendering them in a loop
  */
-export default function useForm(configs = []) {
+export default function useForm(inputConfigs = []) {
+  // track the old value of the config set
+  const previousConfigs = usePreviousValue(inputConfigs);
+  // then compare equality
+  const configsAreEqual = isEqual(inputConfigs, previousConfigs);
+  // if equality changes, give `configs` a new identity
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const configs = useMemo(() => inputConfigs, [configsAreEqual]);
+
   const byName = useMemo(() => keyBy(configs, 'name'), [configs]);
 
   // track values
@@ -37,11 +46,6 @@ export default function useForm(configs = []) {
   // initialValue can be a validated string and everything will be happy,
   // but for dynamically added input configs, we won't get validation, etc
   // until there's a traditional state update.
-
-  const setValue = useCallback(
-    (name, value) => _setValues(values => ({ ...values, [name]: value })),
-    [_setValues]
-  );
 
   // track focused states
   const [focused, setFocused] = useSetState(() =>
@@ -59,6 +63,13 @@ export default function useForm(configs = []) {
   const transform = useCallback(
     (name, value) => compose(...get(byName, [name, 'transformers'], []))(value),
     [byName]
+  );
+
+  // set a value (and transform it)
+  const setValue = useCallback(
+    (name, value) =>
+      _setValues(values => ({ ...values, [name]: transform(name, value) })),
+    [_setValues, transform]
   );
 
   // build fn that validates a value by input name
@@ -84,8 +95,8 @@ export default function useForm(configs = []) {
 
   // on change, transform and set value
   const onChange = useCallback(
-    name => e => setValue(name, transform(name, getValue(name, e))), //
-    [setValue, transform, getValue]
+    name => e => setValue(name, getValue(name, e)), //
+    [setValue, getValue]
   );
 
   // on focus, update focus
@@ -198,5 +209,6 @@ export default function useForm(configs = []) {
     inputs,
     pass,
     error,
+    setValue,
   };
 }

@@ -14,13 +14,12 @@ export default function PrivateKey({ className }) {
 
   const { setWallet } = useWallet();
 
-  const privateKeyInput = useHexInput({
+  const [privateKeyInput, { pass, data: privateKey }] = useHexInput({
     length: 64,
     name: 'privateKey',
     label: 'Private key',
     autoFocus: true,
   });
-  const { pass, data: privateKey } = privateKeyInput;
 
   useEffect(() => {
     if (pass) {
