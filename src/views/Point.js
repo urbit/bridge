@@ -4,6 +4,7 @@ import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
+import { usePointCache } from 'store/pointCache';
 import { useHistory } from 'store/history';
 
 import View from 'components/View';
@@ -22,9 +23,11 @@ import { useWallet } from 'store/wallet';
 export default function Point() {
   const history = useHistory();
   const { pointCursor } = usePointCursor();
+  const { pointCache } = usePointCache();
   const { wallet } = useWallet();
 
   const point = need.point(pointCursor);
+  const hasInCache = point in pointCache;
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);
@@ -46,7 +49,9 @@ export default function Point() {
       <Passport point={Maybe.Just(point)} />
       <Grid className="pt2">
         <Grid.Item full>
-          <ForwardButton onClick={goAdmin}>Admin</ForwardButton>
+          <ForwardButton disabled={!hasInCache} onClick={goAdmin}>
+            Admin
+          </ForwardButton>
         </Grid.Item>
         <Grid.Divider />
         <Grid.Item full>
