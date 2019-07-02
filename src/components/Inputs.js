@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { AccessoryIcon, useForm } from 'indigo-react';
 import * as bip39 from 'bip39';
 
 import InputSigil from 'components/InputSigil';
@@ -10,10 +11,13 @@ import {
   validatePoint,
   validateTicket,
   validateEmail,
+  validateLength,
+  validateHexString,
 } from 'lib/validators';
 import { prependSig } from 'lib/transformers';
-import useForm from 'indigo-react/lib/useForm';
-import { AccessoryIcon } from 'indigo-react';
+
+const EXAMPLE_PRIVATE_KEY =
+  '0xa44de2416ee6beb2f323fab48b432925c9785808d33a6ca6d7ba00b45e9370c3';
 
 // const RequiredInput = advancedInput({
 //   WrappedComponent: Input,
@@ -35,6 +39,12 @@ import { AccessoryIcon } from 'indigo-react';
 //   validators: [validateEthereumAddress, validateNotEmpty],
 // });
 
+// const GalaxyInput = advancedInput({
+//   WrappedComponent: Input,
+//   validators: [validateGalaxy, validateNotEmpty],
+//   transformers: [prependSig],
+// });
+
 const firstOf = state => state.inputs[0];
 
 export function usePassphraseInput(props) {
@@ -45,6 +55,27 @@ export function usePassphraseInput(props) {
         autoComplete: 'off',
         placeholder: 'Passphrase',
         ...props,
+      },
+    ])
+  );
+}
+
+export function useHexInput({ length, ...rest }) {
+  return firstOf(
+    useForm([
+      {
+        type: 'text', // or password
+        autoComplete: 'off',
+        placeholder: EXAMPLE_PRIVATE_KEY,
+        validators: useMemo(
+          () => [
+            validateHexString,
+            validateLength(length + 2),
+            validateNotEmpty,
+          ],
+          [length]
+        ),
+        ...rest,
       },
     ])
   );
@@ -78,12 +109,6 @@ export function useHdPathInput(props) {
     ])
   );
 }
-
-// const GalaxyInput = advancedInput({
-//   WrappedComponent: Input,
-//   validators: [validateGalaxy, validateNotEmpty],
-//   transformers: [prependSig],
-// });
 
 const kTicketValidators = [validateTicket, validateNotEmpty];
 const kTicketTransformers = [prependSig];
@@ -174,9 +199,3 @@ export const buildEmailInputConfig = extra => ({
   initialValue: '',
   ...extra,
 });
-
-// const TicketInput = advancedInput({
-//   WrappedComponent: Input,
-//   validators: [validateTicket, validateNotEmpty],
-//   transformers: [prependSig],
-// });

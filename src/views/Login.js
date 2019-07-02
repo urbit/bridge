@@ -102,7 +102,7 @@ export default function Login() {
   }, [contracts, pointCursor, setPointCursor, wallet, goToPoint, goToPoints]);
 
   return (
-    <View>
+    <View inset>
       <Grid>
         <Grid.Item full as={Crumbs} routes={[{ text: 'Multipass' }]} />
         <Grid.Item full as={H4} className="mt4">

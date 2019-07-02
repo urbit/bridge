@@ -5,7 +5,7 @@ import { Flex } from 'indigo-react';
 import Footer from './Footer';
 
 // View is a top-level component that all Views must render to inherit styling
-function View({ className, children, full = false, ...rest }) {
+function View({ className, children, inset = false, full = false, ...rest }) {
   return (
     <Flex
       col
@@ -19,7 +19,13 @@ function View({ className, children, full = false, ...rest }) {
         className
       )}
       {...rest}>
-      <Flex.Item className="pv5">{children}</Flex.Item>
+      <Flex.Item
+        className={cn('pb5', {
+          pt10: inset,
+          pt5: !inset,
+        })}>
+        {children}
+      </Flex.Item>
       <Footer.Target />
     </Flex>
   );

@@ -1,12 +1,12 @@
-import { Just, Nothing } from 'folktale/maybe';
 import React, { useEffect } from 'react';
+import Maybe from 'folktale/maybe';
 import { Grid, Input } from 'indigo-react';
 
-import { usePassphraseInput } from 'components/Inputs';
+import { useHexInput } from 'components/Inputs';
 
 import { useWallet } from 'store/wallet';
 
-import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
+import { EthereumWallet, WALLET_TYPES, stripHexPrefix } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
 
 export default function PrivateKey({ className }) {
@@ -14,22 +14,23 @@ export default function PrivateKey({ className }) {
 
   const { setWallet } = useWallet();
 
-  const privateKeyInput = usePassphraseInput({
+  const privateKeyInput = useHexInput({
+    length: 64,
     name: 'privateKey',
     label: 'Private key',
     autoFocus: true,
   });
-  const privateKey = privateKeyInput.data;
+  const { pass, data: privateKey } = privateKeyInput;
 
   useEffect(() => {
-    if (/^[0-9A-Fa-f]{64}$/g.test(privateKey) === true) {
-      const sec = Buffer.from(privateKey, 'hex');
+    if (pass) {
+      const sec = Buffer.from(stripHexPrefix(privateKey), 'hex');
       const newWallet = new EthereumWallet(sec);
-      setWallet(Just(newWallet));
+      setWallet(Maybe.Just(newWallet));
     } else {
-      setWallet(Nothing());
+      setWallet(Maybe.Nothing());
     }
-  }, [privateKey, setWallet]);
+  }, [pass, privateKey, setWallet]);
 
   return (
     <Grid className={className}>

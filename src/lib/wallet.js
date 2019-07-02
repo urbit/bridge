@@ -8,13 +8,12 @@ import * as ob from 'urbit-ob';
 import * as kg from 'urbit-key-generation/dist';
 import { isAddress } from 'web3-utils';
 
-const DEFAULT_HD_PATH = "m/44'/60'/0'/0/0";
-
-const ETH_ZERO_ADDR = '0x0000000000000000000000000000000000000000';
-const CURVE_ZERO_ADDR =
+export const DEFAULT_HD_PATH = "m/44'/60'/0'/0/0";
+export const ETH_ZERO_ADDR = '0x0000000000000000000000000000000000000000';
+export const CURVE_ZERO_ADDR =
   '0x0000000000000000000000000000000000000000000000000000000000000000';
 
-const WALLET_TYPES = {
+export const WALLET_TYPES = {
   MNEMONIC: Symbol('MNEMONIC'),
   TICKET: Symbol('TICKET'),
   SHARDS: Symbol('SHARDS'),
@@ -24,31 +23,14 @@ const WALLET_TYPES = {
   KEYSTORE: Symbol('KEYSTORE'),
 };
 
-function EthereumWallet(privateKey) {
+export function EthereumWallet(privateKey) {
   this.privateKey = privateKey;
   this.publicKey = secp256k1.publicKeyCreate(this.privateKey);
   const pub = this.publicKey.toString('hex');
   this.address = addressFromSecp256k1Public(pub);
 }
 
-const renderWalletType = wallet =>
-  wallet === WALLET_TYPES.MNEMONIC
-    ? 'Mnemonic'
-    : wallet === WALLET_TYPES.TICKET
-    ? 'Ticket'
-    : wallet === WALLET_TYPES.SHARDS
-    ? 'Ticket Shards'
-    : wallet === WALLET_TYPES.LEDGER
-    ? 'Ledger'
-    : wallet === WALLET_TYPES.TREZOR
-    ? 'Trezor'
-    : wallet === WALLET_TYPES.PRIVATE_KEY
-    ? 'Private Key'
-    : wallet === WALLET_TYPES.KEYSTORE
-    ? 'Keystore File'
-    : 'Wallet';
-
-const addressFromSecp256k1Public = pub => {
+export const addressFromSecp256k1Public = pub => {
   const compressed = false;
   const uncompressed = secp256k1.publicKeyConvert(
     Buffer.from(pub, 'hex'),
@@ -60,18 +42,20 @@ const addressFromSecp256k1Public = pub => {
   return toChecksumAddress(addr);
 };
 
-const addHexPrefix = hex => (hex.slice(0, 2) === '0x' ? hex : '0x' + hex);
+export const addHexPrefix = hex =>
+  hex.slice(0, 2) === '0x' ? hex : '0x' + hex;
 
-const stripHexPrefix = hex => (hex.slice(0, 2) === '0x' ? hex.slice(2) : hex);
+export const stripHexPrefix = hex =>
+  hex.slice(0, 2) === '0x' ? hex.slice(2) : hex;
 
-const keccak256 = str =>
+export const keccak256 = str =>
   keccak('keccak256')
     .update(str)
     .digest();
 
-const isValidAddress = a => '0x0' === a || isAddress(a);
+export const isValidAddress = a => '0x0' === a || isAddress(a);
 
-const toChecksumAddress = address => {
+export const toChecksumAddress = address => {
   const addr = stripHexPrefix(address).toLowerCase();
   const hash = keccak256(addr).toString('hex');
 
@@ -83,27 +67,28 @@ const toChecksumAddress = address => {
   );
 };
 
-const eqAddr = (addr0, addr1) =>
+export const eqAddr = (addr0, addr1) =>
   toChecksumAddress(addr0) === toChecksumAddress(addr1);
 
-const urbitWalletFromTicket = async (ticket, point, passphrase) => {
+export const urbitWalletFromTicket = async (ticket, point, passphrase) => {
   if (typeof point === 'string') {
     //TODO why not in kg?
     point = ob.patp2dec(point);
   }
-  let uhdw = await kg.generateWallet({
+
+  return await kg.generateWallet({
     ticket: ticket,
     ship: point,
     passphrase: passphrase,
   });
-  return uhdw;
 };
 
-const ownershipWalletFromTicket = async (ticket, point, passphrase) => {
+export const ownershipWalletFromTicket = async (ticket, point, passphrase) => {
   if (typeof point === 'string') {
     //TODO why not in kg?
     point = ob.patp2dec(point);
   }
+
   return await kg.generateOwnershipWallet({
     ticket,
     ship: point,
@@ -111,7 +96,7 @@ const ownershipWalletFromTicket = async (ticket, point, passphrase) => {
   });
 };
 
-const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
+export const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
   const seed = bip39.validateMnemonic(mnemonic)
     ? Maybe.Just(bip39.mnemonicToSeed(mnemonic, passphrase))
     : Maybe.Nothing();
@@ -131,21 +116,4 @@ const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
 
   const wallet = seed.chain(sd => toWallet(sd, hdpath));
   return wallet;
-};
-
-export {
-  DEFAULT_HD_PATH,
-  WALLET_TYPES,
-  ETH_ZERO_ADDR,
-  CURVE_ZERO_ADDR,
-  renderWalletType,
-  isValidAddress,
-  toChecksumAddress,
-  addressFromSecp256k1Public,
-  eqAddr,
-  urbitWalletFromTicket,
-  ownershipWalletFromTicket,
-  walletFromMnemonic,
-  addHexPrefix,
-  EthereumWallet,
 };
