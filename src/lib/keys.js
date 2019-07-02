@@ -73,7 +73,7 @@ const attemptNetworkSeedDerivation = async (next, args) => {
   //
   // following code is intentionally verbose for sake of clarity
 
-  const point = need.pointCursor(args.pointCursor);
+  const point = need.point(args.pointCursor);
   const pointDetails = need.fromPointCache(args.pointCache, point);
 
   const revision =

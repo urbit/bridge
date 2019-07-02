@@ -14,8 +14,10 @@ import { useWallet } from 'store/wallet';
 import * as need from 'lib/need';
 import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
 import useWalletType from 'lib/useWalletType';
+import useResetPointCursor from 'lib/useResetPointCursor';
 
 export default function Keystore({ loginCompleted }) {
+  useResetPointCursor();
   useWalletType(WALLET_TYPES.KEYSTORE);
 
   // globals

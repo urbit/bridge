@@ -21,7 +21,7 @@ export default function Admin() {
   const history = useHistory();
   const { urbitWallet } = useWallet();
   const { pointCursor } = usePointCursor();
-  const point = need.pointCursor(pointCursor);
+  const point = need.point(pointCursor);
 
   const [paper, setPaper] = useState(Nothing());
 

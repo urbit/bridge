@@ -20,7 +20,7 @@ import { isDevelopment } from 'lib/flags';
 export default function Confirm({ STEP_NAMES, newWallet, storeNewWallet }) {
   const { push } = useLocalRouter();
   const { pointCursor } = usePointCursor();
-  const point = need.pointCursor(pointCursor);
+  const point = need.point(pointCursor);
 
   const [generatedWallet, setGeneratedWallet] = useState(Nothing());
 

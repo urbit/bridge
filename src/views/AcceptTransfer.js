@@ -25,7 +25,7 @@ class AcceptTransfer extends React.Component {
     super(props);
 
     const receivingAddress = need.addressFromWallet(props.wallet);
-    const incomingPoint = need.pointCursor(props.pointCursor);
+    const incomingPoint = need.point(props.pointCursor);
 
     this.state = {
       receivingAddress: receivingAddress,
@@ -46,7 +46,7 @@ class AcceptTransfer extends React.Component {
     const { state, props } = this;
 
     const validContracts = need.contracts(props.contracts);
-    const validPoint = need.pointCursor(props.pointCursor);
+    const validPoint = need.point(props.pointCursor);
     //TODO state.incomingPoint ?
 
     return Just(

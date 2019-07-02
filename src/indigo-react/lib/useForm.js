@@ -29,11 +29,7 @@ export default function useForm(configs = []) {
 
   // track values
   const [values, _setValues] = useState(() =>
-    defaultsFor(configs, config => config.initialValue)
-  );
-  const setValue = useCallback(
-    (name, value) => _setValues(values => ({ ...values, [name]: value })),
-    [_setValues]
+    defaultsFor(configs, config => config.initialValue || '')
   );
   // ^ NB(shrugs): because we're not syncing the initialValue of _additional_
   // configs that are added, we won't be able to set an initialValue for a
@@ -41,6 +37,11 @@ export default function useForm(configs = []) {
   // initialValue can be a validated string and everything will be happy,
   // but for dynamically added input configs, we won't get validation, etc
   // until there's a traditional state update.
+
+  const setValue = useCallback(
+    (name, value) => _setValues(values => ({ ...values, [name]: value })),
+    [_setValues]
+  );
 
   // track focused states
   const [focused, setFocused] = useSetState(() =>
@@ -70,11 +71,23 @@ export default function useForm(configs = []) {
     [byName]
   );
 
+  const getValue = useCallback(
+    (name, e) => {
+      if (byName[name].type === 'checkbox') {
+        return e.target.checked;
+      }
+
+      return e.target.value;
+    },
+    [byName]
+  );
+
   // on change, transform and set value
   const onChange = useCallback(
-    name => e => setValue(name, transform(name, e.target.value)), //
-    [setValue, transform]
+    name => e => setValue(name, transform(name, getValue(name, e))), //
+    [setValue, transform, getValue]
   );
+
   // on focus, update focus
   const onFocus = useCallback(
     name => e => setFocused({ [name]: true }), //
@@ -85,7 +98,7 @@ export default function useForm(configs = []) {
   const onBlur = useCallback(
     name => e => {
       setFocused({ [name]: false });
-      setHasBeenFocused({ [name]: false });
+      setHasBeenFocused({ [name]: true });
     },
     [setFocused, setHasBeenFocused]
   );
@@ -153,7 +166,8 @@ export default function useForm(configs = []) {
           ...rest,
           // dom properties below:
           bind: {
-            value: values[name] || initialValue,
+            value: values[name] || initialValue || '',
+            checked: !!values[name],
             onChange: onChange(name),
             onFocus: onFocus(name),
             onBlur: onBlur(name),

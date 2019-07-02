@@ -19,7 +19,7 @@ function Actions() {
   const history = useHistory();
   const { wallet } = useWallet();
   const { pointCursor } = usePointCursor();
-  const point = need.pointCursor(pointCursor);
+  const point = need.point(pointCursor);
   const { getDetails } = usePointCache();
   const pointDetails = getDetails(point);
 

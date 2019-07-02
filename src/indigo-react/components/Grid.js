@@ -1,20 +1,25 @@
 import React from 'react';
 import cn from 'classnames';
 
-import getComponent from '../lib/getComponent';
-
-function Grid({ as = 'div', gap = 0, className, ...rest }) {
-  const Component = getComponent(as);
+function Grid({ as: As = 'div', gap = 0, align, justify, className, ...rest }) {
   return (
-    <Component
-      className={cn('grid12', gap && `gap${gap}`, className)}
+    <As
+      className={cn(
+        'grid12',
+        gap && `gap${gap}`,
+        {
+          [`justify-${justify}`]: justify,
+          [`align-${align}`]: align,
+        },
+        className
+      )}
       {...rest}
     />
   );
 }
 
 Grid.Item = function GridItem({
-  as = 'div',
+  as: As = 'div',
   full = false,
   half = 0,
   third = 0,
@@ -26,9 +31,8 @@ Grid.Item = function GridItem({
   className,
   ...rest
 }) {
-  const Component = getComponent(as);
   return (
-    <Component
+    <As
       className={cn(
         {
           full,
@@ -51,14 +55,19 @@ Grid.Item = function GridItem({
   );
 };
 
-Grid.Divider = function GridDivider({ vertical = false, className, ...rest }) {
+Grid.Divider = function GridDivider({
+  vertical = false,
+  color = 'gray2',
+  className,
+  ...rest
+}) {
   return (
     <div
       style={{
         height: vertical ? 'auto' : '1px',
         width: vertical ? '1px' : 'auto',
       }}
-      className={cn('full', className || 'bg-gray2')}
+      className={cn('full', `bg-${color}`, className)}
       {...rest}
     />
   );

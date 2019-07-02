@@ -13,6 +13,7 @@ import { InnerLabelDropdown } from 'components/old/Base';
 import { TREZOR_PATH } from 'lib/trezor';
 import useWalletType from 'lib/useWalletType';
 import { WALLET_TYPES } from 'lib/wallet';
+import useResetPointCursor from 'lib/useResetPointCursor';
 
 import { useWallet } from 'store/wallet';
 
@@ -22,6 +23,7 @@ const accountOptions = [
 ];
 
 export default function Trezor({ loginCompleted }) {
+  useResetPointCursor();
   useWalletType(WALLET_TYPES.TREZOR);
 
   const { wallet, setWallet, setWalletHdPath } = useWallet();

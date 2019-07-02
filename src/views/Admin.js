@@ -23,7 +23,7 @@ export default function Admin() {
   const { pointCursor } = usePointCursor();
   // const { pointCache } = usePointCache();
 
-  const point = need.pointCursor(pointCursor);
+  const point = need.point(pointCursor);
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);

@@ -20,7 +20,7 @@ class Transfer extends React.Component {
   constructor(props) {
     super(props);
 
-    const issuingPoint = need.pointCursor(props.pointCursor);
+    const issuingPoint = need.point(props.pointCursor);
 
     this.state = {
       receivingAddress: '',
@@ -47,7 +47,7 @@ class Transfer extends React.Component {
     const { state, props } = this;
 
     const validContracts = need.contracts(props.contracts);
-    const validPoint = need.pointCursor(props.pointCursor);
+    const validPoint = need.point(props.pointCursor);
 
     const txn = azimuth.ecliptic.setTransferProxy(
       validContracts,

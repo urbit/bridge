@@ -5,8 +5,9 @@ import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
 import { Warning } from 'components/old/Base';
 
-import { TRANSACTION_STATES, startTransactions } from 'lib/invite';
+import { TRANSACTION_STATES, claimPointFromInvite } from 'lib/invite';
 
+import * as need from 'lib/need';
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
@@ -24,14 +25,15 @@ export default function DoReticket({ newWallet, completed }) {
 
   // start reticketing transactions on mount
   useLifecycle(() => {
-    startTransactions({
-      realPointM: pointCursor,
-      web3,
-      contracts,
-      inviteWalletM: wallet,
-      realWalletM: Just(newWallet.value.wallet),
-      setUrbitWallet,
-      updateProgress,
+    claimPointFromInvite({
+      inviteWallet: need.wallet(wallet),
+      wallet: newWallet.value.wallet,
+      point: need.point(pointCursor),
+      web3: need.web3(web3),
+      contracts: need.contracts(contracts),
+      onUpdate: updateProgress,
+    }).then(() => {
+      setUrbitWallet(newWallet.value.wallet);
     });
   });
 

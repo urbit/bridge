@@ -18,7 +18,7 @@ import { BRIDGE_ERROR } from 'lib/error';
 
 export const WalletContext = createContext(null);
 
-const kDefaultWalletType = WALLET_TYPES.TICKET;
+const DEFAULT_WALLET_TYPE = WALLET_TYPES.TICKET;
 
 // NB (jtobin):
 //
@@ -36,7 +36,7 @@ function _useWallet(
   initialWallet = Maybe.Nothing(),
   initialMnemonic = Maybe.Nothing()
 ) {
-  const [walletType, _setWalletType] = useState(kDefaultWalletType);
+  const [walletType, _setWalletType] = useState(DEFAULT_WALLET_TYPE);
   const [walletHdPath, setWalletHdPath] = useState(DEFAULT_HD_PATH);
   const [wallet, _setWallet] = useState(initialWallet);
   const [urbitWallet, _setUrbitWallet] = useState(Maybe.Nothing());
@@ -79,12 +79,6 @@ function _useWallet(
           urbitWallet.value.meta.passphrase
         );
 
-        // manually set the public address
-        wallet.map(wal => {
-          wal.address = urbitWallet.value.ownership.keys.address;
-          return wal;
-        });
-
         setWallet(wallet);
       } else {
         setWallet(Maybe.Nothing());
@@ -96,7 +90,7 @@ function _useWallet(
   );
 
   const resetWallet = useCallback(() => {
-    _setWalletType(kDefaultWalletType);
+    _setWalletType(DEFAULT_WALLET_TYPE);
     setWalletHdPath(DEFAULT_HD_PATH);
     _setWallet(Maybe.Nothing());
     _setUrbitWallet(Maybe.Nothing());

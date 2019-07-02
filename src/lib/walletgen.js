@@ -10,6 +10,7 @@ import {
   GALAXY_ENTROPY_BITS,
   STAR_ENTROPY_BITS,
   PLANET_ENTROPY_BITS,
+  ZOD,
 } from './constants';
 
 const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8;
@@ -66,9 +67,13 @@ export const generateWallet = async (point, ticket, boot) => {
 export const generateOwnershipWallet = (ship, ticket) =>
   kg.generateOwnershipWallet({ ship, ticket });
 
+// temporary wallets need to be derivable from just the ticket,
+// so we always use ~zod as the wallet point.
+export const generateTemporaryOwnershipWallet = ticket =>
+  generateOwnershipWallet(ZOD, ticket);
 export const generateTemporaryTicketAndWallet = async point => {
   const ticket = await makeTicket(point);
-  const owner = await generateOwnershipWallet(0, ticket);
+  const owner = await generateOwnershipWallet(ZOD, ticket);
 
   return { ticket, owner };
 };

@@ -24,7 +24,6 @@ export default function useRouter({
           )}`
         );
       }
-
       setRoutes(routes => [...routes, { key, data }]);
     },
     [setRoutes, views]
@@ -55,6 +54,13 @@ export default function useRouter({
     [setRoutes]
   );
   const peek = useCallback(() => last(routes), [routes]);
+  const replaceWith = useCallback(routes => setRoutes(() => routes), [
+    setRoutes,
+  ]);
+  const reset = useCallback(() => setRoutes(initialRoutes), [
+    setRoutes,
+    initialRoutes,
+  ]);
   const includes = useCallback(key => _includes(routes.map(r => r.key), key), [
     routes,
   ]);
@@ -62,12 +68,8 @@ export default function useRouter({
   const data = useMemo(() => last(routes).data, [routes]);
   const Route = useMemo(() => views[peek().key], [views, peek]);
 
-  // Scroll to top of page with each route transition on primary navigation
+  // Scroll to top of page with each route transition
   useEffect(() => {
-    if (!primary) {
-      return;
-    }
-
     window.scrollTo(0, 0);
   }, [routes, primary]);
 
@@ -94,6 +96,8 @@ export default function useRouter({
     push,
     popAndPush,
     pop,
+    replaceWith,
+    reset,
     peek,
     size,
     includes,

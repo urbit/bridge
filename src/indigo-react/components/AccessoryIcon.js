@@ -3,7 +3,7 @@ import React from 'react';
 import Flex from './Flex';
 
 const PENDING_ACCESSORY = '⋯';
-const SUCCESS_ACCESSORY = '✔';
+const SUCCESS_ACCESSORY = '✓';
 const FAILURE_ACCESSORY = '×';
 
 function AccessoryIcon({ ...props }) {

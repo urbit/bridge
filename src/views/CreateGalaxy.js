@@ -75,7 +75,7 @@ class CreateGalaxy extends React.Component {
 
     const validContracts = need.contracts(props.contracts);
 
-    const galaxyDec = parseInt(ob.patp2dec(state.galaxyName), 10);
+    const galaxyDec = ob.patp2dec(state.galaxyName);
 
     const txn = azimuth.ecliptic.createGalaxy(
       validContracts,

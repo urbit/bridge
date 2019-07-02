@@ -19,6 +19,7 @@ import { usePointCursor } from 'store/pointCursor';
 import * as need from 'lib/need';
 import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
 import useWalletType from 'lib/useWalletType';
+import useResetPointCursor from 'lib/useResetPointCursor';
 
 //TODO should be part of InputWithStatus component
 const INPUT_STATUS = {
@@ -28,6 +29,7 @@ const INPUT_STATUS = {
 };
 
 export default function Ticket({ advanced, loginCompleted }) {
+  useResetPointCursor();
   useWalletType(WALLET_TYPES.TICKET);
   // globals
   const { contracts } = useNetwork();
@@ -37,16 +39,14 @@ export default function Ticket({ advanced, loginCompleted }) {
   // inputs
   const pointInput = usePointInput({
     name: 'point',
-    label: 'Point',
     //TODO deduce point name from URL if we can, prefill input if we found it
-    // initialValue: '~',
     autoFocus: true,
   });
   const pointName = pointInput.data;
 
   const ticketInput = useTicketInput({
     name: 'ticket',
-    label: 'Master ticket',
+    label: 'Master Ticket',
   });
   const ticket = ticketInput.data;
 

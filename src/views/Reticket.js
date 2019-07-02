@@ -46,7 +46,7 @@ export default function Reticket() {
     initialRoutes: [{ key: STEP_NAMES.CONFIRM }],
   });
   const { pointCursor } = usePointCursor();
-  const point = need.pointCursor(pointCursor);
+  const point = need.point(pointCursor);
   const name = ob.patp(point);
 
   const [newWallet, setNewWallet] = useState(Nothing());
