@@ -1,4 +1,5 @@
 import React from 'react';
+import { hot } from 'react-hot-loader/root';
 import { Just, Nothing } from 'folktale/maybe';
 import { IndigoApp } from 'indigo-react';
 
@@ -36,7 +37,7 @@ const INITIAL_MNEMONIC = IS_STUBBED
   : Nothing();
 const INITIAL_POINT_CURSOR = IS_STUBBED ? Just(65792) : Nothing();
 
-export default function Bridge() {
+function Bridge() {
   return (
     <Provider
       views={ROUTES}
@@ -52,3 +53,5 @@ export default function Bridge() {
     </Provider>
   );
 }
+
+export default process.env.NODE_ENV === 'development' ? hot(Bridge) : Bridge;
