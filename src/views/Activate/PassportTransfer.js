@@ -99,6 +99,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
         web3: _web3,
         contracts: _contracts,
         onUpdate: handleUpdate,
+        transferEth: true,
       });
 
       // set the global wallet
