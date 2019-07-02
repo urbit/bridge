@@ -7,10 +7,8 @@ import PaperCollateralRenderer from 'PaperCollateralRenderer';
 import { usePointCursor } from 'store/pointCursor';
 
 import View from 'components/View';
-import Passport from 'components/Passport';
-import { ForwardButton, DownloadButton } from 'components/Buttons';
+import { ForwardButton } from 'components/Buttons';
 
-import { useWallet } from 'store/wallet';
 import useLifecycle from 'lib/useLifecycle';
 import { generateWallet } from 'lib/invite';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -44,7 +42,6 @@ export default function Confirm({ STEP_NAMES, newWallet, storeNewWallet }) {
       wallet={{ [point]: generatedWallet.value }}
       className={'extremely-hidden'}
       callback={paper => {
-        console.log('done rendering');
         storeNewWallet(generatedWallet.value, paper);
       }}
       mode={'REGISTRATION'}

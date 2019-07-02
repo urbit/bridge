@@ -3,10 +3,8 @@ import { size } from 'lodash';
 import * as need from 'lib/need';
 import ob from 'urbit-ob';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid } from 'indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
-// import { usePointCache } from 'store/pointCache';
 
 import View from 'components/View';
 import MiniBackButton from 'components/MiniBackButton';

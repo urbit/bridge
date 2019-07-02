@@ -1,24 +1,18 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as need from 'lib/need';
-import { Grid } from 'indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
-// import { usePointCache } from 'store/pointCache';
 
 import View from 'components/View';
 import { DownloadButton } from 'components/Buttons';
 import PaperCollateralRenderer from 'PaperCollateralRenderer';
 
 import { downloadWallet } from 'lib/invite';
-import { ROUTE_NAMES } from 'lib/routeNames';
 
-import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
-import FooterButton from 'components/FooterButton';
 
-export default function Admin() {
-  const history = useHistory();
+export default function Redownload() {
   const { urbitWallet } = useWallet();
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
