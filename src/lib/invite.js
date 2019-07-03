@@ -230,7 +230,7 @@ async function claimPointFromInvite({
     let stx = new Tx(tx);
     stx.sign(Buffer.from(inviteWallet.privateKey, 'hex'));
     return {
-      raw: '0x' + stx.serialize().toString('hex'),
+      raw: hexify(stx.serialize()),
       signed: stx,
     };
   });
