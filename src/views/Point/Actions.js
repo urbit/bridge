@@ -2,7 +2,7 @@ import React from 'react';
 import { azimuth } from 'azimuth-js';
 import * as need from '../../lib/need';
 
-import { ETH_ZERO_ADDR, CURVE_ZERO_ADDR, eqAddr } from '../../lib/wallet';
+import { CURVE_ZERO_ADDR, isZeroAddress, eqAddr } from '../../lib/wallet';
 import { H2, P } from '../../components/old/Base';
 import { Button } from '../../components/old/Base';
 import { ROUTE_NAMES } from '../../lib/routeNames';
@@ -89,7 +89,7 @@ function Actions() {
     Nothing: () => false,
     Just: deets =>
       eqAddr(deets.value.owner, addr) &&
-      !eqAddr(deets.value.transferProxy, ETH_ZERO_ADDR),
+      !isZeroAddress(deets.value.transferProxy),
   });
 
   const displayReminder = pointDetails.matchWith({

@@ -1,14 +1,11 @@
 import React from 'react';
 import { H2, H4 } from '../../components/old/Base';
 
-import { ETH_ZERO_ADDR, eqAddr } from '../../lib/wallet';
+import { CURVE_ZERO_ADDR, isZeroAddress } from '../../lib/wallet';
 import { Grid } from 'indigo-react';
 
-const NULL_KEY =
-  '0x0000000000000000000000000000000000000000000000000000000000000000';
-
 const renderAddress = addr =>
-  eqAddr(addr, ETH_ZERO_ADDR) ? (
+  isZeroAddress(addr) ? (
     <div>{'(not set)'}</div>
   ) : (
     <div>
@@ -27,7 +24,7 @@ const renderAddress = addr =>
 const renderNetworkKey = hex => {
   const sl = i => hex.slice(i, i + 4);
   const rowFrom = i => `${sl(i)}.${sl(i + 4)}.${sl(i + 8)}.${sl(i + 12)}`;
-  return hex === NULL_KEY ? (
+  return hex === CURVE_ZERO_ADDR ? (
     <div>{'(not set)'}</div>
   ) : (
     <div>

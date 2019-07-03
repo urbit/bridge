@@ -71,6 +71,8 @@ const keccak256 = str =>
 
 const isValidAddress = a => '0x0' === a || isAddress(a);
 
+const isZeroAddress = a => ETH_ZERO_ADDR === a;
+
 const toChecksumAddress = address => {
   const addr = stripHexPrefix(address).toLowerCase();
   const hash = keccak256(addr).toString('hex');
@@ -140,6 +142,7 @@ export {
   CURVE_ZERO_ADDR,
   renderWalletType,
   isValidAddress,
+  isZeroAddress,
   toChecksumAddress,
   addressFromSecp256k1Public,
   eqAddr,
