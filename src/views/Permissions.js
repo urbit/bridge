@@ -98,11 +98,8 @@ export default function Permissions() {
     );
   };
 
-  let items = 3;
-
   let spawnProxyAction = null;
   if (pointSize !== azimuth.PointSize.Planet) {
-    items++;
     spawnProxyAction = proxyAction(
       'Spawn',
       pointDetails.spawnProxy,
@@ -112,7 +109,6 @@ export default function Permissions() {
 
   let votingProxyAction = null;
   if (pointSize === azimuth.PointSize.Galaxy) {
-    items++;
     votingProxyAction = proxyAction(
       'Voting',
       pointDetails.votingProxy,
@@ -136,7 +132,7 @@ export default function Permissions() {
 
   return (
     <View>
-      <Grid className={`pt${items}`}>
+      <Grid className="pt2">
         <Grid.Item full>
           <ForwardButton disabled="true" detail={pointDetails.owner}>
             Ownership address

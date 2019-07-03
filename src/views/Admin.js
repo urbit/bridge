@@ -46,7 +46,7 @@ export default function Admin() {
 
   return (
     <View>
-      <Grid className="pt3">
+      <Grid className="pt2">
         <Grid.Item full>
           <ForwardButton
             disabled={!canDownloadPassport}
