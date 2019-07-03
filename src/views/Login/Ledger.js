@@ -105,7 +105,7 @@ export default function Ledger({ className }) {
     }
   }, [useCustomPath, setHdPath, basePathPattern, accountIndex]);
 
-  const isHTTPS = document.location.protocol === 'http:';
+  const isHTTPS = document.location.protocol === 'https:';
 
   // when not on https, tell user how to get there
   const renderHTTP = () => (

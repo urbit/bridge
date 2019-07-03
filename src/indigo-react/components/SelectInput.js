@@ -6,6 +6,7 @@ import { ErrorText } from './Typography';
 import useOnClickOutside from 'indigo-react/lib/useOnClickOutside';
 import AccessoryIcon from './AccessoryIcon';
 
+// NOTE: if we really care about accessibility, we should pull in a dependency
 export default function SelectInput({
   // visuals
   name,
