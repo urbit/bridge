@@ -2,13 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import cn from 'classnames';
 import Maybe from 'folktale/maybe';
 import { Grid, H4, P } from 'indigo-react';
-import PaperCollateralRenderer from 'PaperCollateralRenderer';
 
 import * as need from 'lib/need';
 
 import { useActivateFlow } from './ActivateFlow';
 import { downloadWallet } from 'lib/invite';
 import { DownloadButton, ForwardButton } from 'components/Buttons';
+import PaperRenderer from 'components/PaperRenderer';
 import { useLocalRouter } from 'lib/LocalRouter';
 import Steps from 'components/Steps';
 
@@ -76,11 +76,10 @@ export default function PassportDownload({ className }) {
         solid>
         {!downloaded ? 'Download Passport' : 'Continue'}
       </Grid.Item>
-      <PaperCollateralRenderer
-        className="abs super-hidden"
-        wallet={{ [pointAsString]: wallet }}
+      <PaperRenderer
+        point={pointAsString}
+        wallet={wallet}
         callback={data => setPaper(Maybe.Just(data))}
-        mode="REGISTRATION"
       />
     </Grid>
   );

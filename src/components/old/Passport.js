@@ -3,8 +3,8 @@ import { pour } from 'sigil-js';
 import * as ob from 'urbit-ob';
 import ReactSVGComponents from '../ReactSVGComponents';
 import PropTypes from 'prop-types';
-import PaperCollateralRenderer from 'PaperCollateralRenderer';
 import { Button } from './Base';
+import PaperRenderer from 'components/PaperRenderer';
 
 import { WALLET_STATES } from '../../lib/invite';
 import { downloadWallet } from '../../lib/invite';
@@ -159,14 +159,13 @@ class Passport extends React.Component {
     );
 
     let paperCollateral = wallet ? (
-      <PaperCollateralRenderer
-        wallet={{ [pointVal]: wallet }}
-        className={'extremely-hidden'}
+      <PaperRenderer
+        point={pointVal}
+        wallet={wallet}
         callback={data => {
           this.setState({ paper: data });
           this.props.pushWalletState(WALLET_STATES.PAPER_READY);
         }}
-        mode={'REGISTRATION'}
       />
     ) : (
       <div />

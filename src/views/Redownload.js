@@ -6,7 +6,7 @@ import { usePointCursor } from 'store/pointCursor';
 
 import View from 'components/View';
 import { DownloadButton } from 'components/Buttons';
-import PaperCollateralRenderer from 'PaperCollateralRenderer';
+import PaperRenderer from 'components/PaperRenderer';
 
 import { downloadWallet } from 'lib/invite';
 
@@ -24,13 +24,12 @@ export default function Redownload() {
   };
 
   const paperRenderer = Just.hasInstance(paper) ? null : (
-    <PaperCollateralRenderer
-      wallet={{ [point]: urbitWallet.value }}
-      className={'extremely-hidden'}
+    <PaperRenderer
+      point={point}
+      wallet={urbitWallet.value}
       callback={paper => {
         setPaper(Just(paper));
       }}
-      mode={'REGISTRATION'}
     />
   );
 

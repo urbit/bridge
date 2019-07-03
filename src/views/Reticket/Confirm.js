@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import * as need from 'lib/need';
 import { Just, Nothing } from 'folktale/maybe';
 
-import PaperCollateralRenderer from 'PaperCollateralRenderer';
-
 import { usePointCursor } from 'store/pointCursor';
 
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
+import PaperRenderer from 'components/PaperRenderer';
 
 import useLifecycle from 'lib/useLifecycle';
 import { generateWallet } from 'lib/invite';
@@ -38,13 +37,12 @@ export default function Confirm({ STEP_NAMES, newWallet, storeNewWallet }) {
   };
 
   const paperRenderer = Nothing.hasInstance(generatedWallet) ? null : (
-    <PaperCollateralRenderer
-      wallet={{ [point]: generatedWallet.value }}
-      className={'extremely-hidden'}
+    <PaperRenderer
+      point={point}
+      wallet={generatedWallet.value}
       callback={paper => {
         storeNewWallet(generatedWallet.value, paper);
       }}
-      mode={'REGISTRATION'}
     />
   );
 
