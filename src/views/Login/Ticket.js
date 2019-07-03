@@ -32,7 +32,7 @@ export default function Ticket({ className }) {
   // point
   const [pointInput, { data: pointName }] = usePointInput({
     name: 'point',
-    initialValue: impliedPoint,
+    initialValue: impliedPoint || '',
     autoFocus: true,
   });
 

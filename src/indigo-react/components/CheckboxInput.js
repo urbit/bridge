@@ -12,9 +12,6 @@ export default function CheckboxInput({
 
   // callbacks
   onValue,
-  onPass,
-  onError,
-  onFocus,
   onEnter,
 
   // state from hook
@@ -31,7 +28,6 @@ export default function CheckboxInput({
   initialValue,
   validators,
   transformers,
-  setValue,
 
   // extra
   ...rest

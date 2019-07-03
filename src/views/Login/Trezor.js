@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Maybe from 'folktale/maybe';
 import * as bip32 from 'bip32';
 import { times } from 'lodash';
@@ -7,17 +7,21 @@ import * as secp256k1 from 'secp256k1';
 import { Text, Input, Grid, H5, CheckboxInput } from 'indigo-react';
 
 import { ForwardButton } from 'components/Buttons';
-import { InnerLabelDropdown } from 'components/old/Base';
 
 import { TREZOR_PATH } from 'lib/trezor';
 import { WALLET_TYPES } from 'lib/wallet';
 
 import { useWallet } from 'store/wallet';
 import useLoginView from 'lib/useLoginView';
-import { useHdPathInput, useCheckboxInput } from 'components/Inputs';
+import {
+  useHdPathInput,
+  useCheckboxInput,
+  useSelectInput,
+} from 'components/Inputs';
+import SelectInput from 'indigo-react/components/SelectInput';
 
-const accountOptions = times(20, i => ({
-  title: `Account #${i + 1}`,
+const ACCOUNT_OPTIONS = times(20, i => ({
+  text: `Account #${i + 1}`,
   value: i,
 }));
 
@@ -27,14 +31,20 @@ export default function Trezor({ className }) {
 
   const { setWallet, setWalletHdPath } = useWallet();
 
-  const [accountIndex, setAccountIndex] = useState(0);
-
   // custom toggle
   const [customPathInput, { data: useCustomPath }] = useCheckboxInput({
     name: 'customPath',
     label: 'Custom HD Path',
     autoComplete: 'off',
     initialValue: false,
+  });
+
+  // account input
+  const [accountInput, { data: accountIndex }] = useSelectInput({
+    name: 'account',
+    label: 'Account',
+    placeholder: 'Choose account...',
+    options: ACCOUNT_OPTIONS,
   });
 
   // hd path input
@@ -79,36 +89,22 @@ export default function Trezor({ className }) {
     }
   }, [useCustomPath, setHdPath, accountIndex]);
 
-  const accountTitle = accountOptions.find(o => o.value === accountIndex).title;
-
   return (
     <Grid className={className}>
       <Grid.Item full as={H5}>
         Authenticate With Your Trezor
       </Grid.Item>
 
-      <Grid.Item full as={Text} className="f6">
+      <Grid.Item full as={Text} className="f6 mb3">
         Connect and authenticate to your Trezor. If you'd like to use a custom
         derivation path, you may enter it below.
       </Grid.Item>
 
-      {useCustomPath && (
-        <Grid.Item full as={Input} className="mv3" {...hdPathInput} />
-      )}
+      {useCustomPath && <Grid.Item full as={Input} {...hdPathInput} />}
 
-      {!useCustomPath && (
-        <Grid.Item
-          full
-          as={InnerLabelDropdown}
-          className="mv4"
-          title="Account"
-          options={accountOptions}
-          handleUpdate={setAccountIndex}
-          currentSelectionTitle={accountTitle}
-        />
-      )}
+      {!useCustomPath && <Grid.Item full as={SelectInput} {...accountInput} />}
 
-      <Grid.Item full as={CheckboxInput} {...customPathInput} />
+      <Grid.Item full as={CheckboxInput} className="mv3" {...customPathInput} />
 
       <Grid.Item
         full

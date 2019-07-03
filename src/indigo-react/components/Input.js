@@ -14,9 +14,6 @@ export default function Input({
 
   // callbacks
   onValue,
-  onPass,
-  onError,
-  onFocus,
   onEnter,
 
   // state from hook
@@ -33,7 +30,6 @@ export default function Input({
   initialValue,
   validators,
   transformers,
-  setValue,
 
   // extra
   ...rest
@@ -50,24 +46,12 @@ export default function Input({
   );
 
   // notify parent of value only when passing
+  // TODO: deprecate/remove this
+  // keeping it around for now to avoid refactoring InviteEmail.js, but this
+  // feels like a hack
   useEffect(() => {
     pass && onValue && onValue(data);
   }, [pass, data]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // notify parent of pass
-  useEffect(() => {
-    onPass && onPass(pass);
-  }, [pass]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // notify parent of error whenever error changes
-  useEffect(() => {
-    onError && onError(error);
-  }, [error]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // notify parent of focus
-  useEffect(() => {
-    onFocus && onFocus(focused);
-  }, [focused]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Flex

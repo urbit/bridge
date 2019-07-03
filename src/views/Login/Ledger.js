@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import Maybe from 'folktale/maybe';
 import { P, Text, Input, Grid, H5, CheckboxInput } from 'indigo-react';
 import { times } from 'lodash';
@@ -8,8 +8,11 @@ import Eth from '@ledgerhq/hw-app-eth';
 import * as secp256k1 from 'secp256k1';
 
 import { ForwardButton } from 'components/Buttons';
-import { InnerLabelDropdown } from 'components/old/Base';
-import { useCheckboxInput, useHdPathInput } from 'components/Inputs';
+import {
+  useCheckboxInput,
+  useHdPathInput,
+  useSelectInput,
+} from 'components/Inputs';
 
 import { useWallet } from 'store/wallet';
 
@@ -21,14 +24,15 @@ import {
 } from 'lib/ledger';
 import { WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
+import SelectInput from 'indigo-react/components/SelectInput';
 
-const pathOptions = [
-  { title: 'Ledger Live', value: LEDGER_LIVE_PATH },
-  { title: 'Ledger Legacy', value: LEDGER_LEGACY_PATH },
+const PATH_OPTIONS = [
+  { text: 'Ledger Live', value: LEDGER_LIVE_PATH },
+  { text: 'Ledger Legacy', value: LEDGER_LEGACY_PATH },
 ];
 
-const accountOptions = times(20, i => ({
-  title: `Account #${i + 1}`,
+const ACCOUNT_OPTIONS = times(20, i => ({
+  text: `Account #${i + 1}`,
   value: i,
 }));
 
@@ -37,10 +41,21 @@ export default function Ledger({ className }) {
 
   const { setWallet, setWalletHdPath } = useWallet();
 
-  // ledger has two derivation path _patterns_
-  const [basePathPattern, setBasePathPattern] = useState(LEDGER_LIVE_PATH);
-  // and then we want to be able to select an index within that path
-  const [accountIndex, setAccountIndex] = useState(0);
+  // derivation path input
+  const [derivationPathInput, { data: basePathPattern }] = useSelectInput({
+    name: 'derivationpath',
+    label: 'Derivation Path',
+    placeholder: 'Choose path pattern...',
+    options: PATH_OPTIONS,
+  });
+
+  // account input
+  const [accountInput, { data: accountIndex }] = useSelectInput({
+    name: 'account',
+    label: 'Account',
+    placeholder: 'Choose account...',
+    options: ACCOUNT_OPTIONS,
+  });
 
   // custom toggle
   const [customPathInput, { data: useCustomPath }] = useCheckboxInput({
@@ -90,11 +105,6 @@ export default function Ledger({ className }) {
     }
   }, [useCustomPath, setHdPath, basePathPattern, accountIndex]);
 
-  const basePathPatternTitle = pathOptions.find(
-    o => o.value === basePathPattern
-  ).title;
-  const accountTitle = accountOptions.find(o => o.value === accountIndex).title;
-
   const isHTTPS = document.location.protocol === 'http:';
 
   // when not on https, tell user how to get there
@@ -141,41 +151,33 @@ export default function Ledger({ className }) {
       <Grid.Item full as={H5}>
         Authenticate With Your Ledger
       </Grid.Item>
-      <Grid.Item full as={Text} className="f6">
+      <Grid.Item full as={Text} className="f6 mb3">
         Connect and authenticate to your Ledger, and then open the "Ethereum"
         application. If you're running on older firmware, make sure the "browser
         support" option is turned on. To sign transactions, you'll also need to
         enable the "contract data" option.
       </Grid.Item>
 
-      {useCustomPath && (
-        <Grid.Item full as={Input} className="mv3" {...hdPathInput} />
-      )}
+      {useCustomPath && <Grid.Item full as={Input} {...hdPathInput} />}
 
       {!useCustomPath && (
         <>
           <Grid.Item
-            full
-            as={InnerLabelDropdown}
-            className="mv4"
-            title="Derivation path"
-            options={pathOptions}
-            handleUpdate={setBasePathPattern}
-            currentSelectionTitle={basePathPatternTitle}
+            half={1}
+            as={SelectInput}
+            className="pr1"
+            {...derivationPathInput}
           />
           <Grid.Item
-            full
-            as={InnerLabelDropdown}
-            className="mt4"
-            title="Account"
-            options={accountOptions}
-            handleUpdate={setAccountIndex}
-            currentSelectionTitle={accountTitle}
+            half={2}
+            as={SelectInput}
+            className="pl1"
+            {...accountInput}
           />
         </>
       )}
 
-      <Grid.Item full as={CheckboxInput} {...customPathInput} />
+      <Grid.Item full as={CheckboxInput} className="mv3" {...customPathInput} />
 
       <Grid.Item
         full

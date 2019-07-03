@@ -38,7 +38,9 @@ export default function useForm(inputConfigs = []) {
 
   // track values
   const [values, _setValues] = useState(() =>
-    defaultsFor(configs, config => config.initialValue || '')
+    defaultsFor(configs, config =>
+      config.initialValue === undefined ? '' : config.initialValue
+    )
   );
   // ^ NB(shrugs): because we're not syncing the initialValue of _additional_
   // configs that are added, we won't be able to set an initialValue for a
@@ -164,27 +166,31 @@ export default function useForm(inputConfigs = []) {
   const inputs = useMemo(
     () =>
       configs.map(
-        ({ name, error, autoFocus, disabled, initialValue, ...rest }, i) => ({
-          // Input props
-          name,
-          data: datas[i],
-          pass: passes[i],
-          visiblyPassed: visiblePasses[i],
-          error: errors[i],
-          focused: focuses[i],
-          autoFocus: autoFocus && !disabled,
-          disabled,
-          ...rest,
-          // dom properties below:
-          bind: {
-            value: values[name] || initialValue || '',
-            checked: !!values[name],
-            onChange: onChange(name),
-            onFocus: onFocus(name),
-            onBlur: onBlur(name),
+        ({ name, error, autoFocus, disabled, initialValue, ...rest }, i) => {
+          const value =
+            values[name] || (initialValue === undefined ? '' : initialValue);
+          return {
+            // Input props
+            name,
+            data: datas[i],
+            pass: passes[i],
+            visiblyPassed: visiblePasses[i],
+            error: errors[i],
+            focused: focuses[i],
             autoFocus: autoFocus && !disabled,
-          },
-        })
+            disabled,
+            ...rest,
+            // dom properties below:
+            bind: {
+              value,
+              checked: !!values[name],
+              onChange: onChange(name),
+              onFocus: onFocus(name),
+              onBlur: onBlur(name),
+              autoFocus: autoFocus && !disabled,
+            },
+          };
+        }
       ),
     [
       configs,

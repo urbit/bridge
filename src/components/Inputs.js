@@ -14,6 +14,7 @@ import {
   validateEmail,
   validateLength,
   validateHexString,
+  validateOneOf,
 } from 'lib/validators';
 import { prependSig } from 'lib/transformers';
 
@@ -187,7 +188,7 @@ export function usePointInput(rest) {
       accessory: lastValidPoint ? (
         <InputSigil
           patp={lastValidPoint}
-          size={68}
+          size={44}
           margin={8}
           pass={pass}
           focused={focused}
@@ -203,6 +204,28 @@ export function useCheckboxInput({ initialValue, ...rest }) {
     useForm([
       {
         type: 'checkbox',
+        ...rest,
+      },
+    ])
+  );
+}
+
+export function useSelectInput({ initialValue, options, ...rest }) {
+  return useFirstOf(
+    useForm([
+      {
+        type: 'select',
+        validators: useMemo(
+          () => [
+            validateOneOf(
+              options.map(option => option.value),
+              validateNotEmpty
+            ),
+          ],
+          [options]
+        ),
+        options,
+        initialValue: initialValue || options[0].value,
         ...rest,
       },
     ])

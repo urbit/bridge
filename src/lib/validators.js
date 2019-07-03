@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import * as ob from 'urbit-ob';
-import { identity } from 'lodash';
+import { identity, includes } from 'lodash';
 
 import { isValidAddress } from './wallet';
 import patp2dec from './patp2dec';
@@ -147,6 +147,13 @@ export const validateLength = l => m =>
       }
     },
     error: `Must be exactly ${l} characters`,
+  });
+
+export const validateOneOf = (options = []) => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => includes(options, d),
+    error: `Is not a valid option.`,
   });
 
 export const validateHexString = m =>

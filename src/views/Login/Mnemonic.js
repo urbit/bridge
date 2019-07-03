@@ -38,7 +38,7 @@ export default function Mnemonic({ className }) {
 
   const [passphraseInput, { data: passphrase }] = usePassphraseInput({
     name: 'passphrase',
-    label: '(Optional) Wallet Passphrase',
+    label: 'Wallet Passphrase',
   });
 
   const [hdPathInput, { data: hdPath }] = useHdPathInput({
