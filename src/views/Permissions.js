@@ -133,10 +133,12 @@ export default function Permissions() {
   return (
     <View>
       <Grid className="pt2">
-        <Grid.Item full>
-          <ForwardButton disabled="true" detail={pointDetails.owner}>
-            Ownership address
-          </ForwardButton>
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled="true"
+          detail={pointDetails.owner}>
+          Ownership address
         </Grid.Item>
         {proxyAction(
           'Management',
@@ -145,13 +147,13 @@ export default function Permissions() {
         )}
         {spawnProxyAction}
         {votingProxyAction}
-        <Grid.Item full>
-          <ForwardButton
-            disabled={!canManage}
-            onClick={goSetKeys}
-            detail={netKeysText}>
-            Network keys
-          </ForwardButton>
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!canManage}
+          onClick={goSetKeys}
+          detail={netKeysText}>
+          Network keys
         </Grid.Item>
       </Grid>
 

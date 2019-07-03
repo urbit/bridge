@@ -48,16 +48,16 @@ export default function Point() {
     <View>
       <Passport point={Maybe.Just(point)} />
       <Grid className="pt2">
-        <Grid.Item full>
-          <ForwardButton disabled={!hasInCache} onClick={goAdmin}>
-            Admin
-          </ForwardButton>
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!hasInCache}
+          onClick={goAdmin}>
+          Admin
         </Grid.Item>
         <Grid.Divider />
-        <Grid.Item full>
-          <ForwardButton detail="Boot your computer" disabled>
-            Boot Arvo
-          </ForwardButton>
+        <Grid.Item full as={ForwardButton} detail="Boot your computer" disabled>
+          Boot Arvo
         </Grid.Item>
         {showActions && (
           <Grid.Item full>

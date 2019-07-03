@@ -47,28 +47,29 @@ export default function Admin() {
   return (
     <View>
       <Grid className="pt2">
-        <Grid.Item full>
-          <ForwardButton
-            disabled={!canDownloadPassport}
-            onClick={goRedownload}
-            detail="Re-download your paper wallet">
-            Download Passport
-          </ForwardButton>
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!canDownloadPassport}
+          onClick={goRedownload}
+          detail="Re-download your paper wallet">
+          Download Passport
         </Grid.Item>
         <Grid.Divider />
-        <Grid.Item full>
-          <ForwardButton
-            onClick={goReticket}
-            detail="//TODO disable if not logged in as owner">
-            Reticket
-          </ForwardButton>
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!isOwner}
+          onClick={goReticket}
+          detail="Move to brand new wallet, re-setting all permissions">
+          Reticket
         </Grid.Item>
-        <Grid.Item full>
-          <ForwardButton
-            onClick={goEditPerms}
-            detail="Management, networking keys, etc.">
-            Edit permissions
-          </ForwardButton>
+        <Grid.Item
+          full
+          as={ForwardButton}
+          onClick={goEditPerms}
+          detail="Management, networking keys, etc.">
+          Edit permissions
         </Grid.Item>
       </Grid>
 
