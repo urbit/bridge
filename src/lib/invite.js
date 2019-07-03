@@ -12,6 +12,7 @@ import saveAs from 'file-saver';
 import { sendSignedTransaction, hexify } from './txn';
 import { attemptNetworkSeedDerivation } from './keys';
 import { addHexPrefix, WALLET_TYPES } from './wallet';
+import { GAS_LIMITS } from './constants';
 
 const INVITE_STAGES = {
   INVITE_LOGIN: 'invite login',
@@ -131,7 +132,7 @@ async function claimPointFromInvite({
     inviteAddress,
     false
   );
-  transferTmpTx.gas = 500000; //TODO can maybe be lower?
+  transferTmpTx.gas = GAS_LIMITS.TRANSFER;
 
   // configure networking public keys
 
@@ -160,7 +161,7 @@ async function claimPointFromInvite({
     1,
     false
   );
-  keysTx.gas = 150000;
+  keysTx.gas = GAS_LIMITS.CONFIGURE_KEYS;
 
   // configure management proxy
 
@@ -169,7 +170,7 @@ async function claimPointFromInvite({
     point,
     wallet.management.keys.address
   );
-  managementTx.gas = 200000;
+  managementTx.gas = GAS_LIMITS.SET_PROXY;
 
   // set spawn & voting proxies situationally
 
@@ -182,7 +183,7 @@ async function claimPointFromInvite({
       point,
       wallet.spawn.keys.address
     );
-    spawnTx.gas = 200000;
+    spawnTx.gas = GAS_LIMITS.SET_PROXY;
     txs.push(spawnTx);
 
     if (
@@ -193,7 +194,7 @@ async function claimPointFromInvite({
         point,
         wallet.voting.keys.address
       );
-      votingTx.gas = 200000;
+      votingTx.gas = GAS_LIMITS.SET_PROXY;
       txs.push(votingTx);
     }
   }
@@ -206,7 +207,7 @@ async function claimPointFromInvite({
     wallet.ownership.keys.address,
     false
   );
-  transferFinalTx.gas = 500000; //TODO can maybe be lower?
+  transferFinalTx.gas = GAS_LIMITS.TRANSFER;
   txs.push(transferFinalTx);
 
   //

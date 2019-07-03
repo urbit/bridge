@@ -13,6 +13,14 @@ const GALAXY_ENTROPY_BITS = 384;
 
 const SEED_ENTROPY_BITS = 128;
 
+//TODO properly research these, move into azimuth-js
+const GAS_LIMITS = {
+  TRANSFER: 500000,
+  CONFIGURE_KEYS: 150000,
+  SET_PROXY: 200000,
+  GIFT_PLANET: 400000, //TODO can maybe do 370000, see also commit  8c0ecaaa
+};
+
 // TODO: this is walletgen-ui specific, move into a wallet router later
 const GEN_STATES = {
   ENY_NOSTART: Symbol('ENY_NOSTART'),
@@ -45,6 +53,7 @@ const PROFILE_STATES = {
 };
 
 export {
+  GAS_LIMITS,
   GEN_STATES,
   BUTTON_STATES,
   PROFILE_STATES,
