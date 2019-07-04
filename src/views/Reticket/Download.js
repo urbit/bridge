@@ -7,8 +7,8 @@ import { ForwardButton, DownloadButton } from 'components/Buttons';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { downloadWallet } from 'lib/invite';
 
-export default function Download({ STEP_NAMES, newWallet }) {
-  const { push } = useLocalRouter();
+export default function Download({ newWallet }) {
+  const { push, names } = useLocalRouter();
 
   const [hasDownloaded, setHasDownloaded] = useState(false);
 
@@ -17,7 +17,7 @@ export default function Download({ STEP_NAMES, newWallet }) {
     setHasDownloaded(true);
   };
 
-  const next = useCallback(() => push(STEP_NAMES.VERIFY), [push, STEP_NAMES]);
+  const next = useCallback(() => push(names.VERIFY), [push, names]);
 
   return (
     <View>

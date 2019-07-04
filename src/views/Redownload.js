@@ -23,24 +23,28 @@ export default function Redownload() {
     downloadWallet(paper.value);
   };
 
-  const paperRenderer = Just.hasInstance(paper) ? null : (
-    <PaperRenderer
-      point={point}
-      wallet={urbitWallet.value}
-      callback={paper => {
-        setPaper(Just(paper));
-      }}
-    />
-  );
+  const paperRenderer = paper.matchWith({
+    Nothing: () => null,
+    Just: p => (
+      <PaperRenderer
+        point={point}
+        wallet={urbitWallet.value}
+        callback={paper => {
+          setPaper(Just(paper));
+        }}
+      />
+    ),
+  });
 
   return (
     <View>
       <DownloadButton
         disabled={Nothing.hasInstance(paper)}
         onClick={doDownload}>
-        {Nothing.hasInstance(paper)
-          ? 'Printing and folding...'
-          : 'Download paper wallet'}
+        {paper.matchWith({
+          Nothing: () => 'Printing and folding...',
+          Just: _ => 'Download paper wallet',
+        })}
       </DownloadButton>
       {paperRenderer}
     </View>

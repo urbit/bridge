@@ -14,8 +14,8 @@ import { useLocalRouter } from 'lib/LocalRouter';
 
 import { isDevelopment } from 'lib/flags';
 
-export default function Confirm({ STEP_NAMES, newWallet, storeNewWallet }) {
-  const { push } = useLocalRouter();
+export default function Confirm({ newWallet, storeNewWallet }) {
+  const { push, names } = useLocalRouter();
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
 
@@ -33,17 +33,20 @@ export default function Confirm({ STEP_NAMES, newWallet, storeNewWallet }) {
     })();
   });
 
-  const next = useCallback(() => push(STEP_NAMES.DOWNLOAD), [push, STEP_NAMES]);
+  const next = useCallback(() => push(names.DOWNLOAD), [push, names]);
 
-  const paperRenderer = Nothing.hasInstance(generatedWallet) ? null : (
-    <PaperRenderer
-      point={point}
-      wallet={generatedWallet.value}
-      callback={paper => {
-        storeNewWallet(generatedWallet.value, paper);
-      }}
-    />
-  );
+  const paperRenderer = generatedWallet.matchWith({
+    Nothing: () => null,
+    Just: gw => (
+      <PaperRenderer
+        point={point}
+        wallet={gw.value}
+        callback={paper => {
+          storeNewWallet(gw.value, paper);
+        }}
+      />
+    ),
+  });
 
   return (
     <View>

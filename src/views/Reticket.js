@@ -20,28 +20,28 @@ import Download from './Reticket/Download';
 import Verify from './Reticket/Verify';
 import DoReticket from './Reticket/DoReticket';
 
-const STEP_NAMES = {
+const NAMES = {
   CONFIRM: 'CONFIRM',
   DOWNLOAD: 'DOWNLOAD',
   VERIFY: 'VERIFY',
   RETICKET: 'RETICKET',
 };
 
-const STEP_VIEWS = {
+const VIEWS = {
   CONFIRM: Confirm,
   DOWNLOAD: Download,
   VERIFY: Verify,
   RETICKET: DoReticket,
 };
 
-const STEP_MAX = size(STEP_NAMES);
+const STEP_MAX = size(NAMES);
 
 export default function Reticket() {
   const history = useHistory();
   const { Route, ...innerRouter } = useRouter({
-    names: STEP_NAMES,
-    views: STEP_VIEWS,
-    initialRoutes: [{ key: STEP_NAMES.CONFIRM }],
+    names: NAMES,
+    views: VIEWS,
+    initialRoutes: [{ key: NAMES.CONFIRM }],
   });
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
@@ -73,8 +73,7 @@ export default function Reticket() {
             {
               text: name,
               action: () => {
-                history.pop();
-                return history.pop();
+                return history.pop(2);
               },
             },
             {
@@ -86,7 +85,6 @@ export default function Reticket() {
         <MiniBackButton onClick={innerRouter.pop} />
         Step {stepNumber} of {STEP_MAX}
         <Route
-          STEP_NAMES={STEP_NAMES}
           newWallet={newWallet}
           //
           storeNewWallet={storeNewWallet}

@@ -23,7 +23,7 @@ export default function Admin() {
 
   const point = need.point(pointCursor);
   const pointDetails = need.fromPointCache(pointCache, point);
-  const userAddress = need.wallet(wallet).address;
+  const address = need.addressFromWallet(wallet);
 
   const goRedownload = useCallback(() => history.push(ROUTE_NAMES.REDOWNLOAD), [
     history,
@@ -42,7 +42,7 @@ export default function Admin() {
   ]);
 
   const canDownloadPassport = Just.hasInstance(urbitWallet);
-  const isOwner = eqAddr(userAddress, pointDetails.owner);
+  const isOwner = eqAddr(address, pointDetails.owner);
 
   return (
     <View>

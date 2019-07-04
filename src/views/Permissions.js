@@ -4,14 +4,10 @@ import * as need from 'lib/need';
 import { azimuth } from 'azimuth-js';
 import { Grid } from 'indigo-react';
 
-import { P } from 'indigo-react';
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
 import FooterButton from 'components/FooterButton';
-import Blinky, {
-  LOADING_CHARACTER,
-  INTERSTITIAL_CHARACTER,
-} from 'components/Blinky';
+import { matchBlinky } from 'components/Blinky';
 
 import { ROUTE_NAMES } from 'lib/routeNames';
 import { eqAddr } from 'lib/wallet';
@@ -122,22 +118,14 @@ export default function Permissions() {
     ) : (
       <>
         {`Revision #${pointDetails.keyRevisionNumber}, since `}
-        {Just.hasInstance(rekeyDate) ? (
-          rekeyDate.value
-        ) : (
-          <Blinky a={LOADING_CHARACTER} b={INTERSTITIAL_CHARACTER} delayed />
-        )}
+        {matchBlinky(rekeyDate)}
       </>
     );
 
   return (
     <View>
       <Grid className="pt2">
-        <Grid.Item
-          full
-          as={ForwardButton}
-          disabled="true"
-          detail={pointDetails.owner}>
+        <Grid.Item full as={ForwardButton} disabled detail={pointDetails.owner}>
           Ownership address
         </Grid.Item>
         {proxyAction(

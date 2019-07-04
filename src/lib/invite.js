@@ -101,7 +101,7 @@ async function claimPointFromInvite({
   web3,
   contracts,
   onUpdate,
-  transferEth,
+  transferEth = false,
 }) {
   const askForFunding = (address, minBalance, balance) =>
     onUpdate({
@@ -122,11 +122,12 @@ async function claimPointFromInvite({
 
   // transfer to invite wallet, so it can configure
   //NOTE doing this in the invite wallet instead of the final wallet makes
-  //     failure cases "solvable" by just telling the user to fully retry
+  //     failure cases "solvable" by just telling the user to fully retry.
+  //     in other words, the invite flow is effectively idempotent.
 
   //TODO no harm done if we already owned it, but should still get a bool arg
   //     for skipping this, if it isn't too big a burden for callers
-  let transferTmpTx = azimuth.ecliptic.transferPoint(
+  const transferTmpTx = azimuth.ecliptic.transferPoint(
     contracts,
     point,
     inviteAddress,
@@ -153,7 +154,7 @@ async function claimPointFromInvite({
 
   const networkKeys = kg.deriveNetworkKeys(networkSeed);
 
-  let keysTx = azimuth.ecliptic.configureKeys(
+  const keysTx = azimuth.ecliptic.configureKeys(
     contracts,
     point,
     addHexPrefix(networkKeys.crypt.public),
@@ -165,7 +166,7 @@ async function claimPointFromInvite({
 
   // configure management proxy
 
-  let managementTx = azimuth.ecliptic.setManagementProxy(
+  const managementTx = azimuth.ecliptic.setManagementProxy(
     contracts,
     point,
     wallet.management.keys.address
@@ -178,7 +179,7 @@ async function claimPointFromInvite({
   if (
     azimuth.azimuth.getPointSize(point) !== azimuth.azimuth.PointSize.Planet
   ) {
-    let spawnTx = azimuth.ecliptic.setSpawnProxy(
+    const spawnTx = azimuth.ecliptic.setSpawnProxy(
       contracts,
       point,
       wallet.spawn.keys.address
@@ -189,7 +190,7 @@ async function claimPointFromInvite({
     if (
       azimuth.azimuth.getPointSize(point) === azimuth.azimuth.PointSize.Galaxy
     ) {
-      let votingTx = azimuth.ecliptic.setVotingProxy(
+      const votingTx = azimuth.ecliptic.setVotingProxy(
         contracts,
         point,
         wallet.voting.keys.address
@@ -201,7 +202,7 @@ async function claimPointFromInvite({
 
   // transfer configured point to user's new wallet
 
-  let transferFinalTx = azimuth.ecliptic.transferPoint(
+  const transferFinalTx = azimuth.ecliptic.transferPoint(
     contracts,
     point,
     wallet.ownership.keys.address,
@@ -250,7 +251,6 @@ async function claimPointFromInvite({
     askForFunding,
     gotFunding
   );
-  console.log('used tank', usedTank);
 
   //
   // sending and awaiting transactions
@@ -258,9 +258,7 @@ async function claimPointFromInvite({
 
   progress(TRANSACTION_STATES.CLAIMING);
 
-  console.log('sending txpairs', txPairs.length);
   await sendAndAwaitConfirm(web3, txPairs.map(p => Just(p.signed)), usedTank);
-  console.log('all done');
 
   //
   // move leftover eth
@@ -275,7 +273,6 @@ async function claimPointFromInvite({
   const sendEthCost = gasPrice * gasLimit;
   if (transferEth && balance > sendEthCost) {
     const value = balance - sendEthCost;
-    console.log('sending', value);
     const tx = {
       to: wallet.ownership.keys.address,
       value: value,
@@ -289,7 +286,6 @@ async function claimPointFromInvite({
     web3.eth.sendSignedTransaction(rawTx).catch(err => {
       console.log('error sending value tx, who cares', err);
     });
-    console.log('sent old balance');
   }
 
   progress(TRANSACTION_STATES.DONE);

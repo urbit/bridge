@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Input, AccessoryIcon } from 'indigo-react';
+import { Input } from 'indigo-react';
 
 import View from 'components/View';
 import { useTicketInput } from 'components/Inputs';
@@ -11,8 +11,8 @@ import { validateExactly } from 'lib/validators';
 const STUB_VERIFY_TICKET = process.env.NODE_ENV === 'development';
 
 //TODO deduplicate with PassportVerify
-export default function Verify({ STEP_NAMES, newWallet }) {
-  const { push } = useLocalRouter();
+export default function Verify({ newWallet }) {
+  const { push, names } = useLocalRouter();
 
   const ticket = newWallet.value.wallet.ticket;
   const validators = useMemo(
@@ -28,7 +28,7 @@ export default function Verify({ STEP_NAMES, newWallet }) {
   });
   const { pass } = ticketInput;
 
-  const next = useCallback(() => push(STEP_NAMES.RETICKET), [push, STEP_NAMES]);
+  const next = useCallback(() => push(names.RETICKET), [push, names]);
 
   return (
     <View>
