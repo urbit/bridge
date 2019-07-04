@@ -30,21 +30,22 @@ export default function DoReticket({ newWallet, completed }) {
 
   // start reticketing transactions on mount
   useLifecycle(() => {
-    claimPointFromInvite({
-      inviteWallet: need.wallet(wallet),
-      wallet: newWallet.value.wallet,
-      point: need.point(pointCursor),
-      web3: need.web3(web3),
-      contracts: need.contracts(contracts),
-      onUpdate: handleUpdate,
-    })
-      .then(() => {
+    (async () => {
+      try {
+        await claimPointFromInvite({
+          inviteWallet: need.wallet(wallet),
+          wallet: newWallet.value.wallet,
+          point: need.point(pointCursor),
+          web3: need.web3(web3),
+          contracts: need.contracts(contracts),
+          onUpdate: handleUpdate,
+        });
         setUrbitWallet(newWallet.value.wallet);
         completed(); //TODO don't auto-redirect
-      })
-      .catch(err => {
+      } catch (err) {
         setGeneralError(err);
-      });
+      }
+    })();
   });
 
   const handleUpdate = useCallback(

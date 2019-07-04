@@ -24,12 +24,13 @@ export default function Confirm({ STEP_NAMES, newWallet, storeNewWallet }) {
   // start generating new wallet on mount
   //TODO also check we can pay for the transactions?
   useLifecycle(() => {
-    generateWallet(point).then(wal => {
+    (async () => {
+      const wal = await generateWallet(point);
       if (isDevelopment) {
         console.log('ticket for', point, wal.ticket);
       }
       setGeneratedWallet(Just(wal));
-    });
+    })();
   });
 
   const next = useCallback(() => push(STEP_NAMES.DOWNLOAD), [push, STEP_NAMES]);
