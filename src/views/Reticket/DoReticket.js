@@ -40,7 +40,7 @@ export default function DoReticket({ newWallet, completed }) {
     })
       .then(() => {
         setUrbitWallet(newWallet.value.wallet);
-        next(); //TODO don't auto-redirect
+        completed(); //TODO don't auto-redirect
       })
       .catch(err => {
         setGeneralError(err);
@@ -62,10 +62,6 @@ export default function DoReticket({ newWallet, completed }) {
     },
     [setState, setNeedFunds]
   );
-
-  const next = () => {
-    completed();
-  };
 
   const renderAdditionalInfo = () => {
     if (generalError) {

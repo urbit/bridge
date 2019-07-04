@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Input, AccessoryIcon } from 'indigo-react';
 
 import View from 'components/View';
@@ -16,9 +16,7 @@ export default function Verify({ STEP_NAMES, newWallet }) {
   });
   const ticket = ticketInput.data;
 
-  const next = () => {
-    push(STEP_NAMES.RETICKET);
-  };
+  const next = useCallback(() => push(STEP_NAMES.RETICKET), [push, STEP_NAMES]);
 
   const matches = newWallet.value.wallet.ticket === ticket;
 

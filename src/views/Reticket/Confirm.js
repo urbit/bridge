@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import * as need from 'lib/need';
 import { Just, Nothing } from 'folktale/maybe';
 
@@ -32,9 +32,7 @@ export default function Confirm({ STEP_NAMES, newWallet, storeNewWallet }) {
     });
   });
 
-  const next = () => {
-    push(STEP_NAMES.DOWNLOAD);
-  };
+  const next = useCallback(() => push(STEP_NAMES.DOWNLOAD), [push, STEP_NAMES]);
 
   const paperRenderer = Nothing.hasInstance(generatedWallet) ? null : (
     <PaperRenderer

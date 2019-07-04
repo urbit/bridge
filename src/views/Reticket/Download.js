@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Nothing } from 'folktale/maybe';
 
 import View from 'components/View';
@@ -17,9 +17,7 @@ export default function Download({ STEP_NAMES, newWallet }) {
     setHasDownloaded(true);
   };
 
-  const next = () => {
-    push(STEP_NAMES.VERIFY);
-  };
+  const next = useCallback(() => push(STEP_NAMES.VERIFY), [push, STEP_NAMES]);
 
   return (
     <View>
