@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { Just } from 'folktale/maybe';
 
 import { Grid, H4, Text, ErrorText } from 'indigo-react';
 import { RestartButton } from 'components/Buttons';
@@ -40,7 +41,8 @@ export default function DoReticket({ newWallet, completed }) {
           contracts: need.contracts(contracts),
           onUpdate: handleUpdate,
         });
-        setUrbitWallet(newWallet.value.wallet);
+        //TODO would it be better for this to happen in completed()?
+        setUrbitWallet(Just(newWallet.value.wallet));
         completed(); //TODO don't auto-redirect
       } catch (err) {
         setGeneralError(err);
