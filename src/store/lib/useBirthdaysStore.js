@@ -26,7 +26,7 @@ export default function useBirthdayStore() {
     async point => {
       const _contracts = contracts.getOrElse(null);
       const _web3 = web3.getOrElse(null);
-      if (!_contracts || !web3) {
+      if (!_contracts || !_web3) {
         return;
       }
 

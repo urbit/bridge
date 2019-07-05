@@ -35,7 +35,7 @@ import LoadableButton from 'components/LoadableButton';
 import useArray from 'lib/useArray';
 import useForm from 'indigo-react/lib/useForm';
 import { buildEmailInputConfig } from 'components/Inputs';
-import { MIN_PLANET } from 'lib/constants';
+import { MIN_PLANET, GAS_LIMITS } from 'lib/constants';
 import Highlighted from 'components/Highlighted';
 import { useNetwork } from 'store/network';
 import { usePointCache } from 'store/pointCache';
@@ -45,7 +45,7 @@ import pluralize from 'lib/pluralize';
 import useMailer from 'lib/useMailer';
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
-const GAS_LIMIT = 400000;
+const GAS_LIMIT = GAS_LIMITS.GIFT_PLANET;
 const INVITE_COST = toWei((GAS_PRICE_GWEI * GAS_LIMIT).toString(), 'gwei');
 const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
 

@@ -144,7 +144,7 @@ const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
     },
   });
 
-  const rawTx = addHexPrefix(txn.serialize().toString('hex'));
+  const rawTx = hexify(txn.serialize());
 
   return new Promise(async (resolve, reject) => {
     web3.eth
