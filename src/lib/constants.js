@@ -28,7 +28,7 @@ const GAS_LIMITS = {
   //
   GIFT_PLANET: 400000, //NOTE low sample size
   //
-  DEFAULT: 600000,
+  DEFAULT: 500000,
 };
 
 // TODO: this is walletgen-ui specific, move into a wallet router later
