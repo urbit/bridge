@@ -25,6 +25,7 @@ export default function SelectInput({
   pass,
   visiblyPassed,
   error,
+  hintError,
   data,
   bind,
   autoFocus,
@@ -92,8 +93,8 @@ export default function SelectInput({
             {
               'b-green3': visiblyPassed,
               'b-black': focused && !visiblyPassed,
-              'b-yellow3': !focused && error,
-              'b-gray3': !focused && !error && !visiblyPassed,
+              'b-yellow3': !focused && hintError,
+              'b-gray3': !focused && !hintError && !visiblyPassed,
             }
           )}
           id={name}

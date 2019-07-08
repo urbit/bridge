@@ -21,6 +21,7 @@ export default function Input({
   pass,
   visiblyPassed,
   error,
+  hintError,
   data,
   bind,
   autoFocus,
@@ -84,8 +85,8 @@ export default function Input({
             {
               'b-green3': visiblyPassed,
               'b-black': focused && !visiblyPassed,
-              'b-yellow3': !focused && error,
-              'b-gray3': !focused && !error && !visiblyPassed,
+              'b-yellow3': !focused && hintError,
+              'b-gray3': !focused && !hintError && !visiblyPassed,
             }
             // TODO: inputClassName ?
           )}
