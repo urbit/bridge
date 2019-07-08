@@ -13,12 +13,22 @@ const GALAXY_ENTROPY_BITS = 384;
 
 const SEED_ENTROPY_BITS = 128;
 
-//TODO properly research these, move into azimuth-js
+//TODO move into azimuth-js
 const GAS_LIMITS = {
-  TRANSFER: 500000,
-  CONFIGURE_KEYS: 150000,
-  SET_PROXY: 200000,
-  GIFT_PLANET: 400000, //TODO can maybe do 370000, see also commit  8c0ecaaa
+  SPAWN: 250000,
+  TRANSFER: 490000,
+  CONFIGURE_KEYS: 100000,
+  SET_PROXY: 119000,
+  //
+  ESCAPE: 115000, //NOTE low sample size
+  ADOPT: 100000, //NOTE low sample size
+  CANCEL_ESCAPE: 200000, //NOTE no samples
+  REJECT: 200000, //NOTE no samples
+  DETACH: 200000, //NOTE no samples
+  //
+  GIFT_PLANET: 400000, //NOTE low sample size
+  //
+  DEFAULT: 500000,
 };
 
 // TODO: this is walletgen-ui specific, move into a wallet router later
