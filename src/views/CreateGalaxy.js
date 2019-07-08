@@ -18,7 +18,7 @@ import StatelessTransaction from '../components/old/StatelessTransaction';
 import { NETWORK_TYPES } from '../lib/network';
 import { canDecodePatp } from '../lib/txn';
 
-import { ETH_ZERO_ADDR, isValidAddress, eqAddr } from '../lib/wallet';
+import { isValidAddress, isZeroAddress } from '../lib/wallet';
 
 import { isValidGalaxy, compose } from '../lib/lib';
 import { withNetwork } from '../store/network';
@@ -103,7 +103,7 @@ class CreateGalaxy extends React.Component {
       galaxyDec
     );
 
-    const available = eqAddr(currentOwner, ETH_ZERO_ADDR);
+    const available = isZeroAddress(currentOwner);
 
     this.setState({ isAvailable: available });
   };

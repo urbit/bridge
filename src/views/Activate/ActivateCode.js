@@ -70,10 +70,15 @@ export default function ActivateCode() {
         const inviteWallet = walletFromMnemonic(seed, DEFAULT_HD_PATH);
         const _inviteWallet = need.wallet(inviteWallet);
 
-        const incoming = await azimuth.azimuth.getTransferringFor(
+        const owned = await azimuth.azimuth.getOwnedPoints(
           _contracts,
           _inviteWallet.address
         );
+        const transferring = await azimuth.azimuth.getTransferringFor(
+          _contracts,
+          _inviteWallet.address
+        );
+        const incoming = [...owned, ...transferring];
 
         let realPoint = Maybe.Nothing();
         let wallet = Maybe.Nothing();

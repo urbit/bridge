@@ -3,7 +3,7 @@ import Maybe from 'folktale/maybe';
 import { H1, H2, P, Grid } from 'indigo-react';
 
 import { ROUTE_NAMES } from 'lib/routeNames';
-import { ETH_ZERO_ADDR, eqAddr } from 'lib/wallet';
+import { isZeroAddress } from 'lib/wallet';
 import useIsEclipticOwner from 'lib/useIsEclipticOwner';
 import { useSyncKnownPoints } from 'lib/useSyncPoints';
 
@@ -20,7 +20,7 @@ const matchArray = obj =>
   obj.matchWith({ Nothing: () => [], Just: p => p.value });
 
 const hasTransferProxy = (details, point) =>
-  !eqAddr(details.transferProxy, ETH_ZERO_ADDR);
+  !isZeroAddress(details.transferProxy);
 
 export default function Points() {
   const { wallet } = useWallet();

@@ -55,6 +55,8 @@ export const keccak256 = str =>
 
 export const isValidAddress = a => '0x0' === a || isAddress(a);
 
+export const isZeroAddress = a => ETH_ZERO_ADDR === a;
+
 export const toChecksumAddress = address => {
   const addr = stripHexPrefix(address).toLowerCase();
   const hash = keccak256(addr).toString('hex');
