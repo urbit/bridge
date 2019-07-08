@@ -14,7 +14,7 @@ export default function Tabs({
 
   return (
     <Grid className={className}>
-      <Grid.Item full as={Flex} className="b-gray3 bb1">
+      <Grid.Item full as={Flex} wrap className="b-gray3 bb1">
         {options.map(option => {
           const isActive = option.value === currentTab;
           return (

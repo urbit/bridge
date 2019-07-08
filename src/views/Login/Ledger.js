@@ -25,6 +25,7 @@ import {
 import { WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
 import SelectInput from 'indigo-react/components/SelectInput';
+import useBreakpoints from 'lib/useBreakpoints';
 
 const PATH_OPTIONS = [
   { text: 'Ledger Live', value: LEDGER_LIVE_PATH },
@@ -105,6 +106,8 @@ export default function Ledger({ className }) {
     }
   }, [useCustomPath, setHdPath, basePathPattern, accountIndex]);
 
+  const full = useBreakpoints([true, true, false]);
+  const half = useBreakpoints([false, false, true]);
   const isHTTPS = document.location.protocol === 'https:';
 
   // when not on https, tell user how to get there
@@ -163,13 +166,15 @@ export default function Ledger({ className }) {
       {!useCustomPath && (
         <>
           <Grid.Item
-            half={1}
+            full={full}
+            half={half && 1}
             as={SelectInput}
             className="pr1"
             {...derivationPathInput}
           />
           <Grid.Item
-            half={2}
+            full={full}
+            half={half && 2}
             as={SelectInput}
             className="pl1"
             {...accountInput}
