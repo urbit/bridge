@@ -5,6 +5,9 @@
 const ORIGIN = 6784800; // launch ceremony begins
 const PUBLIC = 7033765; // azimuth becomes public
 const LATEST = 'latest';
+const AZIMUTH_ADDRESS = '0x223c067f8cf28ae173ee5cafea60ca44c335fecb';
+const ENDPOINT =
+  'https://mainnet.infura.io/v3/196a7f37c7d54211b4a07904ec73ad87';
 
 const FROM = ORIGIN;
 const TO = LATEST;
@@ -63,15 +66,8 @@ const Web3 = require('web3');
 const azimuth = require('azimuth-js');
 
 (async () => {
-  const web3 = new Web3(
-    new Web3.providers.HttpProvider(
-      'https://mainnet.infura.io/v3/196a7f37c7d54211b4a07904ec73ad87'
-    )
-  );
-  const contracts = await azimuth.initContractsPartial(
-    web3,
-    '0x223c067f8cf28ae173ee5cafea60ca44c335fecb'
-  );
+  const web3 = new Web3(new Web3.providers.HttpProvider(ENDPOINT));
+  const contracts = await azimuth.initContractsPartial(web3, AZIMUTH_ADDRESS);
 
   const keyEvents = await contracts.azimuth.getPastEvents(VENT, {
     fromBlock: FROM,
