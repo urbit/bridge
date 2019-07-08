@@ -123,7 +123,7 @@ export default function Login() {
           full
           as={ForwardButton}
           solid
-          className="mt3"
+          className="mt2"
           disabled={Maybe.Nothing.hasInstance(wallet)}
           onClick={doContinue}>
           Continue

@@ -110,7 +110,7 @@ export default function Trezor({ className }) {
         full
         as={ForwardButton}
         solid
-        className="mt3"
+        className="mt2"
         onClick={pollDevice}>
         Authenticate
       </Grid.Item>

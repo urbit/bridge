@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
+import cn from 'classnames';
 import Maybe from 'folktale/maybe';
 import { P, Text, Input, Grid, H5, CheckboxInput } from 'indigo-react';
 import { times } from 'lodash';
@@ -169,14 +170,14 @@ export default function Ledger({ className }) {
             full={full}
             half={half && 1}
             as={SelectInput}
-            className="pr1"
+            className={cn({ pr1: half })}
             {...derivationPathInput}
           />
           <Grid.Item
             full={full}
             half={half && 2}
             as={SelectInput}
-            className="pl1"
+            className={cn({ pl1: half })}
             {...accountInput}
           />
         </>
@@ -188,7 +189,7 @@ export default function Ledger({ className }) {
         full
         as={ForwardButton}
         solid
-        className="mt3"
+        className="mt2"
         onClick={pollDevice}>
         Authenticate
       </Grid.Item>

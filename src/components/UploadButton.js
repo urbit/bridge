@@ -6,7 +6,7 @@ export default function UploadButton({ children, onChange, ...rest }) {
 
   return (
     <label htmlFor="file" {...rest}>
-      <Button accessory="⬆">{children}</Button>
+      <Button accessory="↑">{children}</Button>
       <input
         id="file"
         ref={button}

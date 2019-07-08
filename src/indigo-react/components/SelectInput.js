@@ -58,7 +58,9 @@ export default function SelectInput({
   };
 
   // redefine accessory because we still want to ignore it from the ..rest above
-  accessory = <AccessoryIcon>{isOpen ? '⬆' : '⬇'}</AccessoryIcon>;
+  accessory = (
+    <AccessoryIcon className="gray4">{isOpen ? '▲' : '▼'}</AccessoryIcon>
+  );
 
   const text = options.find(o => o.value === data).text;
 
