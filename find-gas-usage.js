@@ -108,9 +108,6 @@ const azimuth = require('azimuth-js');
       console.log('rejecting', rec.gasUsed);
       return;
     }
-    if (rec.gasUsed > 480000) {
-      console.log(rec.transactionHash);
-    }
     if (rec.gasUsed in usage) {
       usage[rec.gasUsed]++;
     } else {
