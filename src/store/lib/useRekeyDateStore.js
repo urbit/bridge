@@ -5,7 +5,7 @@ import * as azimuth from 'azimuth-js';
 import { useNetwork } from '../network';
 
 export default function useRekeyDateStore() {
-  const { web3 } = useNetwork();
+  const { web3, contracts } = useNetwork();
   const [rekeyDateCache, _setRekeyDateCache] = useState({});
 
   const addToRekeyDateCache = useCallback(
@@ -28,10 +28,14 @@ export default function useRekeyDateStore() {
       if (!_web3) {
         return;
       }
+      const _contracts = contracts.getOrElse(null);
+      if (!_contracts) {
+        return;
+      }
 
       //TODO tighter search?
       //TODO maybe move into azimuth-js?
-      const logs = await azimuth.azimuth.getPastEvents('ChangedKeys', {
+      const logs = await _contracts.azimuth.getPastEvents('ChangedKeys', {
         fromBlock: 0,
         toBlock: 'latest',
         filter: { point: [point] },
