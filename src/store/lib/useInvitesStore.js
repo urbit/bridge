@@ -48,7 +48,7 @@ export default function useInvitesStore() {
       );
 
       const sentInvites = invitedPoints.length;
-      const acceptedInvites = activity.filter(i => i.active).length;
+      const acceptedInvites = activity.filter(i => !!i).length;
 
       addToInvitesCache({
         [point]: {
