@@ -47,7 +47,7 @@ export default function useKeyfileGenerator(point) {
       revision: networkRevision,
     });
 
-    const _networkSeed = networkSeed.orElse(() => {
+    const _networkSeed = need.value(networkSeed, () => {
       setGenerating(false);
       throw new Error('Could not derive networking seed.');
     });

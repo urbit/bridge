@@ -8,8 +8,14 @@ const needBuilder = fn => obj => {
     fn();
   }
 
-  return obj.orElse(fn);
+  return obj.matchWith({
+    Nothing: fn,
+    Just: p => p.value,
+  });
 };
+
+// simpler function for inline need.value(thing, () => {})
+export const value = (obj, fn) => needBuilder(fn)(obj);
 
 export const details = needBuilder(() => {
   throw new Error('need details of point');
