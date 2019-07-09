@@ -139,11 +139,7 @@ export function useHdPathInput(props) {
   );
 }
 
-const kTicketValidators = [
-  validateTicket,
-  validatePatpByteLength(8), // tickets are 8 bytes of patp
-  validateNotEmpty,
-];
+const kTicketValidators = [validateTicket, validateNotEmpty];
 //TODO needs to be fancier, displaying sig and dashes instead of •ing all
 const kTicketTransformers = [prependSig];
 export function useTicketInput({ validators = [], deriving = false, ...rest }) {
