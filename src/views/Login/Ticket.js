@@ -115,11 +115,10 @@ export default function Ticket({ className }) {
     ]);
 
     if (!isOwner && !isTransferProxy) {
+      // notify the user, but allow login regardless
       setError(
         'This ticket is not the owner of or transfer proxy for this point.'
       );
-      setDeriving(false);
-      return;
     }
 
     setUrbitWallet(Maybe.Just(urbitWallet));
