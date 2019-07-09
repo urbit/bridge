@@ -1,4 +1,4 @@
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import React, { useCallback, useState, useEffect } from 'react';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
@@ -87,7 +87,7 @@ export default function Ticket({ className }) {
     // clear states
     setError();
     setDeriving(true);
-    setUrbitWallet(Maybe.Nothing());
+    setUrbitWallet(Nothing());
 
     if (!ob.isValidPatq(ticket) || !ob.isValidPatp(pointName)) {
       setDeriving(false);
@@ -121,8 +121,8 @@ export default function Ticket({ className }) {
       );
     }
 
-    setUrbitWallet(Maybe.Just(urbitWallet));
-    setPointCursor(Maybe.Just(ob.patp2dec(pointName)));
+    setUrbitWallet(Just(urbitWallet));
+    setPointCursor(Just(ob.patp2dec(pointName)));
     setDeriving(false);
   }, [
     pointName,
@@ -142,7 +142,7 @@ export default function Ticket({ className }) {
     try {
       const ticket = kg.combine([s1, s2, s3]);
       const uhdw = await urbitWalletFromTicket(ticket, pointName, passphrase);
-      setUrbitWallet(Maybe.Just(uhdw));
+      setUrbitWallet(Just(uhdw));
     } catch (_) {
       // do nothing
     }

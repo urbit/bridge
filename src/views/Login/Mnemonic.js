@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import { Grid, Input, CheckboxInput } from 'indigo-react';
 
 import {
@@ -51,11 +51,11 @@ export default function Mnemonic({ className }) {
   useEffect(() => {
     if (pass) {
       setWalletHdPath(hdPath);
-      setAuthMnemonic(Maybe.Just(mnemonic));
+      setAuthMnemonic(Just(mnemonic));
       setWallet(walletFromMnemonic(mnemonic, hdPath, passphrase));
     } else {
-      setAuthMnemonic(Maybe.Nothing());
-      setWallet(Maybe.Nothing());
+      setAuthMnemonic(Nothing());
+      setWallet(Nothing());
     }
   }, [
     pass,

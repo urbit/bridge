@@ -1,5 +1,5 @@
-import Maybe from 'folktale/maybe';
 import React from 'react';
+import { Just, Nothing } from 'folktale/maybe';
 import * as need from '../lib/need';
 import * as azimuth from 'azimuth-js';
 import {
@@ -66,18 +66,18 @@ class _SetProxy extends React.Component {
     const txArgs = [validContracts, validPoint, state.proxyAddress];
 
     if (props.proxyType === PROXY_TYPE.TRANSFER_PROXY) {
-      return Maybe.Just(azimuth.ecliptic.setTransferProxy(...txArgs));
+      return Just(azimuth.ecliptic.setTransferProxy(...txArgs));
     }
 
     if (props.proxyType === PROXY_TYPE.SPAWN_PROXY) {
-      return Maybe.Just(azimuth.ecliptic.setSpawnProxy(...txArgs));
+      return Just(azimuth.ecliptic.setSpawnProxy(...txArgs));
     }
 
     if (props.proxyType === PROXY_TYPE.MANAGEMENT_PROXY) {
-      return Maybe.Just(azimuth.ecliptic.setManagementProxy(...txArgs));
+      return Just(azimuth.ecliptic.setManagementProxy(...txArgs));
     }
 
-    return Maybe.Nothing();
+    return Nothing();
   }
 
   render() {

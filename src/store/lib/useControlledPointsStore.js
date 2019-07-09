@@ -1,16 +1,16 @@
 import { useState, useCallback } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from '../network';
 import { useWallet } from 'store/wallet';
 
 const EMPTY_CONTROLLED_POINTS = {
-  ownedPoints: Maybe.Nothing(),
-  incomingPoints: Maybe.Nothing(),
-  managingPoints: Maybe.Nothing(),
-  votingPoints: Maybe.Nothing(),
-  spawningPoints: Maybe.Nothing(),
+  ownedPoints: Nothing(),
+  incomingPoints: Nothing(),
+  managingPoints: Nothing(),
+  votingPoints: Nothing(),
+  spawningPoints: Nothing(),
 };
 
 export default function useControlledPointsStore() {
@@ -49,11 +49,11 @@ export default function useControlledPointsStore() {
     ]);
 
     _setControlledPointsCache({
-      ownedPoints: Maybe.Just(ownedPoints),
-      incomingPoints: Maybe.Just(incomingPoints),
-      managingPoints: Maybe.Just(managingPoints),
-      votingPoints: Maybe.Just(votingPoints),
-      spawningPoints: Maybe.Just(spawningPoints),
+      ownedPoints: Just(ownedPoints),
+      incomingPoints: Just(incomingPoints),
+      managingPoints: Just(managingPoints),
+      votingPoints: Just(votingPoints),
+      spawningPoints: Just(spawningPoints),
     });
   }, [contracts, wallet, _setControlledPointsCache]);
 

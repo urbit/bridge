@@ -2,7 +2,7 @@ import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
 import keccak from 'keccak';
 import { reduce } from 'lodash';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as secp256k1 from 'secp256k1';
 import * as ob from 'urbit-ob';
 import * as kg from 'urbit-key-generation/dist';
@@ -100,8 +100,8 @@ export const ownershipWalletFromTicket = async (ticket, point, passphrase) => {
 
 export const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
   const seed = bip39.validateMnemonic(mnemonic)
-    ? Maybe.Just(bip39.mnemonicToSeed(mnemonic, passphrase))
-    : Maybe.Nothing();
+    ? Just(bip39.mnemonicToSeed(mnemonic, passphrase))
+    : Nothing();
 
   const toWallet = (sd, path) => {
     let wal;
@@ -109,9 +109,9 @@ export const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
       const hd = bip32.fromSeed(sd);
       wal = hd.derivePath(path);
       wal.address = addressFromSecp256k1Public(wal.publicKey);
-      wal = Maybe.Just(wal);
+      wal = Just(wal);
     } catch (_) {
-      wal = Maybe.Nothing();
+      wal = Nothing();
     }
     return wal;
   };

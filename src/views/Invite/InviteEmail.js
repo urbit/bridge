@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
-import Maybe from 'folktale/maybe';
+import { Just } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import {
   Grid,
@@ -232,7 +232,7 @@ export default function InviteEmail() {
           walletHdPath,
           networkType,
           // TODO: ^ make a useTransactionSigner to encapsulate this logic
-          txn: Maybe.Just(inviteTx),
+          txn: Just(inviteTx),
           gasPrice: GAS_PRICE_GWEI.toString(),
           gasLimit: GAS_LIMIT.toString(),
           nonce: nonce + i,
@@ -300,7 +300,7 @@ export default function InviteEmail() {
       try {
         const txHash = await sendSignedTransaction(
           _web3,
-          Maybe.Just(invite.signedTx),
+          Just(invite.signedTx),
           tankWasUsed,
           () => {}
         );

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just } from 'folktale/maybe';
 import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
 
@@ -48,7 +48,7 @@ export default function Point() {
   const { availableInvites } = useInvites(point);
   const availableInvitesText = matchBlinky(availableInvites);
 
-  const showActions = Maybe.Just.hasInstance(wallet);
+  const showActions = Just.hasInstance(wallet);
 
   const goAdmin = useCallback(() => history.push(ROUTE_NAMES.ADMIN), [history]);
 
@@ -61,7 +61,7 @@ export default function Point() {
 
   return (
     <View>
-      <Passport point={Maybe.Just(point)} />
+      <Passport point={Just(point)} />
       <Grid className="pt2">
         <Grid.Item
           full

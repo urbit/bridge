@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as keythereum from 'keythereum';
 import { P, Grid, Input, ErrorText } from 'indigo-react';
 
@@ -22,7 +22,7 @@ export default function Keystore({ className }) {
   const [error, setError] = useState();
   // inputs
   // keystore: Maybe<String>
-  const [keystore, setKeystore] = useState(Maybe.Nothing());
+  const [keystore, setKeystore] = useState(Nothing());
   const [passphraseInput, { data: passphrase }] = usePassphraseInput({
     name: 'password',
     label: 'Keystore password',
@@ -38,12 +38,12 @@ export default function Keystore({ className }) {
 
       const newWallet = new EthereumWallet(privateKey);
       setError();
-      setWallet(Maybe.Just(newWallet));
+      setWallet(Just(newWallet));
     } catch (err) {
       setError(
         "Couldn't decrypt wallet. You may have entered an incorrect password."
       );
-      setWallet(Maybe.Nothing());
+      setWallet(Nothing());
     }
   };
 
@@ -53,7 +53,7 @@ export default function Keystore({ className }) {
 
     reader.onload = e => {
       const keystore = e.target.result;
-      setKeystore(Maybe.Just(keystore));
+      setKeystore(Just(keystore));
     };
 
     const failure = _ => {
@@ -90,7 +90,7 @@ export default function Keystore({ className }) {
         as={ForwardButton}
         solid
         className="mt3"
-        disabled={Maybe.Nothing.hasInstance(keystore)}
+        disabled={Nothing.hasInstance(keystore)}
         onClick={constructWallet}>
         Decrypt
       </Grid.Item>

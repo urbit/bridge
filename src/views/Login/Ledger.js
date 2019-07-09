@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import cn from 'classnames';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import { P, Text, Input, Grid, H5, CheckboxInput } from 'indigo-react';
 import { times } from 'lodash';
 import * as bip32 from 'bip32';
@@ -89,11 +89,11 @@ export default function Ledger({ className }) {
       const chainCode = Buffer.from(info.chainCode, 'hex');
       const pub = secp256k1.publicKeyConvert(publicKey, true);
       const hd = bip32.fromPublicKey(pub, chainCode);
-      setWallet(Maybe.Just(hd));
+      setWallet(Just(hd));
       setWalletHdPath(addHdPrefix(hdPath));
     } catch (error) {
       console.error(error);
-      setWallet(Maybe.Nothing());
+      setWallet(Nothing());
     }
   }, [hdPath, setWallet, setWalletHdPath]);
 
@@ -197,9 +197,6 @@ export default function Ledger({ className }) {
   );
 
   return (
-    <Grid className={className}>
-      {isHTTPS && renderHTTPS()}
-      {!isHTTPS && renderHTTP()}
-    </Grid>
+    <Grid className={className}>{isHTTPS ? renderHTTPS() : renderHTTP()}</Grid>
   );
 }

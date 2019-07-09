@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from '../network';
@@ -17,10 +17,9 @@ export default function useBirthdayStore() {
     [_setBirthdayCache]
   );
 
-  const getBirthday = useCallback(
-    point => birthdayCache[point] || Maybe.Nothing(),
-    [birthdayCache]
-  );
+  const getBirthday = useCallback(point => birthdayCache[point] || Nothing(), [
+    birthdayCache,
+  ]);
 
   const syncBirthday = useCallback(
     async point => {
@@ -31,7 +30,7 @@ export default function useBirthdayStore() {
       }
 
       // birthday will not change after being set, so bail if we already know
-      if (Maybe.Just.hasInstance(getBirthday(point))) {
+      if (Just.hasInstance(getBirthday(point))) {
         return;
       }
 
@@ -43,13 +42,13 @@ export default function useBirthdayStore() {
       if (birthBlock > 0) {
         const block = await _web3.eth.getBlock(birthBlock);
         addToBirthdayCache({
-          [point]: Maybe.Just(new Date(block.timestamp * 1000)),
+          [point]: Just(new Date(block.timestamp * 1000)),
         });
       } else {
         // TODO: better encoding for "no birthday" state?
         // if there's no birthday, just use today
         addToBirthdayCache({
-          [point]: Maybe.Just(new Date()),
+          [point]: Just(new Date()),
         });
       }
     },

@@ -5,9 +5,9 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import Web3 from 'web3';
-import Maybe from 'folktale/maybe';
 import { includes } from 'lodash';
 
 import { CONTRACT_ADDRESSES } from '../lib/contracts';
@@ -33,8 +33,8 @@ function _useNetwork(initialNetworkType = null) {
       const contracts = azimuth.initContracts(web3, contractAddresses);
 
       return {
-        web3: Maybe.Just(web3),
-        contracts: Maybe.Just(contracts),
+        web3: Just(web3),
+        contracts: Just(contracts),
       };
     };
 
@@ -82,8 +82,8 @@ function _useNetwork(initialNetworkType = null) {
             new Web3.providers.HttpProvider('http://example.com:3456'),
             isDevelopment ? CONTRACT_ADDRESSES.DEV : CONTRACT_ADDRESSES.MAINNET
           ),
-          web3: Maybe.Nothing(),
-          // ^ overwrite the web3 object from initWeb3 with a Maybe.Nothing
+          web3: Nothing(),
+          // ^ overwrite the web3 object from initWeb3 with a Nothing
           // to indicate that there is no valid web3 connection
         };
       }

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
-import Maybe from 'folktale/maybe';
 import { useTicketInput } from 'components/Inputs';
 import { Grid, Input, H4, ErrorText } from 'indigo-react';
 
@@ -80,13 +80,13 @@ export default function ActivateCode() {
         );
         const incoming = [...owned, ...transferring];
 
-        let realPoint = Maybe.Nothing();
-        let wallet = Maybe.Nothing();
+        let realPoint = Nothing();
+        let wallet = Nothing();
 
         if (incoming.length > 0) {
           const pointNum = parseInt(incoming[0], 10);
-          realPoint = Maybe.Just(pointNum);
-          wallet = Maybe.Just(await generateWallet(pointNum));
+          realPoint = Just(pointNum);
+          wallet = Just(await generateWallet(pointNum));
 
           if (incoming.length > 1) {
             setGeneralError(

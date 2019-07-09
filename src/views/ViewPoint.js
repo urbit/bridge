@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just } from 'folktale/maybe';
 import { Input } from 'indigo-react';
 
 import { H1, P } from '../components/old/Base';
@@ -24,7 +24,7 @@ export default function ViewPoint() {
 
   const disabled = !pass;
   const goForward = useCallback(() => {
-    setPointCursor(Maybe.Just(patp2dec(pointName)));
+    setPointCursor(Just(patp2dec(pointName)));
     history.popAndPush(ROUTE_NAMES.POINT);
   }, [setPointCursor, history, pointName]);
 

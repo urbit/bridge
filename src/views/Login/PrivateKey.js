@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import { Grid, Input } from 'indigo-react';
 
 import { useHexInput } from 'components/Inputs';
@@ -25,9 +25,9 @@ export default function PrivateKey({ className }) {
     if (pass) {
       const sec = Buffer.from(stripHexPrefix(privateKey), 'hex');
       const newWallet = new EthereumWallet(sec);
-      setWallet(Maybe.Just(newWallet));
+      setWallet(Just(newWallet));
     } else {
-      setWallet(Maybe.Nothing());
+      setWallet(Nothing());
     }
   }, [pass, privateKey, setWallet]);
 

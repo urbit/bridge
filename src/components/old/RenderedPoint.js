@@ -1,5 +1,5 @@
-import Maybe from 'folktale/maybe';
 import React from 'react';
+import { Just } from 'folktale/maybe';
 import { Col } from './Base';
 import { Button } from './Base';
 import { pour } from 'sigil-js';
@@ -24,7 +24,7 @@ const RenderedPoint = props => {
         key={`rendered-sigil-${point}`}
         className="clickable"
         onClick={() => {
-          setPointCursor(Maybe.Just(point));
+          setPointCursor(Just(point));
           routeHandler(ROUTE_NAMES.POINT);
         }}>
         {sigil}
@@ -33,7 +33,7 @@ const RenderedPoint = props => {
         key={`rendered-name-${point}`}
         className="clickable"
         onClick={() => {
-          setPointCursor(Maybe.Just(point));
+          setPointCursor(Just(point));
           routeHandler(ROUTE_NAMES.POINT);
         }}>
         <code>{name}</code>
@@ -44,7 +44,7 @@ const RenderedPoint = props => {
           prop-type={'link'}
           prop-size={'sm'}
           onClick={() => {
-            setPointCursor(Maybe.Just(point));
+            setPointCursor(Just(point));
             routeHandler(ROUTE_NAMES.POINT);
           }}>
           {'Details →'}

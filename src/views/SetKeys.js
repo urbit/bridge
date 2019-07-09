@@ -1,5 +1,5 @@
 import React from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
 import * as need from '../lib/need';
@@ -136,10 +136,10 @@ class SetKeys extends React.Component {
         state.discontinuity
       );
 
-      return Maybe.Just(txn);
+      return Just(txn);
     }
 
-    return Maybe.Nothing();
+    return Nothing();
   }
 
   render() {

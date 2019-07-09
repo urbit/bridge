@@ -1,5 +1,5 @@
 import React from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
 import * as need from '../lib/need';
@@ -68,10 +68,10 @@ class CreateGalaxy extends React.Component {
 
   createUnsignedTxn = () => {
     const { state, props } = this;
-    if (isValidAddress(state.galaxyOwner) === false) return Maybe.Nothing();
-    if (state.isAvailable === false) return Maybe.Nothing();
-    if (canDecodePatp(state.galaxyName) === false) return Maybe.Nothing();
-    if (isValidGalaxy(state.galaxyName) === false) return Maybe.Nothing();
+    if (isValidAddress(state.galaxyOwner) === false) return Nothing();
+    if (state.isAvailable === false) return Nothing();
+    if (canDecodePatp(state.galaxyName) === false) return Nothing();
+    if (isValidGalaxy(state.galaxyName) === false) return Nothing();
 
     const validContracts = need.contracts(props.contracts);
 
@@ -83,7 +83,7 @@ class CreateGalaxy extends React.Component {
       state.galaxyOwner
     );
 
-    return Maybe.Just(txn);
+    return Just(txn);
   };
 
   confirmAvailability = async () => {

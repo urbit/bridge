@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 
 import { H4, Grid } from 'indigo-react';
@@ -73,27 +73,27 @@ export default function Login() {
 
     // if no point cursor set by login logic, try to deduce it
     let deduced = pointCursor;
-    if (Maybe.Nothing.hasInstance(deduced)) {
+    if (Nothing.hasInstance(deduced)) {
       const owned = await azimuth.azimuth.getOwnedPoints(
         _contracts,
         _wallet.address
       );
       if (owned.length === 1) {
-        deduced = Maybe.Just(owned[0]);
+        deduced = Just(owned[0]);
       } else if (owned.length === 0) {
         const canOwn = await azimuth.azimuth.getTransferringFor(
           _contracts,
           _wallet.address
         );
         if (canOwn.length === 1) {
-          deduced = Maybe.Just(canOwn[0]);
+          deduced = Just(canOwn[0]);
         }
       }
     }
 
     // if we have a deduced point or one in the global context,
     // navigate to that specific point, otherwise navigate to list of points
-    if (Maybe.Just.hasInstance(deduced)) {
+    if (Just.hasInstance(deduced)) {
       setPointCursor(deduced);
       goToPoint();
     } else {
@@ -124,7 +124,7 @@ export default function Login() {
           as={ForwardButton}
           solid
           className="mt2"
-          disabled={Maybe.Nothing.hasInstance(wallet)}
+          disabled={Nothing.hasInstance(wallet)}
           onClick={doContinue}>
           Continue
         </Grid.Item>

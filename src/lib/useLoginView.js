@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import Maybe from 'folktale/maybe';
+import { Nothing } from 'folktale/maybe';
 
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
@@ -12,6 +12,6 @@ export default function useLoginView(walletType) {
   useEffect(() => {
     resetWallet();
     setWalletType(walletType);
-    setPointCursor(Maybe.Nothing());
+    setPointCursor(Nothing());
   }, [setWalletType, walletType, setPointCursor, resetWallet]);
 }

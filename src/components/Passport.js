@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as ob from 'urbit-ob';
 import { Grid, Flex, Text } from 'indigo-react';
 import { times } from 'lodash';
@@ -36,7 +36,7 @@ export default function Passport({
   point,
   className,
   ticket = null,
-  address = Maybe.Nothing(),
+  address = Nothing(),
   mini = false,
 }) {
   const birthday = usePointBirthday(point.getOrElse(null));
@@ -46,8 +46,8 @@ export default function Passport({
   });
 
   const name = point.matchWith({
-    Nothing: () => Maybe.Nothing(),
-    Just: p => Maybe.Just(ob.patp(p.value)),
+    Nothing: () => Nothing(),
+    Just: p => Just(ob.patp(p.value)),
   });
   const visualName = name.matchWith({
     Nothing: () => '...',

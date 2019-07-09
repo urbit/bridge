@@ -1,8 +1,9 @@
-import Maybe from 'folktale/maybe';
 import React from 'react';
-import { H1, P } from '../components/old/Base';
+import { Just } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
+
+import { H1, P } from '../components/old/Base';
 import * as need from '../lib/need';
 
 import StatelessTransaction from '../components/old/StatelessTransaction';
@@ -40,13 +41,13 @@ class CancelTransfer extends React.Component {
       ETH_ZERO_ADDR
     );
 
-    return Maybe.Just(txn);
+    return Just(txn);
   }
 
   render() {
     const { props, state } = this;
 
-    const online = Maybe.Just.hasInstance(props.web3);
+    const online = Just.hasInstance(props.web3);
 
     const proxy = online
       ? props.pointCache[state.pointInTransfer].transferProxy

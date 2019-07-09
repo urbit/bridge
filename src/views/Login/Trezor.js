@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as bip32 from 'bip32';
 import { times } from 'lodash';
 import TrezorConnect from 'trezor-connect';
@@ -74,10 +74,10 @@ export default function Trezor({ className }) {
       const chainCode = Buffer.from(payload.chainCode, 'hex');
       const pub = secp256k1.publicKeyConvert(publicKey, true);
       const hd = bip32.fromPublicKey(pub, chainCode);
-      setWallet(Maybe.Just(hd));
+      setWallet(Just(hd));
       setWalletHdPath(hdPath);
     } else {
-      setWallet(Maybe.Nothing());
+      setWallet(Nothing());
     }
   };
 

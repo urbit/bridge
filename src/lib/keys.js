@@ -1,5 +1,5 @@
 import BN from 'bn.js';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as need from './need';
 
 import * as noun from '../nockjs/noun';
@@ -119,13 +119,13 @@ const attemptNetworkSeedDerivation = async (next, args) => {
     const seed = await kg.deriveNetworkSeed(managementSeed, '', revision);
 
     if (seed === '') {
-      return Maybe.Nothing();
+      return Nothing();
     }
 
-    return Maybe.Just(seed);
+    return Just(seed);
   }
 
-  return Maybe.Nothing();
+  return Nothing();
 };
 
 export { genKey, attemptNetworkSeedDerivation };

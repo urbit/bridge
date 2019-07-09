@@ -1,5 +1,5 @@
 import React from 'react';
-import Maybe from 'folktale/maybe';
+import { Nothing } from 'folktale/maybe';
 import { H1, H2, P, Grid } from 'indigo-react';
 
 import { ROUTE_NAMES } from 'lib/routeNames';
@@ -59,7 +59,7 @@ export default function Points() {
     ...spawning,
   ]);
 
-  const loading = Maybe.Nothing.hasInstance(ownedPoints);
+  const loading = Nothing.hasInstance(ownedPoints);
 
   const outgoing = ownedPoints.filter(point =>
     getDetails(point).matchWith({
