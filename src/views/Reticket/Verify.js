@@ -19,14 +19,13 @@ export default function Verify({ newWallet }) {
     () => [validateExactly(ticket, 'Does not match expected master ticket.')],
     [ticket]
   );
-  const ticketInput = useTicketInput({
+  const [ticketInput, { pass }] = useTicketInput({
     name: 'ticket',
     label: 'New master ticket',
     initialValue: STUB_VERIFY_TICKET ? ticket : undefined,
     autoFocus: true,
     validators,
   });
-  const { pass } = ticketInput;
 
   const next = useCallback(() => push(names.RETICKET), [push, names]);
 
