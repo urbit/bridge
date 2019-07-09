@@ -16,33 +16,26 @@ import { matchBlinky } from 'components/Blinky';
 import useInvites from 'lib/useInvites';
 import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import { ROUTE_NAMES } from 'lib/routeNames';
-import { eqAddr } from 'lib/wallet';
 
 import Actions from './Point/Actions';
 import { useWallet } from 'store/wallet';
+import usePermissionsForPoint from 'lib/usePermissionsForPoint';
 
 export default function Point() {
   const history = useHistory();
   const { pointCursor } = usePointCursor();
-  const { pointCache } = usePointCache();
   const { wallet } = useWallet();
 
   const point = need.point(pointCursor);
 
-  let canAdmin = false;
-  if (point in pointCache) {
-    canAdmin = wallet.matchWith({
-      Nothing: () => false,
-      Just: wal => {
-        const pointDetails = need.fromPointCache(pointCache, point);
-        const address = need.addressFromWallet(wallet);
-        return (
-          eqAddr(address, pointDetails.owner) ||
-          eqAddr(address, pointDetails.managementProxy)
-        );
-      },
-    });
-  }
+  const { canManage } = usePermissionsForPoint(
+    // using empty string should be ok here
+    wallet.matchWith({
+      Nothing: () => '',
+      Just: p => p.value.address,
+    }),
+    point
+  );
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);
@@ -66,7 +59,7 @@ export default function Point() {
         <Grid.Item
           full
           as={ForwardButton}
-          disabled={!canAdmin}
+          disabled={!canManage}
           onClick={goAdmin}>
           Admin
         </Grid.Item>
@@ -81,8 +74,8 @@ export default function Point() {
         )}
       </Grid>
 
-      <FooterButton onClick={goInvite}>
-        Invite <sup>{availableInvitesText}</sup>
+      <FooterButton disabled={!canManage} onClick={goInvite}>
+        Invite <sup>{availableInvitesText} available</sup>
       </FooterButton>
     </View>
   );

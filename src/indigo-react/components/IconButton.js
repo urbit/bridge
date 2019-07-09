@@ -37,7 +37,6 @@ export default function IconButton({
         height: '1rem',
         fontSize: '1rem',
         fontWeight: 'bold',
-        // TODO: ^ replace with 1:1 svgs and remove explicit sizing
         ...(disabled && {
           pointerEvents: 'none',
           cursor: 'not-allowed',

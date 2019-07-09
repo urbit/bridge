@@ -30,8 +30,8 @@ const TRANSACTION_STATES = {
     label: 'Funding Transactions...',
     progress: 0.3,
   },
-  CLAIMING: {
-    label: 'Claiming Invite...',
+  TRANSFERRING: {
+    label: 'Transferring Point...',
     progress: 0.55,
   },
   CLEANING: {
@@ -81,9 +81,9 @@ export async function downloadWallet(paper) {
   });
 }
 
-export async function claimPointFromInvite({
-  inviteWallet,
-  wallet,
+export async function reticketPointBetweenWallets({
+  fromWallet,
+  toWallet,
   point,
   web3,
   contracts,
@@ -99,7 +99,7 @@ export async function claimPointFromInvite({
   const gotFunding = () => onUpdate({ type: 'gotFunding' });
   const progress = state => onUpdate({ type: 'progress', state });
 
-  const inviteAddress = inviteWallet.address;
+  const inviteAddress = fromWallet.address;
 
   //
   // generate transactions
@@ -124,7 +124,7 @@ export async function claimPointFromInvite({
 
   // configure networking public keys
   const seed = await deriveNetworkSeedFromUrbitWallet(
-    Just(wallet),
+    Just(toWallet),
     INITIAL_NETWORK_KEY_REVISION
   );
 
@@ -152,7 +152,7 @@ export async function claimPointFromInvite({
   const managementTx = azimuth.ecliptic.setManagementProxy(
     contracts,
     point,
-    wallet.management.keys.address
+    toWallet.management.keys.address
   );
   managementTx.gas = GAS_LIMITS.SET_PROXY;
 
@@ -165,7 +165,7 @@ export async function claimPointFromInvite({
     const spawnTx = azimuth.ecliptic.setSpawnProxy(
       contracts,
       point,
-      wallet.spawn.keys.address
+      toWallet.spawn.keys.address
     );
     spawnTx.gas = GAS_LIMITS.SET_PROXY;
     txs.push(spawnTx);
@@ -176,7 +176,7 @@ export async function claimPointFromInvite({
       const votingTx = azimuth.ecliptic.setVotingProxy(
         contracts,
         point,
-        wallet.voting.keys.address
+        toWallet.voting.keys.address
       );
       votingTx.gas = GAS_LIMITS.SET_PROXY;
       txs.push(votingTx);
@@ -188,7 +188,7 @@ export async function claimPointFromInvite({
   const transferFinalTx = azimuth.ecliptic.transferPoint(
     contracts,
     point,
-    wallet.ownership.keys.address,
+    toWallet.ownership.keys.address,
     false
   );
   transferFinalTx.gas = GAS_LIMITS.TRANSFER;
@@ -212,7 +212,7 @@ export async function claimPointFromInvite({
 
   let txPairs = txs.map(tx => {
     let stx = new Tx(tx);
-    stx.sign(Buffer.from(inviteWallet.privateKey, 'hex'));
+    stx.sign(Buffer.from(fromWallet.privateKey, 'hex'));
     return {
       raw: hexify(stx.serialize()),
       signed: stx,
@@ -239,7 +239,7 @@ export async function claimPointFromInvite({
   // sending and awaiting transactions
   //
 
-  progress(TRANSACTION_STATES.CLAIMING);
+  progress(TRANSACTION_STATES.TRANSFERRING);
 
   await sendAndAwaitConfirm(web3, txPairs.map(p => Just(p.signed)), usedTank);
 
@@ -257,14 +257,14 @@ export async function claimPointFromInvite({
   if (transferEth && balance > sendEthCost) {
     const value = balance - sendEthCost;
     const tx = {
-      to: wallet.ownership.keys.address,
+      to: toWallet.ownership.keys.address,
       value: value,
       gasPrice: gasPrice,
       gas: gasLimit,
       nonce: inviteNonce++,
     };
     let stx = new Tx(tx);
-    stx.sign(inviteWallet.privateKey);
+    stx.sign(fromWallet.privateKey);
     const rawTx = hexify(stx.serialize());
     web3.eth.sendSignedTransaction(rawTx).catch(err => {
       console.log('error sending value tx, who cares', err);

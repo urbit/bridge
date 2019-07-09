@@ -1,97 +1,64 @@
-import React, { useState } from 'react';
-import { size } from 'lodash';
-import * as need from 'lib/need';
-import ob from 'urbit-ob';
+import React, { useCallback, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
+import { Grid, Flex } from 'indigo-react';
 
-import { usePointCursor } from 'store/pointCursor';
-
-import View from 'components/View';
-import MiniBackButton from 'components/MiniBackButton';
 import { LocalRouterProvider } from 'lib/LocalRouter';
-import Crumbs from 'components/Crumbs';
-
 import useRouter from 'lib/useRouter';
 
-import { useHistory } from 'store/history';
+import MiniBackButton from 'components/MiniBackButton';
+import Steps from 'components/Steps';
 
-import Confirm from '../Reticket/Confirm';
-import Download from '../Reticket/Download';
-import Verify from '../Reticket/Verify';
-import DoReticket from '../Reticket/DoReticket';
+import ReticketConfirm from './Reticket/ReticketConfirm';
+import ReticketDownload from './Reticket/ReticketDownload';
+import ReticketVerify from './Reticket/ReticketVerify';
+import ReticketExecute from './Reticket/ReticketExecute';
 
 const NAMES = {
   CONFIRM: 'CONFIRM',
   DOWNLOAD: 'DOWNLOAD',
   VERIFY: 'VERIFY',
-  RETICKET: 'RETICKET',
+  EXECUTE: 'EXECUTE',
 };
 
 const VIEWS = {
-  CONFIRM: Confirm,
-  DOWNLOAD: Download,
-  VERIFY: Verify,
-  RETICKET: DoReticket,
+  CONFIRM: ReticketConfirm,
+  DOWNLOAD: ReticketDownload,
+  VERIFY: ReticketVerify,
+  EXECUTE: ReticketExecute,
 };
 
-const STEP_MAX = size(NAMES);
+const STEPS = [NAMES.CONFIRM, NAMES.DOWNLOAD, NAMES.VERIFY, NAMES.RETICKET];
 
 export default function AdminReticket() {
-  const history = useHistory();
-  const { Route, ...innerRouter } = useRouter({
+  const { Route, ...router } = useRouter({
     names: NAMES,
     views: VIEWS,
     initialRoutes: [{ key: NAMES.CONFIRM }],
   });
-  const { pointCursor } = usePointCursor();
-  const point = need.point(pointCursor);
-  const name = ob.patp(point);
 
-  const [newWallet, setNewWallet] = useState(Nothing());
+  const [newWallet, _setNewWallet] = useState(Nothing());
 
-  //TODO step # from Route?
-  const stepNumber = 1;
-
-  const storeNewWallet = (wallet, paper) => {
-    setNewWallet(
-      Just({
-        wallet,
-        paper,
-      })
-    );
-  };
-
-  const completed = () => {
-    history.pop();
-  };
+  const setNewWallet = useCallback(
+    (wallet, paper) => {
+      _setNewWallet(
+        Just({
+          wallet,
+          paper,
+        })
+      );
+    },
+    [_setNewWallet]
+  );
 
   return (
-    <LocalRouterProvider value={innerRouter}>
-      <View>
-        <Crumbs
-          routes={[
-            {
-              text: name,
-              action: () => {
-                return history.pop(2);
-              },
-            },
-            {
-              text: 'Admin',
-              action: () => history.pop(),
-            },
-          ]}
-        />
-        <MiniBackButton onClick={innerRouter.pop} />
-        Step {stepNumber} of {STEP_MAX}
-        <Route
-          newWallet={newWallet}
-          //
-          storeNewWallet={storeNewWallet}
-          //
-          completed={completed}
-        />
-      </View>
+    <LocalRouterProvider value={router}>
+      <Grid>
+        <Grid.Item full as={Flex} row justify="between" align="center">
+          <Flex.Item as={MiniBackButton} onClick={() => router.pop()} />
+          <Flex.Item as={Steps} num={router.size} total={STEPS.length} />
+        </Grid.Item>
+      </Grid>
+      <Route newWallet={newWallet} setNewWallet={setNewWallet} />
     </LocalRouterProvider>
   );
 }

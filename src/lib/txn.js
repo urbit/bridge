@@ -8,9 +8,7 @@ import { NETWORK_TYPES } from './network';
 import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
 import { WALLET_TYPES, addHexPrefix } from './wallet';
-
-const CHECK_BLOCK_EVERY_MS =
-  process.env.NODE_ENV === 'development' ? 1000 : 5000;
+import { CHECK_BLOCK_EVERY_MS } from './constants';
 
 const signTransaction = async config => {
   let {

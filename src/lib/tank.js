@@ -1,6 +1,7 @@
 // /lib/tank: functions for funding transactions
 
 import { waitForTransactionConfirm } from './txn';
+import { CHECK_BLOCK_EVERY_MS } from './constants';
 
 //NOTE if accessing this in a localhost configuration fails with "CORS request
 //     did not succeed", you might need to visit localhost:3001 or whatever
@@ -104,27 +105,26 @@ async function waitForBalance(
 ) {
   console.log('tank: awaiting balance', address, minBalance);
   return new Promise((resolve, reject) => {
-    let oldBalance = null;
     const checkForBalance = async () => {
       const balance = await web3.eth.getBalance(address);
+
       if (balance >= minBalance) {
-        // if we ever asked for funding, retract that request now
-        if (gotFunding && oldBalance !== null) {
+        if (gotFunding) {
           gotFunding();
         }
+
         resolve();
       } else {
-        if (balance !== oldBalance) {
-          // TODO: minBalance is a `number` type
-          // but we want to display ETH, which will never accept a number
-          // but instead wants string or BN/BigNumber.
-          // this will be heavily refactored to correctly do BN math, but until
-          // then we'll manually convert this number to an integer string
-          askForFunding(address, minBalance.toFixed(), balance);
-        }
-        setTimeout(checkForBalance, 13000);
+        // TODO: minBalance is a `number` type
+        // but we want to display ETH, which will never accept a number
+        // but instead wants string or BN/BigNumber.
+        // this will be heavily refactored to correctly do BN math, but until
+        // then we'll manually convert this number to an integer string
+        askForFunding(address, minBalance.toFixed(), balance);
+        setTimeout(checkForBalance, CHECK_BLOCK_EVERY_MS);
       }
     };
+
     checkForBalance();
   });
 }

@@ -1,3 +1,7 @@
+import { isDevelopment } from './flags';
+
+const CHECK_BLOCK_EVERY_MS = isDevelopment ? 1000 : 5000;
+
 const MIN_GALAXY = 0;
 const MAX_GALAXY = 255;
 const MIN_STAR = 256;
@@ -63,6 +67,7 @@ const PROFILE_STATES = {
 };
 
 export {
+  CHECK_BLOCK_EVERY_MS,
   GAS_LIMITS,
   GEN_STATES,
   BUTTON_STATES,

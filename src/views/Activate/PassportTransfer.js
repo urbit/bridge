@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import cn from 'classnames';
-import { Grid, H4, Text, ErrorText } from 'indigo-react';
+import { Grid, Text, ErrorText } from 'indigo-react';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
@@ -9,17 +8,17 @@ import { usePointCursor } from 'store/pointCursor';
 
 import * as need from 'lib/need';
 import useLifecycle from 'lib/useLifecycle';
-import { claimPointFromInvite } from 'lib/invite';
+import { reticketPointBetweenWallets } from 'lib/invite';
 import timeout from 'lib/timeout';
 import { fromWei } from 'lib/txn';
 
-import Steps from 'components/Steps';
 import WarningBox from 'components/WarningBox';
 import LoadingBar from 'components/LoadingBar';
 import Highlighted from 'components/Highlighted';
+import { RestartButton } from 'components/Buttons';
 
 import { useActivateFlow } from './ActivateFlow';
-import { RestartButton } from 'components/Buttons';
+import PassportView from './PassportView';
 
 export default function PassportTransfer({ className, resetActivateRouter }) {
   const { replaceWith, names } = useHistory();
@@ -92,9 +91,9 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
       const _web3 = need.web3(web3);
       const _contracts = need.contracts(contracts);
 
-      await claimPointFromInvite({
-        inviteWallet: _inviteWallet,
-        wallet: _wallet,
+      await reticketPointBetweenWallets({
+        fromWallet: _inviteWallet,
+        toWallet: _wallet,
         point: _point,
         web3: _web3,
         contracts: _contracts,
@@ -159,7 +158,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
       );
     }
 
-    if (progress < 100) {
+    if (progress < 1.0) {
       return (
         <Grid.Item full as={WarningBox} className="mt8">
           Never give your Master Ticket to anyone
@@ -171,22 +170,20 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
   };
 
   return (
-    <Grid className={cn(className, 'auto-rows-min')}>
-      <Grid.Item full as={Steps} num={3} total={3} />
-      <Grid.Item full as={H4}>
-        {label}
-      </Grid.Item>
-      <Grid.Item full as={Grid} className="mt3" gap={3}>
-        <Grid.Item full as={LoadingBar} progress={progress} />
-        <Grid.Item full>
-          <Text className="f5 green4">
-            This process can take up to 5 minutes to complete. Don't leave this
-            page until the process is complete.
-          </Text>
+    <PassportView className={className} header={label} step={3}>
+      <Grid>
+        <Grid.Item full as={Grid} className="mt3" gap={3}>
+          <Grid.Item full as={LoadingBar} progress={progress} />
+          <Grid.Item full>
+            <Text className="f5 green4">
+              This process can take up to 5 minutes to complete. Don't leave
+              this page until the process is complete.
+            </Text>
+          </Grid.Item>
         </Grid.Item>
-      </Grid.Item>
 
-      {renderAdditionalInfo()}
-    </Grid>
+        {renderAdditionalInfo()}
+      </Grid>
+    </PassportView>
   );
 }

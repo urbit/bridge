@@ -48,12 +48,12 @@ export default function Button({
       }}
       onClick={!disabled && onClick ? onClick : undefined}
       {...rest}>
-      <Grid.Item as={Flex} justify="between" full>
-        <span className={cn(textColor)}>{children}</span>
-        <div className={cn('pl4', textColor)}>{accessory}</div>
+      <Grid.Item full as={Flex} justify="between" className={cn(textColor)}>
+        <span>{children}</span>
+        <div className={cn('pl4')}>{accessory}</div>
       </Grid.Item>
       {detail && (
-        <Grid.Item as={HelpText} full>
+        <Grid.Item full as={HelpText}>
           {detail}
         </Grid.Item>
       )}

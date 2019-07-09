@@ -1,18 +1,18 @@
 import React, { useCallback, useMemo } from 'react';
-import cn from 'classnames';
-import { Grid, H4, Input, P } from 'indigo-react';
+import { Grid, Input, P } from 'indigo-react';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { useTicketInput } from 'lib/useInputs';
 import { validateExactly } from 'lib/validators';
+import { isDevelopment } from 'lib/flags';
 
 import { ForwardButton } from 'components/Buttons';
-import Steps from 'components/Steps';
 
 import { useActivateFlow } from './ActivateFlow';
+import PassportView from './PassportView';
 
-const STUB_VERIFY_TICKET = process.env.NODE_ENV === 'development';
+const STUB_VERIFY_TICKET = isDevelopment;
 
 export default function PassportVerify({ className }) {
   const { push, names } = useLocalRouter();
@@ -33,26 +33,24 @@ export default function PassportVerify({ className }) {
   });
 
   return (
-    <Grid className={cn(className, 'auto-rows-min')}>
-      <Grid.Item full as={Steps} num={2} total={3} />
-      <Grid.Item full as={H4}>
-        Verify Passport
-      </Grid.Item>
-      <Grid.Item full as={P}>
-        After you download your passport, verify your custody. Your passport
-        should be a folder of image files. One of them is your Master Ticket.
-        Open it and enter the 4 word phrase below (with hyphens).
-      </Grid.Item>
-      <Grid.Item full as={Input} {...ticketInput} />
-      <Grid.Item
-        full
-        className="mt3"
-        as={ForwardButton}
-        disabled={!pass}
-        onClick={goToTransfer}
-        solid>
-        Verify
-      </Grid.Item>
-    </Grid>
+    <PassportView header="Verify Passport" step={2} className={className}>
+      <Grid>
+        <Grid.Item full as={P}>
+          After you download your passport, verify your custody. Your passport
+          should be a folder of image files. One of them is your Master Ticket.
+          Open it and enter the 4 word phrase below (with hyphens).
+        </Grid.Item>
+        <Grid.Item full as={Input} {...ticketInput} />
+        <Grid.Item
+          full
+          className="mt3"
+          as={ForwardButton}
+          disabled={!pass}
+          onClick={goToTransfer}
+          solid>
+          Verify
+        </Grid.Item>
+      </Grid>
+    </PassportView>
   );
 }
