@@ -94,21 +94,17 @@ export default function Ticket({ className }) {
     }
 
     const _contracts = need.contracts(contracts);
-    const pointNumber = ob.patp2dec(pointName);
-    const urbitWallet = await urbitWalletFromTicket(
-      ticket,
-      pointName,
-      passphrase
-    );
+    const point = ob.patp2dec(pointName);
+    const urbitWallet = await urbitWalletFromTicket(ticket, point, passphrase);
     const [isOwner, isTransferProxy] = await Promise.all([
       azimuth.azimuth.isOwner(
         _contracts,
-        pointNumber,
+        point,
         urbitWallet.ownership.keys.address
       ),
       azimuth.azimuth.isTransferProxy(
         _contracts,
-        pointNumber,
+        point,
         urbitWallet.ownership.keys.address
       ),
     ]);
@@ -140,7 +136,8 @@ export default function Ticket({ className }) {
 
     try {
       const ticket = kg.combine([s1, s2, s3]);
-      const uhdw = await urbitWalletFromTicket(ticket, pointName, passphrase);
+      const point = ob.patp2dec(pointName);
+      const uhdw = await urbitWalletFromTicket(ticket, point, passphrase);
       setUrbitWallet(Just(uhdw));
     } catch (_) {
       // do nothing

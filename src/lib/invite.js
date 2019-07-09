@@ -99,8 +99,6 @@ export async function reticketPointBetweenWallets({
   const gotFunding = () => onUpdate({ type: 'gotFunding' });
   const progress = state => onUpdate({ type: 'progress', state });
 
-  const inviteAddress = fromWallet.address;
-
   //
   // generate transactions
   //
@@ -117,7 +115,7 @@ export async function reticketPointBetweenWallets({
   const transferTmpTx = azimuth.ecliptic.transferPoint(
     contracts,
     point,
-    inviteAddress,
+    fromWallet.address,
     false
   );
   transferTmpTx.gas = GAS_LIMITS.TRANSFER;
@@ -201,9 +199,9 @@ export async function reticketPointBetweenWallets({
   progress(TRANSACTION_STATES.SIGNING);
 
   let totalCost = 0;
-  let inviteNonce = await web3.eth.getTransactionCount(inviteAddress);
+  let inviteNonce = await web3.eth.getTransactionCount(fromWallet.address);
   txs = txs.map(tx => {
-    tx.from = inviteAddress;
+    tx.from = fromWallet.address;
     tx.nonce = inviteNonce++;
     tx.gasPrice = 20000000000; //NOTE we pay the premium for faster ux
     totalCost = totalCost + tx.gasPrice * tx.gas;
@@ -228,7 +226,7 @@ export async function reticketPointBetweenWallets({
   const usedTank = await tank.ensureFundsFor(
     web3,
     point,
-    inviteAddress,
+    fromWallet.address,
     totalCost,
     txPairs.map(p => p.raw),
     askForFunding,
@@ -254,7 +252,7 @@ export async function reticketPointBetweenWallets({
   progress(TRANSACTION_STATES.CLEANING);
 
   // if non-trivial eth left in invite wallet, transfer to new ownership
-  let balance = await web3.eth.getBalance(inviteAddress);
+  let balance = await web3.eth.getBalance(fromWallet.address);
   const gasPrice = 20000000000;
   const gasLimit = 21000;
   const sendEthCost = gasPrice * gasLimit;

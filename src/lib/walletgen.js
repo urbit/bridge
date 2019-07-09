@@ -71,6 +71,7 @@ export const generateOwnershipWallet = (ship, ticket) =>
 // so we always use ~zod as the wallet point.
 export const generateTemporaryOwnershipWallet = ticket =>
   generateOwnershipWallet(ZOD, ticket);
+
 export const generateTemporaryTicketAndWallet = async point => {
   const ticket = await makeTicket(point);
   const owner = await generateOwnershipWallet(ZOD, ticket);
