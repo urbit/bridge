@@ -2,7 +2,6 @@ import React from 'react';
 import cn from 'classnames';
 
 import Flex from './Flex';
-import AspectRatio from 'components/AspectRatio';
 
 // TODO: make this look like screens
 export default function CheckboxInput({
