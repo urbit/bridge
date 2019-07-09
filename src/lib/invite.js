@@ -9,7 +9,7 @@ import * as tank from './tank';
 import JSZip from 'jszip';
 import saveAs from 'file-saver';
 
-import { hexify, sendAndAwaitConfirm } from './txn';
+import { hexify, sendTransactionsAndAwaitConfirm } from './txn';
 import { deriveNetworkSeedFromUrbitWallet } from './keys';
 import { addHexPrefix } from './wallet';
 import { GAS_LIMITS } from './constants';
@@ -241,7 +241,11 @@ export async function reticketPointBetweenWallets({
 
   progress(TRANSACTION_STATES.TRANSFERRING);
 
-  await sendAndAwaitConfirm(web3, txPairs.map(p => Just(p.signed)), usedTank);
+  await sendTransactionsAndAwaitConfirm(
+    web3,
+    txPairs.map(p => Just(p.signed)),
+    usedTank
+  );
 
   //
   // move leftover eth

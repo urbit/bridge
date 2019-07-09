@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Just } from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H4, Text, ErrorText } from 'indigo-react';
 
 import { reticketPointBetweenWallets } from 'lib/invite';
@@ -19,8 +19,8 @@ import Highlighted from 'components/Highlighted';
 import { WALLET_TYPES } from 'lib/wallet';
 
 // TODO: maybe we can merge PassportTransfer here?
-export default function ReticketExecute({ newWallet }) {
-  const { popTo, names } = useHistory();
+export default function ReticketExecute({ newWallet, setNewWallet }) {
+  const { popTo, names, reset } = useHistory();
   const { web3, contracts } = useNetwork();
   const { wallet, setWalletType, resetWallet, setUrbitWallet } = useWallet();
   const { pointCursor } = usePointCursor();
@@ -50,6 +50,11 @@ export default function ReticketExecute({ newWallet }) {
       }
     })();
   });
+
+  const goToRestart = useCallback(() => {
+    reset();
+    setNewWallet(Nothing());
+  }, [reset, setNewWallet]);
 
   const loginAndGoHome = useCallback(() => {
     // set wallet state
@@ -88,7 +93,7 @@ export default function ReticketExecute({ newWallet }) {
             full
             className="mt3"
             as={RestartButton}
-            //TODO onClick={goToRestart}
+            onClick={goToRestart}
           />
         </>
       );

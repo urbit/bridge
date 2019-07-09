@@ -104,6 +104,8 @@ const signTransaction = async config => {
   return stx;
 };
 
+// TODO(shrugs): refactor the hell out of all of these functions
+// but especially this one
 const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
   const txn = stx.matchWith({
     Just: tx => tx.value,
@@ -125,7 +127,9 @@ const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
       //     in on-transactionHash? we don't care (much) about additional
       //     confirms anyway.
       .on('confirmation', (confirmationNum, txn) => {
-        confirmationCb(txn.transactionHash, confirmationNum + 1);
+        if (confirmationCb) {
+          confirmationCb(txn.transactionHash, confirmationNum + 1);
+        }
         resolve(txn.transactionHash);
       })
       .on('error', err => {
@@ -177,15 +181,8 @@ const isTransactionConfirmed = async (web3, txHash) => {
   return receipt !== null;
 };
 
-async function sendAndAwaitConfirm(web3, signedTxs, usedTank) {
-  await Promise.all(
-    signedTxs.map(tx => {
-      return new Promise((resolve, reject) => {
-        sendSignedTransaction(web3, tx, usedTank, resolve);
-      });
-    })
-  );
-}
+const sendTransactionsAndAwaitConfirm = async (web3, signedTxs, usedTank) =>
+  Promise.all(signedTxs.map(tx => sendSignedTransaction(web3, tx, usedTank)));
 
 const hexify = val => addHexPrefix(val.toString('hex'));
 
@@ -201,6 +198,7 @@ const getTxnInfo = async (web3, addr) => {
   let nonce = await web3.eth.getTransactionCount(addr);
   let chainId = await web3.eth.net.getId();
   let gasPrice = await web3.eth.getGasPrice();
+
   return {
     nonce: nonce,
     chainId: chainId,
@@ -222,7 +220,7 @@ export {
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,
-  sendAndAwaitConfirm,
+  sendTransactionsAndAwaitConfirm,
   isTransactionConfirmed,
   getTxnInfo,
   hexify,

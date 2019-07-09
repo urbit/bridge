@@ -4,7 +4,6 @@ import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
-import { usePointCache } from 'store/pointCache';
 import { useHistory } from 'store/history';
 
 import View from 'components/View';
