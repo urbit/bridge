@@ -122,7 +122,7 @@ export async function reticketPointBetweenWallets({
 
   // configure networking public keys
   const seed = await deriveNetworkSeedFromUrbitWallet(
-    Just(toWallet),
+    toWallet,
     INITIAL_NETWORK_KEY_REVISION
   );
 

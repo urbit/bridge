@@ -77,7 +77,7 @@ export const compileNetworkingKey = (pair, point, revision) => {
 };
 
 /**
- * @param {Maybe<any>} urbitWallet
+ * @param {object} urbitWallet
  * @param {number} revision
  * @return {Promise<Maybe<string>>}
  */
@@ -85,8 +85,7 @@ export const deriveNetworkSeedFromUrbitWallet = async (
   urbitWallet,
   revision = 1
 ) => {
-  const _urbitWallet = need.wallet(urbitWallet);
-  return deriveNetworkSeedFromSeed(_urbitWallet.management.seed, revision);
+  return deriveNetworkSeedFromSeed(urbitWallet.management.seed, revision);
 };
 
 /**
@@ -102,12 +101,10 @@ export const deriveNetworkSeedFromMnemonic = async (
   details,
   revision = 1
 ) => {
-  const _wallet = need.wallet(wallet);
-  const _mnemonic = need.authMnemonic(authMnemonic);
-  const isManagementProxy = eqAddr(_wallet.address, details.managementProxy);
+  const isManagementProxy = eqAddr(wallet.address, details.managementProxy);
 
   if (isManagementProxy) {
-    return await deriveNetworkSeedFromSeed(_mnemonic, revision);
+    return await deriveNetworkSeedFromSeed(authMnemonic, revision);
   }
 
   return Nothing();
@@ -136,13 +133,13 @@ export const attemptNetworkSeedDerivation = async ({
   revision,
 }) => {
   if (Just.hasInstance(urbitWallet)) {
-    return await deriveNetworkSeedFromUrbitWallet(urbitWallet, revision);
+    return await deriveNetworkSeedFromUrbitWallet(urbitWallet.value, revision);
   }
 
   if (Just.hasInstance(wallet) && Just.hasInstance(authMnemonic)) {
     return await deriveNetworkSeedFromMnemonic(
-      wallet,
-      authMnemonic,
+      wallet.value,
+      authMnemonic.value,
       details,
       revision
     );
