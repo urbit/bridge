@@ -3,8 +3,6 @@ import { AccessoryIcon, useForm } from 'indigo-react';
 import { identity } from 'lodash';
 import * as bip39 from 'bip39';
 
-import InputSigil from 'components/InputSigil';
-
 import { DEFAULT_HD_PATH } from 'lib/wallet';
 import {
   validateNotEmpty,
@@ -19,34 +17,10 @@ import {
 } from 'lib/validators';
 import { prependSig } from 'lib/transformers';
 
+import InputSigil from 'components/InputSigil';
+
 const EXAMPLE_PRIVATE_KEY =
   '0xa44de2416ee6beb2f323fab48b432925c9785808d33a6ca6d7ba00b45e9370c3';
-
-// const RequiredInput = advancedInput({
-//   WrappedComponent: Input,
-//   validators: [validateNotEmpty],
-// });
-
-// const NetworkKeyInput = advancedInput({
-//   WrappedComponent: Input,
-//   validators: [validateNotEmpty, validateNetworkKey],
-// });
-
-// const NetworkSeedInput = advancedInput({
-//   WrappedComponent: Input,
-//   validators: [validateNotEmpty, validateNetworkSeed],
-// });
-
-// const AddressInput = advancedInput({
-//   WrappedComponent: Input,
-//   validators: [validateEthereumAddress, validateNotEmpty],
-// });
-
-// const GalaxyInput = advancedInput({
-//   WrappedComponent: Input,
-//   validators: [validateGalaxy, validateNotEmpty],
-//   transformers: [prependSig],
-// });
 
 // pulls out the first input from a useForm() call
 function useFirstOf({ inputs, setValue, ...rest }, mapper = identity) {

@@ -4,13 +4,13 @@ import { Grid, H4, Input, P } from 'indigo-react';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
+import { useTicketInput } from 'lib/useInputs';
+import { validateExactly } from 'lib/validators';
 
 import { ForwardButton } from 'components/Buttons';
 import Steps from 'components/Steps';
-import { useTicketInput } from 'components/Inputs';
 
 import { useActivateFlow } from './ActivateFlow';
-import { validateExactly } from 'lib/validators';
 
 const STUB_VERIFY_TICKET = process.env.NODE_ENV === 'development';
 

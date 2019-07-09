@@ -2,10 +2,9 @@ import React, { useEffect } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, Input } from 'indigo-react';
 
-import { useHexInput } from 'components/Inputs';
-
 import { useWallet } from 'store/wallet';
 
+import { useHexInput } from 'lib/useInputs';
 import { EthereumWallet, WALLET_TYPES, stripHexPrefix } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
 

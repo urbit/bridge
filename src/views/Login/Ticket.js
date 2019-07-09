@@ -5,17 +5,16 @@ import * as ob from 'urbit-ob';
 import * as kg from 'urbit-key-generation/dist/index';
 import { Input, Grid, CheckboxInput } from 'indigo-react';
 
+import { useNetwork } from 'store/network';
+import { useWallet } from 'store/wallet';
+import { usePointCursor } from 'store/pointCursor';
+
 import {
   usePointInput,
   useTicketInput,
   usePassphraseInput,
   useCheckboxInput,
-} from 'components/Inputs';
-
-import { useNetwork } from 'store/network';
-import { useWallet } from 'store/wallet';
-import { usePointCursor } from 'store/pointCursor';
-
+} from 'lib/useInputs';
 import * as need from 'lib/need';
 import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
 import useImpliedPoint from 'lib/useImpliedPoint';

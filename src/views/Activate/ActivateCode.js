@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
-import { useTicketInput } from 'components/Inputs';
 import { Grid, Input, H4, ErrorText } from 'indigo-react';
 
 import View from 'components/View';
@@ -10,6 +9,7 @@ import Passport from 'components/Passport';
 
 import { useHistory } from 'store/history';
 
+import { useTicketInput } from 'lib/useInputs';
 import * as need from 'lib/need';
 import { ROUTE_NAMES } from 'lib/routeNames';
 import { useSyncKnownPoints } from 'lib/useSyncPoints';

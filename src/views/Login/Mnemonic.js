@@ -2,15 +2,14 @@ import React, { useEffect } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, Input, CheckboxInput } from 'indigo-react';
 
+import { useWallet } from 'store/wallet';
+
 import {
   usePassphraseInput,
   useMnemonicInput,
   useHdPathInput,
   useCheckboxInput,
-} from 'components/Inputs';
-
-import { useWallet } from 'store/wallet';
-
+} from 'lib/useInputs';
 import { walletFromMnemonic, WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
 

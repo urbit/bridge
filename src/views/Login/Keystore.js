@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import * as keythereum from 'keythereum';
 import { P, Grid, Input, ErrorText } from 'indigo-react';
-
-import { usePassphraseInput } from 'components/Inputs';
-import { ForwardButton } from 'components/Buttons';
+import * as keythereum from 'keythereum';
 
 import { useWallet } from 'store/wallet';
 
+import { usePassphraseInput } from 'lib/useInputs';
 import * as need from 'lib/need';
 import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
-import UploadButton from 'components/UploadButton';
 import useLoginView from 'lib/useLoginView';
+
+import { ForwardButton } from 'components/Buttons';
+import UploadButton from 'components/UploadButton';
 
 export default function Keystore({ className }) {
   useLoginView(WALLET_TYPES.KEYSTORE);

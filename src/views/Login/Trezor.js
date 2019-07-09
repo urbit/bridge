@@ -4,21 +4,27 @@ import * as bip32 from 'bip32';
 import { times } from 'lodash';
 import TrezorConnect from 'trezor-connect';
 import * as secp256k1 from 'secp256k1';
-import { Text, Input, Grid, H5, CheckboxInput } from 'indigo-react';
+import {
+  Text,
+  Input,
+  Grid,
+  H5,
+  CheckboxInput,
+  SelectInput,
+} from 'indigo-react';
 
-import { ForwardButton } from 'components/Buttons';
+import { useWallet } from 'store/wallet';
 
 import { TREZOR_PATH } from 'lib/trezor';
 import { WALLET_TYPES } from 'lib/wallet';
-
-import { useWallet } from 'store/wallet';
 import useLoginView from 'lib/useLoginView';
 import {
   useHdPathInput,
   useCheckboxInput,
   useSelectInput,
-} from 'components/Inputs';
-import SelectInput from 'indigo-react/components/SelectInput';
+} from 'lib/useInputs';
+
+import { ForwardButton } from 'components/Buttons';
 
 const ACCOUNT_OPTIONS = times(20, i => ({
   text: `Account #${i + 1}`,

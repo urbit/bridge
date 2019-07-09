@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
 import { Input } from 'indigo-react';
 
-import View from 'components/View';
-import { useTicketInput } from 'components/Inputs';
-import { ForwardButton } from 'components/Buttons';
-
+import { useTicketInput } from 'lib/useInputs';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { validateExactly } from 'lib/validators';
+
+import View from 'components/View';
+import { ForwardButton } from 'components/Buttons';
 
 const STUB_VERIFY_TICKET = process.env.NODE_ENV === 'development';
 

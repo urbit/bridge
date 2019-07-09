@@ -1,21 +1,30 @@
 import React, { useCallback, useEffect } from 'react';
 import cn from 'classnames';
 import { Just, Nothing } from 'folktale/maybe';
-import { P, Text, Input, Grid, H5, CheckboxInput } from 'indigo-react';
+import {
+  P,
+  Text,
+  Input,
+  Grid,
+  H5,
+  CheckboxInput,
+  SelectInput,
+} from 'indigo-react';
 import { times } from 'lodash';
 import * as bip32 from 'bip32';
 import Transport from '@ledgerhq/hw-transport-u2f';
 import Eth from '@ledgerhq/hw-app-eth';
 import * as secp256k1 from 'secp256k1';
 
+import { useWallet } from 'store/wallet';
+
 import { ForwardButton } from 'components/Buttons';
+
 import {
   useCheckboxInput,
   useHdPathInput,
   useSelectInput,
-} from 'components/Inputs';
-
-import { useWallet } from 'store/wallet';
+} from 'lib/useInputs';
 
 import {
   LEDGER_LIVE_PATH,
@@ -25,7 +34,6 @@ import {
 } from 'lib/ledger';
 import { WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
-import SelectInput from 'indigo-react/components/SelectInput';
 import useBreakpoints from 'lib/useBreakpoints';
 
 const PATH_OPTIONS = [
