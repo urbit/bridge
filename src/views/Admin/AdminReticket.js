@@ -15,10 +15,10 @@ import useRouter from 'lib/useRouter';
 
 import { useHistory } from 'store/history';
 
-import Confirm from './Reticket/Confirm';
-import Download from './Reticket/Download';
-import Verify from './Reticket/Verify';
-import DoReticket from './Reticket/DoReticket';
+import Confirm from '../Reticket/Confirm';
+import Download from '../Reticket/Download';
+import Verify from '../Reticket/Verify';
+import DoReticket from '../Reticket/DoReticket';
 
 const NAMES = {
   CONFIRM: 'CONFIRM',
@@ -36,7 +36,7 @@ const VIEWS = {
 
 const STEP_MAX = size(NAMES);
 
-export default function Reticket() {
+export default function AdminReticket() {
   const history = useHistory();
   const { Route, ...innerRouter } = useRouter({
     names: NAMES,

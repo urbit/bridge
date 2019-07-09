@@ -12,7 +12,7 @@ import { downloadWallet } from 'lib/invite';
 
 import { useWallet } from 'store/wallet';
 
-export default function Redownload() {
+export default function AdminRedownload() {
   const { urbitWallet } = useWallet();
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);

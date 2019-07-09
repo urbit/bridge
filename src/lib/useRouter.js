@@ -71,23 +71,28 @@ export default function useRouter({
   // Scroll to top of page with each route transition
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [routes, primary]);
+  }, [routes]);
 
   // capture browser pop in primary router
   useEffect(() => {
-    if (!primary) {
-      return;
-    }
+    const oldPopState = window.onpopstate;
 
     window.history.pushState(null, null, null);
 
     window.onpopstate = e => {
+      if (size <= 1) {
+        // if this is the root route, give the event to parent router
+        return oldPopState(e);
+      }
+
       window.history.pushState(null, null, null);
       pop();
     };
 
-    // TODO: disposer functon
-  }, [pop, primary]);
+    return () => {
+      window.onpopstate = oldPopState;
+    };
+  }, [size, pop]);
 
   return {
     Route,

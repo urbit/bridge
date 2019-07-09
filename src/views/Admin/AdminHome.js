@@ -15,9 +15,11 @@ import usePermissionsForPoint from 'lib/usePermissionsForPoint';
 import FooterButton from 'components/FooterButton';
 import ViewHeader from 'components/ViewHeader';
 import Blinky from 'components/Blinky';
+import { useLocalRouter } from 'lib/LocalRouter';
 
 export default function AdminHome() {
   const history = useHistory();
+  const { push, names } = useLocalRouter();
   const { urbitWallet, wallet } = useWallet();
   const { pointCursor } = usePointCursor();
 
@@ -31,20 +33,12 @@ export default function AdminHome() {
     generateAndDownload: generateAndDownloadKeyfile,
   } = useKeyfileGenerator(point);
 
-  const goRedownload = useCallback(
-    () => history.push(history.names.REDOWNLOAD),
-    [history]
-  );
-
-  const goReticket = useCallback(() => history.push(history.names.RETICKET), [
-    history,
+  const goRedownload = useCallback(() => push(names.REDOWNLOAD), [push, names]);
+  const goReticket = useCallback(() => push(names.RETICKET), [push, names]);
+  const goEditPermissions = useCallback(() => push(names.EDIT_PERMISSIONS), [
+    push,
+    names,
   ]);
-
-  const goEditPermissions = useCallback(
-    () => history.push(history.names.PERMISSIONS),
-    [history]
-  );
-
   const goTransfer = useCallback(() => history.push(history.names.TRANSFER), [
     history,
   ]);
@@ -52,54 +46,55 @@ export default function AdminHome() {
   const canDownloadPassport = Just.hasInstance(urbitWallet);
 
   return (
-    <Grid>
-      <Grid.Item full as={ViewHeader}>
-        Admin
-      </Grid.Item>
+    <>
+      <Grid>
+        <Grid.Item full as={ViewHeader}>
+          Admin
+        </Grid.Item>
 
-      <Grid.Item
-        full
-        as={ForwardButton}
-        disabled={!canDownloadPassport}
-        onClick={goRedownload}
-        detail="Re-download your paper wallet">
-        Download Passport
-      </Grid.Item>
-      <Grid.Divider />
-      <Grid.Item
-        full
-        as={DownloadButton}
-        disabled={!keyfileAvailable}
-        accessory={generatingKeyfile ? <Blinky /> : undefined}
-        onClick={generateAndDownloadKeyfile}
-        detail="Download your Arvo Keyfile">
-        Download Arvo Keyfile
-      </Grid.Item>
-      <Grid.Divider />
-      <Grid.Item
-        full
-        as={ForwardButton}
-        disabled={!isOwner}
-        onClick={goReticket}
-        detail="Move to brand new wallet, resetting all permissions">
-        Reticket
-      </Grid.Item>
-      <Grid.Divider />
-      <Grid.Item
-        full
-        as={ForwardButton}
-        onClick={goEditPermissions}
-        detail="Proxies, networking keys, etc.">
-        Edit permissions
-      </Grid.Item>
-      <Grid.Divider />
-
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!canDownloadPassport}
+          onClick={goRedownload}
+          detail="Re-download your paper wallet">
+          Download Passport
+        </Grid.Item>
+        <Grid.Divider />
+        <Grid.Item
+          full
+          as={DownloadButton}
+          disabled={!keyfileAvailable}
+          accessory={generatingKeyfile ? <Blinky /> : undefined}
+          onClick={generateAndDownloadKeyfile}
+          detail="Download your Arvo Keyfile">
+          Download Arvo Keyfile
+        </Grid.Item>
+        <Grid.Divider />
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!isOwner}
+          onClick={goReticket}
+          detail="Move to brand new wallet, resetting all permissions">
+          Reticket
+        </Grid.Item>
+        <Grid.Divider />
+        <Grid.Item
+          full
+          as={ForwardButton}
+          onClick={goEditPermissions}
+          detail="Proxies, networking keys, etc.">
+          Edit Permissions
+        </Grid.Item>
+        <Grid.Divider />
+      </Grid>
       <FooterButton
         detail="Transfer this identity to a new owner"
         disabled={!canTransfer}
         onClick={goTransfer}>
         Transfer
       </FooterButton>
-    </Grid>
+    </>
   );
 }

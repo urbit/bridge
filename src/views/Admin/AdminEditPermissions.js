@@ -1,16 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as need from 'lib/need';
-import { azimuth } from 'azimuth-js';
 import { Grid } from 'indigo-react';
 
-import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
-import FooterButton from 'components/FooterButton';
 import { matchBlinky } from 'components/Blinky';
 
 import { ROUTE_NAMES } from 'lib/routeNames';
-import { eqAddr } from 'lib/wallet';
+import { ETH_ZERO_ADDR } from 'lib/wallet';
 
 import useLifecycle from 'lib/useLifecycle';
 import { useNetwork } from 'store/network';
@@ -18,6 +15,8 @@ import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
+import ViewHeader from 'components/ViewHeader';
+import usePermissionsForPoint from 'lib/usePermissionsForPoint';
 
 //TODO consolidate with azimuth-js' getActivationBlock
 const getRekeyDate = async (web3, contracts, point) => {
@@ -35,18 +34,23 @@ const getRekeyDate = async (web3, contracts, point) => {
   }
 };
 
-export default function Permissions() {
+export default function AdminEditPermissions() {
   const history = useHistory();
   const { web3, contracts } = useNetwork();
   const { wallet } = useWallet();
   const { pointCursor } = usePointCursor();
-  const { pointCache } = usePointCache();
+  const { getDetails } = usePointCache();
 
   const [rekeyDate, setRekeyDate] = useState(Nothing());
 
   const point = need.point(pointCursor);
-  const pointSize = azimuth.getPointSize(point);
   const userAddress = need.wallet(wallet).address;
+
+  const pointDetails = need.details(getDetails(point));
+  const { isOwner, canManage, canSpawn, canVote } = usePermissionsForPoint(
+    userAddress,
+    point
+  );
 
   useLifecycle(() => {
     getRekeyDate(need.web3(web3), need.contracts(contracts), point).then(
@@ -76,43 +80,21 @@ export default function Permissions() {
     history,
   ]);
 
-  const pointDetails = need.fromPointCache(pointCache, point);
-
-  const isOwner = eqAddr(userAddress, pointDetails.owner);
-  const canManage =
-    isOwner || eqAddr(userAddress, pointDetails.managementProxy);
-
   const proxyAction = (name, address, onClick) => {
-    if (address === '0x0000000000000000000000000000000000000000')
-      address = 'Unset';
+    if (address === ETH_ZERO_ADDR) {
+      address = 'Not yet set';
+    }
+
     return (
       <Grid.Item full>
         <ForwardButton disabled={!isOwner} onClick={onClick} detail={address}>
-          {`${name} proxy address`}
+          {`${name} Proxy Address`}
         </ForwardButton>
       </Grid.Item>
     );
   };
 
-  let spawnProxyAction = null;
-  if (pointSize !== azimuth.PointSize.Planet) {
-    spawnProxyAction = proxyAction(
-      'Spawn',
-      pointDetails.spawnProxy,
-      goSetSpawn
-    );
-  }
-
-  let votingProxyAction = null;
-  if (pointSize === azimuth.PointSize.Galaxy) {
-    votingProxyAction = proxyAction(
-      'Voting',
-      pointDetails.votingProxy,
-      goSetVoting
-    );
-  }
-
-  const netKeysText =
+  const networkKeysDetail =
     pointDetails.keyRevisionNumber === 0 ? (
       'Not yet configured'
     ) : (
@@ -123,31 +105,39 @@ export default function Permissions() {
     );
 
   return (
-    <View>
-      <Grid className="pt2">
-        <Grid.Item full as={ForwardButton} disabled detail={pointDetails.owner}>
-          Ownership address
-        </Grid.Item>
-        {proxyAction(
-          'Management',
-          pointDetails.managementProxy,
-          goSetManagement
-        )}
-        {spawnProxyAction}
-        {votingProxyAction}
-        <Grid.Item
-          full
-          as={ForwardButton}
-          disabled={!canManage}
-          onClick={goSetKeys}
-          detail={netKeysText}>
-          Network keys
-        </Grid.Item>
-      </Grid>
+    <Grid>
+      <Grid.Item full as={ViewHeader}>
+        Permissions
+      </Grid.Item>
+      <Grid.Item full as={ForwardButton} detail={pointDetails.owner} disabled>
+        Ownership Address
+      </Grid.Item>
+      <Grid.Divider />
+      {proxyAction('Management', pointDetails.managementProxy, goSetManagement)}
+      <Grid.Divider />
 
-      <FooterButton detail="Transfer this identity to a new owner" disabled>
-        Transfer
-      </FooterButton>
-    </View>
+      {canSpawn && (
+        <>
+          {proxyAction('Spawn', pointDetails.spawnProxy, goSetSpawn)}
+          <Grid.Divider />
+        </>
+      )}
+
+      {canVote && (
+        <>
+          {proxyAction('Voting', pointDetails.votingProxy, goSetVoting)}
+          <Grid.Divider />
+        </>
+      )}
+      <Grid.Item
+        full
+        as={ForwardButton}
+        disabled={!canManage}
+        onClick={goSetKeys}
+        detail={networkKeysDetail}>
+        Network keys
+      </Grid.Item>
+      <Grid.Divider />
+    </Grid>
   );
 }
