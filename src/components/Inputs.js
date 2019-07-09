@@ -16,6 +16,7 @@ import {
   validateHexString,
   validateOneOf,
   validateMaximumPatpByteLength,
+  validatePatpByteLength,
 } from 'lib/validators';
 import { prependSig } from 'lib/transformers';
 
@@ -138,16 +139,20 @@ export function useHdPathInput(props) {
   );
 }
 
-const kTicketValidators = [validateTicket, validateNotEmpty];
-const kTicketTransformers = [prependSig];
+const kTicketValidators = [
+  validateTicket,
+  validatePatpByteLength(8), // tickets are 8 bytes of patp
+  validateNotEmpty,
+];
 //TODO needs to be fancier, displaying sig and dashes instead of •ing all
+const kTicketTransformers = [prependSig];
 export function useTicketInput({ validators = [], deriving = false, ...rest }) {
   return useFirstOf(
     useForm([
       {
         type: 'password',
         label: 'Ticket',
-        placeholder: '~ragtyd-modwen-bostec-hinsep',
+        placeholder: 'e.g. ~ragtyd-modwen-bostec-hinsep',
         validators: useMemo(() => [...validators, ...kTicketValidators], [
           validators,
         ]),
