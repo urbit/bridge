@@ -101,7 +101,7 @@ export default function InviteEmail() {
   const { syncInvites, getInvites } = usePointCache();
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
-  const { getHasRecieved, syncHasReceivedForEmail, sendMail } = useMailer();
+  const { getHasReceived, syncHasReceivedForEmail, sendMail } = useMailer();
 
   const { availableInvites } = getInvites(point);
   const maxInvitesToSend = availableInvites.matchWith({
@@ -142,14 +142,14 @@ export default function InviteEmail() {
     () =>
       inputConfigs.map(config => {
         config.disabled = !canInput;
-        const hasReceivedError = getHasRecieved(config.name).matchWith({
+        const hasReceivedError = getHasReceived(config.name).matchWith({
           Nothing: () => null, // loading
           Just: p => p.value && HAS_RECEIVED_TEXT,
         });
         config.error = hasReceivedError || errors[config.name];
         return config;
       }),
-    [inputConfigs, errors, canInput, getHasRecieved]
+    [inputConfigs, errors, canInput, getHasReceived]
   );
 
   // construct the state of the set of inputs we're rendering below
