@@ -8,7 +8,6 @@ import Permissions from '../views/Permissions';
 import AcceptTransfer from '../views/AcceptTransfer';
 import CancelTransfer from '../views/CancelTransfer';
 import CreateGalaxy from '../views/CreateGalaxy';
-import GenKeyfile from '../views/GenKeyfile';
 import IssueChild from '../views/IssueChild';
 import ViewPoint from '../views/ViewPoint';
 import SentTransaction from '../views/SentTransaction';
@@ -49,5 +48,4 @@ export const ROUTES = {
   [ROUTE_NAMES.SET_KEYS]: SetKeys,
   [ROUTE_NAMES.TRANSFER]: Transfer,
   [ROUTE_NAMES.SENT_TRANSACTION]: SentTransaction,
-  [ROUTE_NAMES.GEN_KEYFILE]: GenKeyfile,
 };

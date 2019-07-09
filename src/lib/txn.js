@@ -12,36 +12,6 @@ import { WALLET_TYPES, addHexPrefix } from './wallet';
 const CHECK_BLOCK_EVERY_MS =
   process.env.NODE_ENV === 'development' ? 1000 : 5000;
 
-const TXN_PURPOSE = {
-  SET_MANAGEMENT_PROXY: Symbol('SET_MANAGEMENT_PROXY'),
-  SET_TRANSFER_PROXY: Symbol('SET_TRANSFER_PROXY'),
-  SET_SPAWN_PROXY: Symbol('SET_SPAWN_PROXY'),
-  CREATE_GALAXY: Symbol('CREATE_GALAXY'),
-  ISSUE_CHILD: Symbol('ISSUE_CHILD'),
-  SET_KEYS: Symbol('SET_KEYS'),
-  TRANSFER: Symbol('TRANSFER'),
-  CANCEL_TRANSFER: Symbol('CANCEL_TRANSFER'),
-};
-
-const renderTxnPurpose = purpose =>
-  purpose === TXN_PURPOSE.SET_MANAGEMENT_PROXY
-    ? 'set this management proxy'
-    : purpose === TXN_PURPOSE.SET_SPAWN_PROXY
-    ? 'set this spawn proxy'
-    : purpose === TXN_PURPOSE.SET_TRANSFER_PROXY
-    ? 'set this transfer proxy'
-    : purpose === TXN_PURPOSE.CREATE_GALAXY
-    ? 'create this galaxy'
-    : purpose === TXN_PURPOSE.ISSUE_CHILD
-    ? 'issue this point'
-    : purpose === TXN_PURPOSE.SET_KEYS
-    ? 'set these network keys'
-    : purpose === TXN_PURPOSE.TRANSFER
-    ? 'transfer this point'
-    : purpose === TXN_PURPOSE.CANCEL_TRANSFER
-    ? 'cancel this transfer'
-    : 'perform this transaction';
-
 const signTransaction = async config => {
   let {
     wallet,
@@ -209,6 +179,16 @@ const isTransactionConfirmed = async (web3, txHash) => {
   return receipt !== null;
 };
 
+async function sendAndAwaitConfirm(web3, signedTxs, usedTank) {
+  await Promise.all(
+    signedTxs.map(tx => {
+      return new Promise((resolve, reject) => {
+        sendSignedTransaction(web3, tx, usedTank, resolve);
+      });
+    })
+  );
+}
+
 const hexify = val => addHexPrefix(val.toString('hex'));
 
 const renderSignedTx = stx => ({
@@ -230,6 +210,7 @@ const getTxnInfo = async (web3, addr) => {
   };
 };
 
+// TODO(shrugs): deprecate, unifiy with other callsites
 const canDecodePatp = p => {
   try {
     ob.patp2dec(p);
@@ -243,10 +224,9 @@ export {
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,
+  sendAndAwaitConfirm,
   isTransactionConfirmed,
-  TXN_PURPOSE,
   getTxnInfo,
-  renderTxnPurpose,
   hexify,
   renderSignedTx,
   toHex,

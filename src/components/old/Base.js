@@ -63,7 +63,6 @@ import Warning from './Warning';
 import ValidatedSigil from './ValidatedSigil';
 import ValidatedBlockie from './ValidatedBlockie';
 import ShowBlockie from './ShowBlockie';
-import Passport from './Passport';
 
 // HOC validated form components
 
@@ -178,5 +177,4 @@ export {
   P,
   Code,
   Warning,
-  Passport,
 };

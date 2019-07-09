@@ -67,19 +67,6 @@ function Actions() {
       eqAddr(deets.value.owner, addr),
   });
 
-  const canGenKeyfile = pointDetails.matchWith({
-    Nothing: () => false,
-    Just: deets => {
-      const hasPermission =
-        eqAddr(deets.value.owner, addr) ||
-        eqAddr(deets.value.managementProxy, addr);
-
-      const isBooted = deets.value.keyRevisionNumber > 0;
-
-      return hasPermission && isBooted;
-    },
-  });
-
   const canAcceptTransfer = pointDetails.matchWith({
     Nothing: () => false,
     Just: deets => eqAddr(deets.value.transferProxy, addr),
@@ -141,16 +128,6 @@ function Actions() {
               history.push(ROUTE_NAMES.CANCEL_TRANSFER);
             }}>
             {'Cancel outgoing transfer'}
-          </Button>
-
-          <Button
-            prop-size={'sm'}
-            prop-type={'link'}
-            disabled={!canGenKeyfile}
-            onClick={() => {
-              history.push(ROUTE_NAMES.GEN_KEYFILE);
-            }}>
-            {'Generate Arvo keyfile'}
           </Button>
         </Grid.Item>
         <Grid.Item third={2}>

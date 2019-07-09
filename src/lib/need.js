@@ -8,11 +8,16 @@ const needBuilder = fn => obj => {
     fn();
   }
 
-  return obj.matchWith({
-    Nothing: fn,
-    Just: p => p.value,
-  });
+  return obj.orElse(fn);
 };
+
+export const details = needBuilder(() => {
+  throw new Error('need details of point');
+});
+
+export const authMnemonic = needBuilder(() => {
+  throw new Error('need auth mnemonic');
+});
 
 export const web3 = needBuilder(() => {
   throw new Error(BRIDGE_ERROR.MISSING_WEB3.message);

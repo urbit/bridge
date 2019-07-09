@@ -9,26 +9,13 @@ import * as tank from './tank';
 import JSZip from 'jszip';
 import saveAs from 'file-saver';
 
-import { sendSignedTransaction, hexify } from './txn';
-import { attemptNetworkSeedDerivation } from './keys';
-import { addHexPrefix, WALLET_TYPES } from './wallet';
+import { hexify, sendAndAwaitConfirm } from './txn';
+import { deriveNetworkSeedFromUrbitWallet } from './keys';
+import { addHexPrefix } from './wallet';
 import { GAS_LIMITS } from './constants';
 
-const INVITE_STAGES = {
-  INVITE_LOGIN: 'invite login',
-  INVITE_WALLET: 'invite wallet',
-  INVITE_VERIFY: 'invite verify',
-  INVITE_TRANSACTIONS: 'invite transactions',
-};
-
-const WALLET_STATES = {
-  UNLOCKING: 'Unlocking invite wallet',
-  GENERATING: 'Generating your wallet',
-  RENDERING: 'Creating paper collateral',
-  PAPER_READY: 'Download your wallet',
-  DOWNLOADED: 'Wallet downloaded',
-  TRANSACTIONS: 'Sending transactions',
-};
+// the initial network key revision is always 1
+const INITIAL_NETWORK_KEY_REVISION = 1;
 
 const TRANSACTION_STATES = {
   GENERATING: {
@@ -57,14 +44,14 @@ const TRANSACTION_STATES = {
   },
 };
 
-async function generateWallet(point) {
+export async function generateWallet(point) {
   const ticket = await wg.makeTicket(point);
   const wallet = await wg.generateWallet(point, ticket);
   return wallet;
 }
 
 //TODO should be moved to lib/walletgen
-async function downloadWallet(paper) {
+export async function downloadWallet(paper) {
   return new Promise((resolve, reject) => {
     const zip = new JSZip();
     //TODO the categories here aren't explained in bridge at all...
@@ -94,7 +81,7 @@ async function downloadWallet(paper) {
   });
 }
 
-async function claimPointFromInvite({
+export async function claimPointFromInvite({
   inviteWallet,
   wallet,
   point,
@@ -136,14 +123,10 @@ async function claimPointFromInvite({
   transferTmpTx.gas = GAS_LIMITS.TRANSFER;
 
   // configure networking public keys
-
-  //TODO feels like more of this logic should live in a lib?
-  const seed = await attemptNetworkSeedDerivation(true, {
-    walletType: WALLET_TYPES.TICKET,
-    urbitWallet: Just(wallet),
-    pointCursor: Just(point),
-    pointCache: { [point]: { keyRevisionNumber: 0 } },
-  });
+  const seed = await deriveNetworkSeedFromUrbitWallet(
+    Just(wallet),
+    INITIAL_NETWORK_KEY_REVISION
+  );
 
   const networkSeed = seed.matchWith({
     Nothing: () => {
@@ -290,22 +273,3 @@ async function claimPointFromInvite({
 
   progress(TRANSACTION_STATES.DONE);
 }
-
-async function sendAndAwaitConfirm(web3, signedTxs, usedTank) {
-  await Promise.all(
-    signedTxs.map(tx => {
-      return new Promise((resolve, reject) => {
-        sendSignedTransaction(web3, tx, usedTank, resolve);
-      });
-    })
-  );
-}
-
-export {
-  generateWallet,
-  downloadWallet,
-  claimPointFromInvite,
-  INVITE_STAGES,
-  WALLET_STATES,
-  TRANSACTION_STATES,
-};

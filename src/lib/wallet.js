@@ -42,6 +42,7 @@ export const addressFromSecp256k1Public = pub => {
   return toChecksumAddress(addr);
 };
 
+// TODO: move all of these generic crypto helpers to another file
 export const addHexPrefix = hex =>
   hex.slice(0, 2) === '0x' ? hex : '0x' + hex;
 

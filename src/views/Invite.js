@@ -1,6 +1,6 @@
 import React from 'react';
 import * as need from 'lib/need';
-import { Grid, H5, Text } from 'indigo-react';
+import { Grid, Text } from 'indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useHistory } from 'store/history';
@@ -18,6 +18,7 @@ import { LocalRouterProvider } from 'lib/LocalRouter';
 
 import InviteUrl from './Invite/InviteUrl';
 import InviteEmail from './Invite/InviteEmail';
+import ViewHeader from 'components/ViewHeader';
 
 const NAMES = {
   URL: 'URL',
@@ -53,7 +54,7 @@ export default function Invite() {
 
   return (
     <LocalRouterProvider value={router}>
-      <View>
+      <View inset>
         <Grid className="mb4">
           <Grid.Item
             as={Crumbs}
@@ -68,7 +69,7 @@ export default function Invite() {
             ]}
             full
           />
-          <Grid.Item as={H5} className="mv4" full>
+          <Grid.Item full as={ViewHeader}>
             Invite
           </Grid.Item>
           <Grid.Item as={Text} className="f5" full>

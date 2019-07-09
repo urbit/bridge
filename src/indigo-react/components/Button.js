@@ -27,7 +27,7 @@ export default function Button({
       as={As}
       gap={1}
       className={cn(
-        'pointer pv4 truncate flex-row justify-between',
+        'pointer pv4 truncate flex-row justify-between us-none',
         {
           p4: solid,
         },
