@@ -34,6 +34,11 @@ const randomPatq = len => {
   return ob.hex2patq(hex);
 };
 
+// TODO: is there a function for this calculation in urbit-ob or similar?
+// 3 characters per byte, plus a tilde and hypen prefix per pair of bytes
+const patpStringLength = byteLength =>
+  byteLength * 3 + Math.ceil(byteLength / 2);
+
 export {
   compose,
   allFalse,
@@ -44,4 +49,5 @@ export {
   fill,
   isValidGalaxy,
   randomPatq,
+  patpStringLength,
 };

@@ -4,6 +4,7 @@ import { identity, includes } from 'lodash';
 
 import { isValidAddress } from './wallet';
 import patp2dec from './patp2dec';
+import { patpStringLength } from './lib';
 
 // NOTE: do not use the /g modifier for these regexes
 // https://stackoverflow.com/a/21373261
@@ -136,19 +137,6 @@ export const validateShard = m =>
     error: 'This is not a valid shard',
   });
 
-export const validateLength = l => m =>
-  simpleValidatorWrapper({
-    prevMessage: m,
-    validator: d => {
-      try {
-        return d.length === l;
-      } catch {
-        return false;
-      }
-    },
-    error: `Must be exactly ${l} characters`,
-  });
-
 export const validateOneOf = (options = []) => m =>
   simpleValidatorWrapper({
     prevMessage: m,
@@ -215,3 +203,37 @@ export const validateExactly = (value, error) => m =>
     validator: d => d === value,
     error,
   });
+
+export const validateLength = l => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => {
+      try {
+        return d.length === l;
+      } catch {
+        return false;
+      }
+    },
+    error: `Must be exactly ${l} characters`,
+  });
+
+export const validateMaximumLength = l => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => {
+      try {
+        return d.length <= l;
+      } catch {
+        return false;
+      }
+    },
+    error: `Must be ${l} characters or fewer.`,
+  });
+
+export const validatePatpByteLength = byteLength => {
+  return validateLength(patpStringLength(byteLength));
+};
+
+export const validateMaximumPatpByteLength = byteLength => {
+  return validateMaximumLength(patpStringLength(byteLength));
+};

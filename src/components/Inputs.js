@@ -15,6 +15,7 @@ import {
   validateLength,
   validateHexString,
   validateOneOf,
+  validateMaximumPatpByteLength,
 } from 'lib/validators';
 import { prependSig } from 'lib/transformers';
 
@@ -167,7 +168,11 @@ export function useTicketInput({ validators = [], deriving = false, ...rest }) {
   );
 }
 
-const kPointValidators = [validatePoint, validateNotEmpty];
+const kPointValidators = [
+  validatePoint,
+  validateMaximumPatpByteLength(4),
+  validateNotEmpty,
+];
 const kPointTransformers = [prependSig];
 export function usePointInput(rest) {
   const [lastValidPoint, setLastValidPoint] = useState('');
