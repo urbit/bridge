@@ -16,7 +16,6 @@ import {
   validateHexString,
   validateOneOf,
   validateMaximumPatpByteLength,
-  validatePatpByteLength,
 } from 'lib/validators';
 import { prependSig } from 'lib/transformers';
 
