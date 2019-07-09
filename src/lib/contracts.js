@@ -9,7 +9,7 @@ const CONTRACT_ADDRESSES = {
     ecliptic: '0x8b9f86a28921d9c705b3113a755fb979e1bd1bce',
     azimuth: '0x308ab6a6024cf198b57e008d0ac9ad0219886579',
     polls: '0xf5DA85f0d285A0F88af2388DD177A221872C8971',
-    //TODO delegatedSending
+    delegatedSending: '0x3e8ca510354bc2fdbbd6150252d93105c9c27bbe',
   },
   MAINNET: {
     ecliptic: '0x6ac07b7c4601b5ce11de8dfe6335b871c7c4dd4d',
