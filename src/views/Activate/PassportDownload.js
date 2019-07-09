@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import cn from 'classnames';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H4, P } from 'indigo-react';
 
 import * as need from 'lib/need';
@@ -23,7 +23,7 @@ export default function PassportDownload({ className }) {
   // const point = need.point(derivedPoint);
   const wallet = need.wallet(derivedWallet);
 
-  const [paper, setPaper] = useState(Maybe.Nothing());
+  const [paper, setPaper] = useState(Nothing());
   const [downloaded, setDownloaded] = useState(false);
 
   const pointAsString = derivedPoint.matchWith({
@@ -79,7 +79,7 @@ export default function PassportDownload({ className }) {
       <PaperRenderer
         point={pointAsString}
         wallet={wallet}
-        callback={data => setPaper(Maybe.Just(data))}
+        callback={data => setPaper(Just(data))}
       />
     </Grid>
   );

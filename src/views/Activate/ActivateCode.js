@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
-import Maybe from 'folktale/maybe';
-import { useTicketInput } from 'components/Inputs';
 import { Grid, Input, H4, ErrorText } from 'indigo-react';
 
 import View from 'components/View';
@@ -10,6 +9,7 @@ import Passport from 'components/Passport';
 
 import { useHistory } from 'store/history';
 
+import { useTicketInput } from 'lib/useInputs';
 import * as need from 'lib/need';
 import { ROUTE_NAMES } from 'lib/routeNames';
 import { useSyncKnownPoints } from 'lib/useSyncPoints';
@@ -36,12 +36,11 @@ export default function ActivateCode() {
     setDerivedPoint,
   } = useActivateFlow();
 
-  const ticketInput = useTicketInput({
+  const [ticketInput, { pass: validTicket }] = useTicketInput({
     name: 'ticket',
     label: 'Code',
     autoFocus: true,
   });
-  const validTicket = ticketInput.pass;
 
   const goToLogin = useCallback(() => history.popAndPush(ROUTE_NAMES.LOGIN), [
     history,
@@ -81,13 +80,13 @@ export default function ActivateCode() {
         );
         const incoming = [...owned, ...transferring];
 
-        let realPoint = Maybe.Nothing();
-        let wallet = Maybe.Nothing();
+        let realPoint = Nothing();
+        let wallet = Nothing();
 
         if (incoming.length > 0) {
           const pointNum = parseInt(incoming[0], 10);
-          realPoint = Maybe.Just(pointNum);
-          wallet = Maybe.Just(await generateWallet(pointNum));
+          realPoint = Just(pointNum);
+          wallet = Just(await generateWallet(pointNum));
 
           if (incoming.length > 1) {
             setGeneralError(

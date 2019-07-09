@@ -1,39 +1,33 @@
-import { Just, Nothing } from 'folktale/maybe';
-import { Ok, Error } from 'folktale/result';
 import React, { useState } from 'react';
+import { Just, Nothing } from 'folktale/maybe';
+import { P, Grid, Input, ErrorText } from 'indigo-react';
 import * as keythereum from 'keythereum';
-import { H3, Input } from 'indigo-react';
-
-import View from 'components/View';
-import { usePassphraseInput } from 'components/Inputs';
-import { ForwardButton } from 'components/Buttons';
-import { InputCaption, UploadButton, Warning } from 'components/old/Base';
 
 import { useWallet } from 'store/wallet';
 
+import { usePassphraseInput } from 'lib/useInputs';
 import * as need from 'lib/need';
 import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
-import useWalletType from 'lib/useWalletType';
-import useResetPointCursor from 'lib/useResetPointCursor';
+import useLoginView from 'lib/useLoginView';
 
-export default function Keystore({ loginCompleted }) {
-  useResetPointCursor();
-  useWalletType(WALLET_TYPES.KEYSTORE);
+import { ForwardButton } from 'components/Buttons';
+import UploadButton from 'components/UploadButton';
+
+export default function Keystore({ className }) {
+  useLoginView(WALLET_TYPES.KEYSTORE);
 
   // globals
-  const { wallet, setWallet } = useWallet();
+  const { setWallet } = useWallet();
 
+  const [error, setError] = useState();
   // inputs
-  // keystore: Maybe<Result<String, String>>
+  // keystore: Maybe<String>
   const [keystore, setKeystore] = useState(Nothing());
-  const passphraseInput = usePassphraseInput({
+  const [passphraseInput, { data: passphrase }] = usePassphraseInput({
     name: 'password',
     label: 'Keystore password',
     autoFocus: true,
   });
-  const passphrase = passphraseInput.data;
-
-  const [decryptionProblem, setDecryptionProblem] = useState(false);
 
   const constructWallet = () => {
     try {
@@ -43,26 +37,27 @@ export default function Keystore({ loginCompleted }) {
       const privateKey = keythereum.recover(passphrase, json);
 
       const newWallet = new EthereumWallet(privateKey);
-      setDecryptionProblem(false);
+      setError();
       setWallet(Just(newWallet));
     } catch (err) {
-      setDecryptionProblem(true);
+      setError(
+        "Couldn't decrypt wallet. You may have entered an incorrect password."
+      );
       setWallet(Nothing());
     }
   };
 
-  const handleKeystoreUpload = event => {
-    const file = event.files.item(0);
+  const handleKeystoreUpload = element => {
+    const file = element.files.item(0);
     const reader = new FileReader();
 
     reader.onload = e => {
       const keystore = e.target.result;
-      setKeystore(Just(Ok(keystore)));
+      setKeystore(Just(keystore));
     };
 
     const failure = _ => {
-      const message = 'There was a problem uploading your Keystore file';
-      setKeystore(Just(Error(message)));
+      setError('There was a problem uploading your Keystore file');
     };
 
     reader.onerror = failure;
@@ -71,59 +66,34 @@ export default function Keystore({ loginCompleted }) {
     reader.readAsText(file);
   };
 
-  const uploadButtonClass = keystore.matchWith({
-    Nothing: _ => 'bg-blue white',
-    Just: ks =>
-      ks.value.matchWith({
-        Ok: _ => 'bg-green white',
-        Error: _ => 'bg-yellow black',
-      }),
-  });
-
-  const decryptMessage =
-    decryptionProblem === false ? (
-      <div />
-    ) : (
-      <Warning className="mt-8">
-        <H3 style={{ marginTop: 0, paddingTop: 0 }}>
-          Couldn't decrypt wallet.
-        </H3>
-        You may have entered an incorrect password.
-      </Warning>
-    );
-
   return (
-    <View>
-      <InputCaption>
+    <Grid className={className}>
+      <Grid.Item full as={P}>
         Please upload your Ethereum keystore file. If your keystore file is
         encrypted with a password, you'll also need to enter that below.
-      </InputCaption>
+      </Grid.Item>
 
-      <UploadButton
-        className={`${uploadButtonClass} mt3`}
-        onChange={handleKeystoreUpload}>
-        <div className="flex-center-all fs-4 h-11 pointer">
-          Upload Keystore file
-        </div>
-      </UploadButton>
+      <Grid.Item full as={UploadButton} onChange={handleKeystoreUpload}>
+        Upload Keystore file
+      </Grid.Item>
 
-      <Input {...passphraseInput} />
+      {error && (
+        <Grid.Item full as={ErrorText} className="mt1">
+          {error}
+        </Grid.Item>
+      )}
 
-      <ForwardButton
+      <Grid.Item full as={Input} className="mt3" {...passphraseInput} />
+
+      <Grid.Item
+        full
+        as={ForwardButton}
+        solid
         className="mt3"
         disabled={Nothing.hasInstance(keystore)}
         onClick={constructWallet}>
         Decrypt
-      </ForwardButton>
-
-      {decryptMessage}
-
-      <ForwardButton
-        className="mt3"
-        disabled={Nothing.hasInstance(wallet)}
-        onClick={loginCompleted}>
-        Continue
-      </ForwardButton>
-    </View>
+      </Grid.Item>
+    </Grid>
   );
 }

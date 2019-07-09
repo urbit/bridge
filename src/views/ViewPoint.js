@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just } from 'folktale/maybe';
 import { Input } from 'indigo-react';
 
 import { H1, P } from '../components/old/Base';
@@ -9,23 +9,22 @@ import { usePointCursor } from 'store/pointCursor';
 
 import { ROUTE_NAMES } from 'lib/routeNames';
 import patp2dec from 'lib/patp2dec';
+import { usePointInput } from 'lib/useInputs';
 
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
-import { usePointInput } from 'components/Inputs';
 
 export default function ViewPoint() {
   const history = useHistory();
   const { setPointCursor } = usePointCursor();
-  const pointInput = usePointInput({
+  const [pointInput, { data: pointName, pass }] = usePointInput({
     name: 'point',
     autoFocus: true,
   });
-  const { data: pointName, pass } = pointInput;
 
   const disabled = !pass;
   const goForward = useCallback(() => {
-    setPointCursor(Maybe.Just(patp2dec(pointName)));
+    setPointCursor(Just(patp2dec(pointName)));
     history.popAndPush(ROUTE_NAMES.POINT);
   }, [setPointCursor, history, pointName]);
 

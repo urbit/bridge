@@ -2,17 +2,18 @@ import React, { useCallback } from 'react';
 import cn from 'classnames';
 import { Grid, H3, B, Text, CheckboxInput } from 'indigo-react';
 
-import View from 'components/View';
-import { useCheckboxInput } from 'components/Inputs';
-import { ForwardButton } from 'components/Buttons';
+import { useCheckboxInput } from 'lib/useInputs';
 import { useLocalRouter } from 'lib/LocalRouter';
+
+import View from 'components/View';
+import { ForwardButton } from 'components/Buttons';
 import WarningBox from 'components/WarningBox';
 
 const TEXT_STYLE = 'f5';
 
 export default function ActivateDisclaimer() {
   const { push, names } = useLocalRouter();
-  const checkboxInput = useCheckboxInput({
+  const [understoodInput, { data: isUnderstood }] = useCheckboxInput({
     name: 'checkbox',
     label: 'I acknowledge and understand these rights',
   });
@@ -70,10 +71,10 @@ export default function ActivateDisclaimer() {
         <Grid.Item full as={WarningBox}>
           Warning: Nobody but you can restore or reset your Master Ticket
         </Grid.Item>
-        <Grid.Item as={CheckboxInput} {...checkboxInput} full />
+        <Grid.Item as={CheckboxInput} {...understoodInput} full />
         <Grid.Item
           as={ForwardButton}
-          disabled={!checkboxInput.data}
+          disabled={!isUnderstood}
           onClick={goToPassport}
           solid
           full>

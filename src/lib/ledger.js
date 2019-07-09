@@ -1,12 +1,14 @@
 import Transport from '@ledgerhq/hw-transport-u2f';
 import Eth from '@ledgerhq/hw-app-eth';
 
-const LEDGER_LEGACY_PATH = "m/44'/60'/0'/x";
-const LEDGER_LIVE_PATH = "m/44'/60'/x'/0/0";
+export const LEDGER_LEGACY_PATH = "m/44'/60'/0'/x";
+export const LEDGER_LIVE_PATH = "m/44'/60'/x'/0/0";
 
-const chopHdPrefix = str => (str.slice(0, 2) === 'm/' ? str.slice(2) : str);
+export const chopHdPrefix = str =>
+  str.slice(0, 2) === 'm/' ? str.slice(2) : str;
+export const addHdPrefix = str => (str.slice(0, 2) === 'm/' ? str : 'm/' + str);
 
-const ledgerSignTransaction = async (txn, hdpath) => {
+export const ledgerSignTransaction = async (txn, hdpath) => {
   const transport = await Transport.create();
   const eth = new Eth(transport);
 
@@ -20,5 +22,3 @@ const ledgerSignTransaction = async (txn, hdpath) => {
 
   return txn;
 };
-
-export { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH, ledgerSignTransaction };

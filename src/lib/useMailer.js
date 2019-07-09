@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 
 import { hasReceived, sendMail } from './inviteMail';
 import useSetState from './useSetState';
@@ -10,24 +10,24 @@ function useHasReceivedCache() {
   const [cache, addToCache] = useSetState();
 
   const getHasRecieved = useCallback(
-    email => cache[email] || Maybe.Nothing(), //
+    email => cache[email] || Nothing(), //
     [cache]
   );
 
   const syncHasReceivedForEmail = useCallback(
     async email => {
-      if (Maybe.Just.hasInstance(getHasRecieved(email))) {
+      if (Just.hasInstance(getHasRecieved(email))) {
         // never update the cache after we know about it
         return;
       }
 
       if (STUB_MAILER) {
         // always allow sending emails when stubbing
-        return addToCache({ [email]: Maybe.Just(false) });
+        return addToCache({ [email]: Just(false) });
       }
 
       const _hasReceived = await hasReceived(email);
-      addToCache({ [email]: Maybe.Just(_hasReceived) });
+      addToCache({ [email]: Just(_hasReceived) });
     },
     [getHasRecieved, addToCache]
   );

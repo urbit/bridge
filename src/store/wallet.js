@@ -5,7 +5,7 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import { includes } from 'lodash';
 
 import {
@@ -28,21 +28,18 @@ const DEFAULT_WALLET_TYPE = WALLET_TYPES.TICKET;
 // it doesn't necessarily help us much, since we branch on 'walletType'
 // before setting 'wallet'.
 //
-// Wallets are always wrapped in Maybe.  For most authentication
+// Wallets are always wrapped in   For most authentication
 // mechanisms, Maybe wraps a BIP32 HD wallet; for Ethereum private keys,
 // JSON keystore files, and Metamask authentication, it wraps an
 // 'EthereumWallet'.
-function _useWallet(
-  initialWallet = Maybe.Nothing(),
-  initialMnemonic = Maybe.Nothing()
-) {
+function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
   const [walletType, _setWalletType] = useState(DEFAULT_WALLET_TYPE);
   const [walletHdPath, setWalletHdPath] = useState(DEFAULT_HD_PATH);
   const [wallet, _setWallet] = useState(initialWallet);
-  const [urbitWallet, _setUrbitWallet] = useState(Maybe.Nothing());
+  const [urbitWallet, _setUrbitWallet] = useState(Nothing());
   const [authMnemonic, setAuthMnemonic] = useState(initialMnemonic);
-  const [networkSeed, setNetworkSeed] = useState(Maybe.Nothing());
-  const [networkRevision, setNetworkRevision] = useState(Maybe.Nothing());
+  const [networkSeed, setNetworkSeed] = useState(Nothing());
+  const [networkRevision, setNetworkRevision] = useState(Nothing());
 
   const setWalletType = useCallback(
     walletType => {
@@ -70,7 +67,7 @@ function _useWallet(
 
   const setUrbitWallet = useCallback(
     urbitWallet => {
-      if (Maybe.Just.hasInstance(urbitWallet)) {
+      if (Just.hasInstance(urbitWallet)) {
         // when an urbit wallet is set, also derive
         // a normal bip32 wallet using the ownership address
         const wallet = walletFromMnemonic(
@@ -81,7 +78,7 @@ function _useWallet(
 
         setWallet(wallet);
       } else {
-        setWallet(Maybe.Nothing());
+        setWallet(Nothing());
       }
 
       _setUrbitWallet(urbitWallet);
@@ -92,11 +89,11 @@ function _useWallet(
   const resetWallet = useCallback(() => {
     _setWalletType(DEFAULT_WALLET_TYPE);
     setWalletHdPath(DEFAULT_HD_PATH);
-    _setWallet(Maybe.Nothing());
-    _setUrbitWallet(Maybe.Nothing());
-    setAuthMnemonic(Maybe.Nothing());
-    setNetworkSeed(Maybe.Nothing());
-    setNetworkRevision(Maybe.Nothing());
+    _setWallet(Nothing());
+    _setUrbitWallet(Nothing());
+    setAuthMnemonic(Nothing());
+    setNetworkSeed(Nothing());
+    setNetworkRevision(Nothing());
   }, [
     _setWalletType,
     setWalletHdPath,

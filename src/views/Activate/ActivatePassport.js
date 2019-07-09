@@ -46,8 +46,7 @@ export default function ActivatePassport() {
   const gap = useBreakpoints([4, 4, 7]);
   const marginTop = useBreakpoints([false, false, 8]);
   const full = useBreakpoints([true, true, false]);
-  const leftHalf = useBreakpoints([false, false, 1]);
-  const rightHalf = useBreakpoints([false, false, 2]);
+  const half = useBreakpoints([false, false, true]);
 
   // addresses are not derived until we set[Urbit]Wallet(), so do that inline
   const address = useMemo(
@@ -68,7 +67,7 @@ export default function ActivatePassport() {
     <LocalRouterProvider value={router}>
       <View full={fullView}>
         <Grid gap={gap} className="mt8 mb10">
-          <Grid.Item half={leftHalf} full={full}>
+          <Grid.Item half={half && 1} full={full}>
             <Passport
               className={cn({ [`mt${marginTop}`]: marginTop })}
               point={derivedPoint}
@@ -77,7 +76,7 @@ export default function ActivatePassport() {
             />
           </Grid.Item>
           <Grid.Item
-            half={rightHalf}
+            half={half && 2}
             full={full}
             as={Route}
             resetActivateRouter={resetActivateRouter}

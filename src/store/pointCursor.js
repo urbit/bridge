@@ -1,10 +1,10 @@
 import React, { createContext, forwardRef, useContext, useState } from 'react';
-import Maybe from 'folktale/maybe';
+import { Nothing } from 'folktale/maybe';
 
 export const PointCursorContext = createContext(null);
 
 // pointCursor is Maybe<number>
-function _usePointCursor(initialPointCursor = Maybe.Nothing()) {
+function _usePointCursor(initialPointCursor = Nothing()) {
   const [pointCursor, setPointCursor] = useState(initialPointCursor);
 
   return {

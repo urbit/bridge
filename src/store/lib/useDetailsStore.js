@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from '../network';
@@ -20,8 +20,7 @@ export default function useDetailsStore() {
   // TODO: refactor detailsCache access to use accessor like bithday
   // Maybe<{}>
   const getDetails = useCallback(
-    point =>
-      point in detailsCache ? Maybe.Just(detailsCache[point]) : Maybe.Nothing(),
+    point => (point in detailsCache ? Just(detailsCache[point]) : Nothing()),
     [detailsCache]
   );
 

@@ -12,9 +12,6 @@ export default function CheckboxInput({
 
   // callbacks
   onValue,
-  onPass,
-  onError,
-  onFocus,
   onEnter,
 
   // state from hook
@@ -22,6 +19,7 @@ export default function CheckboxInput({
   pass,
   visiblyPassed,
   error,
+  hintError,
   data,
   bind,
   autoFocus,
@@ -37,7 +35,7 @@ export default function CheckboxInput({
 }) {
   return (
     <Flex
-      className={className}
+      className={cn(className, 'mv2')}
       row
       align="center"
       style={{
@@ -46,35 +44,34 @@ export default function CheckboxInput({
           cursor: 'not-allowed',
         }),
       }}>
+      {/* we totally hide the checkbox itself */}
       <Flex.Item
         as="input"
         {...rest}
-        className={cn(
-          'b b1 p3 outline-none',
-          {
-            'bg-white': !disabled,
-            'bg-gray1': disabled,
-          },
-          {
-            gray4: !focused,
-            black: focused,
-          },
-          {
-            'b-green3': visiblyPassed,
-            'b-black': focused && !visiblyPassed,
-            'b-yellow3': !focused && error,
-            'b-gray3': !focused && !error && !visiblyPassed,
-          }
-        )}
+        className={cn('super-hidden')}
         id={name}
         name={name}
         {...bind}
       />
+      {/* and then display a prettier one in its stead */}
       <Flex.Item
+        flex
         as="label"
-        className="f6 ph3 lh-tall us-none"
-        htmlFor={name}
-        flex>
+        className="f6 mr3 lh-tall us-none clickable flex-row align-center"
+        htmlFor={name}>
+        <Flex
+          justify="center"
+          align="center"
+          className={cn('b-black b1 p1 mr3', {
+            'bg-black white': data,
+            'bg-white black': !data,
+          })}
+          style={{
+            height: '14px',
+            width: '14px',
+          }}>
+          {data && '✓'}
+        </Flex>
         {label}
       </Flex.Item>
     </Flex>

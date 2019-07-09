@@ -2,139 +2,184 @@ import { Just, Nothing } from 'folktale/maybe';
 import React, { useCallback, useState, useEffect } from 'react';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
-import { Input, AccessoryIcon } from 'indigo-react';
-
-import View from 'components/View';
-import {
-  usePointInput,
-  useTicketInput,
-  usePassphraseInput,
-} from 'components/Inputs';
-import { ForwardButton } from 'components/Buttons';
+import * as kg from 'urbit-key-generation/dist/index';
+import { Input, Grid, CheckboxInput } from 'indigo-react';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 
+import {
+  usePointInput,
+  useTicketInput,
+  usePassphraseInput,
+  useCheckboxInput,
+} from 'lib/useInputs';
 import * as need from 'lib/need';
 import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
-import useWalletType from 'lib/useWalletType';
-import useResetPointCursor from 'lib/useResetPointCursor';
+import useImpliedPoint from 'lib/useImpliedPoint';
+import useLoginView from 'lib/useLoginView';
 
-//TODO should be part of InputWithStatus component
-const INPUT_STATUS = {
-  SPIN: Symbol('SPIN'),
-  GOOD: Symbol('GOOD'),
-  FAIL: Symbol('FAIL'),
-};
+export default function Ticket({ className }) {
+  useLoginView(WALLET_TYPES.TICKET);
 
-export default function Ticket({ advanced, loginCompleted }) {
-  useResetPointCursor();
-  useWalletType(WALLET_TYPES.TICKET);
-  // globals
   const { contracts } = useNetwork();
-  const { wallet, setUrbitWallet } = useWallet();
+  const { setUrbitWallet } = useWallet();
   const { setPointCursor } = usePointCursor();
+  const impliedPoint = useImpliedPoint();
 
-  // inputs
-  const pointInput = usePointInput({
+  // point
+  const [pointInput, { data: pointName }] = usePointInput({
     name: 'point',
-    //TODO deduce point name from URL if we can, prefill input if we found it
+    initialValue: impliedPoint || '',
     autoFocus: true,
   });
-  const pointName = pointInput.data;
 
-  const ticketInput = useTicketInput({
+  // passphrase
+  const [passphraseInput, { data: passphrase }] = usePassphraseInput({
+    name: 'passphrase',
+    label: 'Wallet Passphrase',
+  });
+
+  const [hasPassphraseInput] = useCheckboxInput({
+    name: 'has-passphrase',
+    label: 'Passphrase',
+    initialValue: false,
+  });
+
+  // ticket
+  const [error, setError] = useState();
+  const [deriving, setDeriving] = useState(false);
+  const [ticketInput, { data: ticket, pass: validTicket }] = useTicketInput({
     name: 'ticket',
     label: 'Master Ticket',
+    error,
+    deriving,
   });
-  const ticket = ticketInput.data;
 
-  const passphraseInput = usePassphraseInput({
-    name: 'passphrase',
-    label: '(Optional) Wallet Passphrase',
+  // shards
+  const [shardsInput, { data: isUsingShards }] = useCheckboxInput({
+    name: 'shards',
+    label: 'Shards',
+    initialValue: false,
   });
-  const passphrase = passphraseInput.data;
 
-  // display state
-  const [ticketStatus, setTicketStatus] = useState(Nothing());
+  const [shard1Input, { data: shard1, pass: shard1Pass }] = useTicketInput({
+    name: 'shard1',
+    label: 'Shard 1',
+  });
 
-  //TODO maybe want to do this only on-go, because wallet derivation is slow...
-  const verifyTicket = useCallback(
-    async (pointName, ticket, passphrase) => {
-      setUrbitWallet(Nothing());
-      if (!ob.isValidPatq(ticket) || !ob.isValidPatp(pointName)) {
-        setTicketStatus(Nothing());
-        return;
-      }
-      setTicketStatus(Just(INPUT_STATUS.SPIN));
-      const _contracts = need.contracts(contracts);
-      const pointNumber = ob.patp2dec(pointName);
-      const uhdw = await urbitWalletFromTicket(ticket, pointName, passphrase);
-      const isOwner = azimuth.azimuth.isOwner(
+  const [shard2Input, { data: shard2, pass: shard2Pass }] = useTicketInput({
+    name: 'shard2',
+    label: 'Shard 2',
+  });
+
+  const [shard3Input, { data: shard3, pass: shard3Pass }] = useTicketInput({
+    name: 'shard3',
+    label: 'Shard 3',
+  });
+
+  const shardsReady = shard1Pass && shard2Pass && shard3Pass;
+
+  // TODO: maybe want to do this only on-go, because wallet derivation is slow...
+  const deriveWalletFromTicket = useCallback(async () => {
+    // clear states
+    setError();
+    setDeriving(true);
+    setUrbitWallet(Nothing());
+
+    if (!ob.isValidPatq(ticket) || !ob.isValidPatp(pointName)) {
+      setDeriving(false);
+      return;
+    }
+
+    const _contracts = need.contracts(contracts);
+    const pointNumber = ob.patp2dec(pointName);
+    const urbitWallet = await urbitWalletFromTicket(
+      ticket,
+      pointName,
+      passphrase
+    );
+    const [isOwner, isTransferProxy] = await Promise.all([
+      azimuth.azimuth.isOwner(
         _contracts,
         pointNumber,
-        uhdw.ownership.keys.address
-      );
-      const isTransferProxy = azimuth.azimuth.isTransferProxy(
+        urbitWallet.ownership.keys.address
+      ),
+      azimuth.azimuth.isTransferProxy(
         _contracts,
         pointNumber,
-        uhdw.ownership.keys.address
+        urbitWallet.ownership.keys.address
+      ),
+    ]);
+
+    if (!isOwner && !isTransferProxy) {
+      // notify the user, but allow login regardless
+      setError(
+        'This ticket is not the owner of or transfer proxy for this point.'
       );
-      setUrbitWallet(Just(uhdw));
-      const newStatus =
-        (await isOwner) || (await isTransferProxy)
-          ? INPUT_STATUS.GOOD
-          : INPUT_STATUS.FAIL;
-      setTicketStatus(Just(newStatus));
-    },
-    [contracts, setUrbitWallet, setTicketStatus]
-  );
+    }
 
-  useEffect(() => {
-    verifyTicket(pointName, ticket, passphrase);
-  }, [verifyTicket, pointName, ticket, passphrase]);
-
-  const canContinue = () => {
-    // this is our only requirement, since we still want people with
-    // non-standard wallet setups to be able to log in
-    return Just.hasInstance(wallet);
-  };
-
-  const doContinue = () => {
+    setUrbitWallet(Just(urbitWallet));
     setPointCursor(Just(ob.patp2dec(pointName)));
-    loginCompleted();
-  };
+    setDeriving(false);
+  }, [
+    pointName,
+    ticket,
+    passphrase,
+    contracts,
+    setUrbitWallet,
+    setPointCursor,
+    setDeriving,
+  ]);
 
-  //TODO integrate into TicketInput?
-  const displayTicketStatus = ticketStatus.matchWith({
-    Nothing: () => <span />,
-    Just: status => {
-      switch (status.value) {
-        case INPUT_STATUS.SPIN:
-          return <AccessoryIcon.Pending />;
-        case INPUT_STATUS.GOOD:
-          return <AccessoryIcon.Success />;
-        case INPUT_STATUS.FAIL:
-          return <AccessoryIcon.Failure />;
-        default:
-          return null;
-      }
-    },
-  });
+  const deriveWalletFromShards = useCallback(async () => {
+    const s1 = shard1 || undefined;
+    const s2 = shard2 || undefined;
+    const s3 = shard3 || undefined;
+
+    try {
+      const ticket = kg.combine([s1, s2, s3]);
+      const uhdw = await urbitWalletFromTicket(ticket, pointName, passphrase);
+      setUrbitWallet(Just(uhdw));
+    } catch (_) {
+      // do nothing
+    }
+  }, [passphrase, pointName, setUrbitWallet, shard1, shard2, shard3]);
+
+  // derive wallet on change
+  useEffect(() => {
+    if (isUsingShards && shardsReady) {
+      deriveWalletFromShards();
+    } else if (validTicket) {
+      deriveWalletFromTicket();
+    }
+  }, [
+    isUsingShards,
+    validTicket,
+    shardsReady,
+    deriveWalletFromShards,
+    deriveWalletFromTicket,
+  ]);
 
   return (
-    <View>
-      <Input {...pointInput} />
-      <Input {...ticketInput} accessory={displayTicketStatus} />
-      {advanced && <Input {...passphraseInput} />}
+    <Grid className={className}>
+      <Grid.Item full as={Input} {...pointInput} />
 
-      <ForwardButton
-        className={'mt3'}
-        disabled={!canContinue()}
-        onClick={doContinue}>
-        Continue
-      </ForwardButton>
-    </View>
+      {!isUsingShards && <Grid.Item full as={Input} {...ticketInput} />}
+      {isUsingShards && (
+        <>
+          <Grid.Item full as={Input} {...shard1Input} />
+          <Grid.Item full as={Input} {...shard2Input} />
+          <Grid.Item full as={Input} {...shard3Input} />
+        </>
+      )}
+      {hasPassphraseInput.data && (
+        <Grid.Item full as={Input} {...passphraseInput} />
+      )}
+
+      <Grid.Item full as={CheckboxInput} {...hasPassphraseInput} />
+      <Grid.Item full as={CheckboxInput} {...shardsInput} />
+    </Grid>
   );
 }

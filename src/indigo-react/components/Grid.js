@@ -1,9 +1,13 @@
 import React from 'react';
 import cn from 'classnames';
 
-function Grid({ as: As = 'div', gap = 0, align, justify, className, ...rest }) {
+const Grid = React.forwardRef(function Grid(
+  { as: As = 'div', gap = 0, align, justify, className, ...rest },
+  ref
+) {
   return (
     <As
+      ref={ref}
       className={cn(
         'grid12',
         gap && `gap${gap}`,
@@ -16,23 +20,27 @@ function Grid({ as: As = 'div', gap = 0, align, justify, className, ...rest }) {
       {...rest}
     />
   );
-}
+});
 
-Grid.Item = function GridItem({
-  as: As = 'div',
-  full = false,
-  half = 0,
-  third = 0,
-  fourth = 0,
-  rows = [],
-  cols = [],
-  justifySelf,
-  alignSelf,
-  className,
-  ...rest
-}) {
+Grid.Item = React.forwardRef(function GridItem(
+  {
+    as: As = 'div',
+    full = false,
+    half = 0,
+    third = 0,
+    fourth = 0,
+    rows = [],
+    cols = [],
+    justifySelf,
+    alignSelf,
+    className,
+    ...rest
+  },
+  ref
+) {
   return (
     <As
+      ref={ref}
       className={cn(
         {
           full,
@@ -53,7 +61,7 @@ Grid.Item = function GridItem({
       {...rest}
     />
   );
-};
+});
 
 Grid.Divider = function GridDivider({
   vertical = false,

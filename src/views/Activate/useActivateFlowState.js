@@ -1,16 +1,16 @@
 import { useCallback, useState } from 'react';
-import Maybe from 'folktale/maybe';
+import { Nothing } from 'folktale/maybe';
 
 export default function useActivateFlowState() {
-  const [derivedWallet, setDerivedWallet] = useState(Maybe.Nothing());
-  const [inviteWallet, setInviteWallet] = useState(Maybe.Nothing());
-  const [derivedPoint, setDerivedPoint] = useState(Maybe.Nothing());
+  const [derivedWallet, setDerivedWallet] = useState(Nothing());
+  const [inviteWallet, setInviteWallet] = useState(Nothing());
+  const [derivedPoint, setDerivedPoint] = useState(Nothing());
   const [generated, setGenerated] = useState(false);
 
   const reset = useCallback(() => {
-    setDerivedWallet(Maybe.Nothing());
-    setInviteWallet(Maybe.Nothing());
-    setDerivedPoint(Maybe.Nothing());
+    setDerivedWallet(Nothing());
+    setInviteWallet(Nothing());
+    setDerivedPoint(Nothing());
     setGenerated(false);
   }, [setDerivedWallet, setInviteWallet, setDerivedPoint, setGenerated]);
 

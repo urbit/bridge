@@ -1,15 +1,23 @@
 import * as bip39 from 'bip39';
 import * as ob from 'urbit-ob';
-import { identity } from 'lodash';
+import { identity, includes } from 'lodash';
 
 import { isValidAddress } from './wallet';
 import patp2dec from './patp2dec';
+import { patpStringLength } from './lib';
+
+// NOTE: do not use the /g modifier for these regexes
+// https://stackoverflow.com/a/21373261
+// https://stackoverflow.com/a/1520853
 
 // via: https://emailregex.com/
 const emailRegExp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 // is this 64 hex chars?
-const hexRegExp = /[0-9A-Fa-f]{64}/g;
+const plain64CharHexValue = /[0-9A-Fa-f]{64}/;
+
+// is this only hex values with a 0x prefix?
+const isHexString = /0x[0-9A-Fa-f]/;
 
 // Wraps single validation functions in a controlled and predictable way.
 export const simpleValidatorWrapper = ({
@@ -129,30 +137,33 @@ export const validateShard = m =>
     error: 'This is not a valid shard',
   });
 
-export const validateLength = (m, l) =>
+export const validateOneOf = (options = []) => m =>
   simpleValidatorWrapper({
     prevMessage: m,
-    validator: d => {
-      try {
-        return d.length === l;
-      } catch {
-        return false;
-      }
-    },
-    error: 'This is of an invalid length',
+    validator: d => includes(options, d),
+    error: `Is not a valid option.`,
   });
 
+export const validateHexString = m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => isHexString.test(d),
+    error: 'This is not a valid hex string',
+  });
+
+// @deprecate
 export const validateNetworkKey = m =>
   simpleValidatorWrapper({
     prevMessage: m,
-    validator: d => hexRegExp.test(d),
+    validator: d => plain64CharHexValue.test(d),
     error: 'This is not a valid network key',
   });
 
+// @deprecate
 export const validateNetworkSeed = m =>
   simpleValidatorWrapper({
     prevMessage: m,
-    validator: d => hexRegExp.test(d),
+    validator: d => plain64CharHexValue.test(d),
     error: 'This is not a valid network seed',
   });
 
@@ -192,3 +203,37 @@ export const validateExactly = (value, error) => m =>
     validator: d => d === value,
     error,
   });
+
+export const validateLength = l => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => {
+      try {
+        return d.length === l;
+      } catch {
+        return false;
+      }
+    },
+    error: `Must be exactly ${l} characters`,
+  });
+
+export const validateMaximumLength = l => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => {
+      try {
+        return d.length <= l;
+      } catch {
+        return false;
+      }
+    },
+    error: `Must be ${l} characters or fewer.`,
+  });
+
+export const validatePatpByteLength = byteLength => {
+  return validateLength(patpStringLength(byteLength));
+};
+
+export const validateMaximumPatpByteLength = byteLength => {
+  return validateMaximumLength(patpStringLength(byteLength));
+};

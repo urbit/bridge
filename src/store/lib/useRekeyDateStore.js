@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from '../network';
 
@@ -56,7 +55,7 @@ export default function useRekeyDateStore() {
         });
       }
     },
-    [web3, addToRekeyDateCache]
+    [web3, contracts, addToRekeyDateCache]
   );
 
   return { getRekeyDate, syncRekeyDate };

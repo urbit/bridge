@@ -1,5 +1,5 @@
-import Maybe from 'folktale/maybe';
 import React from 'react';
+import { Just } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
 import * as need from '../lib/need';
@@ -55,7 +55,7 @@ class Transfer extends React.Component {
       state.receivingAddress
     );
 
-    return Maybe.Just(txn);
+    return Just(txn);
   }
 
   render() {

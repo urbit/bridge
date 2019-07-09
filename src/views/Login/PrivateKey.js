@@ -1,49 +1,38 @@
-import { Just, Nothing } from 'folktale/maybe';
 import React, { useEffect } from 'react';
-import { Input } from 'indigo-react';
-
-import View from 'components/View';
-import { usePassphraseInput } from 'components/Inputs';
-import { ForwardButton } from 'components/Buttons';
+import { Just, Nothing } from 'folktale/maybe';
+import { Grid, Input } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
-import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
-import useWalletType from 'lib/useWalletType';
-import useResetPointCursor from 'lib/useResetPointCursor';
+import { useHexInput } from 'lib/useInputs';
+import { EthereumWallet, WALLET_TYPES, stripHexPrefix } from 'lib/wallet';
+import useLoginView from 'lib/useLoginView';
 
-export default function PrivateKey({ loginCompleted }) {
-  useResetPointCursor();
-  useWalletType(WALLET_TYPES.PRIVATE_KEY);
-  const { wallet, setWallet } = useWallet();
+export default function PrivateKey({ className }) {
+  useLoginView(WALLET_TYPES.PRIVATE_KEY);
 
-  const privateKeyInput = usePassphraseInput({
+  const { setWallet } = useWallet();
+
+  const [privateKeyInput, { pass, data: privateKey }] = useHexInput({
+    length: 64,
     name: 'privateKey',
     label: 'Private key',
     autoFocus: true,
   });
-  const privateKey = privateKeyInput.data;
 
   useEffect(() => {
-    if (/^[0-9A-Fa-f]{64}$/g.test(privateKey) === true) {
-      const sec = Buffer.from(privateKey, 'hex');
+    if (pass) {
+      const sec = Buffer.from(stripHexPrefix(privateKey), 'hex');
       const newWallet = new EthereumWallet(sec);
       setWallet(Just(newWallet));
     } else {
       setWallet(Nothing());
     }
-  }, [privateKey, setWallet]);
+  }, [pass, privateKey, setWallet]);
 
   return (
-    <View>
-      Please enter your raw Ethereum private key here.
-      <Input {...privateKeyInput} />
-      <ForwardButton
-        className="mt3"
-        disabled={Nothing.hasInstance(wallet)}
-        onClick={loginCompleted}>
-        Continue
-      </ForwardButton>
-    </View>
+    <Grid className={className}>
+      <Grid.Item full as={Input} {...privateKeyInput} />
+    </Grid>
   );
 }

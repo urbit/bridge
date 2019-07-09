@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
-import Maybe from 'folktale/maybe';
+import { Just } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import {
   Grid,
@@ -11,11 +11,14 @@ import {
   Text,
   ErrorText,
   AccessoryIcon,
+  useForm,
 } from 'indigo-react';
 import { uniq } from 'lodash';
 
-import * as need from 'lib/need';
-import * as wg from 'lib/walletgen';
+import { usePointCursor } from 'store/pointCursor';
+import { useNetwork } from 'store/network';
+import { usePointCache } from 'store/pointCache';
+import { useWallet } from 'store/wallet';
 
 // for transaction generation and signing
 import {
@@ -28,21 +31,18 @@ import {
 } from 'lib/txn';
 import * as tank from 'lib/tank';
 import { useLocalRouter } from 'lib/LocalRouter';
-
-import MiniBackButton from 'components/MiniBackButton';
-import { usePointCursor } from 'store/pointCursor';
-import LoadableButton from 'components/LoadableButton';
 import useArray from 'lib/useArray';
-import useForm from 'indigo-react/lib/useForm';
-import { buildEmailInputConfig } from 'components/Inputs';
+import { buildEmailInputConfig } from 'lib/useInputs';
 import { MIN_PLANET, GAS_LIMITS } from 'lib/constants';
-import Highlighted from 'components/Highlighted';
-import { useNetwork } from 'store/network';
-import { usePointCache } from 'store/pointCache';
-import { useWallet } from 'store/wallet';
+import * as need from 'lib/need';
+import * as wg from 'lib/walletgen';
 import useSetState from 'lib/useSetState';
 import pluralize from 'lib/pluralize';
 import useMailer from 'lib/useMailer';
+
+import MiniBackButton from 'components/MiniBackButton';
+import LoadableButton from 'components/LoadableButton';
+import Highlighted from 'components/Highlighted';
 
 const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = GAS_LIMITS.GIFT_PLANET;
@@ -232,7 +232,7 @@ export default function InviteEmail() {
           walletHdPath,
           networkType,
           // TODO: ^ make a useTransactionSigner to encapsulate this logic
-          txn: Maybe.Just(inviteTx),
+          txn: Just(inviteTx),
           gasPrice: GAS_PRICE_GWEI.toString(),
           gasLimit: GAS_LIMIT.toString(),
           nonce: nonce + i,
@@ -300,7 +300,7 @@ export default function InviteEmail() {
       try {
         const txHash = await sendSignedTransaction(
           _web3,
-          Maybe.Just(invite.signedTx),
+          Just(invite.signedTx),
           tankWasUsed,
           () => {}
         );

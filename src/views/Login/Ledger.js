@@ -1,190 +1,210 @@
-import * as bip32 from 'bip32';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
+import cn from 'classnames';
+import { Just, Nothing } from 'folktale/maybe';
+import {
+  P,
+  Text,
+  Input,
+  Grid,
+  H5,
+  CheckboxInput,
+  SelectInput,
+} from 'indigo-react';
 import { times } from 'lodash';
-import Maybe from 'folktale/maybe';
+import * as bip32 from 'bip32';
 import Transport from '@ledgerhq/hw-transport-u2f';
 import Eth from '@ledgerhq/hw-app-eth';
 import * as secp256k1 from 'secp256k1';
-import { H1, H2, P, Input } from 'indigo-react';
-
-import View from 'components/View';
-import { ForwardButton } from 'components/Buttons';
-import { InnerLabelDropdown } from 'components/old/Base';
 
 import { useWallet } from 'store/wallet';
 
-import { LEDGER_LIVE_PATH, LEDGER_LEGACY_PATH } from 'lib/ledger';
-import useWalletType from 'lib/useWalletType';
-import { WALLET_TYPES } from 'lib/wallet';
-import useResetPointCursor from 'lib/useResetPointCursor';
+import { ForwardButton } from 'components/Buttons';
 
-const pathOptions = [
-  { title: 'Ledger Live', value: LEDGER_LIVE_PATH },
-  { title: 'Ledger Legacy', value: LEDGER_LEGACY_PATH },
-  { title: 'Custom path', value: 'custom' },
+import {
+  useCheckboxInput,
+  useHdPathInput,
+  useSelectInput,
+} from 'lib/useInputs';
+
+import {
+  LEDGER_LIVE_PATH,
+  LEDGER_LEGACY_PATH,
+  chopHdPrefix,
+  addHdPrefix,
+} from 'lib/ledger';
+import { WALLET_TYPES } from 'lib/wallet';
+import useLoginView from 'lib/useLoginView';
+import useBreakpoints from 'lib/useBreakpoints';
+
+const PATH_OPTIONS = [
+  { text: 'Ledger Live', value: LEDGER_LIVE_PATH },
+  { text: 'Ledger Legacy', value: LEDGER_LEGACY_PATH },
 ];
 
-const chopHdPrefix = str => (str.slice(0, 2) === 'm/' ? str.slice(2) : str);
+const ACCOUNT_OPTIONS = times(20, i => ({
+  text: `Account #${i + 1}`,
+  value: i,
+}));
 
-const addHdPrefix = str => (str.slice(0, 2) === 'm/' ? str : 'm/' + str);
+export default function Ledger({ className }) {
+  useLoginView(WALLET_TYPES.LEDGER);
 
-export default function Ledger({ loginCompleted }) {
-  useResetPointCursor();
-  useWalletType(WALLET_TYPES.LEDGER);
+  const { setWallet, setWalletHdPath } = useWallet();
 
-  const { wallet, setWallet, setWalletHdPath } = useWallet();
+  // derivation path input
+  const [derivationPathInput, { data: basePathPattern }] = useSelectInput({
+    name: 'derivationpath',
+    label: 'Derivation Path',
+    placeholder: 'Choose path pattern...',
+    options: PATH_OPTIONS,
+  });
 
-  const [basePath, setBasePath] = useState(LEDGER_LIVE_PATH);
-  const [account, setAccount] = useState(0);
-  const [hdPath, setHdPath] = useState(LEDGER_LIVE_PATH.replace(/x/g, 0));
+  // account input
+  const [accountInput, { data: accountIndex }] = useSelectInput({
+    name: 'account',
+    label: 'Account',
+    placeholder: 'Choose account...',
+    options: ACCOUNT_OPTIONS,
+  });
 
-  const updateHdPath = (basePath, account) => {
-    if (basePath !== 'custom') {
-      setHdPath(basePath.replace(/x/g, account));
-    }
-  };
+  // custom toggle
+  const [customPathInput, { data: useCustomPath }] = useCheckboxInput({
+    name: 'customPath',
+    label: 'Custom HD Path',
+    autoComplete: 'off',
+    initialValue: false,
+  });
 
-  const handlePathSelection = basePath => {
-    setBasePath(basePath);
-    updateHdPath(basePath, account);
-  };
+  // hd path input
+  const [
+    hdPathInput,
+    { data: hdPath },
+    { setValue: setHdPath },
+  ] = useHdPathInput({
+    name: 'hdpath',
+    label: 'HD Path',
+    initialValue: basePathPattern.replace(/x/g, 0),
+  });
 
-  const handleAccountSelection = account => {
-    setAccount(account);
-    updateHdPath(basePath, account);
-  };
-
-  const pollDevice = async () => {
+  const pollDevice = useCallback(async () => {
     const transport = await Transport.create();
     const eth = new Eth(transport);
     const path = chopHdPrefix(hdPath);
 
-    eth.getAddress(path, false, true).then(
-      info => {
-        const publicKey = Buffer.from(info.publicKey, 'hex');
-        const chainCode = Buffer.from(info.chainCode, 'hex');
-        const pub = secp256k1.publicKeyConvert(publicKey, true);
-        const hd = bip32.fromPublicKey(pub, chainCode);
-        setWallet(Maybe.Just(hd));
-        setWalletHdPath(addHdPrefix(hdPath));
-      },
-      _ => {
-        setWallet(Maybe.Nothing());
-      }
-    );
-  };
+    try {
+      const info = await eth.getAddress(path, false, true);
+      const publicKey = Buffer.from(info.publicKey, 'hex');
+      const chainCode = Buffer.from(info.chainCode, 'hex');
+      const pub = secp256k1.publicKeyConvert(publicKey, true);
+      const hd = bip32.fromPublicKey(pub, chainCode);
+      setWallet(Just(hd));
+      setWalletHdPath(addHdPrefix(hdPath));
+    } catch (error) {
+      console.error(error);
+      setWallet(Nothing());
+    }
+  }, [hdPath, setWallet, setWalletHdPath]);
 
-  const basePathTitle = pathOptions.find(o => o.value === basePath).title;
+  // when the base path pattern or the account index changes
+  // update the hd path in our input
+  useEffect(() => {
+    if (useCustomPath) {
+      // updated by useForm
+    } else {
+      setHdPath(basePathPattern.replace(/x/g, accountIndex));
+    }
+  }, [useCustomPath, setHdPath, basePathPattern, accountIndex]);
 
-  const accountOptions = times(20, i => ({
-    title: `Account #${i + 1}`,
-    value: i,
-  }));
-  const accountTitle = accountOptions.find(o => o.value === account).title;
-
-  const basePathSelection = (
-    <InnerLabelDropdown
-      className="mt-8"
-      options={pathOptions}
-      handleUpdate={handlePathSelection}
-      title="Derivation path"
-      currentSelectionTitle={basePathTitle}
-      fullWidth={true}
-    />
-  );
-
-  const truePathSelection =
-    basePath === 'custom' ? (
-      <Input
-        className="mt3"
-        name="hdPath"
-        label="HD path"
-        autocomplete="off"
-        initialValue={addHdPrefix(hdPath)}
-        onValue={setHdPath}
-      />
-    ) : (
-      <InnerLabelDropdown
-        className="mt-4"
-        prop-size="md"
-        prop-format="innerLabel"
-        options={accountOptions}
-        handleUpdate={handleAccountSelection}
-        title="Account"
-        currentSelectionTitle={accountTitle}
-        fullWidth={true}
-      />
-    );
+  const full = useBreakpoints([true, true, false]);
+  const half = useBreakpoints([false, false, true]);
+  const isHTTPS = document.location.protocol === 'https:';
 
   // when not on https, tell user how to get there
-  const body =
-    document.location.protocol !== 'https:' ? (
-      <>
-        <H2>Running on HTTP?</H2>
+  const renderHTTP = () => (
+    <>
+      <Grid.Item full as={H5}>
+        Running on HTTP?
+      </Grid.Item>
 
-        <P>
-          To authenticate and sign transactions with a Ledger, Bridge must be
-          serving over HTTPS on localhost. You can do this via the following:
-        </P>
+      <Grid.Item full as={P}>
+        To authenticate and sign transactions with a Ledger, Bridge must be
+        serving over HTTPS on localhost. You can do this via the following:
+      </Grid.Item>
 
-        <ol className="measure-md">
-          <li className="mt-4">
-            Install
-            <a
-              target="_blank"
-              href="https://github.com/FiloSottile/mkcert"
-              rel="noopener noreferrer">
-              mkcert
-            </a>
-          </li>
-          <li className="mt-4">
-            Install a local certificate authority via{' '}
-            <code>mkcert -install</code>
-          </li>
-          <li className="mt-4">
-            In your <code>bridge</code> directory, generate a certificate valid
-            for localhost via <code>mkcert localhost</code>. This will produce
-            two files: <code>localhost.pem</code>, the local certificate, and
-            <code>localhost-key.pem</code> , its corresponding private key.
-          </li>
-          <li className="mt-4">
-            Run <code>python bridge-https.py</code>
-          </li>
-        </ol>
-      </>
-    ) : (
-      <>
-        <P>
-          Connect and authenticate to your Ledger, and then open the "Ethereum"
-          application. If you're running on older firmware, make sure the
-          "browser support" option is turned on. To sign transactions, you'll
-          also need to enable the "contract data" option.
-        </P>
+      <Grid.Item full as="ol">
+        <li>
+          Install{' '}
+          <a
+            target="_blank"
+            href="https://github.com/FiloSottile/mkcert"
+            rel="noopener noreferrer">
+            mkcert
+          </a>
+        </li>
+        <li className="mt3">
+          Install a local certificate authority via <code>mkcert -install</code>
+        </li>
+        <li className="mt3">
+          In your <code>bridge</code> directory, generate a certificate valid
+          for localhost via <code>mkcert localhost</code>. This will produce two
+          files: <code>localhost.pem</code>, the local certificate, and
+          <code>localhost-key.pem</code> , its corresponding private key.
+        </li>
+        <li className="mt3">
+          Run <code>python bridge-https.py</code>
+        </li>
+        <li className="mt3">Return to this page.</li>
+      </Grid.Item>
+    </>
+  );
 
-        <P>
-          If you'd like to use a custom derivation path, you may enter it below.
-        </P>
+  const renderHTTPS = () => (
+    <>
+      <Grid.Item full as={H5}>
+        Authenticate With Your Ledger
+      </Grid.Item>
+      <Grid.Item full as={Text} className="f6 mb3">
+        Connect and authenticate to your Ledger, and then open the "Ethereum"
+        application. If you're running on older firmware, make sure the "browser
+        support" option is turned on. To sign transactions, you'll also need to
+        enable the "contract data" option.
+      </Grid.Item>
 
-        {basePathSelection}
-        {truePathSelection}
+      {useCustomPath && <Grid.Item full as={Input} {...hdPathInput} />}
 
-        <ForwardButton className={'mt3'} onClick={pollDevice}>
-          {'Authenticate'}
-        </ForwardButton>
+      {!useCustomPath && (
+        <>
+          <Grid.Item
+            full={full}
+            half={half && 1}
+            as={SelectInput}
+            className={cn({ pr1: half })}
+            {...derivationPathInput}
+          />
+          <Grid.Item
+            full={full}
+            half={half && 2}
+            as={SelectInput}
+            className={cn({ pl1: half })}
+            {...accountInput}
+          />
+        </>
+      )}
 
-        <ForwardButton
-          className={'mt3'}
-          disabled={Maybe.Nothing.hasInstance(wallet)}
-          onClick={loginCompleted}>
-          {'Continue'}
-        </ForwardButton>
-      </>
-    );
+      <Grid.Item full as={CheckboxInput} className="mv3" {...customPathInput} />
+
+      <Grid.Item
+        full
+        as={ForwardButton}
+        solid
+        className="mt2"
+        onClick={pollDevice}>
+        Authenticate
+      </Grid.Item>
+    </>
+  );
 
   return (
-    <View>
-      <H1>Authenticate With Your Ledger</H1>
-      {body}
-    </View>
+    <Grid className={className}>{isHTTPS ? renderHTTPS() : renderHTTP()}</Grid>
   );
 }

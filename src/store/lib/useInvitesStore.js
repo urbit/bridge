@@ -1,14 +1,14 @@
 import { useCallback, useState } from 'react';
-import Maybe from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from '../network';
 
 // the default value of a point's invites
 const EMPTY_INVITES = {
-  availableInvites: Maybe.Nothing(),
-  sentInvites: Maybe.Nothing(),
-  acceptedInvites: Maybe.Nothing(),
+  availableInvites: Nothing(),
+  sentInvites: Nothing(),
+  acceptedInvites: Nothing(),
 };
 
 export default function useInvitesStore() {
@@ -52,9 +52,9 @@ export default function useInvitesStore() {
 
       addToInvitesCache({
         [point]: {
-          availableInvites: Maybe.Just(availableInvites),
-          sentInvites: Maybe.Just(sentInvites),
-          acceptedInvites: Maybe.Just(acceptedInvites),
+          availableInvites: Just(availableInvites),
+          sentInvites: Just(sentInvites),
+          acceptedInvites: Just(acceptedInvites),
         },
       });
     },

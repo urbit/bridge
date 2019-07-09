@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
 import { Input } from 'indigo-react';
 
-import View from 'components/View';
-import { useTicketInput } from 'components/Inputs';
-import { ForwardButton } from 'components/Buttons';
-
+import { useTicketInput } from 'lib/useInputs';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { validateExactly } from 'lib/validators';
+
+import View from 'components/View';
+import { ForwardButton } from 'components/Buttons';
 
 const STUB_VERIFY_TICKET = process.env.NODE_ENV === 'development';
 
@@ -19,14 +19,13 @@ export default function Verify({ newWallet }) {
     () => [validateExactly(ticket, 'Does not match expected master ticket.')],
     [ticket]
   );
-  const ticketInput = useTicketInput({
+  const [ticketInput, { pass }] = useTicketInput({
     name: 'ticket',
     label: 'New master ticket',
     initialValue: STUB_VERIFY_TICKET ? ticket : undefined,
     autoFocus: true,
     validators,
   });
-  const { pass } = ticketInput;
 
   const next = useCallback(() => push(names.RETICKET), [push, names]);
 

@@ -1,112 +1,125 @@
+import React, { useEffect } from 'react';
+import { Just, Nothing } from 'folktale/maybe';
 import * as bip32 from 'bip32';
-import React, { useState } from 'react';
-import Maybe from 'folktale/maybe';
 import { times } from 'lodash';
 import TrezorConnect from 'trezor-connect';
 import * as secp256k1 from 'secp256k1';
-import { H1, P, Input } from 'indigo-react';
-
-import View from 'components/View';
-import { ForwardButton } from 'components/Buttons';
-import { InnerLabelDropdown } from 'components/old/Base';
-
-import { TREZOR_PATH } from 'lib/trezor';
-import useWalletType from 'lib/useWalletType';
-import { WALLET_TYPES } from 'lib/wallet';
-import useResetPointCursor from 'lib/useResetPointCursor';
+import {
+  Text,
+  Input,
+  Grid,
+  H5,
+  CheckboxInput,
+  SelectInput,
+} from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
-const accountOptions = [
-  { title: 'Custom path', value: 'custom' },
-  ...times(20, i => ({ title: `Account #${i + 1}`, value: i })),
-];
+import { TREZOR_PATH } from 'lib/trezor';
+import { WALLET_TYPES } from 'lib/wallet';
+import useLoginView from 'lib/useLoginView';
+import {
+  useHdPathInput,
+  useCheckboxInput,
+  useSelectInput,
+} from 'lib/useInputs';
 
-export default function Trezor({ loginCompleted }) {
-  useResetPointCursor();
-  useWalletType(WALLET_TYPES.TREZOR);
+import { ForwardButton } from 'components/Buttons';
 
-  const { wallet, setWallet, setWalletHdPath } = useWallet();
+const ACCOUNT_OPTIONS = times(20, i => ({
+  text: `Account #${i + 1}`,
+  value: i,
+}));
 
-  const [hdPath, setHdPath] = useState(TREZOR_PATH.replace(/x/g, 0));
-  const [account, setAccount] = useState(0);
+// see Ledger.js for context — Trezor is basicaly Ledger with less complexity
+export default function Trezor({ className }) {
+  useLoginView(WALLET_TYPES.TREZOR);
 
-  const handleAccountSelection = account => {
-    setAccount(account);
-    if (account !== 'custom') {
-      setHdPath(TREZOR_PATH.replace(/x/g, account));
-    }
-  };
+  const { setWallet, setWalletHdPath } = useWallet();
+
+  // custom toggle
+  const [customPathInput, { data: useCustomPath }] = useCheckboxInput({
+    name: 'customPath',
+    label: 'Custom HD Path',
+    autoComplete: 'off',
+    initialValue: false,
+  });
+
+  // account input
+  const [accountInput, { data: accountIndex }] = useSelectInput({
+    name: 'account',
+    label: 'Account',
+    placeholder: 'Choose account...',
+    options: ACCOUNT_OPTIONS,
+  });
+
+  // hd path input
+  const [
+    hdPathInput,
+    { data: hdPath },
+    { setValue: setHdPath },
+  ] = useHdPathInput({
+    name: 'hdpath',
+    label: 'HD Path',
+    initialValue: TREZOR_PATH.replace(/x/g, 0),
+  });
 
   const pollDevice = async () => {
     TrezorConnect.manifest({
       email: 'bridge-trezor@urbit.org',
       appUrl: 'https://github.com/urbit/bridge',
     });
-    TrezorConnect.getPublicKey({ path: hdPath }).then(info => {
-      if (info.success === true) {
-        const payload = info.payload;
-        const publicKey = Buffer.from(payload.publicKey, 'hex');
-        const chainCode = Buffer.from(payload.chainCode, 'hex');
-        const pub = secp256k1.publicKeyConvert(publicKey, true);
-        const hd = bip32.fromPublicKey(pub, chainCode);
-        setWallet(Maybe.Just(hd));
-        setWalletHdPath(hdPath);
-      } else {
-        setWallet(Maybe.Nothing());
-      }
+
+    const info = await TrezorConnect.getPublicKey({
+      path: hdPath,
     });
+
+    if (info.success === true) {
+      const payload = info.payload;
+      const publicKey = Buffer.from(payload.publicKey, 'hex');
+      const chainCode = Buffer.from(payload.chainCode, 'hex');
+      const pub = secp256k1.publicKeyConvert(publicKey, true);
+      const hd = bip32.fromPublicKey(pub, chainCode);
+      setWallet(Just(hd));
+      setWalletHdPath(hdPath);
+    } else {
+      setWallet(Nothing());
+    }
   };
 
-  let accountTitle = accountOptions.find(o => o.value === account).title;
-
-  const accountSelection = (
-    <InnerLabelDropdown
-      className="mt-8"
-      prop-size="md"
-      prop-format="innerLabel"
-      options={accountOptions}
-      handleUpdate={handleAccountSelection}
-      title="Account"
-      currentSelectionTitle={accountTitle}
-      fullWidth={true}
-    />
-  );
-
-  const pathSelection =
-    account !== 'custom' ? null : (
-      <Input
-        className="mt3"
-        name="hdPath"
-        label="HD path"
-        autocomplete="off"
-        initialValue={hdPath}
-        onValue={setHdPath}
-      />
-    );
+  useEffect(() => {
+    if (useCustomPath) {
+      // updated by useForm
+    } else {
+      setHdPath(TREZOR_PATH.replace(/x/g, accountIndex));
+    }
+  }, [useCustomPath, setHdPath, accountIndex]);
 
   return (
-    <View>
-      <H1>Authenticate With Your Trezor</H1>
+    <Grid className={className}>
+      <Grid.Item full as={H5}>
+        Authenticate With Your Trezor
+      </Grid.Item>
 
-      <P>
+      <Grid.Item full as={Text} className="f6 mb3">
         Connect and authenticate to your Trezor. If you'd like to use a custom
         derivation path, you may enter it below.
-      </P>
+      </Grid.Item>
 
-      {accountSelection}
-      {pathSelection}
+      {useCustomPath && <Grid.Item full as={Input} {...hdPathInput} />}
 
-      <ForwardButton className="mt3" onClick={pollDevice}>
+      {!useCustomPath && <Grid.Item full as={SelectInput} {...accountInput} />}
+
+      <Grid.Item full as={CheckboxInput} className="mv3" {...customPathInput} />
+
+      <Grid.Item
+        full
+        as={ForwardButton}
+        solid
+        className="mt2"
+        onClick={pollDevice}>
         Authenticate
-      </ForwardButton>
-
-      <ForwardButton
-        className="mt3"
-        disabled={Maybe.Nothing.hasInstance(wallet)}
-        onClick={loginCompleted}>
-        Continue
-      </ForwardButton>
-    </View>
+      </Grid.Item>
+    </Grid>
   );
 }

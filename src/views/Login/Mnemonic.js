@@ -1,92 +1,83 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Input } from 'indigo-react';
+import { Grid, Input, CheckboxInput } from 'indigo-react';
 
-import View from 'components/View';
+import { useWallet } from 'store/wallet';
+
 import {
   usePassphraseInput,
   useMnemonicInput,
   useHdPathInput,
-} from 'components/Inputs';
-import { ForwardButton } from 'components/Buttons';
-
-import { useWallet } from 'store/wallet';
-
+  useCheckboxInput,
+} from 'lib/useInputs';
 import { walletFromMnemonic, WALLET_TYPES } from 'lib/wallet';
-import useWalletType from 'lib/useWalletType';
-import useResetPointCursor from 'lib/useResetPointCursor';
+import useLoginView from 'lib/useLoginView';
 
-export default function Mnemonic({ advanced, loginCompleted }) {
-  useResetPointCursor();
-  useWalletType(WALLET_TYPES.MNEMONIC);
+export default function Mnemonic({ className }) {
+  useLoginView(WALLET_TYPES.MNEMONIC);
 
   const {
-    wallet,
     setWallet,
-    authMnemonic,
     setAuthMnemonic,
     walletHdPath,
     setWalletHdPath,
   } = useWallet();
 
-  const mnemonic = authMnemonic.getOrElse('');
-  // TODO: move this into transformers?
-  // transform the result of the mnemonic to Maybe<string>
-  const _setAuthMnemonic = useCallback(
-    mnemonic => setAuthMnemonic(mnemonic === '' ? Nothing() : Just(mnemonic)),
-    [setAuthMnemonic]
-  );
+  const [advancedInput, { data: useAdvanced }] = useCheckboxInput({
+    name: 'advanced',
+    label: 'Passphrase & HD Path',
+    initialValue: false,
+  });
 
-  const mnemonicInput = useMnemonicInput({
+  const [mnemonicInput, { pass, data: mnemonic }] = useMnemonicInput({
     name: 'mnemonic',
     label: 'BIP39 Mnemonic',
-    initialValue: mnemonic,
-    onValue: _setAuthMnemonic,
     autoFocus: true,
   });
 
-  const passphraseInput = usePassphraseInput({
+  const [passphraseInput, { data: passphrase }] = usePassphraseInput({
     name: 'passphrase',
-    label: '(Optional) Wallet Passphrase',
+    label: 'Wallet Passphrase',
   });
-  const passphrase = passphraseInput.data;
 
-  const hdPathInput = useHdPathInput({
+  const [hdPathInput, { data: hdPath }] = useHdPathInput({
     name: 'hdpath',
     label: 'HD Path',
     initialValue: walletHdPath,
-    onValue: setWalletHdPath,
   });
 
-  // when the properties change, re-derive wallet
+  // when the properties change, re-derive wallet and set global state
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const wallet = walletFromMnemonic(mnemonic, walletHdPath, passphrase);
-      mounted && setWallet(wallet);
-    })();
-    return () => (mounted = false);
-  }, [mnemonic, passphrase, walletHdPath, setWallet]);
+    if (pass) {
+      setWalletHdPath(hdPath);
+      setAuthMnemonic(Just(mnemonic));
+      setWallet(walletFromMnemonic(mnemonic, hdPath, passphrase));
+    } else {
+      setAuthMnemonic(Nothing());
+      setWallet(Nothing());
+    }
+  }, [
+    pass,
+    mnemonic,
+    passphrase,
+    hdPath,
+    setWallet,
+    setAuthMnemonic,
+    setWalletHdPath,
+  ]);
 
   return (
-    <View>
-      <Input {...mnemonicInput} />
+    <Grid className={className}>
+      <Grid.Item full as={Input} {...mnemonicInput} />
 
-      {!advanced ? null : (
+      {useAdvanced && (
         <>
-          <Input {...passphraseInput} />
-
-          <Input {...hdPathInput} />
+          <Grid.Item full as={Input} {...passphraseInput} />
+          <Grid.Item full as={Input} {...hdPathInput} />
         </>
       )}
 
-      <ForwardButton
-        className="mt3"
-        disabled={Nothing.hasInstance(wallet)}
-        onClick={loginCompleted}
-        solid>
-        Continue
-      </ForwardButton>
-    </View>
+      <Grid.Item as={CheckboxInput} {...advancedInput} full />
+    </Grid>
   );
 }

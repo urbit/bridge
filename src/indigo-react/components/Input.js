@@ -14,9 +14,6 @@ export default function Input({
 
   // callbacks
   onValue,
-  onPass,
-  onError,
-  onFocus,
   onEnter,
 
   // state from hook
@@ -24,6 +21,7 @@ export default function Input({
   pass,
   visiblyPassed,
   error,
+  hintError,
   data,
   bind,
   autoFocus,
@@ -49,28 +47,16 @@ export default function Input({
   );
 
   // notify parent of value only when passing
+  // TODO: deprecate/remove this
+  // keeping it around for now to avoid refactoring InviteEmail.js, but this
+  // feels like a hack
   useEffect(() => {
     pass && onValue && onValue(data);
   }, [pass, data]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // notify parent of pass
-  useEffect(() => {
-    onPass && onPass(pass);
-  }, [pass]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // notify parent of error whenever error changes
-  useEffect(() => {
-    onError && onError(error);
-  }, [error]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // notify parent of focus
-  useEffect(() => {
-    onFocus && onFocus(focused);
-  }, [focused]); // eslint-disable-line react-hooks/exhaustive-deps
-
   return (
     <Flex
-      className={className}
+      className={cn(className, 'mb1')}
       col
       style={{
         ...(disabled && {
@@ -99,8 +85,8 @@ export default function Input({
             {
               'b-green3': visiblyPassed,
               'b-black': focused && !visiblyPassed,
-              'b-yellow3': !focused && error,
-              'b-gray3': !focused && !error && !visiblyPassed,
+              'b-yellow3': !focused && hintError,
+              'b-gray3': !focused && !hintError && !visiblyPassed,
             }
             // TODO: inputClassName ?
           )}
