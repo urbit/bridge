@@ -4,19 +4,21 @@ import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
 
 import { ForwardButton } from 'components/Buttons';
-import { matchBlinky } from 'components/Blinky';
+import { matchBlinky, matchBlinkyDate } from 'components/Blinky';
 
-import { ROUTE_NAMES } from 'lib/routeNames';
 import { ETH_ZERO_ADDR } from 'lib/wallet';
 
 import useLifecycle from 'lib/useLifecycle';
 import { useNetwork } from 'store/network';
-import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import ViewHeader from 'components/ViewHeader';
 import usePermissionsForPoint from 'lib/usePermissionsForPoint';
+import { PROXY_TYPE, proxyTypeToHuman } from 'lib/proxy';
+import { useLocalRouter } from 'lib/LocalRouter';
+import { formatDots } from 'lib/dateFormat';
+import capitalize from 'lib/capitalize';
 
 //TODO consolidate with azimuth-js' getActivationBlock
 const getRekeyDate = async (web3, contracts, point) => {
@@ -35,7 +37,7 @@ const getRekeyDate = async (web3, contracts, point) => {
 };
 
 export default function AdminEditPermissions() {
-  const history = useHistory();
+  const { push, names } = useLocalRouter();
   const { web3, contracts } = useNetwork();
   const { wallet } = useWallet();
   const { pointCursor } = usePointCursor();
@@ -46,8 +48,8 @@ export default function AdminEditPermissions() {
   const point = need.point(pointCursor);
   const userAddress = need.wallet(wallet).address;
 
-  const pointDetails = need.details(getDetails(point));
-  const { isOwner, canManage, canSpawn, canVote } = usePermissionsForPoint(
+  const details = need.details(getDetails(point));
+  const { canManage, canTransfer, canSpawn, canVote } = usePermissionsForPoint(
     userAddress,
     point
   );
@@ -55,52 +57,49 @@ export default function AdminEditPermissions() {
   useLifecycle(() => {
     getRekeyDate(need.web3(web3), need.contracts(contracts), point).then(
       res => {
-        if (res === null) setRekeyDate(Just('unknown'));
-        else setRekeyDate(Just(res.toString()));
+        if (res === null) setRekeyDate(Just(new Date()));
+        else setRekeyDate(Just(res));
       }
     );
   });
 
-  const goSetManagement = useCallback(
-    () => history.push(ROUTE_NAMES.SET_MANAGEMENT_PROXY),
-    [history]
+  const goToProxy = useCallback(
+    proxyType => push(names.SET_PROXY, { proxyType }),
+    [push, names]
   );
 
-  const goSetSpawn = useCallback(
-    () => history.push(ROUTE_NAMES.SET_SPAWN_PROXY),
-    [history]
-  );
+  const goSetKeys = useCallback(() => push(names.SET_KEYS), [push, names]);
 
-  const goSetVoting = useCallback(
-    () => history.push(ROUTE_NAMES.SET_VOTING_PROXY),
-    [history]
-  );
-
-  const goSetKeys = useCallback(() => history.push(ROUTE_NAMES.SET_KEYS), [
-    history,
-  ]);
-
-  const proxyAction = (name, address, onClick) => {
+  const proxyAction = (proxyType, address, enabled) => {
     if (address === ETH_ZERO_ADDR) {
       address = 'Not yet set';
     }
 
+    const detail = enabled
+      ? address
+      : `You do not have permission to change the ${proxyTypeToHuman(
+          proxyType
+        )} proxy.`;
+
     return (
       <Grid.Item full>
-        <ForwardButton disabled={!isOwner} onClick={onClick} detail={address}>
-          {`${name} Proxy Address`}
+        <ForwardButton
+          disabled={!enabled}
+          onClick={() => goToProxy(proxyType)}
+          detail={detail}>
+          {capitalize(proxyTypeToHuman(proxyType))} Proxy Address
         </ForwardButton>
       </Grid.Item>
     );
   };
 
   const networkKeysDetail =
-    pointDetails.keyRevisionNumber === 0 ? (
+    details.keyRevisionNumber === 0 ? (
       'Not yet configured'
     ) : (
       <>
-        {`Revision #${pointDetails.keyRevisionNumber}, since `}
-        {matchBlinky(rekeyDate)}
+        Revision #{details.keyRevisionNumber}, since{' '}
+        {matchBlinkyDate(rekeyDate)}
       </>
     );
 
@@ -109,33 +108,31 @@ export default function AdminEditPermissions() {
       <Grid.Item full as={ViewHeader}>
         Permissions
       </Grid.Item>
-      <Grid.Item full as={ForwardButton} detail={pointDetails.owner} disabled>
+
+      <Grid.Item full as={ForwardButton} detail={details.owner} disabled>
         Ownership Address
       </Grid.Item>
       <Grid.Divider />
-      {proxyAction('Management', pointDetails.managementProxy, goSetManagement)}
+
+      {proxyAction(PROXY_TYPE.MANAGEMENT, details.managementProxy, canManage)}
       <Grid.Divider />
 
-      {canSpawn && (
-        <>
-          {proxyAction('Spawn', pointDetails.spawnProxy, goSetSpawn)}
-          <Grid.Divider />
-        </>
-      )}
+      {proxyAction(PROXY_TYPE.SPAWN, details.spawnProxy, canSpawn)}
+      <Grid.Divider />
 
-      {canVote && (
-        <>
-          {proxyAction('Voting', pointDetails.votingProxy, goSetVoting)}
-          <Grid.Divider />
-        </>
-      )}
+      {proxyAction(PROXY_TYPE.TRANSFER, details.transferProxy, canTransfer)}
+      <Grid.Divider />
+
+      {proxyAction(PROXY_TYPE.VOTING, details.votingProxy, canVote)}
+      <Grid.Divider />
+
       <Grid.Item
         full
         as={ForwardButton}
         disabled={!canManage}
         onClick={goSetKeys}
         detail={networkKeysDetail}>
-        Network keys
+        Network Keys
       </Grid.Item>
       <Grid.Divider />
     </Grid>

@@ -13,7 +13,7 @@ import {
 import { AddressInput } from '../components/old/Base';
 import * as ob from 'urbit-ob';
 
-import { PROXY_TYPE, renderProxyType } from '../lib/proxy';
+import { PROXY_TYPE } from '../lib/proxy';
 
 import { NETWORK_TYPES } from '../lib/network';
 
@@ -83,7 +83,7 @@ class _SetProxy extends React.Component {
   render() {
     const { props, state } = this;
 
-    const renderedProxyType = renderProxyType(props.proxyType);
+    const renderedProxyType = props.proxyType.toString();
     const validAddress = isValidAddress(state.proxyAddress);
     const canGenerate = validAddress === true;
 

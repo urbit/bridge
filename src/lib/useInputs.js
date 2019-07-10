@@ -14,6 +14,7 @@ import {
   validateHexString,
   validateOneOf,
   validateMaximumPatpByteLength,
+  validateEthereumAddress,
 } from 'lib/validators';
 import { prependSig } from 'lib/transformers';
 
@@ -205,6 +206,23 @@ export function useSelectInput({ initialValue, options, ...rest }) {
         ),
         options,
         initialValue: initialValue || options[0].value,
+        ...rest,
+      },
+    ])
+  );
+}
+
+const kAddressValidators = [validateEthereumAddress, validateNotEmpty];
+export function useAddressInput({ ...rest }) {
+  return useFirstOf(
+    useForm([
+      {
+        type: 'string',
+        label: 'Ethereum Address',
+        placeholder: 'e.g. 0x6DEfFb0caFDB11D175F123F6891AA64F01c24F7d',
+        autoComplete: 'off',
+        validators: kAddressValidators,
+        mono: true,
         ...rest,
       },
     ])

@@ -14,12 +14,14 @@ import AdminHome from './Admin/AdminHome';
 import AdminEditPermissions from './Admin/AdminEditPermissions';
 import AdminRedownload from './Admin/AdminRedownload';
 import AdminReticket from './Admin/AdminReticket';
+import AdminSetProxy from './Admin/AdminSetProxy';
 
 const NAMES = {
   HOME: 'HOME',
   EDIT_PERMISSIONS: 'EDIT_PERMISSIONS',
   REDOWNLOAD: 'REDOWNLOAD',
   RETICKET: 'RETICKET',
+  SET_PROXY: 'SET_PROXY',
 };
 
 const VIEWS = {
@@ -27,6 +29,7 @@ const VIEWS = {
   [NAMES.EDIT_PERMISSIONS]: AdminEditPermissions,
   [NAMES.REDOWNLOAD]: AdminRedownload,
   [NAMES.RETICKET]: AdminReticket,
+  [NAMES.SET_PROXY]: AdminSetProxy,
 };
 
 export default function Admin() {
