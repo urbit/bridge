@@ -93,8 +93,9 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
             full
             className="mt3"
             as={RestartButton}
-            onClick={goToRestart}
-          />
+            onClick={goToRestart}>
+            Restart
+          </Grid.Item>
         </>
       );
     }
