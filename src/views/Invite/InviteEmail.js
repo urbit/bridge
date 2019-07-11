@@ -187,6 +187,27 @@ export default function InviteEmail() {
       throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
     }
 
+    //TODO want to do this on-input, but that gets weird. see #188
+    let errorCount = 0;
+    const mailsVerified = inputs.map(async input => {
+      console.log('aaa', invites);
+      const email = input.data;
+      const hasReceived = getHasReceived(email).matchWith({
+        Nothing: () => false, // loading
+        Just: p => p.value,
+      });
+      if (hasReceived) {
+        errorCount++;
+        addError({
+          [input.name]: `${email} has already received an invite.`,
+        });
+      }
+    });
+    await Promise.all(mailsVerified);
+    if (errorCount > 0) {
+      throw new Error(`Some of these already have a point!`);
+    }
+
     const nonce = await _web3.eth.getTransactionCount(_wallet.address);
     const chainId = await _web3.eth.net.getId();
     const planets = await azimuth.delegatedSending.getPlanetsToSend(
@@ -207,7 +228,6 @@ export default function InviteEmail() {
       );
     }
 
-    let errorCount = 0;
     clearInvites();
     // NB(shrugs) - must be processed in serial because main thread, etc
     for (let i = 0; i < inputs.length; i++) {
