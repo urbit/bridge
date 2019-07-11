@@ -347,8 +347,9 @@ export default function InviteEmail() {
       } catch (error) {
         console.error(error);
         errorCount++;
+        //TODO make sure this actually gets displayed
         addError({
-          [input.name]: `Mailing Failure for ${invite.email}`,
+          [input.name]: `Mailing Failure for ${invite.email}, please send them this code manually: ${invite.ticket}`,
         });
       }
 
