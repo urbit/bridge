@@ -8,6 +8,7 @@ import { Button } from './Base';
 import { CheckboxButton, Input, InnerLabel, InnerLabelDropdown } from './Base';
 import { Warning } from './Base';
 
+import { GAS_LIMITS } from '../../lib/constants';
 import { BRIDGE_ERROR } from '../../lib/error';
 import { ROUTE_NAMES } from '../../lib/routeNames';
 import { compose } from '../../lib/lib';
@@ -40,7 +41,7 @@ class StatelessTransaction extends React.Component {
 
     this.state = {
       gasPrice: '5',
-      gasLimit: '600000',
+      gasLimit: '' + GAS_LIMITS.DEFAULT,
       showGasDetails: false,
       userApproval: false,
       chainId: '1',
