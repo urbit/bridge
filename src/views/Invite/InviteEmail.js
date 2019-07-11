@@ -318,7 +318,12 @@ export default function InviteEmail() {
       }
 
       try {
-        await sendMail(invite.email, invite.ticket, invite.rawTx);
+        const success = await sendMail(
+          invite.email,
+          invite.ticket,
+          invite.rawTx
+        );
+        if (!success) throw new Error('Failed to send mail');
       } catch (error) {
         console.error(error);
         errorCount++;

@@ -43,14 +43,10 @@ export default function useMailer(emails) {
   const _sendMail = useCallback(async (email, ticket, rawTx) => {
     if (STUB_MAILER) {
       console.log(`${email} - ${ticket}`);
-      return;
+      return true;
     }
 
-    const mailSuccess = await sendMail(email, ticket, rawTx);
-
-    if (!mailSuccess) {
-      throw new Error(`Internal mailing error when mailing ${email}`);
-    }
+    return await sendMail(email, ticket, rawTx);
   }, []);
 
   return { ...hasReceivedCache, sendMail: _sendMail };
