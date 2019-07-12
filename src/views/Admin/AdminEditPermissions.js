@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
+import { azimuth } from 'azimuth-js';
 
 import { ForwardButton } from 'components/Buttons';
 import { matchBlinky, matchBlinkyDate } from 'components/Blinky';
@@ -46,13 +47,13 @@ export default function AdminEditPermissions() {
   const [rekeyDate, setRekeyDate] = useState(Nothing());
 
   const point = need.point(pointCursor);
+  const pointSize = azimuth.getPointSize(point);
+  const isParent = pointSize !== azimuth.PointSize.Planet;
+  const isSenate = pointSize === azimuth.PointSize.Galaxy;
   const userAddress = need.wallet(wallet).address;
 
   const details = need.details(getDetails(point));
-  const { canManage, canSpawn, canVote } = usePermissionsForPoint(
-    userAddress,
-    point
-  );
+  const { canManage, isOwner } = usePermissionsForPoint(userAddress, point);
 
   useLifecycle(() => {
     getRekeyDate(need.web3(web3), need.contracts(contracts), point).then(
@@ -82,14 +83,17 @@ export default function AdminEditPermissions() {
         )} proxy.`;
 
     return (
-      <Grid.Item full>
-        <ForwardButton
-          disabled={!enabled}
-          onClick={() => goToProxy(proxyType)}
-          detail={detail}>
-          {capitalize(proxyTypeToHuman(proxyType))} Proxy Address
-        </ForwardButton>
-      </Grid.Item>
+      <>
+        <Grid.Item full>
+          <ForwardButton
+            disabled={!enabled}
+            onClick={() => goToProxy(proxyType)}
+            detail={detail}>
+            {capitalize(proxyTypeToHuman(proxyType))} Proxy Address
+          </ForwardButton>
+        </Grid.Item>
+        <Grid.Divider />
+      </>
     );
   };
 
@@ -114,14 +118,11 @@ export default function AdminEditPermissions() {
       </Grid.Item>
       <Grid.Divider />
 
-      {proxyAction(PROXY_TYPE.MANAGEMENT, details.managementProxy, canManage)}
-      <Grid.Divider />
+      {proxyAction(PROXY_TYPE.MANAGEMENT, details.managementProxy, isOwner)}
 
-      {proxyAction(PROXY_TYPE.SPAWN, details.spawnProxy, canSpawn)}
-      <Grid.Divider />
+      {isParent && proxyAction(PROXY_TYPE.SPAWN, details.spawnProxy, isOwner)}
 
-      {proxyAction(PROXY_TYPE.VOTING, details.votingProxy, canVote)}
-      <Grid.Divider />
+      {isSenate && proxyAction(PROXY_TYPE.VOTING, details.votingProxy, isOwner)}
 
       <Grid.Item
         full
