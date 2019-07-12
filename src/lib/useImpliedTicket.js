@@ -7,8 +7,8 @@ import { prependSig } from './transformers';
  */
 export default function useImpliedTicket() {
   const hash = window.location.hash.slice(1);
-  const tick = prependSig(hash);
-  const isValid = ob.isValidPatq(tick);
+  const ticket = prependSig(hash);
+  const isValid = ob.isValidPatq(ticket);
 
-  return isValid ? tick : null;
+  return isValid ? ticket : null;
 }
