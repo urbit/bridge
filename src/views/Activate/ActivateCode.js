@@ -21,11 +21,13 @@ import { generateWallet } from 'lib/invite';
 import { generateTemporaryOwnershipWallet } from 'lib/walletgen';
 import { useActivateFlow } from './ActivateFlow';
 import { useLocalRouter } from 'lib/LocalRouter';
+import useImpliedTicket from 'lib/useImpliedTicket';
 
 export default function ActivateCode() {
   const history = useHistory();
   const { names, push } = useLocalRouter();
   const { contracts } = useNetwork();
+  const impliedTicket = useImpliedTicket();
   const [generalError, setGeneralError] = useState();
   const [deriving, setDeriving] = useState(false);
   const {
@@ -39,6 +41,7 @@ export default function ActivateCode() {
   const [ticketInput, { pass: validTicket }] = useTicketInput({
     name: 'ticket',
     label: 'Code',
+    initialValue: impliedTicket || '',
     autoFocus: true,
   });
 

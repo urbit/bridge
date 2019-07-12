@@ -3,12 +3,20 @@ import { H1, P } from 'indigo-react';
 
 import { ROUTE_NAMES } from '../lib/routeNames';
 import { useHistory } from '../store/history';
+import useImpliedPoint from 'lib/useImpliedPoint';
+import useImpliedTicket from 'lib/useImpliedTicket';
 
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
 
 function Landing() {
-  const history = useHistory();
+  const { push, names } = useHistory();
+
+  if (useImpliedPoint()) {
+    push(names.LOGIN);
+  } else if (useImpliedTicket()) {
+    push(names.ACTIVATE);
+  }
 
   return (
     <View>
@@ -22,21 +30,21 @@ function Landing() {
       <ForwardButton
         className="mt3"
         detail="If you were sent an Azimuth invite code."
-        onClick={() => history.push(ROUTE_NAMES.ACTIVATE)}>
+        onClick={() => push(names.ACTIVATE)}>
         Activate a Point
       </ForwardButton>
 
       <ForwardButton
         className="mt3"
         detail="Login to an activated point."
-        onClick={() => history.push(ROUTE_NAMES.LOGIN)}>
+        onClick={() => push(names.LOGIN)}>
         Login
       </ForwardButton>
 
       <ForwardButton
         className="mt3"
         detail="View an Azimuth point without signing into a wallet."
-        onClick={() => history.push(ROUTE_NAMES.VIEW_POINT)}>
+        onClick={() => push(names.VIEW_POINT)}>
         View a Point
       </ForwardButton>
     </View>
