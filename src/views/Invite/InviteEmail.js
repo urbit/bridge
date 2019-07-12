@@ -101,7 +101,7 @@ export default function InviteEmail() {
   const { syncInvites, getInvites } = usePointCache();
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
-  const { getHasRecieved, syncHasReceivedForEmail, sendMail } = useMailer();
+  const { getHasReceived, syncHasReceivedForEmail, sendMail } = useMailer();
 
   const { availableInvites } = getInvites(point);
   const maxInvitesToSend = availableInvites.matchWith({
@@ -142,14 +142,14 @@ export default function InviteEmail() {
     () =>
       inputConfigs.map(config => {
         config.disabled = !canInput;
-        const hasReceivedError = getHasRecieved(config.name).matchWith({
+        const hasReceivedError = getHasReceived(config.name).matchWith({
           Nothing: () => null, // loading
           Just: p => p.value && HAS_RECEIVED_TEXT,
         });
         config.error = hasReceivedError || errors[config.name];
         return config;
       }),
-    [inputConfigs, errors, canInput, getHasRecieved]
+    [inputConfigs, errors, canInput, getHasReceived]
   );
 
   // construct the state of the set of inputs we're rendering below
@@ -187,6 +187,27 @@ export default function InviteEmail() {
       throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
     }
 
+    //TODO want to do this on-input, but that gets weird. see #188
+    let errorCount = 0;
+    await Promise.all(
+      inputs.map(async input => {
+        const email = input.data;
+        const hasReceived = getHasReceived(email).matchWith({
+          Nothing: () => false, // loading
+          Just: p => p.value,
+        });
+        if (hasReceived) {
+          errorCount++;
+          addError({
+            [input.name]: `${email} has already received an invite.`,
+          });
+        }
+      })
+    );
+    if (errorCount > 0) {
+      throw new Error(`Some of these already have a point!`);
+    }
+
     const nonce = await _web3.eth.getTransactionCount(_wallet.address);
     const chainId = await _web3.eth.net.getId();
     const planets = await azimuth.delegatedSending.getPlanetsToSend(
@@ -207,7 +228,6 @@ export default function InviteEmail() {
       );
     }
 
-    let errorCount = 0;
     clearInvites();
     // NB(shrugs) - must be processed in serial because main thread, etc
     for (let i = 0; i < inputs.length; i++) {
@@ -318,12 +338,18 @@ export default function InviteEmail() {
       }
 
       try {
-        await sendMail(invite.email, invite.ticket, invite.rawTx);
+        const success = await sendMail(
+          invite.email,
+          invite.ticket,
+          invite.rawTx
+        );
+        if (!success) throw new Error('Failed to send mail');
       } catch (error) {
         console.error(error);
         errorCount++;
+        //TODO make sure this actually gets displayed
         addError({
-          [input.name]: `Mailing Failure for ${invite.email}`,
+          [input.name]: `Mailing Failure for ${invite.email}, please send them this code manually: ${invite.ticket}`,
         });
       }
 

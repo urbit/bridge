@@ -9,14 +9,14 @@ const STUB_MAILER = process.env.REACT_APP_STUB_MAILER === 'true';
 function useHasReceivedCache() {
   const [cache, addToCache] = useSetState();
 
-  const getHasRecieved = useCallback(
+  const getHasReceived = useCallback(
     email => cache[email] || Nothing(), //
     [cache]
   );
 
   const syncHasReceivedForEmail = useCallback(
     async email => {
-      if (Just.hasInstance(getHasRecieved(email))) {
+      if (Just.hasInstance(getHasReceived(email))) {
         // never update the cache after we know about it
         return;
       }
@@ -29,10 +29,10 @@ function useHasReceivedCache() {
       const _hasReceived = await hasReceived(email);
       addToCache({ [email]: Just(_hasReceived) });
     },
-    [getHasRecieved, addToCache]
+    [getHasReceived, addToCache]
   );
 
-  return { getHasRecieved, syncHasReceivedForEmail };
+  return { getHasReceived, syncHasReceivedForEmail };
 }
 
 export default function useMailer(emails) {
@@ -43,14 +43,10 @@ export default function useMailer(emails) {
   const _sendMail = useCallback(async (email, ticket, rawTx) => {
     if (STUB_MAILER) {
       console.log(`${email} - ${ticket}`);
-      return;
+      return true;
     }
 
-    const mailSuccess = await sendMail(email, ticket, rawTx);
-
-    if (!mailSuccess) {
-      throw new Error(`Internal mailing error when mailing ${email}`);
-    }
+    return await sendMail(email, ticket, rawTx);
   }, []);
 
   return { ...hasReceivedCache, sendMail: _sendMail };
