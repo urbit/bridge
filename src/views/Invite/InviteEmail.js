@@ -189,21 +189,21 @@ export default function InviteEmail() {
 
     //TODO want to do this on-input, but that gets weird. see #188
     let errorCount = 0;
-    const mailsVerified = inputs.map(async input => {
-      console.log('aaa', invites);
-      const email = input.data;
-      const hasReceived = getHasReceived(email).matchWith({
-        Nothing: () => false, // loading
-        Just: p => p.value,
-      });
-      if (hasReceived) {
-        errorCount++;
-        addError({
-          [input.name]: `${email} has already received an invite.`,
+    await Promise.all(
+      inputs.map(async input => {
+        const email = input.data;
+        const hasReceived = getHasReceived(email).matchWith({
+          Nothing: () => false, // loading
+          Just: p => p.value,
         });
-      }
-    });
-    await Promise.all(mailsVerified);
+        if (hasReceived) {
+          errorCount++;
+          addError({
+            [input.name]: `${email} has already received an invite.`,
+          });
+        }
+      })
+    );
     if (errorCount > 0) {
       throw new Error(`Some of these already have a point!`);
     }
