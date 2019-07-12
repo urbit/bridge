@@ -1,7 +1,6 @@
 import React from 'react';
 import { H1, P } from 'indigo-react';
 
-import { ROUTE_NAMES } from '../lib/routeNames';
 import { useHistory } from '../store/history';
 import useImpliedPoint from 'lib/useImpliedPoint';
 import useImpliedTicket from 'lib/useImpliedTicket';
@@ -12,9 +11,11 @@ import { ForwardButton } from 'components/Buttons';
 function Landing() {
   const { push, names } = useHistory();
 
-  if (useImpliedPoint()) {
+  const impliedPoint = useImpliedPoint();
+  const impliedTicket = useImpliedTicket();
+  if (impliedPoint) {
     push(names.LOGIN);
-  } else if (useImpliedTicket()) {
+  } else if (impliedTicket) {
     push(names.ACTIVATE);
   }
 
