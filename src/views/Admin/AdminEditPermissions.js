@@ -49,7 +49,7 @@ export default function AdminEditPermissions() {
   const userAddress = need.wallet(wallet).address;
 
   const details = need.details(getDetails(point));
-  const { canManage, canTransfer, canSpawn, canVote } = usePermissionsForPoint(
+  const { canManage, canSpawn, canVote } = usePermissionsForPoint(
     userAddress,
     point
   );
@@ -118,9 +118,6 @@ export default function AdminEditPermissions() {
       <Grid.Divider />
 
       {proxyAction(PROXY_TYPE.SPAWN, details.spawnProxy, canSpawn)}
-      <Grid.Divider />
-
-      {proxyAction(PROXY_TYPE.TRANSFER, details.transferProxy, canTransfer)}
       <Grid.Divider />
 
       {proxyAction(PROXY_TYPE.VOTING, details.votingProxy, canVote)}
