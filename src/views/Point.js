@@ -45,12 +45,12 @@ export default function Point() {
 
   const showActions = Just.hasInstance(wallet);
 
-  const goAdmin = useCallback(() => push(names.ADMIN), [history, names]);
+  const goAdmin = useCallback(() => push(names.ADMIN), [push, names]);
 
-  const goInvite = useCallback(() => push(names.INVITE), [history, names]);
+  const goInvite = useCallback(() => push(names.INVITE), [push, names]);
 
   const goParties = useCallback(() => push(names.INVITES_MANAGE), [
-    history,
+    push,
     names,
   ]);
 
