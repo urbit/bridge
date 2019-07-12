@@ -1,7 +1,8 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Just } from 'folktale/maybe';
 import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
+import { azimuth } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useHistory } from 'store/history';
@@ -20,6 +21,9 @@ import Actions from './Point/Actions';
 import { useWallet } from 'store/wallet';
 import usePermissionsForPoint from 'lib/usePermissionsForPoint';
 
+const isPlanet = point =>
+  azimuth.getPointSize(point) === azimuth.PointSize.Planet;
+
 export default function Point() {
   const history = useHistory();
   const { pointCursor } = usePointCursor();
@@ -27,7 +31,7 @@ export default function Point() {
 
   const point = need.point(pointCursor);
 
-  const { canManage } = usePermissionsForPoint(
+  const { isOwner, canManage } = usePermissionsForPoint(
     // using empty string should be ok here
     wallet.matchWith({
       Nothing: () => '',
@@ -38,7 +42,6 @@ export default function Point() {
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);
-  const availableInvitesText = matchBlinky(availableInvites);
 
   const showActions = Just.hasInstance(wallet);
 
@@ -47,6 +50,30 @@ export default function Point() {
   const goInvite = useCallback(() => history.push(ROUTE_NAMES.INVITE), [
     history,
   ]);
+
+  const inviteButton = useMemo(() => {
+    switch (azimuth.getPointSize(point)) {
+      case azimuth.PointSize.Planet:
+        const availableInvitesText = matchBlinky(availableInvites);
+        const goInvite = () => history.push(ROUTE_NAMES.INVITE);
+        return (
+          <FooterButton disabled={!isOwner} onClick={goInvite}>
+            Invite <sup>{availableInvitesText} available</sup>
+          </FooterButton>
+        );
+      //
+      case azimuth.PointSize.Star:
+        const goParties = () => history.push(ROUTE_NAMES.INVITES_MANAGE);
+        return (
+          <FooterButton disabled={!isOwner} onClick={goParties}>
+            Manage parties
+          </FooterButton>
+        );
+      //
+      default:
+        return null;
+    }
+  }, [point, history, isOwner, availableInvites]);
 
   // sync the current cursor
   useSyncOwnedPoints([point]);
@@ -73,9 +100,7 @@ export default function Point() {
         )}
       </Grid>
 
-      <FooterButton disabled={!canManage} onClick={goInvite}>
-        Invite <sup>{availableInvitesText} available</sup>
-      </FooterButton>
+      {inviteButton}
     </View>
   );
 }
