@@ -20,6 +20,7 @@ import { PROXY_TYPE, proxyTypeToHuman } from 'lib/proxy';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { formatDots } from 'lib/dateFormat';
 import capitalize from 'lib/capitalize';
+import { eqAddr } from 'lib/wallet';
 
 //TODO consolidate with azimuth-js' getActivationBlock
 const getRekeyDate = async (web3, contracts, point) => {
@@ -44,6 +45,8 @@ export default function AdminEditPermissions() {
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
 
+  const _contracts = need.contracts(contracts);
+
   const [rekeyDate, setRekeyDate] = useState(Nothing());
 
   const point = need.point(pointCursor);
@@ -56,12 +59,10 @@ export default function AdminEditPermissions() {
   const { canManage, isOwner } = usePermissionsForPoint(userAddress, point);
 
   useLifecycle(() => {
-    getRekeyDate(need.web3(web3), need.contracts(contracts), point).then(
-      res => {
-        if (res === null) setRekeyDate(Just(new Date()));
-        else setRekeyDate(Just(res));
-      }
-    );
+    getRekeyDate(need.web3(web3), _contracts, point).then(res => {
+      if (res === null) setRekeyDate(Just(new Date()));
+      else setRekeyDate(Just(res));
+    });
   });
 
   const goToProxy = useCallback(
@@ -72,8 +73,10 @@ export default function AdminEditPermissions() {
   const goSetKeys = useCallback(() => push(names.SET_KEYS), [push, names]);
 
   const proxyAction = (proxyType, address, enabled) => {
-    if (address === ETH_ZERO_ADDR) {
+    if (eqAddr(address, ETH_ZERO_ADDR)) {
       address = 'Not yet set';
+    } else if (eqAddr(address, _contracts.delegatedSending.address)) {
+      address = address + ' (invites contract)';
     }
 
     const detail = enabled
