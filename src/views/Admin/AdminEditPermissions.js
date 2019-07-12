@@ -74,7 +74,7 @@ export default function AdminEditPermissions() {
 
   const proxyAction = (proxyType, address, enabled) => {
     if (eqAddr(address, ETH_ZERO_ADDR)) {
-      address = 'Not yet set';
+      address = 'Not set';
     } else if (eqAddr(address, _contracts.delegatedSending.address)) {
       address = address + ' (invites contract)';
     }
