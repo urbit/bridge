@@ -12,6 +12,7 @@ import { ROUTES } from 'lib/router';
 import { NETWORK_TYPES } from 'lib/network';
 import { walletFromMnemonic } from 'lib/wallet';
 import { isDevelopment } from 'lib/flags';
+import { hasDisclaimed } from 'lib/disclaimerCookie';
 
 import 'style/index.scss';
 
@@ -24,7 +25,9 @@ const SHOULD_STUB_LOCAL = process.env.REACT_APP_STUB_LOCAL === 'true';
 const IS_STUBBED = isDevelopment && SHOULD_STUB_LOCAL;
 const INITIAL_ROUTES = IS_STUBBED
   ? [{ key: ROUTE_NAMES.LANDING }, { key: ROUTE_NAMES.LOGIN }]
-  : [{ key: ROUTE_NAMES.LANDING }];
+  : hasDisclaimed()
+  ? [{ key: ROUTE_NAMES.LANDING }]
+  : [{ key: ROUTE_NAMES.DISCLAIMER }];
 
 const INITIAL_WALLET = IS_STUBBED
   ? walletFromMnemonic(

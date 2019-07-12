@@ -5,7 +5,6 @@ import useRouter from 'lib/useRouter';
 import { ActivateFlowProvider } from './Activate/ActivateFlow';
 import useActivateFlowState from './Activate/useActivateFlowState';
 import ActivateCode from './Activate/ActivateCode';
-import ActivateDisclaimer from './Activate/ActivateDisclaimer';
 import { LocalRouterProvider } from 'lib/LocalRouter';
 import ActivatePassport from './Activate/ActivatePassport';
 
@@ -17,7 +16,6 @@ const NAMES = {
 
 const VIEWS = {
   [NAMES.CODE]: ActivateCode,
-  [NAMES.DISCLAIMER]: ActivateDisclaimer,
   [NAMES.PASSPORT]: ActivatePassport,
 };
 

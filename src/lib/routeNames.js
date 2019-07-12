@@ -1,5 +1,6 @@
 export const ROUTE_NAMES = {
   DEFAULT: Symbol('DEFAULT'),
+  DISCLAIMER: Symbol('DISCLAIMER'),
   //
   ACTIVATE: Symbol('ACTIVATE'),
   INVITE_TRANSACTIONS: Symbol('INVITE_TRANSACTIONS'),
