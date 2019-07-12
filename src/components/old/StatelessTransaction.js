@@ -41,7 +41,7 @@ class StatelessTransaction extends React.Component {
 
     this.state = {
       gasPrice: '5',
-      gasLimit: '' + GAS_LIMITS.DEFAULT,
+      gasLimit: GAS_LIMITS.DEFAULT.toString(),
       showGasDetails: false,
       userApproval: false,
       chainId: '1',
