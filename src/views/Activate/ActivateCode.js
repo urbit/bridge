@@ -48,10 +48,7 @@ export default function ActivateCode() {
   const goToLogin = useCallback(() => history.popAndPush(ROUTE_NAMES.LOGIN), [
     history,
   ]);
-  const goToDisclaimer = useCallback(() => push(names.DISCLAIMER), [
-    names,
-    push,
-  ]);
+  const goToPassport = useCallback(() => push(names.PASSPORT), [names, push]);
 
   const pass = derivedWallet.matchWith({
     Nothing: () => false,
@@ -142,7 +139,7 @@ export default function ActivateCode() {
           className="mt4"
           disabled={!pass || deriving}
           accessory={deriving ? <Blinky /> : undefined}
-          onClick={goToDisclaimer}
+          onClick={goToPassport}
           solid
           full>
           {deriving && 'Deriving...'}
