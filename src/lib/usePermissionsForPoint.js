@@ -30,6 +30,7 @@ export default function usePermissionsForPoint(address, point) {
       const isGalaxy = pointSize === azimuth.PointSize.Galaxy;
 
       const isOwner = eqAddr(address, details.owner);
+      const isActiveOwner = isOwner && details.active;
       const isTransferProxy = eqAddr(address, details.transferProxy);
       const isManagementProxy = eqAddr(address, details.managementProxy);
       const isSpawnProxy = eqAddr(address, details.spawnProxy);
@@ -43,6 +44,7 @@ export default function usePermissionsForPoint(address, point) {
 
       return {
         isOwner,
+        isActiveOwner,
         isTransferProxy,
         isManagementProxy,
         canManage,

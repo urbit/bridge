@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
+import { azimuth } from 'azimuth-js';
 
 import { ForwardButton } from 'components/Buttons';
 import { matchBlinky, matchBlinkyDate } from 'components/Blinky';
@@ -19,6 +20,7 @@ import { PROXY_TYPE, proxyTypeToHuman } from 'lib/proxy';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { formatDots } from 'lib/dateFormat';
 import capitalize from 'lib/capitalize';
+import { eqAddr } from 'lib/wallet';
 
 //TODO consolidate with azimuth-js' getActivationBlock
 const getRekeyDate = async (web3, contracts, point) => {
@@ -43,24 +45,25 @@ export default function AdminEditPermissions() {
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
 
+  const _web3 = need.web3(web3);
+  const _contracts = need.contracts(contracts);
+
   const [rekeyDate, setRekeyDate] = useState(Nothing());
 
   const point = need.point(pointCursor);
+  const pointSize = azimuth.getPointSize(point);
+  const isParent = pointSize !== azimuth.PointSize.Planet;
+  const isSenate = pointSize === azimuth.PointSize.Galaxy;
   const userAddress = need.wallet(wallet).address;
 
   const details = need.details(getDetails(point));
-  const { canManage, canTransfer, canSpawn, canVote } = usePermissionsForPoint(
-    userAddress,
-    point
-  );
+  const { canManage, isOwner } = usePermissionsForPoint(userAddress, point);
 
   useLifecycle(() => {
-    getRekeyDate(need.web3(web3), need.contracts(contracts), point).then(
-      res => {
-        if (res === null) setRekeyDate(Just(new Date()));
-        else setRekeyDate(Just(res));
-      }
-    );
+    getRekeyDate(_web3, _contracts, point).then(res => {
+      if (res === null) setRekeyDate(Just(new Date()));
+      else setRekeyDate(Just(res));
+    });
   });
 
   const goToProxy = useCallback(
@@ -71,8 +74,10 @@ export default function AdminEditPermissions() {
   const goSetKeys = useCallback(() => push(names.SET_KEYS), [push, names]);
 
   const proxyAction = (proxyType, address, enabled) => {
-    if (address === ETH_ZERO_ADDR) {
-      address = 'Not yet set';
+    if (eqAddr(address, ETH_ZERO_ADDR)) {
+      address = 'Not set';
+    } else if (eqAddr(address, _contracts.delegatedSending.address)) {
+      address = address + ' (invites contract)';
     }
 
     const detail = enabled
@@ -82,14 +87,17 @@ export default function AdminEditPermissions() {
         )} proxy.`;
 
     return (
-      <Grid.Item full>
-        <ForwardButton
-          disabled={!enabled}
-          onClick={() => goToProxy(proxyType)}
-          detail={detail}>
-          {capitalize(proxyTypeToHuman(proxyType))} Proxy Address
-        </ForwardButton>
-      </Grid.Item>
+      <>
+        <Grid.Item full>
+          <ForwardButton
+            disabled={!enabled}
+            onClick={() => goToProxy(proxyType)}
+            detail={detail}>
+            {capitalize(proxyTypeToHuman(proxyType))} Proxy Address
+          </ForwardButton>
+        </Grid.Item>
+        <Grid.Divider />
+      </>
     );
   };
 
@@ -114,17 +122,11 @@ export default function AdminEditPermissions() {
       </Grid.Item>
       <Grid.Divider />
 
-      {proxyAction(PROXY_TYPE.MANAGEMENT, details.managementProxy, canManage)}
-      <Grid.Divider />
+      {proxyAction(PROXY_TYPE.MANAGEMENT, details.managementProxy, isOwner)}
 
-      {proxyAction(PROXY_TYPE.SPAWN, details.spawnProxy, canSpawn)}
-      <Grid.Divider />
+      {isParent && proxyAction(PROXY_TYPE.SPAWN, details.spawnProxy, isOwner)}
 
-      {proxyAction(PROXY_TYPE.TRANSFER, details.transferProxy, canTransfer)}
-      <Grid.Divider />
-
-      {proxyAction(PROXY_TYPE.VOTING, details.votingProxy, canVote)}
-      <Grid.Divider />
+      {isSenate && proxyAction(PROXY_TYPE.VOTING, details.votingProxy, isOwner)}
 
       <Grid.Item
         full
