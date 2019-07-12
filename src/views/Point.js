@@ -25,7 +25,7 @@ const isPlanet = point =>
   azimuth.getPointSize(point) === azimuth.PointSize.Planet;
 
 export default function Point() {
-  const history = useHistory();
+  const { push, names } = useHistory();
   const { pointCursor } = usePointCursor();
   const { wallet } = useWallet();
 
@@ -45,17 +45,19 @@ export default function Point() {
 
   const showActions = Just.hasInstance(wallet);
 
-  const goAdmin = useCallback(() => history.push(ROUTE_NAMES.ADMIN), [history]);
+  const goAdmin = useCallback(() => push(names.ADMIN), [history, names]);
 
-  const goInvite = useCallback(() => history.push(ROUTE_NAMES.INVITE), [
+  const goInvite = useCallback(() => push(names.INVITE), [history, names]);
+
+  const goParties = useCallback(() => push(names.INVITES_MANAGE), [
     history,
+    names,
   ]);
 
-  const inviteButton = useMemo(() => {
+  const inviteButton = (() => {
     switch (azimuth.getPointSize(point)) {
       case azimuth.PointSize.Planet:
         const availableInvitesText = matchBlinky(availableInvites);
-        const goInvite = () => history.push(ROUTE_NAMES.INVITE);
         return (
           <FooterButton disabled={!isOwner} onClick={goInvite}>
             Invite <sup>{availableInvitesText} available</sup>
@@ -63,7 +65,6 @@ export default function Point() {
         );
       //
       case azimuth.PointSize.Star:
-        const goParties = () => history.push(ROUTE_NAMES.INVITES_MANAGE);
         return (
           <FooterButton disabled={!isOwner} onClick={goParties}>
             Manage parties
@@ -73,7 +74,7 @@ export default function Point() {
       default:
         return null;
     }
-  }, [point, history, isOwner, availableInvites]);
+  })();
 
   // sync the current cursor
   useSyncOwnedPoints([point]);
