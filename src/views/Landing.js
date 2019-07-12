@@ -8,7 +8,7 @@ import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
 
 function Landing() {
-  const history = useHistory();
+  const { push, names } = useHistory();
 
   return (
     <View>
@@ -22,21 +22,21 @@ function Landing() {
       <ForwardButton
         className="mt3"
         detail="If you were sent an Azimuth invite code."
-        onClick={() => history.push(ROUTE_NAMES.ACTIVATE)}>
+        onClick={() => push(names.ACTIVATE)}>
         Activate a Point
       </ForwardButton>
 
       <ForwardButton
         className="mt3"
         detail="Login to an activated point."
-        onClick={() => history.push(ROUTE_NAMES.LOGIN)}>
+        onClick={() => push(names.LOGIN)}>
         Login
       </ForwardButton>
 
       <ForwardButton
         className="mt3"
         detail="View an Azimuth point without signing into a wallet."
-        onClick={() => history.push(ROUTE_NAMES.VIEW_POINT)}>
+        onClick={() => push(names.VIEW_POINT)}>
         View a Point
       </ForwardButton>
     </View>
