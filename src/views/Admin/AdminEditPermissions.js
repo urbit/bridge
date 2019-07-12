@@ -45,6 +45,7 @@ export default function AdminEditPermissions() {
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
 
+  const _web3 = need.web3(web3);
   const _contracts = need.contracts(contracts);
 
   const [rekeyDate, setRekeyDate] = useState(Nothing());
@@ -59,7 +60,7 @@ export default function AdminEditPermissions() {
   const { canManage, isOwner } = usePermissionsForPoint(userAddress, point);
 
   useLifecycle(() => {
-    getRekeyDate(need.web3(web3), _contracts, point).then(res => {
+    getRekeyDate(_web3, _contracts, point).then(res => {
       if (res === null) setRekeyDate(Just(new Date()));
       else setRekeyDate(Just(res));
     });
