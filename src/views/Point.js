@@ -31,7 +31,7 @@ export default function Point() {
 
   const point = need.point(pointCursor);
 
-  const { isOwner, canManage } = usePermissionsForPoint(
+  const { isActiveOwner, canManage } = usePermissionsForPoint(
     // using empty string should be ok here
     wallet.matchWith({
       Nothing: () => '',
@@ -59,14 +59,14 @@ export default function Point() {
       case azimuth.PointSize.Planet:
         const availableInvitesText = matchBlinky(availableInvites);
         return (
-          <FooterButton disabled={!isOwner} onClick={goInvite}>
+          <FooterButton disabled={!isActiveOwner} onClick={goInvite}>
             Invite <sup>{availableInvitesText} available</sup>
           </FooterButton>
         );
       //
       case azimuth.PointSize.Star:
         return (
-          <FooterButton disabled={!isOwner} onClick={goParties}>
+          <FooterButton disabled={!isActiveOwner} onClick={goParties}>
             Manage parties
           </FooterButton>
         );
