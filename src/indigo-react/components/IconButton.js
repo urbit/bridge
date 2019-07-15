@@ -10,6 +10,7 @@ export default function IconButton({
   disabled = false,
   secondary = false,
   solid = false,
+  flush = false, // whether or not the icon should include horizontal padding
   ...rest
 }) {
   return (
@@ -18,7 +19,10 @@ export default function IconButton({
       align="center"
       justify="center"
       className={cn(
-        'pointer p2',
+        'pointer pv2',
+        {
+          ph2: !flush,
+        },
         {
           'bg-black': solid && !secondary && !disabled,
           'bg-gray3': (solid && disabled) || (solid && secondary),
