@@ -136,7 +136,7 @@ const signTransaction = async config => {
   return stx;
 };
 
-const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
+const sendSignedTransaction = (web3, stx, doubtNonceError) => {
   const txn = stx.matchWith({
     Just: tx => tx.value,
     Nothing: () => {
@@ -151,14 +151,6 @@ const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
       .sendSignedTransaction(rawTx)
       .on('transactionHash', hash => {
         resolve(hash);
-      })
-      //TODO do we also reach this if network is slow? web3 only tries a set
-      //     amount of times... should we instead do waitForTransactionConfirm
-      //     in on-transactionHash? we don't care (much) about additional
-      //     confirms anyway.
-      .on('confirmation', (confirmationNum, txn) => {
-        confirmationCb(txn.transactionHash, confirmationNum + 1);
-        resolve(txn.transactionHash);
       })
       .on('error', err => {
         // if there's a nonce error, but we used the gas tank, it's likely
@@ -176,16 +168,7 @@ const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
             'tx send error likely from gas tank submission, ignoring'
           );
           const txHash = web3.utils.keccak256(rawTx);
-          //TODO can we do does-exists check first?
-          //TODO max wait time before assume fail?
-          waitForTransactionConfirm(web3, txHash).then(res => {
-            if (res) {
-              resolve(txHash);
-              confirmationCb(txHash, 1);
-            } else {
-              reject('Unexpected tx failure');
-            }
-          });
+          resolve(txHash);
         } else {
           reject(err.message || 'Transaction sending failed!');
         }
