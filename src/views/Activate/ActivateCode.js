@@ -93,6 +93,8 @@ export default function ActivateCode() {
               'This invite code has multiple points available.\n' +
                 "Once you've activated this point, activate the next with the same process."
             );
+          } else {
+            setGeneralError(false);
           }
         } else {
           setGeneralError(

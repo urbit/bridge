@@ -165,11 +165,16 @@ const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
         // that it's because the tank already submitted our transaction.
         // we just wait for first confirmation here.
         console.error(err);
-        if (
-          doubtNonceError &&
-          (err.message || '').includes("the tx doesn't have the correct nonce.")
-        ) {
-          console.log('nonce error, likely from gas tank submission, ignoring');
+        const isKnownError = (err.message || '').includes(
+          'known transaction: '
+        );
+        const isNonceError = (err.message || '').includes(
+          "the tx doesn't have the correct nonce."
+        );
+        if (isKnownError || (doubtNonceError && isNonceError)) {
+          console.log(
+            'tx send error likely from gas tank submission, ignoring'
+          );
           const txHash = web3.utils.keccak256(rawTx);
           //TODO can we do does-exists check first?
           //TODO max wait time before assume fail?
@@ -182,7 +187,7 @@ const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
             }
           });
         } else {
-          reject(err.message);
+          reject(err.message || 'Transaction sending failed!');
         }
       });
   });
