@@ -191,10 +191,16 @@ const waitForTransactionConfirm = (web3, txHash) => {
   });
 };
 
-const isTransactionConfirmed = async (web3, txHash) => {
-  const receipt = await web3.eth.getTransactionReceipt(txHash);
-  console.log('got confirm state', receipt !== null, receipt.confirmations);
-  return receipt !== null;
+const sendAndAwaitAll = async (web3, stxs, doubtNonceError) => {
+  await Promise.all(
+    stxs.map(tx => {
+      return new Promise(async (resolve, reject) => {
+        const txHash = await sendSignedTransaction(web3, tx, doubtNonceError);
+        await waitForTransactionConfirm(web3, txHash);
+        resolve();
+      });
+    })
+  );
 };
 
 const hexify = val => addHexPrefix(val.toString('hex'));
@@ -231,7 +237,7 @@ export {
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,
-  isTransactionConfirmed,
+  sendAndAwaitAll,
   TXN_PURPOSE,
   getTxnInfo,
   renderTxnPurpose,
