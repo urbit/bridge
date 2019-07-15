@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 import { last, includes as _includes, findIndex } from 'lodash';
 
+const NULL_DATA = {};
+
 /**
  * @param primary whether or not this is the top-level router
  * @param names map of string to view key, used for consumer references
@@ -80,7 +82,7 @@ export default function useRouter({
   const includes = useCallback(key => _includes(routes.map(r => r.key), key), [
     routes,
   ]);
-  const data = useMemo(() => last(routes).data, [routes]);
+  const data = useMemo(() => last(routes).data || NULL_DATA, [routes]);
   const Route = useMemo(() => views[peek().key], [views, peek]);
 
   // Scroll to top of page with each route transition
