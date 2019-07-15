@@ -88,6 +88,11 @@ export default function useRouter({
     window.scrollTo(0, 0);
   }, [routes]);
 
+  useEffect(() => {
+    // on router mount, register new state with browser
+    window.history.pushState(null, null, null);
+  }, []);
+
   // capture browser pop in primary router
   useEffect(() => {
     // store the previous onpopstate handler
@@ -103,6 +108,8 @@ export default function useRouter({
 
       // on pop, tell the browser of a new state to avoid giving the user
       // the ability to go forward
+      // TODO: allow the user to go forward by storing our data in history
+      // and using the url for other state
       window.history.pushState(null, null, null);
 
       // then update our local state for rendering
