@@ -1,12 +1,12 @@
 import React, { useCallback } from 'react';
-import { Grid, P, Text, Input } from 'indigo-react';
+import { Grid, P, Text, Input, Flex, LinkButton } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from 'store/network';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
-import { ETH_ZERO_ADDR } from 'lib/wallet';
+import { ETH_ZERO_ADDR, eqAddr } from 'lib/wallet';
 
 import ViewHeader from 'components/ViewHeader';
 import { usePointCursor } from 'store/pointCursor';
@@ -64,12 +64,22 @@ function useSetProxy(proxyType) {
     [proxyType, contracts, pointCursor]
   );
 
-  const generate = useCallback(async () => {
-    //
-  }, []);
+  const generate = useCallback(
+    async address => {
+      const utx = buildUnsignedTx(address);
+      console.log(utx);
+    },
+    [buildUnsignedTx]
+  );
+
+  const unset = useCallback(() => generate(ETH_ZERO_ADDR), [generate]);
+
+  const locked = false;
 
   return {
+    locked,
     generate,
+    unset,
   };
 }
 
@@ -82,12 +92,17 @@ export default function AdminSetProxy() {
 
   const properProxyType = capitalize(proxyTypeToHuman(data.proxyType));
 
-  const [addressInput, { pass }] = useAddressInput({
+  const { generate, unset, locked } = useSetProxy(data.proxyType);
+  const [addressInput, { pass, data: address }] = useAddressInput({
     name: 'address',
     label: `New ${properProxyType} Address`,
+    disabled: locked,
   });
 
-  const { generate } = useSetProxy(data.proxyType);
+  const _generate = useCallback(() => generate(address), [address, generate]);
+
+  const proxyAddress = proxyFromDetails(details, data.proxyType);
+  const isProxySet = !eqAddr(ETH_ZERO_ADDR, proxyAddress);
 
   return (
     <Grid>
@@ -95,19 +110,26 @@ export default function AdminSetProxy() {
       <Grid.Item full as={ViewHeader}>
         {properProxyType} Address
       </Grid.Item>
-      <Grid.Item full as={P}>
+      <Grid.Item full as={Text} className="mb4">
         {proxyTypeToHumanDescription(data.proxyType)}
       </Grid.Item>
-      <Grid.Item full as={Text} className="f6">
+      <Grid.Item full as={Text} className="f6 mb1">
         Current {properProxyType} Address
       </Grid.Item>
-      <Grid.Item full as={Text} className="mono">
-        {proxyFromDetails(details, data.proxyType)}
+      <Grid.Item full as={Flex} row justify="between" align="center">
+        <Flex.Item flex as={Text} className="mono">
+          {isProxySet ? proxyAddress : 'Unset'}
+        </Flex.Item>
+        {isProxySet && (
+          <Flex.Item as={LinkButton} onClick={unset}>
+            Unset
+          </Flex.Item>
+        )}
       </Grid.Item>
 
       <Grid.Item full as={Input} {...addressInput} className="mv4" />
 
-      <Grid.Item full as={GenerateButton} onClick={generate}>
+      <Grid.Item full as={GenerateButton} onClick={_generate} disabled={!pass}>
         Generate & Sign Transaction
       </Grid.Item>
     </Grid>

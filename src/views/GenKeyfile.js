@@ -33,7 +33,7 @@ class GenKeyfile extends React.Component {
     // in case we did SetKeys earlier this session, make sure to generate the
     // newer keyfile, rather than the one that will expire soon
     const revision = this.props.networkRevision.matchWith({
-      Nothing: () => parseInt(pointDetails.keyRevisionNumber),
+      Nothing: () => parseInt(pointDetails.keyRevisionNumber, 10),
       Just: p => p.value,
     });
 

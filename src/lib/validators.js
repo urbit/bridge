@@ -2,7 +2,7 @@ import * as bip39 from 'bip39';
 import * as ob from 'urbit-ob';
 import { identity, includes } from 'lodash';
 
-import { isValidAddress } from './wallet';
+import { isValidAddress, ETH_ZERO_ADDR, ETH_ZERO_ADDR_SHORT } from './wallet';
 import patp2dec from './patp2dec';
 import { patpStringLength } from './lib';
 
@@ -204,6 +204,13 @@ export const validateExactly = (value, error) => m =>
     error,
   });
 
+export const validateNotEqual = (values = []) => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => !values.includes(d),
+    error: `Cannot be ${m.data}`,
+  });
+
 export const validateLength = l => m =>
   simpleValidatorWrapper({
     prevMessage: m,
@@ -237,3 +244,8 @@ export const validatePatpByteLength = byteLength => {
 export const validateMaximumPatpByteLength = byteLength => {
   return validateMaximumLength(patpStringLength(byteLength));
 };
+
+export const validateNotNullAddress = validateNotEqual(
+  [ETH_ZERO_ADDR, ETH_ZERO_ADDR_SHORT],
+  'Cannot be 0x0'
+);

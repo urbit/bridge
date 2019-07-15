@@ -15,6 +15,8 @@ import AdminEditPermissions from './Admin/AdminEditPermissions';
 import AdminRedownload from './Admin/AdminRedownload';
 import AdminReticket from './Admin/AdminReticket';
 import AdminSetProxy from './Admin/AdminSetProxy';
+import AdminTransfer from './Admin/AdminTransfer';
+import AdminNetworkingKeys from './Admin/AdminNetworkingKeys';
 
 const NAMES = {
   HOME: 'HOME',
@@ -22,6 +24,8 @@ const NAMES = {
   REDOWNLOAD: 'REDOWNLOAD',
   RETICKET: 'RETICKET',
   SET_PROXY: 'SET_PROXY',
+  TRANSFER: 'TRANSFER',
+  NETWORKING_KEYS: 'NETWORKING_KEYS',
 };
 
 const VIEWS = {
@@ -30,6 +34,8 @@ const VIEWS = {
   [NAMES.REDOWNLOAD]: AdminRedownload,
   [NAMES.RETICKET]: AdminReticket,
   [NAMES.SET_PROXY]: AdminSetProxy,
+  [NAMES.TRANSFER]: AdminTransfer,
+  [NAMES.NETWORKING_KEYS]: AdminNetworkingKeys,
 };
 
 export default function Admin() {
@@ -43,10 +49,11 @@ export default function Admin() {
   });
 
   return (
-    <LocalRouterProvider value={router}>
-      <View inset>
+    <View inset>
+      <LocalRouterProvider value={router}>
         <Grid className="mb4">
           <Grid.Item
+            full
             as={Crumbs}
             routes={[
               {
@@ -57,11 +64,10 @@ export default function Admin() {
                 text: 'Admin',
               },
             ]}
-            full
           />
         </Grid>
         <Route />
-      </View>
-    </LocalRouterProvider>
+      </LocalRouterProvider>
+    </View>
   );
 }

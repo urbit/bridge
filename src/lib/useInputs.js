@@ -15,6 +15,7 @@ import {
   validateOneOf,
   validateMaximumPatpByteLength,
   validateEthereumAddress,
+  validateNotNullAddress,
 } from 'lib/validators';
 import { prependSig } from 'lib/transformers';
 
@@ -212,7 +213,11 @@ export function useSelectInput({ initialValue, options, ...rest }) {
   );
 }
 
-const kAddressValidators = [validateEthereumAddress, validateNotEmpty];
+const kAddressValidators = [
+  validateEthereumAddress,
+  validateNotNullAddress,
+  validateNotEmpty,
+];
 export function useAddressInput({ ...rest }) {
   return useFirstOf(
     useForm([

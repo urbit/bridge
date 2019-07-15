@@ -6,3 +6,8 @@ export const formatDots = date => {
 
   return [year, month, day].join('.');
 };
+
+export const formatTime = date => date.toLocaleTimeString();
+
+export const formatDotsWithTime = date =>
+  `${formatDots(date)} ${formatTime(date)}`;

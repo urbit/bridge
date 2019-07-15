@@ -5,7 +5,7 @@ import { Grid } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
 
 import { ForwardButton } from 'components/Buttons';
-import { matchBlinky, matchBlinkyDate } from 'components/Blinky';
+import { matchBlinkyDate } from 'components/Blinky';
 
 import { ETH_ZERO_ADDR } from 'lib/wallet';
 
@@ -18,37 +18,19 @@ import ViewHeader from 'components/ViewHeader';
 import usePermissionsForPoint from 'lib/usePermissionsForPoint';
 import { PROXY_TYPE, proxyTypeToHuman } from 'lib/proxy';
 import { useLocalRouter } from 'lib/LocalRouter';
-import { formatDots } from 'lib/dateFormat';
 import capitalize from 'lib/capitalize';
 import { eqAddr } from 'lib/wallet';
-
-//TODO consolidate with azimuth-js' getActivationBlock
-const getRekeyDate = async (web3, contracts, point) => {
-  const logs = await contracts.azimuth.getPastEvents('ChangedKeys', {
-    fromBlock: 0,
-    toBlock: 'latest',
-    filter: { point: [point] },
-  });
-  if (logs.length === 0) {
-    return null;
-  } else {
-    // last log is most recent
-    const block = await web3.eth.getBlock(logs[logs.length - 1].blockNumber);
-    return new Date(block.timestamp * 1000);
-  }
-};
+import MiniBackButton from 'components/MiniBackButton';
+import FooterButton from 'components/FooterButton';
 
 export default function AdminEditPermissions() {
-  const { push, names } = useLocalRouter();
-  const { web3, contracts } = useNetwork();
+  const { pop, push, names } = useLocalRouter();
+  const { contracts } = useNetwork();
   const { wallet } = useWallet();
   const { pointCursor } = usePointCursor();
-  const { getDetails } = usePointCache();
+  const { getDetails, getRekeyDate } = usePointCache();
 
-  const _web3 = need.web3(web3);
   const _contracts = need.contracts(contracts);
-
-  const [rekeyDate, setRekeyDate] = useState(Nothing());
 
   const point = need.point(pointCursor);
   const pointSize = azimuth.getPointSize(point);
@@ -57,42 +39,33 @@ export default function AdminEditPermissions() {
   const userAddress = need.wallet(wallet).address;
 
   const details = need.details(getDetails(point));
+  const networkRevision = parseInt(details.keyRevisionNumber, 10);
   const { canManage, isOwner } = usePermissionsForPoint(userAddress, point);
 
-  useLifecycle(() => {
-    getRekeyDate(_web3, _contracts, point).then(res => {
-      if (res === null) setRekeyDate(Just(new Date()));
-      else setRekeyDate(Just(res));
-    });
-  });
-
-  const goToProxy = useCallback(
+  const goSetProxy = useCallback(
     proxyType => push(names.SET_PROXY, { proxyType }),
     [push, names]
   );
 
-  const goSetKeys = useCallback(() => push(names.SET_KEYS), [push, names]);
+  const goNetworkingKeys = useCallback(() => push(names.NETWORKING_KEYS), [
+    push,
+    names,
+  ]);
 
-  const proxyAction = (proxyType, address, enabled) => {
+  const renderProxyAction = (proxyType, address) => {
     if (eqAddr(address, ETH_ZERO_ADDR)) {
       address = 'Not set';
     } else if (eqAddr(address, _contracts.delegatedSending.address)) {
-      address = address + ' (invites contract)';
+      address = `${address} (invites contract)`;
     }
-
-    const detail = enabled
-      ? address
-      : `You do not have permission to change the ${proxyTypeToHuman(
-          proxyType
-        )} proxy.`;
 
     return (
       <>
         <Grid.Item full>
           <ForwardButton
-            disabled={!enabled}
-            onClick={() => goToProxy(proxyType)}
-            detail={detail}>
+            disabled={!isOwner}
+            onClick={() => goSetProxy(proxyType)}
+            detail={address}>
             {capitalize(proxyTypeToHuman(proxyType))} Proxy Address
           </ForwardButton>
         </Grid.Item>
@@ -101,18 +74,30 @@ export default function AdminEditPermissions() {
     );
   };
 
-  const networkKeysDetail =
-    details.keyRevisionNumber === 0 ? (
-      'Not yet configured'
-    ) : (
+  const renderNetworkKeysDetail = () => {
+    if (networkRevision === 0) {
+      return 'Not yet configured.';
+    }
+
+    const renderRevision = maybeDate => (
       <>
-        Revision #{details.keyRevisionNumber}, since{' '}
-        {matchBlinkyDate(rekeyDate)}
+        Revision #{networkRevision}, since {matchBlinkyDate(maybeDate)}
       </>
     );
 
+    return getRekeyDate(point).matchWith({
+      Nothing: () => renderRevision(Nothing()),
+      Just: p =>
+        p.value.matchWith({
+          Ok: r => renderRevision(Just(r.value)),
+          Error: 'Unknown',
+        }),
+    });
+  };
+
   return (
     <Grid>
+      <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
       <Grid.Item full as={ViewHeader}>
         Permissions
       </Grid.Item>
@@ -122,19 +107,19 @@ export default function AdminEditPermissions() {
       </Grid.Item>
       <Grid.Divider />
 
-      {proxyAction(PROXY_TYPE.MANAGEMENT, details.managementProxy, isOwner)}
+      {renderProxyAction(PROXY_TYPE.MANAGEMENT, details.managementProxy)}
 
-      {isParent && proxyAction(PROXY_TYPE.SPAWN, details.spawnProxy, isOwner)}
+      {isParent && renderProxyAction(PROXY_TYPE.SPAWN, details.spawnProxy)}
 
-      {isSenate && proxyAction(PROXY_TYPE.VOTING, details.votingProxy, isOwner)}
+      {isSenate && renderProxyAction(PROXY_TYPE.VOTING, details.votingProxy)}
 
       <Grid.Item
         full
         as={ForwardButton}
         disabled={!canManage}
-        onClick={goSetKeys}
-        detail={networkKeysDetail}>
-        Network Keys
+        onClick={goNetworkingKeys}
+        detail={renderNetworkKeysDetail()}>
+        Networking Keys
       </Grid.Item>
       <Grid.Divider />
     </Grid>

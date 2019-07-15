@@ -4,12 +4,12 @@ import keccak from 'keccak';
 import { reduce } from 'lodash';
 import { Just, Nothing } from 'folktale/maybe';
 import * as secp256k1 from 'secp256k1';
-import * as ob from 'urbit-ob';
 import * as kg from 'urbit-key-generation/dist';
 import { isAddress } from 'web3-utils';
 
 export const DEFAULT_HD_PATH = "m/44'/60'/0'/0/0";
 export const ETH_ZERO_ADDR = '0x0000000000000000000000000000000000000000';
+export const ETH_ZERO_ADDR_SHORT = '0x0';
 export const CURVE_ZERO_ADDR =
   '0x0000000000000000000000000000000000000000000000000000000000000000';
 

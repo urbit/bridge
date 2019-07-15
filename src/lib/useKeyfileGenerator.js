@@ -16,21 +16,15 @@ import {
 import usePermissionsForPoint from './usePermissionsForPoint';
 
 export default function useKeyfileGenerator(point) {
-  const { getDetails, getOptimisticDetails } = usePointCache();
+  const { getDetails } = usePointCache();
   const { urbitWallet, wallet, authMnemonic } = useWallet();
 
+  const [downloaded, setDownloaded] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [keyfile, setKeyfile] = useState();
 
   const details = need.details(getDetails(point));
-  const optimisticDetails = getOptimisticDetails(point);
-
-  // use the optimistic key revision number if available
-  // (because we may have set networking keys earlier)
-  const networkRevision = optimisticDetails.keyRevisionNumber.matchWith({
-    Nothing: () => parseInt(details.keyRevisionNumber, 10),
-    Just: p => p.value,
-  });
+  const networkRevision = parseInt(details.keyRevisionNumber, 10);
 
   const { isOwner, isManagementProxy } = usePermissionsForPoint(point);
   const hasNetworkingKeys = networkRevision > 0;
@@ -82,7 +76,8 @@ export default function useKeyfileGenerator(point) {
       `${ob.patp(point).slice(1)}-${networkRevision}.key`
       // TODO: ^ unifiy "remove tilde" calls
     );
-  }, [point, keyfile, networkRevision]);
+    setDownloaded(true);
+  }, [point, keyfile, networkRevision, setDownloaded]);
 
   const generateAndDownload = useCallback(async () => {
     await generate();
@@ -92,6 +87,7 @@ export default function useKeyfileGenerator(point) {
   return {
     generating,
     available,
+    downloaded,
     generateAndDownload,
   };
 }

@@ -10,9 +10,10 @@ import PaperRenderer from 'components/PaperRenderer';
 import { downloadWallet } from 'lib/invite';
 
 import { useWallet } from 'store/wallet';
-import { Grid, Text } from 'indigo-react';
+import { Grid, P } from 'indigo-react';
 import ViewHeader from 'components/ViewHeader';
 import { useLocalRouter } from 'lib/LocalRouter';
+import MiniBackButton from 'components/MiniBackButton';
 
 export default function AdminRedownload() {
   const { urbitWallet } = useWallet();
@@ -34,11 +35,12 @@ export default function AdminRedownload() {
 
   return (
     <>
-      <Grid gap={4}>
+      <Grid>
+        <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
         <Grid.Item full as={ViewHeader}>
           Download Passport
         </Grid.Item>
-        <Grid.Item full as={Text}>
+        <Grid.Item full as={P}>
           After you’ve downloaded your passport, back up the ticket manually or
           store on a trusted device.
         </Grid.Item>

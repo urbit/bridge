@@ -6,7 +6,6 @@ import useRekeyDateStore from './useRekeyDateStore';
 import useInvitesStore from './useInvitesStore';
 import useControlledPointsStore from './useControlledPointsStore';
 import useEclipticOwnerStore from './useEclipticOwnerStore';
-import useOptimisticPointDetailsStore from './useOptimisticDetailsStore';
 
 export default function usePointStore() {
   const { syncDetails, ...details } = useDetailsStore();
@@ -18,7 +17,6 @@ export default function usePointStore() {
     ...controlledPoints
   } = useControlledPointsStore();
   const ecliptic = useEclipticOwnerStore();
-  const optimistic = useOptimisticPointDetailsStore();
 
   // sync all of the on-chain info required to display a known point
   const syncKnownPoint = useCallback(
@@ -51,7 +49,6 @@ export default function usePointStore() {
     ...invites,
     ...controlledPoints,
     ...ecliptic,
-    ...optimistic,
     syncInvites,
     syncControlledPoints,
     syncKnownPoint,

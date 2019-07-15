@@ -1,12 +1,11 @@
 import BN from 'bn.js';
 import { Just, Nothing } from 'folktale/maybe';
-import * as need from './need';
 
 import * as noun from '../nockjs/noun';
 import * as serial from '../nockjs/serial';
 import * as kg from 'urbit-key-generation/dist';
 
-import { eqAddr, addHexPrefix } from './wallet';
+import { eqAddr, addHexPrefix, CURVE_ZERO_ADDR } from './wallet';
 
 const NETWORK_KEY_CURVE_PARAMETER = '42';
 
@@ -162,4 +161,14 @@ export const keysMatchChain = (pair, details) => {
     encryptionKey === addHexPrefix(crypt.public) &&
     authenticationKey === addHexPrefix(auth.public)
   );
+};
+
+export const segmentNetworkKey = hex => {
+  const sl = i => hex.slice(i, i + 4);
+  const rowFrom = i => `${sl(i)}.${sl(i + 4)}.${sl(i + 8)}.${sl(i + 12)}`;
+  if (hex === CURVE_ZERO_ADDR) {
+    return null;
+  }
+
+  return [rowFrom(2), rowFrom(18), rowFrom(34), rowFrom(50)];
 };

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { Just } from 'folktale/maybe';
 import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
@@ -9,20 +9,16 @@ import { useHistory } from 'store/history';
 
 import View from 'components/View';
 import Passport from 'components/Passport';
-import { ForwardButton } from 'components/Buttons';
+import { ForwardButton, BootArvoButton } from 'components/Buttons';
 import FooterButton from 'components/FooterButton';
 import { matchBlinky } from 'components/Blinky';
 
 import useInvites from 'lib/useInvites';
 import { useSyncOwnedPoints } from 'lib/useSyncPoints';
-import { ROUTE_NAMES } from 'lib/routeNames';
 
 import Actions from './Point/Actions';
 import { useWallet } from 'store/wallet';
 import usePermissionsForPoint from 'lib/usePermissionsForPoint';
-
-const isPlanet = point =>
-  azimuth.getPointSize(point) === azimuth.PointSize.Planet;
 
 export default function Point() {
   const { push, names } = useHistory();
@@ -91,9 +87,7 @@ export default function Point() {
           Admin
         </Grid.Item>
         <Grid.Divider />
-        <Grid.Item full as={ForwardButton} detail="Boot your computer" disabled>
-          Boot Arvo
-        </Grid.Item>
+        <Grid.Item full as={BootArvoButton} disabled />
         {showActions && (
           <Grid.Item full>
             <Actions />

@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
+import Result from 'folktale/result';
 
 import { useNetwork } from '../network';
 
@@ -16,6 +17,10 @@ export default function useRekeyDateStore() {
     [_setRekeyDateCache]
   );
 
+  /**
+   * @param {number} point
+   * @return {Maybe<Result<Date, String>>}
+   */
   const getRekeyDate = useCallback(
     point => rekeyDateCache[point] || Nothing(),
     [rekeyDateCache]
@@ -24,11 +29,8 @@ export default function useRekeyDateStore() {
   const syncRekeyDate = useCallback(
     async point => {
       const _web3 = web3.getOrElse(null);
-      if (!_web3) {
-        return;
-      }
       const _contracts = contracts.getOrElse(null);
-      if (!_contracts) {
+      if (!_web3 || !_contracts) {
         return;
       }
 
@@ -37,26 +39,30 @@ export default function useRekeyDateStore() {
       const logs = await _contracts.azimuth.getPastEvents('ChangedKeys', {
         fromBlock: 0,
         toBlock: 'latest',
-        filter: { point: [point] },
+        filter: {
+          point: [point],
+        },
       });
 
       if (logs.length === 0) {
         //TODO: better encoding for "no rekeyDate" state?
         addToRekeyDateCache({
-          [point]: Just('unknown'),
+          [point]: Just(Result.Error('No rekey date available.')),
         });
       } else {
         // last log is most recent
         const blockNumber = logs[logs.length - 1].blockNumber;
         const block = await _web3.eth.getBlock(blockNumber);
         addToRekeyDateCache({
-          //TODO date format
-          [point]: Just(new Date(block.timestamp * 1000).toString()),
+          [point]: Just(Result.Ok(new Date(block.timestamp * 1000))),
         });
       }
     },
     [web3, contracts, addToRekeyDateCache]
   );
 
-  return { getRekeyDate, syncRekeyDate };
+  return {
+    getRekeyDate,
+    syncRekeyDate,
+  };
 }

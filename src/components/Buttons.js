@@ -17,3 +17,9 @@ export const OfflineButton = props => (
     Offline
   </OutButton>
 );
+
+export const BootArvoButton = props => (
+  <ForwardButton detail="Boot your computer" {...props}>
+    Boot Arvo
+  </ForwardButton>
+);

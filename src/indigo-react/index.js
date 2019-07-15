@@ -7,6 +7,7 @@ export { default as CheckboxInput } from './components/CheckboxInput';
 export { default as AccessoryIcon } from './components/AccessoryIcon';
 export { default as Button } from './components/Button';
 export { default as IconButton } from './components/IconButton';
+export { default as LinkButton } from './components/LinkButton';
 
 export * from './components/Typography';
 
