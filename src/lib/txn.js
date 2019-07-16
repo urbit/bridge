@@ -2,6 +2,7 @@ import * as ob from 'urbit-ob';
 import { Just } from 'folktale/maybe';
 import Tx from 'ethereumjs-tx';
 import { toWei, fromWei, toHex } from 'web3-utils';
+import * as retry from 'async-retry';
 
 import { BRIDGE_ERROR } from './error';
 import { NETWORK_TYPES } from './network';
@@ -11,6 +12,13 @@ import { WALLET_TYPES, addHexPrefix } from './wallet';
 
 const CHECK_BLOCK_EVERY_MS =
   process.env.NODE_ENV === 'development' ? 1000 : 5000;
+
+const RETRY_OPTIONS = {
+  retries: 99999,
+  factor: 1,
+  minTimeout: CHECK_BLOCK_EVERY_MS,
+  randomize: false,
+};
 
 const TXN_PURPOSE = {
   SET_MANAGEMENT_PROXY: Symbol('SET_MANAGEMENT_PROXY'),
@@ -178,17 +186,12 @@ const sendSignedTransaction = (web3, stx, doubtNonceError) => {
 
 // returns a Promise<bool>, where the bool indicates tx success/failure
 const waitForTransactionConfirm = (web3, txHash) => {
-  return new Promise((resolve, reject) => {
-    const checkForConfirm = async () => {
-      console.log('checking for confirm', txHash);
-      const receipt = await web3.eth.getTransactionReceipt(txHash);
-      console.log('tried, got', receipt);
-      let confirmed = receipt !== null;
-      if (confirmed) resolve(receipt.status === true);
-      else setTimeout(checkForConfirm, CHECK_BLOCK_EVERY_MS);
-    };
-    checkForConfirm();
-  });
+  return retry(async (bail, n) => {
+    const receipt = await web3.eth.getTransactionReceipt(txHash);
+    let confirmed = receipt !== null;
+    if (confirmed) return receipt.status === true;
+    else throw new Error('retrying');
+  }, RETRY_OPTIONS);
 };
 
 const sendAndAwaitAll = async (web3, stxs, doubtNonceError) => {
@@ -234,6 +237,7 @@ const canDecodePatp = p => {
 };
 
 export {
+  RETRY_OPTIONS,
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,
