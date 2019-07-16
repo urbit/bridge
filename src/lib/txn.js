@@ -63,6 +63,7 @@ const signTransaction = async config => {
     gasLimit,
   } = config;
 
+  //TODO require these in txn object
   nonce = toHex(nonce);
   chainId = toHex(chainId);
   gasPrice = toHex(toWei(gasPrice, 'gwei'));
@@ -117,6 +118,9 @@ const signTransaction = async config => {
 
   const stx = new Tx(utx);
 
+  //TODO should try-catch and display error message to user,
+  //     ie ledger's "pls enable contract data"
+  //     needs to maybe happen at call-site though
   if (walletType === WALLET_TYPES.LEDGER) {
     await ledgerSignTransaction(stx, walletHdPath);
   } else if (walletType === WALLET_TYPES.TREZOR) {
@@ -166,7 +170,7 @@ const sendSignedTransaction = (web3, stx, doubtNonceError) => {
 const waitForTransactionConfirm = (web3, txHash) => {
   return retry(async (bail, n) => {
     const receipt = await web3.eth.getTransactionReceipt(txHash);
-    let confirmed = receipt !== null;
+    const confirmed = receipt !== null;
     if (confirmed) return receipt.status === true;
     else throw new Error('retrying');
   }, RETRY_OPTIONS);
