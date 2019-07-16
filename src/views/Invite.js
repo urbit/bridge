@@ -19,7 +19,6 @@ import { LocalRouterProvider } from 'lib/LocalRouter';
 import InviteUrl from './Invite/InviteUrl';
 import InviteEmail from './Invite/InviteEmail';
 import ViewHeader from 'components/ViewHeader';
-import MiniBackButton from 'components/MiniBackButton';
 
 const NAMES = {
   URL: 'URL',
@@ -71,7 +70,6 @@ export default function Invite() {
             ]}
             className="mb4"
           />
-          <Grid.Item full as={MiniBackButton} onClick={() => history.pop()} />
           <Grid.Item full as={ViewHeader}>
             Invite
           </Grid.Item>
