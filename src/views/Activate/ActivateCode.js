@@ -36,7 +36,7 @@ export default function ActivateCode() {
     setDerivedPoint,
   } = useActivateFlow();
 
-  const [ticketInput, { pass: validTicket }] = useTicketInput({
+  const [ticketInput, { pass: validTicket, data: ticket }] = useTicketInput({
     name: 'ticket',
     label: 'Code',
     autoFocus: true,
@@ -62,9 +62,7 @@ export default function ActivateCode() {
       setDeriving(true);
       // when the ticket becomes valid, derive the point
       (async () => {
-        const { seed } = await generateTemporaryOwnershipWallet(
-          ticketInput.data
-        );
+        const { seed } = await generateTemporaryOwnershipWallet(ticket);
 
         //TODO isn't all this accessible in the ownership object?
         const inviteWallet = walletFromMnemonic(seed, DEFAULT_HD_PATH);
@@ -112,7 +110,7 @@ export default function ActivateCode() {
   }, [
     validTicket,
     contracts,
-    ticketInput.data,
+    ticket,
     setDerivedPoint,
     setDerivedWallet,
     setInviteWallet,

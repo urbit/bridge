@@ -15,7 +15,6 @@ import { toHex, toWei, fromWei } from 'web3-utils';
 
 const STATE = {
   NONE: 'NONE',
-  GENERATED: 'GENERATED',
   SIGNED: 'SIGNED',
   BROADCASTED: 'BROADCASTED',
   CONFIRMED: 'CONFIRMED',
@@ -23,13 +22,9 @@ const STATE = {
 
 /**
  * manage the state around sending and confirming an ethereum transaction
- * @param {Maybe<EthereumTx>} unsignedTx
  * @param {number} initialGasLimit
  */
-export default function useEthereumTransaction(
-  unsignedTx,
-  initialGasLimit = 0
-) {
+export default function useEthereumTransaction(initialGasLimit = 0) {
   const { wallet, walletType, walletHdPath } = useWallet();
   const { web3, networkType } = useNetwork();
   const _web3 = need.web3(web3);
@@ -45,48 +40,51 @@ export default function useEthereumTransaction(
   const [signedTransaction, setSignedTransaction] = useState();
 
   const initializing = nonce === undefined || chainId === undefined;
-  const constructed = Just.hasInstance(unsignedTx);
-  const generated = state === STATE.GENERATED;
+  const constructed = !!unsignedTransaction;
   const signed = state === STATE.SIGNED;
   const broadcasted = state === STATE.BROADCASTED;
   const confirmed = state === STATE.CONFIRMED;
 
-  const generate = useCallback(() => {
-    const txn = unsignedTx.value;
-    try {
-      txn.gas = toHex(gasLimit);
-      txn.gasPrice = toHex(toWei(gasPrice, 'gwei'));
+  const inputsLocked = signed || broadcasted || confirmed;
 
-      setUnsignedTransaction(txn);
-      setState(STATE.GENERATED);
-    } catch (error) {
-      setError(error);
-    }
-  }, [gasLimit, gasPrice, unsignedTx.value]);
+  const canSign = !initializing && constructed;
 
-  const sign = useCallback(async () => {
+  const construct = useCallback(txn => setUnsignedTransaction(txn), [
+    setUnsignedTransaction,
+  ]);
+
+  const generateAndSign = useCallback(async () => {
     try {
-      // TODO: sign the transaction
-      const txn = await signTransaction(
-        _wallet,
+      // TODO: set varaibles
+      // txn.gas = toHex(gasLimit);
+      // txn.gasPrice = toHex(toWei(gasPrice, 'gwei'));
+
+      const txn = await signTransaction({
+        wallet, // wallet: _wallet,
         walletType,
-        walletHdPath.getOrElse(''),
+        walletHdPath,
         networkType,
+        txn: Just(unsignedTransaction),
+        setStx: () => {}, // TODO: remove
+        nonce,
         chainId,
-        unsignedTransaction
-      );
-      const stx = hexify(txn.serialize());
+        gasPrice,
+        gasLimit,
+      });
 
-      setSignedTransaction(stx);
+      setSignedTransaction(txn);
       setState(STATE.SIGNED);
     } catch (error) {
       setError(error);
     }
   }, [
-    _wallet,
     chainId,
+    gasLimit,
+    gasPrice,
     networkType,
+    nonce,
     unsignedTransaction,
+    wallet,
     walletHdPath,
     walletType,
   ]);
@@ -105,7 +103,11 @@ export default function useEthereumTransaction(
 
   const broadcast = useCallback(async () => {
     try {
-      const txHash = await sendSignedTransaction(_web3, signedTransaction);
+      const txHash = await sendSignedTransaction(
+        _web3,
+        Just(signedTransaction),
+        /* doubtNonceError */ false
+      );
 
       setState(STATE.BROADCASTED);
       waitForConfirmation(txHash);
@@ -141,24 +143,27 @@ export default function useEthereumTransaction(
 
   return {
     initializing,
+    construct,
     constructed,
-    generate,
-    generated,
-    sign,
+    canSign,
+    generateAndSign,
     signed,
     broadcast,
     broadcasted,
     confirmed,
     reset,
     error,
+    inputsLocked,
     bind: {
-      error,
-      initializing,
       constructed,
-      generated,
+      canSign,
+      generateAndSign,
       signed,
+      broadcast,
       broadcasted,
       confirmed,
+      reset,
+      error,
       setGasPrice,
     },
   };

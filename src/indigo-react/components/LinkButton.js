@@ -3,7 +3,6 @@ import cn from 'classnames';
 
 export default function LinkButton({
   as: As = 'a',
-  solid = false,
   disabled = false,
   className,
   onClick,
@@ -20,11 +19,10 @@ export default function LinkButton({
         }),
       }}
       className={cn(
-        'pointer ph2 underline',
+        'pointer underline',
         {
-          white: solid,
-          black: !solid && !disabled,
-          gray4: !solid && disabled,
+          black: !disabled,
+          gray4: disabled,
         },
         className
       )}

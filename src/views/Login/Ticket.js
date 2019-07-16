@@ -41,7 +41,7 @@ export default function Ticket({ className }) {
     label: 'Wallet Passphrase',
   });
 
-  const [hasPassphraseInput] = useCheckboxInput({
+  const [hasPassphraseInput, { data: hasPassphrase }] = useCheckboxInput({
     name: 'has-passphrase',
     label: 'Passphrase',
     initialValue: false,
@@ -171,9 +171,7 @@ export default function Ticket({ className }) {
           <Grid.Item full as={Input} {...shard3Input} />
         </>
       )}
-      {hasPassphraseInput.data && (
-        <Grid.Item full as={Input} {...passphraseInput} />
-      )}
+      {hasPassphrase && <Grid.Item full as={Input} {...passphraseInput} />}
 
       <Grid.Item full as={CheckboxInput} {...hasPassphraseInput} />
       <Grid.Item full as={CheckboxInput} {...shardsInput} />

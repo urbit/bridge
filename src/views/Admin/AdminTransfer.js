@@ -33,7 +33,7 @@ export default function AdminTransfer() {
       <Grid.Item full as={ViewHeader}>
         Transfer Point
       </Grid.Item>
-      <Grid.Item full as={P}>
+      <Grid.Item full as={Text}>
         Transfer {name} to a new owner.
       </Grid.Item>
 

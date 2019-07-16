@@ -192,11 +192,16 @@ export default function useForm(inputConfigs = []) {
       configs.map(
         ({ name, error, autoFocus, disabled, initialValue, ...rest }, i) => {
           const value =
-            values[name] || (initialValue === undefined ? '' : initialValue);
+            datas[i] !== undefined
+              ? datas[i]
+              : initialValue !== undefined
+              ? initialValue
+              : '';
           return {
             // Input props
             name,
-            data: datas[i],
+            value: value,
+            data: passes[i] ? datas[i] : undefined,
             pass: passes[i],
             visiblyPassed: visiblePasses[i],
             error: errors[i],
@@ -205,10 +210,10 @@ export default function useForm(inputConfigs = []) {
             autoFocus: autoFocus && !disabled,
             disabled,
             ...rest,
-            // dom properties below:
+            // DOM Properties for <input />
             bind: {
               value,
-              checked: !!values[name],
+              checked: !!datas[i],
               onChange: onChange(name),
               onFocus: onFocus(name),
               onBlur: onBlur(name),
@@ -220,15 +225,14 @@ export default function useForm(inputConfigs = []) {
     [
       configs,
       datas,
-      visiblePasses,
       passes,
+      visiblePasses,
       errors,
       hintErrors,
       focuses,
-      values,
-      onBlur,
       onChange,
       onFocus,
+      onBlur,
     ]
   );
 

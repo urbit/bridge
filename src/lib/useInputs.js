@@ -151,7 +151,6 @@ const kPointValidators = [
 ];
 const kPointTransformers = [prependSig];
 export function usePointInput(rest) {
-  const [lastValidPoint, setLastValidPoint] = useState('');
   return useFirstOf(
     useForm([
       {
@@ -161,14 +160,13 @@ export function usePointInput(rest) {
         validators: kPointValidators,
         transformers: kPointTransformers,
         mono: true,
-        onValue: setLastValidPoint,
         ...rest,
       },
     ]),
-    ({ error, pass, focused }) => ({
-      accessory: lastValidPoint ? (
+    ({ error, pass, focused, data }) => ({
+      accessory: data ? (
         <InputSigil
-          patp={lastValidPoint}
+          patp={data}
           size={44}
           margin={8}
           pass={pass}

@@ -2,8 +2,9 @@ import React from 'react';
 import cn from 'classnames';
 
 import Flex from './Flex';
+import LinkButton from './LinkButton';
 
-export default function CheckboxInput({
+export default function ToggleInput({
   // visuals
   name,
   label,
@@ -28,12 +29,11 @@ export default function CheckboxInput({
   validators,
   transformers,
 
-  // extra
   ...rest
 }) {
   return (
     <Flex
-      className={cn(className, 'mv2')}
+      className={cn(className)}
       row
       align="center"
       style={{
@@ -55,22 +55,13 @@ export default function CheckboxInput({
       <Flex.Item
         flex
         as="label"
-        className="f6 mr3 lh-tall us-none clickable flex-row align-center"
+        className={cn('f6 pv1 lh-tall us-none flex-row align-center', {
+          clickable: !disabled,
+        })}
         htmlFor={name}>
-        <Flex
-          justify="center"
-          align="center"
-          className={cn('b-black b1 p1 mr3', {
-            'bg-black white': data,
-            'bg-white black': !data,
-          })}
-          style={{
-            height: '14px',
-            width: '14px',
-          }}>
-          {data && '✓'}
-        </Flex>
-        {label}
+        <LinkButton disabled={disabled} className="f5">
+          {bind.checked ? `Hide ${label}` : label}
+        </LinkButton>
       </Flex.Item>
     </Flex>
   );

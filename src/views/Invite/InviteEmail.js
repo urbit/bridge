@@ -389,6 +389,14 @@ export default function InviteEmail() {
     }
   }, [isDone, syncInvites, point]);
 
+  useEffect(() => {
+    for (const input of inputs) {
+      if (input.pass) {
+        syncHasReceivedForEmail(input.data);
+      }
+    }
+  }, [inputs, syncHasReceivedForEmail]);
+
   return (
     <Grid gap={3}>
       <Grid.Item as={Grid} full>
@@ -439,8 +447,6 @@ export default function InviteEmail() {
                   as={Input}
                   cols={[1, 11]}
                   {...input}
-                  onValue={email => syncHasReceivedForEmail(email)}
-                  // NB(shrugs): ^ this feels like a hack?
                   accessory={accessoryFor(input.name)}
                 />
                 {!isFirst &&

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import cn from 'classnames';
 
 import Flex from './Flex';
@@ -13,7 +13,6 @@ export default function Input({
   mono = false,
 
   // callbacks
-  onValue,
   onEnter,
 
   // state from hook
@@ -46,14 +45,6 @@ export default function Input({
     [disabled, pass] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  // notify parent of value only when passing
-  // TODO: deprecate/remove this
-  // keeping it around for now to avoid refactoring InviteEmail.js, but this
-  // feels like a hack
-  useEffect(() => {
-    pass && onValue && onValue(data);
-  }, [pass, data]); // eslint-disable-line react-hooks/exhaustive-deps
-
   return (
     <Flex
       className={cn(className, 'mb1')}
@@ -64,7 +55,13 @@ export default function Input({
           cursor: 'not-allowed',
         }),
       }}>
-      <Flex.Item as="label" className="f6 lh-tall" htmlFor={name}>
+      <Flex.Item
+        as="label"
+        className={cn('f6 lh-tall', {
+          black: !disabled,
+          gray4: disabled,
+        })}
+        htmlFor={name}>
         {label}
       </Flex.Item>
       <Flex.Item as={Flex} className="rel" row>
@@ -86,7 +83,7 @@ export default function Input({
               'b-green3': visiblyPassed,
               'b-black': focused && !visiblyPassed,
               'b-yellow3': !focused && hintError,
-              'b-gray3': !focused && !hintError && !visiblyPassed,
+              'b-gray2': !focused && !hintError && !visiblyPassed,
             }
             // TODO: inputClassName ?
           )}
