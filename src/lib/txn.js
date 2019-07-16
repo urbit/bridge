@@ -172,14 +172,12 @@ const waitForTransactionConfirm = (web3, txHash) => {
   }, RETRY_OPTIONS);
 };
 
-const sendAndAwaitAll = async (web3, stxs, doubtNonceError) => {
-  await Promise.all(
-    stxs.map(tx => {
-      return new Promise(async (resolve, reject) => {
-        const txHash = await sendSignedTransaction(web3, tx, doubtNonceError);
-        await waitForTransactionConfirm(web3, txHash);
-        resolve();
-      });
+// returns a Promise that resolves when all stxs have been sent & confirmed
+const sendAndAwaitAll = (web3, stxs, doubtNonceError) => {
+  return Promise.all(
+    stxs.map(async tx => {
+      const txHash = await sendSignedTransaction(web3, tx, doubtNonceError);
+      await waitForTransactionConfirm(web3, txHash);
     })
   );
 };
