@@ -185,7 +185,7 @@ class StatelessTransaction extends React.Component {
     const stx = state.stx.matchWith({
       Just: tx => tx.value,
       Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_TXN;
+        throw new Error(BRIDGE_ERROR.MISSING_TXN);
       },
     });
 
