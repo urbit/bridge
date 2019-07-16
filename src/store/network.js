@@ -20,7 +20,7 @@ function _useNetwork(initialNetworkType = null) {
 
   const setNetworkType = networkType => {
     if (!includes(NETWORK_TYPES, networkType)) {
-      throw BRIDGE_ERROR.INVALID_NETWORK_TYPE;
+      throw new Error(BRIDGE_ERROR.INVALID_NETWORK_TYPE);
     }
     _setNetworkType(networkType);
   };

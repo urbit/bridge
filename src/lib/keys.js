@@ -89,7 +89,7 @@ const attemptNetworkSeedDerivation = async (next, args) => {
     const uwal = urbitWallet.matchWith({
       Just: uw => uw.value,
       Nothing: _ => {
-        throw BRIDGE_ERROR.MISSING_URBIT_WALLET;
+        throw new Error(BRIDGE_ERROR.MISSING_URBIT_WALLET);
       },
     });
 
@@ -100,7 +100,7 @@ const attemptNetworkSeedDerivation = async (next, args) => {
     const mnemonic = authMnemonic.matchWith({
       Just: mnem => mnem.value,
       Nothing: _ => {
-        throw BRIDGE_ERROR.MISSING_MNEMONIC;
+        throw new Error(BRIDGE_ERROR.MISSING_MNEMONIC);
       },
     });
 

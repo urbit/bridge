@@ -1,6 +1,7 @@
 // /lib/tank: functions for funding transactions
 
-import { waitForTransactionConfirm } from './txn';
+import * as retry from 'async-retry';
+import { RETRY_OPTIONS, waitForTransactionConfirm } from './txn';
 
 //NOTE if accessing this in a localhost configuration fails with "CORS request
 //     did not succeed", you might need to visit localhost:3001 or whatever
@@ -92,41 +93,29 @@ const ensureFundsFor = async (
   return false;
 };
 
-// resolves when address has at least minBalance
-//
-//TODO should maybe do a "we got it" callback also, so clients can hide msg?
-async function waitForBalance(
-  web3,
-  address,
-  minBalance,
-  askForFunding,
-  gotFunding
-) {
-  console.log('tank: awaiting balance', address, minBalance);
-  return new Promise((resolve, reject) => {
-    let oldBalance = null;
-    const checkForBalance = async () => {
-      const balance = await web3.eth.getBalance(address);
-      if (balance >= minBalance) {
-        // if we ever asked for funding, retract that request now
-        if (gotFunding && oldBalance !== null) {
-          gotFunding();
-        }
-        resolve();
-      } else {
-        if (balance !== oldBalance) {
-          // TODO: minBalance is a `number` type
-          // but we want to display ETH, which will never accept a number
-          // but instead wants string or BN/BigNumber.
-          // this will be heavily refactored to correctly do BN math, but until
-          // then we'll manually convert this number to an integer string
-          askForFunding(address, minBalance.toFixed(), balance);
-        }
-        setTimeout(checkForBalance, 13000);
+// returns a promise that resolves when address has at least minBalance
+function waitForBalance(web3, address, minBalance, askForFunding, gotFunding) {
+  let oldBalance = null;
+  return retry(async (bail, n) => {
+    const balance = await web3.eth.getBalance(address);
+    if (balance >= minBalance) {
+      // if we ever asked for funding, retract that request now
+      if (gotFunding && oldBalance !== null) {
+        gotFunding();
       }
-    };
-    checkForBalance();
-  });
+      return;
+    } else {
+      if (balance !== oldBalance) {
+        // TODO: minBalance is a `number` type
+        // but we want to display ETH, which will never accept a number
+        // but instead wants string or BN/BigNumber.
+        // this will be heavily refactored to correctly do BN math, but until
+        // then we'll manually convert this number to an integer string
+        askForFunding(address, minBalance.toFixed(), balance);
+      }
+      throw new Error('retrying');
+    }
+  }, RETRY_OPTIONS);
 }
 
 export { remainingTransactions, fundTransactions, ensureFundsFor };

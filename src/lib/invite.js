@@ -9,7 +9,7 @@ import * as tank from './tank';
 import JSZip from 'jszip';
 import saveAs from 'file-saver';
 
-import { sendSignedTransaction, hexify } from './txn';
+import { sendAndAwaitAll, hexify } from './txn';
 import { attemptNetworkSeedDerivation } from './keys';
 import { addHexPrefix, WALLET_TYPES } from './wallet';
 import { GAS_LIMITS } from './constants';
@@ -258,7 +258,7 @@ async function claimPointFromInvite({
 
   progress(TRANSACTION_STATES.CLAIMING);
 
-  await sendAndAwaitConfirm(web3, txPairs.map(p => Just(p.signed)), usedTank);
+  await sendAndAwaitAll(web3, txPairs.map(p => p.signed), usedTank);
 
   //
   // move leftover eth
@@ -289,16 +289,6 @@ async function claimPointFromInvite({
   }
 
   progress(TRANSACTION_STATES.DONE);
-}
-
-async function sendAndAwaitConfirm(web3, signedTxs, usedTank) {
-  await Promise.all(
-    signedTxs.map(tx => {
-      return new Promise((resolve, reject) => {
-        sendSignedTransaction(web3, tx, usedTank, resolve);
-      });
-    })
-  );
 }
 
 export {

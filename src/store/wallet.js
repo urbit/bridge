@@ -44,7 +44,7 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
   const setWalletType = useCallback(
     walletType => {
       if (!includes(WALLET_TYPES, walletType)) {
-        throw BRIDGE_ERROR.INVALID_WALLET_TYPE;
+        throw new Error(BRIDGE_ERROR.INVALID_WALLET_TYPE);
       }
 
       _setWalletType(walletType);

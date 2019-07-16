@@ -19,26 +19,26 @@ export const web3 = needBuilder(() => {
 });
 
 export const contracts = needBuilder(() => {
-  throw new Error(BRIDGE_ERROR.MISSING_CONTRACTS.message);
+  throw new Error(BRIDGE_ERROR.MISSING_CONTRACTS);
 });
 
 export const wallet = needBuilder(() => {
-  throw new Error(BRIDGE_ERROR.MISSING_WALLET.message);
+  throw new Error(BRIDGE_ERROR.MISSING_WALLET);
 });
 
 export const addressFromWallet = obj => wallet(obj).address;
 
 export const point = needBuilder(() => {
-  throw new Error(BRIDGE_ERROR.MISSING_POINT.message);
+  throw new Error(BRIDGE_ERROR.MISSING_POINT);
 });
 
 export const pointCache = needBuilder(() => {
-  throw new Error(BRIDGE_ERROR.MISSING_POINT.message);
+  throw new Error(BRIDGE_ERROR.MISSING_POINT);
 });
 
 export const fromPointCache = (cache, point) => {
   if (!(point in cache)) {
-    throw new Error(BRIDGE_ERROR.MISSING_POINT.message);
+    throw new Error(BRIDGE_ERROR.MISSING_POINT);
   }
 
   return cache[point];
@@ -49,7 +49,7 @@ export const keystore = obj => {
   return ks.value.matchWith({
     Ok: result => result.value,
     Error: _ => {
-      throw BRIDGE_ERROR.MISSING_KEYSTORE;
+      throw new Error(BRIDGE_ERROR.MISSING_KEYSTORE);
     },
   });
 };
