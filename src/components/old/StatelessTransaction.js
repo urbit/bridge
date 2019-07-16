@@ -233,12 +233,7 @@ class StatelessTransaction extends React.Component {
     } else {
       this.setState({ txStatus: SUBMISSION_STATES.SENDING });
 
-      sendSignedTransaction(
-        web3,
-        state.stx,
-        usedTank,
-        props.setTxnConfirmations
-      )
+      sendSignedTransaction(web3, stx, usedTank, props.setTxnConfirmations)
         .then(txHash => {
           props.setTxnCursor(Just(Ok(txHash)));
 

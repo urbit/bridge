@@ -258,7 +258,7 @@ async function claimPointFromInvite({
 
   progress(TRANSACTION_STATES.CLAIMING);
 
-  await sendAndAwaitAll(web3, txPairs.map(p => Just(p.signed)), usedTank);
+  await sendAndAwaitAll(web3, txPairs.map(p => p.signed), usedTank);
 
   //
   // move leftover eth

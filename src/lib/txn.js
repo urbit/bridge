@@ -145,14 +145,7 @@ const signTransaction = async config => {
 };
 
 const sendSignedTransaction = (web3, stx, doubtNonceError) => {
-  const txn = stx.matchWith({
-    Just: tx => tx.value,
-    Nothing: () => {
-      throw BRIDGE_ERROR.MISSING_TXN;
-    },
-  });
-
-  const rawTx = hexify(txn.serialize());
+  const rawTx = hexify(stx.serialize());
 
   return new Promise(async (resolve, reject) => {
     web3.eth

@@ -320,7 +320,7 @@ export default function InviteEmail() {
       try {
         const txHash = await sendSignedTransaction(
           _web3,
-          Just(invite.signedTx),
+          invite.signedTx,
           tankWasUsed,
           () => {}
         );
