@@ -125,7 +125,7 @@ function SentTransaction(props) {
 
   const result = txnCursor.matchWith({
     Nothing: _ => {
-      throw BRIDGE_ERROR.MISSING_TXN;
+      throw new Error(BRIDGE_ERROR.MISSING_TXN);
     },
     Just: res => res.value,
   });

@@ -1,15 +1,15 @@
 const BRIDGE_ERROR = {
-  MISSING_WEB3: new Error('no web3 object found'),
-  MISSING_WALLET: new Error('no wallet found'),
-  MISSING_TXN: new Error('no transaction found'),
-  MISSING_CONTRACTS: new Error('no contracts found'),
-  MISSING_KEYSTORE: new Error('no keystore text found'),
-  MISSING_MNEMONIC: new Error('no authentication mnemonic found'),
-  MISSING_URBIT_WALLET: new Error('no urbit wallet found'),
-  MISSING_POINT: new Error('no point found'),
-  INVALID_ROUTE: new Error('invalid route'),
-  INVALID_NETWORK_TYPE: new Error('invalid network type'),
-  INVALID_WALLET_TYPE: new Error('invalid wallet type'),
+  MISSING_WEB3: 'no web3 object found',
+  MISSING_WALLET: 'no wallet found',
+  MISSING_TXN: 'no transaction found',
+  MISSING_CONTRACTS: 'no contracts found',
+  MISSING_KEYSTORE: 'no keystore text found',
+  MISSING_MNEMONIC: 'no authentication mnemonic found',
+  MISSING_URBIT_WALLET: 'no urbit wallet found',
+  MISSING_POINT: 'no point found',
+  INVALID_ROUTE: 'invalid route',
+  INVALID_NETWORK_TYPE: 'invalid network type',
+  INVALID_WALLET_TYPE: 'invalid wallet type',
 };
 
 const renderTxnError = (web3, msg) => {

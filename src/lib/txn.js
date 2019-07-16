@@ -2,13 +2,20 @@ import * as ob from 'urbit-ob';
 import { Just } from 'folktale/maybe';
 import Tx from 'ethereumjs-tx';
 import { toWei, fromWei, toHex } from 'web3-utils';
+import retry from 'async-retry';
 
-import { BRIDGE_ERROR } from './error';
 import { NETWORK_TYPES } from './network';
 import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
 import { WALLET_TYPES, addHexPrefix } from './wallet';
 import { CHECK_BLOCK_EVERY_MS } from './constants';
+
+const RETRY_OPTIONS = {
+  retries: 99999,
+  factor: 1,
+  minTimeout: CHECK_BLOCK_EVERY_MS,
+  randomize: false,
+};
 
 const signTransaction = async config => {
   let {
@@ -24,6 +31,7 @@ const signTransaction = async config => {
     gasLimit,
   } = config;
 
+  //TODO require these in txn object
   nonce = toHex(nonce);
   chainId = toHex(chainId);
   gasPrice = toHex(toWei(gasPrice, 'gwei'));
@@ -74,47 +82,27 @@ const signTransaction = async config => {
     ? Object.assign(txParams, eip155Params)
     : txParams;
 
-  const wal = wallet.matchWith({
-    Just: w => w.value,
-    Nothing: () => {
-      throw BRIDGE_ERROR.MISSING_WALLET;
-    },
-  });
-
-  const sec = wal.privateKey;
-
-  const utx = txn.matchWith({
-    Just: tx => Object.assign(tx.value, signingParams),
-    Nothing: () => {
-      throw BRIDGE_ERROR.MISSING_TXN;
-    },
-  });
+  const utx = Object.assign(txn, signingParams);
 
   const stx = new Tx(utx);
 
+  //TODO should try-catch and display error message to user,
+  //     ie ledger's "pls enable contract data"
+  //     needs to maybe happen at call-site though
   if (walletType === WALLET_TYPES.LEDGER) {
     await ledgerSignTransaction(stx, walletHdPath);
   } else if (walletType === WALLET_TYPES.TREZOR) {
     await trezorSignTransaction(stx, walletHdPath);
   } else {
-    stx.sign(sec);
+    stx.sign(wallet.privateKey);
   }
 
   setStx(Just(stx));
   return stx;
 };
 
-// TODO(shrugs): refactor the hell out of all of these functions
-// but especially this one
-const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
-  const txn = stx.matchWith({
-    Just: tx => tx.value,
-    Nothing: () => {
-      throw BRIDGE_ERROR.MISSING_TXN;
-    },
-  });
-
-  const rawTx = hexify(txn.serialize());
+const sendSignedTransaction = (web3, stx, doubtNonceError) => {
+  const rawTx = hexify(stx.serialize());
 
   return new Promise(async (resolve, reject) => {
     web3.eth
@@ -122,39 +110,25 @@ const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
       .on('transactionHash', hash => {
         resolve(hash);
       })
-      //TODO do we also reach this if network is slow? web3 only tries a set
-      //     amount of times... should we instead do waitForTransactionConfirm
-      //     in on-transactionHash? we don't care (much) about additional
-      //     confirms anyway.
-      .on('confirmation', (confirmationNum, txn) => {
-        if (confirmationCb) {
-          confirmationCb(txn.transactionHash, confirmationNum + 1);
-        }
-        resolve(txn.transactionHash);
-      })
       .on('error', err => {
         // if there's a nonce error, but we used the gas tank, it's likely
         // that it's because the tank already submitted our transaction.
         // we just wait for first confirmation here.
         console.error(err);
-        if (
-          doubtNonceError &&
-          (err.message || '').includes("the tx doesn't have the correct nonce.")
-        ) {
-          console.log('nonce error, likely from gas tank submission, ignoring');
+        const isKnownError = (err.message || '').includes(
+          'known transaction: '
+        );
+        const isNonceError = (err.message || '').includes(
+          "the tx doesn't have the correct nonce."
+        );
+        if (isKnownError || (doubtNonceError && isNonceError)) {
+          console.log(
+            'tx send error likely from gas tank submission, ignoring'
+          );
           const txHash = web3.utils.keccak256(rawTx);
-          //TODO can we do does-exists check first?
-          //TODO max wait time before assume fail?
-          waitForTransactionConfirm(web3, txHash).then(res => {
-            if (res) {
-              resolve(txHash);
-              confirmationCb(txHash, 1);
-            } else {
-              reject('Unexpected tx failure');
-            }
-          });
+          resolve(txHash);
         } else {
-          reject(err.message);
+          reject(err.message || 'Transaction sending failed!');
         }
       });
   });
@@ -162,23 +136,22 @@ const sendSignedTransaction = (web3, stx, doubtNonceError, confirmationCb) => {
 
 // returns a Promise<bool>, where the bool indicates tx success/failure
 const waitForTransactionConfirm = (web3, txHash) => {
-  return new Promise((resolve, reject) => {
-    const checkForConfirm = async () => {
-      console.log('checking for confirm', txHash);
-      const receipt = await web3.eth.getTransactionReceipt(txHash);
-      console.log('tried, got', receipt);
-      let confirmed = receipt !== null;
-      if (confirmed) resolve(receipt.status === true);
-      else setTimeout(checkForConfirm, CHECK_BLOCK_EVERY_MS);
-    };
-    checkForConfirm();
-  });
+  return retry(async (bail, n) => {
+    const receipt = await web3.eth.getTransactionReceipt(txHash);
+    const confirmed = receipt !== null;
+    if (confirmed) return receipt.status === true;
+    else throw new Error('retrying');
+  }, RETRY_OPTIONS);
 };
 
-const isTransactionConfirmed = async (web3, txHash) => {
-  const receipt = await web3.eth.getTransactionReceipt(txHash);
-  console.log('got confirm state', receipt !== null, receipt.confirmations);
-  return receipt !== null;
+// returns a Promise that resolves when all stxs have been sent & confirmed
+const sendAndAwaitAll = (web3, stxs, doubtNonceError) => {
+  return Promise.all(
+    stxs.map(async tx => {
+      const txHash = await sendSignedTransaction(web3, tx, doubtNonceError);
+      await waitForTransactionConfirm(web3, txHash);
+    })
+  );
 };
 
 const sendTransactionsAndAwaitConfirm = async (web3, signedTxs, usedTank) =>
@@ -217,11 +190,12 @@ const canDecodePatp = p => {
 };
 
 export {
+  RETRY_OPTIONS,
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,
   sendTransactionsAndAwaitConfirm,
-  isTransactionConfirmed,
+  sendAndAwaitAll,
   getTxnInfo,
   hexify,
   renderSignedTx,

@@ -1,6 +1,4 @@
-import { Just } from 'folktale/maybe';
 import Tx from 'ethereumjs-tx';
-
 import * as azimuth from 'azimuth-js';
 import * as kg from 'urbit-key-generation/dist';
 import * as wg from './walletgen';
@@ -9,9 +7,10 @@ import * as tank from './tank';
 import JSZip from 'jszip';
 import saveAs from 'file-saver';
 
-import { hexify, sendTransactionsAndAwaitConfirm } from './txn';
+import { hexify } from './txn';
 import { deriveNetworkSeedFromUrbitWallet } from './keys';
 import { addHexPrefix } from './wallet';
+import { sendAndAwaitAll } from './txn';
 import { GAS_LIMITS } from './constants';
 
 // the initial network key revision is always 1
@@ -239,11 +238,7 @@ export async function reticketPointBetweenWallets({
 
   progress(TRANSACTION_STATES.TRANSFERRING);
 
-  await sendTransactionsAndAwaitConfirm(
-    web3,
-    txPairs.map(p => Just(p.signed)),
-    usedTank
-  );
+  await sendAndAwaitAll(web3, txPairs.map(p => p.signed), usedTank);
 
   //
   // move leftover eth

@@ -1,4 +1,5 @@
 import Landing from '../views/Landing';
+import Disclaimer from '../views/Disclaimer';
 import Login from '../views/Login.js';
 import InvitesManage from '../views/InvitesManage.js';
 import Admin from '../views/Admin';
@@ -24,6 +25,7 @@ import { ROUTE_NAMES } from './routeNames';
 
 export const ROUTES = {
   [ROUTE_NAMES.LANDING]: Landing,
+  [ROUTE_NAMES.DISCLAIMER]: Disclaimer,
   [ROUTE_NAMES.ACTIVATE]: Activate,
   [ROUTE_NAMES.INVITE]: Invite,
   [ROUTE_NAMES.INVITES_MANAGE]: InvitesManage,

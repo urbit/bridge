@@ -21,11 +21,13 @@ import { generateWallet } from 'lib/invite';
 import { generateTemporaryOwnershipWallet } from 'lib/walletgen';
 import { useActivateFlow } from './ActivateFlow';
 import { useLocalRouter } from 'lib/LocalRouter';
+import useImpliedTicket from 'lib/useImpliedTicket';
 
 export default function ActivateCode() {
   const history = useHistory();
   const { names, push } = useLocalRouter();
   const { contracts } = useNetwork();
+  const impliedTicket = useImpliedTicket();
   const [generalError, setGeneralError] = useState();
   const [deriving, setDeriving] = useState(false);
   const {
@@ -39,16 +41,14 @@ export default function ActivateCode() {
   const [ticketInput, { pass: validTicket, data: ticket }] = useTicketInput({
     name: 'ticket',
     label: 'Code',
+    initialValue: impliedTicket || '',
     autoFocus: true,
   });
 
   const goToLogin = useCallback(() => history.popAndPush(ROUTE_NAMES.LOGIN), [
     history,
   ]);
-  const goToDisclaimer = useCallback(() => push(names.DISCLAIMER), [
-    names,
-    push,
-  ]);
+  const goToPassport = useCallback(() => push(names.PASSPORT), [names, push]);
 
   const pass = derivedWallet.matchWith({
     Nothing: () => false,
@@ -91,6 +91,8 @@ export default function ActivateCode() {
               'This invite code has multiple points available.\n' +
                 "Once you've activated this point, activate the next with the same process."
             );
+          } else {
+            setGeneralError(false);
           }
         } else {
           setGeneralError(
@@ -137,7 +139,7 @@ export default function ActivateCode() {
           className="mt4"
           disabled={!pass || deriving}
           accessory={deriving ? <Blinky /> : undefined}
-          onClick={goToDisclaimer}
+          onClick={goToPassport}
           solid
           full>
           {deriving && 'Deriving...'}

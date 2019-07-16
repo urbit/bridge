@@ -60,7 +60,7 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
       // txn.gasPrice = toHex(toWei(gasPrice, 'gwei'));
 
       const txn = await signTransaction({
-        wallet, // wallet: _wallet,
+        wallet: _wallet,
         walletType,
         walletHdPath,
         networkType,
@@ -78,13 +78,13 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
       setError(error);
     }
   }, [
+    _wallet,
     chainId,
     gasLimit,
     gasPrice,
     networkType,
     nonce,
     unsignedTransaction,
-    wallet,
     walletHdPath,
     walletType,
   ]);
@@ -105,7 +105,7 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
     try {
       const txHash = await sendSignedTransaction(
         _web3,
-        Just(signedTransaction),
+        signedTransaction,
         /* doubtNonceError */ false
       );
 

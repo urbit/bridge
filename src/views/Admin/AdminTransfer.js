@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Grid, P, Text, Input } from 'indigo-react';
+import { Grid, Text, Input } from 'indigo-react';
 import { useLocalRouter } from 'lib/LocalRouter';
 
 import ViewHeader from 'components/ViewHeader';

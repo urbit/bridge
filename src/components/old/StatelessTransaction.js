@@ -8,6 +8,7 @@ import { Button } from './Base';
 import { CheckboxButton, Input, InnerLabel, InnerLabelDropdown } from './Base';
 import { Warning } from './Base';
 
+import { GAS_LIMITS } from '../../lib/constants';
 import { BRIDGE_ERROR } from '../../lib/error';
 import { ROUTE_NAMES } from '../../lib/routeNames';
 import { compose } from '../../lib/lib';
@@ -40,7 +41,7 @@ class StatelessTransaction extends React.Component {
 
     this.state = {
       gasPrice: '5',
-      gasLimit: '600000',
+      gasLimit: GAS_LIMITS.DEFAULT.toString(),
       showGasDetails: false,
       userApproval: false,
       chainId: '1',
@@ -184,7 +185,7 @@ class StatelessTransaction extends React.Component {
     const stx = state.stx.matchWith({
       Just: tx => tx.value,
       Nothing: () => {
-        throw BRIDGE_ERROR.MISSING_TXN;
+        throw new Error(BRIDGE_ERROR.MISSING_TXN);
       },
     });
 
@@ -232,12 +233,7 @@ class StatelessTransaction extends React.Component {
     } else {
       this.setState({ txStatus: SUBMISSION_STATES.SENDING });
 
-      sendSignedTransaction(
-        web3,
-        state.stx,
-        usedTank,
-        props.setTxnConfirmations
-      )
+      sendSignedTransaction(web3, stx, usedTank, props.setTxnConfirmations)
         .then(txHash => {
           props.setTxnCursor(Just(Ok(txHash)));
 
@@ -498,7 +494,13 @@ class StatelessTransaction extends React.Component {
         prop-size={'lg wide'}
         prop-color={signerButtonColor}
         onClick={() =>
-          signTransaction({ ...this.props, ...this.state, setStx: this.setStx })
+          signTransaction({
+            ...this.props,
+            ...this.state,
+            setStx: this.setStx,
+            wallet: this.props.wallet.value,
+            txn: txn.value,
+          })
         }>
         {'Sign Transaction'}
       </Button>
