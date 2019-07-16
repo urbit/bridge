@@ -16,7 +16,7 @@ const SEED_ENTROPY_BITS = 128;
 //TODO move into azimuth-js
 const GAS_LIMITS = {
   SPAWN: 250000,
-  TRANSFER: 490000,
+  TRANSFER: 550000,
   CONFIGURE_KEYS: 100000,
   SET_PROXY: 120000,
   //
@@ -28,7 +28,7 @@ const GAS_LIMITS = {
   //
   GIFT_PLANET: 400000, //NOTE low sample size
   //
-  DEFAULT: 500000,
+  DEFAULT: 550000,
 };
 
 // TODO: this is walletgen-ui specific, move into a wallet router later
