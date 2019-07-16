@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
-import { Just } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import {
   Grid,
@@ -247,12 +246,12 @@ export default function InviteEmail() {
           owner.keys.address
         );
         const signedTx = await signTransaction({
-          wallet,
+          wallet: _wallet,
           walletType,
           walletHdPath,
           networkType,
           // TODO: ^ make a useTransactionSigner to encapsulate this logic
-          txn: Just(inviteTx),
+          txn: inviteTx,
           gasPrice: GAS_PRICE_GWEI.toString(),
           gasLimit: GAS_LIMIT.toString(),
           nonce: nonce + i,

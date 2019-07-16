@@ -4,7 +4,6 @@ import Tx from 'ethereumjs-tx';
 import { toWei, fromWei, toHex } from 'web3-utils';
 import * as retry from 'async-retry';
 
-import { BRIDGE_ERROR } from './error';
 import { NETWORK_TYPES } from './network';
 import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
@@ -114,21 +113,7 @@ const signTransaction = async config => {
     ? Object.assign(txParams, eip155Params)
     : txParams;
 
-  const wal = wallet.matchWith({
-    Just: w => w.value,
-    Nothing: () => {
-      throw BRIDGE_ERROR.MISSING_WALLET;
-    },
-  });
-
-  const sec = wal.privateKey;
-
-  const utx = txn.matchWith({
-    Just: tx => Object.assign(tx.value, signingParams),
-    Nothing: () => {
-      throw BRIDGE_ERROR.MISSING_TXN;
-    },
-  });
+  const utx = Object.assign(txn, signingParams);
 
   const stx = new Tx(utx);
 
@@ -137,7 +122,7 @@ const signTransaction = async config => {
   } else if (walletType === WALLET_TYPES.TREZOR) {
     await trezorSignTransaction(stx, walletHdPath);
   } else {
-    stx.sign(sec);
+    stx.sign(wallet.privateKey);
   }
 
   setStx(Just(stx));
