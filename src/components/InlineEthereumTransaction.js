@@ -87,7 +87,7 @@ export default function InlineEthereumTransaction({
           as={ForwardButton}
           solid
           success
-          disable={broadcasted}
+          disabled={broadcasted}
           loading={broadcasted}
           onClick={() => broadcast()}>
           Send Transaction

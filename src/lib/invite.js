@@ -10,7 +10,12 @@ import { hexify } from './txn';
 import { deriveNetworkSeedFromUrbitWallet, deriveNetworkKeys } from './keys';
 import { addHexPrefix } from './wallet';
 import { sendAndAwaitAll } from './txn';
-import { GAS_LIMITS } from './constants';
+import {
+  GAS_LIMITS,
+  DEFAULT_GAS_PRICE_GWEI,
+  CRYPTO_SUITE_VERSION,
+} from './constants';
+import { toWei } from 'web3-utils';
 
 // the initial network key revision is always 1
 const INITIAL_NETWORK_KEY_REVISION = 1;
@@ -138,8 +143,8 @@ export async function reticketPointBetweenWallets({
     point,
     addHexPrefix(networkKeys.crypt.public),
     addHexPrefix(networkKeys.auth.public),
-    1,
-    false
+    CRYPTO_SUITE_VERSION,
+    /* discontinuous */ false
   );
   keysTx.gas = GAS_LIMITS.CONFIGURE_KEYS;
 
@@ -201,7 +206,7 @@ export async function reticketPointBetweenWallets({
   txs = txs.map(tx => {
     tx.from = fromWallet.address;
     tx.nonce = inviteNonce++;
-    tx.gasPrice = 20000000000; //NOTE we pay the premium for faster ux
+    tx.gasPrice = parseInt(toWei(DEFAULT_GAS_PRICE_GWEI.toFixed(), 'gwei'), 10);
     totalCost = totalCost + tx.gasPrice * tx.gas;
     return tx;
   });
@@ -247,8 +252,8 @@ export async function reticketPointBetweenWallets({
 
   // if non-trivial eth left in invite wallet, transfer to new ownership
   let balance = await web3.eth.getBalance(fromWallet.address);
-  const gasPrice = 20000000000;
-  const gasLimit = 21000;
+  const gasPrice = parseInt(toWei(DEFAULT_GAS_PRICE_GWEI.toFixed(), 'gwei'));
+  const gasLimit = GAS_LIMITS.SEND_ETH;
   const sendEthCost = gasPrice * gasLimit;
   if (transferEth && balance > sendEthCost) {
     const value = balance - sendEthCost;

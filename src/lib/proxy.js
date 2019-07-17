@@ -23,10 +23,9 @@ export const proxyTypeToHuman = proxyType => {
 export const proxyTypeToHumanDescription = proxyType => {
   switch (proxyType) {
     case PROXY_TYPE.MANAGEMENT:
-      // TODO: is the below copy actually true?
-      return "The management address proves your point's identity to Arvo.";
+      return 'The management proxy is allowed to manage networking keys.';
     case PROXY_TYPE.SPAWN:
-      return 'The spawn proxy is allowed to spawn points from this point.';
+      return 'The spawn proxy is allowed to spawn points.';
     case PROXY_TYPE.TRANSFER:
       return 'The transfer proxy is allowed to transfer this point.';
     case PROXY_TYPE.VOTING:

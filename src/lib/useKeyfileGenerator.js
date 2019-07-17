@@ -52,7 +52,7 @@ export default function useKeyfileGenerator(point, manualNetworkSeed) {
 
     if (Nothing.hasInstance(networkSeed)) {
       setGenerating(false);
-      console.log('nondeterministic seed!');
+      console.log('The network seed is nondeterministic — unable to derive.');
       // TODO: tell user their seed is nondeterministic
       return;
     }
@@ -64,7 +64,8 @@ export default function useKeyfileGenerator(point, manualNetworkSeed) {
     if (!keysMatchChain(pair, _details)) {
       setGenerating(false);
       console.log('Derived networking keys do not match public keys on chain.');
-      // TODO: tell usrs their seed is nondeterministic
+      // TODO: tell users their seed is nondeterministic
+      return;
     }
 
     setKeyfile(compileNetworkingKey(pair, point, networkRevision));

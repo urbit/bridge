@@ -204,7 +204,7 @@ export const validateExactly = (value, error) => m =>
     error,
   });
 
-export const validateNotEqual = (values = []) => m =>
+export const validateNotAny = (values = []) => m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => !values.includes(d),
@@ -245,7 +245,7 @@ export const validateMaximumPatpByteLength = byteLength => {
   return validateMaximumLength(patpStringLength(byteLength));
 };
 
-export const validateNotNullAddress = validateNotEqual(
-  [ETH_ZERO_ADDR, ETH_ZERO_ADDR_SHORT],
-  'Cannot be 0x0'
-);
+export const validateNotNullAddress = validateNotAny([
+  ETH_ZERO_ADDR,
+  ETH_ZERO_ADDR_SHORT,
+]);

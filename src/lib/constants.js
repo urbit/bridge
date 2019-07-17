@@ -18,9 +18,13 @@ const GALAXY_ENTROPY_BITS = 384;
 
 const SEED_ENTROPY_BITS = 128;
 
+// the curve param for the network keys
+const NETWORK_KEY_CURVE_PARAMETER = '42';
 // the null result if a key is unset within azimuth
 const ZERO_KEY =
   '0x0000000000000000000000000000000000000000000000000000000000000000';
+// the current crypto suite version
+const CRYPTO_SUITE_VERSION = 1;
 
 //TODO move into azimuth-js
 const GAS_LIMITS = {
@@ -36,6 +40,8 @@ const GAS_LIMITS = {
   DETACH: 200000, //NOTE no samples
   //
   GIFT_PLANET: 400000, //NOTE low sample size
+  //
+  SEND_ETH: 21000,
   //
   DEFAULT: 550000,
 };
@@ -89,5 +95,7 @@ export {
   GALAXY_ENTROPY_BITS,
   SEED_ENTROPY_BITS,
   ZOD,
+  NETWORK_KEY_CURVE_PARAMETER,
   ZERO_KEY,
+  CRYPTO_SUITE_VERSION,
 };

@@ -18,7 +18,7 @@ import {
 } from 'lib/keys';
 import { formatDotsWithTime } from 'lib/dateFormat';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
-import { GAS_LIMITS, ZERO_KEY } from 'lib/constants';
+import { GAS_LIMITS, ZERO_KEY, CRYPTO_SUITE_VERSION } from 'lib/constants';
 import { addHexPrefix } from 'lib/wallet';
 
 import ViewHeader from 'components/ViewHeader';
@@ -28,8 +28,6 @@ import FooterButton from 'components/FooterButton';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import NoticeBox from 'components/NoticeBox';
-
-const CRYPTO_SUITE_VERSION = 1;
 
 const chainKeyProp = name => d =>
   d[name] === ZERO_KEY ? Nothing() : Just(d[name]);

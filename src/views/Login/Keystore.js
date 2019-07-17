@@ -23,7 +23,7 @@ export default function Keystore({ className }) {
   // inputs
   // keystore: Maybe<String>
   const [keystore, setKeystore] = useState(Nothing());
-  const [passphraseInput, { value: passphrase }] = usePassphraseInput({
+  const [passphraseInput, { data: passphrase }] = usePassphraseInput({
     name: 'password',
     label: 'Keystore password',
     autoFocus: true,
