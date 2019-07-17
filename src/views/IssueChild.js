@@ -78,7 +78,7 @@ class IssueChild extends React.Component {
     const validContracts = need.contracts(this.props.contracts);
 
     azimuth
-      .getUnspawnedChildren(validContracts, Number(issuingPoint))
+      .getUnspawnedChildren(validContracts, parseInt(issuingPoint, 10))
       .then(ps => this.setState({ validChildren: new Set(ps.map(ob.patp)) }));
   }
 
