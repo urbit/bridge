@@ -2,7 +2,10 @@ import React, { useState, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H4, Text, ErrorText } from 'indigo-react';
 
-import { reticketPointBetweenWallets } from 'lib/invite';
+import {
+  reticketPointBetweenWallets,
+  TRANSACTION_PROGRESS,
+} from 'lib/reticket';
 import { fromWei } from 'lib/txn';
 import * as need from 'lib/need';
 import useLifecycle from 'lib/useLifecycle';
@@ -18,7 +21,24 @@ import LoadingBar from 'components/LoadingBar';
 import Highlighted from 'components/Highlighted';
 import { WALLET_TYPES } from 'lib/wallet';
 
-// TODO: maybe we can merge PassportTransfer here?
+const labelForProgress = progress => {
+  if (progress <= 0) {
+    return 'Starting...';
+  } else if (progress <= TRANSACTION_PROGRESS.GENERATING) {
+    return 'Generating Transactions...';
+  } else if (progress <= TRANSACTION_PROGRESS.SIGNING) {
+    return 'Signing Transactions...';
+  } else if (progress <= TRANSACTION_PROGRESS.FUNDING) {
+    return 'Funding Transactions...';
+  } else if (progress <= TRANSACTION_PROGRESS.TRANSFERRING) {
+    return 'Transferring Point...';
+  } else if (progress <= TRANSACTION_PROGRESS.CLEANING) {
+    return 'Cleaning Up...';
+  } else if (progress <= TRANSACTION_PROGRESS.DONE) {
+    return 'Done';
+  }
+};
+
 export default function ReticketExecute({ newWallet, setNewWallet }) {
   const { popTo, names, reset } = useHistory();
   const { web3, contracts } = useNetwork();
@@ -26,10 +46,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
   const { pointCursor } = usePointCursor();
 
   const [generalError, setGeneralError] = useState();
-  const [{ label, progress }, setState] = useState({
-    label: 'Starting...',
-    progress: 0,
-  });
+  const [progress, setProgress] = useState(0);
   const [needFunds, setNeedFunds] = useState();
   const isDone = progress >= 1.0;
 
@@ -70,7 +87,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
     ({ type, state, value }) => {
       switch (type) {
         case 'progress':
-          return setState(state);
+          return setProgress(state);
         case 'askFunding':
           return setNeedFunds(value);
         case 'gotFunding':
@@ -79,7 +96,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
           console.error(`Unknown update: ${type}`);
       }
     },
-    [setState, setNeedFunds]
+    [setProgress, setNeedFunds]
   );
 
   const renderAdditionalInfo = () => {
@@ -124,7 +141,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
   return (
     <Grid gap={4} className="mt4">
       <Grid.Item full as={H4}>
-        {label}
+        {labelForProgress(progress)}
       </Grid.Item>
 
       {isDone ? (

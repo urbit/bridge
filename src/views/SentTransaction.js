@@ -1,4 +1,3 @@
-import Maybe from 'folktale/maybe';
 import React from 'react';
 import * as need from '../lib/need';
 import { H1, H3, P, Warning, Anchor } from '../components/old/Base';
