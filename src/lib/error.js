@@ -7,7 +7,6 @@ const BRIDGE_ERROR = {
   MISSING_MNEMONIC: 'no authentication mnemonic found',
   MISSING_URBIT_WALLET: 'no urbit wallet found',
   MISSING_POINT: 'no point found',
-  MISSING_AUTH_MNEMONIC: 'no mnemonic found',
   MISSING_POINT_DETAILS: 'no details of point found',
   INVALID_ROUTE: 'invalid route',
   INVALID_NETWORK_TYPE: 'invalid network type',

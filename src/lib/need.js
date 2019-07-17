@@ -21,10 +21,6 @@ export const details = needBuilder(() => {
   throw new Error(BRIDGE_ERROR.MISSING_POINT_DETAILS);
 });
 
-export const authMnemonic = needBuilder(() => {
-  throw new Error(BRIDGE_ERROR.MISSING_AUTH_MNEMONIC);
-});
-
 export const web3 = needBuilder(() => {
   throw new Error(BRIDGE_ERROR.MISSING_WEB3);
 });
