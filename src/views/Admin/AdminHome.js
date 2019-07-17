@@ -22,13 +22,20 @@ export default function AdminHome() {
 
   const point = need.point(pointCursor);
   const address = need.addressFromWallet(wallet);
-  const { isOwner, canTransfer } = usePermissionsForPoint(address, point);
+  const { isOwner, canTransfer, isTransferProxySet } = usePermissionsForPoint(
+    address,
+    point
+  );
 
   const goRedownload = useCallback(() => push(names.REDOWNLOAD), [push, names]);
   const goReticket = useCallback(() => push(names.RETICKET), [push, names]);
   const goEditPermissions = useCallback(() => push(names.EDIT_PERMISSIONS), [
     push,
     names,
+  ]);
+  const goCancelTransfer = useCallback(() => push(names.CANCEL_TRANSFER), [
+    names,
+    push,
   ]);
   const goTransfer = useCallback(() => push(names.TRANSFER), [names, push]);
 
@@ -79,14 +86,25 @@ export default function AdminHome() {
           Edit Permissions
         </Grid.Item>
         <Grid.Divider />
-        <Grid.Item
-          full
-          as={ForwardButton}
-          onClick={goTransfer}
-          detail="Transfer ownership of this point"
-          disabled={!canTransfer}>
-          Transfer
-        </Grid.Item>
+        {isTransferProxySet ? (
+          <Grid.Item
+            full
+            as={ForwardButton}
+            onClick={goCancelTransfer}
+            detail="Cancel outgoing transfer"
+            disabled={!canTransfer}>
+            Cancel Outgoing Transfer
+          </Grid.Item>
+        ) : (
+          <Grid.Item
+            full
+            as={ForwardButton}
+            onClick={goTransfer}
+            detail="Transfer ownership of this point"
+            disabled={!canTransfer}>
+            Transfer
+          </Grid.Item>
+        )}
         <Grid.Divider />
       </Grid>
     </>

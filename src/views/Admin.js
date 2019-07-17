@@ -16,6 +16,7 @@ import AdminRedownload from './Admin/AdminRedownload';
 import AdminReticket from './Admin/AdminReticket';
 import AdminSetProxy from './Admin/AdminSetProxy';
 import AdminTransfer from './Admin/AdminTransfer';
+import AdminCancelTransfer from './Admin/AdminCancelTransfer';
 import AdminNetworkingKeys from './Admin/AdminNetworkingKeys';
 
 const NAMES = {
@@ -25,6 +26,7 @@ const NAMES = {
   RETICKET: 'RETICKET',
   SET_PROXY: 'SET_PROXY',
   TRANSFER: 'TRANSFER',
+  CANCEL_TRANSFER: 'CANCEL_TRANSFER',
   NETWORKING_KEYS: 'NETWORKING_KEYS',
 };
 
@@ -35,6 +37,7 @@ const VIEWS = {
   [NAMES.RETICKET]: AdminReticket,
   [NAMES.SET_PROXY]: AdminSetProxy,
   [NAMES.TRANSFER]: AdminTransfer,
+  [NAMES.CANCEL_TRANSFER]: AdminCancelTransfer,
   [NAMES.NETWORKING_KEYS]: AdminNetworkingKeys,
 };
 

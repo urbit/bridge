@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import cn from 'classnames';
-import { Grid, Text, Input } from 'indigo-react';
+import { Grid, Text } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from 'store/network';
@@ -9,16 +9,17 @@ import { usePointCache } from 'store/pointCache';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
-import { useAddressInput } from 'lib/useInputs';
 import useCurrentPointName from 'lib/useCurrentPointName';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
+import { ETH_ZERO_ADDR } from 'lib/wallet';
+import useLifecycle from 'lib/useLifecycle';
 
 import ViewHeader from 'components/ViewHeader';
 import MiniBackButton from 'components/MiniBackButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 
-function useTransfer() {
+function useCancelTransfer() {
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
   const { syncOwnedPoint } = usePointCache();
@@ -26,20 +27,15 @@ function useTransfer() {
   const _contracts = need.contracts(contracts);
   const _point = need.point(pointCursor);
 
-  const {
-    construct: _construct,
-    confirmed,
-    inputsLocked,
-    bind,
-  } = useEthereumTransaction(GAS_LIMITS.TRANSFER);
-
-  const construct = useCallback(
-    address =>
-      _construct(
-        azimuth.ecliptic.setTransferProxy(_contracts, _point, address)
-      ),
-    [_construct, _contracts, _point]
+  const { construct, confirmed, bind } = useEthereumTransaction(
+    GAS_LIMITS.CANCEL_TRANSFER
   );
+
+  useLifecycle(() => {
+    construct(
+      azimuth.ecliptic.setTransferProxy(_contracts, _point, ETH_ZERO_ADDR)
+    );
+  });
 
   // sync point details after success
   useEffect(() => {
@@ -49,36 +45,30 @@ function useTransfer() {
   }, [_point, confirmed, syncOwnedPoint]);
 
   return {
-    construct,
     confirmed,
-    inputsLocked,
     bind,
   };
 }
 
-export default function AdminTransfer() {
+export default function AdminCancelTransfer() {
   const { pop } = useLocalRouter();
+  const { getDetails } = usePointCache();
+  const { pointCursor } = usePointCursor();
+  const _point = need.point(pointCursor);
+
   const name = useCurrentPointName();
+  const _details = need.details(getDetails(_point));
 
-  const { construct, confirmed, inputsLocked, bind } = useTransfer();
-  const [addressInput, { pass, data: address }] = useAddressInput({
-    name: 'address',
-    label: `Ethereum Address`,
-    disabled: inputsLocked,
-  });
-
-  useEffect(() => {
-    if (pass) {
-      construct(address);
-    }
-  }, [pass, address, construct]);
+  const { confirmed, bind } = useCancelTransfer();
 
   return (
     <Grid>
       <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
+
       <Grid.Item full as={ViewHeader}>
-        Transfer Point
+        Cancel Outgoing Transfer
       </Grid.Item>
+
       <Grid.Item
         full
         as={Text}
@@ -86,11 +76,9 @@ export default function AdminTransfer() {
           green3: confirmed,
         })}>
         {confirmed
-          ? `${address} is now the Transfer Proxy for ${name} and can accept the transfer by logging into Multipass themselves. Until they accept your transfer, you will still have ownership over ${name}.`
-          : `Transfer ${name} to a new owner.`}
+          ? `The outgoing transfer of ${name} has been cancelled.`
+          : `Cancel the outgoing transfer of ${name} to ${_details.transferProxy}.`}
       </Grid.Item>
-
-      <Grid.Item full as={Input} {...addressInput} className="mv4" />
 
       <Grid.Item
         full
