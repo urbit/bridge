@@ -2,7 +2,7 @@ import React from 'react';
 import { azimuth } from 'azimuth-js';
 import * as need from '../../lib/need';
 
-import { CURVE_ZERO_ADDR, isZeroAddress, eqAddr } from '../../lib/wallet';
+import { isZeroAddress, eqAddr } from '../../lib/wallet';
 import { H2, P } from '../../components/old/Base';
 import { Button } from '../../components/old/Base';
 import { ROUTE_NAMES } from '../../lib/routeNames';
@@ -11,6 +11,7 @@ import { useWallet } from '../../store/wallet';
 import { Grid } from 'indigo-react';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
+import { CURVE_ZERO_ADDR } from 'lib/keys';
 
 const isPlanet = point =>
   azimuth.getPointSize(point) === azimuth.PointSize.Planet;

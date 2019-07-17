@@ -23,10 +23,12 @@ import {
   segmentNetworkKey,
   attemptNetworkSeedDerivation,
   deriveNetworkKeys,
+  CRYPTO_SUITE_VERSION,
+  CURVE_ZERO_ADDR,
 } from 'lib/keys';
 import { formatDotsWithTime } from 'lib/dateFormat';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
-import { GAS_LIMITS, ZERO_KEY, CRYPTO_SUITE_VERSION } from 'lib/constants';
+import { GAS_LIMITS } from 'lib/constants';
 import { addHexPrefix } from 'lib/wallet';
 
 import ViewHeader from 'components/ViewHeader';
@@ -39,7 +41,7 @@ import NoticeBox from 'components/NoticeBox';
 import { useHexInput, useCheckboxInput } from 'lib/useInputs';
 
 const chainKeyProp = name => d =>
-  d[name] === ZERO_KEY ? Nothing() : Just(d[name]);
+  d[name] === CURVE_ZERO_ADDR ? Nothing() : Just(d[name]);
 
 const renderNetworkKey = key => {
   const segments = segmentNetworkKey(key);

@@ -3,14 +3,14 @@ import * as azimuth from 'azimuth-js';
 import * as tank from './tank';
 
 import { hexify } from './txn';
-import { deriveNetworkSeedFromUrbitWallet, deriveNetworkKeys } from './keys';
+import {
+  deriveNetworkSeedFromUrbitWallet,
+  deriveNetworkKeys,
+  CRYPTO_SUITE_VERSION,
+} from './keys';
 import { addHexPrefix } from './wallet';
 import { sendAndAwaitAll } from './txn';
-import {
-  GAS_LIMITS,
-  DEFAULT_GAS_PRICE_GWEI,
-  CRYPTO_SUITE_VERSION,
-} from './constants';
+import { GAS_LIMITS, DEFAULT_GAS_PRICE_GWEI } from './constants';
 import { toWei } from 'web3-utils';
 
 // the initial network key revision is always 1

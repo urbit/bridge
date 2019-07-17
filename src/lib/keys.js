@@ -5,8 +5,15 @@ import * as noun from '../nockjs/noun';
 import * as serial from '../nockjs/serial';
 import * as kg from 'urbit-key-generation/dist';
 
-import { eqAddr, addHexPrefix, CURVE_ZERO_ADDR } from './wallet';
-import { NETWORK_KEY_CURVE_PARAMETER } from './constants';
+import { eqAddr, addHexPrefix } from './wallet';
+
+// the curve param for the network keys
+export const NETWORK_KEY_CURVE_PARAMETER = '42';
+// the current crypto suite version
+export const CRYPTO_SUITE_VERSION = 1;
+
+export const CURVE_ZERO_ADDR =
+  '0x0000000000000000000000000000000000000000000000000000000000000000';
 
 // ctsy joemfb
 const b64 = buf => {
