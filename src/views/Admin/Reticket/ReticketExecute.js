@@ -127,23 +127,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
         {label}
       </Grid.Item>
 
-      {!isDone && (
-        <>
-          <Grid.Item full as={Grid} className="mt3" gap={3}>
-            <Grid.Item full as={LoadingBar} progress={progress} />
-            <Grid.Item full>
-              <Text className="f5 green4">
-                This process can take up to 5 minutes to complete. Don't leave
-                this page until the process is complete.
-              </Text>
-            </Grid.Item>
-          </Grid.Item>
-
-          {renderAdditionalInfo()}
-        </>
-      )}
-
-      {isDone && (
+      {isDone ? (
         <>
           <Grid.Item full as={Text}>
             Your changes are now reflected on-chain and you can use the new
@@ -157,6 +141,20 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
             onClick={loginAndGoHome}>
             Login with New Master Ticket
           </Grid.Item>
+        </>
+      ) : (
+        <>
+          <Grid.Item full as={Grid} className="mt3" gap={3}>
+            <Grid.Item full as={LoadingBar} progress={progress} />
+            <Grid.Item full>
+              <Text className="f5 green4">
+                This process can take up to 5 minutes to complete. Don't leave
+                this page until the process is complete.
+              </Text>
+            </Grid.Item>
+          </Grid.Item>
+
+          {renderAdditionalInfo()}
         </>
       )}
     </Grid>

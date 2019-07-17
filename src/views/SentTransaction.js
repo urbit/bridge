@@ -8,7 +8,6 @@ import { ROUTE_NAMES } from '../lib/routeNames';
 import { useHistory } from '../store/history';
 import { BRIDGE_ERROR, renderTxnError } from '../lib/error';
 import { NETWORK_TYPES } from '../lib/network';
-import { useTxnConfirmations } from '../store/txnConfirmations';
 import { useNetwork } from '../store/network';
 import { useTxnCursor } from '../store/txnCursor';
 import View from 'components/View';
@@ -39,7 +38,7 @@ class Success extends React.Component {
 
   render() {
     const { props, state } = this;
-    const { networkType, hash, txnConfirmations } = props;
+    const { networkType, hash } = props;
     const { pending } = state;
 
     const esvisible =
@@ -67,9 +66,7 @@ class Success extends React.Component {
         </Anchor>
       );
 
-    const confirmations = Maybe.fromNullable(txnConfirmations[hash]).getOrElse(
-      0
-    );
+    const confirmations = 1;
 
     const requiredConfirmations = 1;
 
@@ -115,7 +112,6 @@ const Failure = props => (
 
 function SentTransaction(props) {
   const history = useHistory();
-  const { txnConfirmations } = useTxnConfirmations();
   const { web3, networkType } = useNetwork();
   const { txnCursor } = useTxnCursor();
 
@@ -132,13 +128,7 @@ function SentTransaction(props) {
 
   const body = result.matchWith({
     Error: message => <Failure web3={w3} message={message.value} />,
-    Ok: hash => (
-      <Success
-        hash={hash.value}
-        networkType={networkType}
-        txnConfirmations={txnConfirmations}
-      />
-    ),
+    Ok: hash => <Success hash={hash.value} networkType={networkType} />,
   });
 
   const ok = (

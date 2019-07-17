@@ -22,7 +22,6 @@ import {
   signTransaction,
 } from '../../lib/txn';
 
-import { withTxnConfirmations } from '../../store/txnConfirmations';
 import { withNetwork } from '../../store/network';
 import { withHistory } from '../../store/history';
 import { withWallet } from '../../store/wallet';
@@ -233,7 +232,7 @@ class StatelessTransaction extends React.Component {
     } else {
       this.setState({ txStatus: SUBMISSION_STATES.SENDING });
 
-      sendSignedTransaction(web3, stx, usedTank, props.setTxnConfirmations)
+      sendSignedTransaction(web3, stx, usedTank)
         .then(txHash => {
           props.setTxnCursor(Just(Ok(txHash)));
 
@@ -592,7 +591,6 @@ class StatelessTransaction extends React.Component {
 
 export default compose(
   withNetwork,
-  withTxnConfirmations,
   withHistory,
   withWallet,
   withTxnCursor
