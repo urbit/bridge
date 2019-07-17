@@ -21,7 +21,7 @@ export default function useKeyfileGenerator(point, manualNetworkSeed) {
   const { urbitWallet, wallet, authMnemonic } = useWallet();
 
   const [downloaded, setDownloaded] = useState(false);
-  const [generating, setGenerating] = useState(false);
+  const [generating, setGenerating] = useState(true);
   const [keyfile, setKeyfile] = useState(false);
 
   const _address = need.wallet(wallet).address;
@@ -38,8 +38,6 @@ export default function useKeyfileGenerator(point, manualNetworkSeed) {
     (isOwner || isManagementProxy) && hasNetworkingKeys && keyfile;
 
   const generate = useCallback(async () => {
-    setGenerating(true);
-
     console.log('generating for network revision', networkRevision);
 
     const networkSeed = manualNetworkSeed

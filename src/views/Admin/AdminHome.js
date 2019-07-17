@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Just } from 'folktale/maybe';
-import { Grid } from 'indigo-react';
+import { Grid, B } from 'indigo-react';
 import * as need from 'lib/need';
 
 import { ForwardButton } from 'components/Buttons';
@@ -47,7 +47,12 @@ export default function AdminHome() {
           as={ForwardButton}
           disabled={!canDownloadPassport}
           onClick={goRedownload}
-          detail="Re-download your paper wallet">
+          detail="Re-download your paper wallet"
+          disabledDetail={
+            <B className="wrap ws-normal">
+              · Master Ticket Authentication required.
+            </B>
+          }>
           Download Passport
         </Grid.Item>
         <Grid.Divider />

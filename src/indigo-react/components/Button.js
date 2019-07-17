@@ -10,6 +10,7 @@ export default function Button({
   solid = false,
   success = false,
   disabled = false,
+  disabledDetail,
   detail,
   className,
   accessory = '→',
@@ -33,6 +34,11 @@ export default function Button({
           'bg-gray3': !success && solid && disabled,
           'bg-transparent': !success && !solid,
         },
+        {
+          white: solid,
+          black: !solid && !disabled,
+          gray4: !solid && disabled,
+        },
         className
       )}
       style={{
@@ -43,21 +49,18 @@ export default function Button({
       }}
       onClick={!disabled && onClick ? onClick : undefined}
       {...rest}>
-      <Grid.Item
-        full
-        as={Flex}
-        justify="between"
-        className={cn({
-          white: solid,
-          black: !solid && !disabled,
-          gray4: !solid && disabled,
-        })}>
+      <Grid.Item full as={Flex} justify="between">
         <span>{children}</span>
         <div className={cn('pl4')}>{accessory}</div>
       </Grid.Item>
       {detail && (
         <Grid.Item full as={HelpText}>
           {detail}
+        </Grid.Item>
+      )}
+      {disabled && disabledDetail && (
+        <Grid.Item full className="f6 black mt1">
+          {disabledDetail}
         </Grid.Item>
       )}
     </Grid>

@@ -17,6 +17,7 @@ const GALAXY_ENTROPY_BITS = 384;
 
 const SEED_ENTROPY_BITS = 128;
 
+// the null result if a key is unset within azimuth
 const ZERO_KEY =
   '0x0000000000000000000000000000000000000000000000000000000000000000';
 
