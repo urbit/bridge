@@ -21,15 +21,16 @@ export default function DownloadKeyfileButton({
     networkSeed
   );
 
+  const showHelp = !generating && !available;
+
   return (
     <DownloadButton
       as="span"
       className={className}
       disabled={downloaded || !available}
       disabledDetail={
-        !generating &&
-        !available && (
-          // TODO: make this a toggle-able 'help' or something
+        // TODO: make this a toggle-able 'help' or something — too much space
+        showHelp && (
           <Flex col>
             <Flex.Item as={B} className="wrap ws-normal">
               · You are using nondeterministic networking keys. To download your

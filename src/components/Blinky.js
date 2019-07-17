@@ -26,6 +26,8 @@ export const matchBlinkyDate = obj =>
     Just: p => formatDots(p.value),
   });
 
+export const blinkIf = (test, right) => (test ? <Blinky /> : right);
+
 export default function Blinky({
   a = LOADING_CHARACTER,
   b = INTERSTITIAL_CHARACTER,

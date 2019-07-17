@@ -13,7 +13,7 @@ import { isDevelopment } from 'lib/flags';
 import { ForwardButton } from 'components/Buttons';
 import PaperRenderer from 'components/PaperRenderer';
 import WarningBox from 'components/WarningBox';
-import Blinky from 'components/Blinky';
+import { blinkIf } from 'components/Blinky';
 import useCurrentPointName from 'lib/useCurrentPointName';
 
 export default function ReticketConfirm({ newWallet, setNewWallet }) {
@@ -79,7 +79,7 @@ export default function ReticketConfirm({ newWallet, setNewWallet }) {
         full
         as={ForwardButton}
         solid
-        accessory={Nothing.hasInstance(newWallet) ? <Blinky /> : undefined}
+        accessory={blinkIf(Nothing.hasInstance(newWallet))}
         disabled={Nothing.hasInstance(newWallet)}
         onClick={goDownload}>
         I understand, continue

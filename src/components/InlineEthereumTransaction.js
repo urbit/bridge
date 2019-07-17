@@ -10,11 +10,12 @@ import {
   Text,
   HelpText,
 } from 'indigo-react';
-import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
+
 import { useCheckboxInput } from 'lib/useInputs';
-import Blinky from './Blinky';
 import { hexify } from 'lib/txn';
 import { useExploreTxUrl } from 'lib/explorer';
+
+import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
 
 export default function InlineEthereumTransaction({
   // from useEthereumTransaction.bind
@@ -42,10 +43,10 @@ export default function InlineEthereumTransaction({
   const showReceipt = broadcasted || confirmed;
   // show configure controls pre-broadcast
   const showConfigureInput = !(signed || broadcasted || confirmed);
-  // show signed tx after signing
+  // show signed tx only when signing (for offline usage)
   const showSignedTx = signed;
 
-  const exploreHashUrl = useExploreTxUrl(txHash);
+  const exploreTxUrl = useExploreTxUrl(txHash);
   const [advancedInput, { data: advancedOpen }] = useCheckboxInput({
     name: 'advanced',
     label: 'Advanced Configuration',
@@ -63,7 +64,7 @@ export default function InlineEthereumTransaction({
     disabled: !showSignedTx,
   });
 
-  const renderButton = () => {
+  const renderPrimaryButton = () => {
     if (error) {
       return (
         <Grid.Item full as={RestartButton} solid onClick={() => reset()}>
@@ -79,25 +80,15 @@ export default function InlineEthereumTransaction({
           </Grid.Item>
         </>
       );
-    } else if (broadcasted) {
+    } else if (signed || broadcasted) {
       return (
         <Grid.Item
           full
           as={ForwardButton}
           solid
           success
-          disabled
-          accessory={<Blinky />}>
-          Sending Transaction...
-        </Grid.Item>
-      );
-    } else if (signed) {
-      return (
-        <Grid.Item
-          full
-          as={ForwardButton}
-          solid
-          success
+          disable={broadcasted}
+          loading={broadcasted}
           onClick={() => broadcast()}>
           Send Transaction
         </Grid.Item>
@@ -109,7 +100,7 @@ export default function InlineEthereumTransaction({
           as={GenerateButton}
           onClick={generateAndSign}
           disabled={!canSign}
-          accessory={!canSign && initializing ? <Blinky /> : undefined}>
+          loading={!canSign && initializing}>
           Generate & Sign Transaction
         </Grid.Item>
       );
@@ -118,7 +109,7 @@ export default function InlineEthereumTransaction({
 
   return (
     <Grid className={cn(className, 'mt1')}>
-      {renderButton()}
+      {renderPrimaryButton()}
 
       {error && (
         <Grid.Item full as={ErrorText} className="mt1">
@@ -136,6 +127,7 @@ export default function InlineEthereumTransaction({
                 <Flex.Item as={H5}>Gas Price</Flex.Item>
                 <Flex.Item as={H5}>{gasPrice} Gwei</Flex.Item>
               </Grid.Item>
+              {/* TODO(shrugs): move to indigo/RangeInput */}
               <Grid.Item
                 full
                 as="input"
@@ -182,7 +174,7 @@ export default function InlineEthereumTransaction({
           <Grid.Item full as={Flex} col className="pv4">
             <Flex.Item as={Flex} row justify="between">
               <Flex.Item as={H5}>Transaction Hash</Flex.Item>
-              <Flex.Item as={LinkButton} href={exploreHashUrl}>
+              <Flex.Item as={LinkButton} href={exploreTxUrl}>
                 Etherscan↗
               </Flex.Item>
             </Flex.Item>

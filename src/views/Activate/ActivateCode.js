@@ -14,7 +14,7 @@ import * as need from 'lib/need';
 import { ROUTE_NAMES } from 'lib/routeNames';
 import { useSyncKnownPoints } from 'lib/useSyncPoints';
 import FooterButton from 'components/FooterButton';
-import Blinky from 'components/Blinky';
+import { blinkIf } from 'components/Blinky';
 import { DEFAULT_HD_PATH, walletFromMnemonic } from 'lib/wallet';
 import { useNetwork } from 'store/network';
 import { generateWallet } from 'lib/invite';
@@ -138,7 +138,7 @@ export default function ActivateCode() {
           as={ForwardButton}
           className="mt4"
           disabled={!pass || deriving}
-          accessory={deriving ? <Blinky /> : undefined}
+          accessory={blinkIf(deriving)}
           onClick={goToPassport}
           solid
           full>

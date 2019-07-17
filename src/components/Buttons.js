@@ -1,17 +1,18 @@
 import React from 'react';
 import { Button } from 'indigo-react';
-import Blinky from './Blinky';
+
+import { blinkIf } from './Blinky';
 
 // NOTE: the -> is correct because inter recognizes the pair
 export const ForwardButton = ({ loading, ...props }) => (
-  <Button accessory={loading ? <Blinky /> : '->'} {...props} />
+  <Button accessory={blinkIf(loading, '->')} {...props} />
 );
 export const DownloadButton = ({ loading, ...props }) => (
-  <Button accessory={loading ? <Blinky /> : '↓'} {...props} />
+  <Button accessory={blinkIf(loading, '↓')} {...props} />
 );
 export const RestartButton = props => <Button accessory="↺" {...props} />;
-export const GenerateButton = props => (
-  <Button accessory="○" solid {...props} />
+export const GenerateButton = ({ loading, ...props }) => (
+  <Button accessory={blinkIf(loading, '○')} solid {...props} />
 );
 export const OutButton = props => (
   <Button as="a" target="_blank" accessory="↗" {...props} />
