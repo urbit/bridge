@@ -90,7 +90,10 @@ export const deriveNetworkSeedFromUrbitWallet = async (
   urbitWallet,
   revision = 1
 ) => {
-  return await deriveNetworkSeedFromSeed(urbitWallet.management.seed, revision);
+  return await deriveNetworkSeedFromMnemonic(
+    urbitWallet.management.seed,
+    revision
+  );
 };
 
 /**
@@ -100,7 +103,7 @@ export const deriveNetworkSeedFromUrbitWallet = async (
  * @param {number} revision
  * @return {Promise<Maybe<string>>}
  */
-export const deriveNetworkSeedFromMnemonic = async (
+export const deriveNetworkSeedFromManagementMnemonic = async (
   wallet,
   authMnemonic,
   details,
@@ -108,22 +111,21 @@ export const deriveNetworkSeedFromMnemonic = async (
 ) => {
   const isManagementProxy = eqAddr(wallet.address, details.managementProxy);
 
-  // the network seed is derivable from mnemonic iff the management proxy
-  // is this mnemonic
+  // the network seed is derivable iff this mnemonic is the management proxy
   if (isManagementProxy) {
-    return await deriveNetworkSeedFromSeed(authMnemonic, revision);
+    return await deriveNetworkSeedFromMnemonic(authMnemonic, revision);
   }
 
   return Nothing();
 };
 
 /**
- * @param {string} seed
+ * @param {string} mnemonic
  * @param {number} revision
  * @return {Promise<Maybe<string>>}
  */
-const deriveNetworkSeedFromSeed = async (seed, revision) => {
-  return Just(await kg.deriveNetworkSeed(seed, '', revision));
+const deriveNetworkSeedFromMnemonic = async (mnemonic, revision) => {
+  return Just(await kg.deriveNetworkSeed(mnemonic, '', revision));
 };
 
 /**
@@ -141,7 +143,7 @@ export const attemptNetworkSeedDerivation = async ({
   }
 
   if (Just.hasInstance(wallet) && Just.hasInstance(authMnemonic)) {
-    return await deriveNetworkSeedFromMnemonic(
+    return await deriveNetworkSeedFromManagementMnemonic(
       wallet.value,
       authMnemonic.value,
       details,
