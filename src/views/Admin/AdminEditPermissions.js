@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
@@ -9,7 +9,6 @@ import { matchBlinkyDate } from 'components/Blinky';
 
 import { ETH_ZERO_ADDR } from 'lib/wallet';
 
-import useLifecycle from 'lib/useLifecycle';
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
@@ -21,7 +20,6 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import capitalize from 'lib/capitalize';
 import { eqAddr } from 'lib/wallet';
 import MiniBackButton from 'components/MiniBackButton';
-import FooterButton from 'components/FooterButton';
 
 export default function AdminEditPermissions() {
   const { pop, push, names } = useLocalRouter();
@@ -36,11 +34,11 @@ export default function AdminEditPermissions() {
   const pointSize = azimuth.getPointSize(point);
   const isParent = pointSize !== azimuth.PointSize.Planet;
   const isSenate = pointSize === azimuth.PointSize.Galaxy;
-  const userAddress = need.wallet(wallet).address;
+  const address = need.wallet(wallet).address;
 
   const details = need.details(getDetails(point));
   const networkRevision = parseInt(details.keyRevisionNumber, 10);
-  const { canManage, isOwner } = usePermissionsForPoint(userAddress, point);
+  const { canManage, isOwner } = usePermissionsForPoint(address, point);
 
   const goSetProxy = useCallback(
     proxyType => push(names.SET_PROXY, { proxyType }),

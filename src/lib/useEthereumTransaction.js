@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Just } from 'folktale/maybe';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
@@ -8,10 +7,9 @@ import {
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,
-  hexify,
 } from './txn';
 import * as need from './need';
-import { toHex, toWei, fromWei } from 'web3-utils';
+import { fromWei } from 'web3-utils';
 
 const STATE = {
   NONE: 'NONE',
@@ -66,9 +64,6 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
   const generateAndSign = useCallback(async () => {
     try {
       setError(undefined);
-      // TODO: set varaibles
-      // txn.gas = toHex(gasLimit);
-      // txn.gasPrice = toHex(toWei(gasPrice, 'gwei'));
 
       const txn = await signTransaction({
         wallet: _wallet,
@@ -160,6 +155,7 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
     error,
     inputsLocked,
     txHash,
+    signedTransaction,
     bind: {
       constructed,
       canSign,
@@ -172,6 +168,7 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
       error,
       setGasPrice,
       txHash,
+      signedTransaction,
     },
   };
 }

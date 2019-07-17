@@ -10,7 +10,6 @@ import { usePointCursor } from 'store/pointCursor';
 
 import usePermissionsForPoint from 'lib/usePermissionsForPoint';
 
-import FooterButton from 'components/FooterButton';
 import ViewHeader from 'components/ViewHeader';
 import { useLocalRouter } from 'lib/LocalRouter';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';

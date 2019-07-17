@@ -38,15 +38,19 @@ export default function usePermissionsForPoint(address, point) {
 
       const canManage = isOwner || isManagementProxy;
       const canTransfer = isOwner || isTransferProxy;
-
       const canSpawn = (isStar || isGalaxy) && (isOwner || isSpawnProxy);
       const canVote = isGalaxy && (isOwner || isVotingProxy);
 
       return {
+        isPlanet,
+        isStar,
+        isGalaxy,
+        //
         isOwner,
         isActiveOwner,
         isTransferProxy,
         isManagementProxy,
+        //
         canManage,
         canTransfer,
         canSpawn,

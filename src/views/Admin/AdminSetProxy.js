@@ -24,7 +24,7 @@ import MiniBackButton from 'components/MiniBackButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 
-const proxyFromDetails = (details, proxyType) => {
+const proxyFromDetails = (details, contracts, proxyType) => {
   switch (proxyType) {
     case PROXY_TYPE.MANAGEMENT:
       return details.managementProxy;
@@ -33,13 +33,17 @@ const proxyFromDetails = (details, proxyType) => {
     case PROXY_TYPE.TRANSFER:
       return details.transferProxy;
     case PROXY_TYPE.VOTING:
-      return details.votingProxy;
+      if (eqAddr(details.votingProxy, contracts.delegatedSending.address)) {
+        return `${details.votingProxy} (invites contract)`;
+      } else {
+        return details.votingProxy;
+      }
     default:
       throw new Error(`Unknown proxyType: ${proxyType}`);
   }
 };
 
-function useSetProxy(proxyType, address) {
+function useSetProxy(proxyType) {
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
   const { syncOwnedPoint } = usePointCache();
@@ -109,8 +113,11 @@ export default function AdminSetProxy() {
   const { data, pop } = useLocalRouter();
   const { getDetails } = usePointCache();
   const { pointCursor } = usePointCursor();
-  const point = need.point(pointCursor);
-  const details = need.details(getDetails(point));
+  const { contracts } = useNetwork();
+
+  const _point = need.point(pointCursor);
+  const _details = need.details(getDetails(_point));
+  const _contracts = need.contracts(contracts);
 
   const properProxyType = capitalize(proxyTypeToHuman(data.proxyType));
 
@@ -129,26 +136,34 @@ export default function AdminSetProxy() {
     }
   }, [pass, address, construct]);
 
-  const proxyAddress = proxyFromDetails(details, data.proxyType);
+  const proxyAddress = proxyFromDetails(_details, _contracts, data.proxyType);
   const isProxySet = !eqAddr(ETH_ZERO_ADDR, proxyAddress);
+
+  const proxyAddressLabel = `${
+    confirmed ? 'New' : 'Current'
+  } ${properProxyType} Address`;
 
   return (
     <Grid>
       <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
+
       <Grid.Item full as={ViewHeader}>
         {properProxyType} Address
       </Grid.Item>
+
       <Grid.Item full as={Text} className="mb4 f5">
         {proxyTypeToHumanDescription(data.proxyType)}
       </Grid.Item>
+
       <Grid.Item
         full
         as={Text}
         className={cn('f6 mb1', {
           green3: confirmed,
         })}>
-        {confirmed ? 'New' : 'Current'} {properProxyType} Address
+        {proxyAddressLabel}
       </Grid.Item>
+
       <Grid.Item full as={Flex} row justify="between" align="center">
         <Flex.Item
           flex

@@ -1,6 +1,5 @@
 import Tx from 'ethereumjs-tx';
 import * as azimuth from 'azimuth-js';
-import * as kg from 'urbit-key-generation/dist';
 import * as wg from './walletgen';
 import * as tank from './tank';
 
@@ -8,7 +7,7 @@ import JSZip from 'jszip';
 import saveAs from 'file-saver';
 
 import { hexify } from './txn';
-import { deriveNetworkSeedFromUrbitWallet } from './keys';
+import { deriveNetworkSeedFromUrbitWallet, deriveNetworkKeys } from './keys';
 import { addHexPrefix } from './wallet';
 import { sendAndAwaitAll } from './txn';
 import { GAS_LIMITS } from './constants';
@@ -132,7 +131,7 @@ export async function reticketPointBetweenWallets({
     Just: p => p.value,
   });
 
-  const networkKeys = kg.deriveNetworkKeys(networkSeed);
+  const networkKeys = deriveNetworkKeys(networkSeed);
 
   const keysTx = azimuth.ecliptic.configureKeys(
     contracts,

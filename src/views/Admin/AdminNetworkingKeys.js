@@ -1,25 +1,38 @@
-import React, { useCallback, useState } from 'react';
-import { Nothing } from 'folktale/maybe';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Just, Nothing } from 'folktale/maybe';
 import { Grid, Text, H5, Flex } from 'indigo-react';
+import * as azimuth from 'azimuth-js';
+import { randomHex } from 'web3-utils';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import * as need from 'lib/need';
-import { segmentNetworkKey } from 'lib/keys';
+import {
+  segmentNetworkKey,
+  attemptNetworkSeedDerivation,
+  deriveNetworkKeys,
+} from 'lib/keys';
 import { formatDotsWithTime } from 'lib/dateFormat';
 
 import ViewHeader from 'components/ViewHeader';
 import MiniBackButton from 'components/MiniBackButton';
-import {
-  GenerateButton,
-  BootArvoButton,
-  ForwardButton,
-} from 'components/Buttons';
+import { BootArvoButton, ForwardButton } from 'components/Buttons';
 import FooterButton from 'components/FooterButton';
 import WarningBox from 'components/WarningBox';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
+import useEthereumTransaction from 'lib/useEthereumTransaction';
+import { GAS_LIMITS, ZERO_KEY } from 'lib/constants';
+import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
+import { addHexPrefix } from 'lib/wallet';
+import { useNetwork } from 'store/network';
+import { useWallet } from 'store/wallet';
+
+const CRYPTO_SUITE_VERSION = 1;
+
+const chainKeyProp = name => d =>
+  d[name] === ZERO_KEY ? Nothing() : Just(d[name]);
 
 const renderNetworkKey = key => {
   const segments = segmentNetworkKey(key);
@@ -32,14 +45,81 @@ const renderNetworkKey = key => {
 };
 
 function useSetKeys() {
-  const setting = false;
-  const didSet = false;
-  const setKeys = useCallback(async () => {}, []);
+  const { urbitWallet, wallet, authMnemonic } = useWallet();
+  const { pointCursor } = usePointCursor();
+  const { syncOwnedPoint, getDetails } = usePointCache();
+  const { contracts } = useNetwork();
+  const _point = need.point(pointCursor);
+  const _contracts = need.contracts(contracts);
+
+  const [isDiscontinuity] = useState(false);
+  // TODO: set discontinuity with radio check?
+  const [ndNetworkSeed, setNdNetworkSeed] = useState();
+
+  const { construct, broadcasting, confirmed, bind } = useEthereumTransaction(
+    GAS_LIMITS.CONFIGURE_KEYS
+  );
+
+  // sync point details after success
+  useEffect(() => {
+    if (confirmed) {
+      syncOwnedPoint(_point);
+    }
+  }, [_point, confirmed, syncOwnedPoint]);
+
+  const setKeys = useCallback(async () => {
+    const details = need.details(getDetails(_point));
+    const networkRevision = parseInt(details.keyRevisionNumber, 10);
+
+    console.log('setting revision to ', networkRevision + 1);
+
+    const seed = await attemptNetworkSeedDerivation({
+      urbitWallet,
+      wallet,
+      authMnemonic,
+      details,
+      revision: networkRevision + 1,
+    });
+
+    const _networkSeed = seed.matchWith({
+      Nothing: () => {
+        const ndSeed = randomHex(64);
+        setNdNetworkSeed(ndSeed);
+        return ndSeed;
+      },
+      Just: p => p.value,
+    });
+
+    const pair = deriveNetworkKeys(_networkSeed);
+
+    const txn = azimuth.ecliptic.configureKeys(
+      _contracts,
+      _point,
+      addHexPrefix(pair.crypt.public),
+      addHexPrefix(pair.auth.public),
+      CRYPTO_SUITE_VERSION,
+      isDiscontinuity
+    );
+
+    construct(txn);
+  }, [
+    _contracts,
+    _point,
+    authMnemonic,
+    construct,
+    getDetails,
+    isDiscontinuity,
+    urbitWallet,
+    wallet,
+  ]);
 
   return {
-    setting,
-    didSet,
     setKeys,
+    construct,
+    broadcasting,
+    confirmed,
+    ndNetworkSeed,
+    bind,
   };
 }
 
@@ -55,23 +135,29 @@ export default function AdminNetworkingKeys() {
     Nothing: () => false,
     Just: ({ value: details }) => parseInt(details.keyRevisionNumber, 10) > 0,
   });
-  const [configuring, setConfiguring] = useState(false);
 
-  const { setKeys, setting, didSet } = useSetKeys();
+  const [didRequestSetKeys, _setDidRequestSetKeys] = useState(false);
+  const {
+    setKeys,
+    broadcasting,
+    confirmed,
+    ndNetworkSeed,
+    bind,
+  } = useSetKeys();
+
+  const setDidRequestSetKeys = useCallback(() => {
+    setKeys();
+    _setDidRequestSetKeys(true);
+  }, [setKeys, _setDidRequestSetKeys]);
 
   const goRelocate = useCallback(() => push(names.RELOCATE), [push, names]);
-  const configureTransaction = useCallback(() => setConfiguring(true), [
-    setConfiguring,
-  ]);
-
-  const inDefaultState = !configuring && !setting && !didSet;
 
   const renderTitle = () => {
-    if (didSet) {
+    if (confirmed) {
       return 'Networking keys are now set. Download your Keyfile to authenticate Arvo.';
     }
 
-    if (setting) {
+    if (broadcasting) {
       return 'Setting Network Keys...';
     }
 
@@ -83,19 +169,30 @@ export default function AdminNetworkingKeys() {
   };
 
   const renderButton = () => {
-    if (didSet) {
-      return <Grid.Item full as={DownloadKeyfileButton} solid />;
+    if (!didRequestSetKeys) {
+      return (
+        <Grid.Item
+          full
+          as={ForwardButton}
+          solid
+          onClick={() => setDidRequestSetKeys(true)}>
+          {hasKeys ? 'Reset' : 'Set'} Networking Keys
+        </Grid.Item>
+      );
     }
 
-    if (configuring || setting) {
-      return <Grid.Item full as={GenerateButton} solid onClick={setKeys} />;
+    if (confirmed) {
+      return (
+        <Grid.Item
+          full
+          as={DownloadKeyfileButton}
+          solid
+          networkSeed={ndNetworkSeed}
+        />
+      );
     }
 
-    return (
-      <Grid.Item full as={ForwardButton} solid onClick={configureTransaction}>
-        {hasKeys ? 'Reset' : 'Set'} Networking Keys
-      </Grid.Item>
-    );
+    return null;
   };
 
   const renderNetworkKeySection = (title, key) => (
@@ -105,7 +202,7 @@ export default function AdminNetworkingKeys() {
       </Grid.Item>
       {key.matchWith({
         Nothing: () => (
-          <Grid.Item full as={Text} className="f5 gray4">
+          <Grid.Item full as="code" className="f5 gray4">
             Unset
           </Grid.Item>
         ),
@@ -144,11 +241,11 @@ export default function AdminNetworkingKeys() {
       <>
         {renderNetworkKeySection(
           'Authentication',
-          details.map(d => d.authenticationKey)
+          details.chain(chainKeyProp('authenticationKey'))
         )}
         {renderNetworkKeySection(
           'Encryption',
-          details.map(d => d.encryptionKey)
+          details.chain(chainKeyProp('encryptionKey'))
         )}
         <Grid.Item full as={Flex} row justify="between" className="mt3">
           {renderDetail('Revision', details.map(d => d.keyRevisionNumber))}
@@ -184,7 +281,7 @@ export default function AdminNetworkingKeys() {
           {renderTitle()}
         </Grid.Item>
 
-        {inDefaultState && (
+        {!didRequestSetKeys && (
           <Grid.Item full as={Text} className="mb3">
             {hasKeys
               ? 'Here are your public keys that authenticate your Arvo.'
@@ -192,7 +289,7 @@ export default function AdminNetworkingKeys() {
           </Grid.Item>
         )}
 
-        {didSet && (
+        {confirmed && (
           <Grid.Item full as={WarningBox} className="mb3">
             You need this keyfile to authenticate with Arvo.
           </Grid.Item>
@@ -200,9 +297,18 @@ export default function AdminNetworkingKeys() {
 
         {renderButton()}
 
-        {inDefaultState && renderDetails()}
+        {didRequestSetKeys && (
+          <Grid.Item
+            full
+            as={InlineEthereumTransaction}
+            {...bind}
+            onReturn={() => pop()}
+          />
+        )}
 
-        {didSet && (
+        {!didRequestSetKeys && renderDetails()}
+
+        {confirmed && (
           <>
             <Grid.Item full as={BootArvoButton} disabled />
             <Grid.Divider />
@@ -210,7 +316,7 @@ export default function AdminNetworkingKeys() {
         )}
       </Grid>
 
-      {inDefaultState && (
+      {!didRequestSetKeys && (
         <FooterButton onClick={goRelocate} disabled>
           Relocate
         </FooterButton>

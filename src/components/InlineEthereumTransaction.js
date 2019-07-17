@@ -1,4 +1,5 @@
 import React from 'react';
+import cn from 'classnames';
 import {
   Grid,
   ToggleInput,
@@ -10,6 +11,8 @@ import {
 import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
 import { useCheckboxInput } from 'lib/useInputs';
 import Blinky from './Blinky';
+import { hexify } from 'lib/txn';
+import { useExploreTxUrl } from 'lib/explorer';
 
 export default function InlineEthereumTransaction({
   // from useEthereumTransaction.bind
@@ -24,14 +27,17 @@ export default function InlineEthereumTransaction({
   error,
   setGasPrice,
   txHash,
+  signedTransaction,
 
-  // additional
+  // additional from parent
   className,
   onReturn,
 }) {
+  const exploreHashUrl = useExploreTxUrl(txHash);
   const [configureInput, { data: configurationOpen }] = useCheckboxInput({
     name: 'configure',
     label: 'Configure Transaction',
+    inverseLabel: 'Cancel Configure Transaction',
     disabled: signed || broadcasted || confirmed,
   });
 
@@ -41,6 +47,7 @@ export default function InlineEthereumTransaction({
   ] = useCheckboxInput({
     name: 'viewsigned',
     label: 'View Signed Transaction',
+    inverseLabel: 'Hide Signed Transaction',
     disabled: !signed,
   });
 
@@ -105,7 +112,7 @@ export default function InlineEthereumTransaction({
   };
 
   return (
-    <Grid className={className}>
+    <Grid className={cn(className, 'mt1')}>
       {renderButton()}
 
       {error && (
@@ -119,7 +126,14 @@ export default function InlineEthereumTransaction({
       )}
 
       {showSignedTx && (
-        <Grid.Item full as={ToggleInput} {...viewSignedTransaction} />
+        <>
+          <Grid.Item full as={ToggleInput} {...viewSignedTransaction} />
+          {signedTransactionOpen && (
+            <Grid.Item full as="code" className="f6 mono gray4 wrap">
+              {hexify(signedTransaction.serialize())}
+            </Grid.Item>
+          )}
+        </>
       )}
 
       {showReceipt && (
@@ -128,7 +142,7 @@ export default function InlineEthereumTransaction({
           <Grid.Item full as={Flex} col className="pv4">
             <Flex.Item as={Flex} row justify="between">
               <Flex.Item as={H5}>Transaction Hash</Flex.Item>
-              <Flex.Item as={LinkButton} href="https://google.com">
+              <Flex.Item as={LinkButton} href={exploreHashUrl}>
                 Etherscan↗
               </Flex.Item>
             </Flex.Item>

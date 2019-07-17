@@ -84,12 +84,12 @@ export const deriveNetworkSeedFromUrbitWallet = async (
   urbitWallet,
   revision = 1
 ) => {
-  return deriveNetworkSeedFromSeed(urbitWallet.management.seed, revision);
+  return await deriveNetworkSeedFromSeed(urbitWallet.management.seed, revision);
 };
 
 /**
  * @param {Maybe<any>} wallet
- * @param {Maybe<string>} authMnemonic
+ * @param {string} authMnemonic
  * @param {object} details
  * @param {number} revision
  * @return {Promise<Maybe<string>>}
@@ -100,9 +100,12 @@ export const deriveNetworkSeedFromMnemonic = async (
   details,
   revision = 1
 ) => {
+  const isOwner = eqAddr(wallet.address, details.owner);
   const isManagementProxy = eqAddr(wallet.address, details.managementProxy);
 
-  if (isManagementProxy) {
+  // the network seed is only derivable from mnemonic if the derived
+  // management seed or owner equals the record we have on chain
+  if (isOwner || isManagementProxy) {
     return await deriveNetworkSeedFromSeed(authMnemonic, revision);
   }
 
@@ -115,10 +118,7 @@ export const deriveNetworkSeedFromMnemonic = async (
  * @return {Promise<Maybe<string>>}
  */
 const deriveNetworkSeedFromSeed = async (seed, revision) => {
-  const networkSeed = await kg.deriveNetworkSeed(seed, '', revision);
-  // apparently deriveNetworkSeed can return empty string
-  // and perhaps even malformed
-  return networkSeed === '' ? Nothing() : Just(networkSeed);
+  return Just(await kg.deriveNetworkSeed(seed, '', revision));
 };
 
 /**

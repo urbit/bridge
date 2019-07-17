@@ -17,11 +17,6 @@ export default function Button({
   children,
   ...rest
 }) {
-  const textColor = {
-    white: solid,
-    black: !solid && !disabled,
-    gray4: !solid && disabled,
-  };
   return (
     <Grid
       as={As}
@@ -48,7 +43,15 @@ export default function Button({
       }}
       onClick={!disabled && onClick ? onClick : undefined}
       {...rest}>
-      <Grid.Item full as={Flex} justify="between" className={cn(textColor)}>
+      <Grid.Item
+        full
+        as={Flex}
+        justify="between"
+        className={cn({
+          white: solid,
+          black: !solid && !disabled,
+          gray4: !solid && disabled,
+        })}>
         <span>{children}</span>
         <div className={cn('pl4')}>{accessory}</div>
       </Grid.Item>

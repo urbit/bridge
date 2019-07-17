@@ -55,11 +55,11 @@ export const generateWallet = async (point, ticket, boot) => {
     boot: boot,
   };
 
-  const wallet = await kg.generateWallet(config);
-
   // This is here to notify anyone who opens console because the thread
   // hangs, blocking UI updates so this cannot be done in the UI
   console.log('Generating Wallet for point address: ', point);
+
+  const wallet = await kg.generateWallet(config);
 
   return wallet;
 };

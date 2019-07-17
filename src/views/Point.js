@@ -19,7 +19,6 @@ import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import Actions from './Point/Actions';
 import { useWallet } from 'store/wallet';
 import usePermissionsForPoint from 'lib/usePermissionsForPoint';
-import MiniBackButton from 'components/MiniBackButton';
 
 export default function Point() {
   const { push, names } = useHistory();

@@ -8,6 +8,7 @@ export default function ToggleInput({
   // visuals
   name,
   label,
+  inverseLabel,
   className,
 
   // callbacks
@@ -55,12 +56,12 @@ export default function ToggleInput({
       <Flex.Item
         flex
         as="label"
-        className={cn('f6 pv1 lh-tall us-none flex-row align-center', {
+        className={cn('f6 pv2 lh-tall us-none flex-row align-center', {
           clickable: !disabled,
         })}
         htmlFor={name}>
         <LinkButton disabled={disabled} className="f5">
-          {bind.checked ? `Hide ${label}` : label}
+          {bind.checked ? inverseLabel : label}
         </LinkButton>
       </Flex.Item>
     </Flex>

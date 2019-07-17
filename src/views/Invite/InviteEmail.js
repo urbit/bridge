@@ -121,7 +121,7 @@ export default function InviteEmail() {
   const [hovered, setHovered] = useSetState();
   const [invites, addInvite, clearInvites] = useSetState();
   const [receipts, addReceipt, clearReceipts] = useSetState();
-  const [errors, addError, clearErrors] = useSetState();
+  const [errors, addError] = useSetState();
 
   // manage general state that affects the whole form
   const [status, setStatus] = useState(STATUS.INPUT);

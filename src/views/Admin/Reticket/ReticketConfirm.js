@@ -28,6 +28,7 @@ export default function ReticketConfirm({ newWallet, setNewWallet }) {
   // to read the disclaimer text
   //TODO also check we can pay for the transactions?
   useLifecycle(() => {
+    let mounted = true;
     (async () => {
       if (Just.hasInstance(newWallet)) {
         // skip if already computed (hitting the back button for example)
@@ -38,8 +39,14 @@ export default function ReticketConfirm({ newWallet, setNewWallet }) {
       if (isDevelopment) {
         console.log(`The new ticket for ${name} is ${wal.ticket}`);
       }
+      if (!mounted) {
+        return;
+      }
+
       setGeneratedWallet(Just(wal));
     })();
+
+    return () => (mounted = false);
   });
 
   const goDownload = useCallback(() => push(names.DOWNLOAD), [push, names]);

@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Just, Nothing } from 'folktale/maybe';
 import saveAs from 'file-saver';
 import * as ob from 'urbit-ob';
 
@@ -15,55 +16,67 @@ import {
 } from './keys';
 import usePermissionsForPoint from './usePermissionsForPoint';
 
-export default function useKeyfileGenerator(point) {
+export default function useKeyfileGenerator(point, manualNetworkSeed) {
   const { getDetails } = usePointCache();
   const { urbitWallet, wallet, authMnemonic } = useWallet();
 
   const [downloaded, setDownloaded] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [keyfile, setKeyfile] = useState();
+  const [keyfile, setKeyfile] = useState(false);
 
-  const details = need.details(getDetails(point));
-  const networkRevision = parseInt(details.keyRevisionNumber, 10);
+  const _address = need.wallet(wallet).address;
+  const _details = need.details(getDetails(point));
 
-  const { isOwner, isManagementProxy } = usePermissionsForPoint(point);
+  const networkRevision = parseInt(_details.keyRevisionNumber, 10);
+  const { isOwner, isManagementProxy } = usePermissionsForPoint(
+    _address,
+    point
+  );
+
   const hasNetworkingKeys = networkRevision > 0;
-  const available = (isOwner || isManagementProxy) && hasNetworkingKeys;
+  const available =
+    (isOwner || isManagementProxy) && hasNetworkingKeys && keyfile;
 
   const generate = useCallback(async () => {
     setGenerating(true);
 
-    const networkSeed = await attemptNetworkSeedDerivation({
-      urbitWallet,
-      wallet,
-      authMnemonic,
-      details,
-      revision: networkRevision,
-    });
+    console.log('generating for network revision', networkRevision);
 
-    const _networkSeed = need.value(networkSeed, () => {
+    const networkSeed = manualNetworkSeed
+      ? Just(manualNetworkSeed)
+      : await attemptNetworkSeedDerivation({
+          urbitWallet,
+          wallet,
+          authMnemonic,
+          details: _details,
+          revision: networkRevision,
+        });
+
+    if (Nothing.hasInstance(networkSeed)) {
       setGenerating(false);
-      throw new Error('Could not derive networking seed.');
-    });
+      console.log('nondeterministic seed!');
+      // TODO: tell user their seed is nondeterministic
+      return;
+    }
+
+    const _networkSeed = networkSeed.value;
 
     const pair = deriveNetworkKeys(_networkSeed);
 
-    if (!keysMatchChain(pair, details)) {
+    if (!keysMatchChain(pair, _details)) {
       setGenerating(false);
-      throw new Error(
-        'Derived networking keys do not match public keys on chain.'
-      );
+      console.log('Derived networking keys do not match public keys on chain.');
+      // TODO: tell usrs their seed is nondeterministic
     }
 
     setKeyfile(compileNetworkingKey(pair, point, networkRevision));
     setGenerating(false);
   }, [
-    setGenerating,
-    setKeyfile,
+    manualNetworkSeed,
     urbitWallet,
     wallet,
     authMnemonic,
-    details,
+    _details,
     networkRevision,
     point,
   ]);
@@ -77,17 +90,16 @@ export default function useKeyfileGenerator(point) {
       // TODO: ^ unifiy "remove tilde" calls
     );
     setDownloaded(true);
-  }, [point, keyfile, networkRevision, setDownloaded]);
+  }, [keyfile, point, networkRevision]);
 
-  const generateAndDownload = useCallback(async () => {
-    await generate();
-    download();
-  }, [generate, download]);
+  useEffect(() => {
+    generate();
+  }, [generate]);
 
   return {
     generating,
     available,
     downloaded,
-    generateAndDownload,
+    download,
   };
 }
