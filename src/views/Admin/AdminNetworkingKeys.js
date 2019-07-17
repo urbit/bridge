@@ -6,6 +6,8 @@ import { randomHex } from 'web3-utils';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
+import { useNetwork } from 'store/network';
+import { useWallet } from 'store/wallet';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import * as need from 'lib/need';
@@ -15,19 +17,17 @@ import {
   deriveNetworkKeys,
 } from 'lib/keys';
 import { formatDotsWithTime } from 'lib/dateFormat';
+import useEthereumTransaction from 'lib/useEthereumTransaction';
+import { GAS_LIMITS, ZERO_KEY } from 'lib/constants';
+import { addHexPrefix } from 'lib/wallet';
 
 import ViewHeader from 'components/ViewHeader';
 import MiniBackButton from 'components/MiniBackButton';
 import { BootArvoButton, ForwardButton } from 'components/Buttons';
 import FooterButton from 'components/FooterButton';
-import WarningBox from 'components/WarningBox';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
-import useEthereumTransaction from 'lib/useEthereumTransaction';
-import { GAS_LIMITS, ZERO_KEY } from 'lib/constants';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
-import { addHexPrefix } from 'lib/wallet';
-import { useNetwork } from 'store/network';
-import { useWallet } from 'store/wallet';
+import NoticeBox from 'components/NoticeBox';
 
 const CRYPTO_SUITE_VERSION = 1;
 
@@ -290,7 +290,7 @@ export default function AdminNetworkingKeys() {
         )}
 
         {confirmed && (
-          <Grid.Item full as={WarningBox} className="mb3">
+          <Grid.Item full as={NoticeBox} className="mb3">
             You need this keyfile to authenticate with Arvo.
           </Grid.Item>
         )}

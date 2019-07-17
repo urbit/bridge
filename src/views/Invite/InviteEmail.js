@@ -32,7 +32,7 @@ import * as tank from 'lib/tank';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useArray from 'lib/useArray';
 import { buildEmailInputConfig } from 'lib/useInputs';
-import { MIN_PLANET, GAS_LIMITS } from 'lib/constants';
+import { MIN_PLANET, GAS_LIMITS, DEFAULT_GAS_PRICE_GWEI } from 'lib/constants';
 import * as need from 'lib/need';
 import * as wg from 'lib/walletgen';
 import useSetState from 'lib/useSetState';
@@ -43,9 +43,11 @@ import MiniBackButton from 'components/MiniBackButton';
 import LoadableButton from 'components/LoadableButton';
 import Highlighted from 'components/Highlighted';
 
-const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = GAS_LIMITS.GIFT_PLANET;
-const INVITE_COST = toWei((GAS_PRICE_GWEI * GAS_LIMIT).toString(), 'gwei');
+const INVITE_COST = toWei(
+  (DEFAULT_GAS_PRICE_GWEI * GAS_LIMIT).toString(),
+  'gwei'
+);
 const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
 
 const STATUS = {
@@ -252,7 +254,7 @@ export default function InviteEmail() {
           networkType,
           // TODO: ^ make a useTransactionSigner to encapsulate this logic
           txn: inviteTx,
-          gasPrice: GAS_PRICE_GWEI.toString(),
+          gasPrice: DEFAULT_GAS_PRICE_GWEI.toString(),
           gasLimit: GAS_LIMIT.toString(),
           nonce: nonce + i,
           chainId,

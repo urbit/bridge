@@ -1,6 +1,7 @@
 import { isDevelopment } from './flags';
 
 const CHECK_BLOCK_EVERY_MS = isDevelopment ? 1000 : 5000;
+const DEFAULT_GAS_PRICE_GWEI = 20;
 
 const MIN_GALAXY = 0;
 const MAX_GALAXY = 255;
@@ -72,6 +73,7 @@ const PROFILE_STATES = {
 
 export {
   CHECK_BLOCK_EVERY_MS,
+  DEFAULT_GAS_PRICE_GWEI,
   GAS_LIMITS,
   GEN_STATES,
   BUTTON_STATES,

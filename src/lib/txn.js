@@ -16,20 +16,18 @@ const RETRY_OPTIONS = {
   randomize: false,
 };
 
-const signTransaction = async config => {
-  let {
-    wallet,
-    walletType,
-    walletHdPath,
-    networkType,
-    txn,
-    nonce,
-    chainId,
-    gasPrice,
-    gasLimit,
-  } = config;
-
-  //TODO require these in txn object
+const signTransaction = async ({
+  wallet,
+  walletType,
+  walletHdPath,
+  networkType,
+  txn,
+  nonce, // number
+  chainId, // number
+  gasPrice, // string
+  gasLimit, // string | number
+}) => {
+  // TODO: require these in txn object
   nonce = toHex(nonce);
   chainId = toHex(chainId);
   gasPrice = toHex(toWei(gasPrice, 'gwei'));

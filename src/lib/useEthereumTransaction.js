@@ -73,7 +73,7 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
         txn: unsignedTransaction,
         nonce,
         chainId,
-        gasPrice,
+        gasPrice: gasPrice.toFixed(0),
         gasLimit,
       });
 
@@ -134,7 +134,7 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
 
         setNonce(nonce);
         setChainId(chainId);
-        setGasPrice(fromWei(estimatedGasPrice, 'gwei'));
+        setGasPrice(parseInt(fromWei(estimatedGasPrice, 'gwei'), 10));
       } catch (error) {
         setError(error);
       }
@@ -166,8 +166,11 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
       confirmed,
       reset,
       error,
+      gasPrice,
       setGasPrice,
       txHash,
+      nonce,
+      chainId,
       signedTransaction,
     },
   };

@@ -7,6 +7,8 @@ import {
   Flex,
   LinkButton,
   H5,
+  Text,
+  HelpText,
 } from 'indigo-react';
 import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
 import { useCheckboxInput } from 'lib/useInputs';
@@ -25,20 +27,30 @@ export default function InlineEthereumTransaction({
   confirmed,
   reset,
   error,
+  gasPrice,
   setGasPrice,
   txHash,
+  nonce,
+  chainId,
   signedTransaction,
 
   // additional from parent
   className,
   onReturn,
 }) {
+  // show receipt after successful broadcast
+  const showReceipt = broadcasted || confirmed;
+  // show configure controls pre-broadcast
+  const showConfigureInput = !(signed || broadcasted || confirmed);
+  // show signed tx after signing
+  const showSignedTx = signed;
+
   const exploreHashUrl = useExploreTxUrl(txHash);
-  const [configureInput, { data: configurationOpen }] = useCheckboxInput({
-    name: 'configure',
-    label: 'Configure Transaction',
-    inverseLabel: 'Cancel Configure Transaction',
-    disabled: signed || broadcasted || confirmed,
+  const [advancedInput, { data: advancedOpen }] = useCheckboxInput({
+    name: 'advanced',
+    label: 'Advanced Configuration',
+    inverseLabel: 'Hide Advanced Configuration',
+    disabled: !showConfigureInput,
   });
 
   const [
@@ -48,15 +60,8 @@ export default function InlineEthereumTransaction({
     name: 'viewsigned',
     label: 'View Signed Transaction',
     inverseLabel: 'Hide Signed Transaction',
-    disabled: !signed,
+    disabled: !showSignedTx,
   });
-
-  // show receipt after successful broadcast
-  const showReceipt = broadcasted || confirmed;
-  // show configure controls pre-broadcast
-  const showConfigureInput = !(broadcasted || confirmed);
-  // show signed tx after signing
-  const showSignedTx = signed;
 
   const renderButton = () => {
     if (error) {
@@ -122,7 +127,42 @@ export default function InlineEthereumTransaction({
       )}
 
       {showConfigureInput && (
-        <Grid.Item full as={ToggleInput} {...configureInput} />
+        <>
+          {!advancedOpen ? (
+            <Grid.Item full as={ToggleInput} {...advancedInput} />
+          ) : (
+            <>
+              <Grid.Item full as={Flex} row justify="between" className="mt2">
+                <Flex.Item as={H5}>Gas Price</Flex.Item>
+                <Flex.Item as={H5}>{gasPrice} Gwei</Flex.Item>
+              </Grid.Item>
+              <Grid.Item
+                full
+                as="input"
+                type="range"
+                min="1"
+                max="100"
+                value={gasPrice}
+                onChange={e => setGasPrice(parseInt(e.target.value, 10))}
+              />
+              <Grid.Item
+                full
+                as={Flex}
+                row
+                justify="between"
+                className="f6 mt1">
+                <Flex.Item as={Text}>Cheap</Flex.Item>
+                <Flex.Item as={Text}>Fast</Flex.Item>
+              </Grid.Item>
+              <Grid.Item full as={HelpText} className="mt3">
+                Nonce: {nonce}
+              </Grid.Item>
+              <Grid.Item full as={HelpText} className="mt1">
+                Chain ID: {chainId}
+              </Grid.Item>
+            </>
+          )}
+        </>
       )}
 
       {showSignedTx && (
