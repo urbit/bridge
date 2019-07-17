@@ -1,6 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, Text, H5, Flex } from 'indigo-react';
+import {
+  Grid,
+  Text,
+  H5,
+  Flex,
+  ToggleInput,
+  Input,
+  CheckboxInput,
+} from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 import { randomHex } from 'web3-utils';
 
@@ -23,11 +31,12 @@ import { addHexPrefix } from 'lib/wallet';
 
 import ViewHeader from 'components/ViewHeader';
 import MiniBackButton from 'components/MiniBackButton';
-import { BootArvoButton, ForwardButton } from 'components/Buttons';
+import { BootArvoButton } from 'components/Buttons';
 import FooterButton from 'components/FooterButton';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import NoticeBox from 'components/NoticeBox';
+import { useHexInput, useCheckboxInput } from 'lib/useInputs';
 
 const chainKeyProp = name => d =>
   d[name] === ZERO_KEY ? Nothing() : Just(d[name]);
@@ -50,13 +59,15 @@ function useSetKeys() {
   const _point = need.point(pointCursor);
   const _contracts = need.contracts(contracts);
 
-  const [isDiscontinuity] = useState(false);
-  // TODO: set discontinuity with radio check?
   const [ndNetworkSeed, setNdNetworkSeed] = useState();
 
-  const { construct, broadcasting, confirmed, bind } = useEthereumTransaction(
-    GAS_LIMITS.CONFIGURE_KEYS
-  );
+  const {
+    isDefaultState,
+    construct: _construct,
+    broadcasting,
+    confirmed,
+    bind,
+  } = useEthereumTransaction(GAS_LIMITS.CONFIGURE_KEYS);
 
   // sync point details after success
   useEffect(() => {
@@ -65,54 +76,56 @@ function useSetKeys() {
     }
   }, [_point, confirmed, syncOwnedPoint]);
 
-  const setKeys = useCallback(async () => {
-    const details = need.details(getDetails(_point));
-    const networkRevision = parseInt(details.keyRevisionNumber, 10);
+  const construct = useCallback(
+    async (manualSeed, isDiscontinuity) => {
+      const details = need.details(getDetails(_point));
+      const networkRevision = parseInt(details.keyRevisionNumber, 10);
 
-    console.log('setting revision to ', networkRevision + 1);
+      let _seed = manualSeed;
+      if (!_seed) {
+        const networkSeed = await attemptNetworkSeedDerivation({
+          urbitWallet,
+          wallet,
+          authMnemonic,
+          details,
+          revision: networkRevision + 1,
+        });
 
-    const seed = await attemptNetworkSeedDerivation({
-      urbitWallet,
-      wallet,
-      authMnemonic,
-      details,
-      revision: networkRevision + 1,
-    });
+        _seed = networkSeed.matchWith({
+          Nothing: () => {
+            const ndSeed = randomHex(64);
+            setNdNetworkSeed(ndSeed);
+            return ndSeed;
+          },
+          Just: p => p.value,
+        });
+      }
+      const pair = deriveNetworkKeys(_seed);
 
-    const _networkSeed = seed.matchWith({
-      Nothing: () => {
-        const ndSeed = randomHex(64);
-        setNdNetworkSeed(ndSeed);
-        return ndSeed;
-      },
-      Just: p => p.value,
-    });
+      const txn = azimuth.ecliptic.configureKeys(
+        _contracts,
+        _point,
+        addHexPrefix(pair.crypt.public),
+        addHexPrefix(pair.auth.public),
+        CRYPTO_SUITE_VERSION,
+        isDiscontinuity ? 1 : 0
+      );
 
-    const pair = deriveNetworkKeys(_networkSeed);
-
-    const txn = azimuth.ecliptic.configureKeys(
+      _construct(txn);
+    },
+    [
+      _construct,
       _contracts,
       _point,
-      addHexPrefix(pair.crypt.public),
-      addHexPrefix(pair.auth.public),
-      CRYPTO_SUITE_VERSION,
-      isDiscontinuity
-    );
-
-    construct(txn);
-  }, [
-    _contracts,
-    _point,
-    authMnemonic,
-    construct,
-    getDetails,
-    isDiscontinuity,
-    urbitWallet,
-    wallet,
-  ]);
+      authMnemonic,
+      getDetails,
+      urbitWallet,
+      wallet,
+    ]
+  );
 
   return {
-    setKeys,
+    isDefaultState,
     construct,
     broadcasting,
     confirmed,
@@ -134,19 +147,62 @@ export default function AdminNetworkingKeys() {
     Just: ({ value: details }) => parseInt(details.keyRevisionNumber, 10) > 0,
   });
 
-  const [didRequestSetKeys, _setDidRequestSetKeys] = useState(false);
+  const [showNetworkSeedInput, { data: showNetworkSeed }] = useCheckboxInput({
+    name: 'shownetworkseed',
+    label: 'Use Custom Network Seed',
+    inverseLabel: 'Back to Derived Network Seed',
+    initialValue: false,
+  });
+  const [
+    networkSeedInput,
+    { pass: validNetworkSeed, data: networkSeed },
+    { setValue: setNetworkSeed },
+  ] = useHexInput({
+    name: 'networkseed',
+    label: 'Network Seed (64 bytes)',
+    length: 32, // 64 bytes
+  });
+
+  const [
+    discontinuityInput,
+    { pass: validDiscontinuity, data: isDiscontinuity },
+  ] = useCheckboxInput({
+    name: 'discontinuity',
+    label: 'Trigger New Continuity Era',
+    length: 64,
+    initialValue: false,
+  });
+
   const {
-    setKeys,
+    isDefaultState,
+    construct,
     broadcasting,
     confirmed,
     ndNetworkSeed,
     bind,
   } = useSetKeys();
 
-  const setDidRequestSetKeys = useCallback(() => {
-    setKeys();
-    _setDidRequestSetKeys(true);
-  }, [setKeys, _setDidRequestSetKeys]);
+  useEffect(() => {
+    if (
+      (!showNetworkSeed || (showNetworkSeed && validNetworkSeed)) &&
+      validDiscontinuity
+    ) {
+      construct(networkSeed, isDiscontinuity);
+    }
+  }, [
+    construct,
+    isDiscontinuity,
+    networkSeed,
+    showNetworkSeed,
+    validDiscontinuity,
+    validNetworkSeed,
+  ]);
+
+  useEffect(() => {
+    if (!showNetworkSeed) {
+      setNetworkSeed('');
+    }
+  }, [setNetworkSeed, showNetworkSeed]);
 
   const goRelocate = useCallback(() => push(names.RELOCATE), [push, names]);
 
@@ -164,33 +220,6 @@ export default function AdminNetworkingKeys() {
     }
 
     return 'Networking';
-  };
-
-  const renderButton = () => {
-    if (!didRequestSetKeys) {
-      return (
-        <Grid.Item
-          full
-          as={ForwardButton}
-          solid
-          onClick={() => setDidRequestSetKeys(true)}>
-          {hasKeys ? 'Reset' : 'Set'} Networking Keys
-        </Grid.Item>
-      );
-    }
-
-    if (confirmed) {
-      return (
-        <Grid.Item
-          full
-          as={DownloadKeyfileButton}
-          solid
-          networkSeed={ndNetworkSeed}
-        />
-      );
-    }
-
-    return null;
   };
 
   const renderNetworkKeySection = (title, key) => (
@@ -279,32 +308,52 @@ export default function AdminNetworkingKeys() {
           {renderTitle()}
         </Grid.Item>
 
-        {!didRequestSetKeys && (
-          <Grid.Item full as={Text} className="mb3">
-            {hasKeys
-              ? 'Here are your public keys that authenticate your Arvo.'
-              : 'Set your networking keys to authenticate with Arvo.'}
-          </Grid.Item>
-        )}
+        <Grid.Item full as={Text} className="mb3">
+          {hasKeys
+            ? 'Here are your public keys that authenticate your Arvo.'
+            : 'Set your networking keys to authenticate with Arvo.'}
+        </Grid.Item>
 
         {confirmed && (
-          <Grid.Item full as={NoticeBox} className="mb3">
-            You need this keyfile to authenticate with Arvo.
-          </Grid.Item>
+          <>
+            <Grid.Item full as={NoticeBox} className="mb3">
+              You need this keyfile to authenticate with Arvo.
+            </Grid.Item>
+            <Grid.Item
+              full
+              as={DownloadKeyfileButton}
+              solid
+              networkSeed={ndNetworkSeed}
+            />
+          </>
         )}
 
-        {renderButton()}
-
-        {didRequestSetKeys && (
-          <Grid.Item
-            full
-            as={InlineEthereumTransaction}
-            {...bind}
-            onReturn={() => pop()}
-          />
+        {!confirmed && (
+          <>
+            <Grid.Item full as={ToggleInput} {...showNetworkSeedInput} />
+            {showNetworkSeed && (
+              <>
+                <Grid.Item full as={NoticeBox} className="mb2">
+                  When using a custom network seed, you'll need to download your
+                  Arvo keyfile immediately after this transaction is
+                  confirmed—Multipass does not store your seed.
+                </Grid.Item>
+                <Grid.Item full as={Input} {...networkSeedInput} />
+              </>
+            )}
+            <Grid.Item full as={CheckboxInput} {...discontinuityInput} />
+          </>
         )}
 
-        {!didRequestSetKeys && renderDetails()}
+        <Grid.Item
+          full
+          as={InlineEthereumTransaction}
+          {...bind}
+          label={`${hasKeys ? 'Reset' : 'Set'} Networking Keys`}
+          onReturn={() => pop()}
+        />
+
+        {isDefaultState && renderDetails()}
 
         {confirmed && (
           <>
@@ -314,7 +363,7 @@ export default function AdminNetworkingKeys() {
         )}
       </Grid>
 
-      {!didRequestSetKeys && (
+      {isDefaultState && (
         <FooterButton onClick={goRelocate} disabled>
           Relocate
         </FooterButton>

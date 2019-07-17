@@ -71,7 +71,7 @@ export function useHexInput({ length, ...rest }) {
       {
         type: 'text', // or password
         autoComplete: 'off',
-        placeholder: EXAMPLE_PRIVATE_KEY,
+        placeholder: `e.g. ${EXAMPLE_PRIVATE_KEY}`,
         validators: useMemo(
           () => [
             validateHexString,

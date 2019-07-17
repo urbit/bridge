@@ -47,6 +47,7 @@ export default function useEthereumTransaction(
   const [chainId, setChainId] = useState();
   const [nonce, setNonce] = useState();
   const [gasPrice, setGasPrice] = useState(initialGasPrice); // gwei
+  const [averageGasPrice, setAverageGasPrice] = useState(gasPrice); // gwei
   const [gasLimit] = useState(initialGasLimit);
   const [unsignedTransaction, setUnsignedTransaction] = useState();
   const [signedTransaction, setSignedTransaction] = useState();
@@ -54,6 +55,7 @@ export default function useEthereumTransaction(
 
   const initializing = nonce === undefined || chainId === undefined;
   const constructed = !!unsignedTransaction;
+  const isDefaultState = state === STATE.NONE;
   const signed = state === STATE.SIGNED;
   const broadcasted = state === STATE.BROADCASTED;
   const confirmed = state === STATE.CONFIRMED;
@@ -126,10 +128,15 @@ export default function useEthereumTransaction(
     setUnsignedTransaction(undefined);
     setTxHash(undefined);
     setSignedTransaction(undefined);
-    setGasPrice(initialGasPrice);
+    setGasPrice(averageGasPrice);
     setState(STATE.NONE);
     setError(undefined);
-  }, [initialGasPrice, setError]);
+  }, [averageGasPrice, setError]);
+
+  const resetGasPrice = useCallback(() => setGasPrice(averageGasPrice), [
+    setGasPrice,
+    averageGasPrice,
+  ]);
 
   useLifecycle(() => {
     (async () => {
@@ -143,7 +150,9 @@ export default function useEthereumTransaction(
 
         setNonce(nonce);
         setChainId(chainId);
-        setGasPrice(parseInt(fromWei(estimatedGasPrice, 'gwei'), 10));
+        const gasPrice = parseInt(fromWei(estimatedGasPrice, 'gwei'), 10);
+        setAverageGasPrice(gasPrice);
+        setGasPrice(gasPrice);
       } catch (error) {
         setError(error);
       }
@@ -151,6 +160,7 @@ export default function useEthereumTransaction(
   });
 
   const values = {
+    isDefaultState,
     initializing,
     construct,
     constructed,
@@ -168,6 +178,7 @@ export default function useEthereumTransaction(
     signedTransaction,
     gasPrice,
     setGasPrice,
+    resetGasPrice,
     nonce,
     chainId,
   };

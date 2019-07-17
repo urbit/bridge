@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import cn from 'classnames';
 import {
   Grid,
@@ -30,12 +30,14 @@ export default function InlineEthereumTransaction({
   error,
   gasPrice,
   setGasPrice,
+  resetGasPrice,
   txHash,
   nonce,
   chainId,
   signedTransaction,
 
   // additional from parent
+  label = 'Generate & Sign Transaction',
   className,
   onReturn,
 }) {
@@ -50,7 +52,7 @@ export default function InlineEthereumTransaction({
   const [advancedInput, { data: advancedOpen }] = useCheckboxInput({
     name: 'advanced',
     label: 'Advanced Configuration',
-    inverseLabel: 'Hide Advanced Configuration',
+    inverseLabel: 'Cancel Advanced Configuration',
     disabled: !showConfigureInput,
   });
 
@@ -63,6 +65,13 @@ export default function InlineEthereumTransaction({
     inverseLabel: 'Hide Signed Transaction',
     disabled: !showSignedTx,
   });
+
+  // reset gas price when closing advanced configuration
+  useEffect(() => {
+    if (!advancedOpen) {
+      resetGasPrice();
+    }
+  }, [advancedOpen, resetGasPrice]);
 
   const renderPrimaryButton = () => {
     if (error) {
@@ -101,7 +110,7 @@ export default function InlineEthereumTransaction({
           onClick={generateAndSign}
           disabled={!canSign}
           loading={!canSign && initializing}>
-          Generate & Sign Transaction
+          {label}
         </Grid.Item>
       );
     }
@@ -119,9 +128,8 @@ export default function InlineEthereumTransaction({
 
       {showConfigureInput && (
         <>
-          {!advancedOpen ? (
-            <Grid.Item full as={ToggleInput} {...advancedInput} />
-          ) : (
+          <Grid.Item full as={ToggleInput} {...advancedInput} />
+          {advancedOpen && (
             <>
               <Grid.Item full as={Flex} row justify="between" className="mt2">
                 <Flex.Item as={H5}>Gas Price</Flex.Item>
@@ -152,6 +160,7 @@ export default function InlineEthereumTransaction({
               <Grid.Item full as={HelpText} className="mt1">
                 Chain ID: {chainId}
               </Grid.Item>
+              <Grid.Divider className="mt3" />
             </>
           )}
         </>
