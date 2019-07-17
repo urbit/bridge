@@ -28,7 +28,7 @@ function useCancelTransfer() {
   const _point = need.point(pointCursor);
 
   const { construct, confirmed, bind } = useEthereumTransaction(
-    GAS_LIMITS.CANCEL_TRANSFER
+    GAS_LIMITS.SET_PROXY
   );
 
   useLifecycle(() => {

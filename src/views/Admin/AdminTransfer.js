@@ -32,7 +32,7 @@ function useTransfer() {
     confirmed,
     inputsLocked,
     bind,
-  } = useEthereumTransaction(GAS_LIMITS.TRANSFER);
+  } = useEthereumTransaction(GAS_LIMITS.SET_PROXY);
 
   const construct = useCallback(
     address =>
