@@ -66,6 +66,7 @@ function useSetKeys() {
     construct: _construct,
     broadcasting,
     confirmed,
+    inputsLocked,
     bind,
   } = useEthereumTransaction(GAS_LIMITS.CONFIGURE_KEYS);
 
@@ -76,13 +77,15 @@ function useSetKeys() {
     }
   }, [_point, confirmed, syncOwnedPoint]);
 
-  const construct = useCallback(
-    async (manualSeed, isDiscontinuity) => {
+  const getSeed = useCallback(
+    async manualSeed => {
       const details = need.details(getDetails(_point));
       const networkRevision = parseInt(details.keyRevisionNumber, 10);
 
-      let _seed = manualSeed;
-      if (!_seed) {
+      if (manualSeed !== undefined) {
+        setNdNetworkSeed(manualSeed);
+        return manualSeed;
+      } else {
         const networkSeed = await attemptNetworkSeedDerivation({
           urbitWallet,
           wallet,
@@ -91,7 +94,7 @@ function useSetKeys() {
           revision: networkRevision + 1,
         });
 
-        _seed = networkSeed.matchWith({
+        return networkSeed.matchWith({
           Nothing: () => {
             const ndSeed = randomHex(64);
             setNdNetworkSeed(ndSeed);
@@ -100,7 +103,14 @@ function useSetKeys() {
           Just: p => p.value,
         });
       }
-      const pair = deriveNetworkKeys(_seed);
+    },
+    [_point, authMnemonic, getDetails, urbitWallet, wallet]
+  );
+
+  const construct = useCallback(
+    async (manualSeed, isDiscontinuity) => {
+      const seed = await getSeed(manualSeed);
+      const pair = deriveNetworkKeys(seed);
 
       const txn = azimuth.ecliptic.configureKeys(
         _contracts,
@@ -113,15 +123,7 @@ function useSetKeys() {
 
       _construct(txn);
     },
-    [
-      _construct,
-      _contracts,
-      _point,
-      authMnemonic,
-      getDetails,
-      urbitWallet,
-      wallet,
-    ]
+    [_construct, _contracts, _point, getSeed]
   );
 
   return {
@@ -130,6 +132,7 @@ function useSetKeys() {
     broadcasting,
     confirmed,
     ndNetworkSeed,
+    inputsLocked,
     bind,
   };
 }
@@ -147,12 +150,24 @@ export default function AdminNetworkingKeys() {
     Just: ({ value: details }) => parseInt(details.keyRevisionNumber, 10) > 0,
   });
 
+  const {
+    isDefaultState,
+    construct,
+    broadcasting,
+    confirmed,
+    inputsLocked,
+    ndNetworkSeed,
+    bind,
+  } = useSetKeys();
+
   const [showNetworkSeedInput, { data: showNetworkSeed }] = useCheckboxInput({
     name: 'shownetworkseed',
     label: 'Use Custom Network Seed',
     inverseLabel: 'Back to Derived Network Seed',
     initialValue: false,
+    disabled: inputsLocked,
   });
+
   const [
     networkSeedInput,
     { pass: validNetworkSeed, data: networkSeed },
@@ -161,6 +176,7 @@ export default function AdminNetworkingKeys() {
     name: 'networkseed',
     label: 'Network Seed (64 bytes)',
     length: 32, // 64 bytes
+    disabled: inputsLocked,
   });
 
   const [
@@ -169,18 +185,9 @@ export default function AdminNetworkingKeys() {
   ] = useCheckboxInput({
     name: 'discontinuity',
     label: 'Trigger New Continuity Era',
-    length: 64,
     initialValue: false,
+    disabled: inputsLocked,
   });
-
-  const {
-    isDefaultState,
-    construct,
-    broadcasting,
-    confirmed,
-    ndNetworkSeed,
-    bind,
-  } = useSetKeys();
 
   useEffect(() => {
     if (
