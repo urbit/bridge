@@ -47,7 +47,7 @@ export default function useEthereumTransaction(
   const [chainId, setChainId] = useState();
   const [nonce, setNonce] = useState();
   const [gasPrice, setGasPrice] = useState(initialGasPrice); // gwei
-  const [averageGasPrice, setAverageGasPrice] = useState(gasPrice); // gwei
+  const [suggestedGasPrice, setSuggestedGasPrice] = useState(gasPrice); // gwei
   const [gasLimit] = useState(initialGasLimit);
   const [unsignedTransaction, setUnsignedTransaction] = useState();
   const [signedTransaction, setSignedTransaction] = useState();
@@ -132,14 +132,14 @@ export default function useEthereumTransaction(
     setUnsignedTransaction(undefined);
     setTxHash(undefined);
     setSignedTransaction(undefined);
-    setGasPrice(averageGasPrice);
+    setGasPrice(suggestedGasPrice);
     setState(STATE.NONE);
     setError(undefined);
-  }, [averageGasPrice, setError]);
+  }, [suggestedGasPrice, setError]);
 
-  const resetGasPrice = useCallback(() => setGasPrice(averageGasPrice), [
+  const resetGasPrice = useCallback(() => setGasPrice(suggestedGasPrice), [
     setGasPrice,
-    averageGasPrice,
+    suggestedGasPrice,
   ]);
 
   useLifecycle(() => {
@@ -155,7 +155,7 @@ export default function useEthereumTransaction(
         setNonce(nonce);
         setChainId(chainId);
         const gasPrice = parseInt(fromWei(estimatedGasPrice, 'gwei'), 10);
-        setAverageGasPrice(gasPrice);
+        setSuggestedGasPrice(gasPrice);
         setGasPrice(gasPrice);
       } catch (error) {
         setError(error);
