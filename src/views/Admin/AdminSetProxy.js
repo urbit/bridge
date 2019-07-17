@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import cn from 'classnames';
-import { Grid, Text, Input, Flex, LinkButton } from 'indigo-react';
+import { Grid, Text, Input, Flex, ToggleInput } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from 'store/network';
@@ -16,7 +16,7 @@ import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { ETH_ZERO_ADDR, eqAddr } from 'lib/wallet';
 import capitalize from 'lib/capitalize';
-import { useAddressInput } from 'lib/useInputs';
+import { useAddressInput, useCheckboxInput } from 'lib/useInputs';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 
 import ViewHeader from 'components/ViewHeader';
@@ -51,8 +51,6 @@ function useSetProxy(proxyType) {
   const _contracts = need.contracts(contracts);
   const _point = need.point(pointCursor);
 
-  const [isUnsetting, setUnsetting] = useState(false);
-
   const buildUnsignedTx = useCallback(
     address => {
       const txArgs = [_contracts, _point, address];
@@ -75,6 +73,7 @@ function useSetProxy(proxyType) {
 
   const {
     construct: _construct,
+    unconstruct,
     confirmed,
     inputsLocked,
     bind,
@@ -95,16 +94,15 @@ function useSetProxy(proxyType) {
 
   // force-unset
   const unset = useCallback(() => {
-    setUnsetting(true);
     _construct(buildUnsignedTx(ETH_ZERO_ADDR));
   }, [_construct, buildUnsignedTx]);
 
   return {
     construct,
+    unconstruct,
     confirmed,
     unset,
-    isUnsetting,
-    inputsLocked: inputsLocked || isUnsetting,
+    inputsLocked: inputsLocked,
     bind,
   };
 }
@@ -121,20 +119,49 @@ export default function AdminSetProxy() {
 
   const properProxyType = capitalize(proxyTypeToHuman(data.proxyType));
 
-  const { construct, unset, inputsLocked, confirmed, bind } = useSetProxy(
-    data.proxyType
-  );
-  const [addressInput, { pass, data: address }] = useAddressInput({
+  const {
+    construct,
+    unconstruct,
+    unset,
+    inputsLocked,
+    confirmed,
+    bind,
+  } = useSetProxy(data.proxyType);
+
+  const [unsetInput, { data: isUnsetting }] = useCheckboxInput({
+    name: 'unset',
+    label: 'Unset',
+    inverseLabel: 'Specify',
+    initialValue: false,
+  });
+  const [
+    addressInput,
+    { pass: validAddress, data: address },
+    { reset: resetAddress },
+  ] = useAddressInput({
     name: 'address',
     label: `New ${properProxyType} Address`,
-    disabled: inputsLocked,
+    disabled: inputsLocked || isUnsetting,
   });
 
   useEffect(() => {
-    if (pass) {
+    if (isUnsetting) {
+      unset();
+      resetAddress();
+    } else if (validAddress) {
       construct(address);
+    } else {
+      unconstruct();
     }
-  }, [pass, address, construct]);
+  }, [
+    validAddress,
+    address,
+    construct,
+    isUnsetting,
+    unset,
+    unconstruct,
+    resetAddress,
+  ]);
 
   const proxyAddress = proxyFromDetails(_details, _contracts, data.proxyType);
   const isProxySet = !eqAddr(ETH_ZERO_ADDR, proxyAddress);
@@ -176,9 +203,7 @@ export default function AdminSetProxy() {
           {isProxySet ? proxyAddress : 'Unset'}
         </Flex.Item>
         {!confirmed && isProxySet && (
-          <Flex.Item as={LinkButton} onClick={unset} disabled={inputsLocked}>
-            Unset
-          </Flex.Item>
+          <Flex.Item as={ToggleInput} {...unsetInput} />
         )}
       </Grid.Item>
 

@@ -24,7 +24,7 @@ const signTransaction = async ({
   txn,
   nonce, // number
   chainId, // number
-  gasPrice, // string
+  gasPrice, // string, in gwei
   gasLimit, // string | number
 }) => {
   // TODO: require these in txn object

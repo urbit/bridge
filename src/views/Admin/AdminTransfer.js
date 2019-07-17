@@ -28,6 +28,7 @@ function useTransfer() {
 
   const {
     construct: _construct,
+    unconstruct,
     confirmed,
     inputsLocked,
     bind,
@@ -50,6 +51,7 @@ function useTransfer() {
 
   return {
     construct,
+    unconstruct,
     confirmed,
     inputsLocked,
     bind,
@@ -60,7 +62,14 @@ export default function AdminTransfer() {
   const { pop } = useLocalRouter();
   const name = useCurrentPointName();
 
-  const { construct, confirmed, inputsLocked, bind } = useTransfer();
+  const {
+    construct,
+    unconstruct,
+    confirmed,
+    inputsLocked,
+    bind,
+  } = useTransfer();
+
   const [addressInput, { pass, data: address }] = useAddressInput({
     name: 'address',
     label: `Ethereum Address`,
@@ -70,8 +79,10 @@ export default function AdminTransfer() {
   useEffect(() => {
     if (pass) {
       construct(address);
+    } else {
+      unconstruct();
     }
-  }, [pass, address, construct]);
+  }, [pass, address, construct, unconstruct]);
 
   return (
     <Grid>

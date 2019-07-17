@@ -31,6 +31,7 @@ function useSetPoolSize() {
 
   const {
     construct: _construct,
+    unconstruct,
     confirmed,
     inputsLocked,
     bind,
@@ -59,6 +60,7 @@ function useSetPoolSize() {
 
   return {
     construct,
+    unconstruct,
     confirmed,
     inputsLocked,
     bind,
@@ -73,7 +75,13 @@ export default function PartySetPoolSize() {
 
   const { spawnIsDelegatedSending } = useCurrentPermissions();
 
-  const { construct, confirmed, inputsLocked, bind } = useSetPoolSize();
+  const {
+    construct,
+    unconstruct,
+    confirmed,
+    inputsLocked,
+    bind,
+  } = useSetPoolSize();
 
   const [poolOwnerInput, { pass: validPoint, data: poolOwner }] = usePointInput(
     {
@@ -96,8 +104,10 @@ export default function PartySetPoolSize() {
   useEffect(() => {
     if (validPoint && validPoolSize) {
       construct(patp2dec(poolOwner), poolSize);
+    } else {
+      unconstruct();
     }
-  }, [poolOwner, construct, validPoint, validPoolSize, poolSize]);
+  }, [poolOwner, construct, validPoint, validPoolSize, poolSize, unconstruct]);
 
   return (
     <View inset>

@@ -61,11 +61,13 @@ function useSetKeys() {
   const _point = need.point(pointCursor);
   const _contracts = need.contracts(contracts);
 
+  // NOTE: nd = 'nondeterministic' (can also be a 'manual' seed)
   const [ndNetworkSeed, setNdNetworkSeed] = useState();
 
   const {
     isDefaultState,
     construct: _construct,
+    unconstruct,
     broadcasting,
     confirmed,
     inputsLocked,
@@ -131,6 +133,7 @@ function useSetKeys() {
   return {
     isDefaultState,
     construct,
+    unconstruct,
     broadcasting,
     confirmed,
     ndNetworkSeed,
@@ -155,6 +158,7 @@ export default function AdminNetworkingKeys() {
   const {
     isDefaultState,
     construct,
+    unconstruct,
     broadcasting,
     confirmed,
     inputsLocked,
@@ -173,7 +177,7 @@ export default function AdminNetworkingKeys() {
   const [
     networkSeedInput,
     { pass: validNetworkSeed, data: networkSeed },
-    { setValue: setNetworkSeed },
+    { reset: resetNetworkSeed },
   ] = useHexInput({
     name: 'networkseed',
     label: 'Network Seed (64 bytes)',
@@ -197,21 +201,24 @@ export default function AdminNetworkingKeys() {
       validDiscontinuity
     ) {
       construct(networkSeed, isDiscontinuity);
+    } else {
+      unconstruct();
     }
   }, [
     construct,
     isDiscontinuity,
     networkSeed,
     showNetworkSeed,
+    unconstruct,
     validDiscontinuity,
     validNetworkSeed,
   ]);
 
   useEffect(() => {
     if (!showNetworkSeed) {
-      setNetworkSeed('');
+      resetNetworkSeed();
     }
-  }, [setNetworkSeed, showNetworkSeed]);
+  }, [resetNetworkSeed, showNetworkSeed]);
 
   const goRelocate = useCallback(() => push(names.RELOCATE), [push, names]);
 

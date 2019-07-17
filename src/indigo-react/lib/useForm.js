@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { isEqual, keyBy, get, every, some } from 'lodash';
 
 import { compose } from 'lib/lib';
@@ -37,7 +37,7 @@ export default function useForm(inputConfigs = []) {
   const byName = useMemo(() => keyBy(configs, 'name'), [configs]);
 
   // track values
-  const [values, _setValues] = useState(() =>
+  const [values, _setValues, clearValues] = useSetState(() =>
     defaultsFor(configs, config =>
       config.initialValue === undefined ? '' : config.initialValue
     )
@@ -50,7 +50,7 @@ export default function useForm(inputConfigs = []) {
   // until there's a traditional state update.
 
   // track focused states
-  const [focused, setFocused] = useSetState(() =>
+  const [focused, setFocused, clearFocused] = useSetState(() =>
     defaultsFor(configs, config => config.autoFocus && !config.disabled)
   );
   const focuses = useMemo(
@@ -59,10 +59,14 @@ export default function useForm(inputConfigs = []) {
   );
 
   // track whether or not input has been focused
-  const [hasBeenFocused, setHasBeenFocused] = useSetState({});
+  const [hasBeenFocused, setHasBeenFocused, clearHasBeenFocused] = useSetState(
+    {}
+  );
 
   // track whether or not the input has been touched
-  const [hasBeenTouched, setHasBeenTouched] = useSetState({});
+  const [hasBeenTouched, setHasBeenTouched, clearHasBeenTouched] = useSetState(
+    {}
+  );
 
   // build fn that transforms a value by input name
   const transform = useCallback(
@@ -72,10 +76,17 @@ export default function useForm(inputConfigs = []) {
 
   // set a value (and transform it)
   const setValue = useCallback(
-    (name, value) =>
-      _setValues(values => ({ ...values, [name]: transform(name, value) })),
+    (name, value) => _setValues({ [name]: transform(name, value) }),
     [_setValues, transform]
   );
+
+  // reset the form
+  const reset = useCallback(() => {
+    clearFocused();
+    clearHasBeenFocused();
+    clearHasBeenTouched();
+    clearValues();
+  }, [clearFocused, clearHasBeenFocused, clearHasBeenTouched, clearValues]);
 
   // build fn that validates a value by input name
   const validate = useCallback(
@@ -246,5 +257,6 @@ export default function useForm(inputConfigs = []) {
     pass,
     error,
     setValue,
+    reset,
   };
 }

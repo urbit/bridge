@@ -70,6 +70,10 @@ export default function useEthereumTransaction(
     setUnsignedTransaction,
   ]);
 
+  const unconstruct = useCallback(() => setUnsignedTransaction(undefined), [
+    setUnsignedTransaction,
+  ]);
+
   const generateAndSign = useCallback(async () => {
     try {
       setError(undefined);
@@ -163,6 +167,7 @@ export default function useEthereumTransaction(
     isDefaultState,
     initializing,
     construct,
+    unconstruct,
     constructed,
     canSign,
     generateAndSign,
