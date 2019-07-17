@@ -122,7 +122,7 @@ function useSetKeys() {
         addHexPrefix(pair.crypt.public),
         addHexPrefix(pair.auth.public),
         CRYPTO_SUITE_VERSION,
-        isDiscontinuity ? 1 : 0
+        isDiscontinuity
       );
 
       _construct(txn);
@@ -196,10 +196,9 @@ export default function AdminNetworkingKeys() {
   });
 
   useEffect(() => {
-    if (
-      (!showNetworkSeed || (showNetworkSeed && validNetworkSeed)) &&
-      validDiscontinuity
-    ) {
+    const nothingOrValidSeed =
+      !showNetworkSeed || (showNetworkSeed && validNetworkSeed);
+    if (nothingOrValidSeed && validDiscontinuity) {
       construct(networkSeed, isDiscontinuity);
     } else {
       unconstruct();
