@@ -106,12 +106,11 @@ export const deriveNetworkSeedFromMnemonic = async (
   details,
   revision = 1
 ) => {
-  const isOwner = eqAddr(wallet.address, details.owner);
   const isManagementProxy = eqAddr(wallet.address, details.managementProxy);
 
-  // the network seed is only derivable from mnemonic if the derived
-  // management seed or owner equals the record we have on chain
-  if (isOwner || isManagementProxy) {
+  // the network seed is derivable from mnemonic iff the management proxy
+  // is this mnemonic
+  if (isManagementProxy) {
     return await deriveNetworkSeedFromSeed(authMnemonic, revision);
   }
 
