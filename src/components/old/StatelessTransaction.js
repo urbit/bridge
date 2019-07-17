@@ -493,14 +493,15 @@ class StatelessTransaction extends React.Component {
         className={'mt-8'}
         prop-size={'lg wide'}
         prop-color={signerButtonColor}
-        onClick={() =>
-          signTransaction({
-            ...this.props,
-            ...this.state,
-            setStx: this.setStx,
-            wallet: this.props.wallet.value,
-            txn: txn.value,
-          })
+        onClick={async () =>
+          this.setStx(
+            await signTransaction({
+              ...this.props,
+              ...this.state,
+              wallet: this.props.wallet.value,
+              txn: txn.value,
+            })
+          )
         }>
         {'Sign Transaction'}
       </Button>

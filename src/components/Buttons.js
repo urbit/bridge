@@ -7,7 +7,7 @@ export const ForwardButton = ({ loading, ...props }) => (
   <Button accessory={loading ? <Blinky /> : '->'} {...props} />
 );
 export const DownloadButton = props => <Button accessory="↓" {...props} />;
-export const RestartButton = props => <Button accessory="↺" solid {...props} />;
+export const RestartButton = props => <Button accessory="↺" {...props} />;
 export const GenerateButton = props => (
   <Button accessory="○" solid {...props} />
 );

@@ -256,7 +256,6 @@ export default function InviteEmail() {
           gasLimit: GAS_LIMIT.toString(),
           nonce: nonce + i,
           chainId,
-          setStx: () => {},
         });
         const rawTx = hexify(signedTx.serialize());
 

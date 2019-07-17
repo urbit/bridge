@@ -10,7 +10,7 @@ export default function LinkButton({
   ...rest
 }) {
   return (
-    <span
+    <As
       onClick={!disabled && onClick ? onClick : undefined}
       style={{
         ...(disabled && {
@@ -26,8 +26,10 @@ export default function LinkButton({
         },
         className
       )}
+      target="_blank"
+      rel="noopener noreferrer"
       {...rest}>
       {children}
-    </span>
+    </As>
   );
 }

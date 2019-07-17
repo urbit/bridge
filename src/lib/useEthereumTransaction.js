@@ -30,7 +30,16 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
   const _web3 = need.web3(web3);
   const _wallet = need.wallet(wallet);
 
-  const [error, setError] = useState();
+  const [error, _setError] = useState();
+  const setError = useCallback(
+    error => {
+      _setError(error);
+      if (error) {
+        console.error(error);
+      }
+    },
+    [_setError]
+  );
   const [state, setState] = useState(STATE.NONE);
   const [chainId, setChainId] = useState();
   const [nonce, setNonce] = useState();
@@ -38,6 +47,7 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
   const [gasLimit] = useState(initialGasLimit);
   const [unsignedTransaction, setUnsignedTransaction] = useState();
   const [signedTransaction, setSignedTransaction] = useState();
+  const [txHash, setTxHash] = useState();
 
   const initializing = nonce === undefined || chainId === undefined;
   const constructed = !!unsignedTransaction;
@@ -55,6 +65,7 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
 
   const generateAndSign = useCallback(async () => {
     try {
+      setError(undefined);
       // TODO: set varaibles
       // txn.gas = toHex(gasLimit);
       // txn.gasPrice = toHex(toWei(gasPrice, 'gwei'));
@@ -64,8 +75,7 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
         walletType,
         walletHdPath,
         networkType,
-        txn: Just(unsignedTransaction),
-        setStx: () => {}, // TODO: remove
+        txn: unsignedTransaction,
         nonce,
         chainId,
         gasPrice,
@@ -84,25 +94,15 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
     gasPrice,
     networkType,
     nonce,
+    setError,
     unsignedTransaction,
     walletHdPath,
     walletType,
   ]);
 
-  const waitForConfirmation = useCallback(
-    async txHash => {
-      try {
-        await waitForTransactionConfirm(_web3, txHash);
-        setState(STATE.CONFIRMED);
-      } catch (error) {
-        setError(error);
-      }
-    },
-    [_web3]
-  );
-
   const broadcast = useCallback(async () => {
     try {
+      setError(undefined);
       const txHash = await sendSignedTransaction(
         _web3,
         signedTransaction,
@@ -110,22 +110,27 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
       );
 
       setState(STATE.BROADCASTED);
-      waitForConfirmation(txHash);
+      setTxHash(txHash);
+
+      await waitForTransactionConfirm(_web3, txHash);
+
+      setState(STATE.CONFIRMED);
     } catch (error) {
       setError(error);
     }
-  }, [_web3, signedTransaction, waitForConfirmation]);
+  }, [_web3, setError, signedTransaction]);
 
   const reset = useCallback(() => {
     setState(STATE.NONE);
     setError(undefined);
     setGasPrice(0);
     setSignedTransaction(undefined);
-  }, [setState]);
+  }, [setError]);
 
   useEffect(() => {
     (async () => {
       try {
+        setError(undefined);
         const [nonce, chainId, estimatedGasPrice] = await Promise.all([
           _web3.eth.getTransactionCount(_wallet.address),
           _web3.eth.net.getId(),
@@ -139,7 +144,7 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
         setError(error);
       }
     })();
-  }, [_wallet.address, _web3.eth]);
+  }, [_wallet.address, _web3.eth, setError]);
 
   return {
     initializing,
@@ -154,6 +159,7 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
     reset,
     error,
     inputsLocked,
+    txHash,
     bind: {
       constructed,
       canSign,
@@ -165,6 +171,7 @@ export default function useEthereumTransaction(initialGasLimit = 0) {
       reset,
       error,
       setGasPrice,
+      txHash,
     },
   };
 }

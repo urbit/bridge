@@ -139,6 +139,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
             full
             className="mt3"
             as={RestartButton}
+            solid
             onClick={goToRestart}>
             Restart
           </Grid.Item>

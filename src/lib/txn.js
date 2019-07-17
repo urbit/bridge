@@ -1,5 +1,4 @@
 import * as ob from 'urbit-ob';
-import { Just } from 'folktale/maybe';
 import Tx from 'ethereumjs-tx';
 import { toWei, fromWei, toHex } from 'web3-utils';
 import retry from 'async-retry';
@@ -24,7 +23,6 @@ const signTransaction = async config => {
     walletHdPath,
     networkType,
     txn,
-    setStx,
     nonce,
     chainId,
     gasPrice,
@@ -97,7 +95,6 @@ const signTransaction = async config => {
     stx.sign(wallet.privateKey);
   }
 
-  setStx(Just(stx));
   return stx;
 };
 

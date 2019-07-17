@@ -70,17 +70,8 @@ function useSetProxy(proxyType, address) {
   );
 
   const {
-    initializing,
-    constructed,
     construct: _construct,
-    constructAndSign,
-    generateAndSign,
-    sign,
-    signed,
-    broadcast,
-    broadcasted,
     confirmed,
-    reset,
     inputsLocked,
     bind,
   } = useEthereumTransaction(GAS_LIMITS.SET_PROXY);
@@ -106,6 +97,7 @@ function useSetProxy(proxyType, address) {
 
   return {
     construct,
+    confirmed,
     unset,
     isUnsetting,
     inputsLocked: inputsLocked || isUnsetting,
@@ -122,7 +114,9 @@ export default function AdminSetProxy() {
 
   const properProxyType = capitalize(proxyTypeToHuman(data.proxyType));
 
-  const { construct, unset, inputsLocked, bind } = useSetProxy(data.proxyType);
+  const { construct, unset, inputsLocked, confirmed, bind } = useSetProxy(
+    data.proxyType
+  );
   const [addressInput, { pass, data: address }] = useAddressInput({
     name: 'address',
     label: `New ${properProxyType} Address`,
@@ -144,32 +138,47 @@ export default function AdminSetProxy() {
       <Grid.Item full as={ViewHeader}>
         {properProxyType} Address
       </Grid.Item>
-      <Grid.Item full as={Text} className="mb4">
+      <Grid.Item full as={Text} className="mb4 f5">
         {proxyTypeToHumanDescription(data.proxyType)}
       </Grid.Item>
-      <Grid.Item full as={Text} className="f6 mb1">
-        Current {properProxyType} Address
+      <Grid.Item
+        full
+        as={Text}
+        className={cn('f6 mb1', {
+          green3: confirmed,
+        })}>
+        {confirmed ? 'New' : 'Current'} {properProxyType} Address
       </Grid.Item>
       <Grid.Item full as={Flex} row justify="between" align="center">
         <Flex.Item
           flex
           as={Text}
-          className={cn({
-            'mono black': isProxySet,
-            gray4: !isProxySet,
+          className={cn('mono', {
+            black: !confirmed && isProxySet,
+            gray4: !confirmed && !isProxySet,
+            green3: confirmed,
           })}>
           {isProxySet ? proxyAddress : 'Unset'}
         </Flex.Item>
-        {isProxySet && (
+        {!confirmed && isProxySet && (
           <Flex.Item as={LinkButton} onClick={unset} disabled={inputsLocked}>
             Unset
           </Flex.Item>
         )}
       </Grid.Item>
 
-      <Grid.Item full as={Input} {...addressInput} className="mv4" />
+      {confirmed ? (
+        <Grid.Item full className="mb4" />
+      ) : (
+        <Grid.Item full as={Input} {...addressInput} className="mv4" />
+      )}
 
-      <Grid.Item full as={InlineEthereumTransaction} {...bind} />
+      <Grid.Item
+        full
+        as={InlineEthereumTransaction}
+        {...bind}
+        onReturn={() => pop()}
+      />
     </Grid>
   );
 }
