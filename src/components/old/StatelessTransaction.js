@@ -494,12 +494,14 @@ class StatelessTransaction extends React.Component {
         prop-color={signerButtonColor}
         onClick={async () =>
           this.setStx(
-            await signTransaction({
-              ...this.props,
-              ...this.state,
-              wallet: this.props.wallet.value,
-              txn: txn.value,
-            })
+            Just(
+              await signTransaction({
+                ...this.props,
+                ...this.state,
+                wallet: this.props.wallet.value,
+                txn: txn.value,
+              })
+            )
           )
         }>
         {'Sign Transaction'}
