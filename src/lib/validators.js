@@ -74,7 +74,7 @@ export const validateNotEmpty = m =>
     prevMessage: m,
     validator: d => {
       try {
-        return d.length > 1;
+        return d.length > 0;
       } catch {
         return false;
       }
@@ -235,6 +235,13 @@ export const validateMaximumLength = l => m =>
       }
     },
     error: `Must be ${l} characters or fewer.`,
+  });
+
+export const validateGreaterThan = l => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => d > l,
+    error: `Must be at least ${l}`,
   });
 
 export const validatePatpByteLength = byteLength => {

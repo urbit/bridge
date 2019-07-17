@@ -1,30 +1,28 @@
 import React, { useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
 
-import { ForwardButton } from 'components/Buttons';
-import { matchBlinkyDate } from 'components/Blinky';
-
-import { ETH_ZERO_ADDR } from 'lib/wallet';
-
 import { useNetwork } from 'store/network';
-import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
-import ViewHeader from 'components/ViewHeader';
-import usePermissionsForPoint from 'lib/usePermissionsForPoint';
+
+import * as need from 'lib/need';
+import { ETH_ZERO_ADDR } from 'lib/wallet';
 import { PROXY_TYPE, proxyTypeToHuman } from 'lib/proxy';
 import { useLocalRouter } from 'lib/LocalRouter';
 import capitalize from 'lib/capitalize';
 import { eqAddr } from 'lib/wallet';
+import useCurrentPermissions from 'lib/useCurrentPermissions';
+
+import ViewHeader from 'components/ViewHeader';
+import { ForwardButton } from 'components/Buttons';
+import { matchBlinkyDate } from 'components/Blinky';
 import MiniBackButton from 'components/MiniBackButton';
 
 export default function AdminEditPermissions() {
   const { pop, push, names } = useLocalRouter();
   const { contracts } = useNetwork();
-  const { wallet } = useWallet();
   const { pointCursor } = usePointCursor();
   const { getDetails, getRekeyDate } = usePointCache();
 
@@ -34,11 +32,10 @@ export default function AdminEditPermissions() {
   const pointSize = azimuth.getPointSize(point);
   const isParent = pointSize !== azimuth.PointSize.Planet;
   const isSenate = pointSize === azimuth.PointSize.Galaxy;
-  const address = need.wallet(wallet).address;
 
   const details = need.details(getDetails(point));
   const networkRevision = parseInt(details.keyRevisionNumber, 10);
-  const { canManage, isOwner } = usePermissionsForPoint(address, point);
+  const { canManage, isOwner } = useCurrentPermissions();
 
   const goSetProxy = useCallback(
     proxyType => push(names.SET_PROXY, { proxyType }),

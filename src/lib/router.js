@@ -22,6 +22,7 @@ import Invite from 'views/Invite';
 import Activate from 'views/Activate';
 
 import { ROUTE_NAMES } from './routeNames';
+import PartySetPoolSize from 'views/Party/PartySetPoolSize';
 
 export const ROUTES = {
   [ROUTE_NAMES.LANDING]: Landing,
@@ -44,4 +45,6 @@ export const ROUTES = {
   [ROUTE_NAMES.SET_KEYS]: SetKeys,
   [ROUTE_NAMES.TRANSFER]: Transfer,
   [ROUTE_NAMES.SENT_TRANSACTION]: SentTransaction,
+  [ROUTE_NAMES.PARTY_SET_POOL_SIZE]: PartySetPoolSize,
+  // TODO: nest this route under the Party.js router
 };

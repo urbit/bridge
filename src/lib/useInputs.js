@@ -16,8 +16,9 @@ import {
   validateMaximumPatpByteLength,
   validateEthereumAddress,
   validateNotNullAddress,
+  validateGreaterThan,
 } from 'lib/validators';
-import { prependSig } from 'lib/transformers';
+import { prependSig, convertToNumber } from 'lib/transformers';
 
 import InputSigil from 'components/InputSigil';
 
@@ -226,6 +227,23 @@ export function useAddressInput({ ...rest }) {
         autoComplete: 'off',
         validators: kAddressValidators,
         mono: true,
+        ...rest,
+      },
+    ])
+  );
+}
+
+const kNumberTransformers = [convertToNumber];
+const kNumberValidators = [validateGreaterThan(0)];
+export function useNumberInput({ ...rest }) {
+  return useFirstOf(
+    useForm([
+      {
+        type: 'number',
+        label: 'Number',
+        autoComplete: 'off',
+        transformers: kNumberTransformers,
+        validators: kNumberValidators,
         ...rest,
       },
     ])

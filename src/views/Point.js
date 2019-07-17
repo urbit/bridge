@@ -15,40 +15,27 @@ import { matchBlinky } from 'components/Blinky';
 
 import useInvites from 'lib/useInvites';
 import { useSyncOwnedPoints } from 'lib/useSyncPoints';
-
-import Actions from './Point/Actions';
-import { useWallet } from 'store/wallet';
-import usePermissionsForPoint from 'lib/usePermissionsForPoint';
+import useCurrentPermissions from 'lib/useCurrentPermissions';
 
 export default function Point() {
   const { push, names } = useHistory();
   const { pointCursor } = usePointCursor();
-  const { wallet } = useWallet();
 
   const point = need.point(pointCursor);
 
-  const { isActiveOwner, canManage } = usePermissionsForPoint(
-    // using empty string should be ok here
-    wallet.matchWith({
-      Nothing: () => '',
-      Just: p => p.value.address,
-    }),
-    point
-  );
+  const { isActiveOwner, canManage } = useCurrentPermissions();
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);
-
-  const showActions = Just.hasInstance(wallet);
 
   const goAdmin = useCallback(() => push(names.ADMIN), [push, names]);
 
   const goInvite = useCallback(() => push(names.INVITE), [push, names]);
 
-  const goParties = useCallback(() => push(names.INVITES_MANAGE), [
-    push,
-    names,
-  ]);
+  const goPartiesSetPoolSize = useCallback(
+    () => push(names.PARTY_SET_POOL_SIZE),
+    [push, names]
+  );
 
   const inviteButton = (() => {
     switch (azimuth.getPointSize(point)) {
@@ -62,8 +49,10 @@ export default function Point() {
       //
       case azimuth.PointSize.Star:
         return (
-          <FooterButton disabled={!isActiveOwner} onClick={goParties}>
-            Manage parties
+          <FooterButton
+            disabled={!isActiveOwner}
+            onClick={goPartiesSetPoolSize}>
+            Manage Parties
           </FooterButton>
         );
       //
@@ -88,11 +77,6 @@ export default function Point() {
         </Grid.Item>
         <Grid.Divider />
         <Grid.Item full as={BootArvoButton} disabled />
-        {showActions && (
-          <Grid.Item full>
-            <Actions />
-          </Grid.Item>
-        )}
       </Grid>
 
       {inviteButton}

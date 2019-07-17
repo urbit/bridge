@@ -1,6 +1,9 @@
 import { azimuth } from 'azimuth-js';
 
 import { usePointCache } from 'store/pointCache';
+import { useNetwork } from 'store/network';
+
+import * as need from 'lib/need';
 
 import { eqAddr, ETH_ZERO_ADDR } from './wallet';
 
@@ -23,6 +26,8 @@ const NULL_PERMISSIONS = {
   canTransfer: false,
   canSpawn: false,
   canVote: false,
+  //
+  spawnIsDelegatedSending: false,
 };
 
 /**
@@ -31,10 +36,13 @@ const NULL_PERMISSIONS = {
  */
 export default function usePermissionsForPoint(address, point) {
   const { getDetails } = usePointCache();
+  const { contracts } = useNetwork();
 
   return getDetails(point).matchWith({
     Nothing: () => NULL_PERMISSIONS,
     Just: ({ value: details }) => {
+      const _contracts = need.contracts(contracts);
+
       const pointSize = azimuth.getPointSize(point);
       const isPlanet = pointSize === azimuth.PointSize.Planet;
       const isStar = pointSize === azimuth.PointSize.Star;
@@ -60,6 +68,11 @@ export default function usePermissionsForPoint(address, point) {
       const canSpawn = (isStar || isGalaxy) && (isOwner || isSpawnProxy);
       const canVote = isGalaxy && (isOwner || isVotingProxy);
 
+      const spawnIsDelegatedSending = eqAddr(
+        _contracts.delegatedSending.address,
+        details.spawnProxy
+      );
+
       return {
         isPlanet,
         isStar,
@@ -79,6 +92,8 @@ export default function usePermissionsForPoint(address, point) {
         canTransfer,
         canSpawn,
         canVote,
+        //
+        spawnIsDelegatedSending,
       };
     },
   });

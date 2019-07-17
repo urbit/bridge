@@ -14,24 +14,23 @@ import {
   deriveNetworkKeys,
   compileNetworkingKey,
 } from './keys';
-import usePermissionsForPoint from './usePermissionsForPoint';
+import useCurrentPermissions from './useCurrentPermissions';
+import { usePointCursor } from 'store/pointCursor';
 
-export default function useKeyfileGenerator(point, manualNetworkSeed) {
+export default function useKeyfileGenerator(manualNetworkSeed) {
   const { getDetails } = usePointCache();
   const { urbitWallet, wallet, authMnemonic } = useWallet();
+  const { pointCursor } = usePointCursor();
 
   const [downloaded, setDownloaded] = useState(false);
   const [generating, setGenerating] = useState(true);
   const [keyfile, setKeyfile] = useState(false);
 
-  const _address = need.wallet(wallet).address;
-  const _details = need.details(getDetails(point));
+  const _point = need.point(pointCursor);
+  const _details = need.details(getDetails(_point));
 
   const networkRevision = parseInt(_details.keyRevisionNumber, 10);
-  const { isOwner, isManagementProxy } = usePermissionsForPoint(
-    _address,
-    point
-  );
+  const { isOwner, isManagementProxy } = useCurrentPermissions();
 
   const hasNetworkingKeys = networkRevision > 0;
   const available =
@@ -68,16 +67,16 @@ export default function useKeyfileGenerator(point, manualNetworkSeed) {
       return;
     }
 
-    setKeyfile(compileNetworkingKey(pair, point, networkRevision));
+    setKeyfile(compileNetworkingKey(pair, _point, networkRevision));
     setGenerating(false);
   }, [
+    networkRevision,
     manualNetworkSeed,
     urbitWallet,
     wallet,
     authMnemonic,
     _details,
-    networkRevision,
-    point,
+    _point,
   ]);
 
   const download = useCallback(() => {
@@ -85,11 +84,11 @@ export default function useKeyfileGenerator(point, manualNetworkSeed) {
       new Blob([keyfile], {
         type: 'text/plain;charset=utf-8',
       }),
-      `${ob.patp(point).slice(1)}-${networkRevision}.key`
+      `${ob.patp(_point).slice(1)}-${networkRevision}.key`
       // TODO: ^ unifiy "remove tilde" calls
     );
     setDownloaded(true);
-  }, [keyfile, point, networkRevision]);
+  }, [_point, keyfile, networkRevision]);
 
   useEffect(() => {
     generate();
