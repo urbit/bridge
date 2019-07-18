@@ -33,6 +33,7 @@ export async function reticketPointBetweenWallets({
   contracts,
   onUpdate,
   transferEth = false,
+  nextNetworkKeyRevision = INITIAL_NETWORK_KEY_REVISION,
 }) {
   const askForFunding = (address, minBalance, balance) =>
     onUpdate({
@@ -67,7 +68,7 @@ export async function reticketPointBetweenWallets({
   // configure networking public keys
   const seed = await deriveNetworkSeedFromUrbitWallet(
     toWallet,
-    INITIAL_NETWORK_KEY_REVISION
+    nextNetworkKeyRevision
   );
 
   const networkSeed = seed.matchWith({
