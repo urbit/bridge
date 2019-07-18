@@ -10,7 +10,7 @@ export default function IconButton({
   disabled = false,
   secondary = false,
   solid = false,
-  flush = false, // whether or not the icon should include horizontal padding
+  flush = false, // if true, remove horizontal padding
   ...rest
 }) {
   return (

@@ -1,19 +1,19 @@
 import React from 'react';
 import { B } from 'indigo-react';
 
-import useKeyfileGenerator from 'lib/useKeyfileGenerator';
-
 import { DownloadButton } from 'components/Buttons';
 
 export default function DownloadKeyfileButton({
-  networkSeed,
+  // useKeyfileGenerator.bind
+  generating,
+  available,
+  downloaded,
+  download,
+
+  // from caller
   className,
   ...rest
 }) {
-  const { generating, available, downloaded, download } = useKeyfileGenerator(
-    networkSeed
-  );
-
   const showHelp = !generating && !available;
 
   return (

@@ -16,6 +16,7 @@ import {
 import * as need from './need';
 import useLifecycle from './useLifecycle';
 import { ensureFundsFor } from './tank';
+import useDeepEqualReference from './useDeepEqualReference';
 
 const STATE = {
   NONE: 'NONE',
@@ -199,7 +200,7 @@ export default function useEthereumTransaction(
     })();
   });
 
-  const values = {
+  const values = useDeepEqualReference({
     isDefaultState,
     initializing,
     construct,
@@ -223,10 +224,7 @@ export default function useEthereumTransaction(
     nonce,
     chainId,
     needFunds,
-  };
+  });
 
-  return {
-    ...values,
-    bind: values,
-  };
+  return { ...values, bind: values };
 }

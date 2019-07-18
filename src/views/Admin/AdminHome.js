@@ -2,19 +2,22 @@ import React, { useCallback } from 'react';
 import { Just } from 'folktale/maybe';
 import { Grid, B } from 'indigo-react';
 
-import { ForwardButton } from 'components/Buttons';
-
 import { useWallet } from 'store/wallet';
 
-import ViewHeader from 'components/ViewHeader';
 import { useLocalRouter } from 'lib/LocalRouter';
+import useCurrentPermissions from 'lib/useCurrentPermissions';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
+
+import { ForwardButton } from 'components/Buttons';
+import ViewHeader from 'components/ViewHeader';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import MiniBackButton from 'components/MiniBackButton';
-import useCurrentPermissions from 'lib/useCurrentPermissions';
 
 export default function AdminHome() {
   const { push, names, pop } = useLocalRouter();
   const { urbitWallet } = useWallet();
+
+  const { bind: keyfileBind } = useKeyfileGenerator();
 
   const { isOwner, canTransfer, isTransferProxySet } = useCurrentPermissions();
 
@@ -57,6 +60,7 @@ export default function AdminHome() {
         <Grid.Item
           full
           as={DownloadKeyfileButton}
+          {...keyfileBind}
           detail="Download your Arvo Keyfile"
         />
         <Grid.Divider />

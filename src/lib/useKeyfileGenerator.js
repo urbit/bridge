@@ -5,6 +5,7 @@ import * as ob from 'urbit-ob';
 
 import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';
+import { usePointCursor } from 'store/pointCursor';
 
 import * as need from 'lib/need';
 
@@ -15,7 +16,6 @@ import {
   compileNetworkingKey,
 } from './keys';
 import useCurrentPermissions from './useCurrentPermissions';
-import { usePointCursor } from 'store/pointCursor';
 
 export default function useKeyfileGenerator(manualNetworkSeed) {
   const { getDetails } = usePointCache();
@@ -34,7 +34,11 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
 
   const hasNetworkingKeys = networkRevision > 0;
   const available =
-    (isOwner || isManagementProxy) && hasNetworkingKeys && keyfile;
+    (isOwner || isManagementProxy) && hasNetworkingKeys && !!keyfile;
+
+  console.log(
+    `keyfile available (${available}) for revision ${networkRevision}`
+  );
 
   const generate = useCallback(async () => {
     console.log('generating for network revision', networkRevision);
@@ -51,6 +55,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
 
     if (Nothing.hasInstance(networkSeed)) {
       setGenerating(false);
+      console.log('manual network seed not provided and key not derivable');
       return;
     }
 
@@ -60,6 +65,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
 
     if (!keysMatchChain(pair, _details)) {
       setGenerating(false);
+      console.log('derived network keys do not match on-chain details');
       return;
     }
 
@@ -90,10 +96,12 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     generate();
   }, [generate]);
 
-  return {
+  const values = {
     generating,
     available,
     downloaded,
     download,
   };
+
+  return { ...values, bind: values };
 }

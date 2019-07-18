@@ -1,15 +1,15 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 export default function useSetState(initialState = {}) {
+  const initialStateRef = useRef(initialState);
   const [state, _setState] = useState(initialState);
   const setState = useCallback(
     items => _setState(state => ({ ...state, ...items })),
     [_setState]
   );
 
-  const reset = useCallback(() => _setState(initialState), [
+  const reset = useCallback(() => _setState(initialStateRef.current), [
     _setState,
-    initialState,
   ]);
 
   return [state, setState, reset];

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import {
   Grid,
@@ -39,6 +39,7 @@ import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import NoticeBox from 'components/NoticeBox';
 import { useHexInput, useCheckboxInput } from 'lib/useInputs';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 const chainKeyProp = name => d =>
   d[name] === CURVE_ZERO_ADDR ? Nothing() : Just(d[name]);
@@ -61,18 +62,28 @@ function useSetKeys() {
   const _point = need.point(pointCursor);
   const _contracts = need.contracts(contracts);
 
+  const randomSeed = useRef();
+
   // NOTE: nd = 'nondeterministic' (can also be a 'manual' seed)
   const [ndNetworkSeed, setNdNetworkSeed] = useState();
+
+  const {
+    available: keyfileAvailable,
+    bind: keyfileBind,
+  } = useKeyfileGenerator(ndNetworkSeed);
 
   const {
     isDefaultState,
     construct: _construct,
     unconstruct,
     broadcasting,
-    confirmed,
+    confirmed: _confirmed,
     inputsLocked,
     bind,
   } = useEthereumTransaction(GAS_LIMITS.CONFIGURE_KEYS);
+
+  // only treat the transaction as confirmed once we also have keys to download
+  const confirmed = _confirmed && keyfileAvailable;
 
   // sync point details after success
   useEffect(() => {
@@ -98,14 +109,14 @@ function useSetKeys() {
           revision: networkRevision + 1,
         });
 
-        return networkSeed.matchWith({
-          Nothing: () => {
-            const ndSeed = randomHex(64);
-            setNdNetworkSeed(ndSeed);
-            return ndSeed;
-          },
-          Just: p => p.value,
-        });
+        if (Just.hasInstance(networkSeed)) {
+          return networkSeed.value;
+        }
+
+        randomSeed.current = randomSeed.current || randomHex(64);
+        setNdNetworkSeed(randomSeed.current);
+
+        return randomSeed.current;
       }
     },
     [_point, authMnemonic, getDetails, urbitWallet, wallet]
@@ -139,6 +150,7 @@ function useSetKeys() {
     ndNetworkSeed,
     inputsLocked,
     bind,
+    keyfileBind,
   };
 }
 
@@ -162,8 +174,8 @@ export default function AdminNetworkingKeys() {
     broadcasting,
     confirmed,
     inputsLocked,
-    ndNetworkSeed,
     bind,
+    keyfileBind,
   } = useSetKeys();
 
   const [showNetworkSeedInput, { data: showNetworkSeed }] = useCheckboxInput({
@@ -205,10 +217,10 @@ export default function AdminNetworkingKeys() {
     }
   }, [
     construct,
+    unconstruct,
     isDiscontinuity,
     networkSeed,
     showNetworkSeed,
-    unconstruct,
     validDiscontinuity,
     validNetworkSeed,
   ]);
@@ -334,12 +346,7 @@ export default function AdminNetworkingKeys() {
             <Grid.Item full as={NoticeBox} className="mb3">
               You need this keyfile to authenticate with Arvo.
             </Grid.Item>
-            <Grid.Item
-              full
-              as={DownloadKeyfileButton}
-              solid
-              networkSeed={ndNetworkSeed}
-            />
+            <Grid.Item full as={DownloadKeyfileButton} solid {...keyfileBind} />
           </>
         )}
 

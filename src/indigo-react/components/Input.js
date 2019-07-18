@@ -4,7 +4,7 @@ import cn from 'classnames';
 import Flex from './Flex';
 import { ErrorText } from './Typography';
 
-export default function Input({
+export default React.memo(function Input({
   // visuals
   name,
   label,
@@ -115,4 +115,4 @@ export default function Input({
       )}
     </Flex>
   );
-}
+});
