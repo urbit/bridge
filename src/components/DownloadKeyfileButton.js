@@ -13,6 +13,7 @@ export default function DownloadKeyfileButton({
 
   // from caller
   className,
+  children = 'Download Arvo Keyfile',
   ...rest
 }) {
   return (
@@ -26,7 +27,7 @@ export default function DownloadKeyfileButton({
       loading={generating}
       onClick={download}
       {...rest}>
-      Download Arvo Keyfile
+      {children}
     </DownloadButton>
   );
 }

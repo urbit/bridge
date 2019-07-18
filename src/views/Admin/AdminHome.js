@@ -61,8 +61,9 @@ export default function AdminHome() {
           full
           as={DownloadKeyfileButton}
           {...keyfileBind}
-          detail="Download your Arvo Keyfile"
-        />
+          detail="Download your Arvo Keyfile">
+          Redownload Arvo Keyfile
+        </Grid.Item>
         <Grid.Divider />
         <Grid.Item
           full
