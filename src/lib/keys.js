@@ -126,6 +126,7 @@ export const deriveNetworkSeedFromManagementMnemonic = async (
 
 /**
  * @param {string} mnemonic
+ * @param {string} passphrase
  * @param {number} revision
  * @return {Promise<Maybe<string>>}
  */

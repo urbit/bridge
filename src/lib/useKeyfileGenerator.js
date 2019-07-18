@@ -38,10 +38,12 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     (isOwner || isManagementProxy) && hasNetworkingKeys && !!keyfile;
 
   const generate = useCallback(async () => {
-    console.log('attempting generation for network revision', networkRevision);
     if (!hasNetworkingKeys) {
       setGenerating(false);
       setNotice('Networking keys not yet set.');
+      console.log(
+        `no networking keys available for revision ${networkRevision}`
+      );
       return;
     }
 
@@ -60,6 +62,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
       setNotice(
         'Custom or nondeterministic networking keys cannot be re-downloaded.'
       );
+      console.log(`seed is nondeterminable for revision ${networkRevision}`);
       return;
     }
 
@@ -70,6 +73,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     if (!keysMatchChain(pair, _details)) {
       setGenerating(false);
       setNotice('Derived networking keys do not match on-chain details.');
+      console.log(`keys do not match details for revision ${networkRevision}`);
       return;
     }
 

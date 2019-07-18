@@ -59,9 +59,12 @@ function useSetKeys() {
   const { pointCursor } = usePointCursor();
   const { syncOwnedPoint, getDetails } = usePointCache();
   const { contracts } = useNetwork();
+
   const _point = need.point(pointCursor);
   const _contracts = need.contracts(contracts);
+  const _details = need.details(getDetails(_point));
 
+  const networkRevision = parseInt(_details.keyRevisionNumber, 10);
   const randomSeed = useRef();
 
   // NOTE: nd = 'nondeterministic' (can also be a 'manual' seed)
@@ -92,21 +95,21 @@ function useSetKeys() {
     }
   }, [_point, confirmed, syncOwnedPoint]);
 
-  const getSeed = useCallback(
+  const buildNetworkSeed = useCallback(
     async manualSeed => {
-      const details = need.details(getDetails(_point));
-      const networkRevision = parseInt(details.keyRevisionNumber, 10);
-
       if (manualSeed !== undefined) {
         setNdNetworkSeed(manualSeed);
         return manualSeed;
       } else {
+        const newNetworkRevision = networkRevision + 1;
+        console.log(`deriving seed with revision ${newNetworkRevision}`);
+
         const networkSeed = await attemptNetworkSeedDerivation({
           urbitWallet,
           wallet,
           authMnemonic,
-          details,
-          revision: networkRevision,
+          details: _details,
+          revision: newNetworkRevision,
         });
 
         if (Just.hasInstance(networkSeed)) {
@@ -119,12 +122,12 @@ function useSetKeys() {
         return randomSeed.current;
       }
     },
-    [_point, authMnemonic, getDetails, urbitWallet, wallet]
+    [_details, authMnemonic, networkRevision, urbitWallet, wallet]
   );
 
   const construct = useCallback(
     async (manualSeed, isDiscontinuity) => {
-      const seed = await getSeed(manualSeed);
+      const seed = await buildNetworkSeed(manualSeed);
       const pair = deriveNetworkKeys(seed);
 
       const txn = azimuth.ecliptic.configureKeys(
@@ -138,7 +141,7 @@ function useSetKeys() {
 
       _construct(txn);
     },
-    [_construct, _contracts, _point, getSeed]
+    [_construct, _contracts, _point, buildNetworkSeed]
   );
 
   return {
