@@ -29,42 +29,20 @@ function useSetPoolSize() {
   const _contracts = need.contracts(contracts);
   const _point = need.point(pointCursor);
 
-  const {
-    construct: _construct,
-    unconstruct,
-    confirmed,
-    inputsLocked,
-    bind,
-  } = useEthereumTransaction(GAS_LIMITS.DEFAULT);
-  // TODO: GAS_LIMITS.SET_POOL_SIZE
-
-  const construct = useCallback(
-    (poolOwner, poolSize) =>
-      _construct(
+  return useEthereumTransaction(
+    useCallback(
+      (poolOwner, poolSize) =>
         azimuth.delegatedSending.setPoolSize(
           _contracts,
           _point,
           poolOwner,
           poolSize
-        )
-      ),
-    [_construct, _contracts, _point]
+        ),
+      [_contracts, _point]
+    ),
+    useCallback(() => syncOwnedPoint(_point), [_point, syncOwnedPoint]),
+    GAS_LIMITS.DEFAULT // TODO: GAS_LIMITS.SET_POOL_SIZE
   );
-
-  // sync point details after success
-  useEffect(() => {
-    if (confirmed) {
-      syncOwnedPoint(_point);
-    }
-  }, [_point, confirmed, syncOwnedPoint]);
-
-  return {
-    construct,
-    unconstruct,
-    confirmed,
-    inputsLocked,
-    bind,
-  };
 }
 
 export default function PartySetPoolSize() {
@@ -78,7 +56,7 @@ export default function PartySetPoolSize() {
   const {
     construct,
     unconstruct,
-    confirmed,
+    completed,
     inputsLocked,
     bind,
   } = useSetPoolSize();
@@ -129,14 +107,14 @@ export default function PartySetPoolSize() {
           full
           as={Text}
           className={cn('f5', {
-            green3: confirmed,
+            green3: completed,
           })}>
-          {confirmed
+          {completed
             ? `${poolSize} invites have been allocated to ${poolOwner}`
             : `Allocate invites to a child point.`}
         </Grid.Item>
 
-        {!confirmed && (
+        {!completed && (
           <>
             <Grid.Item full as={Input} {...poolOwnerInput} className="mt4" />
             <Grid.Item full as={Input} {...poolSizeInput} className="mb4" />

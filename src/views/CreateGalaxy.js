@@ -28,35 +28,17 @@ function useCreateGalaxy() {
 
   const [galaxy, setGalaxy] = useState();
 
-  const {
-    construct: _construct,
-    unconstruct,
-    confirmed,
-    inputsLocked,
-    bind,
-  } = useEthereumTransaction(GAS_LIMITS.DEFAULT);
-
-  const construct = useCallback(
-    (galaxy, owner) => {
-      setGalaxy(galaxy);
-      _construct(azimuth.ecliptic.createGalaxy(_contracts, galaxy, owner));
-    },
-    [_construct, _contracts]
+  return useEthereumTransaction(
+    useCallback(
+      (galaxy, owner) => {
+        setGalaxy(galaxy);
+        return azimuth.ecliptic.createGalaxy(_contracts, galaxy, owner);
+      },
+      [_contracts]
+    ),
+    useCallback(() => syncKnownPoint(galaxy), [galaxy, syncKnownPoint]),
+    GAS_LIMITS.DEFAULT
   );
-
-  useEffect(() => {
-    if (confirmed) {
-      syncKnownPoint(galaxy);
-    }
-  }, [confirmed, galaxy, syncKnownPoint]);
-
-  return {
-    construct,
-    unconstruct,
-    confirmed,
-    inputsLocked,
-    bind,
-  };
 }
 
 export default function CreateGalaxy() {
@@ -70,7 +52,7 @@ export default function CreateGalaxy() {
   const {
     construct,
     unconstruct,
-    confirmed,
+    completed,
     inputsLocked,
     bind,
   } = useCreateGalaxy();
@@ -153,12 +135,12 @@ export default function CreateGalaxy() {
           Create a Galaxy
         </Grid.Item>
 
-        {confirmed && (
+        {completed && (
           <Grid.Item
             full
             as={Text}
             className={cn('f5', {
-              green3: confirmed,
+              green3: completed,
             })}>
             {galaxyName} has been created and is owned by {owner}.
           </Grid.Item>

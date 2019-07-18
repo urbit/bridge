@@ -57,7 +57,7 @@ const renderNetworkKey = key => {
 function useSetKeys() {
   const { urbitWallet, wallet, authMnemonic } = useWallet();
   const { pointCursor } = usePointCursor();
-  const { syncOwnedPoint, getDetails } = usePointCache();
+  const { syncDetails, syncRekeyDate, getDetails } = usePointCache();
   const { contracts } = useNetwork();
 
   const _point = need.point(pointCursor);
@@ -74,26 +74,6 @@ function useSetKeys() {
     available: keyfileAvailable,
     bind: keyfileBind,
   } = useKeyfileGenerator(ndNetworkSeed);
-
-  const {
-    isDefaultState,
-    construct: _construct,
-    unconstruct,
-    broadcasting,
-    confirmed: _confirmed,
-    inputsLocked,
-    bind,
-  } = useEthereumTransaction(GAS_LIMITS.CONFIGURE_KEYS);
-
-  // only treat the transaction as confirmed once we also have keys to download
-  const confirmed = _confirmed && keyfileAvailable;
-
-  // sync point details after success
-  useEffect(() => {
-    if (confirmed) {
-      syncOwnedPoint(_point);
-    }
-  }, [_point, confirmed, syncOwnedPoint]);
 
   const buildNetworkSeed = useCallback(
     async manualSeed => {
@@ -125,35 +105,38 @@ function useSetKeys() {
     [_details, authMnemonic, networkRevision, urbitWallet, wallet]
   );
 
-  const construct = useCallback(
-    async (manualSeed, isDiscontinuity) => {
-      const seed = await buildNetworkSeed(manualSeed);
-      const pair = deriveNetworkKeys(seed);
+  const { completed: _completed, ...rest } = useEthereumTransaction(
+    useCallback(
+      async (manualSeed, isDiscontinuity) => {
+        const seed = await buildNetworkSeed(manualSeed);
+        const pair = deriveNetworkKeys(seed);
 
-      const txn = azimuth.ecliptic.configureKeys(
-        _contracts,
-        _point,
-        addHexPrefix(pair.crypt.public),
-        addHexPrefix(pair.auth.public),
-        CRYPTO_SUITE_VERSION,
-        isDiscontinuity
-      );
-
-      _construct(txn);
-    },
-    [_construct, _contracts, _point, buildNetworkSeed]
+        return azimuth.ecliptic.configureKeys(
+          _contracts,
+          _point,
+          addHexPrefix(pair.crypt.public),
+          addHexPrefix(pair.auth.public),
+          CRYPTO_SUITE_VERSION,
+          isDiscontinuity
+        );
+      },
+      [_contracts, _point, buildNetworkSeed]
+    ),
+    useCallback(
+      () => Promise.all([syncDetails(_point), syncRekeyDate(_point)]),
+      [_point, syncDetails, syncRekeyDate]
+    ),
+    GAS_LIMITS.CONFIGURE_KEYS
   );
 
+  // only treat the transaction as completed once we also have keys to download
+  const completed = _completed && keyfileAvailable;
+
   return {
-    isDefaultState,
-    construct,
-    unconstruct,
-    broadcasting,
-    confirmed,
+    completed,
     ndNetworkSeed,
-    inputsLocked,
-    bind,
     keyfileBind,
+    ...rest,
   };
 }
 
@@ -175,7 +158,7 @@ export default function AdminNetworkingKeys() {
     construct,
     unconstruct,
     broadcasting,
-    confirmed,
+    completed,
     inputsLocked,
     bind,
     keyfileBind,
@@ -237,7 +220,7 @@ export default function AdminNetworkingKeys() {
   const goRelocate = useCallback(() => push(names.RELOCATE), [push, names]);
 
   const renderTitle = () => {
-    if (confirmed) {
+    if (completed) {
       return 'Networking keys are now set. Download your Keyfile to authenticate Arvo.';
     }
 
@@ -344,7 +327,7 @@ export default function AdminNetworkingKeys() {
             : 'Set your networking keys to authenticate with Arvo.'}
         </Grid.Item>
 
-        {confirmed && (
+        {completed && (
           <>
             <Grid.Item full as={NoticeBox} className="mb3">
               You need this keyfile to authenticate with Arvo.
@@ -353,7 +336,7 @@ export default function AdminNetworkingKeys() {
           </>
         )}
 
-        {!confirmed && (
+        {!completed && (
           <>
             <Grid.Item full as={ToggleInput} {...showNetworkSeedInput} />
             {showNetworkSeed && (
@@ -361,7 +344,7 @@ export default function AdminNetworkingKeys() {
                 <Grid.Item full as={NoticeBox} className="mb2">
                   When using a custom network seed, you'll need to download your
                   Arvo keyfile immediately after this transaction is
-                  confirmed—Multipass does not store your seed.
+                  completed—Multipass does not store your seed.
                 </Grid.Item>
                 <Grid.Item full as={Input} {...networkSeedInput} />
               </>
@@ -380,7 +363,7 @@ export default function AdminNetworkingKeys() {
 
         {isDefaultState && renderDetails()}
 
-        {confirmed && (
+        {completed && (
           <>
             <Grid.Item full as={BootArvoButton} disabled />
             <Grid.Divider />

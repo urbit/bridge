@@ -46,64 +46,44 @@ const proxyFromDetails = (details, contracts, proxyType) => {
 function useSetProxy(proxyType) {
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
-  const { syncOwnedPoint } = usePointCache();
+  const { syncDetails } = usePointCache();
 
   const _contracts = need.contracts(contracts);
   const _point = need.point(pointCursor);
 
-  const buildUnsignedTx = useCallback(
-    address => {
-      const txArgs = [_contracts, _point, address];
+  const { construct, ...rest } = useEthereumTransaction(
+    useCallback(
+      address => {
+        const txArgs = [_contracts, _point, address];
 
-      switch (proxyType) {
-        case PROXY_TYPE.MANAGEMENT:
-          return azimuth.ecliptic.setManagementProxy(...txArgs);
-        case PROXY_TYPE.SPAWN:
-          return azimuth.ecliptic.setSpawnProxy(...txArgs);
-        case PROXY_TYPE.TRANSFER:
-          return azimuth.ecliptic.setTransferProxy(...txArgs);
-        case PROXY_TYPE.VOTING:
-          return azimuth.ecliptic.setVotingProxy(...txArgs);
-        default:
-          throw new Error(`Unknown proxyType ${proxyType}`);
-      }
-    },
-    [_contracts, _point, proxyType]
-  );
-
-  const {
-    construct: _construct,
-    unconstruct,
-    confirmed,
-    inputsLocked,
-    bind,
-  } = useEthereumTransaction(GAS_LIMITS.SET_PROXY);
-
-  // sync point details after success
-  useEffect(() => {
-    if (confirmed) {
-      syncOwnedPoint(_point);
-    }
-  }, [_point, confirmed, syncOwnedPoint]);
-
-  // construct the unsigned transaction when we have a valid address
-  const construct = useCallback(
-    address => _construct(buildUnsignedTx(address)),
-    [_construct, buildUnsignedTx]
+        switch (proxyType) {
+          case PROXY_TYPE.MANAGEMENT:
+            return azimuth.ecliptic.setManagementProxy(...txArgs);
+          case PROXY_TYPE.SPAWN:
+            return azimuth.ecliptic.setSpawnProxy(...txArgs);
+          case PROXY_TYPE.TRANSFER:
+            return azimuth.ecliptic.setTransferProxy(...txArgs);
+          case PROXY_TYPE.VOTING:
+            return azimuth.ecliptic.setVotingProxy(...txArgs);
+          default:
+            throw new Error(`Unknown proxyType ${proxyType}`);
+        }
+      },
+      [_contracts, _point, proxyType]
+    ),
+    useCallback(() => syncDetails(_point), [_point, syncDetails]),
+    GAS_LIMITS.SET_PROXY
   );
 
   // force-unset
   const unset = useCallback(() => {
-    _construct(buildUnsignedTx(ETH_ZERO_ADDR));
-  }, [_construct, buildUnsignedTx]);
+    construct(ETH_ZERO_ADDR);
+  }, [construct]);
 
   return {
     construct,
-    unconstruct,
-    confirmed,
     unset,
-    inputsLocked: inputsLocked,
-    bind,
+    ...rest,
   };
 }
 
@@ -124,7 +104,7 @@ export default function AdminSetProxy() {
     unconstruct,
     unset,
     inputsLocked,
-    confirmed,
+    completed,
     bind,
   } = useSetProxy(data.proxyType);
 
@@ -168,7 +148,7 @@ export default function AdminSetProxy() {
   const isProxySet = !isZeroAddress(proxyAddress);
 
   const proxyAddressLabel = `${
-    confirmed ? 'New' : 'Current'
+    completed ? 'New' : 'Current'
   } ${properProxyType} Address`;
 
   return (
@@ -187,7 +167,7 @@ export default function AdminSetProxy() {
         full
         as={Text}
         className={cn('f6 mb1', {
-          green3: confirmed,
+          green3: completed,
         })}>
         {proxyAddressLabel}
       </Grid.Item>
@@ -197,18 +177,18 @@ export default function AdminSetProxy() {
           flex
           as={Text}
           className={cn('mono', {
-            black: !confirmed && isProxySet,
-            gray4: !confirmed && !isProxySet,
-            green3: confirmed,
+            black: !completed && isProxySet,
+            gray4: !completed && !isProxySet,
+            green3: completed,
           })}>
           {isProxySet ? proxyAddress : 'Unset'}
         </Flex.Item>
-        {!confirmed && isProxySet && (
+        {!completed && isProxySet && (
           <Flex.Item as={ToggleInput} {...unsetInput} />
         )}
       </Grid.Item>
 
-      {confirmed ? (
+      {completed ? (
         <Grid.Item full className="mb4" />
       ) : (
         <Grid.Item full as={Input} {...addressInput} className="mv4" />

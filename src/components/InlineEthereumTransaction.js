@@ -28,6 +28,7 @@ export default function InlineEthereumTransaction({
   broadcast,
   broadcasted,
   confirmed,
+  completed,
   reset,
   error,
   gasPrice,
@@ -45,9 +46,13 @@ export default function InlineEthereumTransaction({
   onReturn,
 }) {
   // show receipt after successful broadcast
-  const showReceipt = broadcasted || confirmed;
+  const showReceipt = broadcasted || confirmed || completed;
   // show configure controls pre-broadcast
-  const showConfigureInput = !(signed || broadcasted || confirmed);
+  const showConfigureInput = !(signed || broadcasted || confirmed || completed);
+  // show the send/loading button while signed, broadcasting, or confirme
+  const showBroadcastButton = signed || broadcasted || confirmed;
+  const canBroadcast = signed;
+  const isLoading = broadcasted || confirmed;
   // show signed tx only when signing (for offline usage)
   const showSignedTx = signed;
 
@@ -83,7 +88,7 @@ export default function InlineEthereumTransaction({
           Reset Transaction
         </Grid.Item>
       );
-    } else if (confirmed) {
+    } else if (completed) {
       return (
         <>
           <Grid.Divider />
@@ -92,15 +97,15 @@ export default function InlineEthereumTransaction({
           </Grid.Item>
         </>
       );
-    } else if (signed || broadcasted) {
+    } else if (showBroadcastButton) {
       return (
         <Grid.Item
           full
           as={ForwardButton}
           solid
           success
-          disabled={broadcasted || needFunds}
-          loading={broadcasted || needFunds}
+          disabled={!canBroadcast}
+          loading={isLoading}
           onClick={() => broadcast()}>
           Send Transaction
         </Grid.Item>

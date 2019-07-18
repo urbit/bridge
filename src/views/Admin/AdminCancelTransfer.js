@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback } from 'react';
 import cn from 'classnames';
 import { Grid, Text } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
@@ -22,31 +22,27 @@ import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 function useCancelTransfer() {
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
-  const { syncOwnedPoint } = usePointCache();
+  const { syncDetails } = usePointCache();
 
   const _contracts = need.contracts(contracts);
   const _point = need.point(pointCursor);
 
-  const { construct, confirmed, bind } = useEthereumTransaction(
+  const { construct, ...rest } = useEthereumTransaction(
+    useCallback(
+      () =>
+        azimuth.ecliptic.setTransferProxy(_contracts, _point, ETH_ZERO_ADDR),
+      [_contracts, _point]
+    ),
+    useCallback(() => syncDetails(_point), [_point, syncDetails]),
     GAS_LIMITS.SET_PROXY
   );
 
   useLifecycle(() => {
-    construct(
-      azimuth.ecliptic.setTransferProxy(_contracts, _point, ETH_ZERO_ADDR)
-    );
+    construct();
   });
 
-  // sync point details after success
-  useEffect(() => {
-    if (confirmed) {
-      syncOwnedPoint(_point);
-    }
-  }, [_point, confirmed, syncOwnedPoint]);
-
   return {
-    confirmed,
-    bind,
+    ...rest,
   };
 }
 
@@ -59,7 +55,7 @@ export default function AdminCancelTransfer() {
   const name = useCurrentPointName();
   const _details = need.details(getDetails(_point));
 
-  const { confirmed, bind } = useCancelTransfer();
+  const { completed, bind } = useCancelTransfer();
 
   return (
     <Grid>
@@ -73,9 +69,9 @@ export default function AdminCancelTransfer() {
         full
         as={Text}
         className={cn('f5', {
-          green3: confirmed,
+          green3: completed,
         })}>
-        {confirmed
+        {completed
           ? `The outgoing transfer of ${name} has been cancelled.`
           : `Cancel the outgoing transfer of ${name} to ${_details.transferProxy}.`}
       </Grid.Item>

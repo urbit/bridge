@@ -21,41 +21,19 @@ import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 function useTransfer() {
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
-  const { syncOwnedPoint } = usePointCache();
+  const { syncDetails } = usePointCache();
 
   const _contracts = need.contracts(contracts);
   const _point = need.point(pointCursor);
 
-  const {
-    construct: _construct,
-    unconstruct,
-    confirmed,
-    inputsLocked,
-    bind,
-  } = useEthereumTransaction(GAS_LIMITS.SET_PROXY);
-
-  const construct = useCallback(
-    address =>
-      _construct(
-        azimuth.ecliptic.setTransferProxy(_contracts, _point, address)
-      ),
-    [_construct, _contracts, _point]
+  return useEthereumTransaction(
+    useCallback(
+      address => azimuth.ecliptic.setTransferProxy(_contracts, _point, address),
+      [_contracts, _point]
+    ),
+    useCallback(() => syncDetails(_point), [_point, syncDetails]),
+    GAS_LIMITS.SET_PROXY
   );
-
-  // sync point details after success
-  useEffect(() => {
-    if (confirmed) {
-      syncOwnedPoint(_point);
-    }
-  }, [_point, confirmed, syncOwnedPoint]);
-
-  return {
-    construct,
-    unconstruct,
-    confirmed,
-    inputsLocked,
-    bind,
-  };
 }
 
 export default function AdminTransfer() {
@@ -65,7 +43,7 @@ export default function AdminTransfer() {
   const {
     construct,
     unconstruct,
-    confirmed,
+    completed,
     inputsLocked,
     bind,
   } = useTransfer();
@@ -94,14 +72,16 @@ export default function AdminTransfer() {
         full
         as={Text}
         className={cn('f5', {
-          green3: confirmed,
+          green3: completed,
         })}>
-        {confirmed
+        {completed
           ? `${address} is now the Transfer Proxy for ${name} and can accept the transfer by logging into Multipass themselves. Until they accept your transfer, you will still have ownership over ${name}.`
           : `Transfer ${name} to a new owner.`}
       </Grid.Item>
 
-      <Grid.Item full as={Input} {...addressInput} className="mv4" />
+      {!completed && (
+        <Grid.Item full as={Input} {...addressInput} className="mv4" />
+      )}
 
       <Grid.Item
         full

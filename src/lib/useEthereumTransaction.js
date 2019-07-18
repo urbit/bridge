@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Just } from 'folktale/maybe';
 import { fromWei, toWei } from 'web3-utils';
 
@@ -23,13 +23,19 @@ const STATE = {
   SIGNED: 'SIGNED',
   BROADCASTED: 'BROADCASTED',
   CONFIRMED: 'CONFIRMED',
+  COMPLETED: 'COMPLETED',
 };
 
 /**
  * manage the state around sending and confirming an ethereum transaction
- * @param {number} initialGasLimit
+ * @param {Transaction Function()} transactionBuilder
+ * @param {Promise<any> Function()} refetch async function called after completion
+ * @param {number} initialGasLimit gas limit
+ * @param {number} initialGasPrice gas price in gwei
  */
 export default function useEthereumTransaction(
+  transactionBuilder,
+  refetch,
   initialGasLimit = GAS_LIMITS.DEFAULT,
   initialGasPrice = 20
 ) {
@@ -67,16 +73,18 @@ export default function useEthereumTransaction(
   const signed = state === STATE.SIGNED;
   const broadcasted = state === STATE.BROADCASTED;
   const confirmed = state === STATE.CONFIRMED;
+  const completed = state === STATE.COMPLETED;
 
-  // disable the inputs when:
-  const inputsLocked = signed || broadcasted || confirmed;
+  // lock inputs once we're out of the default state
+  const inputsLocked = !isDefaultState;
 
   // we can sign when:
-  const canSign = !initializing && constructed;
+  const canSign = !initializing && constructed && isDefaultState;
 
-  const construct = useCallback(txn => setUnsignedTransaction(txn), [
-    setUnsignedTransaction,
-  ]);
+  const construct = useCallback(
+    (...args) => setUnsignedTransaction(transactionBuilder(...args)),
+    [transactionBuilder]
+  );
 
   const unconstruct = useCallback(() => setUnsignedTransaction(undefined), [
     setUnsignedTransaction,
@@ -200,6 +208,31 @@ export default function useEthereumTransaction(
     })();
   });
 
+  useEffect(() => {
+    let cancelled = false;
+
+    if (confirmed) {
+      (async () => {
+        if (refetch) {
+          try {
+            await refetch();
+          } catch (error) {
+            // NOTE: we don't handle this error on purpose
+            console.error(error);
+          }
+        }
+
+        if (cancelled) {
+          return;
+        }
+
+        setState(STATE.COMPLETED);
+      })();
+    }
+
+    return () => (cancelled = true);
+  }, [confirmed, refetch, completed]);
+
   const values = useDeepEqualReference({
     isDefaultState,
     initializing,
@@ -212,6 +245,7 @@ export default function useEthereumTransaction(
     broadcast,
     broadcasted,
     confirmed,
+    completed,
     reset,
     error,
     inputsLocked,
