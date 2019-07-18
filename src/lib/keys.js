@@ -92,6 +92,7 @@ export const deriveNetworkSeedFromUrbitWallet = async (
 ) => {
   return await deriveNetworkSeedFromMnemonic(
     urbitWallet.management.seed,
+    urbitWallet.meta.passphrase,
     revision
   );
 };
@@ -113,7 +114,11 @@ export const deriveNetworkSeedFromManagementMnemonic = async (
 
   // the network seed is derivable iff this mnemonic is the management proxy
   if (isManagementProxy) {
-    return await deriveNetworkSeedFromMnemonic(authMnemonic, revision);
+    return await deriveNetworkSeedFromMnemonic(
+      authMnemonic,
+      wallet.passphrase,
+      revision
+    );
   }
 
   return Nothing();
@@ -124,8 +129,15 @@ export const deriveNetworkSeedFromManagementMnemonic = async (
  * @param {number} revision
  * @return {Promise<Maybe<string>>}
  */
-const deriveNetworkSeedFromMnemonic = async (mnemonic, revision) => {
-  return Just(await kg.deriveNetworkSeed(mnemonic, '', revision));
+const deriveNetworkSeedFromMnemonic = async (
+  mnemonic,
+  passphrase,
+  revision
+) => {
+  //NOTE revision is the point's on-chain revision number. since common uhdw
+  //     usage derives the first key at revision/index 0, we need to decrement
+  //     the on-chain revision number by one to get the number to derive with.
+  return Just(await kg.deriveNetworkSeed(mnemonic, passphrase, revision - 1));
 };
 
 /**

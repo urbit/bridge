@@ -95,7 +95,7 @@ function useSetKeys() {
           wallet,
           authMnemonic,
           details,
-          revision: networkRevision + 1,
+          revision: networkRevision,
         });
 
         return networkSeed.matchWith({
