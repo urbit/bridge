@@ -10,12 +10,14 @@ import {
   Text,
   HelpText,
 } from 'indigo-react';
+import { fromWei } from 'web3-utils';
 
 import { useCheckboxInput } from 'lib/useInputs';
-import { hexify } from 'lib/txn';
 import { useExploreTxUrl } from 'lib/explorer';
+import { hexify } from 'lib/txn';
 
 import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
+import WarningBox from './WarningBox';
 
 export default function InlineEthereumTransaction({
   // from useEthereumTransaction.bind
@@ -34,6 +36,7 @@ export default function InlineEthereumTransaction({
   txHash,
   nonce,
   chainId,
+  needFunds,
   signedTransaction,
 
   // additional from parent
@@ -96,8 +99,8 @@ export default function InlineEthereumTransaction({
           as={ForwardButton}
           solid
           success
-          disabled={broadcasted}
-          loading={broadcasted}
+          disabled={broadcasted || needFunds}
+          loading={broadcasted || needFunds}
           onClick={() => broadcast()}>
           Send Transaction
         </Grid.Item>
@@ -123,6 +126,15 @@ export default function InlineEthereumTransaction({
       {error && (
         <Grid.Item full as={ErrorText} className="mt1">
           {error.message}
+        </Grid.Item>
+      )}
+
+      {needFunds && (
+        <Grid.Item full as={WarningBox} className="mt3">
+          The address {needFunds.address} needs at least{' '}
+          {fromWei(needFunds.minBalance)} ETH and currently has{' '}
+          {fromWei(needFunds.balance)} ETH. Waiting until the account has enough
+          funds.
         </Grid.Item>
       )}
 

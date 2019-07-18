@@ -95,24 +95,18 @@ const ensureFundsFor = async (
 
 // returns a promise that resolves when address has at least minBalance
 function waitForBalance(web3, address, minBalance, askForFunding, gotFunding) {
-  let oldBalance = null;
   return retry(async (bail, n) => {
     const balance = await web3.eth.getBalance(address);
     if (balance >= minBalance) {
-      // if we ever asked for funding, retract that request now
-      if (gotFunding && oldBalance !== null) {
-        gotFunding();
-      }
+      gotFunding && gotFunding();
       return;
     } else {
-      if (balance !== oldBalance) {
-        // TODO: minBalance is a `number` type
-        // but we want to display ETH, which will never accept a number
-        // but instead wants string or BN/BigNumber.
-        // this will be heavily refactored to correctly do BN math, but until
-        // then we'll manually convert this number to an integer string
-        askForFunding(address, minBalance.toFixed(), balance);
-      }
+      // TODO: minBalance is a `number` type
+      // but we want to display ETH, which will never accept a number
+      // but instead wants string or BN/BigNumber.
+      // this will be heavily refactored to correctly do BN math, but until
+      // then we'll manually convert this number to an integer string
+      askForFunding(address, minBalance.toFixed(), balance);
       throw new Error('retrying');
     }
   }, RETRY_OPTIONS);

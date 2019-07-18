@@ -8,7 +8,7 @@ import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 
 import * as need from 'lib/need';
-import { ETH_ZERO_ADDR } from 'lib/wallet';
+import { isZeroAddress } from 'lib/wallet';
 import { PROXY_TYPE, proxyTypeToHuman } from 'lib/proxy';
 import { useLocalRouter } from 'lib/LocalRouter';
 import capitalize from 'lib/capitalize';
@@ -48,7 +48,7 @@ export default function AdminEditPermissions() {
   ]);
 
   const renderProxyAction = (proxyType, address) => {
-    if (eqAddr(address, ETH_ZERO_ADDR)) {
+    if (isZeroAddress(address)) {
       address = 'Not set';
     } else if (eqAddr(address, _contracts.delegatedSending.address)) {
       address = `${address} (invites contract)`;

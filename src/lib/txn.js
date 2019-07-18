@@ -194,8 +194,5 @@ export {
   getTxnInfo,
   hexify,
   renderSignedTx,
-  toHex,
-  toWei,
-  fromWei,
   canDecodePatp,
 };

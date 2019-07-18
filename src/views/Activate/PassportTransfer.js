@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Grid, Text, ErrorText } from 'indigo-react';
+import { fromWei } from 'web3-utils';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
@@ -13,7 +14,6 @@ import {
   TRANSACTION_PROGRESS,
 } from 'lib/reticket';
 import timeout from 'lib/timeout';
-import { fromWei } from 'lib/txn';
 
 import WarningBox from 'components/WarningBox';
 import LoadingBar from 'components/LoadingBar';

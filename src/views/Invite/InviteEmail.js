@@ -13,6 +13,7 @@ import {
   useForm,
 } from 'indigo-react';
 import { uniq } from 'lodash';
+import { fromWei, toWei } from 'web3-utils';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useNetwork } from 'store/network';
@@ -25,8 +26,6 @@ import {
   sendSignedTransaction,
   waitForTransactionConfirm,
   hexify,
-  fromWei,
-  toWei,
 } from 'lib/txn';
 import * as tank from 'lib/tank';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -309,7 +308,7 @@ export default function InviteEmail() {
       inputs.map(input => invites[input.name].rawTx),
       (address, minBalance, balance) =>
         setNeedFunds({ address, minBalance, balance }),
-      () => setNeedFunds(false)
+      () => setNeedFunds(undefined)
     );
 
     setStatus(STATUS.SENDING);

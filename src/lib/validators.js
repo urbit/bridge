@@ -5,6 +5,7 @@ import { identity, includes } from 'lodash';
 import { isValidAddress, ETH_ZERO_ADDR, ETH_ZERO_ADDR_SHORT } from './wallet';
 import patp2dec from './patp2dec';
 import { patpStringLength } from './lib';
+import { MIN_GALAXY, MAX_GALAXY } from './constants';
 
 // NOTE: do not use the /g modifier for these regexes
 // https://stackoverflow.com/a/21373261
@@ -90,12 +91,12 @@ export const validateGalaxy = m =>
       let point;
       try {
         point = patp2dec(d);
-        return point >= 0 && point < 256;
+        return point >= MIN_GALAXY && point <= MAX_GALAXY;
       } catch (e) {
         return false;
       }
     },
-    error: 'This is not a valid galaxy',
+    error: 'This is not a valid galaxy.',
   });
 
 export const validatePoint = m =>
@@ -108,7 +109,7 @@ export const validatePoint = m =>
         return false;
       }
     },
-    error: 'This is not a valid point',
+    error: 'This is not a valid point.',
   });
 
 export const validateTicket = m =>
@@ -121,7 +122,7 @@ export const validateTicket = m =>
         return false;
       }
     },
-    error: 'This is not a valid ticket',
+    error: 'This is not a valid ticket.',
   });
 
 export const validateShard = m =>
@@ -134,7 +135,7 @@ export const validateShard = m =>
         return false;
       }
     },
-    error: 'This is not a valid shard',
+    error: 'This is not a valid shard.',
   });
 
 export const validateOneOf = (options = []) => m =>
@@ -148,7 +149,7 @@ export const validateHexString = m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => isHexString.test(d),
-    error: 'This is not a valid hex string',
+    error: 'This is not a valid hex string.',
   });
 
 // @deprecate
@@ -156,7 +157,7 @@ export const validateNetworkKey = m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => plain64CharHexValue.test(d),
-    error: 'This is not a valid network key',
+    error: 'This is not a valid network key.',
   });
 
 // @deprecate
@@ -164,7 +165,7 @@ export const validateNetworkSeed = m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => plain64CharHexValue.test(d),
-    error: 'This is not a valid network seed',
+    error: 'This is not a valid network seed.',
   });
 
 // Checks if a string is a valid ethereum address
@@ -172,14 +173,14 @@ export const validateEthereumAddress = m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => isValidAddress(d),
-    error: 'This is not a valid Ethereum address',
+    error: 'This is not a valid Ethereum address.',
   });
 
 export const validateEmail = m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => emailRegExp.test(d),
-    error: 'This is not a valid email address',
+    error: 'This is not a valid email address.',
   });
 
 export const validateInt = m =>
@@ -194,7 +195,7 @@ export const validateInt = m =>
         return false;
       }
     },
-    error: 'This is not a valid number',
+    error: 'This is not a valid number.',
   });
 
 export const validateExactly = (value, error) => m =>
@@ -208,7 +209,7 @@ export const validateNotAny = (values = []) => m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => !values.includes(d),
-    error: `Cannot be ${m.data}`,
+    error: `Cannot be ${m.data}.`,
   });
 
 export const validateLength = l => m =>
@@ -221,7 +222,7 @@ export const validateLength = l => m =>
         return false;
       }
     },
-    error: `Must be exactly ${l} characters`,
+    error: `Must be exactly ${l} characters.`,
   });
 
 export const validateMaximumLength = l => m =>
@@ -241,7 +242,7 @@ export const validateGreaterThan = l => m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => d > l,
-    error: `Must be at least ${l}`,
+    error: `Must be at least ${l}.`,
   });
 
 export const validatePatpByteLength = byteLength => {

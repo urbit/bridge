@@ -14,7 +14,7 @@ import {
 } from 'lib/proxy';
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
-import { ETH_ZERO_ADDR, eqAddr } from 'lib/wallet';
+import { ETH_ZERO_ADDR, eqAddr, isZeroAddress } from 'lib/wallet';
 import capitalize from 'lib/capitalize';
 import { useAddressInput, useCheckboxInput } from 'lib/useInputs';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
@@ -133,6 +133,7 @@ export default function AdminSetProxy() {
     label: 'Unset',
     inverseLabel: 'Specify',
     initialValue: false,
+    disabled: inputsLocked,
   });
   const [
     addressInput,
@@ -164,7 +165,7 @@ export default function AdminSetProxy() {
   ]);
 
   const proxyAddress = proxyFromDetails(_details, _contracts, data.proxyType);
-  const isProxySet = !eqAddr(ETH_ZERO_ADDR, proxyAddress);
+  const isProxySet = !isZeroAddress(proxyAddress);
 
   const proxyAddressLabel = `${
     confirmed ? 'New' : 'Current'

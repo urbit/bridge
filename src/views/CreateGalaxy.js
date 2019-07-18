@@ -86,7 +86,7 @@ export default function CreateGalaxy() {
       error ||
       isAvailable.matchWith({
         Nothing: () => 'Loading availabiliy...', // TODO: make async loading?
-        Just: p => (p.value ? undefined : 'This galaxy is already owned'),
+        Just: p => (p.value ? undefined : 'This galaxy is already owned.'),
       }),
   });
 
@@ -109,6 +109,7 @@ export default function CreateGalaxy() {
       return;
     }
 
+    setError();
     setIsAvailable(Nothing());
 
     let cancelled = false;

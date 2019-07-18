@@ -1,12 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H4, Text, ErrorText } from 'indigo-react';
+import { fromWei } from 'web3-utils';
 
 import {
   reticketPointBetweenWallets,
   TRANSACTION_PROGRESS,
 } from 'lib/reticket';
-import { fromWei } from 'lib/txn';
 import * as need from 'lib/need';
 import useLifecycle from 'lib/useLifecycle';
 

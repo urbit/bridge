@@ -1,17 +1,21 @@
 import { useCallback, useState } from 'react';
-import { fromWei } from 'web3-utils';
+import { Just } from 'folktale/maybe';
+import { fromWei, toWei } from 'web3-utils';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
+import { usePointCursor } from 'store/pointCursor';
 
+import { GAS_LIMITS } from './constants';
 import {
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,
+  hexify,
 } from './txn';
 import * as need from './need';
-import { GAS_LIMITS } from './constants';
 import useLifecycle from './useLifecycle';
+import { ensureFundsFor } from './tank';
 
 const STATE = {
   NONE: 'NONE',
@@ -30,6 +34,8 @@ export default function useEthereumTransaction(
 ) {
   const { wallet, walletType, walletHdPath } = useWallet();
   const { web3, networkType } = useNetwork();
+  const { pointCursor } = usePointCursor();
+
   const _web3 = need.web3(web3);
   const _wallet = need.wallet(wallet);
 
@@ -52,6 +58,7 @@ export default function useEthereumTransaction(
   const [unsignedTransaction, setUnsignedTransaction] = useState();
   const [signedTransaction, setSignedTransaction] = useState();
   const [txHash, setTxHash] = useState();
+  const [needFunds, setNeedFunds] = useState();
 
   const initializing = nonce === undefined || chainId === undefined;
   const constructed = !!unsignedTransaction;
@@ -111,10 +118,30 @@ export default function useEthereumTransaction(
   const broadcast = useCallback(async () => {
     try {
       setError(undefined);
+
+      const rawTx = hexify(signedTransaction.serialize());
+      const cost = toWei(gasPrice.toFixed(0), 'gwei') * gasLimit;
+
+      let usedTank = false;
+      // if this ethereum transaction is being executed by a specific point
+      // see if we can use the tank
+      if (Just.hasInstance(pointCursor)) {
+        usedTank = await ensureFundsFor(
+          _web3,
+          pointCursor.value,
+          _wallet.address,
+          cost,
+          [rawTx],
+          (address, minBalance, balance) =>
+            setNeedFunds({ address, minBalance, balance }),
+          () => setNeedFunds(undefined)
+        );
+      }
+
       const txHash = await sendSignedTransaction(
         _web3,
         signedTransaction,
-        /* doubtNonceError */ false
+        /* doubtNonceError */ usedTank
       );
 
       setState(STATE.BROADCASTED);
@@ -126,7 +153,15 @@ export default function useEthereumTransaction(
     } catch (error) {
       setError(error);
     }
-  }, [_web3, setError, signedTransaction]);
+  }, [
+    _wallet.address,
+    _web3,
+    gasLimit,
+    gasPrice,
+    pointCursor,
+    setError,
+    signedTransaction,
+  ]);
 
   const reset = useCallback(() => {
     setUnsignedTransaction(undefined);
@@ -135,6 +170,7 @@ export default function useEthereumTransaction(
     setGasPrice(suggestedGasPrice);
     setState(STATE.NONE);
     setError(undefined);
+    setNeedFunds(undefined);
   }, [suggestedGasPrice, setError]);
 
   const resetGasPrice = useCallback(() => setGasPrice(suggestedGasPrice), [
@@ -186,6 +222,7 @@ export default function useEthereumTransaction(
     resetGasPrice,
     nonce,
     chainId,
+    needFunds,
   };
 
   return {

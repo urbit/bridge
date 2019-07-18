@@ -5,7 +5,7 @@ import { useNetwork } from 'store/network';
 
 import * as need from 'lib/need';
 
-import { eqAddr, ETH_ZERO_ADDR } from './wallet';
+import { eqAddr, isZeroAddress } from './wallet';
 
 const NULL_PERMISSIONS = {
   isPlanet: false,
@@ -55,13 +55,10 @@ export default function usePermissionsForPoint(address, point) {
       const isVotingProxy = eqAddr(address, details.votingProxy);
       const isTransferProxy = eqAddr(address, details.transferProxy);
 
-      const isManagementProxySet = !eqAddr(
-        ETH_ZERO_ADDR,
-        details.managementProxy
-      );
-      const isSpawnProxySet = !eqAddr(ETH_ZERO_ADDR, details.spawnProxy);
-      const isVotingProxySet = !eqAddr(ETH_ZERO_ADDR, details.votingProxy);
-      const isTransferProxySet = !eqAddr(ETH_ZERO_ADDR, details.transferProxy);
+      const isManagementProxySet = !isZeroAddress(details.managementProxy);
+      const isSpawnProxySet = !isZeroAddress(details.spawnProxy);
+      const isVotingProxySet = !isZeroAddress(details.votingProxy);
+      const isTransferProxySet = !isZeroAddress(details.transferProxy);
 
       const canManage = isOwner || isManagementProxy;
       const canTransfer = isOwner || isTransferProxy;

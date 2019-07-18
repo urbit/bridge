@@ -1,10 +1,10 @@
 import { useCallback, useMemo } from 'react';
-import { isEqual, keyBy, get, every, some } from 'lodash';
+import { keyBy, get, every, some } from 'lodash';
 
 import { compose } from 'lib/lib';
 import { kDefaultValidator } from 'lib/validators';
 import useSetState from 'lib/useSetState';
-import usePreviousValue from 'lib/usePreviousValue';
+import useDeepEqualReference from 'lib/useDeepEqualReference';
 
 // interface InputConfig {
 //   name: string;
@@ -26,13 +26,7 @@ const defaultsFor = (configs, mapper) =>
  * useForm manages a set of inputs for rendering them in a loop
  */
 export default function useForm(inputConfigs = []) {
-  // track the old value of the config set
-  const previousConfigs = usePreviousValue(inputConfigs);
-  // then compare equality
-  const configsAreEqual = isEqual(inputConfigs, previousConfigs);
-  // if equality changes, give `configs` a new identity
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const configs = useMemo(() => inputConfigs, [configsAreEqual]);
+  const configs = useDeepEqualReference(inputConfigs);
 
   const byName = useMemo(() => keyBy(configs, 'name'), [configs]);
 

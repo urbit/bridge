@@ -15,8 +15,6 @@ import { compose } from '../../lib/lib';
 import * as tank from '../../lib/tank';
 import {
   sendSignedTransaction,
-  fromWei,
-  toWei,
   hexify,
   renderSignedTx,
   signTransaction,
@@ -26,6 +24,7 @@ import { withNetwork } from '../../store/network';
 import { withHistory } from '../../store/history';
 import { withWallet } from '../../store/wallet';
 import { withTxnCursor } from '../../store/txnCursor';
+import { fromWei, toWei } from 'web3-utils';
 
 const SUBMISSION_STATES = {
   PROMPT: 'Send transaction',
