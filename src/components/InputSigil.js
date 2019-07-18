@@ -6,18 +6,18 @@ import AspectRatio from './AspectRatio';
 
 const selectColorway = (pass, fail, focused) => {
   if (pass) {
-    return ['#FFFFFF', '#2AA779'];
+    return ['#2AA779', '#FFFFFF'];
   }
 
   if (focused) {
-    return ['#FFFFFF', '#4330FC'];
+    return ['#4330FC', '#FFFFFF'];
   }
 
   if (fail) {
-    return ['#FFFFFF', '#F8C134'];
+    return ['#F8C134', '#FFFFFF'];
   }
 
-  return ['#FFFFFF', '#7F7F7F'];
+  return ['#7F7F7F', '#FFFFFF'];
 };
 
 export default function InputSigil({

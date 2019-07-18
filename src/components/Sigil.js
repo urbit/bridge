@@ -1,18 +1,15 @@
-import { pour } from 'sigil-js';
-
-import ReactSVGComponents from './ReactSVGComponents';
+import React from 'react';
+import { sigil, reactRenderer } from 'urbit-sigil-js';
 
 export default function Sigil({ patp, size, colorway, ...rest }) {
-  try {
-    // https://github.com/urbit/sigil-js/issues/31
-    return pour({
-      renderer: ReactSVGComponents,
-      patp,
-      size,
-      colorway,
-      ...rest,
-    });
-  } catch {
-    return null;
-  }
+  return (
+    <div>
+      {sigil({
+        patp: patp,
+        renderer: reactRenderer,
+        size: size,
+        colors: colorway,
+      })}
+    </div>
+  );
 }
