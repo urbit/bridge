@@ -66,7 +66,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
           web3: need.web3(web3),
           contracts: need.contracts(contracts),
           onUpdate: handleUpdate,
-          nextNetworkKeyRevision: networkRevision + 1,
+          nextRevision: networkRevision + 1,
         });
       } catch (err) {
         setGeneralError(err);
