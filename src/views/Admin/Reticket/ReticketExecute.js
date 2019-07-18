@@ -13,6 +13,7 @@ import useLifecycle from 'lib/useLifecycle';
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
+import { usePointCache } from 'store/pointCache';
 import { useHistory } from 'store/history';
 
 import { RestartButton, ForwardButton } from 'components/Buttons';
@@ -44,6 +45,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
   const { web3, contracts } = useNetwork();
   const { wallet, setWalletType, resetWallet, setUrbitWallet } = useWallet();
   const { pointCursor } = usePointCursor();
+  const { getDetails } = usePointCache();
 
   const [generalError, setGeneralError] = useState();
   const [progress, setProgress] = useState(0);
@@ -53,14 +55,18 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
   // start reticketing transactions on mount
   useLifecycle(() => {
     (async () => {
+      const point = need.point(pointCursor);
+      const details = need.details(getDetails(point));
+      const networkRevision = parseInt(details.keyRevisionNumber, 10);
       try {
         await reticketPointBetweenWallets({
           fromWallet: need.wallet(wallet),
           toWallet: newWallet.value.wallet,
-          point: need.point(pointCursor),
+          point: point,
           web3: need.web3(web3),
           contracts: need.contracts(contracts),
           onUpdate: handleUpdate,
+          nextRevision: networkRevision + 1,
         });
       } catch (err) {
         setGeneralError(err);

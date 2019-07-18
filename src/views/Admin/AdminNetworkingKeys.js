@@ -106,7 +106,7 @@ function useSetKeys() {
           wallet,
           authMnemonic,
           details,
-          revision: networkRevision + 1,
+          revision: networkRevision,
         });
 
         if (Just.hasInstance(networkSeed)) {
