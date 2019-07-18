@@ -90,6 +90,7 @@ export const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
       const hd = bip32.fromSeed(sd);
       wal = hd.derivePath(path);
       wal.address = addressFromSecp256k1Public(wal.publicKey);
+      wal.passphrase = passphrase || '';
       wal = Just(wal);
     } catch (_) {
       wal = Nothing();
