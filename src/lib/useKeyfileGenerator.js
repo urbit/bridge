@@ -18,10 +18,11 @@ import {
 import useCurrentPermissions from './useCurrentPermissions';
 
 export default function useKeyfileGenerator(manualNetworkSeed) {
-  const { getDetails } = usePointCache();
   const { urbitWallet, wallet, authMnemonic } = useWallet();
   const { pointCursor } = usePointCursor();
+  const { getDetails } = usePointCache();
 
+  const [notice, setNotice] = useState('Deriving networking keys...');
   const [downloaded, setDownloaded] = useState(false);
   const [generating, setGenerating] = useState(true);
   const [keyfile, setKeyfile] = useState(false);
@@ -36,12 +37,13 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
   const available =
     (isOwner || isManagementProxy) && hasNetworkingKeys && !!keyfile;
 
-  console.log(
-    `keyfile available (${available}) for revision ${networkRevision}`
-  );
-
   const generate = useCallback(async () => {
-    console.log('generating for network revision', networkRevision);
+    console.log('attempting generation for network revision', networkRevision);
+    if (!hasNetworkingKeys) {
+      setGenerating(false);
+      setNotice('Networking keys not yet set.');
+      return;
+    }
 
     const networkSeed = manualNetworkSeed
       ? Just(manualNetworkSeed)
@@ -55,7 +57,9 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
 
     if (Nothing.hasInstance(networkSeed)) {
       setGenerating(false);
-      console.log('manual network seed not provided and key not derivable');
+      setNotice(
+        'Custom or nondeterministic networking keys cannot be re-downloaded.'
+      );
       return;
     }
 
@@ -65,14 +69,16 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
 
     if (!keysMatchChain(pair, _details)) {
       setGenerating(false);
-      console.log('derived network keys do not match on-chain details');
+      setNotice('Derived networking keys do not match on-chain details.');
       return;
     }
 
+    setNotice();
     setKeyfile(compileNetworkingKey(pair, _point, networkRevision));
     setGenerating(false);
   }, [
     networkRevision,
+    hasNetworkingKeys,
     manualNetworkSeed,
     urbitWallet,
     wallet,
@@ -101,6 +107,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     available,
     downloaded,
     download,
+    notice,
   };
 
   return { ...values, bind: values };

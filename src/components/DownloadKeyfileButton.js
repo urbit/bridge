@@ -9,25 +9,19 @@ export default function DownloadKeyfileButton({
   available,
   downloaded,
   download,
+  notice,
 
   // from caller
   className,
   ...rest
 }) {
-  const showHelp = !generating && !available;
-
   return (
     <DownloadButton
       as="span"
       className={className}
       disabled={downloaded || !available}
       disabledDetail={
-        showHelp && (
-          <B className="wrap ws-normal">
-            · Custom or nondeterministic networking keys cannot be
-            re-downloaded.
-          </B>
-        )
+        !available && <B className="wrap ws-normal">· {notice}</B>
       }
       loading={generating}
       onClick={download}
