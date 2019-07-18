@@ -145,29 +145,33 @@ export function useTicketInput({ validators = [], deriving = false, ...rest }) {
   );
 }
 
-const kPointValidators = [
-  validatePoint,
-  validateMaximumPatpByteLength(4),
-  validateNotEmpty,
-];
 const kPointTransformers = [prependSig];
-export function usePointInput(rest) {
+export function usePointInput({ size = 4, ...rest }) {
+  const validators = useMemo(
+    () => [
+      validatePoint,
+      validateMaximumPatpByteLength(size),
+      validateNotEmpty,
+    ],
+    [size]
+  );
+
   return useFirstOf(
     useForm([
       {
         type: 'text',
         label: 'Point',
         placeholder: 'e.g. ~zod',
-        validators: kPointValidators,
+        validators,
         transformers: kPointTransformers,
         mono: true,
         ...rest,
       },
     ]),
-    ({ error, pass, focused, data }) => ({
-      accessory: data ? (
+    ({ error, pass, focused, value }) => ({
+      accessory: value ? (
         <InputSigil
-          patp={data}
+          patp={value}
           size={44}
           margin={8}
           pass={pass}
@@ -177,6 +181,15 @@ export function usePointInput(rest) {
       ) : null,
     })
   );
+}
+
+export function useGalaxyInput(props) {
+  return usePointInput({
+    name: 'galaxy',
+    label: 'Galaxy Name',
+    size: 1,
+    ...props,
+  });
 }
 
 export function useCheckboxInput({ initialValue, ...rest }) {

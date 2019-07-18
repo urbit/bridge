@@ -22,6 +22,7 @@ export default function SelectInput({
   // state from hook
   focused,
   pass,
+  syncPass,
   visiblyPassed,
   error,
   hintError,

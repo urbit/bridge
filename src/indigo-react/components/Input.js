@@ -18,6 +18,7 @@ export default function Input({
   // state from hook
   focused,
   pass,
+  syncPass,
   visiblyPassed,
   error,
   hintError,

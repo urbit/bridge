@@ -15,6 +15,7 @@ export default function CheckboxInput({
   // state from hook
   focused,
   pass,
+  syncPass,
   visiblyPassed,
   error,
   hintError,

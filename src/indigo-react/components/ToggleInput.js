@@ -17,6 +17,7 @@ export default function ToggleInput({
   // state from hook
   focused,
   pass,
+  syncPass,
   visiblyPassed,
   error,
   hintError,

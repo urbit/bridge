@@ -141,6 +141,10 @@ export default function useForm(inputConfigs = []) {
 
   // memo-compute the set of (perhaps changed by validation) data
   const datas = useMemo(() => validations.map(v => v.data), [validations]);
+  const syncPasses = useMemo(
+    () => validations.map(v => v.pass, [validations]),
+    [validations]
+  );
 
   // the input has errored if it
   // 1) did not pass validation and has an error text
@@ -214,6 +218,7 @@ export default function useForm(inputConfigs = []) {
             value: value,
             data: passes[i] ? datas[i] : undefined,
             pass: passes[i],
+            syncPass: syncPasses[i],
             visiblyPassed: visiblePasses[i],
             error: errors[i],
             hintError: hintErrors[i],
@@ -237,6 +242,7 @@ export default function useForm(inputConfigs = []) {
       configs,
       datas,
       passes,
+      syncPasses,
       visiblePasses,
       errors,
       hintErrors,
