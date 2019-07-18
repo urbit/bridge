@@ -134,7 +134,10 @@ const deriveNetworkSeedFromMnemonic = async (
   passphrase,
   revision
 ) => {
-  return Just(await kg.deriveNetworkSeed(mnemonic, passphrase, revision));
+  //NOTE revision is the point's on-chain revision number. since common uhdw
+  //     usage derives the first key at revision/index 0, we need to decrement
+  //     the on-chain revision number by one to get the number to derive with.
+  return Just(await kg.deriveNetworkSeed(mnemonic, passphrase, revision - 1));
 };
 
 /**
