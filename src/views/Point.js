@@ -23,7 +23,12 @@ export default function Point() {
 
   const point = need.point(pointCursor);
 
-  const { isActiveOwner, canManage, canSpawn } = useCurrentPermissions();
+  const {
+    isParent,
+    isActiveOwner,
+    canManage,
+    canSpawn,
+  } = useCurrentPermissions();
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);
@@ -81,9 +86,13 @@ export default function Point() {
           Admin
         </Grid.Item>
         <Grid.Divider />
-        {canSpawn && (
+        {isParent && (
           <>
-            <Grid.Item full as={ForwardButton} onClick={goIssuePoint}>
+            <Grid.Item
+              full
+              as={ForwardButton}
+              disabled={!canSpawn}
+              onClick={goIssuePoint}>
               Issue Point
             </Grid.Item>
             <Grid.Divider />

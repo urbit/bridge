@@ -47,9 +47,12 @@ export default function usePermissionsForPoint(address, point) {
       const isPlanet = pointSize === azimuth.PointSize.Planet;
       const isStar = pointSize === azimuth.PointSize.Star;
       const isGalaxy = pointSize === azimuth.PointSize.Galaxy;
+      const isParent = isStar || isGalaxy;
+
+      const isActive = details.active;
 
       const isOwner = eqAddr(address, details.owner);
-      const isActiveOwner = isOwner && details.active;
+      const isActiveOwner = isOwner && isActive;
       const isManagementProxy = eqAddr(address, details.managementProxy);
       const isSpawnProxy = eqAddr(address, details.spawnProxy);
       const isVotingProxy = eqAddr(address, details.votingProxy);
@@ -62,8 +65,9 @@ export default function usePermissionsForPoint(address, point) {
 
       const canManage = isOwner || isManagementProxy;
       const canTransfer = isOwner || isTransferProxy;
-      const canSpawn = (isStar || isGalaxy) && (isOwner || isSpawnProxy);
-      const canVote = isGalaxy && (isOwner || isVotingProxy);
+      const canSpawn =
+        isParent && (isOwner || isSpawnProxy) && details.keyRevisionNumber > 0;
+      const canVote = isGalaxy && isActive && (isOwner || isVotingProxy);
 
       const spawnIsDelegatedSending = eqAddr(
         _contracts.delegatedSending.address,
@@ -74,6 +78,9 @@ export default function usePermissionsForPoint(address, point) {
         isPlanet,
         isStar,
         isGalaxy,
+        isParent,
+        //
+        isActive,
         //
         isOwner,
         isActiveOwner,
