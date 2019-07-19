@@ -1,254 +1,176 @@
-import { Just, Nothing } from 'folktale/maybe';
-import React from 'react';
-import { azimuth, ecliptic } from 'azimuth-js';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Nothing, Just } from 'folktale/maybe';
+import cn from 'classnames';
+import { Grid, Text, Input } from 'indigo-react';
+import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
-import * as need from '../lib/need';
 
-import {
-  H1,
-  P,
-  Anchor,
-  ShowBlockie,
-  ValidatedSigil,
-  PointInput,
-  AddressInput,
-  InnerLabel,
-} from '../components/old/Base';
+import { useNetwork } from 'store/network';
+import { useHistory } from 'store/history';
+import { usePointCache } from 'store/pointCache';
 
-import StatelessTransaction from '../components/old/StatelessTransaction';
+import * as need from 'lib/need';
+import { useAddressInput, usePointInput } from 'lib/useInputs';
+import useEthereumTransaction from 'lib/useEthereumTransaction';
+import { GAS_LIMITS } from 'lib/constants';
+import patp2dec from 'lib/patp2dec';
 
-import { NETWORK_TYPES } from '../lib/network';
-import { getSpawnCandidate } from '../lib/child';
-import { canDecodePatp } from '../lib/txn';
-
-import { isValidAddress } from '../lib/wallet';
-import { withNetwork } from '../store/network';
-import { compose } from '../lib/lib';
-import { withPointCursor } from '../store/pointCursor';
+import ViewHeader from 'components/ViewHeader';
+import MiniBackButton from 'components/MiniBackButton';
+import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
+import useLifecycle from 'lib/useLifecycle';
+import { usePointCursor } from 'store/pointCursor';
+import { validateInSet } from 'lib/validators';
+import { getSpawnCandidate } from 'lib/child';
 
-const setFind = (set, pred) => {
-  for (const e of set) {
-    if (pred(e)) {
-      return e;
-    }
-  }
-  return undefined;
-};
+function useIssueChild() {
+  const { contracts } = useNetwork();
+  const { syncKnownPoint } = usePointCache();
 
-class IssueChild extends React.Component {
-  constructor(props) {
-    super(props);
+  const _contracts = need.contracts(contracts);
 
-    const issuingPoint = need.point(props.pointCursor);
+  const [spawnedPoint, setSpawnedPoint] = useState();
 
-    const getCandidate = () => ob.patp(getSpawnCandidate(issuingPoint));
-
-    const suggestions = [
-      getCandidate(),
-      getCandidate(),
-      getCandidate(),
-      getCandidate(),
-    ];
-
-    this.state = {
-      receivingAddress: '',
-      issuingPoint: issuingPoint,
-      desiredPoint: '',
-      isAvailable: Nothing(), // use Nothing to allow attempt when offline
-      suggestions: suggestions,
-      validChildren: new Set(),
-      autoComplete: '',
-    };
-
-    this.handlePointInput = this.handlePointInput.bind(this);
-    this.handleAddressInput = this.handleAddressInput.bind(this);
-    this.createUnsignedTxn = this.createUnsignedTxn.bind(this);
-    this.statelessRef = React.createRef();
-  }
-
-  handleAddressInput = receivingAddress => {
-    this.setState({ receivingAddress });
-    this.statelessRef.current.clearTxn();
-  };
-
-  componentWillMount() {
-    const { issuingPoint } = this.state;
-
-    const validContracts = need.contracts(this.props.contracts);
-
-    azimuth
-      .getUnspawnedChildren(validContracts, parseInt(issuingPoint, 10))
-      .then(ps => this.setState({ validChildren: new Set(ps.map(ob.patp)) }));
-  }
-
-  handlePointInput(desiredPoint) {
-    if (desiredPoint.length < 15) {
-      const suggestedPoint =
-        setFind(this.state.validChildren, e => e.startsWith(desiredPoint)) ||
-        '';
-      const rendered =
-        ' '.repeat(desiredPoint.length) +
-        suggestedPoint.substring(desiredPoint.length);
-
-      const available = Just(this.state.validChildren.has(desiredPoint));
-
-      this.setState({
-        desiredPoint,
-        isAvailable: available,
-        autoComplete: rendered,
-      });
-      this.statelessRef.current.clearTxn();
-    }
-  }
-
-  createUnsignedTxn() {
-    const { state, props } = this;
-
-    if (isValidAddress(state.receivingAddress) === false) return Nothing();
-    if (state.isAvailable === false) return Nothing();
-    if (canDecodePatp(state.desiredPoint) === false) return Nothing();
-
-    const validContracts = need.contracts(props.contracts);
-
-    const pointDec = ob.patp2dec(state.desiredPoint);
-
-    const txn = ecliptic.spawn(
-      validContracts,
-      pointDec,
-      state.receivingAddress
-    );
-
-    return Just(txn);
-  }
-
-  validatePoint = patp => {
-    const point = this.point;
-
-    let vpatp = false;
-    try {
-      vpatp = ob.isValidPatp(patp);
-    } catch (_) {}
-
-    let vchild = false;
-    try {
-      vchild = ob.sein(patp) === ob.patp(point);
-    } catch (_) {}
-
-    return vpatp && vchild;
-  };
-
-  render() {
-    const { props, state } = this;
-
-    const validAddress = isValidAddress(state.receivingAddress);
-
-    const canGenerate = props.web3.matchWith({
-      Nothing: () => {
-        return validAddress === true;
+  return useEthereumTransaction(
+    useCallback(
+      (spawnedPoint, owner) => {
+        setSpawnedPoint(spawnedPoint);
+        return azimuth.ecliptic.spawn(_contracts, spawnedPoint, owner);
       },
-      Just: () => {
-        return validAddress === true && state.isAvailable.value === true;
-      },
-    });
-
-    const esvisible =
-      props.networkType === NETWORK_TYPES.ROPSTEN ||
-      props.networkType === NETWORK_TYPES.MAINNET;
-
-    const esdomain =
-      props.networkType === NETWORK_TYPES.ROPSTEN
-        ? 'ropsten.etherscan.io'
-        : 'etherscan.io';
-
-    return (
-      <View>
-        <H1>
-          {'Issue a Child From '}{' '}
-          <code>{`${ob.patp(state.issuingPoint)}`}</code>
-        </H1>
-
-        <P>
-          {`Please enter the point you would like to issue, and specify the
-            receiving Ethereum address.  If you need to create an address, you
-            can also use Wallet Generator.`}
-        </P>
-
-        <P>
-          {`Your point can only issue children with particular names. Some
-            valid suggestions for `}
-          {<code>{ob.patp(state.issuingPoint)}</code>}
-          {' are '}
-          <code>{state.suggestions[0]}</code>
-          {', '}
-          <code>{state.suggestions[1]}</code>
-          {', and '}
-          <code>{state.suggestions[2]}</code>
-          {'.'}
-        </P>
-
-        <PointInput
-          prop-size="lg"
-          prop-format="innerLabel"
-          className={'mono mt-8'}
-          placeholder={`e.g. ${state.suggestions[3]}`}
-          value={state.desiredPoint}
-          onChange={this.handlePointInput}>
-          <InnerLabel>{'Point to Issue'}</InnerLabel>
-          <div
-            style={{
-              marginTop: '8.8rem',
-              marginLeft: '4.6rem',
-              fontSize: '5rem',
-              color: '#757575',
-              whiteSpace: 'pre-wrap',
-            }}
-            className="abs tl-0 mono">
-            {state.autoComplete}
-          </div>
-          <ValidatedSigil
-            className={'tr-0 mt-05 mr-0 abs'}
-            patp={state.desiredPoint}
-            size={68}
-            margin={8}
-            validator={() => this.validatePoint(state.desiredPoint)}
-          />
-        </PointInput>
-
-        <AddressInput
-          className="text-mono mt-8"
-          prop-size="lg"
-          prop-format="innerLabel"
-          placeholder={`e.g. 0x84295d5e054d8cff5a22428b195f5a1615bd644f`}
-          value={state.receivingAddress}
-          disabled={
-            Nothing.hasInstance(state.isAvailable) || !state.isAvailable.value
-          }
-          onChange={v => this.handleAddressInput(v)}>
-          <InnerLabel>{'Receiving Address'}</InnerLabel>
-          <ShowBlockie className={'mt-1'} address={state.receivingAddress} />
-        </AddressInput>
-
-        <Anchor
-          className={'mt-1'}
-          prop-size={'sm'}
-          prop-disabled={!isValidAddress(state.receivingAddress) || !esvisible}
-          target={'_blank'}
-          href={`https://${esdomain}/address/${state.receivingAddress}`}>
-          {'View on Etherscan ↗'}
-        </Anchor>
-
-        <StatelessTransaction
-          canGenerate={canGenerate}
-          createUnsignedTxn={this.createUnsignedTxn}
-          ref={this.statelessRef}
-        />
-      </View>
-    );
-  }
+      [_contracts]
+    ),
+    useCallback(() => syncKnownPoint(spawnedPoint), [
+      spawnedPoint,
+      syncKnownPoint,
+    ]),
+    GAS_LIMITS.DEFAULT
+  );
 }
 
-export default compose(
-  withNetwork,
-  withPointCursor
-)(IssueChild);
+export default function IssueChild() {
+  const { pop } = useHistory();
+  const { contracts } = useNetwork();
+  const { pointCursor } = usePointCursor();
+
+  const _contracts = need.contracts(contracts);
+  const _point = need.point(pointCursor);
+
+  const [availablePointNames, setAvailablePointNames] = useState(Nothing());
+
+  const candidates = useMemo(() => {
+    const getCandidate = () => ob.patp(getSpawnCandidate(_point));
+
+    return [getCandidate(), getCandidate(), getCandidate(), getCandidate()];
+  }, [_point]);
+
+  const {
+    isDefaultState,
+    construct,
+    unconstruct,
+    completed,
+    inputsLocked,
+    bind,
+  } = useIssueChild();
+
+  const validators = useMemo(
+    () => [
+      validateInSet(
+        availablePointNames.getOrElse(new Set()),
+        'This point cannot be spawned.'
+      ),
+    ],
+    [availablePointNames]
+  );
+  const [
+    pointNameInput,
+    { pass: validPointName, value: pointName },
+    // ^ we use value: here so our effect runs onChange
+  ] = usePointInput({
+    name: 'point',
+    disabled: inputsLocked,
+    autoFocus: true,
+    validators,
+    error: availablePointNames.matchWith({
+      Nothing: () => 'Loading availability...',
+      Just: () => undefined,
+    }),
+  });
+
+  const [ownerInput, { pass: validOwner, data: owner }] = useAddressInput({
+    name: 'owner',
+    label: `Ethereum Address`,
+    disabled: inputsLocked,
+  });
+
+  useEffect(() => {
+    if (validPointName && validOwner) {
+      construct(patp2dec(pointName), owner);
+    } else {
+      unconstruct();
+    }
+  }, [owner, construct, unconstruct, validPointName, validOwner, pointName]);
+
+  useLifecycle(() => {
+    let mounted = true;
+
+    (async () => {
+      const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
+        _contracts,
+        _point
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setAvailablePointNames(Just(new Set(availablePoints.map(ob.patp))));
+    })();
+
+    return () => (mounted = false);
+  });
+
+  return (
+    <View inset>
+      <Grid>
+        <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
+
+        <Grid.Item full as={ViewHeader}>
+          Issue Child Point
+        </Grid.Item>
+
+        {isDefaultState && (
+          <Grid.Item full as={Text}>
+            Perhaps one of {candidates.slice(0, 3).join(', ')}, or{' '}
+            {candidates[candidates.length - 1]}?
+          </Grid.Item>
+        )}
+
+        {completed && (
+          <Grid.Item
+            full
+            as={Text}
+            className={cn('f5', {
+              green3: completed,
+            })}>
+            {pointName} has been spawned and can be claimed by {owner}.
+          </Grid.Item>
+        )}
+
+        {!completed && (
+          <>
+            <Grid.Item full as={Input} {...pointNameInput} className="mt4" />
+            <Grid.Item full as={Input} {...ownerInput} className="mb4" />
+          </>
+        )}
+
+        <Grid.Item
+          full
+          as={InlineEthereumTransaction}
+          {...bind}
+          onReturn={() => pop()}
+        />
+      </Grid>
+    </View>
+  );
+}

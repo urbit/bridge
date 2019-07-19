@@ -48,6 +48,7 @@ export default function usePointStore() {
     ...controlledPoints,
     ...ecliptic,
     syncDetails,
+    syncRekeyDate,
     syncInvites,
     syncControlledPoints,
     syncKnownPoint,

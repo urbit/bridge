@@ -217,8 +217,14 @@ export default function useEthereumTransaction(
           try {
             await refetch();
           } catch (error) {
-            // NOTE: we don't handle this error on purpose
+            // log the original
             console.error(error);
+            // track a user-friendly error
+            setError(
+              new Error(
+                'The transaction succeeded but we were unable to refresh chain state. Refresh to continue.'
+              )
+            );
           }
         }
 
@@ -231,7 +237,7 @@ export default function useEthereumTransaction(
     }
 
     return () => (cancelled = true);
-  }, [confirmed, refetch, completed]);
+  }, [confirmed, refetch, completed, setError]);
 
   const values = useDeepEqualReference({
     isDefaultState,

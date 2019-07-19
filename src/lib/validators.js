@@ -245,6 +245,13 @@ export const validateGreaterThan = l => m =>
     error: `Must be at least ${l}.`,
   });
 
+export const validateInSet = (set, error) => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => set.has(d),
+    error,
+  });
+
 export const validatePatpByteLength = byteLength => {
   return validateLength(patpStringLength(byteLength));
 };

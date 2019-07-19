@@ -146,14 +146,15 @@ export function useTicketInput({ validators = [], deriving = false, ...rest }) {
 }
 
 const kPointTransformers = [prependSig];
-export function usePointInput({ size = 4, ...rest }) {
-  const validators = useMemo(
+export function usePointInput({ size = 4, validators = [], ...rest }) {
+  const _validators = useMemo(
     () => [
+      ...validators,
       validatePoint,
       validateMaximumPatpByteLength(size),
       validateNotEmpty,
     ],
-    [size]
+    [size, validators]
   );
 
   return useFirstOf(
@@ -162,7 +163,7 @@ export function usePointInput({ size = 4, ...rest }) {
         type: 'text',
         label: 'Point',
         placeholder: 'e.g. ~zod',
-        validators,
+        validators: _validators,
         transformers: kPointTransformers,
         mono: true,
         ...rest,
@@ -185,7 +186,6 @@ export function usePointInput({ size = 4, ...rest }) {
 
 export function useGalaxyInput(props) {
   return usePointInput({
-    name: 'galaxy',
     label: 'Galaxy Name',
     size: 1,
     ...props,
