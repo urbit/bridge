@@ -23,7 +23,7 @@ const GAS_LIMITS = {
   SPAWN: 250000,
   TRANSFER: 550000,
   CONFIGURE_KEYS: 100000,
-  SET_PROXY: 120000,
+  SET_PROXY: 130000,
   //
   ESCAPE: 115000, //NOTE low sample size
   ADOPT: 100000, //NOTE low sample size
