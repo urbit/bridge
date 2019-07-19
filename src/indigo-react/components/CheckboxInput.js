@@ -3,7 +3,6 @@ import cn from 'classnames';
 
 import Flex from './Flex';
 
-// TODO: make this look like screens
 export default function CheckboxInput({
   // visuals
   name,
@@ -11,12 +10,12 @@ export default function CheckboxInput({
   className,
 
   // callbacks
-  onValue,
   onEnter,
 
   // state from hook
   focused,
   pass,
+  syncPass,
   visiblyPassed,
   error,
   hintError,
@@ -35,9 +34,12 @@ export default function CheckboxInput({
 }) {
   return (
     <Flex
-      className={cn(className, 'mv2')}
       row
       align="center"
+      className={cn(className, 'mv2', {
+        black: !disabled,
+        gray4: disabled,
+      })}
       style={{
         ...(disabled && {
           pointerEvents: 'none',
@@ -62,9 +64,10 @@ export default function CheckboxInput({
         <Flex
           justify="center"
           align="center"
-          className={cn('b-black b1 p1 mr3', {
-            'bg-black white': data,
-            'bg-white black': !data,
+          className={cn('b1 p1 mr3', {
+            'bg-gray1': disabled,
+            'bg-black white b-black': !disabled && data,
+            'bg-white black b-black': !disabled && !data,
           })}
           style={{
             height: '14px',

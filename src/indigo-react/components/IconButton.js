@@ -10,6 +10,7 @@ export default function IconButton({
   disabled = false,
   secondary = false,
   solid = false,
+  flush = false, // if true, remove horizontal padding
   ...rest
 }) {
   return (
@@ -18,7 +19,10 @@ export default function IconButton({
       align="center"
       justify="center"
       className={cn(
-        'pointer p2',
+        'pointer pv2',
+        {
+          ph2: !flush,
+        },
         {
           'bg-black': solid && !secondary && !disabled,
           'bg-gray3': (solid && disabled) || (solid && secondary),
@@ -37,7 +41,6 @@ export default function IconButton({
         height: '1rem',
         fontSize: '1rem',
         fontWeight: 'bold',
-        // TODO: ^ replace with 1:1 svgs and remove explicit sizing
         ...(disabled && {
           pointerEvents: 'none',
           cursor: 'not-allowed',

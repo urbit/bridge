@@ -1,7 +1,6 @@
 import nest from 'lib/nest';
 
 import { HistoryProvider } from './history';
-import { TxnConfirmationsProvider } from './txnConfirmations';
 import { OnlineProvider } from './online';
 import { NetworkProvider } from './network';
 import { WalletProvider } from './wallet';
@@ -16,7 +15,6 @@ export default nest([
   OnlineProvider,
   NetworkProvider,
   WalletProvider,
-  TxnConfirmationsProvider,
   PointCursorProvider,
   PointCacheProvider,
   TxnCursorProvider,

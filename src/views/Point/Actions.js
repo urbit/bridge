@@ -2,7 +2,7 @@ import React from 'react';
 import { azimuth } from 'azimuth-js';
 import * as need from '../../lib/need';
 
-import { CURVE_ZERO_ADDR, isZeroAddress, eqAddr } from '../../lib/wallet';
+import { isZeroAddress, eqAddr } from '../../lib/wallet';
 import { H2, P } from '../../components/old/Base';
 import { Button } from '../../components/old/Base';
 import { ROUTE_NAMES } from '../../lib/routeNames';
@@ -11,6 +11,7 @@ import { useWallet } from '../../store/wallet';
 import { Grid } from 'indigo-react';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
+import { CURVE_ZERO_ADDR } from 'lib/keys';
 
 const isPlanet = point =>
   azimuth.getPointSize(point) === azimuth.PointSize.Planet;
@@ -65,19 +66,6 @@ function Actions() {
     Just: deets =>
       eqAddr(deets.value.transferProxy, addr) ||
       eqAddr(deets.value.owner, addr),
-  });
-
-  const canGenKeyfile = pointDetails.matchWith({
-    Nothing: () => false,
-    Just: deets => {
-      const hasPermission =
-        eqAddr(deets.value.owner, addr) ||
-        eqAddr(deets.value.managementProxy, addr);
-
-      const isBooted = deets.value.keyRevisionNumber > 0;
-
-      return hasPermission && isBooted;
-    },
   });
 
   const canAcceptTransfer = pointDetails.matchWith({
@@ -141,16 +129,6 @@ function Actions() {
               history.push(ROUTE_NAMES.CANCEL_TRANSFER);
             }}>
             {'Cancel outgoing transfer'}
-          </Button>
-
-          <Button
-            prop-size={'sm'}
-            prop-type={'link'}
-            disabled={!canGenKeyfile}
-            onClick={() => {
-              history.push(ROUTE_NAMES.GEN_KEYFILE);
-            }}>
-            {'Generate Arvo keyfile'}
           </Button>
         </Grid.Item>
         <Grid.Item third={2}>

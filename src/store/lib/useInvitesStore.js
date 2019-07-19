@@ -1,8 +1,9 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from '../network';
+import useSetState from 'lib/useSetState';
 
 // the default value of a point's invites
 const EMPTY_INVITES = {
@@ -13,16 +14,7 @@ const EMPTY_INVITES = {
 
 export default function useInvitesStore() {
   const { contracts } = useNetwork();
-  const [invitesCache, _setInvitesCache] = useState({});
-
-  const addToInvitesCache = useCallback(
-    entry =>
-      _setInvitesCache(cache => ({
-        ...cache,
-        ...entry,
-      })),
-    [_setInvitesCache]
-  );
+  const [invitesCache, addToInvitesCache] = useSetState({});
 
   const getInvites = useCallback(
     point => invitesCache[point] || EMPTY_INVITES,

@@ -4,14 +4,12 @@ import keccak from 'keccak';
 import { reduce } from 'lodash';
 import { Just, Nothing } from 'folktale/maybe';
 import * as secp256k1 from 'secp256k1';
-import * as ob from 'urbit-ob';
 import * as kg from 'urbit-key-generation/dist';
 import { isAddress } from 'web3-utils';
 
 export const DEFAULT_HD_PATH = "m/44'/60'/0'/0/0";
 export const ETH_ZERO_ADDR = '0x0000000000000000000000000000000000000000';
-export const CURVE_ZERO_ADDR =
-  '0x0000000000000000000000000000000000000000000000000000000000000000';
+export const ETH_ZERO_ADDR_SHORT = '0x0';
 
 export const WALLET_TYPES = {
   MNEMONIC: Symbol('MNEMONIC'),
@@ -42,6 +40,7 @@ export const addressFromSecp256k1Public = pub => {
   return toChecksumAddress(addr);
 };
 
+// TODO: move all of these generic crypto helpers to another file
 export const addHexPrefix = hex =>
   hex.slice(0, 2) === '0x' ? hex : '0x' + hex;
 
@@ -55,7 +54,8 @@ export const keccak256 = str =>
 
 export const isValidAddress = a => '0x0' === a || isAddress(a);
 
-export const isZeroAddress = a => ETH_ZERO_ADDR === a;
+export const isZeroAddress = a =>
+  a === ETH_ZERO_ADDR || a === ETH_ZERO_ADDR_SHORT;
 
 export const toChecksumAddress = address => {
   const addr = stripHexPrefix(address).toLowerCase();
@@ -73,28 +73,10 @@ export const eqAddr = (addr0, addr1) =>
   toChecksumAddress(addr0) === toChecksumAddress(addr1);
 
 export const urbitWalletFromTicket = async (ticket, point, passphrase) => {
-  if (typeof point === 'string') {
-    //TODO why not in kg?
-    point = ob.patp2dec(point);
-  }
-
   return await kg.generateWallet({
     ticket: ticket,
     ship: point,
     passphrase: passphrase,
-  });
-};
-
-export const ownershipWalletFromTicket = async (ticket, point, passphrase) => {
-  if (typeof point === 'string') {
-    //TODO why not in kg?
-    point = ob.patp2dec(point);
-  }
-
-  return await kg.generateOwnershipWallet({
-    ticket,
-    ship: point,
-    passphrase,
   });
 };
 
@@ -109,6 +91,7 @@ export const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
       const hd = bip32.fromSeed(sd);
       wal = hd.derivePath(path);
       wal.address = addressFromSecp256k1Public(wal.publicKey);
+      wal.passphrase = passphrase || '';
       wal = Just(wal);
     } catch (_) {
       wal = Nothing();

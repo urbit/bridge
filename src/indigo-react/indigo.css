@@ -13,7 +13,7 @@
   * git+https://github.com/urbit/Indigo.git
   * Bugs: https://github.com/urbit/Indigo/issues
   * License: MIT
-  * Timestamp: Mon Jul 01 2019 12:26:43 GMT-0700 (Pacific Daylight Time)
+  * Timestamp: Tue Jul 09 2019 13:26:50 GMT-0700 (Pacific Daylight Time)
   *******************************************************************************/
 /**********************
 Color variables
@@ -323,7 +323,7 @@ button {
 * {
   -webkit-font-smoothing: antialiased; }
 
-* {
+body {
   font-family: "Inter UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
   color: #000000; }
 
@@ -1916,11 +1916,6 @@ caption,
 .grid12 {
   display: grid;
   grid-template-columns: repeat(12, [col-start] 1fr);
-  grid-auto-rows: auto; }
-
-.grid8 {
-  display: grid;
-  grid-template-columns: repeat(8, [col-start] 1fr);
   grid-auto-rows: auto; }
 
 .full {

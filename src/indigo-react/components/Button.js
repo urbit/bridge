@@ -10,6 +10,7 @@ export default function Button({
   solid = false,
   success = false,
   disabled = false,
+  disabledDetail,
   detail,
   className,
   accessory = '→',
@@ -17,17 +18,12 @@ export default function Button({
   children,
   ...rest
 }) {
-  const textColor = {
-    white: solid,
-    black: !solid && !disabled,
-    gray4: !solid && disabled,
-  };
   return (
     <Grid
       as={As}
       gap={1}
       className={cn(
-        'pointer pv4 truncate flex-row justify-between',
+        'pointer pv4 truncate flex-row justify-between us-none',
         {
           p4: solid,
         },
@@ -37,6 +33,11 @@ export default function Button({
           'bg-black': !success && solid && !disabled,
           'bg-gray3': !success && solid && disabled,
           'bg-transparent': !success && !solid,
+        },
+        {
+          white: solid,
+          black: !solid && !disabled,
+          gray4: !solid && disabled,
         },
         className
       )}
@@ -48,13 +49,18 @@ export default function Button({
       }}
       onClick={!disabled && onClick ? onClick : undefined}
       {...rest}>
-      <Grid.Item as={Flex} justify="between" full>
-        <span className={cn(textColor)}>{children}</span>
-        <div className={cn('pl4', textColor)}>{accessory}</div>
+      <Grid.Item full as={Flex} justify="between">
+        <span>{children}</span>
+        <div className={cn('pl4')}>{accessory}</div>
       </Grid.Item>
       {detail && (
-        <Grid.Item as={HelpText} full>
+        <Grid.Item full as={HelpText}>
           {detail}
+        </Grid.Item>
+      )}
+      {disabled && disabledDetail && (
+        <Grid.Item full className="f6 black mt1">
+          {disabledDetail}
         </Grid.Item>
       )}
     </Grid>

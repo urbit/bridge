@@ -17,12 +17,12 @@ export default function SelectInput({
   placeholder,
 
   // callbacks
-  onValue,
   onEnter,
 
   // state from hook
   focused,
   pass,
+  syncPass,
   visiblyPassed,
   error,
   hintError,

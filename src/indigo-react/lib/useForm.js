@@ -1,10 +1,10 @@
-import { useCallback, useMemo, useState } from 'react';
-import { isEqual, keyBy, get, every, some } from 'lodash';
+import { useCallback, useMemo } from 'react';
+import { keyBy, get, every, some } from 'lodash';
 
 import { compose } from 'lib/lib';
 import { kDefaultValidator } from 'lib/validators';
 import useSetState from 'lib/useSetState';
-import usePreviousValue from 'lib/usePreviousValue';
+import useDeepEqualReference from 'lib/useDeepEqualReference';
 
 // interface InputConfig {
 //   name: string;
@@ -26,18 +26,12 @@ const defaultsFor = (configs, mapper) =>
  * useForm manages a set of inputs for rendering them in a loop
  */
 export default function useForm(inputConfigs = []) {
-  // track the old value of the config set
-  const previousConfigs = usePreviousValue(inputConfigs);
-  // then compare equality
-  const configsAreEqual = isEqual(inputConfigs, previousConfigs);
-  // if equality changes, give `configs` a new identity
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const configs = useMemo(() => inputConfigs, [configsAreEqual]);
+  const configs = useDeepEqualReference(inputConfigs);
 
   const byName = useMemo(() => keyBy(configs, 'name'), [configs]);
 
   // track values
-  const [values, _setValues] = useState(() =>
+  const [values, _setValues, clearValues] = useSetState(() =>
     defaultsFor(configs, config =>
       config.initialValue === undefined ? '' : config.initialValue
     )
@@ -50,7 +44,7 @@ export default function useForm(inputConfigs = []) {
   // until there's a traditional state update.
 
   // track focused states
-  const [focused, setFocused] = useSetState(() =>
+  const [focused, setFocused, clearFocused] = useSetState(() =>
     defaultsFor(configs, config => config.autoFocus && !config.disabled)
   );
   const focuses = useMemo(
@@ -59,10 +53,14 @@ export default function useForm(inputConfigs = []) {
   );
 
   // track whether or not input has been focused
-  const [hasBeenFocused, setHasBeenFocused] = useSetState({});
+  const [hasBeenFocused, setHasBeenFocused, clearHasBeenFocused] = useSetState(
+    {}
+  );
 
   // track whether or not the input has been touched
-  const [hasBeenTouched, setHasBeenTouched] = useSetState({});
+  const [hasBeenTouched, setHasBeenTouched, clearHasBeenTouched] = useSetState(
+    {}
+  );
 
   // build fn that transforms a value by input name
   const transform = useCallback(
@@ -72,10 +70,17 @@ export default function useForm(inputConfigs = []) {
 
   // set a value (and transform it)
   const setValue = useCallback(
-    (name, value) =>
-      _setValues(values => ({ ...values, [name]: transform(name, value) })),
+    (name, value) => _setValues({ [name]: transform(name, value) }),
     [_setValues, transform]
   );
+
+  // reset the form
+  const reset = useCallback(() => {
+    clearFocused();
+    clearHasBeenFocused();
+    clearHasBeenTouched();
+    clearValues();
+  }, [clearFocused, clearHasBeenFocused, clearHasBeenTouched, clearValues]);
 
   // build fn that validates a value by input name
   const validate = useCallback(
@@ -130,6 +135,10 @@ export default function useForm(inputConfigs = []) {
 
   // memo-compute the set of (perhaps changed by validation) data
   const datas = useMemo(() => validations.map(v => v.data), [validations]);
+  const syncPasses = useMemo(
+    () => validations.map(v => v.pass, [validations]),
+    [validations]
+  );
 
   // the input has errored if it
   // 1) did not pass validation and has an error text
@@ -192,12 +201,18 @@ export default function useForm(inputConfigs = []) {
       configs.map(
         ({ name, error, autoFocus, disabled, initialValue, ...rest }, i) => {
           const value =
-            values[name] || (initialValue === undefined ? '' : initialValue);
+            datas[i] !== undefined
+              ? datas[i]
+              : initialValue !== undefined
+              ? initialValue
+              : '';
           return {
             // Input props
             name,
-            data: datas[i],
+            value: value,
+            data: passes[i] ? datas[i] : undefined,
             pass: passes[i],
+            syncPass: syncPasses[i],
             visiblyPassed: visiblePasses[i],
             error: errors[i],
             hintError: hintErrors[i],
@@ -205,10 +220,10 @@ export default function useForm(inputConfigs = []) {
             autoFocus: autoFocus && !disabled,
             disabled,
             ...rest,
-            // dom properties below:
+            // DOM Properties for <input />
             bind: {
               value,
-              checked: !!values[name],
+              checked: !!datas[i],
               onChange: onChange(name),
               onFocus: onFocus(name),
               onBlur: onBlur(name),
@@ -220,15 +235,15 @@ export default function useForm(inputConfigs = []) {
     [
       configs,
       datas,
-      visiblePasses,
       passes,
+      syncPasses,
+      visiblePasses,
       errors,
       hintErrors,
       focuses,
-      values,
-      onBlur,
       onChange,
       onFocus,
+      onBlur,
     ]
   );
 
@@ -242,5 +257,6 @@ export default function useForm(inputConfigs = []) {
     pass,
     error,
     setValue,
+    reset,
   };
 }

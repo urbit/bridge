@@ -6,15 +6,13 @@ import { Grid, Flex, Text } from 'indigo-react';
 import { times } from 'lodash';
 
 import usePointBirthday from 'lib/usePointBirthday';
-import { formatDots } from 'lib/dateFormat';
 
-import Blinky, { LOADING_CHARACTER, INTERSTITIAL_CHARACTER } from './Blinky';
+import {
+  LOADING_CHARACTER,
+  INTERSTITIAL_CHARACTER,
+  matchBlinkyDate,
+} from './Blinky';
 import MaybeSigil from './MaybeSigil';
-
-const buildDate = char =>
-  [4, 2, 2].map(t => times(t, () => char).join('')).join('.');
-const DATE_A = buildDate(LOADING_CHARACTER);
-const DATE_B = buildDate(INTERSTITIAL_CHARACTER);
 
 const TICKET_CHAR_LENGTH = 30;
 const TICKET = times(TICKET_CHAR_LENGTH, i =>
@@ -40,10 +38,7 @@ export default function Passport({
   mini = false,
 }) {
   const birthday = usePointBirthday(point.getOrElse(null));
-  const visualBirthday = birthday.matchWith({
-    Nothing: () => <Blinky a={DATE_A} b={DATE_B} delayed />,
-    Just: p => formatDots(p.value),
-  });
+  const visualBirthday = matchBlinkyDate(birthday);
 
   const name = point.matchWith({
     Nothing: () => Nothing(),

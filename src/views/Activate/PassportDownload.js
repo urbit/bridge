@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import cn from 'classnames';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, H4, P } from 'indigo-react';
+import { Grid, P } from 'indigo-react';
 
 import * as need from 'lib/need';
-
-import { useActivateFlow } from './ActivateFlow';
 import { downloadWallet } from 'lib/invite';
+import { useLocalRouter } from 'lib/LocalRouter';
+
 import { DownloadButton, ForwardButton } from 'components/Buttons';
 import PaperRenderer from 'components/PaperRenderer';
-import { useLocalRouter } from 'lib/LocalRouter';
-import Steps from 'components/Steps';
+
+import { useActivateFlow } from './ActivateFlow';
+import PassportView from './PassportView';
 
 export default function PassportDownload({ className }) {
   const {
@@ -51,36 +51,37 @@ export default function PassportDownload({ className }) {
   const goToVerify = useCallback(() => push(names.VERIFY), [push, names]);
 
   return (
-    <Grid className={cn(className, 'auto-rows-min')}>
-      <Grid.Item full as={Steps} num={1} total={3} />
-      <Grid.Item full as={H4}>
-        Passport
-      </Grid.Item>
-      <Grid.Item full>
-        <P>
-          After you’ve downloaded your passport, back up the ticket manually or
-          store on a trusted device.
-        </P>
-        <P>
-          What is digital identity? A passport is your digital identity. You
-          will use your passport to access your true computer, send payments,
-          and administer your identity. So naturally, you must keep this secure.
-        </P>
-      </Grid.Item>
-      <Grid.Item
-        full
-        as={!downloaded ? DownloadButton : ForwardButton}
-        disabled={!generated}
-        onClick={!downloaded ? download : goToVerify}
-        success={downloaded}
-        solid>
-        {!downloaded ? 'Download Passport' : 'Continue'}
-      </Grid.Item>
+    <>
+      <PassportView className={className} header="Passport" step={1}>
+        <Grid>
+          <Grid.Item full>
+            <P>
+              After you’ve downloaded your passport, back up the ticket manually
+              or store on a trusted device.
+            </P>
+            <P>
+              What is digital identity? A passport is your digital identity. You
+              will use your passport to access your true computer, send
+              payments, and administer your identity. So naturally, you must
+              keep this secure.
+            </P>
+          </Grid.Item>
+          <Grid.Item
+            full
+            as={!downloaded ? DownloadButton : ForwardButton}
+            disabled={!generated}
+            onClick={!downloaded ? download : goToVerify}
+            success={downloaded}
+            solid>
+            {!downloaded ? 'Download Passport' : 'Continue'}
+          </Grid.Item>
+        </Grid>
+      </PassportView>
       <PaperRenderer
         point={pointAsString}
         wallet={wallet}
         callback={data => setPaper(Just(data))}
       />
-    </Grid>
+    </>
   );
 }

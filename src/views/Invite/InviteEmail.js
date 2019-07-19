@@ -13,6 +13,7 @@ import {
   useForm,
 } from 'indigo-react';
 import { uniq } from 'lodash';
+import { fromWei, toWei } from 'web3-utils';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useNetwork } from 'store/network';
@@ -25,14 +26,12 @@ import {
   sendSignedTransaction,
   waitForTransactionConfirm,
   hexify,
-  fromWei,
-  toWei,
 } from 'lib/txn';
 import * as tank from 'lib/tank';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useArray from 'lib/useArray';
 import { buildEmailInputConfig } from 'lib/useInputs';
-import { MIN_PLANET, GAS_LIMITS } from 'lib/constants';
+import { MIN_PLANET, GAS_LIMITS, DEFAULT_GAS_PRICE_GWEI } from 'lib/constants';
 import * as need from 'lib/need';
 import * as wg from 'lib/walletgen';
 import useSetState from 'lib/useSetState';
@@ -43,9 +42,11 @@ import MiniBackButton from 'components/MiniBackButton';
 import LoadableButton from 'components/LoadableButton';
 import Highlighted from 'components/Highlighted';
 
-const GAS_PRICE_GWEI = 20; // we pay the premium for faster ux
 const GAS_LIMIT = GAS_LIMITS.GIFT_PLANET;
-const INVITE_COST = toWei((GAS_PRICE_GWEI * GAS_LIMIT).toString(), 'gwei');
+const INVITE_COST = toWei(
+  (DEFAULT_GAS_PRICE_GWEI * GAS_LIMIT).toString(),
+  'gwei'
+);
 const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
 
 const STATUS = {
@@ -121,7 +122,7 @@ export default function InviteEmail() {
   const [hovered, setHovered] = useSetState();
   const [invites, addInvite, clearInvites] = useSetState();
   const [receipts, addReceipt, clearReceipts] = useSetState();
-  const [errors, addError, clearErrors] = useSetState();
+  const [errors, addError] = useSetState();
 
   // manage general state that affects the whole form
   const [status, setStatus] = useState(STATUS.INPUT);
@@ -252,11 +253,10 @@ export default function InviteEmail() {
           networkType,
           // TODO: ^ make a useTransactionSigner to encapsulate this logic
           txn: inviteTx,
-          gasPrice: GAS_PRICE_GWEI.toString(),
+          gasPrice: DEFAULT_GAS_PRICE_GWEI.toString(),
           gasLimit: GAS_LIMIT.toString(),
           nonce: nonce + i,
           chainId,
-          setStx: () => {},
         });
         const rawTx = hexify(signedTx.serialize());
 
@@ -277,18 +277,19 @@ export default function InviteEmail() {
       );
     }
   }, [
-    point,
     contracts,
     web3,
-    addInvite,
-    clearInvites,
-    syncInvites,
-    inputs,
-    networkType,
     wallet,
+    inputs,
+    point,
+    clearInvites,
+    getHasReceived,
+    addError,
+    syncInvites,
     walletType,
     walletHdPath,
-    addError,
+    networkType,
+    addInvite,
   ]);
 
   const sendInvites = useCallback(async () => {
@@ -307,7 +308,7 @@ export default function InviteEmail() {
       inputs.map(input => invites[input.name].rawTx),
       (address, minBalance, balance) =>
         setNeedFunds({ address, minBalance, balance }),
-      () => setNeedFunds(false)
+      () => setNeedFunds(undefined)
     );
 
     setStatus(STATUS.SENDING);
@@ -320,8 +321,7 @@ export default function InviteEmail() {
         const txHash = await sendSignedTransaction(
           _web3,
           invite.signedTx,
-          tankWasUsed,
-          () => {}
+          tankWasUsed
         );
 
         // TODO: waitForTransactionConfirm never rejects
@@ -415,6 +415,14 @@ export default function InviteEmail() {
     }
   }, [isDone, syncInvites, point]);
 
+  useEffect(() => {
+    for (const input of inputs) {
+      if (input.pass) {
+        syncHasReceivedForEmail(input.data);
+      }
+    }
+  }, [inputs, syncHasReceivedForEmail]);
+
   return (
     <Grid gap={3}>
       <Grid.Item as={Grid} full>
@@ -465,8 +473,6 @@ export default function InviteEmail() {
                   as={Input}
                   cols={[1, 11]}
                   {...input}
-                  onValue={email => syncHasReceivedForEmail(email)}
-                  // NB(shrugs): ^ this feels like a hack?
                   accessory={accessoryFor(input.name)}
                 />
                 {!isFirst &&

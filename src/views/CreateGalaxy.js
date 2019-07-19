@@ -1,198 +1,162 @@
-import React from 'react';
-import { Just, Nothing } from 'folktale/maybe';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Nothing, Just } from 'folktale/maybe';
+import cn from 'classnames';
+import { Grid, Text, Input } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
-import * as ob from 'urbit-ob';
-import * as need from '../lib/need';
 
-import { Button } from '../components/old/Base';
-import { H1, P, Anchor } from '../components/old/Base';
-import {
-  InnerLabel,
-  GalaxyInput,
-  AddressInput,
-  ValidatedSigil,
-  ShowBlockie,
-} from '../components/old/Base';
-import StatelessTransaction from '../components/old/StatelessTransaction';
+import { useNetwork } from 'store/network';
+import { useHistory } from 'store/history';
+import { usePointCache } from 'store/pointCache';
 
-import { NETWORK_TYPES } from '../lib/network';
-import { canDecodePatp } from '../lib/txn';
+import * as need from 'lib/need';
+import { useAddressInput, useGalaxyInput } from 'lib/useInputs';
+import useEthereumTransaction from 'lib/useEthereumTransaction';
+import { GAS_LIMITS } from 'lib/constants';
+import patp2dec from 'lib/patp2dec';
 
-import { isValidAddress, isZeroAddress } from '../lib/wallet';
-
-import { isValidGalaxy, compose } from '../lib/lib';
-import { withNetwork } from '../store/network';
-import { withWallet } from '../store/wallet';
+import ViewHeader from 'components/ViewHeader';
+import MiniBackButton from 'components/MiniBackButton';
+import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
+import { isZeroAddress } from 'lib/wallet';
 
-const buttonTriState = status => {
-  if (status === null) return 'blue';
-  if (status === false) return 'yellow';
-  if (status === true) return 'green';
-};
+function useCreateGalaxy() {
+  const { contracts } = useNetwork();
+  const { syncKnownPoint } = usePointCache();
 
-const buttonTriStateText = status => {
-  if (status === null) return 'Confirm Galaxy Availablility';
-  if (status === false) return 'Galaxy is Not Available';
-  if (status === true) return 'Galaxy is Available';
-};
+  const _contracts = need.contracts(contracts);
 
-class CreateGalaxy extends React.Component {
-  constructor(props) {
-    super(props);
+  const [galaxy, setGalaxy] = useState();
 
-    const galaxyOwner = need.addressFromWallet(props.wallet);
+  return useEthereumTransaction(
+    useCallback(
+      (galaxy, owner) => {
+        setGalaxy(galaxy);
+        return azimuth.ecliptic.createGalaxy(_contracts, galaxy, owner);
+      },
+      [_contracts]
+    ),
+    useCallback(() => syncKnownPoint(galaxy), [galaxy, syncKnownPoint]),
+    GAS_LIMITS.DEFAULT
+  );
+}
 
-    this.state = {
-      galaxyOwner: galaxyOwner,
-      galaxyName: '',
-      isAvailable: null,
-    };
+export default function CreateGalaxy() {
+  const { pop } = useHistory();
+  const { contracts } = useNetwork();
+  const _contracts = need.contracts(contracts);
 
-    this.handleAddressInput = this.handleAddressInput.bind(this);
-    this.handleGalaxyNameInput = this.handleGalaxyNameInput.bind(this);
-    this.confirmAvailability = this.confirmAvailability.bind(this);
-    this.createUnsignedTxn = this.createUnsignedTxn.bind(this);
-    this.statelessRef = React.createRef();
-  }
+  const [error, setError] = useState();
+  const [isAvailable, setIsAvailable] = useState(Nothing());
 
-  handleGalaxyNameInput = galaxyName => {
-    this.setState({ galaxyName, isAvailable: null });
-    this.statelessRef.current.clearTxn();
-  };
+  const {
+    construct,
+    unconstruct,
+    completed,
+    inputsLocked,
+    bind,
+  } = useCreateGalaxy();
 
-  handleAddressInput = galaxyOwner => {
-    this.setState({ galaxyOwner });
-    this.statelessRef.current.clearTxn();
-  };
+  const [
+    galaxyNameInput,
+    { pass: validGalaxyName, syncPass: syncValidGalaxyName, value: galaxyName },
+    // ^ we use value: here so our effect runs onChange
+  ] = useGalaxyInput({
+    name: 'galaxy',
+    disabled: inputsLocked,
+    autoFocus: true,
+    error:
+      error ||
+      isAvailable.matchWith({
+        Nothing: () => 'Loading availability...', // TODO: make async loading?
+        Just: p => (p.value ? undefined : 'This galaxy is already owned.'),
+      }),
+  });
 
-  createUnsignedTxn = () => {
-    const { state, props } = this;
-    if (isValidAddress(state.galaxyOwner) === false) return Nothing();
-    if (state.isAvailable === false) return Nothing();
-    if (canDecodePatp(state.galaxyName) === false) return Nothing();
-    if (isValidGalaxy(state.galaxyName) === false) return Nothing();
+  const [ownerInput, { pass: validOwner, data: owner }] = useAddressInput({
+    name: 'owner',
+    label: `Ethereum Address`,
+    disabled: inputsLocked,
+  });
 
-    const validContracts = need.contracts(props.contracts);
+  useEffect(() => {
+    if (validGalaxyName && validOwner) {
+      construct(patp2dec(galaxyName), owner);
+    } else {
+      unconstruct();
+    }
+  }, [owner, construct, unconstruct, validGalaxyName, validOwner, galaxyName]);
 
-    const galaxyDec = ob.patp2dec(state.galaxyName);
-
-    const txn = azimuth.ecliptic.createGalaxy(
-      validContracts,
-      galaxyDec,
-      state.galaxyOwner
-    );
-
-    return Just(txn);
-  };
-
-  confirmAvailability = async () => {
-    const { state, props } = this;
-
-    if (canDecodePatp(state.galaxyName) === false) {
-      this.setState({ isAvailable: false });
+  useEffect(() => {
+    if (!syncValidGalaxyName || inputsLocked) {
       return;
     }
 
-    const validContracts = need.contracts(props.contracts);
+    setError();
+    setIsAvailable(Nothing());
 
-    const galaxyDec = ob.patp2dec(state.galaxyName);
+    let cancelled = false;
 
-    const currentOwner = await azimuth.azimuth.getOwner(
-      validContracts,
-      galaxyDec
-    );
+    (async () => {
+      try {
+        const currentOwner = await azimuth.azimuth.getOwner(
+          _contracts,
+          patp2dec(galaxyName)
+        );
 
-    const available = isZeroAddress(currentOwner);
+        const isAvailable = isZeroAddress(currentOwner);
 
-    this.setState({ isAvailable: available });
-  };
+        if (cancelled) {
+          return;
+        }
 
-  render() {
-    const { props, state } = this;
+        setIsAvailable(Just(isAvailable));
+      } catch (error) {
+        console.error(error);
+        setError(error.message);
+        setIsAvailable(Just(false));
+      }
+    })();
 
-    const validAddress = isValidAddress(state.galaxyOwner);
-    const validGalaxy = isValidGalaxy(state.galaxyName);
+    return () => (cancelled = true);
+  }, [
+    _contracts,
+    galaxyName,
+    inputsLocked,
+    setIsAvailable,
+    syncValidGalaxyName,
+  ]);
 
-    const canGenerate =
-      validAddress === true &&
-      validGalaxy === true &&
-      state.isAvailable === true;
+  return (
+    <View inset>
+      <Grid>
+        <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
 
-    const esvisible =
-      props.networkType === NETWORK_TYPES.ROPSTEN ||
-      props.networkType === NETWORK_TYPES.MAINNET;
+        <Grid.Item full as={ViewHeader}>
+          Create a Galaxy
+        </Grid.Item>
 
-    const esdomain =
-      props.networkType === NETWORK_TYPES.ROPSTEN
-        ? 'ropsten.etherscan.io'
-        : 'etherscan.io';
+        {completed && (
+          <Grid.Item
+            full
+            as={Text}
+            className={cn('f5', {
+              green3: completed,
+            })}>
+            {galaxyName} has been created and can be claimed by {owner}.
+          </Grid.Item>
+        )}
 
-    return (
-      <View>
-        <H1> {'Create a Galaxy'} </H1>
+        <Grid.Item full as={Input} {...galaxyNameInput} className="mt4" />
+        <Grid.Item full as={Input} {...ownerInput} className="mb4" />
 
-        <P>
-          {'Enter the galaxy to create and the address that will own ' +
-            'it (defaulting to this account, if not provided).'}
-        </P>
-
-        <GalaxyInput
-          className="mono"
-          prop-size="lg"
-          prop-format="innerLabel"
-          autoFocus
-          placeholder="e.g. ~zod"
-          value={state.galaxyName}
-          onChange={v => this.handleGalaxyNameInput(v)}>
-          <InnerLabel>{'Galaxy Name'}</InnerLabel>
-          <ValidatedSigil
-            className="tr-0 mt-05 mr-0 abs"
-            patp={state.galaxyName}
-            size={68}
-            margin={8}
-          />
-        </GalaxyInput>
-
-        <AddressInput
-          className="mono mt-8"
-          prop-size="lg"
-          prop-format="innerLabel"
-          value={state.galaxyOwner}
-          onChange={v => this.handleAddressInput(v)}>
-          <InnerLabel>{'Address that will own this galaxy'}</InnerLabel>
-          <ShowBlockie className={'mt-1'} address={state.galaxyOwner} />
-        </AddressInput>
-
-        <Anchor
-          className={'mt-1'}
-          prop-size={'sm'}
-          prop-disabled={!validAddress || !esvisible}
-          target={'_blank'}
-          href={`https://${esdomain}/address/${state.galaxyOwner}`}>
-          {'View on Etherscan ↗'}
-        </Anchor>
-
-        <Button
-          prop-size="lg wide"
-          className="mt-8"
-          prop-color={buttonTriState(state.isAvailable)}
-          disabled={!validGalaxy}
-          onClick={() => this.confirmAvailability()}>
-          {buttonTriStateText(state.isAvailable)}
-        </Button>
-
-        <StatelessTransaction
-          ref={this.statelessRef}
-          canGenerate={canGenerate}
-          createUnsignedTxn={this.createUnsignedTxn}
+        <Grid.Item
+          full
+          as={InlineEthereumTransaction}
+          {...bind}
+          onReturn={() => pop()}
         />
-      </View>
-    );
-  }
+      </Grid>
+    </View>
+  );
 }
-
-export default compose(
-  withNetwork,
-  withWallet
-)(CreateGalaxy);

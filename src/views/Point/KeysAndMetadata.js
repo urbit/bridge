@@ -1,8 +1,9 @@
 import React from 'react';
 import { H2, H4 } from '../../components/old/Base';
 
-import { CURVE_ZERO_ADDR, isZeroAddress } from '../../lib/wallet';
+import { isZeroAddress } from '../../lib/wallet';
 import { Grid } from 'indigo-react';
+import { CURVE_ZERO_ADDR } from 'lib/keys';
 
 const renderAddress = addr =>
   isZeroAddress(addr) ? (

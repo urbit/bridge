@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
 import { Input, Text, Grid } from 'indigo-react';
 
-import { ForwardButton } from 'components/Buttons';
-
 import { useTicketInput } from 'lib/useInputs';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { validateExactly } from 'lib/validators';
 import { isDevelopment } from 'lib/flags';
+
+import { ForwardButton } from 'components/Buttons';
 
 const STUB_VERIFY_TICKET = isDevelopment;
 

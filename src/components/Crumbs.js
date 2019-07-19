@@ -20,7 +20,7 @@ export default function Crumbs({ className, routes = [] }) {
               {route.text}
             </Flex.Item>
             {i !== lastIndex && (
-              <Flex.Item as={Breadcrumb} className={cn(textStyle, 'mh4')}>
+              <Flex.Item as={Breadcrumb} className={cn(textStyle, 'mh2')}>
                 /
               </Flex.Item>
             )}

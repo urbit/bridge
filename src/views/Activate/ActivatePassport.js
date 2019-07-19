@@ -64,8 +64,8 @@ export default function ActivatePassport() {
   );
 
   return (
-    <LocalRouterProvider value={router}>
-      <View full={fullView}>
+    <View full={fullView}>
+      <LocalRouterProvider value={router}>
         <Grid gap={gap} className="mt8 mb10">
           <Grid.Item half={half && 1} full={full}>
             <Passport
@@ -82,7 +82,7 @@ export default function ActivatePassport() {
             resetActivateRouter={resetActivateRouter}
           />
         </Grid>
-      </View>
-    </LocalRouterProvider>
+      </LocalRouterProvider>
+    </View>
   );
 }

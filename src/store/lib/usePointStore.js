@@ -12,11 +12,11 @@ export default function usePointStore() {
   const { syncBirthday, ...birthdays } = useBirthdaysStore();
   const { syncRekeyDate, ...rekeyDates } = useRekeyDateStore();
   const { syncInvites, ...invites } = useInvitesStore();
-  const ecliptic = useEclipticOwnerStore();
   const {
     syncControlledPoints,
     ...controlledPoints
   } = useControlledPointsStore();
+  const ecliptic = useEclipticOwnerStore();
 
   // sync all of the on-chain info required to display a known point
   const syncKnownPoint = useCallback(
@@ -25,17 +25,19 @@ export default function usePointStore() {
   );
 
   // sync all of the on-chain info required to display a foreign point
-  const syncForeignPoint = useCallback(async point => Promise.all([]), []);
+  const syncForeignPoint = useCallback(async point => {}, []);
 
   // sync all of the on-chain info required for a point that the user owns
   const syncOwnedPoint = useCallback(
     async point =>
       Promise.all([
+        syncForeignPoint(point),
         syncKnownPoint(point),
+        //
         syncDetails(point),
         syncInvites(point),
       ]),
-    [syncKnownPoint, syncDetails, syncInvites]
+    [syncForeignPoint, syncKnownPoint, syncDetails, syncInvites]
   );
 
   return {
@@ -45,6 +47,8 @@ export default function usePointStore() {
     ...invites,
     ...controlledPoints,
     ...ecliptic,
+    syncDetails,
+    syncRekeyDate,
     syncInvites,
     syncControlledPoints,
     syncKnownPoint,

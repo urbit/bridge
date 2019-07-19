@@ -2,9 +2,10 @@ import * as bip39 from 'bip39';
 import * as ob from 'urbit-ob';
 import { identity, includes } from 'lodash';
 
-import { isValidAddress } from './wallet';
+import { isValidAddress, ETH_ZERO_ADDR, ETH_ZERO_ADDR_SHORT } from './wallet';
 import patp2dec from './patp2dec';
 import { patpStringLength } from './lib';
+import { MIN_GALAXY, MAX_GALAXY } from './constants';
 
 // NOTE: do not use the /g modifier for these regexes
 // https://stackoverflow.com/a/21373261
@@ -74,7 +75,7 @@ export const validateNotEmpty = m =>
     prevMessage: m,
     validator: d => {
       try {
-        return d.length > 1;
+        return d.length > 0;
       } catch {
         return false;
       }
@@ -90,12 +91,12 @@ export const validateGalaxy = m =>
       let point;
       try {
         point = patp2dec(d);
-        return point >= 0 && point < 256;
+        return point >= MIN_GALAXY && point <= MAX_GALAXY;
       } catch (e) {
         return false;
       }
     },
-    error: 'This is not a valid galaxy',
+    error: 'This is not a valid galaxy.',
   });
 
 export const validatePoint = m =>
@@ -108,7 +109,7 @@ export const validatePoint = m =>
         return false;
       }
     },
-    error: 'This is not a valid point',
+    error: 'This is not a valid point.',
   });
 
 export const validateTicket = m =>
@@ -121,7 +122,7 @@ export const validateTicket = m =>
         return false;
       }
     },
-    error: 'This is not a valid ticket',
+    error: 'This is not a valid ticket.',
   });
 
 export const validateShard = m =>
@@ -134,7 +135,7 @@ export const validateShard = m =>
         return false;
       }
     },
-    error: 'This is not a valid shard',
+    error: 'This is not a valid shard.',
   });
 
 export const validateOneOf = (options = []) => m =>
@@ -148,7 +149,7 @@ export const validateHexString = m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => isHexString.test(d),
-    error: 'This is not a valid hex string',
+    error: 'This is not a valid hex string.',
   });
 
 // @deprecate
@@ -156,7 +157,7 @@ export const validateNetworkKey = m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => plain64CharHexValue.test(d),
-    error: 'This is not a valid network key',
+    error: 'This is not a valid network key.',
   });
 
 // @deprecate
@@ -164,7 +165,7 @@ export const validateNetworkSeed = m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => plain64CharHexValue.test(d),
-    error: 'This is not a valid network seed',
+    error: 'This is not a valid network seed.',
   });
 
 // Checks if a string is a valid ethereum address
@@ -172,14 +173,14 @@ export const validateEthereumAddress = m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => isValidAddress(d),
-    error: 'This is not a valid Ethereum address',
+    error: 'This is not a valid Ethereum address.',
   });
 
 export const validateEmail = m =>
   simpleValidatorWrapper({
     prevMessage: m,
     validator: d => emailRegExp.test(d),
-    error: 'This is not a valid email address',
+    error: 'This is not a valid email address.',
   });
 
 export const validateInt = m =>
@@ -194,7 +195,7 @@ export const validateInt = m =>
         return false;
       }
     },
-    error: 'This is not a valid number',
+    error: 'This is not a valid number.',
   });
 
 export const validateExactly = (value, error) => m =>
@@ -202,6 +203,13 @@ export const validateExactly = (value, error) => m =>
     prevMessage: m,
     validator: d => d === value,
     error,
+  });
+
+export const validateNotAny = (values = []) => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => !values.includes(d),
+    error: `Cannot be ${m.data}.`,
   });
 
 export const validateLength = l => m =>
@@ -214,7 +222,7 @@ export const validateLength = l => m =>
         return false;
       }
     },
-    error: `Must be exactly ${l} characters`,
+    error: `Must be exactly ${l} characters.`,
   });
 
 export const validateMaximumLength = l => m =>
@@ -230,6 +238,20 @@ export const validateMaximumLength = l => m =>
     error: `Must be ${l} characters or fewer.`,
   });
 
+export const validateGreaterThan = l => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => d > l,
+    error: `Must be at least ${l}.`,
+  });
+
+export const validateInSet = (set, error) => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => set.has(d),
+    error,
+  });
+
 export const validatePatpByteLength = byteLength => {
   return validateLength(patpStringLength(byteLength));
 };
@@ -237,3 +259,8 @@ export const validatePatpByteLength = byteLength => {
 export const validateMaximumPatpByteLength = byteLength => {
   return validateMaximumLength(patpStringLength(byteLength));
 };
+
+export const validateNotNullAddress = validateNotAny([
+  ETH_ZERO_ADDR,
+  ETH_ZERO_ADDR_SHORT,
+]);

@@ -1,13 +1,19 @@
 import BN from 'bn.js';
 import { Just, Nothing } from 'folktale/maybe';
-import * as need from './need';
 
 import * as noun from '../nockjs/noun';
 import * as serial from '../nockjs/serial';
 import * as kg from 'urbit-key-generation/dist';
 
-import { BRIDGE_ERROR } from './error';
-import { WALLET_TYPES, eqAddr } from './wallet';
+import { eqAddr, addHexPrefix } from './wallet';
+
+// the curve param for the network keys
+export const NETWORK_KEY_CURVE_PARAMETER = '42';
+// the current crypto suite version
+export const CRYPTO_SUITE_VERSION = 1;
+
+export const CURVE_ZERO_ADDR =
+  '0x0000000000000000000000000000000000000000000000000000000000000000';
 
 // ctsy joemfb
 const b64 = buf => {
@@ -50,9 +56,20 @@ const jam = seed => {
   return Buffer.from(pad, 'hex').reverse();
 };
 
-const genKey = (networkSeed, point, revision) => {
-  const pair = kg.deriveNetworkKeys(networkSeed);
-  const bnsec = new BN(pair.crypt.private + pair.auth.private + '42', 'hex'); // '42' is curve parameter
+// simple alias to avoid importing kg into component scope
+export const deriveNetworkKeys = seed => kg.deriveNetworkKeys(seed);
+
+/**
+ * @param {object} pair
+ * @param {number} point
+ * @param {number} revision
+ * @return {string}
+ */
+export const compileNetworkingKey = (pair, point, revision) => {
+  const bnsec = new BN(
+    pair.crypt.private + pair.auth.private + NETWORK_KEY_CURVE_PARAMETER,
+    'hex'
+  );
 
   const sed = noun.dwim(
     noun.Atom.fromInt(point),
@@ -64,68 +81,115 @@ const genKey = (networkSeed, point, revision) => {
   return b64(jam(sed));
 };
 
-// 'next' refers to setting the next set of keys
-// if false, we use revision - 1
-const attemptNetworkSeedDerivation = async (next, args) => {
-  const { walletType, urbitWallet, authMnemonic } = args;
+/**
+ * @param {object} urbitWallet
+ * @param {number} revision
+ * @return {Promise<Maybe<string>>}
+ */
+export const deriveNetworkSeedFromUrbitWallet = async (
+  urbitWallet,
+  revision = 1
+) => {
+  return await deriveNetworkSeedFromMnemonic(
+    urbitWallet.management.seed,
+    urbitWallet.meta.passphrase,
+    revision
+  );
+};
 
-  // NB (jtobin):
-  //
-  // following code is intentionally verbose for sake of clarity
+/**
+ * @param {Maybe<any>} wallet
+ * @param {string} authMnemonic
+ * @param {object} details
+ * @param {number} revision
+ * @return {Promise<Maybe<string>>}
+ */
+export const deriveNetworkSeedFromManagementMnemonic = async (
+  wallet,
+  authMnemonic,
+  details,
+  revision = 1
+) => {
+  const isManagementProxy = eqAddr(wallet.address, details.managementProxy);
 
-  const point = need.point(args.pointCursor);
-  const pointDetails = need.fromPointCache(args.pointCache, point);
-
-  const revision =
-    next === true
-      ? parseInt(pointDetails.keyRevisionNumber)
-      : parseInt(pointDetails.keyRevisionNumber) - 1;
-
-  let managementSeed = '';
-
-  const ticketLike = [WALLET_TYPES.TICKET, WALLET_TYPES.SHARDS];
-
-  if (ticketLike.includes(walletType)) {
-    const uwal = urbitWallet.matchWith({
-      Just: uw => uw.value,
-      Nothing: _ => {
-        throw new Error(BRIDGE_ERROR.MISSING_URBIT_WALLET);
-      },
-    });
-
-    managementSeed = uwal.management.seed;
-  } else if (walletType === WALLET_TYPES.MNEMONIC) {
-    const walProxy = need.addressFromWallet(args.wallet);
-
-    const mnemonic = authMnemonic.matchWith({
-      Just: mnem => mnem.value,
-      Nothing: _ => {
-        throw new Error(BRIDGE_ERROR.MISSING_MNEMONIC);
-      },
-    });
-
-    const chainProxy = pointDetails.managementProxy;
-
-    // the network seed is only derivable from mnemonic if the derived
-    // management seed equals the record we have on chain
-    const networkSeedDerivable = eqAddr(walProxy, chainProxy);
-
-    if (networkSeedDerivable === true) {
-      managementSeed = mnemonic;
-    }
-  }
-
-  if (managementSeed !== '') {
-    const seed = await kg.deriveNetworkSeed(managementSeed, '', revision);
-
-    if (seed === '') {
-      return Nothing();
-    }
-
-    return Just(seed);
+  // the network seed is derivable iff this mnemonic is the management proxy
+  if (isManagementProxy) {
+    return await deriveNetworkSeedFromMnemonic(
+      authMnemonic,
+      wallet.passphrase,
+      revision
+    );
   }
 
   return Nothing();
 };
 
-export { genKey, attemptNetworkSeedDerivation };
+/**
+ * @param {string} mnemonic
+ * @param {string} passphrase
+ * @param {number} revision
+ * @return {Promise<Maybe<string>>}
+ */
+const deriveNetworkSeedFromMnemonic = async (
+  mnemonic,
+  passphrase,
+  revision
+) => {
+  //NOTE revision is the point's on-chain revision number. since common uhdw
+  //     usage derives the first key at revision/index 0, we need to decrement
+  //     the on-chain revision number by one to get the number to derive with.
+  return Just(await kg.deriveNetworkSeed(mnemonic, passphrase, revision - 1));
+};
+
+/**
+ * @return {Promise<Maybe<string>>}
+ */
+export const attemptNetworkSeedDerivation = async ({
+  urbitWallet,
+  wallet,
+  authMnemonic,
+  details,
+  revision,
+}) => {
+  if (Just.hasInstance(urbitWallet)) {
+    return await deriveNetworkSeedFromUrbitWallet(urbitWallet.value, revision);
+  }
+
+  if (Just.hasInstance(wallet) && Just.hasInstance(authMnemonic)) {
+    return await deriveNetworkSeedFromManagementMnemonic(
+      wallet.value,
+      authMnemonic.value,
+      details,
+      revision
+    );
+  }
+
+  return Nothing();
+};
+
+/**
+ *
+ * @param {object} pair
+ * @param {object} details
+ * @return {boolean}
+ */
+export const keysMatchChain = (pair, details) => {
+  const { crypt, auth } = pair;
+  const { encryptionKey, authenticationKey } = details;
+
+  return (
+    encryptionKey === addHexPrefix(crypt.public) &&
+    authenticationKey === addHexPrefix(auth.public)
+  );
+};
+
+export const segmentNetworkKey = hex => {
+  if (hex === CURVE_ZERO_ADDR) {
+    return null;
+  }
+
+  const sl = i => hex.slice(i, i + 4);
+  const rowFrom = i => `${sl(i)}.${sl(i + 4)}.${sl(i + 8)}.${sl(i + 12)}`;
+
+  return [rowFrom(2), rowFrom(18), rowFrom(34), rowFrom(50)];
+};

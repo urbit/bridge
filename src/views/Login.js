@@ -1,26 +1,26 @@
 import React, { useCallback, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
-
 import { H4, Grid } from 'indigo-react';
-
-import Ticket from './Login/Ticket';
-import Mnemonic from './Login/Mnemonic';
-import Advanced from './Login/Advanced';
-import Hardware from './Login/Hardware';
-
-import * as need from 'lib/need';
 
 import { useHistory } from 'store/history';
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 
+import * as need from 'lib/need';
+import { WALLET_TYPES } from 'lib/wallet';
+
 import View from 'components/View';
 import Tabs from 'components/Tabs';
 import Crumbs from 'components/Crumbs';
 import Footer from 'components/Footer';
 import { ForwardButton, OfflineButton } from 'components/Buttons';
+
+import Ticket from './Login/Ticket';
+import Mnemonic from './Login/Mnemonic';
+import Advanced from './Login/Advanced';
+import Hardware from './Login/Hardware';
 
 const NAMES = {
   TICKET: 'TICKET',
@@ -43,15 +43,37 @@ const OPTIONS = [
   { text: 'Advanced', value: NAMES.ADVANCED },
 ];
 
+const walletTypeToViewName = walletType => {
+  switch (walletType) {
+    case WALLET_TYPES.MNEMONIC:
+      return NAMES.MNEMONIC;
+    case WALLET_TYPES.LEDGER:
+    case WALLET_TYPES.TREZOR:
+      return NAMES.HARDWARE;
+    case WALLET_TYPES.KEYSTORE:
+    case WALLET_TYPES.PRIVATE_KEY:
+      return NAMES.ADVANCED;
+    case WALLET_TYPES.TICKET:
+    case WALLET_TYPES.SHARDS:
+      return NAMES.TICKET;
+    default:
+      return NAMES.TICKET;
+  }
+};
+
 export default function Login() {
   // globals
   const { push, replaceWith, names } = useHistory();
   const { contracts } = useNetwork();
-  const { wallet } = useWallet();
+  const { wallet, walletType } = useWallet();
   const { pointCursor, setPointCursor } = usePointCursor();
 
+  const [deducing, setDeducing] = useState(false);
+
   // inputs
-  const [currentTab, setCurrentTab] = useState(NAMES.TICKET);
+  const [currentTab, setCurrentTab] = useState(
+    walletTypeToViewName(walletType)
+  );
 
   const goToActivate = useCallback(
     () => replaceWith([{ key: names.LANDING }, { key: names.ACTIVATE }]),
@@ -71,8 +93,10 @@ export default function Login() {
     const _wallet = need.wallet(wallet);
     const _contracts = need.contracts(contracts);
 
-    // if no point cursor set by login logic, try to deduce it
+    setDeducing(true);
+
     let deduced = pointCursor;
+    // if no point cursor set by login logic, try to deduce it
     if (Nothing.hasInstance(deduced)) {
       const owned = await azimuth.azimuth.getOwnedPoints(
         _contracts,
@@ -80,16 +104,10 @@ export default function Login() {
       );
       if (owned.length === 1) {
         deduced = Just(owned[0]);
-      } else if (owned.length === 0) {
-        const canOwn = await azimuth.azimuth.getTransferringFor(
-          _contracts,
-          _wallet.address
-        );
-        if (canOwn.length === 1) {
-          deduced = Just(canOwn[0]);
-        }
       }
     }
+
+    setDeducing(false);
 
     // if we have a deduced point or one in the global context,
     // navigate to that specific point, otherwise navigate to list of points
@@ -124,7 +142,8 @@ export default function Login() {
           as={ForwardButton}
           solid
           className="mt2"
-          disabled={Nothing.hasInstance(wallet)}
+          loading={deducing}
+          disabled={Nothing.hasInstance(wallet) || deducing}
           onClick={doContinue}>
           Continue
         </Grid.Item>

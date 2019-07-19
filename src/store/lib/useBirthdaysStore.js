@@ -45,7 +45,7 @@ export default function useBirthdayStore() {
           [point]: Just(new Date(block.timestamp * 1000)),
         });
       } else {
-        // TODO: better encoding for "no birthday" state?
+        // TODO: better encoding for "no birthday" state using Result.Ok/Error
         // if there's no birthday, just use today
         addToBirthdayCache({
           [point]: Just(new Date()),

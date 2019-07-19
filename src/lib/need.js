@@ -14,8 +14,15 @@ const needBuilder = fn => obj => {
   });
 };
 
+// simpler function for inline need.value(thing, () => {})
+export const value = (obj, fn) => needBuilder(fn)(obj);
+
+export const details = needBuilder(() => {
+  throw new Error(BRIDGE_ERROR.MISSING_POINT_DETAILS);
+});
+
 export const web3 = needBuilder(() => {
-  throw new Error(BRIDGE_ERROR.MISSING_WEB3.message);
+  throw new Error(BRIDGE_ERROR.MISSING_WEB3);
 });
 
 export const contracts = needBuilder(() => {

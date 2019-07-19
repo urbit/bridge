@@ -2,59 +2,69 @@ import React, { useCallback } from 'react';
 import { Just } from 'folktale/maybe';
 import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
+import { azimuth } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';
-import { usePointCache } from 'store/pointCache';
 import { useHistory } from 'store/history';
 
 import View from 'components/View';
 import Passport from 'components/Passport';
-import { ForwardButton } from 'components/Buttons';
+import { ForwardButton, BootArvoButton } from 'components/Buttons';
 import FooterButton from 'components/FooterButton';
 import { matchBlinky } from 'components/Blinky';
 
 import useInvites from 'lib/useInvites';
 import { useSyncOwnedPoints } from 'lib/useSyncPoints';
-import { ROUTE_NAMES } from 'lib/routeNames';
-import { eqAddr } from 'lib/wallet';
-
-import Actions from './Point/Actions';
-import { useWallet } from 'store/wallet';
+import useCurrentPermissions from 'lib/useCurrentPermissions';
 
 export default function Point() {
-  const history = useHistory();
+  const { push, names } = useHistory();
   const { pointCursor } = usePointCursor();
-  const { pointCache } = usePointCache();
-  const { wallet } = useWallet();
 
   const point = need.point(pointCursor);
 
-  let canAdmin = false;
-  if (point in pointCache) {
-    canAdmin = wallet.matchWith({
-      Nothing: () => false,
-      Just: wal => {
-        const pointDetails = need.fromPointCache(pointCache, point);
-        const address = need.addressFromWallet(wallet);
-        return (
-          eqAddr(address, pointDetails.owner) ||
-          eqAddr(address, pointDetails.managementProxy)
-        );
-      },
-    });
-  }
+  const { isActiveOwner, canManage, canSpawn } = useCurrentPermissions();
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);
-  const availableInvitesText = matchBlinky(availableInvites);
 
-  const showActions = Just.hasInstance(wallet);
+  const goAdmin = useCallback(() => push(names.ADMIN), [push, names]);
 
-  const goAdmin = useCallback(() => history.push(ROUTE_NAMES.ADMIN), [history]);
+  const goInvite = useCallback(() => push(names.INVITE), [push, names]);
 
-  const goInvite = useCallback(() => history.push(ROUTE_NAMES.INVITE), [
-    history,
+  const goPartiesSetPoolSize = useCallback(
+    () => push(names.PARTY_SET_POOL_SIZE),
+    [push, names]
+  );
+
+  const goIssuePoint = useCallback(() => push(names.ISSUE_CHILD), [
+    names.ISSUE_CHILD,
+    push,
   ]);
+
+  const inviteButton = (() => {
+    switch (azimuth.getPointSize(point)) {
+      case azimuth.PointSize.Planet:
+        const availableInvitesText = matchBlinky(availableInvites);
+        return (
+          <FooterButton disabled={!isActiveOwner} onClick={goInvite}>
+            Invite <sup>{availableInvitesText} available</sup>
+          </FooterButton>
+        );
+      //
+      case azimuth.PointSize.Star:
+        return (
+          <FooterButton
+            disabled={!isActiveOwner}
+            onClick={goPartiesSetPoolSize}>
+            Manage Parties
+          </FooterButton>
+        );
+      //
+      default:
+        return null;
+    }
+  })();
 
   // sync the current cursor
   useSyncOwnedPoints([point]);
@@ -66,24 +76,23 @@ export default function Point() {
         <Grid.Item
           full
           as={ForwardButton}
-          disabled={!canAdmin}
+          disabled={!canManage}
           onClick={goAdmin}>
           Admin
         </Grid.Item>
         <Grid.Divider />
-        <Grid.Item full as={ForwardButton} detail="Boot your computer" disabled>
-          Boot Arvo
-        </Grid.Item>
-        {showActions && (
-          <Grid.Item full>
-            <Actions />
-          </Grid.Item>
+        {canSpawn && (
+          <>
+            <Grid.Item full as={ForwardButton} onClick={goIssuePoint}>
+              Issue Point
+            </Grid.Item>
+            <Grid.Divider />
+          </>
         )}
+        <Grid.Item full as={BootArvoButton} disabled />
       </Grid>
 
-      <FooterButton onClick={goInvite}>
-        Invite <sup>{availableInvitesText}</sup>
-      </FooterButton>
+      {inviteButton}
     </View>
   );
 }

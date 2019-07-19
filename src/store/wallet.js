@@ -55,6 +55,7 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
   const setWallet = useCallback(
     wallet => {
       // force that public addresses are derived for each wallet
+      // NOTE wallet is Maybe<> and .map is Maybe#map
       wallet.map(wal => {
         wal.address = wal.address || addressFromSecp256k1Public(wal.publicKey);
         return wal;

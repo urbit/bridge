@@ -1,3 +1,8 @@
+import { isDevelopment } from './flags';
+
+const CHECK_BLOCK_EVERY_MS = isDevelopment ? 1000 : 5000;
+const DEFAULT_GAS_PRICE_GWEI = 20;
+
 const MIN_GALAXY = 0;
 const MAX_GALAXY = 255;
 const MIN_STAR = 256;
@@ -27,6 +32,8 @@ const GAS_LIMITS = {
   DETACH: 200000, //NOTE no samples
   //
   GIFT_PLANET: 400000, //NOTE low sample size
+  //
+  SEND_ETH: 21000,
   //
   DEFAULT: 550000,
 };
@@ -63,6 +70,8 @@ const PROFILE_STATES = {
 };
 
 export {
+  CHECK_BLOCK_EVERY_MS,
+  DEFAULT_GAS_PRICE_GWEI,
   GAS_LIMITS,
   GEN_STATES,
   BUTTON_STATES,

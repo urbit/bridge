@@ -78,6 +78,7 @@ export default function Points() {
       </P>
 
       <Grid>
+        <Grid.Divider />
         <Grid.Item full>
           <ForwardButton
             detail="View a point on Azimuth"
@@ -85,19 +86,20 @@ export default function Points() {
             View a point
           </ForwardButton>
         </Grid.Item>
+        <Grid.Divider />
+        {isEclipticOwner && (
+          <>
+            <Grid.Item full>
+              <ForwardButton
+                detail="You have the authority to create a new Galaxy."
+                onClick={() => history.push(ROUTE_NAMES.CREATE_GALAXY)}>
+                Create a galaxy
+              </ForwardButton>
+            </Grid.Item>
+            <Grid.Divider />
+          </>
+        )}
       </Grid>
-
-      {isEclipticOwner && (
-        <Grid>
-          <Grid.Item full>
-            <ForwardButton
-              detail="You have the authority to create a new Galaxy."
-              onClick={() => history.push(ROUTE_NAMES.CREATE_GALAXY)}>
-              Create a galaxy
-            </ForwardButton>
-          </Grid.Item>
-        </Grid>
-      )}
 
       {incoming.length > 0 && (
         <>
