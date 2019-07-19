@@ -1,8 +1,6 @@
 import React, { useCallback } from 'react';
 import { Just } from 'folktale/maybe';
-import { Input } from 'indigo-react';
-
-import { H1, P } from '../components/old/Base';
+import { Input, H1, P } from 'indigo-react';
 
 import { useHistory } from 'store/history';
 import { usePointCursor } from 'store/pointCursor';
