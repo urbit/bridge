@@ -23,7 +23,7 @@ export default function Point() {
 
   const point = need.point(pointCursor);
 
-  const { isActiveOwner, canManage } = useCurrentPermissions();
+  const { isActiveOwner, canManage, canSpawn } = useCurrentPermissions();
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);
@@ -36,6 +36,11 @@ export default function Point() {
     () => push(names.PARTY_SET_POOL_SIZE),
     [push, names]
   );
+
+  const goIssuePoint = useCallback(() => push(names.ISSUE_CHILD), [
+    names.ISSUE_CHILD,
+    push,
+  ]);
 
   const inviteButton = (() => {
     switch (azimuth.getPointSize(point)) {
@@ -76,6 +81,14 @@ export default function Point() {
           Admin
         </Grid.Item>
         <Grid.Divider />
+        {canSpawn && (
+          <>
+            <Grid.Item full as={ForwardButton} onClick={goIssuePoint}>
+              Issue Point
+            </Grid.Item>
+            <Grid.Divider />
+          </>
+        )}
         <Grid.Item full as={BootArvoButton} disabled />
       </Grid>
 

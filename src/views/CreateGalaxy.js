@@ -62,12 +62,13 @@ export default function CreateGalaxy() {
     { pass: validGalaxyName, syncPass: syncValidGalaxyName, value: galaxyName },
     // ^ we use value: here so our effect runs onChange
   ] = useGalaxyInput({
+    name: 'galaxy',
     disabled: inputsLocked,
     autoFocus: true,
     error:
       error ||
       isAvailable.matchWith({
-        Nothing: () => 'Loading availabiliy...', // TODO: make async loading?
+        Nothing: () => 'Loading availability...', // TODO: make async loading?
         Just: p => (p.value ? undefined : 'This galaxy is already owned.'),
       }),
   });
@@ -142,7 +143,7 @@ export default function CreateGalaxy() {
             className={cn('f5', {
               green3: completed,
             })}>
-            {galaxyName} has been created and is owned by {owner}.
+            {galaxyName} has been created and can be claimed by {owner}.
           </Grid.Item>
         )}
 
