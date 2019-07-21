@@ -1,29 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
+import Result from 'folktale/result';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from '../network';
 import { useWallet } from 'store/wallet';
 
-const EMPTY_CONTROLLED_POINTS = {
-  ownedPoints: Nothing(),
-  incomingPoints: Nothing(),
-  managingPoints: Nothing(),
-  votingPoints: Nothing(),
-  spawningPoints: Nothing(),
-};
-
 export default function useControlledPointsStore() {
   const { contracts } = useNetwork();
   const { wallet } = useWallet();
-  const [controlledPointsCache, _setControlledPointsCache] = useState(
-    EMPTY_CONTROLLED_POINTS
-  );
-
-  const getControlledPoints = useCallback(
-    () => controlledPointsCache || EMPTY_CONTROLLED_POINTS,
-    [controlledPointsCache]
-  );
+  const [controlledPoints, _setControlledPoints] = useState(Nothing());
 
   const syncControlledPoints = useCallback(async () => {
     const _contracts = contracts.getOrElse(null);
@@ -32,33 +18,48 @@ export default function useControlledPointsStore() {
       return;
     }
 
+    _setControlledPoints(Nothing());
+
     const address = _wallet.address;
 
-    const [
-      ownedPoints,
-      incomingPoints,
-      managingPoints,
-      votingPoints,
-      spawningPoints,
-    ] = await Promise.all([
-      azimuth.azimuth.getOwnedPoints(_contracts, address),
-      azimuth.azimuth.getTransferringFor(_contracts, address),
-      azimuth.azimuth.getManagerFor(_contracts, address),
-      azimuth.azimuth.getVotingFor(_contracts, address),
-      azimuth.azimuth.getSpawningFor(_contracts, address),
-    ]);
+    try {
+      const [
+        ownedPoints,
+        incomingPoints,
+        managingPoints,
+        votingPoints,
+        spawningPoints,
+      ] = await Promise.all([
+        azimuth.azimuth.getOwnedPoints(_contracts, address),
+        azimuth.azimuth.getTransferringFor(_contracts, address),
+        azimuth.azimuth.getManagerFor(_contracts, address),
+        azimuth.azimuth.getVotingFor(_contracts, address),
+        azimuth.azimuth.getSpawningFor(_contracts, address),
+      ]);
 
-    _setControlledPointsCache({
-      ownedPoints: Just(ownedPoints),
-      incomingPoints: Just(incomingPoints),
-      managingPoints: Just(managingPoints),
-      votingPoints: Just(votingPoints),
-      spawningPoints: Just(spawningPoints),
-    });
-  }, [contracts, wallet, _setControlledPointsCache]);
+      _setControlledPoints(
+        Just(
+          Result.Ok({
+            ownedPoints,
+            incomingPoints,
+            managingPoints,
+            votingPoints,
+            spawningPoints,
+          })
+        )
+      );
+    } catch (error) {
+      _setControlledPoints(Just(Result.Error(error)));
+    }
+  }, [contracts, wallet]);
+
+  // sync controlled points whenever wallet or contracts changes
+  useEffect(() => {
+    syncControlledPoints();
+  }, [syncControlledPoints]);
 
   return {
-    getControlledPoints,
+    controlledPoints,
     syncControlledPoints,
   };
 }

@@ -102,3 +102,6 @@ export const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
   const wallet = seed.chain(sd => toWallet(sd, hdpath));
   return wallet;
 };
+
+export const abbreviateAddress = address =>
+  `${address.slice(0, 4)}…${address.slice(-4)}`;

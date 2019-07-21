@@ -28,7 +28,6 @@ const INITIAL_ROUTES = IS_STUBBED
       { key: ROUTE_NAMES.LANDING },
       { key: ROUTE_NAMES.LOGIN },
       { key: ROUTE_NAMES.POINTS },
-      { key: ROUTE_NAMES.POINT },
     ]
   : hasDisclaimed()
   ? [{ key: ROUTE_NAMES.LANDING }]

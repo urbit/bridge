@@ -14,8 +14,10 @@ const NULL_PERMISSIONS = {
   //
   isOwner: false,
   isActiveOwner: false,
-  isTransferProxy: false,
   isManagementProxy: false,
+  isSpawnProxy: false,
+  isVotingProxy: false,
+  isTransferProxy: false,
   //
   isManagementProxySet: false,
   isSpawnProxySet: false,
@@ -84,8 +86,10 @@ export default function usePermissionsForPoint(address, point) {
         //
         isOwner,
         isActiveOwner,
-        isTransferProxy,
         isManagementProxy,
+        isSpawnProxy,
+        isVotingProxy,
+        isTransferProxy,
         //
         isManagementProxySet,
         isSpawnProxySet,

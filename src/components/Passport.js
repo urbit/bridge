@@ -1,18 +1,23 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import cn from 'classnames';
 import { Just, Nothing } from 'folktale/maybe';
 import * as ob from 'urbit-ob';
 import { Grid, Flex, Text } from 'indigo-react';
 import { times } from 'lodash';
 
+import * as need from 'lib/need';
 import usePointBirthday from 'lib/usePointBirthday';
 
-import {
+import Blinky, {
   LOADING_CHARACTER,
   INTERSTITIAL_CHARACTER,
   matchBlinkyDate,
 } from './Blinky';
+import Sigil from './Sigil';
 import MaybeSigil from './MaybeSigil';
+import usePermissionsForPoint from 'lib/usePermissionsForPoint';
+import { useWallet } from 'store/wallet';
+import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 
 const TICKET_CHAR_LENGTH = 30;
 const TICKET = times(TICKET_CHAR_LENGTH, i =>
@@ -25,18 +30,28 @@ const VISIBLE_ADDRESS_CHAR_COUNT = 20;
 const EMPTY_ADDRESS = times(VISIBLE_ADDRESS_CHAR_COUNT, () => '<').join('');
 const ADDRESS_BUFFER_CHARS = times(40, () => '<').join('');
 
+const INVERTED_COLORWAY = ['#000', '#fff', '#000'];
+
+const buildKeyType = permissions => {
+  if (permissions.isOwner) {
+    return 'Ownership';
+  } else if (permissions.isManagementProxy) {
+    return 'Management';
+  } else if (permissions.isSpawnProxy) {
+    return 'Spawn';
+  } else if (permissions.isVotingProxy) {
+    return 'Voting';
+  } else if (permissions.isTransferProxy) {
+    return 'Transfer';
+  }
+};
+
 /**
  * point is Maybe<number>
  * ticket is null | boolean
  * address is null | Maybe<string>
  */
-export default function Passport({
-  point,
-  className,
-  ticket = null,
-  address = Nothing(),
-  mini = false,
-}) {
+function Passport({ point, className, ticket = null, address = Nothing() }) {
   const birthday = usePointBirthday(point.getOrElse(null));
   const visualBirthday = matchBlinkyDate(birthday);
 
@@ -59,7 +74,7 @@ export default function Passport({
 
   return (
     <Grid gap={4} className={cn('bg-black r8 p7', className)}>
-      <Grid.Item cols={[1, 4]} className="bg-green">
+      <Grid.Item cols={[1, 4]}>
         <MaybeSigil patp={name} size={64} margin={0} />
       </Grid.Item>
       <Grid.Item as={Flex} cols={[4, 13]} col justify="between">
@@ -68,12 +83,12 @@ export default function Passport({
           <Flex.Item as={Text} className="mono f6 f5-ns gray4 uppercase">
             Birth Time
           </Flex.Item>
-          <Flex.Item as={Text} className="mono f6 f5-ns gray4 ">
+          <Flex.Item as={Text} className="mono f6 f5-ns gray4 uppercase">
             {visualBirthday}
           </Flex.Item>
         </Flex.Item>
       </Grid.Item>
-      {!mini && showTicket && (
+      {showTicket && (
         <Grid.Item full className="mv3" as={Flex} col>
           <Flex.Item as={Text} className="mono f6 f5-ns gray4 uppercase">
             Master Ticket
@@ -94,3 +109,71 @@ export default function Passport({
     </Grid>
   );
 }
+
+// TODO: Passport.Mini should probably accept Maybe<> for point
+// in order to display a pretty skeleton loading view
+// but that requires making usePermissionsForPoint accept a Maybe<point>
+// and I don't feel like that refactor is worth it right now, and the spec
+// doesn't call for it, hence the TODO
+Passport.Mini = function MiniPassport({ point, className, inverted, ...rest }) {
+  useSyncOwnedPoints([point]);
+
+  const { wallet } = useWallet();
+  const address = need.addressFromWallet(wallet);
+
+  const permissions = usePermissionsForPoint(address, point);
+  const keyType = buildKeyType(permissions);
+  const name = useMemo(() => ob.patp(point), [point]);
+
+  return (
+    <Grid
+      gap={4}
+      className={cn(
+        'r8 p4',
+        {
+          'bg-black': !inverted,
+          'bg-white b-gray4 b1': inverted,
+        },
+        className
+      )}
+      {...rest}>
+      <Grid.Item cols={[1, 4]}>
+        <Sigil
+          patp={name}
+          size={64}
+          margin={0}
+          colorway={inverted ? INVERTED_COLORWAY : undefined}
+        />
+      </Grid.Item>
+      <Grid.Item as={Flex} cols={[4, 13]} col justify="between">
+        <Flex.Item
+          className={cn('mono f6 pb2', {
+            white: !inverted,
+            black: inverted,
+          })}>
+          {name}
+        </Flex.Item>
+        <Flex.Item as={Flex} col className={cn('mono f6 uppercase')}>
+          <Flex.Item
+            as={Text}
+            className={cn({
+              gray4: !inverted,
+              black: inverted,
+            })}>
+            Key Type
+          </Flex.Item>
+          <Flex.Item
+            as={Text}
+            className={cn({
+              white: !inverted,
+              black: inverted,
+            })}>
+            {keyType || <Blinky />}
+          </Flex.Item>
+        </Flex.Item>
+      </Grid.Item>
+    </Grid>
+  );
+};
+
+export default Passport;
