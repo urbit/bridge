@@ -12,6 +12,9 @@ import Invite from 'views/Invite';
 import Activate from 'views/Activate';
 
 import PartySetPoolSize from 'views/Party/PartySetPoolSize';
+import AcceptTransfer from 'views/AcceptTransfer';
+import CancelTransfer from 'views/CancelTransfer';
+import RejectTransfer from 'views/RejectTransfer';
 
 import { ROUTE_NAMES } from './routeNames';
 
@@ -25,8 +28,12 @@ export const ROUTES = {
   [ROUTE_NAMES.POINT]: Point,
   [ROUTE_NAMES.CREATE_GALAXY]: CreateGalaxy,
   [ROUTE_NAMES.ISSUE_CHILD]: IssueChild,
-  [ROUTE_NAMES.PARTY_SET_POOL_SIZE]: PartySetPoolSize,
   [ROUTE_NAMES.INVITE]: Invite,
   [ROUTE_NAMES.ADMIN]: Admin,
   // TODO: nest this route under the Party.js router
+  [ROUTE_NAMES.PARTY_SET_POOL_SIZE]: PartySetPoolSize,
+  [ROUTE_NAMES.ACCEPT_TRANSFER]: AcceptTransfer,
+  [ROUTE_NAMES.REJECT_TRANSFER]: RejectTransfer,
+  // TODO: replace this with deep link to AdminCancelTransfer
+  [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
 };

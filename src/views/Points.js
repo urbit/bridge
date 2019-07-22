@@ -49,7 +49,9 @@ const PointList = function({ points, className, actions, ...rest }) {
               }}
               {...rest}
             />
-            <Flex.Item className="mt2">{actions}</Flex.Item>
+            {actions && (
+              <Flex.Item className="mt2">{actions(point, i)}</Flex.Item>
+            )}
           </Flex>
         </Grid.Item>
       ))}
@@ -76,6 +78,7 @@ function ActionButtons({ actions = [] }) {
 export default function Points() {
   const { wallet } = useWallet();
   const history = useHistory();
+  const { setPointCursor } = usePointCursor();
   const { controlledPoints, getDetails } = usePointCache();
   const isEclipticOwner = useIsEclipticOwner();
 
@@ -133,26 +136,26 @@ export default function Points() {
               full
               as={PointList}
               points={incomingPoints}
-              actions={
+              actions={(point, i) => (
                 <ActionButtons
                   actions={[
                     {
                       text: 'Accept',
                       onClick: () => {
-                        // TODO: accept
-                        console.log('accept');
+                        setPointCursor(Just(point));
+                        history.push(history.names.ACCEPT_TRANSFER);
                       },
                     },
                     {
                       text: 'Reject',
                       onClick: () => {
-                        // TODO: reject
-                        console.log('reject');
+                        setPointCursor(Just(point));
+                        history.push(history.names.REJECT_TRANSFER);
                       },
                     },
                   ]}
                 />
-              }
+              )}
               inverted
             />
           </Grid.Item>
@@ -167,19 +170,20 @@ export default function Points() {
               full
               as={PointList}
               points={outgoingPoints}
-              actions={
+              actions={(point, i) => (
                 <ActionButtons
                   actions={[
                     {
                       text: 'Cancel',
                       onClick: () => {
-                        // TODO: cancel
-                        console.log('cancel');
+                        setPointCursor(Just(point));
+                        // TODO: deep linking to fix this duplicate route
+                        history.push(history.names.CANCEL_TRANSFER);
                       },
                     },
                   ]}
                 />
-              }
+              )}
               inverted
             />
           </Grid.Item>
