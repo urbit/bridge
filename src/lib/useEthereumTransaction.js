@@ -175,6 +175,8 @@ export default function useEthereumTransaction(
   const reset = useCallback(() => {
     setTxHash(undefined);
     setSignedTransaction(undefined);
+    setNonce(undefined);
+    setChainId(undefined);
     setGasPrice(suggestedGasPrice);
     setState(STATE.NONE);
     setError(undefined);

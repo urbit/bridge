@@ -12,8 +12,8 @@ import { ROUTES } from 'lib/router';
 import { NETWORK_TYPES } from 'lib/network';
 import { walletFromMnemonic } from 'lib/wallet';
 import { isDevelopment } from 'lib/flags';
-import { hasDisclaimed } from 'lib/disclaimerCookie';
 import useImpliedTicket from 'lib/useImpliedTicket';
+import useHasDisclaimed from 'lib/useHasDisclaimed';
 
 import 'style/index.scss';
 
@@ -36,19 +36,29 @@ const INITIAL_MNEMONIC = IS_STUBBED
   : Nothing();
 const INITIAL_POINT_CURSOR = IS_STUBBED ? Just(65792) : Nothing();
 
-function Bridge() {
-  const landingPage = !!useImpliedTicket()
+function useInitialRoutes() {
+  const [hasDisclaimed] = useHasDisclaimed();
+  const hasImpliedTicket = !!useImpliedTicket();
+
+  if (IS_STUBBED) {
+    return [
+      { key: ROUTE_NAMES.LOGIN },
+      { key: ROUTE_NAMES.POINTS },
+      { key: ROUTE_NAMES.POINT },
+    ];
+  }
+
+  const landingPage = hasImpliedTicket
     ? ROUTE_NAMES.ACTIVATE
     : ROUTE_NAMES.LOGIN;
-  const initialRoutes = IS_STUBBED
-    ? [
-        { key: ROUTE_NAMES.LOGIN },
-        { key: ROUTE_NAMES.POINTS },
-        { key: ROUTE_NAMES.POINT },
-      ]
-    : hasDisclaimed()
-    ? [{ key: landingPage }]
-    : [{ key: landingPage }, { key: ROUTE_NAMES.DISCLAIMER }];
+
+  const extraRoutes = !hasDisclaimed ? [{ key: ROUTE_NAMES.DISCLAIMER }] : [];
+
+  return [{ key: landingPage }, ...extraRoutes];
+}
+
+function Bridge() {
+  const initialRoutes = useInitialRoutes();
 
   return (
     <Provider
