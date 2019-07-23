@@ -6,6 +6,7 @@ import { ErrorText } from './Typography';
 
 export default React.memo(function Input({
   // visuals
+  type,
   name,
   label,
   className,
@@ -33,6 +34,7 @@ export default React.memo(function Input({
   transformers,
 
   // extra
+  textarea = false,
   ...rest
 }) {
   // NB(shrugs): we disable exhaustive deps because we don't want the callbacks
@@ -67,8 +69,11 @@ export default React.memo(function Input({
       </Flex.Item>
       <Flex.Item as={Flex} className="rel" row>
         <Flex.Item
-          as="input"
+          as={type === 'textarea' ? 'textarea' : 'input'}
+          type={type === 'textarea' ? undefined : type}
           {...rest}
+          // NOTE: 24px = 12px * 2 (from p3 styling)
+          style={type === 'textarea' ? { minHeight: 'calc(1rem + 24px)' } : {}}
           className={cn(
             'b b1 p3 outline-none',
             { mono },

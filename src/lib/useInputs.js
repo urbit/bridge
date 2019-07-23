@@ -96,7 +96,7 @@ export function useMnemonicInput(props) {
   return useFirstOf(
     useForm([
       {
-        type: 'text',
+        type: 'textarea',
         autoComplete: 'off',
         placeholder: PLACEHOLDER_MNEMONIC,
         validators: kMnemonicValidators,
