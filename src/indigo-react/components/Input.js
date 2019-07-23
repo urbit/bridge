@@ -27,6 +27,7 @@ export default React.memo(function Input({
   bind,
   autoFocus,
   disabled,
+  touched,
 
   // ignored
   initialValue,
@@ -82,8 +83,8 @@ export default React.memo(function Input({
               'bg-gray1': disabled,
             },
             {
-              gray4: !focused,
-              black: focused,
+              gray4: !focused && !touched,
+              black: focused || touched,
             },
             {
               'b-green3': visiblyPassed,
