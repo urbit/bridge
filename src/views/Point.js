@@ -53,7 +53,7 @@ export default function Point() {
         const availableInvitesText = matchBlinky(availableInvites);
         return (
           <FooterButton disabled={!isActiveOwner} onClick={goInvite}>
-            Invite <sup>{availableInvitesText} available</sup>
+            Invite <sup>{availableInvitesText}</sup>
           </FooterButton>
         );
       //
