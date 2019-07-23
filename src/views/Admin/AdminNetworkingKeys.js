@@ -331,7 +331,7 @@ export default function AdminNetworkingKeys() {
           <>
             <Grid.Item full as={NoticeBox} className="mb3">
               You need this keyfile to authenticate with Arvo. If you have
-              already booted Arvo, reboot with this new keyfile.
+              already booted Arvo, run <code>|rekey '0wkeyfile.contents'</code>
             </Grid.Item>
             <Grid.Item full as={DownloadKeyfileButton} solid {...keyfileBind} />
           </>
