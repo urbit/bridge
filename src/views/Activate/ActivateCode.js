@@ -40,7 +40,7 @@ export default function ActivateCode() {
 
   const [ticketInput, { pass: validTicket, data: ticket }] = useTicketInput({
     name: 'ticket',
-    label: 'Code',
+    label: 'Activation Code',
     initialValue: impliedTicket || '',
     autoFocus: true,
   });
