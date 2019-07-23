@@ -14,7 +14,6 @@ import {
   hexify,
 } from './txn';
 import * as need from './need';
-import useLifecycle from './useLifecycle';
 import { ensureFundsFor } from './tank';
 import useDeepEqualReference from './useDeepEqualReference';
 
@@ -174,7 +173,6 @@ export default function useEthereumTransaction(
   ]);
 
   const reset = useCallback(() => {
-    setUnsignedTransaction(undefined);
     setTxHash(undefined);
     setSignedTransaction(undefined);
     setGasPrice(suggestedGasPrice);
@@ -188,7 +186,12 @@ export default function useEthereumTransaction(
     suggestedGasPrice,
   ]);
 
-  useLifecycle(() => {
+  useEffect(() => {
+    // if nonce or chainId is undefined, re-fetch on-chain info
+    if (!(nonce === undefined || chainId === undefined)) {
+      return;
+    }
+
     (async () => {
       try {
         setError(undefined);
@@ -207,7 +210,7 @@ export default function useEthereumTransaction(
         setError(error);
       }
     })();
-  });
+  }, [_wallet, _web3, setError, nonce, chainId]);
 
   useEffect(() => {
     let cancelled = false;

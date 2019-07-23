@@ -17,6 +17,7 @@ import View from 'components/View';
 import FooterButton from 'components/FooterButton';
 import Blinky from 'components/Blinky';
 import Passport from 'components/Passport';
+import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
 
 const getFromMaybe = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -81,13 +82,21 @@ export default function Points() {
   const { setPointCursor } = usePointCursor();
   const { controlledPoints, getDetails } = usePointCache();
   const isEclipticOwner = useIsEclipticOwner();
+  const [
+    rejectedPoints,
+    addRejectedPoint,
+  ] = useRejectedIncomingPointTransfers();
 
   const address = need.addressFromWallet(wallet);
 
   const loading = Nothing.hasInstance(controlledPoints);
 
   const ownedPoints = getFromMaybe(controlledPoints, 'ownedPoints', []);
-  const incomingPoints = getFromMaybe(controlledPoints, 'incomingPoints', []);
+  const incomingPoints = getFromMaybe(
+    controlledPoints,
+    'incomingPoints',
+    []
+  ).filter(point => !rejectedPoints.includes(point));
   const managingPoints = getFromMaybe(controlledPoints, 'managingPoints', []);
   const votingPoints = getFromMaybe(controlledPoints, 'votingPoints', []);
   const spawningPoints = getFromMaybe(controlledPoints, 'spawningPoints', []);
@@ -149,8 +158,7 @@ export default function Points() {
                     {
                       text: 'Reject',
                       onClick: () => {
-                        setPointCursor(Just(point));
-                        history.push(history.names.REJECT_TRANSFER);
+                        addRejectedPoint(point);
                       },
                     },
                   ]}
