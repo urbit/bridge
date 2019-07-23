@@ -1,5 +1,5 @@
 import React from 'react';
-import { Nothing } from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import { H1, H2, P, Grid } from 'indigo-react';
 
 import { ROUTE_NAMES } from 'lib/routeNames';
@@ -11,10 +11,35 @@ import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
 import { usePointCache } from 'store/pointCache';
 
-import PointList from 'components/old/PointList';
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
 import useLifecycle from 'lib/useLifecycle';
+
+//TODO new component
+import { usePointCursor } from 'store/pointCursor';
+import * as ob from 'urbit-ob';
+const PointList = function(props) {
+  const { setPointCursor } = usePointCursor();
+  const history = useHistory();
+  const { points, loading } = props;
+
+  return points.length === 0 ? (
+    <p>{loading ? 'Loading...' : 'No points to display'}</p>
+  ) : (
+    <>
+      {points.map(point => (
+        <P
+          key={point}
+          onClick={() => {
+            setPointCursor(Just(point));
+            history.push(ROUTE_NAMES.POINT);
+          }}>
+          {ob.patp(point)}
+        </P>
+      ))}
+    </>
+  );
+};
 
 const matchArray = obj =>
   obj.matchWith({ Nothing: () => [], Just: p => p.value });

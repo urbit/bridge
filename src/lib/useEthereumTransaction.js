@@ -82,7 +82,8 @@ export default function useEthereumTransaction(
   const canSign = !initializing && constructed && isDefaultState;
 
   const construct = useCallback(
-    (...args) => setUnsignedTransaction(transactionBuilder(...args)),
+    async (...args) =>
+      setUnsignedTransaction(await transactionBuilder(...args)),
     [transactionBuilder]
   );
 
