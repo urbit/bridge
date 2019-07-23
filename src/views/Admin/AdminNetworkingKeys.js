@@ -30,6 +30,8 @@ import { formatDotsWithTime } from 'lib/dateFormat';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import { addHexPrefix } from 'lib/wallet';
+import { useHexInput, useCheckboxInput } from 'lib/useInputs';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 import ViewHeader from 'components/ViewHeader';
 import MiniBackButton from 'components/MiniBackButton';
@@ -38,8 +40,6 @@ import FooterButton from 'components/FooterButton';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import NoticeBox from 'components/NoticeBox';
-import { useHexInput, useCheckboxInput } from 'lib/useInputs';
-import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 const chainKeyProp = name => d =>
   d[name] === CURVE_ZERO_ADDR ? Nothing() : Just(d[name]);
@@ -330,7 +330,8 @@ export default function AdminNetworkingKeys() {
         {completed && (
           <>
             <Grid.Item full as={NoticeBox} className="mb3">
-              You need this keyfile to authenticate with Arvo.
+              You need this keyfile to authenticate with Arvo. If you have
+              already booted Arvo, reboot with this new keyfile.
             </Grid.Item>
             <Grid.Item full as={DownloadKeyfileButton} solid {...keyfileBind} />
           </>
