@@ -111,6 +111,7 @@ export default function Point() {
           </>
         )}
         <Grid.Item full as={BootArvoButton} disabled />
+        <Grid.Divider />
       </Grid>
     </View>
   );
