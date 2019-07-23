@@ -51,7 +51,7 @@ export default function InlineEthereumTransaction({
   const showConfigureInput = !(signed || broadcasted || confirmed || completed);
   // show the send/loading button while signed, broadcasting, or confirme
   const showBroadcastButton = signed || broadcasted || confirmed;
-  const canBroadcast = signed;
+  const canBroadcast = signed && !needFunds;
   const isLoading = broadcasted || confirmed;
   // show signed tx only when signing (for offline usage)
   const showSignedTx = signed;
