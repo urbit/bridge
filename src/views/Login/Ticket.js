@@ -88,7 +88,12 @@ export default function Ticket({ className }) {
     setDeriving(true);
     setUrbitWallet(Nothing());
 
-    if (!ob.isValidPatq(ticket) || !ob.isValidPatp(pointName)) {
+    if (
+      !ticket ||
+      !pointName ||
+      !ob.isValidPatq(ticket) ||
+      !ob.isValidPatp(pointName)
+    ) {
       setDeriving(false);
       return;
     }
