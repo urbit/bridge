@@ -1,4 +1,3 @@
-import Landing from 'views/Landing';
 import Disclaimer from 'views/Disclaimer';
 import Login from 'views/Login.js';
 import Admin from 'views/Admin';
@@ -18,7 +17,6 @@ import CancelTransfer from 'views/CancelTransfer';
 import { ROUTE_NAMES } from './routeNames';
 
 export const ROUTES = {
-  [ROUTE_NAMES.LANDING]: Landing,
   [ROUTE_NAMES.DISCLAIMER]: Disclaimer,
   [ROUTE_NAMES.ACTIVATE]: Activate,
   [ROUTE_NAMES.VIEW_POINT]: ViewPoint,

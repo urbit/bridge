@@ -13,6 +13,7 @@ import { NETWORK_TYPES } from 'lib/network';
 import { walletFromMnemonic } from 'lib/wallet';
 import { isDevelopment } from 'lib/flags';
 import { hasDisclaimed } from 'lib/disclaimerCookie';
+import useImpliedTicket from 'lib/useImpliedTicket';
 
 import 'style/index.scss';
 
@@ -23,15 +24,6 @@ const INITIAL_NETWORK_TYPE = isDevelopment
 // NB(shrugs): modify these variables to change the default local state.
 const SHOULD_STUB_LOCAL = process.env.REACT_APP_STUB_LOCAL === 'true';
 const IS_STUBBED = isDevelopment && SHOULD_STUB_LOCAL;
-const INITIAL_ROUTES = IS_STUBBED
-  ? [
-      { key: ROUTE_NAMES.LANDING },
-      { key: ROUTE_NAMES.LOGIN },
-      { key: ROUTE_NAMES.POINTS },
-    ]
-  : hasDisclaimed()
-  ? [{ key: ROUTE_NAMES.LANDING }]
-  : [{ key: ROUTE_NAMES.DISCLAIMER }];
 
 const INITIAL_WALLET = IS_STUBBED
   ? walletFromMnemonic(
@@ -45,11 +37,24 @@ const INITIAL_MNEMONIC = IS_STUBBED
 const INITIAL_POINT_CURSOR = IS_STUBBED ? Just(65792) : Nothing();
 
 function Bridge() {
+  const landingPage = !!useImpliedTicket()
+    ? ROUTE_NAMES.ACTIVATE
+    : ROUTE_NAMES.LOGIN;
+  const initialRoutes = IS_STUBBED
+    ? [
+        { key: ROUTE_NAMES.LOGIN },
+        { key: ROUTE_NAMES.POINTS },
+        { key: ROUTE_NAMES.POINT },
+      ]
+    : hasDisclaimed()
+    ? [{ key: landingPage }]
+    : [{ key: landingPage }, { key: ROUTE_NAMES.DISCLAIMER }];
+
   return (
     <Provider
       views={ROUTES}
       names={ROUTE_NAMES}
-      initialRoutes={INITIAL_ROUTES}
+      initialRoutes={initialRoutes}
       initialNetworkType={INITIAL_NETWORK_TYPE}
       initialWallet={INITIAL_WALLET}
       initialMnemonic={INITIAL_MNEMONIC}
