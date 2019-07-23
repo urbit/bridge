@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import cn from 'classnames';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, Input, CheckboxInput } from 'indigo-react';
 
@@ -67,7 +68,7 @@ export default function Mnemonic({ className }) {
   ]);
 
   return (
-    <Grid className={className}>
+    <Grid className={cn('mt4', className)}>
       <Grid.Item full as={Input} {...mnemonicInput} />
 
       {useAdvanced && (

@@ -42,7 +42,7 @@ export default function Tabs({
           );
         })}
       </Grid.Item>
-      <Grid.Item full as={Tab} className="mt6" {...rest} />
+      <Grid.Item full as={Tab} {...rest} />
     </Grid>
   );
 }
