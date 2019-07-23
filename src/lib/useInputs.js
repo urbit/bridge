@@ -22,7 +22,12 @@ import { prependSig, convertToNumber } from 'lib/transformers';
 
 import InputSigil from 'components/InputSigil';
 
-const EXAMPLE_PRIVATE_KEY =
+const PLACEHOLDER_POINT = '~zod';
+const PLACEHOLDER_HD_PATH = DEFAULT_HD_PATH;
+const PLACEHOLDER_MNEMONIC = bip39.generateMnemonic();
+const PLACEHOLDER_TICKET = '~ragtyd-modwen-bostec-hinsep';
+const PLACEHOLDER_ADDRESS = '0x6DEfFb0caFDB11D175F123F6891AA64F01c24F7d';
+const PLACEHOLDER_PRIVATE_KEY =
   '0xa44de2416ee6beb2f323fab48b432925c9785808d33a6ca6d7ba00b45e9370c3';
 
 // pulls out the first input from a useForm() call
@@ -71,7 +76,7 @@ export function useHexInput({ length, ...rest }) {
       {
         type: 'text', // or password
         autoComplete: 'off',
-        placeholder: `e.g. ${EXAMPLE_PRIVATE_KEY}`,
+        placeholder: PLACEHOLDER_PRIVATE_KEY,
         validators: useMemo(
           () => [
             validateHexString,
@@ -86,7 +91,6 @@ export function useHexInput({ length, ...rest }) {
   );
 }
 
-const kExampleMnemonic = bip39.generateMnemonic();
 const kMnemonicValidators = [validateMnemonic, validateNotEmpty];
 export function useMnemonicInput(props) {
   return useFirstOf(
@@ -94,7 +98,7 @@ export function useMnemonicInput(props) {
       {
         type: 'text',
         autoComplete: 'off',
-        placeholder: `e.g. ${kExampleMnemonic}`,
+        placeholder: PLACEHOLDER_MNEMONIC,
         validators: kMnemonicValidators,
         ...props,
       },
@@ -108,7 +112,7 @@ export function useHdPathInput(props) {
       {
         type: 'text',
         autoComplete: 'off',
-        placeholder: `e.g. ${DEFAULT_HD_PATH}`,
+        placeholder: PLACEHOLDER_HD_PATH,
         ...props,
       },
     ])
@@ -124,7 +128,7 @@ export function useTicketInput({ validators = [], deriving = false, ...rest }) {
       {
         type: 'password',
         label: 'Ticket',
-        placeholder: 'e.g. ~ragtyd-modwen-bostec-hinsep',
+        placeholder: PLACEHOLDER_TICKET,
         validators: useMemo(() => [...validators, ...kTicketValidators], [
           validators,
         ]),
@@ -162,7 +166,7 @@ export function usePointInput({ size = 4, validators = [], ...rest }) {
       {
         type: 'text',
         label: 'Point',
-        placeholder: 'e.g. ~zod',
+        placeholder: PLACEHOLDER_POINT,
         validators: _validators,
         transformers: kPointTransformers,
         mono: true,
@@ -236,7 +240,7 @@ export function useAddressInput({ ...rest }) {
       {
         type: 'string',
         label: 'Ethereum Address',
-        placeholder: 'e.g. 0x6DEfFb0caFDB11D175F123F6891AA64F01c24F7d',
+        placeholder: PLACEHOLDER_ADDRESS,
         autoComplete: 'off',
         validators: kAddressValidators,
         mono: true,
