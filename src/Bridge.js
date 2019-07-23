@@ -13,6 +13,7 @@ import { NETWORK_TYPES } from 'lib/network';
 import { walletFromMnemonic } from 'lib/wallet';
 import { isDevelopment } from 'lib/flags';
 import { hasDisclaimed } from 'lib/disclaimerCookie';
+import useImpliedTicket from 'lib/useImpliedTicket';
 
 import 'style/index.scss';
 
@@ -23,16 +24,18 @@ const INITIAL_NETWORK_TYPE = isDevelopment
 // NB(shrugs): modify these variables to change the default local state.
 const SHOULD_STUB_LOCAL = process.env.REACT_APP_STUB_LOCAL === 'true';
 const IS_STUBBED = isDevelopment && SHOULD_STUB_LOCAL;
+const LANDING_PAGE = !!useImpliedTicket()
+  ? ROUTE_NAMES.ACTIVATE
+  : ROUTE_NAMES.LOGIN;
 const INITIAL_ROUTES = IS_STUBBED
   ? [
-      { key: ROUTE_NAMES.LANDING },
       { key: ROUTE_NAMES.LOGIN },
       { key: ROUTE_NAMES.POINTS },
       { key: ROUTE_NAMES.POINT },
     ]
   : hasDisclaimed()
-  ? [{ key: ROUTE_NAMES.LANDING }]
-  : [{ key: ROUTE_NAMES.DISCLAIMER }];
+  ? [{ key: LANDING_PAGE }]
+  : [{ key: LANDING_PAGE }, { key: ROUTE_NAMES.DISCLAIMER }];
 
 const INITIAL_WALLET = IS_STUBBED
   ? walletFromMnemonic(

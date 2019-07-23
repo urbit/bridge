@@ -13,7 +13,7 @@ import WarningBox from 'components/WarningBox';
 const TEXT_STYLE = 'f5';
 
 export default function ActivateDisclaimer() {
-  const { popAndPush, names } = useHistory();
+  const { pop } = useHistory();
   const [understoodInput, { data: isUnderstood }] = useCheckboxInput({
     name: 'checkbox',
     label: 'I acknowledge and understand these rights',
@@ -21,8 +21,8 @@ export default function ActivateDisclaimer() {
 
   const goToPassport = useCallback(() => {
     setDisclaimerCookie();
-    popAndPush(names.LANDING);
-  }, [popAndPush, names]);
+    pop();
+  }, [pop]);
 
   return (
     <View>
