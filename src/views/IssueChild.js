@@ -54,7 +54,7 @@ export default function IssueChild() {
   const { pointCursor } = usePointCursor();
 
   const _contracts = need.contracts(contracts);
-  const _point = need.point(pointCursor);
+  const _point = parseInt(need.point(pointCursor), 10);
 
   const [availablePointNames, setAvailablePointNames] = useState(Nothing());
 
