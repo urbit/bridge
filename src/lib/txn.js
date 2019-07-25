@@ -1,4 +1,3 @@
-import * as ob from 'urbit-ob';
 import Tx from 'ethereumjs-tx';
 import { toWei, fromWei, toHex } from 'web3-utils';
 import retry from 'async-retry';
@@ -8,6 +7,7 @@ import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
 import { WALLET_TYPES, addHexPrefix } from './wallet';
 import { CHECK_BLOCK_EVERY_MS } from './constants';
+import patp2dec from './patp2dec';
 
 const RETRY_OPTIONS = {
   retries: 99999,
@@ -177,7 +177,7 @@ const getTxnInfo = async (web3, addr) => {
 // TODO(shrugs): deprecate, unifiy with other callsites
 const canDecodePatp = p => {
   try {
-    ob.patp2dec(p);
+    patp2dec(p);
     return true;
   } catch (_) {
     return false;
