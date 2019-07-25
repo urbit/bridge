@@ -25,6 +25,7 @@ export default function ToggleInput({
   bind,
   autoFocus,
   disabled,
+  touched,
 
   // ignored
   initialValue,

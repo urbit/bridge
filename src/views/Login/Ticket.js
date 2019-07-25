@@ -1,4 +1,5 @@
 import { Just, Nothing } from 'folktale/maybe';
+import cn from 'classnames';
 import React, { useCallback, useState, useEffect } from 'react';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
@@ -88,7 +89,12 @@ export default function Ticket({ className }) {
     setDeriving(true);
     setUrbitWallet(Nothing());
 
-    if (!ob.isValidPatq(ticket) || !ob.isValidPatp(pointName)) {
+    if (
+      !ticket ||
+      !pointName ||
+      !ob.isValidPatq(ticket) ||
+      !ob.isValidPatp(pointName)
+    ) {
       setDeriving(false);
       return;
     }
@@ -160,7 +166,7 @@ export default function Ticket({ className }) {
   ]);
 
   return (
-    <Grid className={className}>
+    <Grid className={cn('mt4', className)}>
       <Grid.Item full as={Input} {...pointInput} />
 
       {!isUsingShards && <Grid.Item full as={Input} {...ticketInput} />}

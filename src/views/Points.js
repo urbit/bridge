@@ -18,6 +18,7 @@ import FooterButton from 'components/FooterButton';
 import Blinky from 'components/Blinky';
 import Passport from 'components/Passport';
 import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
+import pluralize from 'lib/pluralize';
 
 const getFromMaybe = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -139,7 +140,11 @@ export default function Points() {
         {incomingPoints.length > 0 && (
           <Grid.Item full as={Grid} gap={1} className="mb6">
             <Grid.Item full as={H5}>
-              Incoming Transfers
+              {pluralize(
+                incomingPoints.length,
+                'Incoming Transfer',
+                'Incoming Transfers'
+              )}
             </Grid.Item>
             <Grid.Item
               full
@@ -172,7 +177,11 @@ export default function Points() {
         {outgoingPoints.length > 0 && (
           <Grid.Item full as={Grid} gap={1} className="mb6">
             <Grid.Item full as={H5}>
-              Outgoing Transfers
+              {pluralize(
+                outgoingPoints.length,
+                'Outgoing Transfer',
+                'Outgoing Transfers'
+              )}
             </Grid.Item>
             <Grid.Item
               full
@@ -200,7 +209,7 @@ export default function Points() {
         {multipassPoints.length > 0 && (
           <Grid.Item full as={Grid} gap={1}>
             <Grid.Item full as={H5}>
-              Multipasses
+              {pluralize(multipassPoints.length, 'Multipass', 'Multipasses')}
             </Grid.Item>
             <Grid.Item full as={PointList} points={multipassPoints} />
           </Grid.Item>

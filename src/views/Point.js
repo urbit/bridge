@@ -10,7 +10,6 @@ import { useHistory } from 'store/history';
 import View from 'components/View';
 import Passport from 'components/Passport';
 import { ForwardButton, BootArvoButton } from 'components/Buttons';
-import FooterButton from 'components/FooterButton';
 import { matchBlinky } from 'components/Blinky';
 
 import useInvites from 'lib/useInvites';
@@ -52,18 +51,30 @@ export default function Point() {
       case azimuth.PointSize.Planet:
         const availableInvitesText = matchBlinky(availableInvites);
         return (
-          <FooterButton disabled={!isActiveOwner} onClick={goInvite}>
-            Invite <sup>{availableInvitesText} available</sup>
-          </FooterButton>
+          <>
+            <Grid.Item
+              full
+              as={ForwardButton}
+              disabled={!isActiveOwner}
+              onClick={goInvite}>
+              Invite <sup>{availableInvitesText}</sup>
+            </Grid.Item>
+            <Grid.Divider />
+          </>
         );
       //
       case azimuth.PointSize.Star:
         return (
-          <FooterButton
-            disabled={!isActiveOwner}
-            onClick={goPartiesSetPoolSize}>
-            Manage Parties
-          </FooterButton>
+          <>
+            <Grid.Item
+              full
+              as={ForwardButton}
+              disabled={!isActiveOwner}
+              onClick={goPartiesSetPoolSize}>
+              Manage Parties
+            </Grid.Item>
+            <Grid.Divider />
+          </>
         );
       //
       default:
@@ -78,6 +89,7 @@ export default function Point() {
     <View>
       <Passport point={Just(point)} />
       <Grid className="pt2">
+        {inviteButton}
         <Grid.Item
           full
           as={ForwardButton}
@@ -99,9 +111,8 @@ export default function Point() {
           </>
         )}
         <Grid.Item full as={BootArvoButton} disabled />
+        <Grid.Divider />
       </Grid>
-
-      {inviteButton}
     </View>
   );
 }

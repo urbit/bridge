@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
-import Tabs from 'components/Tabs';
+import Accordion from 'components/Accordion';
+
 import PrivateKey from './PrivateKey';
 import Keystore from './Keystore';
 
@@ -20,10 +21,10 @@ const OPTIONS = [
 ];
 
 export default function Advanced({ loginCompleted, className }) {
-  const [currentTab, setCurrentTab] = useState(NAMES.PRIVATE_KEY);
+  const [currentTab, setCurrentTab] = useState(undefined);
 
   return (
-    <Tabs
+    <Accordion
       className={className}
       views={VIEWS}
       options={OPTIONS}

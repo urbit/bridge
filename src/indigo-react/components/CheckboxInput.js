@@ -23,6 +23,7 @@ export default function CheckboxInput({
   bind,
   autoFocus,
   disabled,
+  touched,
 
   // ignored
   initialValue,

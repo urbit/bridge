@@ -20,7 +20,7 @@ export default function ActivateDisclaimer() {
     label: 'I acknowledge and understand these rights',
   });
 
-  const goToPassport = useCallback(() => {
+  const goBack = useCallback(async () => {
     setHasDisclaimed(true);
     pop();
   }, [pop, setHasDisclaimed]);
@@ -80,7 +80,7 @@ export default function ActivateDisclaimer() {
         <Grid.Item
           as={ForwardButton}
           disabled={!isUnderstood}
-          onClick={goToPassport}
+          onClick={goBack}
           solid
           full>
           Continue

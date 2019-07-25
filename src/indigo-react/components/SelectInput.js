@@ -31,6 +31,7 @@ export default function SelectInput({
   autoFocus,
   disabled,
   options,
+  touched,
 
   // ignored
   initialValue,

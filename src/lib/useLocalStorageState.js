@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 
 /**
  * useLocalStorageState is useState but it persists to localStorage
@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
  * https://usehooks.com/useLocalStorage/
  */
 export default function useLocalStorageState(key, initialValue) {
-  const [state, setState] = useState(() => {
+  const [state, _setState] = useState(() => {
     try {
       const value = localStorage.getItem(key);
       if (value === null) {
@@ -25,14 +25,19 @@ export default function useLocalStorageState(key, initialValue) {
     }
   });
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(key, JSON.stringify(state));
-    } catch {
-      // if user is in private mode or has storage restriction
-      // localStorage can throw. Also JSON.stringify can throw.
-    }
-  }, [key, state]);
+  const setState = useCallback(
+    value => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch {
+        // if user is in private mode or has storage restriction
+        // localStorage can throw. Also JSON.stringify can throw.
+      }
+
+      _setState(value);
+    },
+    [key]
+  );
 
   return [state, setState];
 }

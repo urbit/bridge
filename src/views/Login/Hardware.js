@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
-import Tabs from 'components/Tabs';
+import Accordion from 'components/Accordion';
+
 import Ledger from './Ledger';
 import Trezor from './Trezor';
 
@@ -20,10 +21,10 @@ const OPTIONS = [
 ];
 
 export default function Hardware({ loginCompleted, className }) {
-  const [currentTab, setCurrentTab] = useState(NAMES.LEDGER);
+  const [currentTab, setCurrentTab] = useState(undefined);
 
   return (
-    <Tabs
+    <Accordion
       className={className}
       views={VIEWS}
       options={OPTIONS}
