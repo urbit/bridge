@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { AccessoryIcon, useForm } from 'indigo-react';
 import { identity } from 'lodash';
-import * as bip39 from 'bip39';
 
 import { DEFAULT_HD_PATH } from 'lib/wallet';
 import {
@@ -22,13 +21,14 @@ import { prependSig, convertToNumber } from 'lib/transformers';
 
 import InputSigil from 'components/InputSigil';
 
-const PLACEHOLDER_POINT = '~zod';
+const PLACEHOLDER_POINT = '~sampel-ponnym';
 const PLACEHOLDER_HD_PATH = DEFAULT_HD_PATH;
-const PLACEHOLDER_MNEMONIC = bip39.generateMnemonic();
-const PLACEHOLDER_TICKET = '~ragtyd-modwen-bostec-hinsep';
-const PLACEHOLDER_ADDRESS = '0x6DEfFb0caFDB11D175F123F6891AA64F01c24F7d';
+const PLACEHOLDER_MNEMONIC =
+  'example crew supreme gesture quantum web media hazard theory mercy wing kitten';
+const PLACEHOLDER_TICKET = '~sampel-ticlyt-migfun-falmel';
+const PLACEHOLDER_ADDRESS = '0x12345abcdeDB11D175F123F6891AA64F01c24F7d';
 const PLACEHOLDER_PRIVATE_KEY =
-  '0xa44de2416ee6beb2f323fab48b432925c9785808d33a6ca6d7ba00b45e9370c3';
+  '0x12345abcdee6beb2f323fab48b432925c9785808d33a6ca6d7ba00b45e9370c3';
 
 // pulls out the first input from a useForm() call
 function useFirstOf({ inputs, setValue, ...rest }, mapper = identity) {
