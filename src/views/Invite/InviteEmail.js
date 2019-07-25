@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
+import * as ob from 'urbit-ob';
 import * as azimuth from 'azimuth-js';
 import {
   Grid,
@@ -340,6 +341,7 @@ export default function InviteEmail() {
         const success = await sendMail(
           invite.email,
           invite.ticket,
+          ob.patp(point),
           invite.rawTx
         );
         if (!success) throw new Error('Failed to send mail');
