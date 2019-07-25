@@ -1,23 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Just } from 'folktale/maybe';
 import * as ob from 'urbit-ob';
 
-import Sigil from './Sigil';
-import AspectRatio from './AspectRatio';
+import MaybeSigil from './MaybeSigil';
 
 const selectColorway = (pass, fail, focused) => {
   if (pass) {
-    return ['#FFFFFF', '#2AA779'];
+    return ['#2AA779', '#FFFFFF'];
   }
 
   if (focused) {
-    return ['#FFFFFF', '#4330FC'];
+    return ['#4330FC', '#FFFFFF'];
   }
 
   if (fail) {
-    return ['#FFFFFF', '#F8C134'];
+    return ['#F8C134', '#FFFFFF'];
   }
 
-  return ['#FFFFFF', '#7F7F7F'];
+  return ['#7F7F7F', '#FFFFFF'];
 };
 
 export default function InputSigil({
@@ -29,12 +29,21 @@ export default function InputSigil({
   focused,
   ...rest
 }) {
-  const colorway = selectColorway(pass, error, focused);
-  const valid = ob.isValidPatp(patp);
+  const [lastValidPatp, setLastValidPatp] = useState(patp);
 
-  return valid ? (
-    <Sigil patp={patp} size={size} colorway={colorway} margin={0} {...rest} />
-  ) : (
-    <AspectRatio aspectRatio={1} />
+  useEffect(() => {
+    if (ob.isValidPatp(patp)) {
+      setLastValidPatp(patp);
+    }
+  }, [patp]);
+
+  return (
+    <MaybeSigil
+      patp={Just(lastValidPatp)}
+      size={size}
+      colors={selectColorway(pass, error, focused)}
+      margin={0}
+      {...rest}
+    />
   );
 }
