@@ -15,7 +15,7 @@ const CONTRACT_ADDRESSES = {
     ecliptic: '0x6ac07b7c4601b5ce11de8dfe6335b871c7c4dd4d',
     azimuth: '0x223c067f8cf28ae173ee5cafea60ca44c335fecb',
     polls: '0x7fecab617c868bb5996d99d95200d2fa708218e4',
-    //TODO delegatedSending
+    delegatedSending: '0xF7908Ab1F1e352F83c5ebc75051c0565AEaea5FB',
   },
 };
 
