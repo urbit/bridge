@@ -189,24 +189,30 @@ export default function InviteEmail() {
     }
 
     //TODO want to do this on-input, but that gets weird. see #188
-    let errorCount = 0;
+    let knowAll = true;
+    let alreadyReceived = [];
     await Promise.all(
       inputs.map(async input => {
         const email = input.data;
         const hasReceived = getHasReceived(email).matchWith({
-          Nothing: () => false, // loading
+          Nothing: () => 'unknown', // loading
           Just: p => p.value,
         });
-        if (hasReceived) {
-          errorCount++;
-          addError({
-            [input.name]: `${email} has already received an invite.`,
-          });
+        if (hasReceived === 'unknown') {
+          knowAll = false;
+        } else if (hasReceived) {
+          alreadyReceived.push(email);
         }
       })
     );
-    if (errorCount > 0) {
-      throw new Error(`Some of these already have a point!`);
+    if (!knowAll) {
+      throw new Error('No word yet from email service...');
+    }
+    if (alreadyReceived.length > 0) {
+      throw new Error(
+        'The following recipients already own a point: ' +
+          alreadyReceived.join(', ')
+      );
     }
 
     const nonce = await _web3.eth.getTransactionCount(_wallet.address);
@@ -231,6 +237,7 @@ export default function InviteEmail() {
 
     clearInvites();
     // NB(shrugs) - must be processed in serial because main thread, etc
+    let errorCount = 0;
     for (let i = 0; i < inputs.length; i++) {
       const input = inputs[i];
       try {
