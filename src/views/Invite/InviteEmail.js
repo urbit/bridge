@@ -413,6 +413,7 @@ export default function InviteEmail() {
       setGeneralError(new Error(`Duplicate email.`));
     } else {
       setGeneralError(null);
+      setStatus(STATUS.INPUT);
     }
   }, [inputs]);
 
