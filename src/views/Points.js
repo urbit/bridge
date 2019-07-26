@@ -109,7 +109,7 @@ export default function Points() {
   );
 
   const multipassPoints = [
-    ...ownedPoints,
+    ...ownedPoints.filter(p => !outgoingPoints.includes(p)),
     ...managingPoints,
     ...votingPoints,
     ...spawningPoints,

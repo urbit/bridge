@@ -30,8 +30,8 @@ async function hasReceived(recipient) {
   return res.hasReceived;
 }
 
-function sendMail(recipient, ticket, tx) {
-  return sendRequest('/send-ticket', { recipient, ticket, tx });
+function sendMail(recipient, ticket, sender, tx) {
+  return sendRequest('/send-ticket', { recipient, ticket, sender, tx });
 }
 
 export { hasReceived, sendMail };

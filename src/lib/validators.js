@@ -252,6 +252,16 @@ export const validateInSet = (set, error) => m =>
     error,
   });
 
+export const validateNameInNumberSet = (set, error) => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: p => {
+      const num = patp2dec(p);
+      return set.has(num);
+    },
+    error,
+  });
+
 export const validatePatpByteLength = byteLength => {
   return validateLength(patpStringLength(byteLength));
 };

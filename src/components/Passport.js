@@ -30,7 +30,7 @@ const VISIBLE_ADDRESS_CHAR_COUNT = 20;
 const EMPTY_ADDRESS = times(VISIBLE_ADDRESS_CHAR_COUNT, () => '<').join('');
 const ADDRESS_BUFFER_CHARS = times(40, () => '<').join('');
 
-const INVERTED_COLORWAY = ['#000', '#fff', '#000'];
+const INVERTED_COLORWAY = ['#fff', '#000'];
 
 const buildKeyType = permissions => {
   if (permissions.isOwner) {
@@ -142,7 +142,7 @@ Passport.Mini = function MiniPassport({ point, className, inverted, ...rest }) {
           patp={name}
           size={64}
           margin={0}
-          colorway={inverted ? INVERTED_COLORWAY : undefined}
+          colors={inverted ? INVERTED_COLORWAY : undefined}
         />
       </Grid.Item>
       <Grid.Item as={Flex} cols={[4, 13]} col justify="between">

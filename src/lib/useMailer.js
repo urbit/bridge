@@ -40,13 +40,13 @@ export default function useMailer(emails) {
 
   // prefix to avoid clobbering sendMail import
   // also throws if return value is false
-  const _sendMail = useCallback(async (email, ticket, rawTx) => {
+  const _sendMail = useCallback(async (email, ticket, sender, rawTx) => {
     if (STUB_MAILER) {
       console.log(`${email} - ${ticket}`);
       return true;
     }
 
-    return await sendMail(email, ticket, rawTx);
+    return await sendMail(email, ticket, sender, rawTx);
   }, []);
 
   return { ...hasReceivedCache, sendMail: _sendMail };

@@ -20,6 +20,7 @@ import * as need from 'lib/need';
 import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
 import useImpliedPoint from 'lib/useImpliedPoint';
 import useLoginView from 'lib/useLoginView';
+import patp2dec from 'lib/patp2dec';
 
 export default function Ticket({ className }) {
   useLoginView(WALLET_TYPES.TICKET);
@@ -100,7 +101,7 @@ export default function Ticket({ className }) {
     }
 
     const _contracts = need.contracts(contracts);
-    const point = ob.patp2dec(pointName);
+    const point = patp2dec(pointName);
     const urbitWallet = await urbitWalletFromTicket(ticket, point, passphrase);
     const [isOwner, isTransferProxy] = await Promise.all([
       azimuth.azimuth.isOwner(
@@ -123,7 +124,7 @@ export default function Ticket({ className }) {
     }
 
     setUrbitWallet(Just(urbitWallet));
-    setPointCursor(Just(ob.patp2dec(pointName)));
+    setPointCursor(Just(point));
     setDeriving(false);
   }, [
     pointName,
@@ -142,7 +143,7 @@ export default function Ticket({ className }) {
 
     try {
       const ticket = kg.combine([s1, s2, s3]);
-      const point = ob.patp2dec(pointName);
+      const point = patp2dec(pointName);
       const uhdw = await urbitWalletFromTicket(ticket, point, passphrase);
       setUrbitWallet(Just(uhdw));
     } catch (_) {

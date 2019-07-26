@@ -104,4 +104,4 @@ export const walletFromMnemonic = (mnemonic, hdpath, passphrase) => {
 };
 
 export const abbreviateAddress = address =>
-  `${address.slice(0, 4)}…${address.slice(-4)}`;
+  `${address.slice(0, 6)}…${address.slice(-4)}`;

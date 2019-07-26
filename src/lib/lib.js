@@ -1,4 +1,5 @@
 import * as ob from 'urbit-ob';
+import patp2dec from './patp2dec';
 
 const compose = (...fs) =>
   fs.reduceRight((pF, nF) => (...args) => nF(pF(...args)), v => v);
@@ -18,7 +19,7 @@ const fill = (n, v) => Array.from(Array(n), () => v);
 const isValidGalaxy = name => {
   let point;
   try {
-    point = parseInt(ob.patp2dec(name), 10);
+    point = patp2dec(name);
   } catch (err) {
     return false;
   }

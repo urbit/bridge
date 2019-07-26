@@ -21,7 +21,7 @@ import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
 import useLifecycle from 'lib/useLifecycle';
 import { usePointCursor } from 'store/pointCursor';
-import { validateInSet } from 'lib/validators';
+import { validateNameInNumberSet } from 'lib/validators';
 import { getSpawnCandidate } from 'lib/child';
 
 function useIssueChild() {
@@ -54,9 +54,9 @@ export default function IssueChild() {
   const { pointCursor } = usePointCursor();
 
   const _contracts = need.contracts(contracts);
-  const _point = need.point(pointCursor);
+  const _point = parseInt(need.point(pointCursor), 10);
 
-  const [availablePointNames, setAvailablePointNames] = useState(Nothing());
+  const [availablePoints, setAvailablePoints] = useState(Nothing());
 
   const candidates = useMemo(() => {
     const getCandidate = () => ob.patp(getSpawnCandidate(_point));
@@ -75,12 +75,12 @@ export default function IssueChild() {
 
   const validators = useMemo(
     () => [
-      validateInSet(
-        availablePointNames.getOrElse(new Set()),
+      validateNameInNumberSet(
+        availablePoints.getOrElse(new Set()),
         'This point cannot be spawned.'
       ),
     ],
-    [availablePointNames]
+    [availablePoints]
   );
   const [
     pointNameInput,
@@ -91,7 +91,7 @@ export default function IssueChild() {
     disabled: inputsLocked,
     autoFocus: true,
     validators,
-    error: availablePointNames.matchWith({
+    error: availablePoints.matchWith({
       Nothing: () => 'Loading availability...',
       Just: () => undefined,
     }),
@@ -124,7 +124,7 @@ export default function IssueChild() {
         return;
       }
 
-      setAvailablePointNames(Just(new Set(availablePoints.map(ob.patp))));
+      setAvailablePoints(Just(new Set(availablePoints)));
     })();
 
     return () => (mounted = false);
