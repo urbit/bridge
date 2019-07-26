@@ -17,7 +17,7 @@
     "@hot-loader/react-dom": "^16.8.6",
     "@ledgerhq/hw-app-eth": "^4.61.0",
     "@ledgerhq/hw-transport-u2f": "^4.61.0",
-    "PaperCollateralRenderer": "github:urbit/PaperCollateralRenderer",
+    "PaperCollateralRenderer": "github:urbit/PaperCollateralRenderer#rc-immediate",
     "async-retry": "^1.2.3",
     "azimuth-js": "^0.15.1",
     "azimuth-solidity": "^1.2.0",
