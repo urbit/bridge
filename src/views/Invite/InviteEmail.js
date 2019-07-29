@@ -322,7 +322,8 @@ export default function InviteEmail() {
     setStatus(STATUS.SENDING);
     clearReceipts();
 
-    let errorCount = 0;
+    let unsentInvites = [];
+    let orphanedInvites = [];
     const txAndMailings = inputs.map(async input => {
       const invite = invites[input.name];
       try {
@@ -337,10 +338,7 @@ export default function InviteEmail() {
         if (!didConfirm) throw new Error();
       } catch (error) {
         console.error(error);
-        errorCount++;
-        addError({
-          [input.name]: `Transaction Failure for ${invite.email}`,
-        });
+        unsentInvites.push(invite);
         return;
       }
 
@@ -354,11 +352,7 @@ export default function InviteEmail() {
         if (!success) throw new Error('Failed to send mail');
       } catch (error) {
         console.error(error);
-        errorCount++;
-        //TODO make sure this actually gets displayed
-        addError({
-          [input.name]: `Mailing Failure for ${invite.email}, please send them this code manually: ${invite.ticket}`,
-        });
+        orphanedInvites.push(invite);
       }
 
       addReceipt({ [input.name]: true });
@@ -366,13 +360,24 @@ export default function InviteEmail() {
 
     await Promise.all(txAndMailings);
     // if there are any receipt errors, throw a general error
-    if (errorCount > 0) {
-      throw new Error(
-        `There ${pluralize(errorCount, 'was', 'were')} ${pluralize(
-          errorCount,
-          'error'
-        )} while sending transactions.`
-      );
+    let errorString = '';
+    if (orphanedInvites.length > 0) {
+      errorString =
+        'Not all invite emails were sent. ' +
+        'Please send the following invite codes manually: ' +
+        orphanedInvites.map(i => `${i.email}: ${i.ticket}`).join(', ') +
+        '. ';
+    }
+    if (unsentInvites.length > 0) {
+      errorString =
+        errorString +
+        'Not all invites were created. ' +
+        'Did not send invites for: ' +
+        unsentInvites.map(i => i.email).join(', ') +
+        '.';
+    }
+    if (errorString !== '') {
+      throw new Error(errorString);
     }
   }, [
     web3,
@@ -382,7 +387,6 @@ export default function InviteEmail() {
     invites,
     point,
     wallet,
-    addError,
     sendMail,
   ]);
 
