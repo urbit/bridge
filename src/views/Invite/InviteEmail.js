@@ -189,24 +189,29 @@ export default function InviteEmail() {
     }
 
     //TODO want to do this on-input, but that gets weird. see #188
-    let errorCount = 0;
+    let knowAll = true;
+    let alreadyReceived = [];
     await Promise.all(
       inputs.map(async input => {
         const email = input.data;
-        const hasReceived = getHasReceived(email).matchWith({
-          Nothing: () => false, // loading
-          Just: p => p.value,
+        getHasReceived(email).matchWith({
+          Nothing: () => {
+            knowAll = false;
+          },
+          Just: p => {
+            if (p.value) alreadyReceived.push(email);
+          },
         });
-        if (hasReceived) {
-          errorCount++;
-          addError({
-            [input.name]: `${email} has already received an invite.`,
-          });
-        }
       })
     );
-    if (errorCount > 0) {
-      throw new Error(`Some of these already have a point!`);
+    if (!knowAll) {
+      throw new Error('No word yet from email service...');
+    }
+    if (alreadyReceived.length > 0) {
+      throw new Error(
+        'The following recipients already own a point: ' +
+          alreadyReceived.join(', ')
+      );
     }
 
     const nonce = await _web3.eth.getTransactionCount(_wallet.address);
@@ -231,6 +236,7 @@ export default function InviteEmail() {
 
     clearInvites();
     // NB(shrugs) - must be processed in serial because main thread, etc
+    let errorCount = 0;
     for (let i = 0; i < inputs.length; i++) {
       const input = inputs[i];
       try {
@@ -315,7 +321,8 @@ export default function InviteEmail() {
     setStatus(STATUS.SENDING);
     clearReceipts();
 
-    let errorCount = 0;
+    let unsentInvites = [];
+    let orphanedInvites = [];
     const txAndMailings = inputs.map(async input => {
       const invite = invites[input.name];
       try {
@@ -330,10 +337,7 @@ export default function InviteEmail() {
         if (!didConfirm) throw new Error();
       } catch (error) {
         console.error(error);
-        errorCount++;
-        addError({
-          [input.name]: `Transaction Failure for ${invite.email}`,
-        });
+        unsentInvites.push(invite);
         return;
       }
 
@@ -347,11 +351,7 @@ export default function InviteEmail() {
         if (!success) throw new Error('Failed to send mail');
       } catch (error) {
         console.error(error);
-        errorCount++;
-        //TODO make sure this actually gets displayed
-        addError({
-          [input.name]: `Mailing Failure for ${invite.email}, please send them this code manually: ${invite.ticket}`,
-        });
+        orphanedInvites.push(invite);
       }
 
       addReceipt({ [input.name]: true });
@@ -359,13 +359,24 @@ export default function InviteEmail() {
 
     await Promise.all(txAndMailings);
     // if there are any receipt errors, throw a general error
-    if (errorCount > 0) {
-      throw new Error(
-        `There ${pluralize(errorCount, 'was', 'were')} ${pluralize(
-          errorCount,
-          'error'
-        )} while sending transactions.`
-      );
+    let errorString = '';
+    if (orphanedInvites.length > 0) {
+      errorString =
+        'Not all invite emails were sent. ' +
+        'Please send the following invite codes manually: ' +
+        orphanedInvites.map(i => `${i.email}: ${i.ticket}`).join(', ') +
+        '. ';
+    }
+    if (unsentInvites.length > 0) {
+      errorString =
+        errorString +
+        'Not all invites were created. ' +
+        'Did not send invites for: ' +
+        unsentInvites.map(i => i.email).join(', ') +
+        '.';
+    }
+    if (errorString !== '') {
+      throw new Error(errorString);
     }
   }, [
     web3,
@@ -375,7 +386,6 @@ export default function InviteEmail() {
     invites,
     point,
     wallet,
-    addError,
     sendMail,
   ]);
 
@@ -406,6 +416,7 @@ export default function InviteEmail() {
       setGeneralError(new Error(`Duplicate email.`));
     } else {
       setGeneralError(null);
+      setStatus(STATUS.INPUT);
     }
   }, [inputs]);
 
