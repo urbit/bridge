@@ -194,15 +194,14 @@ export default function InviteEmail() {
     await Promise.all(
       inputs.map(async input => {
         const email = input.data;
-        const hasReceived = getHasReceived(email).matchWith({
-          Nothing: () => 'unknown', // loading
-          Just: p => p.value,
+        getHasReceived(email).matchWith({
+          Nothing: () => {
+            knowAll = false;
+          },
+          Just: p => {
+            if (p.value) alreadyReceived.push(email);
+          },
         });
-        if (hasReceived === 'unknown') {
-          knowAll = false;
-        } else if (hasReceived) {
-          alreadyReceived.push(email);
-        }
       })
     );
     if (!knowAll) {
