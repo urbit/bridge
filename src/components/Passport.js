@@ -65,8 +65,8 @@ function Passport({ point, className, ticket = null, address = Nothing() }) {
   });
 
   const showTicket = ticket !== null;
-  const isValidTiket = !!ticket;
-  const visibleTicket = isValidTiket ? VALID_TICKET : PENDING_TICKET;
+  const isValidTicket = !!ticket;
+  const visibleTicket = isValidTicket ? VALID_TICKET : PENDING_TICKET;
   const visibleAddress = `${address.matchWith({
     Nothing: () => EMPTY_ADDRESS,
     Just: p => p.value.slice(0, VISIBLE_ADDRESS_CHAR_COUNT),
@@ -95,9 +95,9 @@ function Passport({ point, className, ticket = null, address = Nothing() }) {
           </Flex.Item>
           <Flex.Item
             as={Text}
-            className={cn('mono f6 f5-ns wrap', {
-              gray4: !isValidTiket,
-              green3: isValidTiket,
+            className={cn('arial f6 f5-ns wrap', {
+              gray4: !isValidTicket,
+              green3: isValidTicket,
             })}>
             {visibleTicket}
           </Flex.Item>
