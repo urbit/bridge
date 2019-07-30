@@ -115,6 +115,8 @@ export default function Points() {
     ...spawningPoints,
   ];
 
+  const isEmpty = incomingPoints.length === 0 && multipassPoints.length === 0;
+
   // sync display details for known points
   useSyncKnownPoints([
     ...ownedPoints,
@@ -134,6 +136,13 @@ export default function Points() {
         {loading && (
           <Grid.Item full as={HelpText} className="mt8 t-center">
             <Blinky /> Loading...
+          </Grid.Item>
+        )}
+
+        {isEmpty && (
+          <Grid.Item full as={HelpText} className="mt8 t-center">
+            No points to display. This wallet is not the owner or proxy for any
+            points.
           </Grid.Item>
         )}
 
