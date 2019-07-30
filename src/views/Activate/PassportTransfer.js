@@ -168,7 +168,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
     if (needFunds) {
       return (
         <Grid.Item full className="mt8">
-          <Highlighted>
+          <Highlighted warning>
             The address {needFunds.address} needs at least{' '}
             {fromWei(needFunds.minBalance)} ETH and currently has{' '}
             {fromWei(needFunds.balance)} ETH. Waiting until the account has
@@ -199,7 +199,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
           <Grid.Item full as={LoadingBar} progress={progress} />
           <Grid.Item full>
             <Text className="f5 green4">
-              This process can take up to 5 minutes to complete. Don't leave
+              This process can take up to 5 minutes to complete. Don't close
               this page until the process is complete.
             </Text>
           </Grid.Item>

@@ -509,7 +509,7 @@ export default function InviteEmail() {
 
           {needFunds && (
             <Grid.Item full>
-              <Highlighted>
+              <Highlighted warning>
                 Your ownership address {needFunds.address} needs at least{' '}
                 {fromWei(needFunds.minBalance)} ETH and currently has{' '}
                 {fromWei(needFunds.balance)} ETH. Waiting until the account has
