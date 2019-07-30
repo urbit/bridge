@@ -13,7 +13,6 @@ import { useWallet } from 'store/wallet';
 import { Grid, P } from 'indigo-react';
 import ViewHeader from 'components/ViewHeader';
 import { useLocalRouter } from 'lib/LocalRouter';
-import MiniBackButton from 'components/MiniBackButton';
 
 export default function AdminRedownload() {
   const { urbitWallet } = useWallet();
@@ -36,7 +35,6 @@ export default function AdminRedownload() {
   return (
     <>
       <Grid>
-        <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
         <Grid.Item full as={ViewHeader}>
           Download Passport
         </Grid.Item>

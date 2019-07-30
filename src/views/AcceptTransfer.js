@@ -6,7 +6,6 @@ import * as azimuth from 'azimuth-js';
 import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
-import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
 
 import * as need from 'lib/need';
@@ -14,9 +13,9 @@ import useCurrentPointName from 'lib/useCurrentPointName';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import useLifecycle from 'lib/useLifecycle';
+import { useLocalRouter } from 'lib/LocalRouter';
 
 import ViewHeader from 'components/ViewHeader';
-import MiniBackButton from 'components/MiniBackButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
 
@@ -58,17 +57,15 @@ function useAcceptTransfer() {
 }
 
 export default function AcceptTransfer() {
-  const { pop } = useHistory();
+  const { pop } = useLocalRouter();
 
   const name = useCurrentPointName();
 
   const { completed, bind } = useAcceptTransfer();
 
   return (
-    <View inset>
+    <View pop={pop} inset>
       <Grid>
-        <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
-
         <Grid.Item full as={ViewHeader}>
           Accept Transfer
         </Grid.Item>

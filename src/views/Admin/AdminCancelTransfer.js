@@ -16,7 +16,6 @@ import { ETH_ZERO_ADDR } from 'lib/wallet';
 import useLifecycle from 'lib/useLifecycle';
 
 import ViewHeader from 'components/ViewHeader';
-import MiniBackButton from 'components/MiniBackButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 
 function useCancelTransfer() {
@@ -59,8 +58,6 @@ export default function AdminCancelTransfer() {
 
   return (
     <Grid>
-      <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
-
       <Grid.Item full as={ViewHeader}>
         Cancel Outgoing Transfer
       </Grid.Item>

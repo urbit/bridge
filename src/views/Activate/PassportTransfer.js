@@ -59,7 +59,6 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
   const goToLogin = useCallback(
     () =>
       replaceWith([
-        { key: names.LANDING },
         { key: names.LOGIN },
         { key: names.POINTS },
         { key: names.POINT },
@@ -75,13 +74,11 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
     // we only need to clear activate because that will unmount the passport
     // router (which will be set to initialRoutes when mounted again)
 
-    // 1) replace history
-    replaceWith([{ key: names.LANDING }, { key: names.ACTIVATE }]);
     // 2) reset local router
     resetActivateRouter();
     // 3) clear the state
     resetActivateFlow();
-  }, [replaceWith, names, resetActivateRouter, resetActivateFlow]);
+  }, [resetActivateRouter, resetActivateFlow]);
 
   const handleUpdate = useCallback(
     ({ type, state, value }) => {

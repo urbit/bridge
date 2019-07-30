@@ -34,7 +34,6 @@ import { useHexInput, useCheckboxInput } from 'lib/useInputs';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 import ViewHeader from 'components/ViewHeader';
-import MiniBackButton from 'components/MiniBackButton';
 import { BootArvoButton } from 'components/Buttons';
 import FooterButton from 'components/FooterButton';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
@@ -315,8 +314,6 @@ export default function AdminNetworkingKeys() {
   return (
     <>
       <Grid>
-        <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
-
         <Grid.Item full as={ViewHeader}>
           {renderTitle()}
         </Grid.Item>

@@ -4,13 +4,11 @@ import { last, includes as _includes, findIndex } from 'lodash';
 const NULL_DATA = {};
 
 /**
- * @param primary whether or not this is the top-level router
  * @param names map of string to view key, used for consumer references
  * @param views map of view keys to react component views
  * @param initialRoutes initial set of routes following the { key, data } format
  */
 export default function useRouter({
-  primary = false,
   names = {},
   views = {},
   initialRoutes = [],
@@ -52,15 +50,27 @@ export default function useRouter({
   );
   const pop = useCallback(
     (count = 1) => {
-      if (size > 1) {
-        // pop as expected
-        return setRoutes(routes => [...routes.slice(0, routes.length - count)]);
+      if (size <= 1) {
+        // if we are at the root, pass this event to our parent
+        if (oldPopState.current) {
+          console.log('attempting to pass to parent');
+          window.history.back();
+        }
+
+        console.log('at root');
+
+        return;
       }
 
-      // if we are at the root, pass this event to our parent
-      if (oldPopState.current) {
-        window.history.back();
-      }
+      // on pop, tell the browser of a new state to avoid giving the user
+      // the ability to go forward
+      // TODO: allow the user to go forward by storing our data in history
+      // and using the url for other state
+      // (or just importing an actually good router lib)
+      window.history.pushState(null, null, null);
+
+      // pop as expected
+      return setRoutes(routes => [...routes.slice(0, routes.length - count)]);
     },
     [size, setRoutes, oldPopState]
   );
@@ -102,19 +112,7 @@ export default function useRouter({
 
     // construct new onpopstate handler
     window.onpopstate = e => {
-      if (size <= 1 && oldPopState.current) {
-        // if this is the root route and there's a parent handler,
-        // give the event to the handler
-        return oldPopState.current(e);
-      }
-
-      // on pop, tell the browser of a new state to avoid giving the user
-      // the ability to go forward
-      // TODO: allow the user to go forward by storing our data in history
-      // and using the url for other state
-      window.history.pushState(null, null, null);
-
-      // then update our local state for rendering
+      e.stopImmediatePropagation();
       pop();
     };
 

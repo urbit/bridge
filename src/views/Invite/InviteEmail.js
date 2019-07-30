@@ -29,7 +29,6 @@ import {
   hexify,
 } from 'lib/txn';
 import * as tank from 'lib/tank';
-import { useLocalRouter } from 'lib/LocalRouter';
 import useArray from 'lib/useArray';
 import { buildEmailInputConfig } from 'lib/useInputs';
 import { MIN_PLANET, GAS_LIMITS, DEFAULT_GAS_PRICE_GWEI } from 'lib/constants';
@@ -39,7 +38,6 @@ import useSetState from 'lib/useSetState';
 import pluralize from 'lib/pluralize';
 import useMailer from 'lib/useMailer';
 
-import MiniBackButton from 'components/MiniBackButton';
 import LoadableButton from 'components/LoadableButton';
 import Highlighted from 'components/Highlighted';
 
@@ -96,7 +94,6 @@ const buildAccessoryFor = (dones, errors) => name => {
 // TODO: test with tank, successful txs
 export default function InviteEmail() {
   // TODO: resumption after error?
-  const { pop } = useLocalRouter();
   const { contracts, web3, networkType } = useNetwork();
   const { wallet, walletType, walletHdPath } = useWallet();
   const { syncInvites, getInvites } = usePointCache();
@@ -427,21 +424,16 @@ export default function InviteEmail() {
 
   return (
     <Grid gap={3}>
-      <Grid.Item as={Grid} full>
-        <Grid.Item as={Flex} cols={[1, 11]} align="center">
-          <MiniBackButton onClick={() => pop()} />
-        </Grid.Item>
-        <Grid.Item cols={[11, 13]} justifySelf="end">
-          {/* use hidden class instead of removing component from dom */}
-          {/* in order to avoid janky reflow */}
-          <IconButton
-            onClick={() => appendInput()}
-            disabled={!canAddInvite}
-            className={cn({ hidden: isDone })}
-            solid>
-            +
-          </IconButton>
-        </Grid.Item>
+      <Grid.Item full as={Flex} justify="end">
+        {/* use hidden class instead of removing component from dom */}
+        {/* in order to avoid janky reflow */}
+        <IconButton
+          onClick={() => appendInput()}
+          disabled={!canAddInvite}
+          className={cn({ hidden: isDone })}
+          solid>
+          +
+        </IconButton>
       </Grid.Item>
 
       {isDone && (

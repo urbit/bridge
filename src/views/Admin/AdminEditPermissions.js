@@ -18,10 +18,9 @@ import useCurrentPermissions from 'lib/useCurrentPermissions';
 import ViewHeader from 'components/ViewHeader';
 import { ForwardButton } from 'components/Buttons';
 import { matchBlinkyDate } from 'components/Blinky';
-import MiniBackButton from 'components/MiniBackButton';
 
 export default function AdminEditPermissions() {
-  const { pop, push, names } = useLocalRouter();
+  const { push, names } = useLocalRouter();
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
   const { getDetails, getRekeyDate } = usePointCache();
@@ -92,7 +91,6 @@ export default function AdminEditPermissions() {
 
   return (
     <Grid>
-      <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
       <Grid.Item full as={ViewHeader}>
         Permissions
       </Grid.Item>

@@ -63,7 +63,7 @@ const walletTypeToViewName = walletType => {
 
 export default function Login() {
   // globals
-  const { push, replaceWith, names } = useHistory();
+  const { pop, push, names } = useHistory();
   const { contracts } = useNetwork();
   const { wallet, walletType } = useWallet();
   const { pointCursor, setPointCursor } = usePointCursor();
@@ -75,10 +75,10 @@ export default function Login() {
     walletTypeToViewName(walletType)
   );
 
-  const goToActivate = useCallback(
-    () => replaceWith([{ key: names.LANDING }, { key: names.ACTIVATE }]),
-    [replaceWith, names]
-  );
+  const goToActivate = useCallback(() => push(names.ACTIVATE), [
+    push,
+    names.ACTIVATE,
+  ]);
 
   const goToPoints = useCallback(() => {
     push(names.POINTS);
@@ -120,7 +120,7 @@ export default function Login() {
   }, [contracts, pointCursor, setPointCursor, wallet, goToPoint, goToPoints]);
 
   return (
-    <View inset>
+    <View pop={pop} inset>
       <Grid>
         <Grid.Item full as={Crumbs} routes={[{ text: 'Multipass' }]} />
         <Grid.Item full as={H4} className="mt4">

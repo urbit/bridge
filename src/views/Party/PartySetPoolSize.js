@@ -11,12 +11,11 @@ import * as need from 'lib/need';
 import { usePointInput, useNumberInput } from 'lib/useInputs';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
+import { useLocalRouter } from 'lib/LocalRouter';
 
 import ViewHeader from 'components/ViewHeader';
-import MiniBackButton from 'components/MiniBackButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import patp2dec from 'lib/patp2dec';
-import { useHistory } from 'store/history';
 import View from 'components/View';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import WarningBox from 'components/WarningBox';
@@ -46,7 +45,7 @@ function useSetPoolSize() {
 }
 
 export default function PartySetPoolSize() {
-  const { pop } = useHistory();
+  const { pop } = useLocalRouter();
   const { contracts } = useNetwork();
 
   const _contracts = need.contracts(contracts);
@@ -88,9 +87,8 @@ export default function PartySetPoolSize() {
   }, [poolOwner, construct, validPoint, validPoolSize, poolSize, unconstruct]);
 
   return (
-    <View inset>
+    <View pop={pop} inset>
       <Grid>
-        <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
         <Grid.Item full as={ViewHeader}>
           Set Pool Size
         </Grid.Item>

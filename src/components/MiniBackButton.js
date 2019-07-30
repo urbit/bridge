@@ -5,7 +5,7 @@ import { IconButton } from 'indigo-react';
 import { ReactComponent as Back } from 'assets/back.svg';
 
 export default ({ className, ...rest }) => (
-  <IconButton {...rest} flush>
+  <IconButton {...rest}>
     <Back className={cn('black', className)} />
   </IconButton>
 );

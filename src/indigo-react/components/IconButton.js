@@ -10,7 +10,8 @@ export default function IconButton({
   disabled = false,
   secondary = false,
   solid = false,
-  flush = false, // if true, remove horizontal padding
+  hpadding = true,
+  vpadding = true,
   ...rest
 }) {
   return (
@@ -19,9 +20,10 @@ export default function IconButton({
       align="center"
       justify="center"
       className={cn(
-        'pointer pv2',
+        'pointer',
         {
-          ph2: !flush,
+          ph2: hpadding,
+          pv2: vpadding,
         },
         {
           'bg-black': solid && !secondary && !disabled,

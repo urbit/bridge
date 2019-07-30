@@ -6,23 +6,22 @@ import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
 
 import { useNetwork } from 'store/network';
-import { useHistory } from 'store/history';
 import { usePointCache } from 'store/pointCache';
+import { usePointCursor } from 'store/pointCursor';
 
 import * as need from 'lib/need';
 import { useAddressInput, usePointInput } from 'lib/useInputs';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import patp2dec from 'lib/patp2dec';
-
-import ViewHeader from 'components/ViewHeader';
-import MiniBackButton from 'components/MiniBackButton';
-import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
-import View from 'components/View';
 import useLifecycle from 'lib/useLifecycle';
-import { usePointCursor } from 'store/pointCursor';
 import { validateNameInNumberSet } from 'lib/validators';
 import { getSpawnCandidate } from 'lib/child';
+import { useLocalRouter } from 'lib/LocalRouter';
+
+import ViewHeader from 'components/ViewHeader';
+import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
+import View from 'components/View';
 
 function useIssueChild() {
   const { contracts } = useNetwork();
@@ -49,7 +48,7 @@ function useIssueChild() {
 }
 
 export default function IssueChild() {
-  const { pop } = useHistory();
+  const { pop } = useLocalRouter();
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
 
@@ -131,10 +130,8 @@ export default function IssueChild() {
   });
 
   return (
-    <View inset>
+    <View pop={pop} inset>
       <Grid>
-        <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
-
         <Grid.Item full as={ViewHeader}>
           Issue Child Point
         </Grid.Item>

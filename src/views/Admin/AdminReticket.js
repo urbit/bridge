@@ -5,7 +5,6 @@ import { Grid, Flex } from 'indigo-react';
 import { LocalRouterProvider } from 'lib/LocalRouter';
 import useRouter from 'lib/useRouter';
 
-import MiniBackButton from 'components/MiniBackButton';
 import Steps from 'components/Steps';
 
 import ReticketConfirm from './Reticket/ReticketConfirm';
@@ -53,8 +52,7 @@ export default function AdminReticket() {
   return (
     <LocalRouterProvider value={router}>
       <Grid>
-        <Grid.Item full as={Flex} row justify="between" align="center">
-          <Flex.Item as={MiniBackButton} onClick={() => router.pop()} />
+        <Grid.Item full as={Flex} row align="center">
           <Flex.Item as={Steps} num={router.size} total={STEPS.length} />
         </Grid.Item>
       </Grid>
