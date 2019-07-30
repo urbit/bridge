@@ -3,50 +3,53 @@ import cn from 'classnames';
 
 import Flex from './Flex';
 import { ErrorText } from './Typography';
+import { useField } from 'react-final-form';
 
-export default React.memo(function Input({
+export default function Input({
   // visuals
   type,
   name,
   label,
   className,
   accessory,
+  disabled = false,
   mono = false,
 
   // callbacks
   onEnter,
 
-  // state from hook
-  focused,
-  pass,
-  syncPass,
-  visiblyPassed,
-  error,
-  hintError,
-  data,
-  bind,
-  autoFocus,
-  disabled,
-  touched,
-
-  // ignored
-  initialValue,
-  validators,
-  transformers,
+  // state
+  config,
 
   // extra
-  textarea = false,
   ...rest
 }) {
-  // NB(shrugs): we disable exhaustive deps because we don't want the callbacks
-  // (whose identity might change between renders) to trigger a re-notify of
-  // state that we already know
-  // this also happens to prevent render loops when rendering a map of inputs
+  const {
+    input,
+    meta: {
+      active,
+      data,
+      dirty,
+      error,
+      modified,
+      pristine,
+      submitError,
+      submitFailed,
+      submitSucceeded,
+      submitting,
+      touched,
+      valid,
+      validating,
+      visited,
+    },
+  } = useField(name, config);
+
+  disabled = disabled || submitting;
 
   // notify parent of enter keypress iff not disabled and passing
   const onKeyPress = useCallback(
-    e => !disabled && pass && e.key === 'Enter' && onEnter && onEnter(),
-    [disabled, pass] // eslint-disable-line react-hooks/exhaustive-deps
+    e => !disabled && valid && e.key === 'Enter' && onEnter && onEnter(),
+    [disabled, valid] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return (
@@ -83,21 +86,20 @@ export default React.memo(function Input({
               'bg-gray1': disabled,
             },
             {
-              gray4: !focused && !touched,
-              black: focused || touched,
+              gray4: !active && !touched,
+              black: active || touched,
             },
             {
-              'b-green3': visiblyPassed,
-              'b-black': focused && !visiblyPassed,
-              'b-yellow3': !focused && hintError,
-              'b-gray2': !focused && !hintError && !visiblyPassed,
+              'b-green3': valid,
+              'b-black': active && !valid,
+              'b-yellow3': !active && touched && error,
+              'b-gray2': !active && !error && !valid,
             }
-            // TODO: inputClassName ?
           )}
           id={name}
           name={name}
           onKeyPress={onKeyPress}
-          {...bind}
+          {...input}
           flex
         />
         {accessory && (
@@ -114,11 +116,11 @@ export default React.memo(function Input({
           </div>
         )}
       </Flex.Item>
-      {error && (
+      {touched && error && (
         <Flex.Item as={ErrorText} className="mv1">
           {error}
         </Flex.Item>
       )}
     </Flex>
   );
-});
+}

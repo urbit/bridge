@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
-import { Grid, Input, H4, ErrorText } from 'indigo-react';
+import { Grid, H4 } from 'indigo-react';
 
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
@@ -9,12 +9,9 @@ import Passport from 'components/Passport';
 
 import { useHistory } from 'store/history';
 
-import { useTicketInput } from 'lib/useInputs';
 import * as need from 'lib/need';
 import { ROUTE_NAMES } from 'lib/routeNames';
-import { useSyncKnownPoints } from 'lib/useSyncPoints';
 import FooterButton from 'components/FooterButton';
-import { blinkIf } from 'components/Blinky';
 import { DEFAULT_HD_PATH, walletFromMnemonic } from 'lib/wallet';
 import { useNetwork } from 'store/network';
 import { generateWallet } from 'lib/invite';
@@ -22,7 +19,12 @@ import { generateTemporaryOwnershipWallet } from 'lib/walletgen';
 import { useActivateFlow } from './ActivateFlow';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useImpliedTicket from 'lib/useImpliedTicket';
+import timeout from 'lib/timeout';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
+
+import BridgeForm from 'form/BridgeForm';
+import SubmitButton from 'form/SubmitButton';
+import { TicketInput } from 'form/Inputs';
 
 export default function ActivateCode() {
   const history = useHistory();
@@ -30,103 +32,83 @@ export default function ActivateCode() {
   const { contracts } = useNetwork();
   const impliedTicket = useImpliedTicket();
   const [hasDisclaimed] = useHasDisclaimed();
-  const [generalError, setGeneralError] = useState();
-  const [deriving, setDeriving] = useState(false);
+
+  const cachedInviteWallet = useRef(Nothing());
+  const cachedPoint = useRef();
+
   const {
-    derivedWallet,
     setDerivedWallet,
     setInviteWallet,
     derivedPoint,
     setDerivedPoint,
   } = useActivateFlow();
 
-  const [ticketInput, { pass: validTicket, data: ticket }] = useTicketInput({
-    name: 'ticket',
-    label: 'Activation Code',
-    initialValue: impliedTicket || '',
-    autoFocus: true,
-  });
-
   const goToLogin = useCallback(() => history.popAndPush(ROUTE_NAMES.LOGIN), [
     history,
   ]);
   const goToPassport = useCallback(() => {
     push(names.PASSPORT);
+
     if (!hasDisclaimed) {
       push(names.DISCLAIMER);
     }
   }, [names, push, hasDisclaimed]);
 
-  const pass = derivedWallet.matchWith({
-    Nothing: () => false,
-    Just: () => true,
-  });
+  const validate = useCallback(
+    async ticket => {
+      await timeout(100); // allow the ui changes to flush before we lag it out
 
-  useEffect(() => {
-    if (validTicket) {
       const _contracts = need.contracts(contracts);
+      const { seed } = await generateTemporaryOwnershipWallet(ticket);
 
-      setDeriving(true);
-      // when the ticket becomes valid, derive the point
-      (async () => {
-        const { seed } = await generateTemporaryOwnershipWallet(ticket);
+      // TODO(fang): isn't all this accessible in the ownership object?
+      const inviteWallet = walletFromMnemonic(seed, DEFAULT_HD_PATH);
+      cachedInviteWallet.current = inviteWallet;
 
-        //TODO isn't all this accessible in the ownership object?
-        const inviteWallet = walletFromMnemonic(seed, DEFAULT_HD_PATH);
-        const _inviteWallet = need.wallet(inviteWallet);
+      const _inviteWallet = need.wallet(inviteWallet);
 
-        const owned = await azimuth.azimuth.getOwnedPoints(
-          _contracts,
-          _inviteWallet.address
-        );
-        const transferring = await azimuth.azimuth.getTransferringFor(
-          _contracts,
-          _inviteWallet.address
-        );
-        const incoming = [...owned, ...transferring];
+      const owned = await azimuth.azimuth.getOwnedPoints(
+        _contracts,
+        _inviteWallet.address
+      );
+      const transferring = await azimuth.azimuth.getTransferringFor(
+        _contracts,
+        _inviteWallet.address
+      );
+      const incoming = [...owned, ...transferring];
 
-        let realPoint = Nothing();
-        let wallet = Nothing();
-
-        if (incoming.length > 0) {
-          const pointNum = parseInt(incoming[0], 10);
-          realPoint = Just(pointNum);
-          wallet = Just(await generateWallet(pointNum));
-
-          if (incoming.length > 1) {
-            setGeneralError(
-              'This invite code has multiple points available.\n' +
-                "Once you've activated this point, activate the next with the same process."
-            );
-          } else {
-            setGeneralError(false);
-          }
-        } else {
-          setGeneralError(
-            'Invite code has no claimable point.\n' +
-              'Check your invite code and try again?'
-          );
+      if (incoming.length > 0) {
+        if (incoming.length > 1) {
+          // TODO: warnings
+          // setGeneralError(
+          //   'This invite code has multiple points available.\n' +
+          //     "Once you've activated this point, activate the next with the same process."
+          // );
         }
 
-        setDerivedPoint(realPoint);
-        setDerivedWallet(wallet);
-        setInviteWallet(inviteWallet);
-        setDeriving(false);
-      })();
-    } else {
-      setGeneralError(false);
-    }
-  }, [
-    validTicket,
-    contracts,
-    ticket,
-    setDerivedPoint,
-    setDerivedWallet,
-    setInviteWallet,
-  ]);
+        const point = parseInt(incoming[0], 10);
+        // setDerivedPoint(Just(point));
+        cachedPoint.current = point;
+      } else {
+        return (
+          'Invite code has no claimable point.\n' +
+          'Check your invite code and try again?'
+        );
+      }
+    },
+    [contracts]
+  );
 
-  // when we know the derived point, ensure we have the data to display it
-  useSyncKnownPoints([derivedPoint.getOrElse(null)].filter(p => p !== null));
+  const onSubmit = useCallback(
+    async values => {
+      setInviteWallet(cachedInviteWallet.current);
+      setDerivedPoint(Just(cachedPoint.current));
+      setDerivedWallet(Just(await generateWallet(cachedPoint)));
+
+      goToPassport();
+    },
+    [goToPassport, setDerivedPoint, setDerivedWallet, setInviteWallet]
+  );
 
   return (
     <View inset>
@@ -135,23 +117,34 @@ export default function ActivateCode() {
         <Grid.Item as={H4} className="mt3 mb2" full>
           Activate
         </Grid.Item>
-        <Grid.Item as={Input} {...ticketInput} full />
-        {generalError && (
-          <Grid.Item full>
-            <ErrorText>{generalError}</ErrorText>{' '}
-          </Grid.Item>
-        )}
-        <Grid.Item
-          as={ForwardButton}
-          className="mt4"
-          disabled={!pass || deriving}
-          accessory={blinkIf(deriving)}
-          onClick={goToPassport}
-          solid
-          full>
-          {deriving && 'Deriving...'}
-          {!deriving && 'Go'}
-        </Grid.Item>
+        <BridgeForm
+          onSubmit={onSubmit}
+          initialValues={{ ticket: impliedTicket || '' }}>
+          {({ validating, submitting, handleSubmit }) => (
+            <>
+              <Grid.Item
+                full
+                as={TicketInput}
+                name="ticket"
+                label="Activation Code"
+                config={{ validate }}
+                autoFocus
+              />
+
+              <Grid.Item
+                full
+                as={SubmitButton}
+                className="mt4"
+                handleSubmit={handleSubmit}>
+                {validating
+                  ? 'Deriving...'
+                  : submitting
+                  ? 'Generating...'
+                  : 'Go'}
+              </Grid.Item>
+            </>
+          )}
+        </BridgeForm>
       </Grid>
       <FooterButton as={ForwardButton} onClick={goToLogin}>
         Login
