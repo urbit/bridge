@@ -3,7 +3,9 @@
 @import './indigo-proposals.scss';
 
 /* Fonts */
-@import './fonts.scss';
+/* we need to load these as base64 (inline) to avoid lazy loading
+   see also #218 */
+@import './font64.scss';
 
 /* Bridge Styles */
 @import './bridge.scss';
