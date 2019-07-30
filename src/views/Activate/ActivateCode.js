@@ -87,7 +87,7 @@ export default function ActivateCode() {
         }
 
         const point = parseInt(incoming[0], 10);
-        // setDerivedPoint(Just(point));
+        setDerivedPoint(Just(point));
         cachedPoint.current = point;
       } else {
         return (
@@ -96,18 +96,17 @@ export default function ActivateCode() {
         );
       }
     },
-    [contracts]
+    [contracts, setDerivedPoint]
   );
 
   const onSubmit = useCallback(
     async values => {
       setInviteWallet(cachedInviteWallet.current);
-      setDerivedPoint(Just(cachedPoint.current));
       setDerivedWallet(Just(await generateWallet(cachedPoint)));
 
       goToPassport();
     },
-    [goToPassport, setDerivedPoint, setDerivedWallet, setInviteWallet]
+    [goToPassport, setDerivedWallet, setInviteWallet]
   );
 
   return (
@@ -127,7 +126,7 @@ export default function ActivateCode() {
                 as={TicketInput}
                 name="ticket"
                 label="Activation Code"
-                config={{ validate }}
+                validate={validate}
                 autoFocus
               />
 

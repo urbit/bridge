@@ -13,11 +13,12 @@ export default function SubmitButton({
   handleSubmit,
   ...rest
 }) {
-  const { valid, validating, submitting } = useFormState({
+  const { valid, validating, submitting, submitError } = useFormState({
     subscription: {
       valid: true,
       validating: true,
       submitting: true,
+      submitError: true,
     },
   });
 
@@ -29,7 +30,7 @@ export default function SubmitButton({
       onClick={handleSubmit}
       solid
       {...rest}>
-      {children}
+      {submitError ? 'Error submitting' : children}
     </As>
   );
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import cn from 'classnames';
 
 import Flex from './Flex';
+import { useField } from 'react-final-form';
 
 export default function CheckboxInput({
   // visuals
@@ -9,30 +10,15 @@ export default function CheckboxInput({
   label,
   className,
 
-  // callbacks
-  onEnter,
-
-  // state from hook
-  focused,
-  pass,
-  syncPass,
-  visiblyPassed,
-  error,
-  hintError,
-  data,
-  bind,
-  autoFocus,
   disabled,
-  touched,
-
-  // ignored
-  initialValue,
-  validators,
-  transformers,
-
-  // extra
-  ...rest
 }) {
+  const {
+    input,
+    meta: { submitting },
+  } = useField(name);
+
+  disabled = disabled || submitting;
+
   return (
     <Flex
       row
@@ -50,11 +36,13 @@ export default function CheckboxInput({
       {/* we totally hide the checkbox itself */}
       <Flex.Item
         as="input"
-        {...rest}
-        className={cn('super-hidden')}
+        type="checkbox"
+        className="super-hidden"
         id={name}
-        name={name}
-        {...bind}
+        {...input}
+        // TODO: this seems hacky... final-form should have a standard way to do this
+        checked={input.value}
+        onClick={e => input.onChange(!input.value)}
       />
       {/* and then display a prettier one in its stead */}
       <Flex.Item
@@ -67,14 +55,14 @@ export default function CheckboxInput({
           align="center"
           className={cn('b1 p1 mr3', {
             'bg-gray1': disabled,
-            'bg-black white b-black': !disabled && data,
-            'bg-white black b-black': !disabled && !data,
+            'bg-black white b-black': !disabled && input.value,
+            'bg-white black b-black': !disabled && !input.value,
           })}
           style={{
             height: '14px',
             width: '14px',
           }}>
-          {data && '✓'}
+          {input.value && '✓'}
         </Flex>
         {label}
       </Flex.Item>

@@ -1,18 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useCallback } from 'react';
 import cn from 'classnames';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, Input, CheckboxInput } from 'indigo-react';
+import { Grid, CheckboxInput } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
-import {
-  usePassphraseInput,
-  useMnemonicInput,
-  useHdPathInput,
-  useCheckboxInput,
-} from 'lib/useInputs';
 import { walletFromMnemonic, WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
+import { MnemonicInput, HdPathInput, PassphraseInput } from 'form/Inputs';
+import BridgeForm from 'form/BridgeForm';
+import Condition from 'form/Condition';
 
 export default function Mnemonic({ className }) {
   useLoginView(WALLET_TYPES.MNEMONIC);
@@ -24,61 +21,74 @@ export default function Mnemonic({ className }) {
     setWalletHdPath,
   } = useWallet();
 
-  const [advancedInput, { data: useAdvanced }] = useCheckboxInput({
-    name: 'advanced',
-    label: 'Passphrase & HD Path',
-    initialValue: false,
-  });
-
-  const [mnemonicInput, { pass, data: mnemonic }] = useMnemonicInput({
-    name: 'mnemonic',
-    label: 'BIP39 Mnemonic',
-    autoFocus: true,
-  });
-
-  const [passphraseInput, { data: passphrase }] = usePassphraseInput({
-    name: 'passphrase',
-    label: 'Wallet Passphrase',
-  });
-
-  const [hdPathInput, { data: hdPath }] = useHdPathInput({
-    name: 'hdpath',
-    label: 'HD Path',
-    initialValue: walletHdPath,
-  });
-
   // when the properties change, re-derive wallet and set global state
-  useEffect(() => {
-    if (pass) {
-      setWalletHdPath(hdPath);
-      setAuthMnemonic(Just(mnemonic));
-      setWallet(walletFromMnemonic(mnemonic, hdPath, passphrase));
-    } else {
-      setAuthMnemonic(Nothing());
-      setWallet(Nothing());
-    }
-  }, [
-    pass,
-    mnemonic,
-    passphrase,
-    hdPath,
-    setWallet,
-    setAuthMnemonic,
-    setWalletHdPath,
-  ]);
+  const onValues = useCallback(
+    ({ valid, values }) => {
+      console.log(valid, values);
+      if (valid) {
+        setWalletHdPath(values.hdpath);
+        setAuthMnemonic(Just(values.mnemonic));
+        setWallet(
+          walletFromMnemonic(values.mnemonic, values.hdpath, values.passphrase)
+        );
+      } else {
+        setAuthMnemonic(Nothing());
+        setWallet(Nothing());
+      }
+    },
+    [setAuthMnemonic, setWallet, setWalletHdPath]
+  );
 
   return (
     <Grid className={cn('mt4', className)}>
-      <Grid.Item full as={Input} {...mnemonicInput} />
+      <BridgeForm
+        onValues={onValues}
+        onSubmit={() => undefined}
+        initialValues={{ hdpath: walletHdPath, advanced: false }}>
+        {() => (
+          <>
+            <Grid.Item
+              full
+              as={MnemonicInput}
+              name="mnemonic"
+              label="BIP39 Mnemonic"
+            />
 
-      {useAdvanced && (
+            <Condition when="advanced" is={true}>
+              <Grid.Item
+                full
+                as={PassphraseInput}
+                name="passphrase"
+                label="Passphrase"
+              />
+
+              <Grid.Item
+                full
+                as={HdPathInput}
+                name="hdpath"
+                label="HD Path"
+                autoFocus
+              />
+            </Condition>
+
+            <Grid.Item
+              full
+              as={CheckboxInput}
+              name="advanced"
+              label="Passphrase & HD Path"
+            />
+          </>
+        )}
+      </BridgeForm>
+
+      {/* {useAdvanced && (
         <>
           <Grid.Item full as={Input} {...passphraseInput} />
           <Grid.Item full as={Input} {...hdPathInput} />
         </>
       )}
 
-      <Grid.Item as={CheckboxInput} {...advancedInput} full />
+      <Grid.Item as={CheckboxInput} {...advancedInput} full /> */}
     </Grid>
   );
 }

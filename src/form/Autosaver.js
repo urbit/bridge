@@ -11,8 +11,8 @@ export default function Autosaver({ onValues }) {
   });
 
   useEffect(() => {
-    if (valid && !validating) {
-      onValues && onValues(values);
+    if (!validating) {
+      onValues && onValues({ valid: valid && !validating, values });
     }
   }, [onValues, valid, validating, values]);
 

@@ -10,7 +10,7 @@ import Provider from 'store/Provider';
 import { ROUTE_NAMES } from 'lib/routeNames';
 import { ROUTES } from 'lib/router';
 import { NETWORK_TYPES } from 'lib/network';
-import { walletFromMnemonic } from 'lib/wallet';
+import { walletFromMnemonic, WALLET_TYPES } from 'lib/wallet';
 import { isDevelopment } from 'lib/flags';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
@@ -41,7 +41,11 @@ function useInitialRoutes() {
   const hasImpliedTicket = !!useImpliedTicket();
 
   if (IS_STUBBED) {
-    return [{ key: ROUTE_NAMES.ACTIVATE }];
+    return [
+      { key: ROUTE_NAMES.LOGIN },
+      // { key: ROUTE_NAMES.POINTS },
+      // { key: ROUTE_NAMES.POINT },
+    ];
   }
 
   return hasImpliedTicket

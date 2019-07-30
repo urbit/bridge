@@ -1,6 +1,7 @@
 // import { fill } from './lib'
 
-export const prependSig = s => (s.charAt(0) !== '~' ? `~${s}` : s);
+export const prependSig = (s = '') =>
+  s.length && s.charAt(0) !== '~' ? `~${s}` : s;
 
 export const convertToNumber = s => {
   try {
