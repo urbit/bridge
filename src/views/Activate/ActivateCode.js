@@ -52,7 +52,9 @@ export default function ActivateCode() {
   ]);
   const goToPassport = useCallback(() => {
     push(names.PASSPORT);
-    if (!hasDisclaimed) push(names.DISCLAIMER);
+    if (!hasDisclaimed) {
+      push(names.DISCLAIMER);
+    }
   }, [names, push, hasDisclaimed]);
 
   const pass = derivedWallet.matchWith({
