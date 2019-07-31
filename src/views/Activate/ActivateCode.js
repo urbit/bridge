@@ -22,12 +22,14 @@ import { generateTemporaryOwnershipWallet } from 'lib/walletgen';
 import { useActivateFlow } from './ActivateFlow';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useImpliedTicket from 'lib/useImpliedTicket';
+import useHasDisclaimed from 'lib/useHasDisclaimed';
 
 export default function ActivateCode() {
   const history = useHistory();
   const { names, push } = useLocalRouter();
   const { contracts } = useNetwork();
   const impliedTicket = useImpliedTicket();
+  const [hasDisclaimed] = useHasDisclaimed();
   const [generalError, setGeneralError] = useState();
   const [deriving, setDeriving] = useState(false);
   const {
@@ -48,7 +50,12 @@ export default function ActivateCode() {
   const goToLogin = useCallback(() => history.popAndPush(ROUTE_NAMES.LOGIN), [
     history,
   ]);
-  const goToPassport = useCallback(() => push(names.PASSPORT), [names, push]);
+  const goToPassport = useCallback(() => {
+    push(names.PASSPORT);
+    if (!hasDisclaimed) {
+      push(names.DISCLAIMER);
+    }
+  }, [names, push, hasDisclaimed]);
 
   const pass = derivedWallet.matchWith({
     Nothing: () => false,
