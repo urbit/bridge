@@ -43,5 +43,5 @@ export default function Blinky({
     }
   }, 1000);
 
-  return value ? a : b;
+  return <span className="arial">{value ? a : b}</span>;
 }

@@ -11,10 +11,9 @@ import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 import { ForwardButton } from 'components/Buttons';
 import ViewHeader from 'components/ViewHeader';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
-import MiniBackButton from 'components/MiniBackButton';
 
 export default function AdminHome() {
-  const { push, names, pop } = useLocalRouter();
+  const { push, names } = useLocalRouter();
   const { urbitWallet } = useWallet();
 
   const { bind: keyfileBind } = useKeyfileGenerator();
@@ -38,7 +37,6 @@ export default function AdminHome() {
   return (
     <>
       <Grid>
-        <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
         <Grid.Item full as={ViewHeader}>
           Admin
         </Grid.Item>

@@ -63,22 +63,8 @@ Grid.Item = React.forwardRef(function GridItem(
   );
 });
 
-Grid.Divider = function GridDivider({
-  vertical = false,
-  color = 'gray2',
-  className,
-  ...rest
-}) {
-  return (
-    <div
-      style={{
-        height: vertical ? 'auto' : '1px',
-        width: vertical ? '1px' : 'auto',
-      }}
-      className={cn('full', `bg-${color}`, className)}
-      {...rest}
-    />
-  );
+Grid.Divider = function GridDivider({ color = 'gray2', className, ...rest }) {
+  return <div className={cn('full', `bt1 b-${color}`, className)} {...rest} />;
 };
 
 export default Grid;

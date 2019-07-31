@@ -1,6 +1,7 @@
 import React, { createContext, forwardRef, useContext } from 'react';
 
 import useRouter from 'lib/useRouter';
+import { LocalRouterProvider } from 'lib/LocalRouter';
 
 /**
  * `useHistory` is just a global `useRouter`
@@ -11,10 +12,12 @@ import useRouter from 'lib/useRouter';
 export const HistoryContext = createContext(null);
 
 export function HistoryProvider({ names, views, initialRoutes, children }) {
-  const router = useRouter({ names, views, initialRoutes, primary: true });
+  const router = useRouter({ names, views, initialRoutes });
 
   return (
-    <HistoryContext.Provider value={router}>{children}</HistoryContext.Provider>
+    <HistoryContext.Provider value={router}>
+      <LocalRouterProvider value={router}>{children}</LocalRouterProvider>
+    </HistoryContext.Provider>
   );
 }
 

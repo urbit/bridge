@@ -5,7 +5,6 @@ import { Grid } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';
-import { useHistory } from 'store/history';
 
 import View from 'components/View';
 import Passport from 'components/Passport';
@@ -15,9 +14,10 @@ import { matchBlinky } from 'components/Blinky';
 import useInvites from 'lib/useInvites';
 import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
+import { useLocalRouter } from 'lib/LocalRouter';
 
 export default function Point() {
-  const { push, names } = useHistory();
+  const { pop, push, names } = useLocalRouter();
   const { pointCursor } = usePointCursor();
 
   const point = need.point(pointCursor);
@@ -86,7 +86,7 @@ export default function Point() {
   useSyncOwnedPoints([point]);
 
   return (
-    <View>
+    <View pop={pop} inset>
       <Passport point={Just(point)} />
       <Grid className="pt2">
         {inviteButton}

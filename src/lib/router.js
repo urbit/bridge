@@ -3,7 +3,6 @@ import Login from 'views/Login.js';
 import Admin from 'views/Admin';
 import CreateGalaxy from 'views/CreateGalaxy';
 import IssueChild from 'views/IssueChild';
-import ViewPoint from 'views/ViewPoint';
 
 import Point from 'views/Point';
 import Points from 'views/Points';
@@ -19,7 +18,6 @@ import { ROUTE_NAMES } from './routeNames';
 export const ROUTES = {
   [ROUTE_NAMES.DISCLAIMER]: Disclaimer,
   [ROUTE_NAMES.ACTIVATE]: Activate,
-  [ROUTE_NAMES.VIEW_POINT]: ViewPoint,
   [ROUTE_NAMES.LOGIN]: Login,
   [ROUTE_NAMES.POINTS]: Points,
   [ROUTE_NAMES.POINT]: Point,

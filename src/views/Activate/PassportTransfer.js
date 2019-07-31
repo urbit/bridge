@@ -59,7 +59,6 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
   const goToLogin = useCallback(
     () =>
       replaceWith([
-        { key: names.LANDING },
         { key: names.LOGIN },
         { key: names.POINTS },
         { key: names.POINT },
@@ -75,13 +74,11 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
     // we only need to clear activate because that will unmount the passport
     // router (which will be set to initialRoutes when mounted again)
 
-    // 1) replace history
-    replaceWith([{ key: names.LANDING }, { key: names.ACTIVATE }]);
     // 2) reset local router
     resetActivateRouter();
     // 3) clear the state
     resetActivateFlow();
-  }, [replaceWith, names, resetActivateRouter, resetActivateFlow]);
+  }, [resetActivateRouter, resetActivateFlow]);
 
   const handleUpdate = useCallback(
     ({ type, state, value }) => {
@@ -168,7 +165,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
     if (needFunds) {
       return (
         <Grid.Item full className="mt8">
-          <Highlighted>
+          <Highlighted warning>
             The address {needFunds.address} needs at least{' '}
             {fromWei(needFunds.minBalance)} ETH and currently has{' '}
             {fromWei(needFunds.balance)} ETH. Waiting until the account has
@@ -199,7 +196,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
           <Grid.Item full as={LoadingBar} progress={progress} />
           <Grid.Item full>
             <Text className="f5 green4">
-              This process can take up to 5 minutes to complete. Don't leave
+              This process can take up to 5 minutes to complete. Don't close
               this page until the process is complete.
             </Text>
           </Grid.Item>

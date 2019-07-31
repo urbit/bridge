@@ -15,7 +15,6 @@ import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 
 import ViewHeader from 'components/ViewHeader';
-import MiniBackButton from 'components/MiniBackButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 
 function useTransfer() {
@@ -64,7 +63,6 @@ export default function AdminTransfer() {
 
   return (
     <Grid>
-      <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
       <Grid.Item full as={ViewHeader}>
         Transfer Point
       </Grid.Item>

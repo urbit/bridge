@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H5, H1, HelpText, LinkButton, Flex } from 'indigo-react';
+import { get } from 'lodash';
 
 import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
@@ -8,34 +9,33 @@ import { usePointCache } from 'store/pointCache';
 import { usePointCursor } from 'store/pointCursor';
 
 import * as need from 'lib/need';
-import { ROUTE_NAMES } from 'lib/routeNames';
 import { isZeroAddress, abbreviateAddress } from 'lib/wallet';
 import useIsEclipticOwner from 'lib/useIsEclipticOwner';
 import { useSyncKnownPoints } from 'lib/useSyncPoints';
 
 import View from 'components/View';
-import FooterButton from 'components/FooterButton';
 import Blinky from 'components/Blinky';
 import Passport from 'components/Passport';
 import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
 import pluralize from 'lib/pluralize';
+import Footer from 'components/Footer';
+import { ForwardButton } from 'components/Buttons';
 
-const getFromMaybe = (obj, key, defaultValue) =>
+const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
     Nothing: () => defaultValue,
     Just: p =>
       p.value.matchWith({
-        Ok: r => r.value[key],
+        Ok: r => get(r.value, key, defaultValue),
         Error: e => defaultValue,
       }),
   });
 
-const hasTransferProxy = (details, point) =>
-  !isZeroAddress(details.transferProxy);
+const hasTransferProxy = details => !isZeroAddress(details.transferProxy);
 
 const PointList = function({ points, className, actions, ...rest }) {
   const { setPointCursor } = usePointCursor();
-  const history = useHistory();
+  const { push, names } = useHistory();
 
   return (
     <Grid gap={3} className={className}>
@@ -47,7 +47,7 @@ const PointList = function({ points, className, actions, ...rest }) {
               className="clickable"
               onClick={() => {
                 setPointCursor(Just(point));
-                history.push(history.names.POINT);
+                push(names.POINT);
               }}
               {...rest}
             />
@@ -79,7 +79,7 @@ function ActionButtons({ actions = [] }) {
 
 export default function Points() {
   const { wallet } = useWallet();
-  const history = useHistory();
+  const { pop, push, names } = useHistory();
   const { setPointCursor } = usePointCursor();
   const { controlledPoints, getDetails } = usePointCache();
   const isEclipticOwner = useIsEclipticOwner();
@@ -92,15 +92,15 @@ export default function Points() {
 
   const loading = Nothing.hasInstance(controlledPoints);
 
-  const ownedPoints = getFromMaybe(controlledPoints, 'ownedPoints', []);
-  const incomingPoints = getFromMaybe(
+  const ownedPoints = maybeGetResult(controlledPoints, 'ownedPoints', []);
+  const incomingPoints = maybeGetResult(
     controlledPoints,
     'incomingPoints',
     []
   ).filter(point => !rejectedPoints.includes(point));
-  const managingPoints = getFromMaybe(controlledPoints, 'managingPoints', []);
-  const votingPoints = getFromMaybe(controlledPoints, 'votingPoints', []);
-  const spawningPoints = getFromMaybe(controlledPoints, 'spawningPoints', []);
+  const managingPoints = maybeGetResult(controlledPoints, 'managingPoints', []);
+  const votingPoints = maybeGetResult(controlledPoints, 'votingPoints', []);
+  const spawningPoints = maybeGetResult(controlledPoints, 'spawningPoints', []);
   const outgoingPoints = ownedPoints.filter(point =>
     getDetails(point).matchWith({
       Nothing: () => false,
@@ -115,6 +115,9 @@ export default function Points() {
     ...spawningPoints,
   ];
 
+  const displayEmptyState =
+    !loading && incomingPoints.length === 0 && multipassPoints.length === 0;
+
   // sync display details for known points
   useSyncKnownPoints([
     ...ownedPoints,
@@ -124,9 +127,19 @@ export default function Points() {
     ...spawningPoints,
   ]);
 
+  const goCreateGalaxy = useCallback(() => push(names.CREATE_GALAXY), [
+    names.CREATE_GALAXY,
+    push,
+  ]);
+
+  const goViewPoint = useCallback(() => push(names.VIEW_POINT), [
+    names.VIEW_POINT,
+    push,
+  ]);
+
   return (
-    <View>
-      <Grid className="mt6">
+    <View pop={pop} inset>
+      <Grid>
         <Grid.Item full as={H1} className="f6 mono gray4 mb4">
           {abbreviateAddress(address)}
         </Grid.Item>
@@ -134,6 +147,13 @@ export default function Points() {
         {loading && (
           <Grid.Item full as={HelpText} className="mt8 t-center">
             <Blinky /> Loading...
+          </Grid.Item>
+        )}
+
+        {displayEmptyState && (
+          <Grid.Item full as={HelpText} className="mt8 t-center">
+            No points to display. This wallet is not the owner or proxy for any
+            points.
           </Grid.Item>
         )}
 
@@ -157,7 +177,7 @@ export default function Points() {
                       text: 'Accept',
                       onClick: () => {
                         setPointCursor(Just(point));
-                        history.push(history.names.ACCEPT_TRANSFER);
+                        push(names.ACCEPT_TRANSFER);
                       },
                     },
                     {
@@ -195,7 +215,7 @@ export default function Points() {
                       onClick: () => {
                         setPointCursor(Just(point));
                         // TODO: deep linking to fix this duplicate route
-                        history.push(history.names.CANCEL_TRANSFER);
+                        push(names.CANCEL_TRANSFER);
                       },
                     },
                   ]}
@@ -215,13 +235,30 @@ export default function Points() {
           </Grid.Item>
         )}
 
-        {isEclipticOwner && (
-          <FooterButton
-            detail="You have the authority to create a new Galaxy."
-            onClick={() => history.push(ROUTE_NAMES.CREATE_GALAXY)}>
-            Create a galaxy
-          </FooterButton>
-        )}
+        <Footer>
+          <Grid>
+            <Grid.Divider />
+            {isEclipticOwner && (
+              <>
+                <Grid.Item
+                  full
+                  as={ForwardButton}
+                  detail="You have the authority to create a new Galaxy."
+                  onClick={goCreateGalaxy}>
+                  Create a galaxy
+                </Grid.Item>
+                <Grid.Divider />
+              </>
+            )}
+            <Grid.Item
+              full
+              as={ForwardButton}
+              detail="View a point"
+              onClick={goViewPoint}>
+              View a point
+            </Grid.Item>
+          </Grid>
+        </Footer>
       </Grid>
     </View>
   );

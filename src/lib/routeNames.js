@@ -15,8 +15,6 @@ export const ROUTE_NAMES = {
   //
   ACCEPT_TRANSFER: Symbol('ACCEPT_TRANSFER'),
   CANCEL_TRANSFER: Symbol('CANCEL_TRANSFER'),
-  LANDING: Symbol('LANDING'),
-  VIEW_POINT: Symbol('VIEW_POINT'),
   POINTS: Symbol('POINTS'),
   POINT: Symbol('POINT'),
   CREATE_GALAXY: Symbol('CREATE_GALAXY'),

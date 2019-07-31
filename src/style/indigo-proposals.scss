@@ -1,6 +1,7 @@
 .mw1 {
   margin: 0 auto;
-  max-width: 30rem;
+  max-width: calc(32rem + 48px * 2);
+  // TODO: this css is gross, fix
 }
 
 .mw2 {
@@ -42,4 +43,8 @@
 
 .hover-bg-grey3:hover {
   background-color: #e6e6e6;
+}
+
+.arial {
+  font-family: Arial, monospace;
 }

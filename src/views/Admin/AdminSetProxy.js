@@ -20,7 +20,6 @@ import { useAddressInput, useCheckboxInput } from 'lib/useInputs';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 
 import ViewHeader from 'components/ViewHeader';
-import MiniBackButton from 'components/MiniBackButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 
@@ -153,8 +152,6 @@ export default function AdminSetProxy() {
 
   return (
     <Grid>
-      <Grid.Item full as={MiniBackButton} onClick={() => pop()} />
-
       <Grid.Item full as={ViewHeader}>
         {properProxyType} Address
       </Grid.Item>

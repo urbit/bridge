@@ -122,7 +122,7 @@ export default function ActivateCode() {
   useSyncKnownPoints([derivedPoint.getOrElse(null)].filter(p => p !== null));
 
   return (
-    <View>
+    <View inset>
       <Grid>
         <Grid.Item as={Passport} point={derivedPoint} full />
         <Grid.Item as={H4} className="mt3 mb2" full>

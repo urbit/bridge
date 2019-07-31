@@ -52,7 +52,7 @@ export default function Admin() {
   });
 
   return (
-    <View inset>
+    <View pop={router.pop} inset>
       <LocalRouterProvider value={router}>
         <Grid className="mb4">
           <Grid.Item

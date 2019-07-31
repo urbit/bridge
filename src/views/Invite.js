@@ -53,7 +53,7 @@ export default function Invite() {
   const acceptedInvitesText = matchBlinky(acceptedInvites);
 
   return (
-    <View inset>
+    <View pop={router.pop} inset>
       <LocalRouterProvider value={router}>
         <Grid className="mb4">
           <Grid.Item
