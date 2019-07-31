@@ -7,6 +7,7 @@ import useActivateFlowState from './Activate/useActivateFlowState';
 import ActivateCode from './Activate/ActivateCode';
 import { LocalRouterProvider } from 'lib/LocalRouter';
 import ActivatePassport from './Activate/ActivatePassport';
+import Disclaimer from './Disclaimer';
 
 const NAMES = {
   CODE: 'CODE',
@@ -17,6 +18,7 @@ const NAMES = {
 const VIEWS = {
   [NAMES.CODE]: ActivateCode,
   [NAMES.PASSPORT]: ActivatePassport,
+  [NAMES.DISCLAIMER]: Disclaimer,
 };
 
 export default function Activate() {

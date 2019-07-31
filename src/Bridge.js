@@ -48,13 +48,12 @@ function useInitialRoutes() {
     ];
   }
 
-  const landingPage = hasImpliedTicket
-    ? ROUTE_NAMES.ACTIVATE
-    : ROUTE_NAMES.LOGIN;
-
-  const extraRoutes = !hasDisclaimed ? [{ key: ROUTE_NAMES.DISCLAIMER }] : [];
-
-  return [{ key: landingPage }, ...extraRoutes];
+  return hasImpliedTicket
+    ? [{ key: ROUTE_NAMES.ACTIVATE }]
+    : [
+        { key: ROUTE_NAMES.LOGIN },
+        ...(!hasDisclaimed ? [{ key: ROUTE_NAMES.DISCLAIMER }] : []),
+      ];
 }
 
 function Bridge() {
