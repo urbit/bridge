@@ -53,12 +53,8 @@ export default function useRouter({
       if (size <= 1) {
         // if we are at the root, pass this event to our parent
         if (oldPopState.current) {
-          console.log('attempting to pass to parent');
           window.history.back();
         }
-
-        console.log('at root');
-
         return;
       }
 
