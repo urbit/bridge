@@ -54,8 +54,8 @@ export default function Input({
 
   return (
     <Flex
-      className={cn(className, 'mb1')}
       col
+      className={cn(className, 'mb1')}
       style={{
         ...(disabled && {
           pointerEvents: 'none',
@@ -71,8 +71,9 @@ export default function Input({
         htmlFor={name}>
         {label}
       </Flex.Item>
-      <Flex.Item as={Flex} className="rel" row>
+      <Flex.Item as={Flex} row className="rel">
         <Flex.Item
+          flex
           as={type === 'textarea' ? 'textarea' : 'input'}
           type={type === 'textarea' ? undefined : type}
           {...rest}
@@ -86,21 +87,20 @@ export default function Input({
               'bg-gray1': disabled,
             },
             {
-              gray4: !active && !touched,
+              gray4: !(active || touched),
               black: active || touched,
             },
             {
               'b-green3': valid,
-              'b-black': active && !valid,
-              'b-yellow3': !active && touched && error,
-              'b-gray2': !active && !error && !valid,
+              'b-black': !valid && active,
+              'b-yellow3': !valid && !active && touched && error,
+              'b-gray2': !valid && !active && !touched && !error,
             }
           )}
           id={name}
           name={name}
           onKeyPress={onKeyPress}
           {...input}
-          flex
         />
         {accessory && (
           <div

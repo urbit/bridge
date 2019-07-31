@@ -54,6 +54,9 @@ export default function ActivateCode() {
     }
   }, [names, push, hasDisclaimed]);
 
+  // validate should be a pure function but we don't want to have to recompute
+  // all of this information on submit, so cache the invite wallet and avoid
+  // re-renders that may trigger re-validations (causing infinite loop)
   const validate = useCallback(
     async ticket => {
       await timeout(100); // allow the ui changes to flush before we lag it out
@@ -99,6 +102,7 @@ export default function ActivateCode() {
     [contracts, setDerivedPoint]
   );
 
+  // set our state on submission
   const onSubmit = useCallback(
     async values => {
       setInviteWallet(cachedInviteWallet.current);
@@ -112,8 +116,8 @@ export default function ActivateCode() {
   return (
     <View inset>
       <Grid>
-        <Grid.Item as={Passport} point={derivedPoint} full />
-        <Grid.Item as={H4} className="mt3 mb2" full>
+        <Grid.Item full as={Passport} point={derivedPoint} />
+        <Grid.Item full as={H4} className="mt3 mb2">
           Activate
         </Grid.Item>
         <BridgeForm

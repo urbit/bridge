@@ -24,7 +24,6 @@ export default function Mnemonic({ className }) {
   // when the properties change, re-derive wallet and set global state
   const onValues = useCallback(
     ({ valid, values }) => {
-      console.log(valid, values);
       if (valid) {
         setWalletHdPath(values.hdpath);
         setAuthMnemonic(Just(values.mnemonic));
@@ -44,7 +43,7 @@ export default function Mnemonic({ className }) {
       <BridgeForm
         onValues={onValues}
         onSubmit={() => undefined}
-        initialValues={{ hdpath: walletHdPath, advanced: false }}>
+        initialValues={{ hdpath: walletHdPath }}>
         {() => (
           <>
             <Grid.Item
