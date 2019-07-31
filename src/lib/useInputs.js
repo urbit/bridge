@@ -214,10 +214,8 @@ export function useSelectInput({ initialValue, options, ...rest }) {
         type: 'select',
         validators: useMemo(
           () => [
-            validateOneOf(
-              options.map(option => option.value),
-              validateNotEmpty
-            ),
+            validateOneOf(options.map(option => option.value)),
+            validateNotEmpty,
           ],
           [options]
         ),

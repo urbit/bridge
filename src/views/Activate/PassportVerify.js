@@ -7,11 +7,16 @@ import { validateExactly } from 'lib/validators';
 import { isDevelopment } from 'lib/flags';
 
 import SubmitButton from 'form/SubmitButton';
-import { TicketInput } from 'form/Inputs';
+import {
+  TicketInput,
+  composeValidator,
+  buildTicketValidator,
+} from 'form/Inputs';
 import BridgeForm from 'form/BridgeForm';
 
 import { useActivateFlow } from './ActivateFlow';
 import PassportView from './PassportView';
+import FormError from 'form/FormError';
 
 const STUB_VERIFY_TICKET = isDevelopment;
 
@@ -21,8 +26,13 @@ export default function PassportVerify({ className }) {
   const goToTransfer = useCallback(() => push(names.TRANSFER), [push, names]);
 
   const { ticket } = need.wallet(derivedWallet);
-  const validators = useMemo(
-    () => [validateExactly(ticket, 'Does not match expected master ticket.')],
+  const validate = useMemo(
+    () =>
+      composeValidator({
+        ticket: buildTicketValidator([
+          validateExactly(ticket, 'Does not match expected master ticket.'),
+        ]),
+      }),
     [ticket]
   );
 
@@ -37,6 +47,7 @@ export default function PassportVerify({ className }) {
           Open it and enter the 4 word phrase below (with hyphens).
         </Grid.Item>
         <BridgeForm
+          validate={validate}
           onSubmit={onSubmit}
           initialValues={{
             ticket: STUB_VERIFY_TICKET ? ticket : undefined,
@@ -48,9 +59,9 @@ export default function PassportVerify({ className }) {
                 as={TicketInput}
                 name="ticket"
                 label="Master Ticket"
-                validators={validators}
-                autoFocus
               />
+
+              <Grid.Item full as={FormError} />
 
               <Grid.Item
                 full

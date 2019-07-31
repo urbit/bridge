@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as bip32 from 'bip32';
 import { times } from 'lodash';
@@ -18,13 +18,17 @@ import { useWallet } from 'store/wallet';
 import { TREZOR_PATH } from 'lib/trezor';
 import { WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
-import {
-  useHdPathInput,
-  useCheckboxInput,
-  useSelectInput,
-} from 'lib/useInputs';
 
-import { ForwardButton } from 'components/Buttons';
+import {
+  composeValidator,
+  buildCheckboxValidator,
+  buildSelectValidator,
+  buildHdPathValidator,
+} from 'form/Inputs';
+import BridgeForm from 'form/BridgeForm';
+import Condition from 'form/Condition';
+import ContinueButton from './ContinueButton';
+import FormError from 'form/FormError';
 
 const ACCOUNT_OPTIONS = times(20, i => ({
   text: `Account #${i + 1}`,
@@ -37,63 +41,51 @@ export default function Trezor({ className }) {
 
   const { setWallet, setWalletHdPath } = useWallet();
 
-  // custom toggle
-  const [customPathInput, { data: useCustomPath }] = useCheckboxInput({
-    name: 'customPath',
-    label: 'Custom HD Path',
-    autoComplete: 'off',
-    initialValue: false,
-  });
+  const validate = useMemo(
+    () =>
+      composeValidator({
+        useCustomPath: buildCheckboxValidator(),
+        account: buildSelectValidator(ACCOUNT_OPTIONS),
+        hdpath: buildHdPathValidator(),
+      }),
+    []
+  );
 
-  // account input
-  const [accountInput, { data: accountIndex }] = useSelectInput({
-    name: 'account',
-    label: 'Account',
-    placeholder: 'Choose account...',
-    options: ACCOUNT_OPTIONS,
-  });
+  const onSubmit = useCallback(
+    async values => {
+      TrezorConnect.manifest({
+        email: 'bridge-trezor@urbit.org',
+        appUrl: 'https://github.com/urbit/bridge',
+      });
 
-  // hd path input
-  const [
-    hdPathInput,
-    { data: hdPath },
-    { setValue: setHdPath },
-  ] = useHdPathInput({
-    name: 'hdpath',
-    label: 'HD Path',
-    initialValue: TREZOR_PATH.replace(/x/g, 0),
-  });
+      const info = await TrezorConnect.getPublicKey({
+        path: values.hdpath,
+      });
 
-  const pollDevice = async () => {
-    TrezorConnect.manifest({
-      email: 'bridge-trezor@urbit.org',
-      appUrl: 'https://github.com/urbit/bridge',
-    });
+      if (info.success === true) {
+        const payload = info.payload;
+        const publicKey = Buffer.from(payload.publicKey, 'hex');
+        const chainCode = Buffer.from(payload.chainCode, 'hex');
+        const pub = secp256k1.publicKeyConvert(publicKey, true);
+        const hd = bip32.fromPublicKey(pub, chainCode);
+        setWallet(Just(hd));
+        setWalletHdPath(values.hdPath);
+      } else {
+        setWallet(Nothing());
+      }
+    },
+    [setWallet, setWalletHdPath]
+  );
 
-    const info = await TrezorConnect.getPublicKey({
-      path: hdPath,
-    });
-
-    if (info.success === true) {
-      const payload = info.payload;
-      const publicKey = Buffer.from(payload.publicKey, 'hex');
-      const chainCode = Buffer.from(payload.chainCode, 'hex');
-      const pub = secp256k1.publicKeyConvert(publicKey, true);
-      const hd = bip32.fromPublicKey(pub, chainCode);
-      setWallet(Just(hd));
-      setWalletHdPath(hdPath);
-    } else {
-      setWallet(Nothing());
+  const onValues = useCallback(({ valid, values, form }) => {
+    if (!valid) {
+      return;
     }
-  };
 
-  useEffect(() => {
-    if (useCustomPath) {
-      // updated by useForm
-    } else {
-      setHdPath(TREZOR_PATH.replace(/x/g, accountIndex));
+    if (!values.useCustomPath) {
+      form.change('hdpath', TREZOR_PATH.replace(/x/g, values.account));
     }
-  }, [useCustomPath, setHdPath, accountIndex]);
+  }, []);
 
   return (
     <Grid className={className}>
@@ -106,20 +98,48 @@ export default function Trezor({ className }) {
         derivation path, you may enter it below.
       </Grid.Item>
 
-      {useCustomPath && <Grid.Item full as={Input} {...hdPathInput} />}
+      <BridgeForm
+        validate={validate}
+        onValues={onValues}
+        onSubmit={onSubmit}
+        initialValues={{
+          useCustomPath: false,
+          hdpath: TREZOR_PATH.replace(/x/g, ACCOUNT_OPTIONS[0].value),
+          account: ACCOUNT_OPTIONS[0].value,
+        }}>
+        {({ handleSubmit }) => (
+          <>
+            <Condition when="useCustomPath" is={true}>
+              <Grid.Item full as={Input} name="hdpath" label="HD Path" />
+            </Condition>
 
-      {!useCustomPath && <Grid.Item full as={SelectInput} {...accountInput} />}
+            <Condition when="useCustomPath" is={false}>
+              <Grid.Item
+                full
+                as={SelectInput}
+                name="account"
+                label="Account"
+                placeholder="Choose account..."
+                options={ACCOUNT_OPTIONS}
+              />
+            </Condition>
 
-      <Grid.Item full as={CheckboxInput} className="mv3" {...customPathInput} />
+            <Grid.Item
+              full
+              as={CheckboxInput}
+              className="mv3"
+              name="useCustomPath"
+              label="Custom HD Path"
+            />
 
-      <Grid.Item
-        full
-        as={ForwardButton}
-        solid
-        className="mt2"
-        onClick={pollDevice}>
-        Authenticate
-      </Grid.Item>
+            <Grid.Item full as={FormError} />
+
+            <Grid.Item full as={ContinueButton} handleSubmit={handleSubmit}>
+              Authenticate
+            </Grid.Item>
+          </>
+        )}
+      </BridgeForm>
     </Grid>
   );
 }

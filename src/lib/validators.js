@@ -225,6 +225,19 @@ export const validateLength = l => m =>
     error: `Must be exactly ${l} characters.`,
   });
 
+export const validateHexLength = l => m =>
+  simpleValidatorWrapper({
+    prevMessage: m,
+    validator: d => {
+      try {
+        return d.length === l + 2;
+      } catch {
+        return false;
+      }
+    },
+    error: `Must be exactly ${l} hex characters.`,
+  });
+
 export const validateMaximumLength = l => m =>
   simpleValidatorWrapper({
     prevMessage: m,

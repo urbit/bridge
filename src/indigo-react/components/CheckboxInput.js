@@ -15,7 +15,7 @@ export default function CheckboxInput({
   const {
     input,
     meta: { submitting },
-  } = useField(name);
+  } = useField(name, { type: 'checkbox' });
 
   disabled = disabled || submitting;
 
@@ -34,16 +34,7 @@ export default function CheckboxInput({
         }),
       }}>
       {/* we totally hide the checkbox itself */}
-      <Flex.Item
-        as="input"
-        type="checkbox"
-        className="super-hidden"
-        id={name}
-        {...input}
-        // TODO: this seems hacky... final-form should have a standard way to do this
-        checked={input.value}
-        onClick={e => input.onChange(!input.value)}
-      />
+      <Flex.Item as="input" className="super-hidden" id={name} {...input} />
       {/* and then display a prettier one in its stead */}
       <Flex.Item
         flex

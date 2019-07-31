@@ -1,22 +1,23 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Input, AccessoryIcon } from 'indigo-react';
 import { useField } from 'react-final-form';
+import { some } from 'lodash';
 
 import {
   validateNotEmpty,
   validateTicket,
   kDefaultValidator,
   validateMnemonic,
+  validatePoint,
+  validateMaximumPatpByteLength,
+  validateOneOf,
+  validateHexString,
+  validateHexLength,
 } from 'lib/validators';
 import { compose } from 'lib/lib';
 import { prependSig } from 'lib/transformers';
 import { DEFAULT_HD_PATH } from 'lib/wallet';
-
-// TODO: why is `validate` called when routing away? new props?
-// active not true: https://github.com/final-form/react-final-form/issues/558
-
-const kEmptyValidators = []; // necessary for referential stability
-const kEmptyTransformers = []; // also for referential stability
+import InputSigil from 'components/InputSigil';
 
 const PLACEHOLDER_POINT = '~sampel-ponnym';
 const PLACEHOLDER_HD_PATH = DEFAULT_HD_PATH;
@@ -29,9 +30,8 @@ const PLACEHOLDER_PRIVATE_KEY =
 
 const buildValidator = (
   validators = [],
-  fn = x => undefined
+  fn = () => undefined
 ) => async value => {
-  // console.log('validating:', value);
   return (
     compose(
       ...validators,
@@ -40,24 +40,78 @@ const buildValidator = (
   );
 };
 
-const kTicketValidators = [validateTicket, validateNotEmpty];
-export function TicketInput({
-  name,
-  validators = kEmptyValidators,
-  transformers = kEmptyTransformers,
-  validate,
-  ...rest
-}) {
-  const { valid, error, validating } = useField(name, {
-    subscription: { error: true, validating: true },
-  });
+export const hasErrors = obj => some(obj, v => v !== undefined);
 
-  const _validate = useMemo(
-    () => buildValidator([...validators, ...kTicketValidators], validate),
-    [validate, validators]
+export const buildTicketValidator = (validators = []) =>
+  buildValidator([...validators, validateTicket, validateNotEmpty]);
+export const buildMnemonicValidator = () =>
+  buildValidator([validateMnemonic, validateNotEmpty]);
+export const buildCheckboxValidator = () =>
+  buildValidator([validateOneOf([true, false])]);
+export const buildPassphraseValidator = () => buildValidator([]);
+// TODO: validate hdpath format
+export const buildHdPathValidator = () => buildValidator([validateNotEmpty]);
+export const buildPointValidator = (size = 4) =>
+  buildValidator([
+    validatePoint,
+    validateMaximumPatpByteLength(size),
+    validateNotEmpty,
+  ]);
+export const buildSelectValidator = options =>
+  buildValidator([validateOneOf(options.map(option => option.value))]);
+export const buildHexValidator = length =>
+  buildValidator([
+    validateHexLength(length),
+    validateHexString,
+    validateNotEmpty,
+  ]);
+export const buildUploadValidator = () => buildValidator([validateNotEmpty]);
+
+// the default form validator just returns field-level validations
+const kDefaultFormValidator = (values, errors) => errors;
+export const composeValidator = (
+  fieldValidators = {},
+  formValidator = kDefaultFormValidator
+) => {
+  const names = Object.keys(fieldValidators);
+
+  const fieldLevelValidators = names.map(name => value =>
+    fieldValidators[name](value)
   );
 
-  const _format = (value, name) => prependSig(value);
+  const fieldLevelValidator = async values => {
+    const errors = await Promise.all(
+      names.map((name, i) => fieldLevelValidators[i](values[name]))
+    );
+
+    return names.reduce(
+      (memo, name, i) => ({
+        ...memo,
+        [name]: errors[i],
+      }),
+      {}
+    );
+  };
+
+  return async values => {
+    console.log('validating...');
+    const errors = await fieldLevelValidator(values);
+    return await formValidator(values, errors);
+  };
+};
+
+export function TicketInput({ name, ...rest }) {
+  const {
+    meta: { valid, error, validating, touched, active },
+  } = useField(name, {
+    subscription: {
+      valid: true,
+      error: true,
+      validating: true,
+      touched: true,
+      active: true,
+    },
+  });
 
   return (
     <Input
@@ -65,7 +119,7 @@ export function TicketInput({
       name={name}
       placeholder={PLACEHOLDER_TICKET}
       accessory={
-        error ? (
+        touched && !active && error ? (
           <AccessoryIcon.Failure />
         ) : validating ? (
           <AccessoryIcon.Pending />
@@ -73,58 +127,24 @@ export function TicketInput({
           <AccessoryIcon.Success />
         ) : null
       }
-      config={{ validate: _validate, format: _format }}
+      config={{ format: prependSig }}
       mono
       {...rest}
     />
   );
 }
 
-const kMnemonicValidators = [validateMnemonic, validateNotEmpty];
-export function MnemonicInput({
-  name,
-  validators = kEmptyValidators,
-  transformers = kEmptyTransformers,
-  validate,
-  ...rest
-}) {
-  const _validate = useMemo(
-    () => buildValidator([...validators, ...kMnemonicValidators], validate),
-    [validate, validators]
-  );
-
+export function MnemonicInput({ ...rest }) {
   return (
-    <Input
-      type="textarea"
-      name={name}
-      placeholder={PLACEHOLDER_MNEMONIC}
-      config={{ validate: _validate }}
-      autoComplete="off"
-      mono
-      {...rest}
-    />
+    <Input type="textarea" placeholder={PLACEHOLDER_MNEMONIC} mono {...rest} />
   );
 }
 
-const kHdPathValidators = [validateNotEmpty];
-export function HdPathInput({
-  name,
-  validators = kEmptyValidators,
-  transformers = kEmptyTransformers,
-  validate,
-  ...rest
-}) {
-  const _validate = useMemo(
-    () => buildValidator([...validators, ...kHdPathValidators], validate),
-    [validate, validators]
-  );
-
+export function HdPathInput({ ...rest }) {
   return (
     <Input
       type="text"
-      name={name}
       placeholder={PLACEHOLDER_HD_PATH}
-      config={{ validate: _validate }}
       autoComplete="off"
       {...rest}
     />
@@ -136,6 +156,50 @@ export function PassphraseInput({ ...rest }) {
     <Input
       type="password"
       placeholder="Passphrase"
+      autoComplete="off"
+      {...rest}
+    />
+  );
+}
+
+export function PointInput({ name, size = 4, ...rest }) {
+  const {
+    input: { value },
+    meta: { active, valid, error },
+  } = useField(name, {
+    subscription: { value: true, active: true, valid: true, error: true },
+  });
+
+  return (
+    <Input
+      type="text"
+      label="Point"
+      name={name}
+      placeholder={PLACEHOLDER_POINT}
+      accessory={
+        value ? (
+          <InputSigil
+            patp={value}
+            size={44}
+            margin={8}
+            pass={valid}
+            focused={active}
+            error={error}
+          />
+        ) : null
+      }
+      config={{ format: prependSig }}
+      mono
+      {...rest}
+    />
+  );
+}
+
+export function PrivateKeyInput({ ...rest }) {
+  return (
+    <Input
+      type="text"
+      placeholder={PLACEHOLDER_PRIVATE_KEY}
       autoComplete="off"
       {...rest}
     />

@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
-import { Just, Nothing } from 'folktale/maybe';
-import { P, Grid, Input, ErrorText } from 'indigo-react';
+import React, { useCallback, useMemo } from 'react';
+import { Just } from 'folktale/maybe';
+import { P, Grid } from 'indigo-react';
 import * as keythereum from 'keythereum';
 
 import { useWallet } from 'store/wallet';
 
-import { usePassphraseInput } from 'lib/useInputs';
-import * as need from 'lib/need';
 import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
 
-import { ForwardButton } from 'components/Buttons';
-import UploadButton from 'components/UploadButton';
+import {
+  composeValidator,
+  buildPassphraseValidator,
+  PassphraseInput,
+  buildUploadValidator,
+} from 'form/Inputs';
+import UploadInput from 'form/UploadInput';
+import ContinueButton from './ContinueButton';
+import BridgeForm from 'form/BridgeForm';
+import { FORM_ERROR } from 'final-form';
+import FormError from 'form/FormError';
 
 export default function Keystore({ className }) {
   useLoginView(WALLET_TYPES.KEYSTORE);
@@ -19,52 +26,33 @@ export default function Keystore({ className }) {
   // globals
   const { setWallet } = useWallet();
 
-  const [error, setError] = useState();
-  // inputs
-  // keystore: Maybe<String>
-  const [keystore, setKeystore] = useState(Nothing());
-  const [passphraseInput, { data: passphrase }] = usePassphraseInput({
-    name: 'password',
-    label: 'Keystore password',
-    autoFocus: true,
-  });
+  const validate = useMemo(
+    () =>
+      composeValidator({
+        passphrase: buildPassphraseValidator(),
+        keystore: buildUploadValidator(),
+      }),
+    []
+  );
 
-  const constructWallet = () => {
-    try {
-      const text = need.keystore(keystore);
+  const onSubmit = useCallback(
+    async values => {
+      try {
+        const json = JSON.parse(values.keystore);
+        const privateKey = keythereum.recover(values.passphrase, json);
 
-      const json = JSON.parse(text);
-      const privateKey = keythereum.recover(passphrase, json);
-
-      const newWallet = new EthereumWallet(privateKey);
-      setError();
-      setWallet(Just(newWallet));
-    } catch (err) {
-      setError(
-        "Couldn't decrypt wallet. You may have entered an incorrect password."
-      );
-      setWallet(Nothing());
-    }
-  };
-
-  const handleKeystoreUpload = element => {
-    const file = element.files.item(0);
-    const reader = new FileReader();
-
-    reader.onload = e => {
-      const keystore = e.target.result;
-      setKeystore(Just(keystore));
-    };
-
-    const failure = _ => {
-      setError('There was a problem uploading your Keystore file');
-    };
-
-    reader.onerror = failure;
-    reader.onabort = failure;
-
-    reader.readAsText(file);
-  };
+        const wallet = new EthereumWallet(privateKey);
+        setWallet(Just(wallet));
+      } catch (error) {
+        console.error(error);
+        return {
+          [FORM_ERROR]:
+            "Couldn't decrypt wallet. You may have entered an incorrect password.",
+        };
+      }
+    },
+    [setWallet]
+  );
 
   return (
     <Grid className={className}>
@@ -73,27 +61,32 @@ export default function Keystore({ className }) {
         encrypted with a password, you'll also need to enter that below.
       </Grid.Item>
 
-      <Grid.Item full as={UploadButton} onChange={handleKeystoreUpload}>
-        Upload Keystore file
-      </Grid.Item>
+      <BridgeForm validate={validate} onSubmit={onSubmit}>
+        {({ handleSubmit }) => (
+          <>
+            <Grid.Item
+              full
+              as={UploadInput}
+              name="keystore"
+              label="Upload Keystore file"
+            />
 
-      {error && (
-        <Grid.Item full as={ErrorText} className="mt1">
-          {error}
-        </Grid.Item>
-      )}
+            <Grid.Item
+              full
+              as={PassphraseInput}
+              className="mt3"
+              name="passphrase"
+              label="Passphrase"
+            />
 
-      <Grid.Item full as={Input} className="mt3" {...passphraseInput} />
+            <Grid.Item full as={FormError} />
 
-      <Grid.Item
-        full
-        as={ForwardButton}
-        solid
-        className="mt3"
-        disabled={Nothing.hasInstance(keystore)}
-        onClick={constructWallet}>
-        Decrypt
-      </Grid.Item>
+            <Grid.Item full as={ContinueButton} handleSubmit={handleSubmit}>
+              Decrypt
+            </Grid.Item>
+          </>
+        )}
+      </BridgeForm>
     </Grid>
   );
 }

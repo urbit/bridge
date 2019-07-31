@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, CheckboxInput } from 'indigo-react';
@@ -7,11 +7,22 @@ import { useWallet } from 'store/wallet';
 
 import { walletFromMnemonic, WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
-import { MnemonicInput, HdPathInput, PassphraseInput } from 'form/Inputs';
+import {
+  MnemonicInput,
+  HdPathInput,
+  PassphraseInput,
+  composeValidator,
+  buildMnemonicValidator,
+  buildCheckboxValidator,
+  buildPassphraseValidator,
+  buildHdPathValidator,
+} from 'form/Inputs';
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
+import FormError from 'form/FormError';
+import ContinueButton from './ContinueButton';
 
-export default function Mnemonic({ className }) {
+export default function Mnemonic({ className, goHome }) {
   useLoginView(WALLET_TYPES.MNEMONIC);
 
   const {
@@ -20,6 +31,17 @@ export default function Mnemonic({ className }) {
     walletHdPath,
     setWalletHdPath,
   } = useWallet();
+
+  const validate = useMemo(
+    () =>
+      composeValidator({
+        useAdvanced: buildCheckboxValidator(),
+        mnemonic: buildMnemonicValidator(),
+        passphrase: buildPassphraseValidator(),
+        hdpath: buildHdPathValidator(),
+      }),
+    []
+  );
 
   // when the properties change, re-derive wallet and set global state
   const onValues = useCallback(
@@ -41,10 +63,11 @@ export default function Mnemonic({ className }) {
   return (
     <Grid className={cn('mt4', className)}>
       <BridgeForm
+        validate={validate}
         onValues={onValues}
-        onSubmit={() => undefined}
-        initialValues={{ hdpath: walletHdPath }}>
-        {() => (
+        onSubmit={goHome}
+        initialValues={{ hdpath: walletHdPath, useAdvanced: false }}>
+        {({ handleSubmit }) => (
           <>
             <Grid.Item
               full
@@ -53,7 +76,7 @@ export default function Mnemonic({ className }) {
               label="BIP39 Mnemonic"
             />
 
-            <Condition when="advanced" is={true}>
+            <Condition when="useAdvanced" is={true}>
               <Grid.Item
                 full
                 as={PassphraseInput}
@@ -61,33 +84,22 @@ export default function Mnemonic({ className }) {
                 label="Passphrase"
               />
 
-              <Grid.Item
-                full
-                as={HdPathInput}
-                name="hdpath"
-                label="HD Path"
-                autoFocus
-              />
+              <Grid.Item full as={HdPathInput} name="hdpath" label="HD Path" />
             </Condition>
 
             <Grid.Item
               full
               as={CheckboxInput}
-              name="advanced"
+              name="useAdvanced"
               label="Passphrase & HD Path"
             />
+
+            <Grid.Item full as={FormError} />
+
+            <Grid.Item full as={ContinueButton} handleSubmit={handleSubmit} />
           </>
         )}
       </BridgeForm>
-
-      {/* {useAdvanced && (
-        <>
-          <Grid.Item full as={Input} {...passphraseInput} />
-          <Grid.Item full as={Input} {...hdPathInput} />
-        </>
-      )}
-
-      <Grid.Item as={CheckboxInput} {...advancedInput} full /> */}
     </Grid>
   );
 }

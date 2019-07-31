@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import cn from 'classnames';
 
 import Flex from './Flex';
@@ -26,31 +26,17 @@ export default function Input({
 }) {
   const {
     input,
-    meta: {
-      active,
-      data,
-      dirty,
-      error,
-      modified,
-      pristine,
-      submitError,
-      submitFailed,
-      submitSucceeded,
-      submitting,
-      touched,
-      valid,
-      validating,
-      visited,
-    },
+    meta: { active, error, submitting, touched, valid },
   } = useField(name, config);
 
   disabled = disabled || submitting;
 
   // notify parent of enter keypress iff not disabled and passing
-  const onKeyPress = useCallback(
-    e => !disabled && valid && e.key === 'Enter' && onEnter && onEnter(),
-    [disabled, valid] // eslint-disable-line react-hooks/exhaustive-deps
-  );
+  // TODO: integrate this into react-final-form submission
+  // const onKeyPress = useCallback(
+  //   e => !disabled && valid && e.key === 'Enter' && onEnter && onEnter(),
+  //   [disabled, valid] // eslint-disable-line react-hooks/exhaustive-deps
+  // );
 
   return (
     <Flex
@@ -75,7 +61,6 @@ export default function Input({
         <Flex.Item
           flex
           as={type === 'textarea' ? 'textarea' : 'input'}
-          type={type === 'textarea' ? undefined : type}
           {...rest}
           // NOTE: 24px = 12px * 2 (from p3 styling)
           style={type === 'textarea' ? { minHeight: 'calc(1rem + 24px)' } : {}}
@@ -99,8 +84,8 @@ export default function Input({
           )}
           id={name}
           name={name}
-          onKeyPress={onKeyPress}
           {...input}
+          type={type === 'textarea' ? undefined : type}
         />
         {accessory && (
           <div
@@ -116,7 +101,7 @@ export default function Input({
           </div>
         )}
       </Flex.Item>
-      {touched && error && (
+      {touched && !active && error && (
         <Flex.Item as={ErrorText} className="mv1">
           {error}
         </Flex.Item>

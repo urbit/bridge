@@ -68,8 +68,6 @@ export default function Login() {
   const { wallet, walletType } = useWallet();
   const { pointCursor, setPointCursor } = usePointCursor();
 
-  const [deducing, setDeducing] = useState(false);
-
   // inputs
   const [currentTab, setCurrentTab] = useState(
     walletTypeToViewName(walletType)
@@ -89,11 +87,9 @@ export default function Login() {
     push(names.POINT);
   }, [goToPoints, push, names]);
 
-  const doContinue = useCallback(async () => {
+  const goHome = useCallback(async () => {
     const _wallet = need.wallet(wallet);
     const _contracts = need.contracts(contracts);
-
-    setDeducing(true);
 
     let deduced = pointCursor;
     // if no point cursor set by login logic, try to deduce it
@@ -106,8 +102,6 @@ export default function Login() {
         deduced = Just(owned[0]);
       }
     }
-
-    setDeducing(false);
 
     // if we have a deduced point or one in the global context,
     // navigate to that specific point, otherwise navigate to list of points
@@ -131,22 +125,14 @@ export default function Login() {
           full
           as={Tabs}
           className="mt1"
+          // Tabs
           views={VIEWS}
           options={OPTIONS}
           currentTab={currentTab}
           onTabChange={setCurrentTab}
+          // Tab extra
+          goHome={goHome}
         />
-
-        <Grid.Item
-          full
-          as={ForwardButton}
-          solid
-          className="mt2"
-          loading={deducing}
-          disabled={Nothing.hasInstance(wallet) || deducing}
-          onClick={doContinue}>
-          Continue
-        </Grid.Item>
       </Grid>
 
       <Footer>

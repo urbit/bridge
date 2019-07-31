@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import { Grid, H4 } from 'indigo-react';
@@ -24,7 +24,14 @@ import useHasDisclaimed from 'lib/useHasDisclaimed';
 
 import BridgeForm from 'form/BridgeForm';
 import SubmitButton from 'form/SubmitButton';
-import { TicketInput } from 'form/Inputs';
+import {
+  TicketInput,
+  hasErrors,
+  composeValidator,
+  buildTicketValidator,
+} from 'form/Inputs';
+import FormError from 'form/FormError';
+import { FORM_ERROR } from 'final-form';
 
 export default function ActivateCode() {
   const history = useHistory();
@@ -57,8 +64,14 @@ export default function ActivateCode() {
   // validate should be a pure function but we don't want to have to recompute
   // all of this information on submit, so cache the invite wallet and avoid
   // re-renders that may trigger re-validations (causing infinite loop)
-  const validate = useCallback(
-    async ticket => {
+  const validateForm = useCallback(
+    async ({ ticket }, errors) => {
+      if (hasErrors(errors)) {
+        return errors;
+      }
+
+      console.log('FUCK — deriving seed');
+
       await timeout(100); // allow the ui changes to flush before we lag it out
 
       const _contracts = need.contracts(contracts);
@@ -93,13 +106,19 @@ export default function ActivateCode() {
         setDerivedPoint(Just(point));
         cachedPoint.current = point;
       } else {
-        return (
-          'Invite code has no claimable point.\n' +
-          'Check your invite code and try again?'
-        );
+        return {
+          [FORM_ERROR]:
+            'Invite code has no claimable point.\n' +
+            'Check your invite code and try again?',
+        };
       }
     },
     [contracts, setDerivedPoint]
+  );
+
+  const validate = useMemo(
+    () => composeValidator({ ticket: buildTicketValidator() }, validateForm),
+    [validateForm]
   );
 
   // set our state on submission
@@ -107,11 +126,11 @@ export default function ActivateCode() {
     async values => {
       setInviteWallet(cachedInviteWallet.current);
       setDerivedWallet(Just(await generateWallet(cachedPoint)));
-
-      goToPassport();
     },
-    [goToPassport, setDerivedWallet, setInviteWallet]
+    [setDerivedWallet, setInviteWallet]
   );
+
+  const afterSubmit = useCallback(async () => goToPassport(), [goToPassport]);
 
   return (
     <View inset>
@@ -121,7 +140,9 @@ export default function ActivateCode() {
           Activate
         </Grid.Item>
         <BridgeForm
+          validate={validate}
           onSubmit={onSubmit}
+          afterSubmit={afterSubmit}
           initialValues={{ ticket: impliedTicket || '' }}>
           {({ validating, submitting, handleSubmit }) => (
             <>
@@ -130,9 +151,9 @@ export default function ActivateCode() {
                 as={TicketInput}
                 name="ticket"
                 label="Activation Code"
-                validate={validate}
-                autoFocus
               />
+
+              <Grid.Item full as={FormError} />
 
               <Grid.Item
                 full

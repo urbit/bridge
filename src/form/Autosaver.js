@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
-import { useFormState } from 'react-final-form';
+import { useFormState, useForm } from 'react-final-form';
 
 export default function Autosaver({ onValues }) {
+  const form = useForm();
   const { valid, validating, values } = useFormState({
     subscription: {
       valid: true,
@@ -12,9 +13,9 @@ export default function Autosaver({ onValues }) {
 
   useEffect(() => {
     if (!validating) {
-      onValues && onValues({ valid: valid && !validating, values });
+      onValues && onValues({ valid: valid && !validating, values, form });
     }
-  }, [onValues, valid, validating, values]);
+  }, [form, onValues, valid, validating, values]);
 
   return null;
 }

@@ -20,7 +20,7 @@ const OPTIONS = [
   { text: 'Ethereum Keystore', value: NAMES.KEYSTORE },
 ];
 
-export default function Advanced({ loginCompleted, className }) {
+export default function Advanced({ className, ...rest }) {
   const [currentTab, setCurrentTab] = useState(undefined);
 
   return (
@@ -31,7 +31,7 @@ export default function Advanced({ loginCompleted, className }) {
       currentTab={currentTab}
       onTabChange={setCurrentTab}
       //
-      loginCompleted={loginCompleted}
+      {...rest}
     />
   );
 }
