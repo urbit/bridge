@@ -42,7 +42,7 @@ const labelForProgress = progress => {
 
 export default function ReticketExecute({ newWallet, setNewWallet }) {
   const { popTo, names, reset } = useHistory();
-  const { web3, contracts } = useNetwork();
+  const { web3, contracts, networkType } = useNetwork();
   const { wallet, setWalletType, resetWallet, setUrbitWallet } = useWallet();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
@@ -65,6 +65,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
           point: point,
           web3: need.web3(web3),
           contracts: need.contracts(contracts),
+          networkType,
           onUpdate: handleUpdate,
           nextRevision: networkRevision + 1,
         });

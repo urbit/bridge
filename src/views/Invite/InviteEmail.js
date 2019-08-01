@@ -29,9 +29,10 @@ import {
   hexify,
 } from 'lib/txn';
 import * as tank from 'lib/tank';
+import { useSuggestedGasPrice } from 'lib/useSuggestedGasPrice';
 import useArray from 'lib/useArray';
 import { buildEmailInputConfig } from 'lib/useInputs';
-import { MIN_PLANET, GAS_LIMITS, DEFAULT_GAS_PRICE_GWEI } from 'lib/constants';
+import { MIN_PLANET, GAS_LIMITS } from 'lib/constants';
 import * as need from 'lib/need';
 import * as wg from 'lib/walletgen';
 import useSetState from 'lib/useSetState';
@@ -42,10 +43,6 @@ import LoadableButton from 'components/LoadableButton';
 import Highlighted from 'components/Highlighted';
 
 const GAS_LIMIT = GAS_LIMITS.GIFT_PLANET;
-const INVITE_COST = toWei(
-  (DEFAULT_GAS_PRICE_GWEI * GAS_LIMIT).toString(),
-  'gwei'
-);
 const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
 
 const STATUS = {
@@ -100,6 +97,7 @@ export default function InviteEmail() {
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
   const { getHasReceived, syncHasReceivedForEmail, sendMail } = useMailer();
+  const { gasPrice } = useSuggestedGasPrice(networkType);
 
   const { availableInvites } = getInvites(point);
   const maxInvitesToSend = availableInvites.matchWith({
@@ -257,7 +255,7 @@ export default function InviteEmail() {
           networkType,
           // TODO: ^ make a useTransactionSigner to encapsulate this logic
           txn: inviteTx,
-          gasPrice: DEFAULT_GAS_PRICE_GWEI.toString(),
+          gasPrice: gasPrice.toString(),
           gasLimit: GAS_LIMIT.toString(),
           nonce: nonce + i,
           chainId,
@@ -283,6 +281,7 @@ export default function InviteEmail() {
   }, [
     contracts,
     web3,
+    gasPrice,
     wallet,
     inputs,
     point,
@@ -308,7 +307,7 @@ export default function InviteEmail() {
       _web3,
       point,
       _wallet.address,
-      INVITE_COST * inputs.length,
+      toWei((gasPrice * GAS_LIMIT * inputs.length).toString(), 'gwei'),
       inputs.map(input => invites[input.name].rawTx),
       (address, minBalance, balance) =>
         setNeedFunds({ address, minBalance, balance }),
@@ -377,6 +376,7 @@ export default function InviteEmail() {
     }
   }, [
     web3,
+    gasPrice,
     inputs,
     addReceipt,
     clearReceipts,
