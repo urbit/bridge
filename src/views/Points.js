@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H5, H1, HelpText, LinkButton, Flex } from 'indigo-react';
 import { get } from 'lodash';
@@ -79,7 +79,7 @@ function ActionButtons({ actions = [] }) {
 
 export default function Points() {
   const { wallet } = useWallet();
-  const { pop, push, names } = useHistory();
+  const { pop, push, popAndPush, names } = useHistory();
   const { setPointCursor } = usePointCursor();
   const { controlledPoints, getDetails } = usePointCache();
   const isEclipticOwner = useIsEclipticOwner();
@@ -87,6 +87,37 @@ export default function Points() {
     rejectedPoints,
     addRejectedPoint,
   ] = useRejectedIncomingPointTransfers();
+
+  // if we can only interact with a single point, forget about the existence
+  // of this page and jump to the point page.
+  // if there are any pending transfers, incoming or outgoing, stay on this
+  // page, because those can only be completed/cancelled here.
+  useEffect(() => {
+    controlledPoints.matchWith({
+      Nothing: () => null,
+      Just: r => {
+        r.value.matchWith({
+          Error: () => null,
+          Ok: p => {
+            let all = [
+              ...p.value.ownedPoints,
+              ...p.value.votingPoints,
+              ...p.value.managingPoints,
+              ...p.value.spawningPoints,
+            ];
+            const incoming = p.value.incomingPoints.filter(
+              p => !rejectedPoints.includes(p)
+            );
+            //TODO && outgoing.length === 0
+            if (all.length === 1 && incoming.length === 0) {
+              setPointCursor(Just(all[0]));
+              popAndPush(names.POINT);
+            }
+          },
+        });
+      },
+    });
+  }, [controlledPoints, rejectedPoints, setPointCursor, popAndPush, names]);
 
   const address = need.addressFromWallet(wallet);
 
