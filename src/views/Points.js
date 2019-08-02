@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H5, H1, HelpText, LinkButton, Flex } from 'indigo-react';
 import { get } from 'lodash';
@@ -88,11 +88,43 @@ export default function Points() {
     addRejectedPoint,
   ] = useRejectedIncomingPointTransfers();
 
+  const maybeOutgoingPoints = useMemo(() => {
+    return controlledPoints.matchWith({
+      Nothing: () => Nothing(),
+      Just: r =>
+        r.value.matchWith({
+          Error: () => Nothing(),
+          Ok: c => {
+            const points = c.value.ownedPoints.map(point =>
+              getDetails(point).matchWith({
+                Nothing: () => Nothing(),
+                Just: p =>
+                  Just({ point: point, has: hasTransferProxy(p.value) }),
+              })
+            );
+            // if we have details for every point,
+            // return the array of pending transfers.
+            if (points.every(p => Just.hasInstance(p))) {
+              const outgoing = points
+                .filter(p => p.value.has)
+                .map(p => p.value.point);
+              return Just(outgoing);
+            } else {
+              return Nothing();
+            }
+          },
+        }),
+    });
+  }, [getDetails, controlledPoints]);
+
   // if we can only interact with a single point, forget about the existence
   // of this page and jump to the point page.
   // if there are any pending transfers, incoming or outgoing, stay on this
   // page, because those can only be completed/cancelled here.
   useEffect(() => {
+    if (Nothing.hasInstance(maybeOutgoingPoints)) {
+      return;
+    }
     controlledPoints.matchWith({
       Nothing: () => null,
       Just: r => {
@@ -108,8 +140,11 @@ export default function Points() {
             const incoming = p.value.incomingPoints.filter(
               p => !rejectedPoints.includes(p)
             );
-            //TODO && outgoing.length === 0
-            if (all.length === 1 && incoming.length === 0) {
+            if (
+              all.length === 1 &&
+              incoming.length === 0 &&
+              maybeOutgoingPoints.value.length === 0
+            ) {
               setPointCursor(Just(all[0]));
               popAndPush(names.POINT);
             }
@@ -117,7 +152,14 @@ export default function Points() {
         });
       },
     });
-  }, [controlledPoints, rejectedPoints, setPointCursor, popAndPush, names]);
+  }, [
+    controlledPoints,
+    rejectedPoints,
+    maybeOutgoingPoints,
+    setPointCursor,
+    popAndPush,
+    names,
+  ]);
 
   const address = need.addressFromWallet(wallet);
 
@@ -132,12 +174,7 @@ export default function Points() {
   const managingPoints = maybeGetResult(controlledPoints, 'managingPoints', []);
   const votingPoints = maybeGetResult(controlledPoints, 'votingPoints', []);
   const spawningPoints = maybeGetResult(controlledPoints, 'spawningPoints', []);
-  const outgoingPoints = ownedPoints.filter(point =>
-    getDetails(point).matchWith({
-      Nothing: () => false,
-      Just: p => hasTransferProxy(p.value),
-    })
-  );
+  const outgoingPoints = maybeOutgoingPoints.getOrElse([]);
 
   const multipassPoints = [
     ...ownedPoints.filter(p => !outgoingPoints.includes(p)),
