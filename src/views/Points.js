@@ -130,14 +130,14 @@ export default function Points() {
       Just: r => {
         r.value.matchWith({
           Error: () => null,
-          Ok: p => {
+          Ok: c => {
             let all = [
-              ...p.value.ownedPoints,
-              ...p.value.votingPoints,
-              ...p.value.managingPoints,
-              ...p.value.spawningPoints,
+              ...c.value.ownedPoints,
+              ...c.value.votingPoints,
+              ...c.value.managingPoints,
+              ...c.value.spawningPoints,
             ];
-            const incoming = p.value.incomingPoints.filter(
+            const incoming = c.value.incomingPoints.filter(
               p => !rejectedPoints.includes(p)
             );
             if (
