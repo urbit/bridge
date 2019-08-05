@@ -2,7 +2,7 @@ import React from 'react';
 import { Form } from 'react-final-form';
 import setFieldData from 'final-form-set-field-data';
 
-import Autosaver from './Autosaver';
+import ValuesHandler from './ValuesHandler';
 import ValidationPauser from './ValidationPauser';
 
 export default function BridgeForm({ children, onValues, ...rest }) {
@@ -12,7 +12,7 @@ export default function BridgeForm({ children, onValues, ...rest }) {
         <>
           <ValidationPauser />
           {children(formProps)}
-          {onValues && <Autosaver onValues={onValues} />}
+          {onValues && <ValuesHandler onValues={onValues} />}
         </>
       )}
     </Form>

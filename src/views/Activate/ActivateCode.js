@@ -70,8 +70,6 @@ export default function ActivateCode() {
         return errors;
       }
 
-      console.log('FUCK — deriving seed');
-
       await timeout(100); // allow the ui changes to flush before we lag it out
 
       const _contracts = need.contracts(contracts);

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useFormState, useForm } from 'react-final-form';
 
-export default function Autosaver({ onValues }) {
+export default function ValuesHandler({ onValues }) {
   const form = useForm();
   const { valid, validating, values } = useFormState({
     subscription: {
