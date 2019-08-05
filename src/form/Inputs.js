@@ -14,9 +14,11 @@ import {
   validateHexString,
   validateHexLength,
   validateEthereumAddress,
+  validateGreaterThan,
+  validateEmail,
 } from 'lib/validators';
 import { compose } from 'lib/lib';
-import { prependSig } from 'lib/transformers';
+import { prependSig, convertToNumber } from 'lib/transformers';
 import { DEFAULT_HD_PATH } from 'lib/wallet';
 import InputSigil from 'components/InputSigil';
 
@@ -28,6 +30,7 @@ const PLACEHOLDER_TICKET = '~sampel-ticlyt-migfun-falmel';
 const PLACEHOLDER_ADDRESS = '0x12345abcdeDB11D175F123F6891AA64F01c24F7d';
 const PLACEHOLDER_PRIVATE_KEY =
   '0x12345abcdee6beb2f323fab48b432925c9785808d33a6ca6d7ba00b45e9370c3';
+const PLACEHOLDER_EMAIL = 'Email Address';
 
 const buildValidator = (
   validators = [],
@@ -54,12 +57,11 @@ export const buildCheckboxValidator = mustBe =>
 export const buildPassphraseValidator = () => buildValidator([]);
 // TODO: validate hdpath format
 export const buildHdPathValidator = () => buildValidator([validateNotEmpty]);
-export const buildPointValidator = (size = 4) =>
-  buildValidator([
-    validatePoint,
-    validateMaximumPatpByteLength(size),
-    validateNotEmpty,
-  ]);
+export const buildPointValidator = (size = 4, validate) =>
+  buildValidator(
+    [validatePoint, validateMaximumPatpByteLength(size), validateNotEmpty],
+    validate
+  );
 export const buildSelectValidator = options =>
   buildValidator([validateOneOf(options.map(option => option.value))]);
 export const buildHexValidator = length =>
@@ -76,6 +78,10 @@ export const buildAddressValidator = () =>
     validateHexString,
     validateNotEmpty,
   ]);
+export const buildNumberValidator = (min = 0) =>
+  buildValidator([validateGreaterThan(min)]);
+export const buildEmailValidator = () =>
+  buildValidator([validateEmail, validateNotEmpty]);
 
 // the default form validator just returns field-level validations
 const kDefaultFormValidator = (values, errors) => errors;
@@ -223,6 +229,29 @@ export function AddressInput({ ...rest }) {
       placeholder={PLACEHOLDER_ADDRESS}
       autoComplete="off"
       mono
+      {...rest}
+    />
+  );
+}
+
+export function NumberInput({ ...rest }) {
+  return (
+    <Input
+      type="number"
+      label="Number"
+      autoComplete="off"
+      config={{ format: convertToNumber }}
+      {...rest}
+    />
+  );
+}
+
+export function EmailInput({ ...rest }) {
+  return (
+    <Input
+      type="email"
+      placeholder={PLACEHOLDER_EMAIL}
+      autoComplete="off"
       {...rest}
     />
   );

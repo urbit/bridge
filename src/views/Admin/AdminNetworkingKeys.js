@@ -39,6 +39,7 @@ import {
 } from 'form/Inputs';
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
+import FormError from 'form/FormError';
 
 const chainKeyProp = name => d =>
   d[name] === CURVE_ZERO_ADDR ? Nothing() : Just(d[name]);
@@ -364,6 +365,8 @@ export default function AdminNetworkingKeys() {
             )}
           </BridgeForm>
         )}
+
+        <Grid.Item full as={FormError} />
 
         <Grid.Item
           full

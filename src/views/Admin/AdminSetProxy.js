@@ -28,6 +28,7 @@ import {
   AddressInput,
 } from 'form/Inputs';
 import BridgeForm from 'form/BridgeForm';
+import FormError from 'form/FormError';
 
 const proxyFromDetails = (details, contracts, proxyType) => {
   switch (proxyType) {
@@ -218,14 +219,16 @@ export default function AdminSetProxy() {
             )}
           </>
         )}
-      </BridgeForm>
 
-      <Grid.Item
-        full
-        as={InlineEthereumTransaction}
-        {...bind}
-        onReturn={() => pop()}
-      />
+        <Grid.Item full as={FormError} />
+
+        <Grid.Item
+          full
+          as={InlineEthereumTransaction}
+          {...bind}
+          onReturn={() => pop()}
+        />
+      </BridgeForm>
     </Grid>
   );
 }

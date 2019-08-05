@@ -11,5 +11,3 @@ export { default as IconButton } from './components/IconButton';
 export { default as LinkButton } from './components/LinkButton';
 
 export * from './components/Typography';
-
-export * from './lib';

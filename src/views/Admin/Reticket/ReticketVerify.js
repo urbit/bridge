@@ -12,6 +12,7 @@ import {
   buildTicketValidator,
 } from 'form/Inputs';
 import SubmitButton from 'form/SubmitButton';
+import FormError from 'form/FormError';
 
 const STUB_VERIFY_TICKET = isDevelopment;
 
@@ -50,6 +51,9 @@ export default function ReticketVerify({ newWallet }) {
               name="ticket"
               label="New master ticket"
             />
+
+            <Grid.Item full as={FormError} />
+
             <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
               Verify & Reticket
             </Grid.Item>
