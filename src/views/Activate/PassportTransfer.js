@@ -45,7 +45,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
   const { replaceWith, names } = useHistory();
   const { setUrbitWallet } = useWallet();
   const { setPointCursor } = usePointCursor();
-  const { web3, contracts } = useNetwork();
+  const { web3, contracts, networkType } = useNetwork();
   const {
     derivedWallet,
     derivedPoint,
@@ -112,6 +112,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
         point: _point,
         web3: _web3,
         contracts: _contracts,
+        networkType,
         onUpdate: handleUpdate,
         transferEth: true,
       });
@@ -133,6 +134,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
     derivedPoint,
     web3,
     contracts,
+    networkType,
     setUrbitWallet,
     setPointCursor,
     handleUpdate,
