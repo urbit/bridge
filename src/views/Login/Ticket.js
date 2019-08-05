@@ -47,70 +47,59 @@ export default function Ticket({ className, goHome }) {
         return errors;
       }
 
+      await timeout(100); // allow ui events to flush
+
+      let ticket;
       if (values.useShards) {
         if (errors.shard1 || errors.shard2 || errors.shard3) {
           return errors;
         }
 
-        // shards
-        try {
-          const ticket = kg.combine([
-            values.shard1,
-            values.shard2,
-            values.shard3,
-          ]);
-          const point = patp2dec(values.point);
-          cachedUrbitWallet.current = await urbitWalletFromTicket(
-            ticket,
-            point,
-            values.passphrase
-          );
-        } catch (error) {
-          console.error(error);
-          return { [FORM_ERROR]: 'Unable to derive wallet from shards.' };
-        }
+        ticket = kg.combine([values.shard1, values.shard2, values.shard3]);
       } else {
         if (errors.ticket) {
           return errors;
         }
 
-        await timeout(100); // allow ui events to flush
-        try {
-          // ticket
-          const _contracts = need.contracts(contracts);
-          const point = patp2dec(values.point);
+        ticket = values.ticket;
+      }
 
-          console.log('computing...');
-          const urbitWallet = await urbitWalletFromTicket(
-            values.ticket,
+      try {
+        // ticket
+        const _contracts = need.contracts(contracts);
+        const point = patp2dec(values.point);
+
+        cachedUrbitWallet.current = await urbitWalletFromTicket(
+          ticket,
+          point,
+          values.passphrase
+        );
+
+        const [isOwner, isTransferProxy] = await Promise.all([
+          azimuth.azimuth.isOwner(
+            _contracts,
             point,
-            values.passphrase
-          );
+            cachedUrbitWallet.current.ownership.keys.address
+          ),
+          azimuth.azimuth.isTransferProxy(
+            _contracts,
+            point,
+            cachedUrbitWallet.current.ownership.keys.address
+          ),
+        ]);
 
-          cachedUrbitWallet.current = urbitWallet;
-
-          const [isOwner, isTransferProxy] = await Promise.all([
-            azimuth.azimuth.isOwner(
-              _contracts,
-              point,
-              urbitWallet.ownership.keys.address
-            ),
-            azimuth.azimuth.isTransferProxy(
-              _contracts,
-              point,
-              urbitWallet.ownership.keys.address
-            ),
-          ]);
-
-          if (!isOwner && !isTransferProxy) {
-            // notify the user, but allow login regardless
-            // TODO: warnings
-            // 'This ticket is not the owner of or transfer proxy for this point.'
-          }
-        } catch (error) {
-          console.error(error);
-          return { ticket: 'Unable to derive wallet from ticket.' };
+        if (!isOwner && !isTransferProxy) {
+          // notify the user, but allow login regardless
+          // TODO: warnings
+          // 'This ticket is not the owner of or transfer proxy for this point.'
         }
+      } catch (error) {
+        console.error(error);
+        return {
+          [FORM_ERROR]: `Unable to derive wallet from ${
+            values.useShards ? 'shards' : 'ticket'
+          }.`,
+        };
       }
     },
     [contracts]

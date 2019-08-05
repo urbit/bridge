@@ -77,11 +77,9 @@ export default function ActivateCode() {
       const _contracts = need.contracts(contracts);
       const { seed } = await generateTemporaryOwnershipWallet(ticket);
 
-      // TODO(fang): isn't all this accessible in the ownership object?
-      const inviteWallet = walletFromMnemonic(seed, DEFAULT_HD_PATH);
-      cachedInviteWallet.current = inviteWallet;
+      cachedInviteWallet.current = walletFromMnemonic(seed, DEFAULT_HD_PATH);
 
-      const _inviteWallet = need.wallet(inviteWallet);
+      const _inviteWallet = need.wallet(cachedInviteWallet.current);
 
       const owned = await azimuth.azimuth.getOwnedPoints(
         _contracts,
