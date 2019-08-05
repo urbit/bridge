@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
-import { Grid, Text, Input, Flex, ToggleInput } from 'indigo-react';
+import { Grid, Text, Flex, ToggleInput } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from 'store/network';
@@ -16,12 +16,18 @@ import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { ETH_ZERO_ADDR, eqAddr, isZeroAddress } from 'lib/wallet';
 import capitalize from 'lib/capitalize';
-import { useAddressInput, useCheckboxInput } from 'lib/useInputs';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
+import {
+  composeValidator,
+  buildCheckboxValidator,
+  buildAddressValidator,
+  AddressInput,
+} from 'form/Inputs';
+import BridgeForm from 'form/BridgeForm';
 
 const proxyFromDetails = (details, contracts, proxyType) => {
   switch (proxyType) {
@@ -107,41 +113,41 @@ export default function AdminSetProxy() {
     bind,
   } = useSetProxy(data.proxyType);
 
-  const [unsetInput, { data: isUnsetting }] = useCheckboxInput({
-    name: 'unset',
-    label: 'Unset',
-    inverseLabel: 'Specify',
-    initialValue: false,
-    disabled: inputsLocked,
-  });
-  const [
-    addressInput,
-    { pass: validAddress, data: address },
-    { reset: resetAddress },
-  ] = useAddressInput({
-    name: 'address',
-    label: `New ${properProxyType} Address`,
-    disabled: inputsLocked || isUnsetting,
-  });
-
-  useEffect(() => {
-    if (isUnsetting) {
-      unset();
-      resetAddress();
-    } else if (validAddress) {
-      construct(address);
-    } else {
-      unconstruct();
+  const validateForm = useCallback((values, errors) => {
+    if (!values.unset && errors.address) {
+      return errors;
     }
-  }, [
-    validAddress,
-    address,
-    construct,
-    isUnsetting,
-    unset,
-    unconstruct,
-    resetAddress,
-  ]);
+
+    return {};
+  }, []);
+
+  const validate = useMemo(
+    () =>
+      composeValidator(
+        {
+          unset: buildCheckboxValidator(),
+          address: buildAddressValidator(),
+        },
+        validateForm
+      ),
+    [validateForm]
+  );
+
+  const onValues = useCallback(
+    ({ valid, values, form }) => {
+      if (valid) {
+        if (values.unset) {
+          unset();
+          form.change('address', '');
+        } else {
+          construct(values.address);
+        }
+      } else {
+        unconstruct();
+      }
+    },
+    [construct, unconstruct, unset]
+  );
 
   const proxyAddress = proxyFromDetails(_details, _contracts, data.proxyType);
   const isProxySet = !isZeroAddress(proxyAddress);
@@ -169,27 +175,50 @@ export default function AdminSetProxy() {
         {proxyAddressLabel}
       </Grid.Item>
 
-      <Grid.Item full as={Flex} row justify="between" align="center">
-        <Flex.Item
-          flex
-          as={Text}
-          className={cn('mono', {
-            black: !completed && isProxySet,
-            gray4: !completed && !isProxySet,
-            green3: completed,
-          })}>
-          {isProxySet ? proxyAddress : 'Unset'}
-        </Flex.Item>
-        {!completed && isProxySet && (
-          <Flex.Item as={ToggleInput} {...unsetInput} />
-        )}
-      </Grid.Item>
+      <BridgeForm
+        validate={validate}
+        onValues={onValues}
+        onSubmit={() => {}}
+        initialValues={{ unset: false }}>
+        {({ handleSubmit, values }) => (
+          <>
+            <Grid.Item full as={Flex} row justify="between" align="center">
+              <Flex.Item
+                flex
+                as={Text}
+                className={cn('mono', {
+                  black: !completed && isProxySet,
+                  gray4: !completed && !isProxySet,
+                  green3: completed,
+                })}>
+                {isProxySet ? proxyAddress : 'Unset'}
+              </Flex.Item>
+              {!completed && isProxySet && (
+                <Flex.Item
+                  as={ToggleInput}
+                  name="unset"
+                  label="Unset"
+                  inverseLabel="Specify"
+                  disabled={inputsLocked}
+                />
+              )}
+            </Grid.Item>
 
-      {completed ? (
-        <Grid.Item full className="mb4" />
-      ) : (
-        <Grid.Item full as={Input} {...addressInput} className="mv4" />
-      )}
+            {completed ? (
+              <Grid.Item full className="mb4" />
+            ) : (
+              <Grid.Item
+                full
+                as={AddressInput}
+                className="mv4"
+                name="address"
+                label={`New ${properProxyType} Address`}
+                disabled={inputsLocked || values.unset}
+              />
+            )}
+          </>
+        )}
+      </BridgeForm>
 
       <Grid.Item
         full

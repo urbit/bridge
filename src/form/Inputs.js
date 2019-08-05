@@ -13,6 +13,7 @@ import {
   validateOneOf,
   validateHexString,
   validateHexLength,
+  validateEthereumAddress,
 } from 'lib/validators';
 import { compose } from 'lib/lib';
 import { prependSig } from 'lib/transformers';
@@ -46,8 +47,10 @@ export const buildTicketValidator = (validators = []) =>
   buildValidator([...validators, validateTicket, validateNotEmpty]);
 export const buildMnemonicValidator = () =>
   buildValidator([validateMnemonic, validateNotEmpty]);
-export const buildCheckboxValidator = () =>
-  buildValidator([validateOneOf([true, false])]);
+export const buildCheckboxValidator = mustBe =>
+  buildValidator([
+    validateOneOf(mustBe !== undefined ? [mustBe] : [true, false]),
+  ]);
 export const buildPassphraseValidator = () => buildValidator([]);
 // TODO: validate hdpath format
 export const buildHdPathValidator = () => buildValidator([validateNotEmpty]);
@@ -66,6 +69,13 @@ export const buildHexValidator = length =>
     validateNotEmpty,
   ]);
 export const buildUploadValidator = () => buildValidator([validateNotEmpty]);
+export const buildAddressValidator = () =>
+  buildValidator([
+    validateEthereumAddress,
+    validateHexLength(40),
+    validateHexString,
+    validateNotEmpty,
+  ]);
 
 // the default form validator just returns field-level validations
 const kDefaultFormValidator = (values, errors) => errors;
@@ -199,6 +209,18 @@ export function HexInput({ ...rest }) {
     <Input
       type="text"
       placeholder={PLACEHOLDER_PRIVATE_KEY}
+      autoComplete="off"
+      mono
+      {...rest}
+    />
+  );
+}
+
+export function AddressInput({ ...rest }) {
+  return (
+    <Input
+      type="text"
+      placeholder={PLACEHOLDER_ADDRESS}
       autoComplete="off"
       mono
       {...rest}

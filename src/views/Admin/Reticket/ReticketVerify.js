@@ -1,12 +1,17 @@
 import React, { useCallback, useMemo } from 'react';
-import { Input, Text, Grid } from 'indigo-react';
+import { Text, Grid } from 'indigo-react';
 
-import { useTicketInput } from 'lib/useInputs';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { validateExactly } from 'lib/validators';
 import { isDevelopment } from 'lib/flags';
 
-import { ForwardButton } from 'components/Buttons';
+import BridgeForm from 'form/BridgeForm';
+import {
+  TicketInput,
+  composeValidator,
+  buildTicketValidator,
+} from 'form/Inputs';
+import SubmitButton from 'form/SubmitButton';
 
 const STUB_VERIFY_TICKET = isDevelopment;
 
@@ -14,17 +19,15 @@ export default function ReticketVerify({ newWallet }) {
   const { push, names } = useLocalRouter();
 
   const ticket = newWallet.value.wallet.ticket;
-  const validators = useMemo(
-    () => [validateExactly(ticket, 'Does not match expected master ticket.')],
+  const validate = useMemo(
+    () =>
+      composeValidator({
+        ticket: buildTicketValidator([
+          validateExactly(ticket, 'Does not match expected master ticket.'),
+        ]),
+      }),
     [ticket]
   );
-  const [ticketInput, { pass }] = useTicketInput({
-    name: 'ticket',
-    label: 'New master ticket',
-    initialValue: STUB_VERIFY_TICKET ? ticket : undefined,
-    autoFocus: true,
-    validators,
-  });
 
   const goExecute = useCallback(() => push(names.EXECUTE), [push, names]);
 
@@ -33,15 +36,26 @@ export default function ReticketVerify({ newWallet }) {
       <Grid.Item full as={Text}>
         Verify New Master Ticket
       </Grid.Item>
-      <Grid.Item full as={Input} {...ticketInput} />
-      <Grid.Item
-        full
-        as={ForwardButton}
-        solid
-        disabled={!pass}
-        onClick={goExecute}>
-        Verify & Reticket
-      </Grid.Item>
+      <BridgeForm
+        validate={validate}
+        onSubmit={goExecute}
+        initialVaues={{
+          ticket: STUB_VERIFY_TICKET ? ticket : 'undefined',
+        }}>
+        {({ handleSubmit }) => (
+          <>
+            <Grid.Item
+              full
+              as={TicketInput}
+              name="ticket"
+              label="New master ticket"
+            />
+            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+              Verify & Reticket
+            </Grid.Item>
+          </>
+        )}
+      </BridgeForm>
     </Grid>
   );
 }

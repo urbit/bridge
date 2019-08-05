@@ -57,64 +57,6 @@ function useFirstOf({ inputs, setValue, ...rest }, mapper = identity) {
   ];
 }
 
-const kMnemonicValidators = [validateMnemonic, validateNotEmpty];
-export function useMnemonicInput(props) {
-  return useFirstOf(
-    useForm([
-      {
-        type: 'textarea',
-        autoComplete: 'off',
-        placeholder: PLACEHOLDER_MNEMONIC,
-        validators: kMnemonicValidators,
-        ...props,
-      },
-    ])
-  );
-}
-
-export function useHdPathInput(props) {
-  return useFirstOf(
-    useForm([
-      {
-        type: 'text',
-        autoComplete: 'off',
-        placeholder: PLACEHOLDER_HD_PATH,
-        ...props,
-      },
-    ])
-  );
-}
-
-const kTicketValidators = [validateTicket, validateNotEmpty];
-//TODO needs to be fancier, displaying sig and dashes instead of •ing all
-const kTicketTransformers = [prependSig];
-export function useTicketInput({ validators = [], deriving = false, ...rest }) {
-  return useFirstOf(
-    useForm([
-      {
-        type: 'password',
-        label: 'Ticket',
-        placeholder: PLACEHOLDER_TICKET,
-        validators: useMemo(() => [...validators, ...kTicketValidators], [
-          validators,
-        ]),
-        transformers: kTicketTransformers,
-        mono: true,
-        ...rest,
-      },
-    ]),
-    ({ error, pass }) => ({
-      accessory: error ? (
-        <AccessoryIcon.Failure />
-      ) : deriving ? (
-        <AccessoryIcon.Pending />
-      ) : pass ? (
-        <AccessoryIcon.Success />
-      ) : null,
-    })
-  );
-}
-
 const kPointTransformers = [prependSig];
 export function usePointInput({ size = 4, validators = [], ...rest }) {
   const _validators = useMemo(
@@ -160,37 +102,6 @@ export function useGalaxyInput(props) {
     size: 1,
     ...props,
   });
-}
-
-export function useCheckboxInput({ initialValue, ...rest }) {
-  return useFirstOf(
-    useForm([
-      {
-        type: 'checkbox',
-        ...rest,
-      },
-    ])
-  );
-}
-
-export function useSelectInput({ initialValue, options, ...rest }) {
-  return useFirstOf(
-    useForm([
-      {
-        type: 'select',
-        validators: useMemo(
-          () => [
-            validateOneOf(options.map(option => option.value)),
-            validateNotEmpty,
-          ],
-          [options]
-        ),
-        options,
-        initialValue: initialValue || options[0].value,
-        ...rest,
-      },
-    ])
-  );
 }
 
 const kAddressValidators = [
