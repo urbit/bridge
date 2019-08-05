@@ -57,40 +57,6 @@ function useFirstOf({ inputs, setValue, ...rest }, mapper = identity) {
   ];
 }
 
-export function usePassphraseInput(props) {
-  return useFirstOf(
-    useForm([
-      {
-        type: 'password',
-        autoComplete: 'off',
-        placeholder: 'Passphrase',
-        ...props,
-      },
-    ])
-  );
-}
-
-export function useHexInput({ length, ...rest }) {
-  return useFirstOf(
-    useForm([
-      {
-        type: 'text', // or password
-        autoComplete: 'off',
-        placeholder: PLACEHOLDER_PRIVATE_KEY,
-        validators: useMemo(
-          () => [
-            validateHexString,
-            validateLength(length + 2),
-            validateNotEmpty,
-          ],
-          [length]
-        ),
-        ...rest,
-      },
-    ])
-  );
-}
-
 const kMnemonicValidators = [validateMnemonic, validateNotEmpty];
 export function useMnemonicInput(props) {
   return useFirstOf(

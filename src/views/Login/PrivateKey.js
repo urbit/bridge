@@ -9,11 +9,7 @@ import useLoginView from 'lib/useLoginView';
 import FormError from 'form/FormError';
 import ContinueButton from './ContinueButton';
 import BridgeForm from 'form/BridgeForm';
-import {
-  buildHexValidator,
-  composeValidator,
-  PrivateKeyInput,
-} from 'form/Inputs';
+import { buildHexValidator, composeValidator, HexInput } from 'form/Inputs';
 
 export default function PrivateKey({ className, goHome }) {
   useLoginView(WALLET_TYPES.PRIVATE_KEY);
@@ -48,7 +44,7 @@ export default function PrivateKey({ className, goHome }) {
           <>
             <Grid.Item
               full
-              as={PrivateKeyInput}
+              as={HexInput}
               name="privatekey"
               label="Private key"
             />

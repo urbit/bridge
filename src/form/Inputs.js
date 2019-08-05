@@ -94,7 +94,6 @@ export const composeValidator = (
   };
 
   return async values => {
-    console.log('validating...');
     const errors = await fieldLevelValidator(values);
     return await formValidator(values, errors);
   };
@@ -195,12 +194,13 @@ export function PointInput({ name, size = 4, ...rest }) {
   );
 }
 
-export function PrivateKeyInput({ ...rest }) {
+export function HexInput({ ...rest }) {
   return (
     <Input
       type="text"
       placeholder={PLACEHOLDER_PRIVATE_KEY}
       autoComplete="off"
+      mono
       {...rest}
     />
   );

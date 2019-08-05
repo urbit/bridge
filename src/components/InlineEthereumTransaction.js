@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import cn from 'classnames';
 import {
   Grid,
@@ -12,12 +12,14 @@ import {
 } from 'indigo-react';
 import { fromWei } from 'web3-utils';
 
-import { useCheckboxInput } from 'lib/useInputs';
 import { useExploreTxUrl } from 'lib/explorer';
 import { hexify } from 'lib/txn';
 
 import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
 import WarningBox from './WarningBox';
+import { composeValidator, buildCheckboxValidator } from 'form/Inputs';
+import BridgeForm from 'form/BridgeForm';
+import Condition from 'form/Condition';
 
 export default function InlineEthereumTransaction({
   // from useEthereumTransaction.bind
@@ -57,29 +59,24 @@ export default function InlineEthereumTransaction({
   const showSignedTx = signed;
 
   const exploreTxUrl = useExploreTxUrl(txHash);
-  const [advancedInput, { data: advancedOpen }] = useCheckboxInput({
-    name: 'advanced',
-    label: 'Advanced Configuration',
-    inverseLabel: 'Cancel Advanced Configuration',
-    disabled: !showConfigureInput,
-  });
 
-  const [
-    viewSignedTransaction,
-    { data: signedTransactionOpen },
-  ] = useCheckboxInput({
-    name: 'viewsigned',
-    label: 'View Signed Transaction',
-    inverseLabel: 'Hide Signed Transaction',
-    disabled: !showSignedTx,
-  });
+  const validate = useMemo(
+    () =>
+      composeValidator({
+        useAdvanced: buildCheckboxValidator(),
+        viewSigned: buildCheckboxValidator(),
+      }),
+    []
+  );
 
-  // reset gas price when closing advanced configuration
-  useEffect(() => {
-    if (!advancedOpen) {
-      resetGasPrice();
-    }
-  }, [advancedOpen, resetGasPrice]);
+  const onValues = useCallback(
+    ({ valid, values, form }) => {
+      if (!values.useAdvanced) {
+        resetGasPrice();
+      }
+    },
+    [resetGasPrice]
+  );
 
   const renderPrimaryButton = () => {
     if (error) {
@@ -126,94 +123,118 @@ export default function InlineEthereumTransaction({
 
   return (
     <Grid className={cn(className, 'mt1')}>
-      {renderPrimaryButton()}
+      <BridgeForm validate={validate} onValues={onValues} onSubmit={() => {}}>
+        {({ handleSubmit }) => (
+          <>
+            {renderPrimaryButton()}
 
-      {error && (
-        <Grid.Item full as={ErrorText} className="mt1">
-          {error.message}
-        </Grid.Item>
-      )}
-
-      {needFunds && (
-        <Grid.Item full as={WarningBox} className="mt3">
-          The address {needFunds.address} needs at least{' '}
-          {fromWei(needFunds.minBalance)} ETH and currently has{' '}
-          {fromWei(needFunds.balance)} ETH. Waiting until the account has enough
-          funds.
-        </Grid.Item>
-      )}
-
-      {showConfigureInput && (
-        <>
-          <Grid.Item full as={ToggleInput} {...advancedInput} />
-          {advancedOpen && (
-            <>
-              <Grid.Item full as={Flex} row justify="between" className="mt2">
-                <Flex.Item as={H5}>Gas Price</Flex.Item>
-                <Flex.Item as={H5}>{gasPrice} Gwei</Flex.Item>
+            {error && (
+              <Grid.Item full as={ErrorText} className="mt1">
+                {error.message}
               </Grid.Item>
-              {/* TODO(shrugs): move to indigo/RangeInput */}
-              <Grid.Item
-                full
-                as="input"
-                type="range"
-                min="1"
-                max="100"
-                value={gasPrice}
-                onChange={e => setGasPrice(parseInt(e.target.value, 10))}
-              />
-              <Grid.Item
-                full
-                as={Flex}
-                row
-                justify="between"
-                className="f6 mt1">
-                <Flex.Item as={Text}>Cheap</Flex.Item>
-                <Flex.Item as={Text}>Fast</Flex.Item>
-              </Grid.Item>
-              <Grid.Item full as={HelpText} className="mt3">
-                Nonce: {nonce}
-              </Grid.Item>
-              <Grid.Item full as={HelpText} className="mt1">
-                Chain ID: {chainId}
-              </Grid.Item>
-              <Grid.Divider className="mt3" />
-            </>
-          )}
-        </>
-      )}
+            )}
 
-      {showSignedTx && (
-        <>
-          <Grid.Item full as={ToggleInput} {...viewSignedTransaction} />
-          {signedTransactionOpen && (
-            <Grid.Item full as="code" className="f6 mono gray4 wrap">
-              {hexify(signedTransaction.serialize())}
-            </Grid.Item>
-          )}
-        </>
-      )}
+            {needFunds && (
+              <Grid.Item full as={WarningBox} className="mt3">
+                The address {needFunds.address} needs at least{' '}
+                {fromWei(needFunds.minBalance)} ETH and currently has{' '}
+                {fromWei(needFunds.balance)} ETH. Waiting until the account has
+                enough funds.
+              </Grid.Item>
+            )}
 
-      {showReceipt && (
-        <>
-          <Grid.Divider />
-          <Grid.Item full as={Flex} col className="pv4">
-            <Flex.Item as={Flex} row justify="between">
-              <Flex.Item as={H5}>Transaction Hash</Flex.Item>
-              <Flex.Item as={LinkButton} href={exploreTxUrl}>
-                Etherscan↗
-              </Flex.Item>
-            </Flex.Item>
-            <Flex.Item as={Flex}>
-              <Flex.Item flex as="code" className="f6 mono gray4 wrap">
-                {txHash}
-              </Flex.Item>
-              <Flex.Item flex />
-            </Flex.Item>
-          </Grid.Item>
-          <Grid.Divider />
-        </>
-      )}
+            {showConfigureInput && (
+              <>
+                <Grid.Item
+                  full
+                  as={ToggleInput}
+                  name="useAdvanced"
+                  label="Advanced Configuration"
+                  inverseLabel="Cancel Advanced Configuration"
+                  disabled={!showConfigureInput}
+                />
+
+                <Condition when="useAdvanced" is={true}>
+                  <Grid.Item
+                    full
+                    as={Flex}
+                    row
+                    justify="between"
+                    className="mt2">
+                    <Flex.Item as={H5}>Gas Price</Flex.Item>
+                    <Flex.Item as={H5}>{gasPrice} Gwei</Flex.Item>
+                  </Grid.Item>
+                  {/* TODO(shrugs): move to indigo/RangeInput */}
+                  <Grid.Item
+                    full
+                    as="input"
+                    type="range"
+                    min="1"
+                    max="100"
+                    value={gasPrice}
+                    onChange={e => setGasPrice(parseInt(e.target.value, 10))}
+                  />
+                  <Grid.Item
+                    full
+                    as={Flex}
+                    row
+                    justify="between"
+                    className="f6 mt1">
+                    <Flex.Item as={Text}>Cheap</Flex.Item>
+                    <Flex.Item as={Text}>Fast</Flex.Item>
+                  </Grid.Item>
+                  <Grid.Item full as={HelpText} className="mt3">
+                    Nonce: {nonce}
+                  </Grid.Item>
+                  <Grid.Item full as={HelpText} className="mt1">
+                    Chain ID: {chainId}
+                  </Grid.Item>
+                  <Grid.Divider className="mt3" />
+                </Condition>
+              </>
+            )}
+
+            {showSignedTx && (
+              <>
+                <Grid.Item
+                  full
+                  as={ToggleInput}
+                  name="viewSigned"
+                  label="View Signed Transaction"
+                  inverseLabel="Hide Signed Transaction"
+                  disabled={!showSignedTx}
+                />
+                <Condition when="viewSigned" is={true}>
+                  <Grid.Item full as="code" className="f6 mono gray4 wrap">
+                    {hexify(signedTransaction.serialize())}
+                  </Grid.Item>
+                </Condition>
+              </>
+            )}
+
+            {showReceipt && (
+              <>
+                <Grid.Divider />
+                <Grid.Item full as={Flex} col className="pv4">
+                  <Flex.Item as={Flex} row justify="between">
+                    <Flex.Item as={H5}>Transaction Hash</Flex.Item>
+                    <Flex.Item as={LinkButton} href={exploreTxUrl}>
+                      Etherscan↗
+                    </Flex.Item>
+                  </Flex.Item>
+                  <Flex.Item as={Flex}>
+                    <Flex.Item flex as="code" className="f6 mono gray4 wrap">
+                      {txHash}
+                    </Flex.Item>
+                    <Flex.Item flex />
+                  </Flex.Item>
+                </Grid.Item>
+                <Grid.Divider />
+              </>
+            )}
+          </>
+        )}
+      </BridgeForm>
     </Grid>
   );
 }
