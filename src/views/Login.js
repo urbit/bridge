@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import { H4, Grid } from 'indigo-react';
+import { filter } from 'lodash';
 
 import { useHistory } from 'store/history';
 import { useNetwork } from 'store/network';
@@ -21,6 +22,7 @@ import Ticket from './Login/Ticket';
 import Mnemonic from './Login/Mnemonic';
 import Advanced from './Login/Advanced';
 import Hardware from './Login/Hardware';
+import useBreakpoints from 'lib/useBreakpoints';
 
 const NAMES = {
   TICKET: 'TICKET',
@@ -69,6 +71,20 @@ export default function Login() {
   const { pointCursor, setPointCursor } = usePointCursor();
 
   const [deducing, setDeducing] = useState(false);
+
+  // again, using breakpoint to decide if we're on mobile or not
+  // see ActivateCode for more details
+  const hardwareAllowed = useBreakpoints([false, true, true]);
+
+  // filter out hardware if mobile
+  const options = useMemo(
+    () =>
+      filter(
+        OPTIONS,
+        ({ value }) => hardwareAllowed || value !== NAMES.HARDWARE
+      ),
+    [hardwareAllowed]
+  );
 
   // inputs
   const [currentTab, setCurrentTab] = useState(
@@ -132,7 +148,7 @@ export default function Login() {
           as={Tabs}
           className="mt1"
           views={VIEWS}
-          options={OPTIONS}
+          options={options}
           currentTab={currentTab}
           onTabChange={setCurrentTab}
         />

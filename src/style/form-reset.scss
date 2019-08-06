@@ -1,7 +1,12 @@
 $form-padding: 24px; // indigo pv3
-$form-line-height: 1.5rem;
+$form-line-height: 1.5rem; // $lh-regular
 
-// inspired by: https://gist.github.com/anthonyshort/552543
+@keyframes autofill {
+  to {
+    color: #000;
+    background: transparent;
+  }
+}
 
 input,
 button,
@@ -24,28 +29,19 @@ select {
 }
 
 input {
+  // enforce border-box
   box-sizing: border-box;
-  -webkit-box-sizing: border-box;
 
+  // enforce height & line-height for accessories
   height: calc(#{$form-line-height} + #{$form-padding});
   line-height: $form-line-height;
-}
 
-textarea {
-  /* Move the label to the top */
-  vertical-align: top;
+  // avoid yellow autofill highlight on browsers that respect this attribute
+  &:-webkit-autofill {
+    animation-name: autofill;
+    animation-fill-mode: both;
 
-  /* Turn off scroll bars in IE unless needed */
-  overflow: auto;
-}
-
-::-webkit-file-upload-button {
-  padding: 0;
-  border: 0;
-  background: none;
-}
-
-/* Turn off the recent search for webkit. It adds about 15px padding on the left */
-::-webkit-search-decoration {
-  display: none;
+    -webkit-animation-name: autofill;
+    -webkit-animation-fill-mode: both;
+  }
 }
