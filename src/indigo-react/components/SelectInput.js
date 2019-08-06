@@ -1,11 +1,11 @@
 import React, { useCallback, useRef, useState } from 'react';
 import cn from 'classnames';
+import { useField } from 'react-final-form';
+import useOnClickOutside from 'indigo-react/lib/useOnClickOutside';
 
 import Flex from './Flex';
 import { ErrorText } from './Typography';
-import useOnClickOutside from 'indigo-react/lib/useOnClickOutside';
 import AccessoryIcon from './AccessoryIcon';
-import { useField } from 'react-final-form';
 
 // NOTE: if we really care about accessibility, we should pull in a dependency
 export default function SelectInput({
@@ -19,7 +19,14 @@ export default function SelectInput({
 }) {
   const {
     input,
-    meta: { active, error, submitting, touched, valid },
+    meta: {
+      active,
+      error,
+      submitting,
+      touched,
+      valid,
+      data: { warning },
+    },
   } = useField(name, {
     type: 'select',
   });
@@ -121,6 +128,13 @@ export default function SelectInput({
           </Flex>
         )}
       </Flex.Item>
+
+      {warning && (
+        <Flex.Item as={ErrorText} className="mv1">
+          {warning}
+        </Flex.Item>
+      )}
+
       {touched && !active && error && (
         <Flex.Item as={ErrorText} className="mv1">
           {error}

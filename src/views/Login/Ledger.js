@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
-import { Just, Nothing } from 'folktale/maybe';
+import { Just } from 'folktale/maybe';
 import {
   P,
   Text,

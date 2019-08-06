@@ -1,9 +1,9 @@
 import React from 'react';
 import cn from 'classnames';
+import { useField } from 'react-final-form';
 
 import Flex from './Flex';
 import { ErrorText } from './Typography';
-import { useField } from 'react-final-form';
 
 export default function Input({
   // visuals
@@ -26,7 +26,14 @@ export default function Input({
 }) {
   const {
     input,
-    meta: { active, error, submitting, touched, valid },
+    meta: {
+      active,
+      error,
+      submitting,
+      touched,
+      valid,
+      data: { warning },
+    },
   } = useField(name, config);
 
   disabled = disabled || submitting;
@@ -101,6 +108,13 @@ export default function Input({
           </div>
         )}
       </Flex.Item>
+
+      {warning && (
+        <Flex.Item as={ErrorText} className="mv1">
+          {warning}
+        </Flex.Item>
+      )}
+
       {touched && !active && error && (
         <Flex.Item as={ErrorText} className="mv1">
           {error}

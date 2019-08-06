@@ -30,6 +30,7 @@ import {
 import FormError from 'form/FormError';
 
 import ContinueButton from './ContinueButton';
+import useSetState from 'lib/useSetState';
 
 export default function Ticket({ className, goHome }) {
   useLoginView(WALLET_TYPES.TICKET);
@@ -38,6 +39,7 @@ export default function Ticket({ className, goHome }) {
   const { setUrbitWallet } = useWallet();
   const { setPointCursor } = usePointCursor();
   const impliedPoint = useImpliedPoint();
+  const [warnings, addWarning] = useSetState();
 
   const cachedUrbitWallet = useRef(Nothing());
 
@@ -88,11 +90,13 @@ export default function Ticket({ className, goHome }) {
           ),
         ]);
 
-        if (!isOwner && !isTransferProxy) {
-          // notify the user, but allow login regardless
-          // TODO: warnings
-          // 'This ticket is not the owner of or transfer proxy for this point.'
-        }
+        const noPermissions = !isOwner && !isTransferProxy;
+        // notify the user, but allow login regardless
+        addWarning({
+          point: noPermissions
+            ? 'This wallet is not the owner or transfer proxy for this point.'
+            : null,
+        });
       } catch (error) {
         console.error(error);
         return {
@@ -102,7 +106,7 @@ export default function Ticket({ className, goHome }) {
         };
       }
     },
-    [contracts]
+    [addWarning, contracts]
   );
 
   const validate = useMemo(
@@ -147,6 +151,7 @@ export default function Ticket({ className, goHome }) {
   return (
     <Grid className={cn('mt4', className)}>
       <BridgeForm
+        warnings={warnings}
         validate={validate}
         onValues={onValues}
         afterSubmit={goHome}
