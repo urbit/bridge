@@ -41,6 +41,9 @@ export function TicketInput({ name, ...rest }) {
       type="password"
       name={name}
       placeholder={PLACEHOLDER_TICKET}
+      autoCapitalize="none"
+      autoComplete="off"
+      autoCorrect="off"
       accessory={
         touched && !active && error ? (
           <AccessoryIcon.Failure />
@@ -59,7 +62,14 @@ export function TicketInput({ name, ...rest }) {
 
 export function MnemonicInput({ ...rest }) {
   return (
-    <Input type="textarea" placeholder={PLACEHOLDER_MNEMONIC} mono {...rest} />
+    <Input
+      type="textarea"
+      placeholder={PLACEHOLDER_MNEMONIC}
+      autoCapitalize="none"
+      autoComplete="off"
+      mono
+      {...rest}
+    />
   );
 }
 
@@ -68,7 +78,9 @@ export function HdPathInput({ ...rest }) {
     <Input
       type="text"
       placeholder={PLACEHOLDER_HD_PATH}
+      autoCapitalize="none"
       autoComplete="off"
+      autoCorrect="off"
       {...rest}
     />
   );
@@ -79,7 +91,9 @@ export function PassphraseInput({ ...rest }) {
     <Input
       type="password"
       placeholder="Passphrase"
+      autoCapitalize="none"
       autoComplete="off"
+      autoCorrect="off"
       {...rest}
     />
   );
@@ -99,6 +113,9 @@ export function PointInput({ name, size = 4, ...rest }) {
       label="Point"
       name={name}
       placeholder={PLACEHOLDER_POINT}
+      autoCapitalize="none"
+      autoComplete="off"
+      autoCorrect="off"
       accessory={
         value ? (
           <InputSigil
@@ -122,7 +139,9 @@ export function HexInput({ ...rest }) {
     <Input
       type="text"
       placeholder={PLACEHOLDER_PRIVATE_KEY}
+      autoCapitalize="none"
       autoComplete="off"
+      autoCorrect="off"
       mono
       {...rest}
     />
@@ -134,7 +153,8 @@ export function AddressInput({ ...rest }) {
     <Input
       type="text"
       placeholder={PLACEHOLDER_ADDRESS}
-      autoComplete="off"
+      autoCapitalize="none"
+      autoCorrect="off"
       mono
       {...rest}
     />
@@ -146,7 +166,6 @@ export function NumberInput({ ...rest }) {
     <Input
       type="number"
       label="Number"
-      autoComplete="off"
       config={{ format: convertToNumber }}
       {...rest}
     />
@@ -158,7 +177,7 @@ export function EmailInput({ ...rest }) {
     <Input
       type="email"
       placeholder={PLACEHOLDER_EMAIL}
-      autoComplete="off"
+      autoCapitalize="none"
       {...rest}
     />
   );
