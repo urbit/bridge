@@ -315,9 +315,7 @@ export default function InviteEmail() {
           tankWasUsed
         );
 
-        // TODO: waitForTransactionConfirm never rejects
-        const didConfirm = await waitForTransactionConfirm(_web3, txHash);
-        if (!didConfirm) throw new Error();
+        await waitForTransactionConfirm(_web3, txHash);
       } catch (error) {
         console.error(error);
         unsentInvites.push(invite);

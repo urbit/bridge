@@ -129,13 +129,19 @@ const sendSignedTransaction = (web3, stx, doubtNonceError) => {
   });
 };
 
-// returns a Promise<bool>, where the bool indicates tx success/failure
+// returns a Promise<void>, throwing on tx failure
 const waitForTransactionConfirm = (web3, txHash) => {
   return retry(async (bail, n) => {
     const receipt = await web3.eth.getTransactionReceipt(txHash);
     const confirmed = receipt !== null;
-    if (confirmed) return receipt.status === true;
-    else throw new Error('retrying');
+    if (!confirmed) {
+      throw new Error('Transaction not confirmed.');
+    }
+
+    const success = receipt.status === true;
+    if (!success) {
+      return bail(new Error('Transaction failed.'));
+    }
   }, RETRY_OPTIONS);
 };
 
