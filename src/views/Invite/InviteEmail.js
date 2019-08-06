@@ -34,7 +34,8 @@ import {
   hexify,
 } from 'lib/txn';
 import * as tank from 'lib/tank';
-import { MIN_PLANET, GAS_LIMITS, DEFAULT_GAS_PRICE_GWEI } from 'lib/constants';
+import { MIN_PLANET, GAS_LIMITS } from 'lib/constants';
+import { useSuggestedGasPrice } from 'lib/useSuggestedGasPrice';
 import * as need from 'lib/need';
 import * as wg from 'lib/walletgen';
 import useSetState from 'lib/useSetState';
@@ -59,10 +60,6 @@ import FormError from 'form/FormError';
 const INITIAL_VALUES = { emails: [''] };
 
 const GAS_LIMIT = GAS_LIMITS.GIFT_PLANET;
-const INVITE_COST = toWei(
-  (DEFAULT_GAS_PRICE_GWEI * GAS_LIMIT).toString(),
-  'gwei'
-);
 const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
 
 const STATUS = {
@@ -106,6 +103,7 @@ export default function InviteEmail() {
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
   const { getHasReceived, sendMail } = useMailer();
+  const { gasPrice } = useSuggestedGasPrice(networkType);
 
   const cachedEmails = useRef([]);
 
@@ -245,7 +243,7 @@ export default function InviteEmail() {
             nonce: nonce + i,
             // TODO: ^ make a useTransactionSigner to encapsulate this logic
             txn: inviteTx,
-            gasPrice: DEFAULT_GAS_PRICE_GWEI.toString(),
+            gasPrice: gasPrice.toString(),
             gasLimit: GAS_LIMIT.toString(),
           });
 
@@ -278,6 +276,7 @@ export default function InviteEmail() {
       walletType,
       walletHdPath,
       networkType,
+      gasPrice,
       addInvite,
     ]
   );
@@ -295,7 +294,7 @@ export default function InviteEmail() {
       _web3,
       point,
       _wallet.address,
-      INVITE_COST * emails.length,
+      toWei((gasPrice * GAS_LIMIT * emails.length).toString(), 'gwei'),
       emails.map(email => invites[email].rawTx),
       (address, minBalance, balance) =>
         setNeedFunds({ address, minBalance, balance }),
@@ -361,7 +360,16 @@ export default function InviteEmail() {
     if (errorString !== '') {
       throw new Error(errorString);
     }
-  }, [web3, addReceipt, clearReceipts, invites, point, wallet, sendMail]);
+  }, [
+    web3,
+    wallet,
+    point,
+    gasPrice,
+    clearReceipts,
+    invites,
+    addReceipt,
+    sendMail,
+  ]);
 
   const onSubmit = useCallback(
     async values => {

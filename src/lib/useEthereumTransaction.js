@@ -5,6 +5,7 @@ import { fromWei, toWei } from 'web3-utils';
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
+import { useSuggestedGasPrice } from 'lib/useSuggestedGasPrice';
 
 import { GAS_LIMITS } from './constants';
 import {
@@ -60,6 +61,7 @@ export default function useEthereumTransaction(
   const [nonce, setNonce] = useState();
   const [gasPrice, setGasPrice] = useState(initialGasPrice); // gwei
   const [suggestedGasPrice, setSuggestedGasPrice] = useState(gasPrice); // gwei
+  const { gasPrice: estimatedGasPrice } = useSuggestedGasPrice();
   const [gasLimit] = useState(initialGasLimit);
   const [unsignedTransaction, setUnsignedTransaction] = useState();
   const [signedTransaction, setSignedTransaction] = useState();
@@ -189,6 +191,15 @@ export default function useEthereumTransaction(
   ]);
 
   useEffect(() => {
+    const gasPrice = parseInt(
+      fromWei(estimatedGasPrice.toString(), 'gwei'),
+      10
+    );
+    setSuggestedGasPrice(gasPrice);
+    setGasPrice(gasPrice);
+  }, [estimatedGasPrice]);
+
+  useEffect(() => {
     let mounted = true;
     // if nonce or chainId is undefined, re-fetch on-chain info
     if (!(nonce === undefined || chainId === undefined)) {
@@ -198,13 +209,10 @@ export default function useEthereumTransaction(
     (async () => {
       try {
         setError(undefined);
-        const [nonce, chainId, estimatedGasPrice] = await Promise.all([
+        const [nonce, chainId] = await Promise.all([
           _web3.eth.getTransactionCount(_wallet.address),
           _web3.eth.net.getId(),
-          _web3.eth.getGasPrice(),
         ]);
-
-        const gasPrice = parseInt(fromWei(estimatedGasPrice, 'gwei'), 10);
 
         if (!mounted) {
           return;
@@ -212,15 +220,21 @@ export default function useEthereumTransaction(
 
         setNonce(nonce);
         setChainId(chainId);
-        setSuggestedGasPrice(gasPrice);
-        setGasPrice(gasPrice);
       } catch (error) {
         setError(error);
       }
     })();
 
     return () => (mounted = false);
-  }, [_wallet, _web3, setError, nonce, chainId]);
+  }, [
+    _wallet,
+    _web3,
+    setError,
+    nonce,
+    chainId,
+    networkType,
+    estimatedGasPrice,
+  ]);
 
   useEffect(() => {
     let mounted = true;
