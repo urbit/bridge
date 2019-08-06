@@ -84,11 +84,10 @@ export default function ActivateCode() {
 
       if (incoming.length > 0) {
         if (incoming.length > 1) {
-          // TODO: warnings
-          // setGeneralError(
-          //   'This invite code has multiple points available.\n' +
-          //     "Once you've activated this point, activate the next with the same process."
-          // );
+          // TODO: putting a warning here doesn't make sense since the user
+          // will be immediately redirected away — what do?
+          // 'This invite code has multiple points available.\n' +
+          //   "Once you've activated this point, activate the next with the same process.";
         }
 
         const point = parseInt(incoming[0], 10);
