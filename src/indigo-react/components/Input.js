@@ -74,9 +74,7 @@ export default React.memo(function Input({
           type={type === 'textarea' ? undefined : type}
           {...rest}
           // NOTE: 1.15 from input line-height, 24px = 12px * 2 (from p3 styling)
-          style={
-            type === 'textarea' ? { minHeight: 'calc(1.15rem * 2 + 24px)' } : {}
-          }
+          style={type === 'textarea' ? { minHeight: 'calc(1.5rem * 3)' } : {}}
           className={cn(
             'b b1 p3 outline-none',
             { mono },
