@@ -25,7 +25,7 @@ import useHasDisclaimed from 'lib/useHasDisclaimed';
 import BridgeForm from 'form/BridgeForm';
 import SubmitButton from 'form/SubmitButton';
 import { TicketInput } from 'form/Inputs';
-import { composeValidator, buildTicketValidator } from 'form/validators';
+import { composeValidator, buildPatqValidator } from 'form/validators';
 import FormError from 'form/FormError';
 import { FORM_ERROR } from 'final-form';
 
@@ -56,7 +56,7 @@ export default function ActivateCode() {
   }, [names, push, hasDisclaimed]);
 
   const validate = useMemo(
-    () => composeValidator({ ticket: buildTicketValidator() }),
+    () => composeValidator({ ticket: buildPatqValidator() }),
     []
   );
 

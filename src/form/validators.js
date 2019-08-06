@@ -2,8 +2,7 @@ import { some } from 'lodash';
 
 import {
   validateNotEmpty,
-  validateTicket,
-  kDefaultValidator,
+  validatePatq,
   validateMnemonic,
   validatePoint,
   validateMaximumPatpByteLength,
@@ -13,19 +12,21 @@ import {
   validateEthereumAddress,
   validateGreaterThan,
   validateEmail,
+  validateNotNullAddress,
 } from 'lib/validators';
-import { compose } from 'lib/lib';
 
-const buildValidator = (
-  validators = [],
-  fn = () => undefined
-) => async value => {
-  return (
-    compose(
-      ...validators,
-      kDefaultValidator
-    )(value).error || (await fn(value))
-  );
+// iterate over validators, exiting early if there's an error
+const buildValidator = (validators = []) => async value => {
+  for (const validator of validators) {
+    try {
+      const error = await validator(value);
+      if (error) {
+        return error;
+      }
+    } catch (error) {
+      return error.message;
+    }
+  }
 };
 
 // error object has errors if some of its fields are
@@ -34,10 +35,10 @@ const buildValidator = (
 export const hasErrors = iter =>
   some(iter, v => (Array.isArray(v) ? hasErrors(v) : v !== undefined));
 
-export const buildTicketValidator = (validators = []) =>
-  buildValidator([...validators, validateTicket, validateNotEmpty]);
+export const buildPatqValidator = (validators = []) =>
+  buildValidator([validateNotEmpty, validatePatq, ...validators]);
 export const buildMnemonicValidator = () =>
-  buildValidator([validateMnemonic, validateNotEmpty]);
+  buildValidator([validateNotEmpty, validateMnemonic]);
 export const buildCheckboxValidator = mustBe =>
   buildValidator([
     validateOneOf(mustBe !== undefined ? [mustBe] : [true, false]),
@@ -45,34 +46,40 @@ export const buildCheckboxValidator = mustBe =>
 export const buildPassphraseValidator = () => buildValidator([]);
 // TODO: validate hdpath format
 export const buildHdPathValidator = () => buildValidator([validateNotEmpty]);
-export const buildPointValidator = (size = 4, validate) =>
-  buildValidator(
-    [validatePoint, validateMaximumPatpByteLength(size), validateNotEmpty],
-    validate
-  );
+export const buildPointValidator = (size = 4, validators = []) =>
+  buildValidator([
+    validateNotEmpty,
+    validateMaximumPatpByteLength(size),
+    validatePoint,
+    ...validators,
+  ]);
 export const buildSelectValidator = options =>
   buildValidator([validateOneOf(options.map(option => option.value))]);
 export const buildHexValidator = length =>
   buildValidator([
-    validateHexLength(length),
-    validateHexString,
     validateNotEmpty,
+    validateHexString,
+    validateHexLength(length),
   ]);
 export const buildUploadValidator = () => buildValidator([validateNotEmpty]);
 export const buildAddressValidator = () =>
   buildValidator([
-    validateEthereumAddress,
-    validateHexLength(40),
-    validateHexString,
     validateNotEmpty,
+    validateHexString,
+    validateHexLength(40),
+    validateNotNullAddress,
+    validateEthereumAddress,
   ]);
 export const buildNumberValidator = (min = 0) =>
   buildValidator([validateGreaterThan(min)]);
 export const buildEmailValidator = () =>
-  buildValidator([validateEmail, validateNotEmpty]);
+  buildValidator([validateNotEmpty, validateEmail]);
 
 // the default form validator just returns field-level validations
 const kDefaultFormValidator = (values, errors) => errors;
+
+// the form validator is the composition of all of the field validators
+// plus an additional form validator function
 export const composeValidator = (
   fieldValidators = {},
   formValidator = kDefaultFormValidator
@@ -83,6 +90,7 @@ export const composeValidator = (
     fieldValidators[name](value)
   );
 
+  // async reduce errors per-field into an errors object
   const fieldLevelValidator = async values => {
     const errors = await Promise.all(
       names.map((name, i) => fieldLevelValidators[i](values[name]))
@@ -97,8 +105,12 @@ export const composeValidator = (
     );
   };
 
+  // final-form `validate` function
   return async values => {
+    // ask for field-level errors
     const errors = await fieldLevelValidator(values);
+    // pass the current values and their validity to the form-level validator
+    // that can implement conditional logic and more complex validations
     return await formValidator(values, errors);
   };
 };

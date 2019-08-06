@@ -23,7 +23,7 @@ import { TicketInput, PassphraseInput, PointInput } from 'form/Inputs';
 import {
   composeValidator,
   buildCheckboxValidator,
-  buildTicketValidator,
+  buildPatqValidator,
   buildPassphraseValidator,
   buildPointValidator,
 } from 'form/validators';
@@ -112,10 +112,10 @@ export default function Ticket({ className, goHome }) {
           usePassphrase: buildCheckboxValidator(),
           useShards: buildCheckboxValidator(),
           point: buildPointValidator(4),
-          ticket: buildTicketValidator(),
-          shard1: buildTicketValidator(),
-          shard2: buildTicketValidator(),
-          shard3: buildTicketValidator(),
+          ticket: buildPatqValidator(),
+          shard1: buildPatqValidator(),
+          shard2: buildPatqValidator(),
+          shard3: buildPatqValidator(),
           passphrase: buildPassphraseValidator(),
         },
         validateForm

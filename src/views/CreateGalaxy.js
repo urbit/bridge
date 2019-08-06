@@ -77,7 +77,7 @@ export default function CreateGalaxy() {
   const validate = useMemo(
     () =>
       composeValidator({
-        galaxyName: buildPointValidator(1, validateGalaxy),
+        galaxyName: buildPointValidator(1, [validateGalaxy]),
         owner: buildAddressValidator(),
       }),
     [validateGalaxy]

@@ -7,7 +7,7 @@ import { isDevelopment } from 'lib/flags';
 
 import BridgeForm from 'form/BridgeForm';
 import { TicketInput } from 'form/Inputs';
-import { composeValidator, buildTicketValidator } from 'form/validators';
+import { composeValidator, buildPatqValidator } from 'form/validators';
 import SubmitButton from 'form/SubmitButton';
 import FormError from 'form/FormError';
 
@@ -20,7 +20,7 @@ export default function ReticketVerify({ newWallet }) {
   const validate = useMemo(
     () =>
       composeValidator({
-        ticket: buildTicketValidator([
+        ticket: buildPatqValidator([
           validateExactly(ticket, 'Does not match expected master ticket.'),
         ]),
       }),

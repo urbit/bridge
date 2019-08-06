@@ -96,7 +96,7 @@ export default function IssueChild() {
   const validate = useMemo(
     () =>
       composeValidator({
-        point: buildPointValidator(4, validatePoint),
+        point: buildPointValidator(4, [validatePoint]),
         owner: buildAddressValidator(),
       }),
     [validatePoint]
