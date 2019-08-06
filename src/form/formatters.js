@@ -2,8 +2,13 @@ import { compose } from 'lib/lib';
 
 export const buildFormatter = (formatters = []) => compose(...formatters);
 
-export const prependSig = (s = '') =>
-  s.length && s.charAt(0) !== '~' ? `~${s}` : s;
+export const prependSig = s => {
+  if (!s || s.length <= 1) {
+    return s || '';
+  }
+
+  return s.charAt(0) === '~' ? s : `~${s}`;
+};
 
 export const convertToNumber = s => {
   try {
