@@ -8,19 +8,19 @@ import { useWallet } from 'store/wallet';
 import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
 
+import { PassphraseInput } from 'form/Inputs';
 import {
   composeValidator,
   buildPassphraseValidator,
-  PassphraseInput,
   buildUploadValidator,
-} from 'form/Inputs';
+} from 'form/validators';
 import UploadInput from 'form/UploadInput';
 import ContinueButton from './ContinueButton';
 import BridgeForm from 'form/BridgeForm';
 import { FORM_ERROR } from 'final-form';
 import FormError from 'form/FormError';
 
-export default function Keystore({ className }) {
+export default function Keystore({ className, goHome }) {
   useLoginView(WALLET_TYPES.KEYSTORE);
 
   // globals
@@ -61,7 +61,7 @@ export default function Keystore({ className }) {
         encrypted with a password, you'll also need to enter that below.
       </Grid.Item>
 
-      <BridgeForm validate={validate} onSubmit={onSubmit}>
+      <BridgeForm validate={validate} onSubmit={onSubmit} afterSubmit={goHome}>
         {({ handleSubmit }) => (
           <>
             <Grid.Item

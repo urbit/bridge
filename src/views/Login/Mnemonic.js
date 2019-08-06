@@ -7,16 +7,14 @@ import { useWallet } from 'store/wallet';
 
 import { walletFromMnemonic, WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
+import { MnemonicInput, HdPathInput, PassphraseInput } from 'form/Inputs';
 import {
-  MnemonicInput,
-  HdPathInput,
-  PassphraseInput,
   composeValidator,
   buildMnemonicValidator,
   buildCheckboxValidator,
   buildPassphraseValidator,
   buildHdPathValidator,
-} from 'form/Inputs';
+} from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
 import FormError from 'form/FormError';
@@ -60,13 +58,18 @@ export default function Mnemonic({ className, goHome }) {
     [setAuthMnemonic, setWallet, setWalletHdPath]
   );
 
+  const initialValues = useMemo(
+    () => ({ hdpath: walletHdPath, useAdvanced: false }),
+    [walletHdPath]
+  );
+
   return (
     <Grid className={cn('mt4', className)}>
       <BridgeForm
         validate={validate}
         onValues={onValues}
-        onSubmit={goHome}
-        initialValues={{ hdpath: walletHdPath, useAdvanced: false }}>
+        afterSubmit={goHome}
+        initialValues={initialValues}>
         {({ handleSubmit }) => (
           <>
             <Grid.Item

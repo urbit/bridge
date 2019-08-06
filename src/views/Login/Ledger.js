@@ -28,15 +28,16 @@ import { WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
 import useBreakpoints from 'lib/useBreakpoints';
 import {
+  composeValidator,
   buildCheckboxValidator,
   buildHdPathValidator,
-  composeValidator,
   buildSelectValidator,
-} from 'form/Inputs';
+} from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 import ContinueButton from './ContinueButton';
 import Condition from 'form/Condition';
+import { FORM_ERROR } from 'final-form';
 
 const PATH_OPTIONS = [
   { text: 'Ledger Live', value: LEDGER_LIVE_PATH },
@@ -79,13 +80,11 @@ export default function Ledger({ className, goHome }) {
         setWallet(Just(hd));
         setWalletHdPath(addHdPrefix(values.hdpath));
       } catch (error) {
-        console.error(error);
         setWallet(Nothing());
+        return { [FORM_ERROR]: error.message };
       }
-
-      return await goHome();
     },
-    [goHome, setWallet, setWalletHdPath]
+    [setWallet, setWalletHdPath]
   );
 
   const onValues = useCallback(({ valid, values, form }) => {
@@ -102,6 +101,16 @@ export default function Ledger({ className, goHome }) {
       );
     }
   }, []);
+
+  const initialValues = useMemo(
+    () => ({
+      useCustomPath: false,
+      hdpath: PATH_OPTIONS[0].value.replace(/x/g, ACCOUNT_OPTIONS[0].value),
+      derivationpath: PATH_OPTIONS[0].value,
+      account: ACCOUNT_OPTIONS[0].value,
+    }),
+    []
+  );
 
   const full = useBreakpoints([true, true, false]);
   const half = useBreakpoints([false, false, true]);
@@ -162,12 +171,8 @@ export default function Ledger({ className, goHome }) {
         validate={validate}
         onValues={onValues}
         onSubmit={onSubmit}
-        initialValues={{
-          useCustomPath: false,
-          hdpath: PATH_OPTIONS[0].value.replace(/x/g, ACCOUNT_OPTIONS[0].value),
-          derivationpath: PATH_OPTIONS[0].value,
-          account: ACCOUNT_OPTIONS[0].value,
-        }}>
+        afterSubmit={goHome}
+        initialValues={initialValues}>
         {({ handleSubmit }) => (
           <>
             <Condition when="useCustomPath" is={true}>

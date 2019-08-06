@@ -6,10 +6,13 @@ import { useWallet } from 'store/wallet';
 
 import { EthereumWallet, WALLET_TYPES, stripHexPrefix } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
+
 import FormError from 'form/FormError';
-import ContinueButton from './ContinueButton';
 import BridgeForm from 'form/BridgeForm';
-import { buildHexValidator, composeValidator, HexInput } from 'form/Inputs';
+import { HexInput } from 'form/Inputs';
+import { buildHexValidator, composeValidator } from 'form/validators';
+
+import ContinueButton from './ContinueButton';
 
 export default function PrivateKey({ className, goHome }) {
   useLoginView(WALLET_TYPES.PRIVATE_KEY);
@@ -39,7 +42,7 @@ export default function PrivateKey({ className, goHome }) {
 
   return (
     <Grid className={className}>
-      <BridgeForm validate={validate} onValues={onValues} onSubmit={goHome}>
+      <BridgeForm validate={validate} onValues={onValues} afterSubmit={goHome}>
         {({ handleSubmit }) => (
           <>
             <Grid.Item

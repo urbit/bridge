@@ -189,6 +189,7 @@ export default function useEthereumTransaction(
   ]);
 
   useEffect(() => {
+    let mounted = true;
     // if nonce or chainId is undefined, re-fetch on-chain info
     if (!(nonce === undefined || chainId === undefined)) {
       return;
@@ -203,19 +204,26 @@ export default function useEthereumTransaction(
           _web3.eth.getGasPrice(),
         ]);
 
+        const gasPrice = parseInt(fromWei(estimatedGasPrice, 'gwei'), 10);
+
+        if (!mounted) {
+          return;
+        }
+
         setNonce(nonce);
         setChainId(chainId);
-        const gasPrice = parseInt(fromWei(estimatedGasPrice, 'gwei'), 10);
         setSuggestedGasPrice(gasPrice);
         setGasPrice(gasPrice);
       } catch (error) {
         setError(error);
       }
     })();
+
+    return () => (mounted = false);
   }, [_wallet, _web3, setError, nonce, chainId]);
 
   useEffect(() => {
-    let cancelled = false;
+    let mounted = true;
 
     if (confirmed) {
       (async () => {
@@ -234,7 +242,7 @@ export default function useEthereumTransaction(
           }
         }
 
-        if (cancelled) {
+        if (!mounted) {
           return;
         }
 
@@ -242,7 +250,7 @@ export default function useEthereumTransaction(
       })();
     }
 
-    return () => (cancelled = true);
+    return () => (mounted = false);
   }, [confirmed, refetch, completed, setError]);
 
   const values = useDeepEqualReference({

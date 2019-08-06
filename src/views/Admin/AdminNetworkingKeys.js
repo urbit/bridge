@@ -31,12 +31,12 @@ import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import NoticeBox from 'components/NoticeBox';
 
+import { HexInput } from 'form/Inputs';
 import {
   composeValidator,
   buildCheckboxValidator,
   buildHexValidator,
-  HexInput,
-} from 'form/Inputs';
+} from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
 import FormError from 'form/FormError';
@@ -203,6 +203,14 @@ export default function AdminNetworkingKeys() {
     [construct, unconstruct]
   );
 
+  const initialValues = useMemo(
+    () => ({
+      useNetworkSeed: false,
+      useDiscontinuity: false,
+    }),
+    []
+  );
+
   const goRelocate = useCallback(() => push(names.RELOCATE), [push, names]);
 
   const renderTitle = () => {
@@ -325,11 +333,7 @@ export default function AdminNetworkingKeys() {
           <BridgeForm
             validate={validate}
             onValues={onValues}
-            onSubmit={() => {}}
-            initialValues={{
-              useNetworkSeed: false,
-              useDiscontinuity: false,
-            }}>
+            initialValues={initialValues}>
             {({ handleSubmit }) => (
               <>
                 <Grid.Item
@@ -361,20 +365,20 @@ export default function AdminNetworkingKeys() {
                   label="Trigger New Continuity Era"
                   disabled={inputsLocked}
                 />
+
+                <Grid.Item full as={FormError} />
+
+                <Grid.Item
+                  full
+                  as={InlineEthereumTransaction}
+                  {...bind}
+                  label={`${hasKeys ? 'Reset' : 'Set'} Networking Keys`}
+                  onReturn={() => pop()}
+                />
               </>
             )}
           </BridgeForm>
         )}
-
-        <Grid.Item full as={FormError} />
-
-        <Grid.Item
-          full
-          as={InlineEthereumTransaction}
-          {...bind}
-          label={`${hasKeys ? 'Reset' : 'Set'} Networking Keys`}
-          onReturn={() => pop()}
-        />
 
         {isDefaultState && renderDetails()}
 

@@ -6,11 +6,8 @@ import { validateExactly } from 'lib/validators';
 import { isDevelopment } from 'lib/flags';
 
 import BridgeForm from 'form/BridgeForm';
-import {
-  TicketInput,
-  composeValidator,
-  buildTicketValidator,
-} from 'form/Inputs';
+import { TicketInput } from 'form/Inputs';
+import { composeValidator, buildTicketValidator } from 'form/validators';
 import SubmitButton from 'form/SubmitButton';
 import FormError from 'form/FormError';
 
@@ -30,6 +27,13 @@ export default function ReticketVerify({ newWallet }) {
     [ticket]
   );
 
+  const initialValues = useMemo(
+    () => ({
+      ticket: STUB_VERIFY_TICKET ? ticket : 'undefined',
+    }),
+    [ticket]
+  );
+
   const goExecute = useCallback(() => push(names.EXECUTE), [push, names]);
 
   return (
@@ -39,10 +43,8 @@ export default function ReticketVerify({ newWallet }) {
       </Grid.Item>
       <BridgeForm
         validate={validate}
-        onSubmit={goExecute}
-        initialVaues={{
-          ticket: STUB_VERIFY_TICKET ? ticket : 'undefined',
-        }}>
+        afterSubmit={goExecute}
+        initialValues={initialValues}>
         {({ handleSubmit }) => (
           <>
             <Grid.Item

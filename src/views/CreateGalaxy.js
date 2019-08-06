@@ -17,12 +17,12 @@ import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
 import BridgeForm from 'form/BridgeForm';
+import { PointInput } from 'form/Inputs';
 import {
-  PointInput,
   composeValidator,
   buildPointValidator,
   buildAddressValidator,
-} from 'form/Inputs';
+} from 'form/validators';
 import FormError from 'form/FormError';
 
 function useCreateGalaxy() {
@@ -101,7 +101,7 @@ export default function CreateGalaxy() {
           Create a Galaxy
         </Grid.Item>
 
-        <BridgeForm validate={validate} onSubmit={() => {}} onValues={onValues}>
+        <BridgeForm validate={validate} onValues={onValues}>
           {({ handleSubmit, values }) => (
             <>
               {completed && (

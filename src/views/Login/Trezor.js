@@ -24,11 +24,13 @@ import {
   buildCheckboxValidator,
   buildSelectValidator,
   buildHdPathValidator,
-} from 'form/Inputs';
+} from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
-import ContinueButton from './ContinueButton';
 import FormError from 'form/FormError';
+
+import ContinueButton from './ContinueButton';
+import { FORM_ERROR } from 'final-form';
 
 const ACCOUNT_OPTIONS = times(20, i => ({
   text: `Account #${i + 1}`,
@@ -36,7 +38,7 @@ const ACCOUNT_OPTIONS = times(20, i => ({
 }));
 
 // see Ledger.js for context — Trezor is basicaly Ledger with less complexity
-export default function Trezor({ className }) {
+export default function Trezor({ className, goHome }) {
   useLoginView(WALLET_TYPES.TREZOR);
 
   const { setWallet, setWalletHdPath } = useWallet();
@@ -72,6 +74,7 @@ export default function Trezor({ className }) {
         setWalletHdPath(values.hdPath);
       } else {
         setWallet(Nothing());
+        return { [FORM_ERROR]: 'Failed to authenticate with your Trezor.' };
       }
     },
     [setWallet, setWalletHdPath]
@@ -86,6 +89,15 @@ export default function Trezor({ className }) {
       form.change('hdpath', TREZOR_PATH.replace(/x/g, values.account));
     }
   }, []);
+
+  const initialValues = useMemo(
+    () => ({
+      useCustomPath: false,
+      hdpath: TREZOR_PATH.replace(/x/g, ACCOUNT_OPTIONS[0].value),
+      account: ACCOUNT_OPTIONS[0].value,
+    }),
+    []
+  );
 
   return (
     <Grid className={className}>
@@ -102,11 +114,8 @@ export default function Trezor({ className }) {
         validate={validate}
         onValues={onValues}
         onSubmit={onSubmit}
-        initialValues={{
-          useCustomPath: false,
-          hdpath: TREZOR_PATH.replace(/x/g, ACCOUNT_OPTIONS[0].value),
-          account: ACCOUNT_OPTIONS[0].value,
-        }}>
+        afterSubmit={goHome}
+        initialValues={initialValues}>
         {({ handleSubmit }) => (
           <>
             <Condition when="useCustomPath" is={true}>

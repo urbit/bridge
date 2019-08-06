@@ -15,20 +15,20 @@ import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
 import useImpliedPoint from 'lib/useImpliedPoint';
 import useLoginView from 'lib/useLoginView';
 import patp2dec from 'lib/patp2dec';
+import timeout from 'lib/timeout';
+
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
+import { TicketInput, PassphraseInput, PointInput } from 'form/Inputs';
 import {
-  TicketInput,
-  PassphraseInput,
-  PointInput,
   composeValidator,
   buildCheckboxValidator,
   buildTicketValidator,
   buildPassphraseValidator,
   buildPointValidator,
-} from 'form/Inputs';
-import timeout from 'lib/timeout';
+} from 'form/validators';
 import FormError from 'form/FormError';
+
 import ContinueButton from './ContinueButton';
 
 export default function Ticket({ className, goHome }) {
@@ -135,17 +135,22 @@ export default function Ticket({ className, goHome }) {
     [setPointCursor, setUrbitWallet]
   );
 
+  const initialValues = useMemo(
+    () => ({
+      point: impliedPoint || '',
+      usePasshrase: false,
+      useShards: false,
+    }),
+    [impliedPoint]
+  );
+
   return (
     <Grid className={cn('mt4', className)}>
       <BridgeForm
         validate={validate}
         onValues={onValues}
-        onSubmit={goHome}
-        initialValues={{
-          point: impliedPoint || '',
-          usePasshrase: false,
-          useShards: false,
-        }}>
+        afterSubmit={goHome}
+        initialValues={initialValues}>
         {({ handleSubmit }) => (
           <>
             <Grid.Item full as={PointInput} name="point" />

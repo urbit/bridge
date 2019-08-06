@@ -21,12 +21,12 @@ import useEthereumTransaction from 'lib/useEthereumTransaction';
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
+import { AddressInput } from 'form/Inputs';
 import {
   composeValidator,
   buildCheckboxValidator,
   buildAddressValidator,
-  AddressInput,
-} from 'form/Inputs';
+} from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 
@@ -150,6 +150,8 @@ export default function AdminSetProxy() {
     [construct, unconstruct, unset]
   );
 
+  const initialValues = useMemo(() => ({ unset: false }), []);
+
   const proxyAddress = proxyFromDetails(_details, _contracts, data.proxyType);
   const isProxySet = !isZeroAddress(proxyAddress);
 
@@ -179,8 +181,7 @@ export default function AdminSetProxy() {
       <BridgeForm
         validate={validate}
         onValues={onValues}
-        onSubmit={() => {}}
-        initialValues={{ unset: false }}>
+        initialValues={initialValues}>
         {({ handleSubmit, values }) => (
           <>
             <Grid.Item full as={Flex} row justify="between" align="center">
@@ -217,17 +218,17 @@ export default function AdminSetProxy() {
                 disabled={inputsLocked || values.unset}
               />
             )}
+
+            <Grid.Item full as={FormError} />
+
+            <Grid.Item
+              full
+              as={InlineEthereumTransaction}
+              {...bind}
+              onReturn={() => pop()}
+            />
           </>
         )}
-
-        <Grid.Item full as={FormError} />
-
-        <Grid.Item
-          full
-          as={InlineEthereumTransaction}
-          {...bind}
-          onReturn={() => pop()}
-        />
       </BridgeForm>
     </Grid>
   );

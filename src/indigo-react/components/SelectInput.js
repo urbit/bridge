@@ -44,7 +44,6 @@ export default function SelectInput({
     setIsOpen(false);
   };
 
-  console.log(input);
   const text = options.find(o => o.value === input.value).text;
 
   return (

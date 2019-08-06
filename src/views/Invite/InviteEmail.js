@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useMemo,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import * as ob from 'urbit-ob';
 import * as azimuth from 'azimuth-js';
@@ -39,7 +45,12 @@ import LoadableButton from 'components/LoadableButton';
 import Highlighted from 'components/Highlighted';
 import BridgeForm from 'form/BridgeForm';
 import { Field } from 'react-final-form';
-import { EmailInput, buildEmailValidator } from 'form/Inputs';
+import { EmailInput } from 'form/Inputs';
+import {
+  buildEmailValidator,
+  composeValidator,
+  hasErrors,
+} from 'form/validators';
 import { FORM_ERROR } from 'final-form';
 import SubmitButton from 'form/SubmitButton';
 import FormError from 'form/FormError';
@@ -89,9 +100,7 @@ const buildAccessoryFor = (dones, errors) => name => {
 
 const emailFormatValidator = buildEmailValidator();
 
-// TODO: test with tank, successful txs
 export default function InviteEmail() {
-  // TODO: resumption after error?
   const { contracts, web3, networkType } = useNetwork();
   const { wallet, walletType, walletHdPath } = useWallet();
   const { syncInvites, getInvites } = usePointCache();
@@ -126,39 +135,42 @@ export default function InviteEmail() {
   const isFailed = status === STATUS.FAILURE;
   const isDone = status === STATUS.SUCCESS;
 
-  const validate = useCallback(
-    async values => {
-      // compute the list of valid emails
-      const emails = values.emails.filter(d => !!d);
-      if (uniq(emails).length !== emails.length) {
-        return { [FORM_ERROR]: 'Duplicate email.' };
+  const validateEmail = useCallback(
+    async email => {
+      // check individual email validity
+      const error = await emailFormatValidator(email);
+      if (error) {
+        return error;
       }
 
-      let errors = {};
-      for (let i = 0; i < values.emails.length; i++) {
-        const name = `emails[${i}]`;
-        const email = values.emails[i];
-
-        // check individual email validity
-        // TODO: validate each email individually using similar pattern from form/Inputs
-        // and then reutrn that
-        const error = await emailFormatValidator(email);
-        if (error) {
-          errors[name] = error;
-          continue;
-        }
-
-        const hasReceived = await getHasReceived(email);
-        if (hasReceived) {
-          errors[name] = HAS_RECEIVED_TEXT;
-          continue;
-        }
+      const hasReceived = await getHasReceived(email);
+      if (hasReceived) {
+        return HAS_RECEIVED_TEXT;
       }
-
-      console.log(errors);
-      return errors;
     },
     [getHasReceived]
+  );
+
+  const validateEmails = useCallback(
+    async emails => await Promise.all(emails.map(validateEmail)),
+    [validateEmail]
+  );
+
+  const validateForm = useCallback(async (values, errors) => {
+    if (hasErrors(errors)) {
+      return errors;
+    }
+
+    // check for email uniqenesss
+    const emails = values.emails.filter(d => !!d);
+    if (uniq(emails).length !== emails.length) {
+      return { [FORM_ERROR]: 'Duplicate email.' };
+    }
+  }, []);
+
+  const validate = useMemo(
+    () => composeValidator({ emails: validateEmails }, validateForm),
+    [validateEmails, validateForm]
   );
 
   // progress is [0, .length] of invites or receipts, as we're generating them
@@ -179,7 +191,6 @@ export default function InviteEmail() {
 
   const generateInvites = useCallback(
     async values => {
-      debugger;
       const _contracts = contracts.getOrElse(null);
       const _web3 = web3.getOrElse(null);
       const _wallet = wallet.getOrElse(null);
@@ -215,6 +226,7 @@ export default function InviteEmail() {
       for (let i = 0; i < values.emails.length; i++) {
         try {
           const email = values.emails[i];
+          const planet = planets[i];
 
           const { ticket, owner } = await wg.generateTemporaryTicketAndWallet(
             MIN_PLANET
@@ -224,40 +236,40 @@ export default function InviteEmail() {
           const inviteTx = azimuth.delegatedSending.sendPoint(
             _contracts,
             point,
-            planets[i],
+            planet,
             owner.keys.address
           );
+
           const signedTx = await signTransaction({
             wallet: _wallet,
             walletType,
             walletHdPath,
             networkType,
+            chainId,
+            nonce: nonce + i,
             // TODO: ^ make a useTransactionSigner to encapsulate this logic
             txn: inviteTx,
             gasPrice: DEFAULT_GAS_PRICE_GWEI.toString(),
             gasLimit: GAS_LIMIT.toString(),
-            nonce: nonce + i,
-            chainId,
           });
+
           const rawTx = hexify(signedTx.serialize());
 
           addInvite({ [email]: { email, ticket, signedTx, rawTx } });
         } catch (error) {
           console.error(error);
           errorCount++;
-          return {
-            [FORM_ERROR]: `Wallet Error: unable to generate invite wallets.`,
-          };
         }
       }
 
       if (errorCount > 0) {
-        throw new Error(
-          `There ${pluralize(errorCount, 'was', 'were')} ${pluralize(
+        return {
+          [FORM_ERROR]: `There ${pluralize(
             errorCount,
-            'error'
-          )} while generating wallets.`
-        );
+            'was',
+            'were'
+          )} ${pluralize(errorCount, 'error')} while generating wallets.`,
+        };
       }
     },
     [
@@ -275,6 +287,7 @@ export default function InviteEmail() {
   );
 
   const sendInvites = useCallback(async () => {
+    const emails = cachedEmails.current;
     const _web3 = web3.getOrElse(null);
     const _wallet = wallet.getOrElse(null);
     if (!_web3 || !_wallet) {
@@ -286,8 +299,8 @@ export default function InviteEmail() {
       _web3,
       point,
       _wallet.address,
-      INVITE_COST * cachedEmails.current.length,
-      cachedEmails.current.map(email => invites[email].rawTx),
+      INVITE_COST * emails.length,
+      emails.map(email => invites[email].rawTx),
       (address, minBalance, balance) =>
         setNeedFunds({ address, minBalance, balance }),
       () => setNeedFunds(undefined)
@@ -298,7 +311,7 @@ export default function InviteEmail() {
 
     let unsentInvites = [];
     let orphanedInvites = [];
-    const txAndMailings = cachedEmails.current.map(async email => {
+    const txAndMailings = emails.map(async email => {
       const invite = invites[email];
       try {
         const txHash = await sendSignedTransaction(
@@ -356,9 +369,12 @@ export default function InviteEmail() {
 
   const onSubmit = useCallback(
     async values => {
-      setStatus(STATUS.GENERATING);
-      await generateInvites(values);
       cachedEmails.current = values.emails;
+      setStatus(STATUS.GENERATING);
+      const errors = await generateInvites(values);
+      if (errors) {
+        return errors;
+      }
       setStatus(STATUS.CAN_SEND);
     },
     [generateInvites]
@@ -372,7 +388,7 @@ export default function InviteEmail() {
       setStatus(STATUS.SUCCESS);
     } catch (error) {
       console.error(error);
-      setGeneralError(error);
+      setGeneralError(error.message);
       setStatus(STATUS.FAILURE);
     }
   }, [sendInvites]);
@@ -407,7 +423,7 @@ export default function InviteEmail() {
                   </IconButton>
                 </Grid.Item>
 
-                {isDone && (
+                {isDone ? (
                   <>
                     <Grid.Item as={Text} className="f5" full>
                       <Highlighted>
@@ -419,13 +435,13 @@ export default function InviteEmail() {
 
                     {fields.map(name => (
                       <Grid.Item as={HelpText} key={name} full>
-                        <Field name={name}>{({ value }) => value}</Field>
+                        <Field name={name}>
+                          {({ input: { value } }) => value}
+                        </Field>
                       </Grid.Item>
                     ))}
                   </>
-                )}
-
-                {!isDone && (
+                ) : (
                   <>
                     {fields.map((name, i) => {
                       const isFirst = i === 0;
@@ -471,25 +487,27 @@ export default function InviteEmail() {
                       );
                     })}
 
-                    {canInput && (
+                    {canInput ? (
                       <Grid.Item
                         full
                         as={SubmitButton}
-                        handleSubmit={handleSubmit}>
+                        handleSubmit={handleSubmit}
+                        accessory={`${visualProgress}/${fields.length}`}>
+                        {buttonText(status, fields.length)}
+                      </Grid.Item>
+                    ) : (
+                      <Grid.Item
+                        full
+                        as={LoadableButton}
+                        className="mt4"
+                        disabled={!canSend}
+                        accessory={`${visualProgress}/${fields.length}`}
+                        onClick={doSend}
+                        success={canSend}
+                        solid>
                         {buttonText(status, fields.length)}
                       </Grid.Item>
                     )}
-
-                    <Grid.Item
-                      full
-                      as={LoadableButton}
-                      disabled={!(canInput || canSend || valid)}
-                      accessory={`${visualProgress}/${fields.length}`}
-                      onClick={doSend}
-                      success={canSend}
-                      solid>
-                      {buttonText(status, fields.length)}
-                    </Grid.Item>
 
                     {needFunds && (
                       <Grid.Item full>
@@ -505,8 +523,8 @@ export default function InviteEmail() {
                     <Grid.Item full as={FormError} />
 
                     {generalError && (
-                      <Grid.Item full>
-                        <ErrorText>{generalError.message.toString()}</ErrorText>
+                      <Grid.Item full as={ErrorText}>
+                        {generalError}
                       </Grid.Item>
                     )}
                   </>

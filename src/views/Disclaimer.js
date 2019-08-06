@@ -9,7 +9,7 @@ import View from 'components/View';
 import WarningBox from 'components/WarningBox';
 import BridgeForm from 'form/BridgeForm';
 import SubmitButton from 'form/SubmitButton';
-import { composeValidator, buildCheckboxValidator } from 'form/Inputs';
+import { composeValidator, buildCheckboxValidator } from 'form/validators';
 
 const TEXT_STYLE = 'f5';
 
@@ -21,6 +21,8 @@ export default function ActivateDisclaimer() {
     () => composeValidator({ checkbox: buildCheckboxValidator(true) }),
     []
   );
+
+  const initialValues = useMemo(() => ({ checkbox: false }), []);
 
   const goBack = useCallback(async () => {
     setHasDisclaimed(true);
@@ -78,7 +80,10 @@ export default function ActivateDisclaimer() {
         <Grid.Item full as={WarningBox}>
           Warning: Nobody but you can restore or reset your Master Ticket
         </Grid.Item>
-        <BridgeForm validate={validate} onSubmit={goBack}>
+        <BridgeForm
+          validate={validate}
+          afterSubmit={goBack}
+          initialValues={initialValues}>
           {({ handleSubmit }) => (
             <>
               <Grid.Item

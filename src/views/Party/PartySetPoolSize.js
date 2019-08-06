@@ -11,21 +11,21 @@ import * as need from 'lib/need';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import { useLocalRouter } from 'lib/LocalRouter';
+import useCurrentPermissions from 'lib/useCurrentPermissions';
+import patp2dec from 'lib/patp2dec';
 
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
-import patp2dec from 'lib/patp2dec';
 import View from 'components/View';
-import useCurrentPermissions from 'lib/useCurrentPermissions';
 import WarningBox from 'components/WarningBox';
+
 import BridgeForm from 'form/BridgeForm';
+import { PointInput, NumberInput } from 'form/Inputs';
 import {
-  PointInput,
   composeValidator,
-  NumberInput,
   buildNumberValidator,
   buildPointValidator,
-} from 'form/Inputs';
+} from 'form/validators';
 import FormError from 'form/FormError';
 
 function useSetPoolSize() {
@@ -88,6 +88,8 @@ export default function PartySetPoolSize() {
     [construct, unconstruct]
   );
 
+  const initialValues = useMemo(() => ({ poolSize: 5 }), []);
+
   return (
     <View pop={pop} inset>
       <Grid>
@@ -107,9 +109,8 @@ export default function PartySetPoolSize() {
 
         <BridgeForm
           validate={validate}
-          onSubmit={() => {}}
           onValues={onValues}
-          initialValues={{ poolSize: 5 }}>
+          initialValues={initialValues}>
           {({ handleSubmit, values }) => (
             <>
               <Grid.Item

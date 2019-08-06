@@ -15,11 +15,8 @@ import { GAS_LIMITS } from 'lib/constants';
 
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
-import {
-  AddressInput,
-  composeValidator,
-  buildAddressValidator,
-} from 'form/Inputs';
+import { AddressInput } from 'form/Inputs';
+import { composeValidator, buildAddressValidator } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 
@@ -75,7 +72,7 @@ export default function AdminTransfer() {
         Transfer Point
       </Grid.Item>
 
-      <BridgeForm validate={validate} onSubmit={() => {}} onValues={onValues}>
+      <BridgeForm validate={validate} onValues={onValues}>
         {({ handleSubmit, values }) => (
           <>
             <Grid.Item

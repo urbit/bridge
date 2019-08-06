@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useRef } from 'react';
-import { Just, Nothing } from 'folktale/maybe';
+import React, { useCallback, useMemo } from 'react';
+import { Just } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import { Grid, H4 } from 'indigo-react';
 
@@ -24,12 +24,8 @@ import useHasDisclaimed from 'lib/useHasDisclaimed';
 
 import BridgeForm from 'form/BridgeForm';
 import SubmitButton from 'form/SubmitButton';
-import {
-  TicketInput,
-  hasErrors,
-  composeValidator,
-  buildTicketValidator,
-} from 'form/Inputs';
+import { TicketInput } from 'form/Inputs';
+import { composeValidator, buildTicketValidator } from 'form/validators';
 import FormError from 'form/FormError';
 import { FORM_ERROR } from 'final-form';
 
@@ -39,9 +35,6 @@ export default function ActivateCode() {
   const { contracts } = useNetwork();
   const impliedTicket = useImpliedTicket();
   const [hasDisclaimed] = useHasDisclaimed();
-
-  const cachedInviteWallet = useRef(Nothing());
-  const cachedPoint = useRef();
 
   const {
     setDerivedWallet,
@@ -53,6 +46,7 @@ export default function ActivateCode() {
   const goToLogin = useCallback(() => history.popAndPush(ROUTE_NAMES.LOGIN), [
     history,
   ]);
+
   const goToPassport = useCallback(() => {
     push(names.PASSPORT);
 
@@ -61,23 +55,22 @@ export default function ActivateCode() {
     }
   }, [names, push, hasDisclaimed]);
 
-  // validate should be a pure function but we don't want to have to recompute
-  // all of this information on submit, so cache the invite wallet and avoid
-  // re-renders that may trigger re-validations (causing infinite loop)
-  const validateForm = useCallback(
-    async ({ ticket }, errors) => {
-      if (hasErrors(errors)) {
-        return errors;
-      }
+  const validate = useMemo(
+    () => composeValidator({ ticket: buildTicketValidator() }),
+    []
+  );
 
+  // set our state on submission
+  const onSubmit = useCallback(
+    async values => {
       await timeout(100); // allow the ui changes to flush before we lag it out
 
       const _contracts = need.contracts(contracts);
-      const { seed } = await generateTemporaryOwnershipWallet(ticket);
+      const { seed } = await generateTemporaryOwnershipWallet(values.ticket);
 
-      cachedInviteWallet.current = walletFromMnemonic(seed, DEFAULT_HD_PATH);
+      const inviteWallet = walletFromMnemonic(seed, DEFAULT_HD_PATH);
 
-      const _inviteWallet = need.wallet(cachedInviteWallet.current);
+      const _inviteWallet = need.wallet(inviteWallet);
 
       const owned = await azimuth.azimuth.getOwnedPoints(
         _contracts,
@@ -99,8 +92,10 @@ export default function ActivateCode() {
         }
 
         const point = parseInt(incoming[0], 10);
+
         setDerivedPoint(Just(point));
-        cachedPoint.current = point;
+        setInviteWallet(inviteWallet);
+        setDerivedWallet(Just(await generateWallet(point)));
       } else {
         return {
           [FORM_ERROR]:
@@ -109,24 +104,12 @@ export default function ActivateCode() {
         };
       }
     },
-    [contracts, setDerivedPoint]
+    [contracts, setDerivedPoint, setDerivedWallet, setInviteWallet]
   );
 
-  const validate = useMemo(
-    () => composeValidator({ ticket: buildTicketValidator() }, validateForm),
-    [validateForm]
-  );
-
-  // set our state on submission
-  const onSubmit = useCallback(
-    async values => {
-      setInviteWallet(cachedInviteWallet.current);
-      setDerivedWallet(Just(await generateWallet(cachedPoint)));
-    },
-    [setDerivedWallet, setInviteWallet]
-  );
-
-  const afterSubmit = useCallback(async () => goToPassport(), [goToPassport]);
+  const initialValues = useMemo(() => ({ ticket: impliedTicket || '' }), [
+    impliedTicket,
+  ]);
 
   return (
     <View inset>
@@ -138,8 +121,8 @@ export default function ActivateCode() {
         <BridgeForm
           validate={validate}
           onSubmit={onSubmit}
-          afterSubmit={afterSubmit}
-          initialValues={{ ticket: impliedTicket || '' }}>
+          afterSubmit={goToPassport}
+          initialValues={initialValues}>
           {({ validating, submitting, handleSubmit }) => (
             <>
               <Grid.Item

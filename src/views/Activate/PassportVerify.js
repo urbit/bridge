@@ -7,11 +7,8 @@ import { validateExactly } from 'lib/validators';
 import { isDevelopment } from 'lib/flags';
 
 import SubmitButton from 'form/SubmitButton';
-import {
-  TicketInput,
-  composeValidator,
-  buildTicketValidator,
-} from 'form/Inputs';
+import { TicketInput } from 'form/Inputs';
+import { composeValidator, buildTicketValidator } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 
 import { useActivateFlow } from './ActivateFlow';
@@ -36,7 +33,12 @@ export default function PassportVerify({ className }) {
     [ticket]
   );
 
-  const onSubmit = useCallback(() => goToTransfer(), [goToTransfer]);
+  const initialValues = useMemo(
+    () => ({
+      ticket: STUB_VERIFY_TICKET ? ticket : undefined,
+    }),
+    [ticket]
+  );
 
   return (
     <PassportView header="Verify Passport" step={2} className={className}>
@@ -48,10 +50,8 @@ export default function PassportVerify({ className }) {
         </Grid.Item>
         <BridgeForm
           validate={validate}
-          onSubmit={onSubmit}
-          initialValues={{
-            ticket: STUB_VERIFY_TICKET ? ticket : undefined,
-          }}>
+          afterSubmit={goToTransfer}
+          initialValues={initialValues}>
           {({ handleSubmit }) => (
             <>
               <Grid.Item

@@ -17,7 +17,7 @@ import { hexify } from 'lib/txn';
 
 import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
 import WarningBox from './WarningBox';
-import { composeValidator, buildCheckboxValidator } from 'form/Inputs';
+import { composeValidator, buildCheckboxValidator } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
 
@@ -123,7 +123,7 @@ export default function InlineEthereumTransaction({
 
   return (
     <Grid className={cn(className, 'mt1')}>
-      <BridgeForm validate={validate} onValues={onValues} onSubmit={() => {}}>
+      <BridgeForm validate={validate} onValues={onValues}>
         {({ handleSubmit }) => (
           <>
             {renderPrimaryButton()}
@@ -151,7 +151,7 @@ export default function InlineEthereumTransaction({
                   name="useAdvanced"
                   label="Advanced Configuration"
                   inverseLabel="Cancel Advanced Configuration"
-                  disabled={!showConfigureInput}
+                  disabled={!showConfigureInput || initializing}
                 />
 
                 <Condition when="useAdvanced" is={true}>

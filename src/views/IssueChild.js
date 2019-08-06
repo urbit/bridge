@@ -19,13 +19,12 @@ import useConstant from 'lib/useConstant';
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
+import { PointInput, AddressInput } from 'form/Inputs';
 import {
   composeValidator,
   buildPointValidator,
-  PointInput,
-  AddressInput,
   buildAddressValidator,
-} from 'form/Inputs';
+} from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 
@@ -128,7 +127,7 @@ export default function IssueChild() {
           </Grid.Item>
         )}
 
-        <BridgeForm validate={validate} onSubmit={() => {}} onValues={onValues}>
+        <BridgeForm validate={validate} onValues={onValues}>
           {({ handleSubmit, values }) => (
             <>
               {completed && (
