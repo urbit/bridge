@@ -147,7 +147,7 @@ export default function IssueChild() {
           <Grid.Item
             full
             as={Text}
-            className={cn('f5', {
+            className={cn('f5 wrap', {
               green3: completed,
             })}>
             {pointName} has been spawned and can be claimed by {owner}.

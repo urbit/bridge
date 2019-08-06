@@ -1,3 +1,5 @@
+$handle-extent: 24px;
+
 @keyframes autofill {
   to {
     color: #000;
@@ -36,7 +38,7 @@ input[type='range'] {
 
   /* Chrome */
   &::-webkit-slider-runnable-track {
-    height: 24px;
+    height: $handle-extent;
     -webkit-appearance: none;
     background-color: #e6e6e6;
     margin-top: -1px;
@@ -44,7 +46,7 @@ input[type='range'] {
 
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 24px;
+    width: $handle-extent;
     height: 100%;
     background-color: #000;
     border: none;
@@ -63,7 +65,7 @@ input[type='range'] {
   }
 
   &::-moz-range-thumb {
-    width: 24px;
+    width: $handle-extent;
     height: 100%;
     background-color: #000;
     border: none;

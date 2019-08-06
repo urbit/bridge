@@ -62,7 +62,7 @@ function View({
         <Flex.Item as={Footer.Target} />
       </Flex.Item>
 
-      <Flex.Item style={{ width: '48px' }} className={cn(insetPadding)} />
+      <Flex.Item style={{ width: '48px' }} />
     </Flex>
   );
 }

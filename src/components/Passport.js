@@ -75,10 +75,10 @@ function Passport({ point, className, ticket = null, address = Nothing() }) {
   return (
     <Grid gap={4} className={cn('bg-black r8 p7', className)}>
       <Grid.Item cols={[1, 4]}>
-        <MaybeSigil patp={name} size={64} margin={0} />
+        <MaybeSigil patp={name} size={64} />
       </Grid.Item>
       <Grid.Item as={Flex} cols={[4, 13]} col justify="between">
-        <Flex.Item className="mono white f5">{visualName}</Flex.Item>
+        <Flex.Item className="mono white f5 pb2">{visualName}</Flex.Item>
         <Flex.Item as={Flex} col>
           <Flex.Item as={Text} className="mono f6 f5-ns gray4 uppercase">
             Birth Time
@@ -141,7 +141,6 @@ Passport.Mini = function MiniPassport({ point, className, inverted, ...rest }) {
         <Sigil
           patp={name}
           size={64}
-          margin={0}
           colors={inverted ? INVERTED_COLORWAY : undefined}
         />
       </Grid.Item>

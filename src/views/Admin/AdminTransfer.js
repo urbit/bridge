@@ -69,7 +69,7 @@ export default function AdminTransfer() {
       <Grid.Item
         full
         as={Text}
-        className={cn('f5', {
+        className={cn('f5 wrap', {
           green3: completed,
         })}>
         {completed

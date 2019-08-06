@@ -178,7 +178,6 @@ export function usePointInput({ size = 4, validators = [], ...rest }) {
         <InputSigil
           patp={value}
           size={44}
-          margin={8}
           pass={pass}
           focused={focused}
           error={error}

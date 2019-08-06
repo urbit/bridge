@@ -42,7 +42,6 @@ export default function InputSigil({
       patp={Just(lastValidPatp)}
       size={size}
       colors={selectColorway(pass, error, focused)}
-      margin={0}
       {...rest}
     />
   );
