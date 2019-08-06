@@ -118,8 +118,6 @@ export default function AdminSetProxy() {
     if (!values.unset && errors.address) {
       return errors;
     }
-
-    return {};
   }, []);
 
   const validate = useMemo(

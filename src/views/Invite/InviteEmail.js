@@ -50,6 +50,7 @@ import {
   buildEmailValidator,
   composeValidator,
   hasErrors,
+  buildArrayValidator,
 } from 'form/validators';
 import { FORM_ERROR } from 'final-form';
 import SubmitButton from 'form/SubmitButton';
@@ -98,8 +99,6 @@ const buildAccessoryFor = (dones, errors) => name => {
   return <AccessoryIcon.Pending />;
 };
 
-const emailFormatValidator = buildEmailValidator();
-
 export default function InviteEmail() {
   const { contracts, web3, networkType } = useNetwork();
   const { wallet, walletType, walletHdPath } = useWallet();
@@ -135,25 +134,14 @@ export default function InviteEmail() {
   const isFailed = status === STATUS.FAILURE;
   const isDone = status === STATUS.SUCCESS;
 
-  const validateEmail = useCallback(
+  const validateHasReceived = useCallback(
     async email => {
-      // check individual email validity
-      const error = await emailFormatValidator(email);
-      if (error) {
-        return error;
-      }
-
       const hasReceived = await getHasReceived(email);
       if (hasReceived) {
         return HAS_RECEIVED_TEXT;
       }
     },
     [getHasReceived]
-  );
-
-  const validateEmails = useCallback(
-    async emails => await Promise.all(emails.map(validateEmail)),
-    [validateEmail]
   );
 
   const validateForm = useCallback(async (values, errors) => {
@@ -169,8 +157,16 @@ export default function InviteEmail() {
   }, []);
 
   const validate = useMemo(
-    () => composeValidator({ emails: validateEmails }, validateForm),
-    [validateEmails, validateForm]
+    () =>
+      composeValidator(
+        {
+          emails: buildArrayValidator(
+            buildEmailValidator([validateHasReceived])
+          ),
+        },
+        validateForm
+      ),
+    [validateForm, validateHasReceived]
   );
 
   // progress is [0, .length] of invites or receipts, as we're generating them

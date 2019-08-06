@@ -60,22 +60,21 @@ export default function Trezor({ className, goHome }) {
         appUrl: 'https://github.com/urbit/bridge',
       });
 
-      const info = await TrezorConnect.getPublicKey({
+      const { success, payload } = await TrezorConnect.getPublicKey({
         path: values.hdpath,
       });
 
-      if (info.success === true) {
-        const payload = info.payload;
-        const publicKey = Buffer.from(payload.publicKey, 'hex');
-        const chainCode = Buffer.from(payload.chainCode, 'hex');
-        const pub = secp256k1.publicKeyConvert(publicKey, true);
-        const hd = bip32.fromPublicKey(pub, chainCode);
-        setWallet(Just(hd));
-        setWalletHdPath(values.hdPath);
-      } else {
-        setWallet(Nothing());
+      if (!success) {
         return { [FORM_ERROR]: 'Failed to authenticate with your Trezor.' };
       }
+
+      const publicKey = Buffer.from(payload.publicKey, 'hex');
+      const chainCode = Buffer.from(payload.chainCode, 'hex');
+      const pub = secp256k1.publicKeyConvert(publicKey, true);
+      const hd = bip32.fromPublicKey(pub, chainCode);
+
+      setWallet(Just(hd));
+      setWalletHdPath(values.hdPath);
     },
     [setWallet, setWalletHdPath]
   );

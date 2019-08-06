@@ -1,10 +1,10 @@
 import React from 'react';
 import cn from 'classnames';
+import { useFormState } from 'react-final-form';
 
 import { ForwardButton } from 'components/Buttons';
 
 import { blinkIf } from 'components/Blinky';
-import { useFormState } from 'react-final-form';
 
 export default function SubmitButton({
   as: As = ForwardButton,

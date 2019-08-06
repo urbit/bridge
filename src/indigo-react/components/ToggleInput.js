@@ -13,7 +13,7 @@ export default function ToggleInput({
   className,
 
   //
-  disabled,
+  disabled = false,
 
   ...rest
 }) {

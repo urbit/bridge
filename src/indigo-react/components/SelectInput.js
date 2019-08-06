@@ -15,7 +15,7 @@ export default function SelectInput({
   className,
   mono = false,
   options = [],
-  disabled,
+  disabled = false,
 }) {
   const {
     input,

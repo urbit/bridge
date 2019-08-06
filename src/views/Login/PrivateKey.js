@@ -22,7 +22,7 @@ export default function PrivateKey({ className, goHome }) {
   const validate = useMemo(
     () =>
       composeValidator({
-        privatekey: buildHexValidator(64),
+        privateKey: buildHexValidator(64),
       }),
     []
   );
@@ -30,7 +30,7 @@ export default function PrivateKey({ className, goHome }) {
   const onValues = useCallback(
     ({ valid, values }) => {
       if (valid) {
-        const sec = Buffer.from(stripHexPrefix(values.privatekey), 'hex');
+        const sec = Buffer.from(stripHexPrefix(values.privateKey), 'hex');
         const newWallet = new EthereumWallet(sec);
         setWallet(Just(newWallet));
       } else {
@@ -48,7 +48,7 @@ export default function PrivateKey({ className, goHome }) {
             <Grid.Item
               full
               as={HexInput}
-              name="privatekey"
+              name="privateKey"
               label="Private key"
             />
             <Grid.Item full as={FormError} />

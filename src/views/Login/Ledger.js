@@ -77,10 +77,10 @@ export default function Ledger({ className, goHome }) {
         const chainCode = Buffer.from(info.chainCode, 'hex');
         const pub = secp256k1.publicKeyConvert(publicKey, true);
         const hd = bip32.fromPublicKey(pub, chainCode);
+
         setWallet(Just(hd));
         setWalletHdPath(addHdPrefix(values.hdpath));
       } catch (error) {
-        setWallet(Nothing());
         return { [FORM_ERROR]: error.message };
       }
     },

@@ -29,6 +29,10 @@ const buildValidator = (validators = []) => async value => {
   }
 };
 
+// maps a validator across an array of values
+export const buildArrayValidator = validator => async values =>
+  await Promise.all(values.map(validator));
+
 // error object has errors if some of its fields are
 // 1) an array with any defined values
 // 2) any defined values
@@ -72,17 +76,15 @@ export const buildAddressValidator = () =>
   ]);
 export const buildNumberValidator = (min = 0) =>
   buildValidator([validateGreaterThan(min)]);
-export const buildEmailValidator = () =>
-  buildValidator([validateNotEmpty, validateEmail]);
-
-// the default form validator just returns field-level validations
-const kDefaultFormValidator = (values, errors) => errors;
+export const buildEmailValidator = (validators = []) =>
+  buildValidator([validateNotEmpty, validateEmail, ...validators]);
 
 // the form validator is the composition of all of the field validators
 // plus an additional form validator function
 export const composeValidator = (
   fieldValidators = {},
-  formValidator = kDefaultFormValidator
+  // the default form validator just returns field-level validations
+  formValidator = (values, errors) => errors
 ) => {
   const names = Object.keys(fieldValidators);
 
@@ -105,7 +107,7 @@ export const composeValidator = (
     );
   };
 
-  // final-form `validate` function
+  // the final-form `validate` function
   return async values => {
     // ask for field-level errors
     const errors = await fieldLevelValidator(values);

@@ -168,8 +168,6 @@ export default function AdminNetworkingKeys() {
     if (values.useNetworkSeed && errors.networkSeed) {
       return errors;
     }
-
-    return {};
   }, []);
 
   const validate = useMemo(
@@ -236,16 +234,16 @@ export default function AdminNetworkingKeys() {
       </Grid.Item>
       {key.matchWith({
         Nothing: () => (
-          <Grid.Item full as="code" className="f5 gray4">
+          <Grid.Item full as="code" className="f5 mono gray4">
             Unset
           </Grid.Item>
         ),
         Just: ({ value: key }) => (
           <>
-            <Grid.Item full as="code" className="f5 wrap">
+            <Grid.Item full as="code" className="f5 mono wrap">
               0x
             </Grid.Item>
-            <Grid.Item full as="code" className="f5 wrap">
+            <Grid.Item full as="code" className="f5 mono wrap">
               {renderNetworkKey(key)}
             </Grid.Item>
           </>
