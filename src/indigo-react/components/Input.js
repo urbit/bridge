@@ -85,8 +85,8 @@ export default function Input({
             {
               'b-green3': valid,
               'b-black': !valid && active,
-              'b-yellow3': !valid && !active && touched && error,
-              'b-gray2': !valid && !active && !touched && !error,
+              'b-yellow3': !valid && !active && touched,
+              'b-gray2': !valid && !active && !touched,
             }
           )}
           id={name}

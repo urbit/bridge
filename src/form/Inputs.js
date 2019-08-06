@@ -2,7 +2,12 @@ import React from 'react';
 import { Input, AccessoryIcon } from 'indigo-react';
 import { useField } from 'react-final-form';
 
-import { prependSig, convertToNumber } from 'lib/transformers';
+import {
+  prependSig,
+  convertToNumber,
+  buildFormatter,
+  downcase,
+} from 'form/formatters';
 import { DEFAULT_HD_PATH } from 'lib/wallet';
 import InputSigil from 'components/InputSigil';
 
@@ -15,6 +20,8 @@ const PLACEHOLDER_ADDRESS = '0x12345abcdeDB11D175F123F6891AA64F01c24F7d';
 const PLACEHOLDER_PRIVATE_KEY =
   '0x12345abcdee6beb2f323fab48b432925c9785808d33a6ca6d7ba00b45e9370c3';
 const PLACEHOLDER_EMAIL = 'Email Address';
+
+const formatPat = buildFormatter([downcase, prependSig]);
 
 export function TicketInput({ name, ...rest }) {
   const {
@@ -43,7 +50,7 @@ export function TicketInput({ name, ...rest }) {
           <AccessoryIcon.Success />
         ) : null
       }
-      config={{ format: prependSig }}
+      config={{ format: formatPat }}
       mono
       {...rest}
     />
@@ -103,7 +110,7 @@ export function PointInput({ name, size = 4, ...rest }) {
           />
         ) : null
       }
-      config={{ format: prependSig }}
+      config={{ format: formatPat }}
       mono
       {...rest}
     />

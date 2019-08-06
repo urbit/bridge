@@ -1,4 +1,6 @@
-// import { fill } from './lib'
+import { compose } from 'lib/lib';
+
+export const buildFormatter = (formatters = []) => compose(...formatters);
 
 export const prependSig = (s = '') =>
   s.length && s.charAt(0) !== '~' ? `~${s}` : s;
@@ -9,6 +11,14 @@ export const convertToNumber = s => {
   } catch {
     return 0;
   }
+};
+
+export const downcase = s => {
+  if (!s) {
+    return s;
+  }
+
+  return s.toLowerCase();
 };
 
 // const hideAllButLast = s => {
