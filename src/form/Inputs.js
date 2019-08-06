@@ -38,7 +38,7 @@ export function TicketInput({ name, ...rest }) {
 
   return (
     <Input
-      type="text"
+      type="password"
       name={name}
       placeholder={PLACEHOLDER_TICKET}
       accessory={
