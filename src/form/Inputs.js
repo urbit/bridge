@@ -97,10 +97,9 @@ export function PointInput({ name, size = 4, ...rest }) {
           <InputSigil
             patp={value}
             size={44}
-            margin={8}
-            pass={valid}
-            focused={active}
+            valid={valid}
             error={error}
+            active={active}
           />
         ) : null
       }
