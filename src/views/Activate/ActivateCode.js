@@ -23,6 +23,8 @@ import { useActivateFlow } from './ActivateFlow';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
+import useBreakpoints from 'lib/useBreakpoints';
+import WarningBox from 'components/WarningBox';
 
 export default function ActivateCode() {
   const history = useHistory();
@@ -39,12 +41,19 @@ export default function ActivateCode() {
     derivedPoint,
     setDerivedPoint,
   } = useActivateFlow();
+  // this is a pretty naive way to detect if we're on a mobile device
+  // (i.e. we're checking the width of the screen)
+  // but it will suffice for the 99% case and if someone wants to get around it
+  // well by golly they're allowed to turn their phone into landscape mode
+  // for this screen
+  const activationAllowed = useBreakpoints([false, true, true]);
 
   const [ticketInput, { pass: validTicket, data: ticket }] = useTicketInput({
     name: 'ticket',
     label: 'Activation Code',
     initialValue: impliedTicket || '',
     autoFocus: true,
+    disabled: !activationAllowed,
   });
 
   const goToLogin = useCallback(() => history.popAndPush(ROUTE_NAMES.LOGIN), [
@@ -135,16 +144,19 @@ export default function ActivateCode() {
         <Grid.Item as={H4} className="mt3 mb2" full>
           Activate
         </Grid.Item>
+
         <Grid.Item as={Input} {...ticketInput} full />
+
         {generalError && (
           <Grid.Item full>
-            <ErrorText>{generalError}</ErrorText>{' '}
+            <ErrorText>{generalError}</ErrorText>
           </Grid.Item>
         )}
+
         <Grid.Item
           as={ForwardButton}
           className="mt4"
-          disabled={!pass || deriving}
+          disabled={!pass || deriving || !activationAllowed}
           accessory={blinkIf(deriving)}
           onClick={goToPassport}
           solid
@@ -152,6 +164,12 @@ export default function ActivateCode() {
           {deriving && 'Deriving...'}
           {!deriving && 'Go'}
         </Grid.Item>
+
+        {!activationAllowed && (
+          <Grid.Item full as={WarningBox} className="mt4">
+            For your security, please access Bridge on a desktop device.
+          </Grid.Item>
+        )}
       </Grid>
       <FooterButton as={ForwardButton} onClick={goToLogin}>
         Login
