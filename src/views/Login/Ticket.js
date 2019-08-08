@@ -49,7 +49,7 @@ export default function Ticket({ className, goHome }) {
         return errors;
       }
 
-      await timeout(100); // allow ui events to flush
+      await timeout(16); // allow ui events to flush
 
       let ticket;
       if (values.useShards) {
