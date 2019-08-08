@@ -341,8 +341,8 @@ export default function AdminNetworkingKeys() {
               <>
                 <Grid.Item full as={NoticeBox} className="mb2">
                   When using a custom network seed, you'll need to download your
-                  Arvo keyfile immediately after this transaction is
-                  completed—Multipass does not store your seed.
+                  Arvo keyfile immediately after this transaction is completed —
+                  Bridge does not store your seed.
                 </Grid.Item>
                 <Grid.Item full as={Input} {...networkSeedInput} />
               </>
