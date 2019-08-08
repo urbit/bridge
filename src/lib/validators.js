@@ -23,7 +23,7 @@ export const validateMnemonic = v =>
 
 // Checks an empty field
 export const validateNotEmpty = v =>
-  v.length === 0 && 'This field is required.';
+  (v === undefined || v.length === 0) && 'This field is required.';
 
 // Checks if a patp is a valid galaxy
 export const validateGalaxy = v => {
