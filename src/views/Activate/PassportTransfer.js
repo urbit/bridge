@@ -60,7 +60,6 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
     () =>
       replaceWith([
         { key: names.LOGIN },
-        { key: names.POINTS },
         { key: names.POINT },
       ]),
     [replaceWith, names]
