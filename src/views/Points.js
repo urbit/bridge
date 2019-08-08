@@ -88,19 +88,16 @@ export default function Points() {
     addRejectedPoint,
   ] = useRejectedIncomingPointTransfers();
 
-  const maybeOutgoingPoints = useMemo(() => {
-    return controlledPoints.matchWith({
-      Nothing: () => Nothing(),
-      Just: r =>
-        r.value.matchWith({
+  const maybeOutgoingPoints = useMemo(
+    () =>
+      controlledPoints.chain(points =>
+        points.matchWith({
           Error: () => Nothing(),
           Ok: c => {
             const points = c.value.ownedPoints.map(point =>
-              getDetails(point).matchWith({
-                Nothing: () => Nothing(),
-                Just: p =>
-                  Just({ point: point, has: hasTransferProxy(p.value) }),
-              })
+              getDetails(point).chain(details =>
+                Just({ point: point, has: hasTransferProxy(details) })
+              )
             );
             // if we have details for every point,
             // return the array of pending transfers.
@@ -113,9 +110,10 @@ export default function Points() {
               return Nothing();
             }
           },
-        }),
-    });
-  }, [getDetails, controlledPoints]);
+        })
+      ),
+    [getDetails, controlledPoints]
+  );
 
   // if we can only interact with a single point, forget about the existence
   // of this page and jump to the point page.
