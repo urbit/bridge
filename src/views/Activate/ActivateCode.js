@@ -21,6 +21,8 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import timeout from 'lib/timeout';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
+import useBreakpoints from 'lib/useBreakpoints';
+import WarningBox from 'components/WarningBox';
 
 import BridgeForm from 'form/BridgeForm';
 import SubmitButton from 'form/SubmitButton';
@@ -42,6 +44,12 @@ export default function ActivateCode() {
     derivedPoint,
     setDerivedPoint,
   } = useActivateFlow();
+  // this is a pretty naive way to detect if we're on a mobile device
+  // (i.e. we're checking the width of the screen)
+  // but it will suffice for the 99% case and if someone wants to get around it
+  // well by golly they're allowed to turn their phone into landscape mode
+  // for this screen
+  const activationAllowed = useBreakpoints([false, true, true]);
 
   const goToLogin = useCallback(() => history.popAndPush(ROUTE_NAMES.LOGIN), [
     history,
@@ -129,6 +137,7 @@ export default function ActivateCode() {
                 as={TicketInput}
                 name="ticket"
                 label="Activation Code"
+                disabled={!activationAllowed}
               />
 
               <Grid.Item full as={FormError} />
@@ -144,6 +153,12 @@ export default function ActivateCode() {
                   ? 'Generating...'
                   : 'Go'}
               </Grid.Item>
+
+              {!activationAllowed && (
+                <Grid.Item full as={WarningBox} className="mt4">
+                  For your security, please access Bridge on a desktop device.
+                </Grid.Item>
+              )}
             </>
           )}
         </BridgeForm>

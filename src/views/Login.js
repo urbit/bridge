@@ -116,7 +116,7 @@ export default function Login() {
   return (
     <View pop={pop} inset>
       <Grid>
-        <Grid.Item full as={Crumbs} routes={[{ text: 'Multipass' }]} />
+        <Grid.Item full as={Crumbs} routes={[{ text: 'Bridge' }]} />
         <Grid.Item full as={H4} className="mt4">
           Login
         </Grid.Item>

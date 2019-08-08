@@ -82,7 +82,7 @@ export default function AdminTransfer() {
                 green3: completed,
               })}>
               {completed
-                ? `${values.address} is now the Transfer Proxy for ${name} and can accept the transfer by logging into Multipass themselves. Until they accept your transfer, you will still have ownership over ${name}.`
+                ? `${values.address} is now the Transfer Proxy for ${name} and can accept the transfer by logging into Bridge themselves. Until they accept your transfer, you will still have ownership over ${name}.`
                 : `Transfer ${name} to a new owner.`}
             </Grid.Item>
 
