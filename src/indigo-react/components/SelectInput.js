@@ -16,17 +16,11 @@ export default function SelectInput({
   mono = false,
   options = [],
   disabled = false,
+  warning,
 }) {
   const {
     input,
-    meta: {
-      active,
-      error,
-      submitting,
-      touched,
-      valid,
-      data: { warning },
-    },
+    meta: { active, error, submitting, touched, valid },
   } = useField(name, {
     type: 'select',
   });

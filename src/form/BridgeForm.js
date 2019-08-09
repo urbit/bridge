@@ -1,12 +1,10 @@
 import React, { useCallback } from 'react';
 import { Form } from 'react-final-form';
-import setFieldData from 'final-form-set-field-data';
 import arrayMutators from 'final-form-arrays';
 import { noop } from 'lodash';
 
 import ValuesHandler from './ValuesHandler';
 import ValidationPauser from './ValidationPauser';
-import WarningEngine from './WarningEngine';
 
 /**
  * BridgeForm adds nice-to-haves for every form in bridge.
@@ -21,7 +19,6 @@ export default function BridgeForm({
   onValues,
   onSubmit = noop,
   afterSubmit = noop,
-  warnings,
   ...rest
 }) {
   const _onSubmit = useCallback(
@@ -37,13 +34,9 @@ export default function BridgeForm({
   );
 
   return (
-    <Form
-      mutators={{ setFieldData, ...arrayMutators }}
-      onSubmit={_onSubmit}
-      {...rest}>
+    <Form mutators={{ ...arrayMutators }} onSubmit={_onSubmit} {...rest}>
       {formProps => (
         <>
-          {warnings && <WarningEngine warnings={warnings} />}
           <ValidationPauser />
           {children(formProps)}
           {onValues && <ValuesHandler onValues={onValues} />}

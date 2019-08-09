@@ -151,14 +151,18 @@ export default function Ticket({ className, goHome }) {
   return (
     <Grid className={cn('mt4', className)}>
       <BridgeForm
-        warnings={warnings}
         validate={validate}
         onValues={onValues}
         afterSubmit={goHome}
         initialValues={initialValues}>
         {({ handleSubmit }) => (
           <>
-            <Grid.Item full as={PointInput} name="point" />
+            <Grid.Item
+              full
+              as={PointInput}
+              name="point"
+              warning={warnings.point}
+            />
 
             <Condition when="useShards" is={false}>
               <Grid.Item

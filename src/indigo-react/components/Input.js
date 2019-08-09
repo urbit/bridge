@@ -14,6 +14,7 @@ export default function Input({
   accessory,
   disabled = false,
   mono = false,
+  warning,
 
   // callbacks
   onEnter,
@@ -26,14 +27,7 @@ export default function Input({
 }) {
   const {
     input,
-    meta: {
-      active,
-      error,
-      submitting,
-      touched,
-      valid,
-      data: { warning },
-    },
+    meta: { active, error, submitting, touched, valid },
   } = useField(name, config);
 
   disabled = disabled || submitting;
