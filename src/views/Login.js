@@ -1,14 +1,9 @@
 import React, { useCallback, useState } from 'react';
-import { Just, Nothing } from 'folktale/maybe';
-import * as azimuth from 'azimuth-js';
 import { H4, Grid } from 'indigo-react';
 
 import { useHistory } from 'store/history';
-import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
-import { usePointCursor } from 'store/pointCursor';
 
-import * as need from 'lib/need';
 import { WALLET_TYPES } from 'lib/wallet';
 
 import View from 'components/View';
@@ -64,9 +59,7 @@ const walletTypeToViewName = walletType => {
 export default function Login() {
   // globals
   const { pop, push, names } = useHistory();
-  const { contracts } = useNetwork();
-  const { wallet, walletType } = useWallet();
-  const { pointCursor, setPointCursor } = usePointCursor();
+  const { walletType } = useWallet();
 
   // inputs
   const [currentTab, setCurrentTab] = useState(
@@ -78,40 +71,9 @@ export default function Login() {
     names.ACTIVATE,
   ]);
 
-  const goToPoints = useCallback(() => {
+  const goHome = useCallback(() => {
     push(names.POINTS);
   }, [push, names]);
-
-  const goToPoint = useCallback(() => {
-    goToPoints();
-    push(names.POINT);
-  }, [goToPoints, push, names]);
-
-  const goHome = useCallback(async () => {
-    const _wallet = need.wallet(wallet);
-    const _contracts = need.contracts(contracts);
-
-    let deduced = pointCursor;
-    // if no point cursor set by login logic, try to deduce it
-    if (Nothing.hasInstance(deduced)) {
-      const owned = await azimuth.azimuth.getOwnedPoints(
-        _contracts,
-        _wallet.address
-      );
-      if (owned.length === 1) {
-        deduced = Just(owned[0]);
-      }
-    }
-
-    // if we have a deduced point or one in the global context,
-    // navigate to that specific point, otherwise navigate to list of points
-    if (Just.hasInstance(deduced)) {
-      setPointCursor(deduced);
-      goToPoint();
-    } else {
-      goToPoints();
-    }
-  }, [contracts, pointCursor, setPointCursor, wallet, goToPoint, goToPoints]);
 
   return (
     <View pop={pop} inset>
