@@ -14,16 +14,18 @@ import {
   validateEmail,
   validateNotNullAddress,
 } from 'lib/validators';
+import isPromise from 'lib/isPromise';
 
 // iterate over validators, exiting early if there's an error
-const buildValidator = (validators = []) => async value => {
+const buildValidator = (validators = []) => value => {
   for (const validator of validators) {
     try {
-      const error = await validator(value);
+      const error = validator(value);
       if (error) {
         return error;
       }
     } catch (error) {
+      console.error(error);
       return error.message;
     }
   }
@@ -93,26 +95,48 @@ export const composeValidator = (
   );
 
   // async reduce errors per-field into an errors object
-  const fieldLevelValidator = async values => {
-    const errors = await Promise.all(
-      names.map((name, i) => fieldLevelValidators[i](values[name]))
+  const fieldLevelValidator = values => {
+    const errorsOrPromises = names.map((name, i) =>
+      fieldLevelValidators[i](values[name])
     );
 
-    return names.reduce(
-      (memo, name, i) => ({
-        ...memo,
-        [name]: errors[i],
-      }),
-      {}
-    );
+    const reduce = errors =>
+      names.reduce(
+        (memo, name, i) => ({
+          ...memo,
+          [name]: errors[i],
+        }),
+        {}
+      );
+
+    if (some(errorsOrPromises, isPromise)) {
+      // if any of these results are a promise, await them all then reduce
+      return Promise.all(errorsOrPromises).then(reduce);
+    }
+
+    // otherwise return immediately
+    return reduce(errorsOrPromises);
   };
 
   // the final-form `validate` function
-  return async values => {
+  // NOTE: if we return a Promise to final-form it will toggle the `validating`
+  // state, which is expected. If our promise resolves immediately, however,
+  // that means our `validating` state flickers the UI and it looks pretty bad.
+  // The solution is to conditionally return a promise only when necessary.
+  return values => {
     // ask for field-level errors
-    const errors = await fieldLevelValidator(values);
+    const errorsOrPromise = fieldLevelValidator(values);
+
     // pass the current values and their validity to the form-level validator
     // that can implement conditional logic and more complex validations
-    return await formValidator(values, errors);
+    const runFormValidator = errors => formValidator(values, errors);
+
+    if (errorsOrPromise.then) {
+      // if promise, promise
+      return errorsOrPromise.then(runFormValidator);
+    }
+
+    // otherwise, it's an errors object
+    return runFormValidator(errorsOrPromise);
   };
 };

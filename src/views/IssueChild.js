@@ -81,13 +81,13 @@ export default function IssueChild() {
     bind,
   } = useIssueChild();
 
-  const validatePoint = useCallback(
-    async name => {
-      const point = patp2dec(name);
+  const validateForm = useCallback(
+    async values => {
+      const point = patp2dec(values.name);
       const hasPoint = (await availablePointsPromise).has(point);
 
       if (!hasPoint) {
-        return 'This point cannot be spawned.';
+        return { point: 'This point cannot be spawned.' };
       }
     },
     [availablePointsPromise]
@@ -95,11 +95,14 @@ export default function IssueChild() {
 
   const validate = useMemo(
     () =>
-      composeValidator({
-        point: buildPointValidator(4, [validatePoint]),
-        owner: buildAddressValidator(),
-      }),
-    [validatePoint]
+      composeValidator(
+        {
+          point: buildPointValidator(4),
+          owner: buildAddressValidator(),
+        },
+        validateForm
+      ),
+    [validateForm]
   );
 
   const onValues = useCallback(

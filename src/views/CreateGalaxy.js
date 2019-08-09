@@ -59,16 +59,16 @@ export default function CreateGalaxy() {
     bind,
   } = useCreateGalaxy();
 
-  const validateGalaxy = useCallback(
-    async galaxyName => {
+  const validateForm = useCallback(
+    async values => {
       const currentOwner = await azimuth.azimuth.getOwner(
         _contracts,
-        patp2dec(galaxyName)
+        patp2dec(values.galaxyName)
       );
 
       const isAvailable = isZeroAddress(currentOwner);
       if (!isAvailable) {
-        return 'This galaxy is already spawned and owned.';
+        return { galaxyName: 'This galaxy is already spawned and owned.' };
       }
     },
     [_contracts]
@@ -76,11 +76,14 @@ export default function CreateGalaxy() {
 
   const validate = useMemo(
     () =>
-      composeValidator({
-        galaxyName: buildPointValidator(1, [validateGalaxy]),
-        owner: buildAddressValidator(),
-      }),
-    [validateGalaxy]
+      composeValidator(
+        {
+          galaxyName: buildPointValidator(1),
+          owner: buildAddressValidator(),
+        },
+        validateForm
+      ),
+    [validateForm]
   );
 
   const onValues = useCallback(

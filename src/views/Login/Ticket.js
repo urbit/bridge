@@ -43,34 +43,13 @@ export default function Ticket({ className, goHome }) {
 
   const cachedUrbitWallet = useRef(Nothing());
 
-  const validateForm = useCallback(
-    async (values, errors) => {
-      if (errors.point) {
-        return errors;
-      }
-
-      await timeout(16); // allow ui events to flush
-
-      let ticket;
-      if (values.useShards) {
-        if (errors.shard1 || errors.shard2 || errors.shard3) {
-          return errors;
-        }
-
-        ticket = kg.combine([values.shard1, values.shard2, values.shard3]);
-      } else {
-        if (errors.ticket) {
-          return errors;
-        }
-
-        ticket = values.ticket;
-      }
-
+  const validateFormAsync = useCallback(
+    async (values, ticket) => {
       try {
-        // ticket
         const _contracts = need.contracts(contracts);
         const point = patp2dec(values.point);
 
+        await timeout(16); // allow ui events to flush
         cachedUrbitWallet.current = await urbitWalletFromTicket(
           ticket,
           point,
@@ -92,11 +71,12 @@ export default function Ticket({ className, goHome }) {
 
         const noPermissions = !isOwner && !isTransferProxy;
         // notify the user, but allow login regardless
-        addWarning({
-          point: noPermissions
-            ? 'This wallet is not the owner or transfer proxy for this point.'
-            : null,
-        });
+        if (noPermissions) {
+          addWarning({
+            point:
+              'This wallet is not the owner or transfer proxy for this point.',
+          });
+        }
       } catch (error) {
         console.error(error);
         return {
@@ -107,6 +87,33 @@ export default function Ticket({ className, goHome }) {
       }
     },
     [addWarning, contracts]
+  );
+
+  const validateForm = useCallback(
+    (values, errors) => {
+      if (errors.point) {
+        addWarning({ point: null });
+        return errors;
+      }
+
+      let ticket;
+      if (values.useShards) {
+        if (errors.shard1 || errors.shard2 || errors.shard3) {
+          return errors;
+        }
+
+        ticket = kg.combine([values.shard1, values.shard2, values.shard3]);
+      } else {
+        if (errors.ticket) {
+          return errors;
+        }
+
+        ticket = values.ticket;
+      }
+
+      return validateFormAsync(values, ticket);
+    },
+    [addWarning, validateFormAsync]
   );
 
   const validate = useMemo(
