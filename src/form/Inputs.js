@@ -42,7 +42,6 @@ export function TicketInput({ name, ...rest }) {
       name={name}
       placeholder={PLACEHOLDER_TICKET}
       autoCapitalize="none"
-      autoComplete="off"
       autoCorrect="off"
       accessory={
         touched && !active && error ? (
@@ -92,7 +91,6 @@ export function PassphraseInput({ ...rest }) {
       type="password"
       placeholder="Passphrase"
       autoCapitalize="none"
-      autoComplete="off"
       autoCorrect="off"
       {...rest}
     />
