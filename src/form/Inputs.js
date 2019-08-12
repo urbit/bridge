@@ -7,6 +7,7 @@ import {
   convertToNumber,
   buildFormatter,
   downcase,
+  ensurePatQDashes,
 } from 'form/formatters';
 import { DEFAULT_HD_PATH } from 'lib/wallet';
 import InputSigil from 'components/InputSigil';
@@ -21,7 +22,12 @@ const PLACEHOLDER_PRIVATE_KEY =
   '0x12345abcdee6beb2f323fab48b432925c9785808d33a6ca6d7ba00b45e9370c3';
 const PLACEHOLDER_EMAIL = 'Email Address';
 
-const formatPat = buildFormatter([downcase, prependSig]);
+const TICKET_MAX_BYTE_LEN = 32; // tickets can be as large as 32 bytes
+const formatPat = buildFormatter([
+  downcase,
+  prependSig,
+  ensurePatQDashes(TICKET_MAX_BYTE_LEN),
+]);
 
 export function TicketInput({ name, ...rest }) {
   const {
@@ -38,8 +44,9 @@ export function TicketInput({ name, ...rest }) {
 
   return (
     <Input
-      type="password"
+      type="text"
       name={name}
+      obscure={value => value.replace(/[^~-]+/g, '••••••')}
       placeholder={PLACEHOLDER_TICKET}
       autoCapitalize="none"
       autoCorrect="off"

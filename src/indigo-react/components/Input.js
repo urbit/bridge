@@ -1,7 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
 import { useField } from 'react-final-form';
-
 import Flex from './Flex';
 import { ErrorText } from './Typography';
 
@@ -15,6 +14,7 @@ export default function Input({
   disabled = false,
   mono = false,
   warning,
+  obscure,
 
   // callbacks
   onEnter,
@@ -32,12 +32,17 @@ export default function Input({
 
   disabled = disabled || submitting;
 
+  // choose the base dom component
+  const BaseComponent = type === 'textarea' ? 'textarea' : 'input';
+
   // notify parent of enter keypress iff not disabled and passing
   // TODO: integrate this into react-final-form submission
   // const onKeyPress = useCallback(
   //   e => !disabled && valid && e.key === 'Enter' && onEnter && onEnter(),
   //   [disabled, valid] // eslint-disable-line react-hooks/exhaustive-deps
   // );
+
+  // console.log(input);
 
   return (
     <Flex
@@ -61,7 +66,7 @@ export default function Input({
       <Flex.Item as={Flex} row className="rel">
         <Flex.Item
           flex
-          as={type === 'textarea' ? 'textarea' : 'input'}
+          as={BaseComponent}
           {...rest}
           // NOTE: 24px = 12px * 2 (from p3 styling)
           style={type === 'textarea' ? { minHeight: 'calc(1rem + 24px)' } : {}}
