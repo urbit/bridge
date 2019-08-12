@@ -131,7 +131,7 @@ export const composeValidator = (
     // that can implement conditional logic and more complex validations
     const runFormValidator = errors => formValidator(values, errors);
 
-    if (errorsOrPromise.then) {
+    if (isPromise(errorsOrPromise)) {
       // if promise, promise
       return errorsOrPromise.then(runFormValidator);
     }
