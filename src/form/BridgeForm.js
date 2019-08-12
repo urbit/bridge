@@ -39,7 +39,7 @@ export default function BridgeForm({
         <>
           <ValidationPauser />
           {children(formProps)}
-          {onValues && <ValuesHandler onValues={onValues} />}
+          {onValues && <ValuesHandler {...formProps} onValues={onValues} />}
         </>
       )}
     </Form>
