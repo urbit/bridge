@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import cn from 'classnames';
-import { Grid, Text, Input } from 'indigo-react';
+import { Grid, Text } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from 'store/network';
@@ -17,11 +17,12 @@ import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
 import BridgeForm from 'form/BridgeForm';
-import { PointInput } from 'form/Inputs';
+import { PointInput, AddressInput } from 'form/Inputs';
 import {
   composeValidator,
   buildPointValidator,
   buildAddressValidator,
+  hasErrors,
 } from 'form/validators';
 import FormError from 'form/FormError';
 
@@ -59,7 +60,7 @@ export default function CreateGalaxy() {
     bind,
   } = useCreateGalaxy();
 
-  const validateForm = useCallback(
+  const validateFormAsync = useCallback(
     async values => {
       const currentOwner = await azimuth.azimuth.getOwner(
         _contracts,
@@ -72,6 +73,17 @@ export default function CreateGalaxy() {
       }
     },
     [_contracts]
+  );
+
+  const validateForm = useCallback(
+    (values, errors) => {
+      if (hasErrors(errors)) {
+        return errors;
+      }
+
+      return validateFormAsync(values, errors);
+    },
+    [validateFormAsync]
   );
 
   const validate = useMemo(
@@ -129,7 +141,7 @@ export default function CreateGalaxy() {
               />
               <Grid.Item
                 full
-                as={Input}
+                as={AddressInput}
                 className="mb4"
                 name="owner"
                 label="Ethereum Address"

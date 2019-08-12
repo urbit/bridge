@@ -4,14 +4,7 @@ import * as bip32 from 'bip32';
 import { times } from 'lodash';
 import TrezorConnect from 'trezor-connect';
 import * as secp256k1 from 'secp256k1';
-import {
-  Text,
-  Input,
-  Grid,
-  H5,
-  CheckboxInput,
-  SelectInput,
-} from 'indigo-react';
+import { Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
@@ -31,6 +24,7 @@ import FormError from 'form/FormError';
 
 import ContinueButton from './ContinueButton';
 import { FORM_ERROR } from 'final-form';
+import { HdPathInput } from 'form/Inputs';
 
 const ACCOUNT_OPTIONS = times(20, i => ({
   text: `Account #${i + 1}`,
@@ -118,7 +112,7 @@ export default function Trezor({ className, goHome }) {
         {({ handleSubmit }) => (
           <>
             <Condition when="useCustomPath" is={true}>
-              <Grid.Item full as={Input} name="hdpath" label="HD Path" />
+              <Grid.Item full as={HdPathInput} name="hdpath" label="HD Path" />
             </Condition>
 
             <Condition when="useCustomPath" is={false}>

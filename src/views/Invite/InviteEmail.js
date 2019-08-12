@@ -142,7 +142,7 @@ export default function InviteEmail() {
     [getHasReceived]
   );
 
-  const validateForm = useCallback(async (values, errors) => {
+  const validateForm = useCallback((values, errors) => {
     if (hasErrors(errors)) {
       return errors;
     }

@@ -24,6 +24,7 @@ import {
   composeValidator,
   buildPointValidator,
   buildAddressValidator,
+  hasErrors,
 } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
@@ -81,7 +82,7 @@ export default function IssueChild() {
     bind,
   } = useIssueChild();
 
-  const validateForm = useCallback(
+  const validateFormAsync = useCallback(
     async values => {
       const point = patp2dec(values.name);
       const hasPoint = (await availablePointsPromise).has(point);
@@ -91,6 +92,17 @@ export default function IssueChild() {
       }
     },
     [availablePointsPromise]
+  );
+
+  const validateForm = useCallback(
+    (values, errors) => {
+      if (hasErrors(errors)) {
+        return errors;
+      }
+
+      return validateFormAsync(values, errors);
+    },
+    [validateFormAsync]
   );
 
   const validate = useMemo(

@@ -1,15 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
 import { Just } from 'folktale/maybe';
-import {
-  P,
-  Text,
-  Input,
-  Grid,
-  H5,
-  CheckboxInput,
-  SelectInput,
-} from 'indigo-react';
+import { P, Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react';
 import { times } from 'lodash';
 import * as bip32 from 'bip32';
 import Transport from '@ledgerhq/hw-transport-u2f';
@@ -38,6 +30,7 @@ import FormError from 'form/FormError';
 import ContinueButton from './ContinueButton';
 import Condition from 'form/Condition';
 import { FORM_ERROR } from 'final-form';
+import { HdPathInput } from 'form/Inputs';
 
 const PATH_OPTIONS = [
   { text: 'Ledger Live', value: LEDGER_LIVE_PATH },
@@ -176,7 +169,7 @@ export default function Ledger({ className, goHome }) {
         {({ handleSubmit }) => (
           <>
             <Condition when="useCustomPath" is={true}>
-              <Grid.Item full as={Input} name="hdpath" label="HD Path" />
+              <Grid.Item full as={HdPathInput} name="hdpath" label="HD Path" />
             </Condition>
 
             <Condition when="useCustomPath" is={false}>
