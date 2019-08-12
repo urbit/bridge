@@ -13,24 +13,30 @@ export default function SubmitButton({
   handleSubmit,
   ...rest
 }) {
-  const { valid, validating, submitting, submitError } = useFormState({
-    subscription: {
-      valid: true,
-      validating: true,
-      submitting: true,
-      submitError: true,
-    },
-  });
+  const {
+    valid,
+    validating,
+    submitting,
+    hasValidationErrors,
+    hasSubmitErrors,
+    dirtySinceLastSubmit,
+  } = useFormState();
+
+  const canSubmit =
+    (valid || (hasSubmitErrors && dirtySinceLastSubmit)) &&
+    !validating &&
+    !hasValidationErrors &&
+    !submitting;
 
   return (
     <As
       className={cn('mt4', className)}
-      disabled={!valid || validating || submitting}
+      disabled={!canSubmit}
       accessory={blinkIf(validating || submitting)}
       onClick={handleSubmit}
       solid
       {...rest}>
-      {submitError ? 'Error submitting' : children}
+      {children}
     </As>
   );
 }

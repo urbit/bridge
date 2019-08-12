@@ -18,7 +18,7 @@ import {
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
 import FormError from 'form/FormError';
-import ContinueButton from './ContinueButton';
+import SubmitButton from 'form/SubmitButton';
 
 export default function Mnemonic({ className, goHome }) {
   useLoginView(WALLET_TYPES.MNEMONIC);
@@ -99,7 +99,9 @@ export default function Mnemonic({ className, goHome }) {
 
             <Grid.Item full as={FormError} />
 
-            <Grid.Item full as={ContinueButton} handleSubmit={handleSubmit} />
+            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+              Continue
+            </Grid.Item>
           </>
         )}
       </BridgeForm>

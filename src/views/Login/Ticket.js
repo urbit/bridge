@@ -29,7 +29,7 @@ import {
 } from 'form/validators';
 import FormError from 'form/FormError';
 
-import ContinueButton from './ContinueButton';
+import SubmitButton from 'form/SubmitButton';
 import useSetState from 'lib/useSetState';
 
 export default function Ticket({ className, goHome }) {
@@ -41,16 +41,38 @@ export default function Ticket({ className, goHome }) {
   const impliedPoint = useImpliedPoint();
   const [warnings, addWarning] = useSetState();
 
-  const cachedUrbitWallet = useRef(Nothing());
+  const validateForm = useCallback(
+    (values, errors) => {
+      if (errors.point) {
+        addWarning({ point: null });
+        return errors;
+      }
 
-  const validateFormAsync = useCallback(
-    async (values, ticket) => {
+      if (values.useShards) {
+        if (errors.shard1 || errors.shard2 || errors.shard3) {
+          return errors;
+        }
+      } else {
+        if (errors.ticket) {
+          return errors;
+        }
+      }
+    },
+    [addWarning]
+  );
+
+  const onSubmit = useCallback(
+    async values => {
+      const ticket = values.useShards
+        ? kg.combine([values.shard1, values.shard2, values.shard3])
+        : values.ticket;
+
       try {
         const _contracts = need.contracts(contracts);
         const point = patp2dec(values.point);
 
         await timeout(16); // allow ui events to flush
-        cachedUrbitWallet.current = await urbitWalletFromTicket(
+        const urbitWallet = await urbitWalletFromTicket(
           ticket,
           point,
           values.passphrase
@@ -60,23 +82,27 @@ export default function Ticket({ className, goHome }) {
           azimuth.azimuth.isOwner(
             _contracts,
             point,
-            cachedUrbitWallet.current.ownership.keys.address
+            urbitWallet.ownership.keys.address
           ),
           azimuth.azimuth.isTransferProxy(
             _contracts,
             point,
-            cachedUrbitWallet.current.ownership.keys.address
+            urbitWallet.ownership.keys.address
           ),
         ]);
 
         const noPermissions = !isOwner && !isTransferProxy;
         // notify the user, but allow login regardless
+        // TODO: how should the warning work now that we generate onSubmit?
         if (noPermissions) {
           addWarning({
             point:
               'This wallet is not the owner or transfer proxy for this point.',
           });
         }
+
+        setUrbitWallet(Just(urbitWallet));
+        setPointCursor(Just(patp2dec(values.point)));
       } catch (error) {
         console.error(error);
         return {
@@ -86,34 +112,7 @@ export default function Ticket({ className, goHome }) {
         };
       }
     },
-    [addWarning, contracts]
-  );
-
-  const validateForm = useCallback(
-    (values, errors) => {
-      if (errors.point) {
-        addWarning({ point: null });
-        return errors;
-      }
-
-      let ticket;
-      if (values.useShards) {
-        if (errors.shard1 || errors.shard2 || errors.shard3) {
-          return errors;
-        }
-
-        ticket = kg.combine([values.shard1, values.shard2, values.shard3]);
-      } else {
-        if (errors.ticket) {
-          return errors;
-        }
-
-        ticket = values.ticket;
-      }
-
-      return validateFormAsync(values, ticket);
-    },
-    [addWarning, validateFormAsync]
+    [addWarning, contracts, setPointCursor, setUrbitWallet]
   );
 
   const validate = useMemo(
@@ -134,18 +133,6 @@ export default function Ticket({ className, goHome }) {
     [validateForm]
   );
 
-  const onValues = useCallback(
-    ({ valid, values }) => {
-      if (valid) {
-        setUrbitWallet(Just(cachedUrbitWallet.current));
-        setPointCursor(Just(patp2dec(values.point)));
-      } else {
-        setUrbitWallet(Nothing());
-      }
-    },
-    [setPointCursor, setUrbitWallet]
-  );
-
   const initialValues = useMemo(
     () => ({
       point: impliedPoint || '',
@@ -159,7 +146,7 @@ export default function Ticket({ className, goHome }) {
     <Grid className={cn('mt4', className)}>
       <BridgeForm
         validate={validate}
-        onValues={onValues}
+        onSubmit={onSubmit}
         afterSubmit={goHome}
         initialValues={initialValues}>
         {({ handleSubmit }) => (
@@ -210,7 +197,9 @@ export default function Ticket({ className, goHome }) {
 
             <Grid.Item full as={FormError} />
 
-            <Grid.Item full as={ContinueButton} handleSubmit={handleSubmit} />
+            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+              Continue
+            </Grid.Item>
           </>
         )}
       </BridgeForm>

@@ -12,7 +12,7 @@ import BridgeForm from 'form/BridgeForm';
 import { HexInput } from 'form/Inputs';
 import { buildHexValidator, composeValidator } from 'form/validators';
 
-import ContinueButton from './ContinueButton';
+import SubmitButton from 'form/SubmitButton';
 
 export default function PrivateKey({ className, goHome }) {
   useLoginView(WALLET_TYPES.PRIVATE_KEY);
@@ -52,7 +52,9 @@ export default function PrivateKey({ className, goHome }) {
               label="Private key"
             />
             <Grid.Item full as={FormError} />
-            <Grid.Item full as={ContinueButton} handleSubmit={handleSubmit} />
+            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+              Continue
+            </Grid.Item>
           </>
         )}
       </BridgeForm>

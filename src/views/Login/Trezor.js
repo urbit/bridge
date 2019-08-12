@@ -22,7 +22,7 @@ import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
 import FormError from 'form/FormError';
 
-import ContinueButton from './ContinueButton';
+import SubmitButton from 'form/SubmitButton';
 import { FORM_ERROR } from 'final-form';
 import { HdPathInput } from 'form/Inputs';
 
@@ -136,7 +136,7 @@ export default function Trezor({ className, goHome }) {
 
             <Grid.Item full as={FormError} />
 
-            <Grid.Item full as={ContinueButton} handleSubmit={handleSubmit}>
+            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
               Authenticate
             </Grid.Item>
           </>

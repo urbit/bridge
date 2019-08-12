@@ -15,7 +15,7 @@ import {
   buildUploadValidator,
 } from 'form/validators';
 import UploadInput from 'form/UploadInput';
-import ContinueButton from './ContinueButton';
+import SubmitButton from 'form/SubmitButton';
 import BridgeForm from 'form/BridgeForm';
 import { FORM_ERROR } from 'final-form';
 import FormError from 'form/FormError';
@@ -44,7 +44,7 @@ export default function Keystore({ className, goHome }) {
         const wallet = new EthereumWallet(privateKey);
         setWallet(Just(wallet));
       } catch (error) {
-        console.error(error);
+        // console.error(error);
         return {
           [FORM_ERROR]:
             "Couldn't decrypt wallet. You may have entered an incorrect password.",
@@ -81,7 +81,7 @@ export default function Keystore({ className, goHome }) {
 
             <Grid.Item full as={FormError} />
 
-            <Grid.Item full as={ContinueButton} handleSubmit={handleSubmit}>
+            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
               Decrypt
             </Grid.Item>
           </>

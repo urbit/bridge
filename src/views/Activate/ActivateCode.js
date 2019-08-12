@@ -71,7 +71,7 @@ export default function ActivateCode() {
   // set our state on submission
   const onSubmit = useCallback(
     async values => {
-      await timeout(100); // allow the ui changes to flush before we lag it out
+      await timeout(16); // allow the ui changes to flush before we lag it out
 
       const _contracts = need.contracts(contracts);
       const { seed } = await generateTemporaryOwnershipWallet(values.ticket);
