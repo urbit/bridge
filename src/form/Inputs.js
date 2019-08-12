@@ -52,7 +52,7 @@ export function TicketInput({ name, ...rest }) {
           <AccessoryIcon.Success />
         ) : null
       }
-      config={{ format: formatPat }}
+      config={{ parse: formatPat }}
       mono
       {...rest}
     />
@@ -125,7 +125,7 @@ export function PointInput({ name, size = 4, ...rest }) {
           />
         ) : null
       }
-      config={{ format: formatPat }}
+      config={{ parse: formatPat }}
       mono
       {...rest}
     />

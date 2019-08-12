@@ -3,7 +3,7 @@ import { compose } from 'lib/lib';
 export const buildFormatter = (formatters = []) => compose(...formatters);
 
 export const prependSig = s => {
-  if (!s || s.length <= 1) {
+  if (!s || s.length === 0) {
     return s || '';
   }
 
