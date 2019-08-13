@@ -3,11 +3,10 @@ import { Input, AccessoryIcon } from 'indigo-react';
 import { useField } from 'react-final-form';
 
 import {
-  prependSig,
   convertToNumber,
   buildFormatter,
   downcase,
-  ensurePatQDashes,
+  ensurePatFormat,
 } from 'form/formatters';
 import { DEFAULT_HD_PATH } from 'lib/wallet';
 import InputSigil from 'components/InputSigil';
@@ -22,12 +21,7 @@ const PLACEHOLDER_PRIVATE_KEY =
   '0x12345abcdee6beb2f323fab48b432925c9785808d33a6ca6d7ba00b45e9370c3';
 const PLACEHOLDER_EMAIL = 'Email Address';
 
-const TICKET_MAX_BYTE_LEN = 32; // tickets can be as large as 32 bytes
-const formatPat = buildFormatter([
-  downcase,
-  prependSig,
-  ensurePatQDashes(TICKET_MAX_BYTE_LEN),
-]);
+const formatPat = buildFormatter([downcase, ensurePatFormat]);
 
 export function TicketInput({ name, ...rest }) {
   const {
