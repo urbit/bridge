@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { Just } from 'folktale/maybe';
 import cn from 'classnames';
 import * as azimuth from 'azimuth-js';
@@ -28,9 +28,9 @@ import {
   buildPointValidator,
 } from 'form/validators';
 import FormError from 'form/FormError';
-
 import SubmitButton from 'form/SubmitButton';
-import useSetState from 'lib/useSetState';
+import { hasWarnings } from 'form/helpers';
+import { ForwardButton } from 'components/Buttons';
 
 export default function Ticket({ className, goHome }) {
   useLoginView(WALLET_TYPES.TICKET);
@@ -39,27 +39,25 @@ export default function Ticket({ className, goHome }) {
   const { setUrbitWallet } = useWallet();
   const { setPointCursor } = usePointCursor();
   const impliedPoint = useImpliedPoint();
-  const [warnings, addWarning] = useSetState();
+  const warnings = useRef({});
 
-  const validateForm = useCallback(
-    (values, errors) => {
-      if (errors.point) {
-        addWarning({ point: null });
+  const validateForm = useCallback((values, errors) => {
+    warnings.current.point = null;
+
+    if (errors.point) {
+      return errors;
+    }
+
+    if (values.useShards) {
+      if (errors.shard1 || errors.shard2 || errors.shard3) {
         return errors;
       }
-
-      if (values.useShards) {
-        if (errors.shard1 || errors.shard2 || errors.shard3) {
-          return errors;
-        }
-      } else {
-        if (errors.ticket) {
-          return errors;
-        }
+    } else {
+      if (errors.ticket) {
+        return errors;
       }
-    },
-    [addWarning]
-  );
+    }
+  }, []);
 
   const onSubmit = useCallback(
     async values => {
@@ -93,12 +91,9 @@ export default function Ticket({ className, goHome }) {
 
         const noPermissions = !isOwner && !isTransferProxy;
         // notify the user, but allow login regardless
-        // TODO: how should the warning work now that we generate onSubmit?
         if (noPermissions) {
-          addWarning({
-            point:
-              'This wallet is not the owner or transfer proxy for this point.',
-          });
+          warnings.current.point =
+            'This wallet is not the owner or transfer proxy for this point.';
         }
 
         setUrbitWallet(Just(urbitWallet));
@@ -112,8 +107,16 @@ export default function Ticket({ className, goHome }) {
         };
       }
     },
-    [addWarning, contracts, setPointCursor, setUrbitWallet]
+    [contracts, setPointCursor, setUrbitWallet]
   );
+
+  const afterSubmit = useCallback(() => {
+    if (hasWarnings(warnings.current)) {
+      return;
+    }
+
+    goHome();
+  }, [goHome]);
 
   const validate = useMemo(
     () =>
@@ -147,15 +150,15 @@ export default function Ticket({ className, goHome }) {
       <BridgeForm
         validate={validate}
         onSubmit={onSubmit}
-        afterSubmit={goHome}
+        afterSubmit={afterSubmit}
         initialValues={initialValues}>
-        {({ handleSubmit }) => (
+        {({ handleSubmit, submitSucceeded }) => (
           <>
             <Grid.Item
               full
               as={PointInput}
               name="point"
-              warning={warnings.point}
+              warning={warnings.current.point}
             />
 
             <Condition when="useShards" is={false}>
@@ -197,9 +200,15 @@ export default function Ticket({ className, goHome }) {
 
             <Grid.Item full as={FormError} />
 
-            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
-              Continue
-            </Grid.Item>
+            {submitSucceeded ? (
+              <Grid.Item full as={ForwardButton} solid onClick={goHome}>
+                Login Anyway
+              </Grid.Item>
+            ) : (
+              <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+                Continue
+              </Grid.Item>
+            )}
           </>
         )}
       </BridgeForm>

@@ -1,35 +1,41 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { Just } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import { Grid, H4 } from 'indigo-react';
+import { FORM_ERROR } from 'final-form';
 
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
 import Passport from 'components/Passport';
+import WarningBox from 'components/WarningBox';
+import FooterButton from 'components/FooterButton';
 
+import { useNetwork } from 'store/network';
 import { useHistory } from 'store/history';
 
 import * as need from 'lib/need';
 import { ROUTE_NAMES } from 'lib/routeNames';
-import FooterButton from 'components/FooterButton';
 import { DEFAULT_HD_PATH, walletFromMnemonic } from 'lib/wallet';
-import { useNetwork } from 'store/network';
 import { generateWallet } from 'lib/invite';
 import { generateTemporaryOwnershipWallet } from 'lib/walletgen';
-import { useActivateFlow } from './ActivateFlow';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import timeout from 'lib/timeout';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
 import useBreakpoints from 'lib/useBreakpoints';
-import WarningBox from 'components/WarningBox';
 
 import BridgeForm from 'form/BridgeForm';
 import SubmitButton from 'form/SubmitButton';
 import { TicketInput } from 'form/Inputs';
-import { composeValidator, buildPatqValidator } from 'form/validators';
+import {
+  composeValidator,
+  buildPatqValidator,
+  hasErrors,
+} from 'form/validators';
 import FormError from 'form/FormError';
-import { FORM_ERROR } from 'final-form';
+
+import { useActivateFlow } from './ActivateFlow';
+import { hasWarnings } from 'form/helpers';
 
 export default function ActivateCode() {
   const history = useHistory();
@@ -37,6 +43,7 @@ export default function ActivateCode() {
   const { contracts } = useNetwork();
   const impliedTicket = useImpliedTicket();
   const [hasDisclaimed] = useHasDisclaimed();
+  const warnings = useRef({});
 
   const {
     setDerivedWallet,
@@ -61,11 +68,19 @@ export default function ActivateCode() {
     if (!hasDisclaimed) {
       push(names.DISCLAIMER);
     }
-  }, [names, push, hasDisclaimed]);
+  }, [hasDisclaimed, names.DISCLAIMER, names.PASSPORT, push]);
+
+  const validateForm = useCallback((values, errors) => {
+    warnings.current.ticket = null;
+
+    if (hasErrors(errors)) {
+      return errors;
+    }
+  }, []);
 
   const validate = useMemo(
-    () => composeValidator({ ticket: buildPatqValidator() }),
-    []
+    () => composeValidator({ ticket: buildPatqValidator() }, validateForm),
+    [validateForm]
   );
 
   // set our state on submission
@@ -92,10 +107,9 @@ export default function ActivateCode() {
 
       if (incoming.length > 0) {
         if (incoming.length > 1) {
-          // TODO: putting a warning here doesn't make sense since the user
-          // will be immediately redirected away — what do?
-          // 'This invite code has multiple points available.\n' +
-          //   "Once you've activated this point, activate the next with the same process.";
+          warnings.current.ticket =
+            'This invite code has multiple points available.\n' +
+            "Once you've activated this point, activate the next with the same process.";
         }
 
         const point = parseInt(incoming[0], 10);
@@ -114,6 +128,14 @@ export default function ActivateCode() {
     [contracts, setDerivedPoint, setDerivedWallet, setInviteWallet]
   );
 
+  const afterSubmit = useCallback(() => {
+    if (hasWarnings(warnings.current)) {
+      return;
+    }
+
+    goToPassport();
+  }, [goToPassport]);
+
   const initialValues = useMemo(() => ({ ticket: impliedTicket || '' }), [
     impliedTicket,
   ]);
@@ -128,9 +150,9 @@ export default function ActivateCode() {
         <BridgeForm
           validate={validate}
           onSubmit={onSubmit}
-          afterSubmit={goToPassport}
+          afterSubmit={afterSubmit}
           initialValues={initialValues}>
-          {({ validating, submitting, handleSubmit }) => (
+          {({ validating, submitting, submitSucceeded, handleSubmit }) => (
             <>
               <Grid.Item
                 full
@@ -138,21 +160,33 @@ export default function ActivateCode() {
                 name="ticket"
                 label="Activation Code"
                 disabled={!activationAllowed}
+                warning={warnings.current.ticket}
               />
 
               <Grid.Item full as={FormError} />
 
-              <Grid.Item
-                full
-                as={SubmitButton}
-                className="mt4"
-                handleSubmit={handleSubmit}>
-                {validating
-                  ? 'Deriving...'
-                  : submitting
-                  ? 'Generating...'
-                  : 'Go'}
-              </Grid.Item>
+              {submitSucceeded ? (
+                <Grid.Item
+                  full
+                  as={ForwardButton}
+                  solid
+                  className="mt4"
+                  onClick={goToPassport}>
+                  Continue Activation
+                </Grid.Item>
+              ) : (
+                <Grid.Item
+                  full
+                  as={SubmitButton}
+                  className="mt4"
+                  handleSubmit={handleSubmit}>
+                  {validating
+                    ? 'Deriving...'
+                    : submitting
+                    ? 'Generating...'
+                    : 'Go'}
+                </Grid.Item>
+              )}
 
               {!activationAllowed && (
                 <Grid.Item full as={WarningBox} className="mt4">
@@ -163,6 +197,7 @@ export default function ActivateCode() {
           )}
         </BridgeForm>
       </Grid>
+
       <FooterButton as={ForwardButton} onClick={goToLogin}>
         Login
       </FooterButton>
