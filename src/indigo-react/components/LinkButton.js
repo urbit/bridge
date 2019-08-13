@@ -19,9 +19,9 @@ export default function LinkButton({
         }),
       }}
       className={cn(
-        'pointer underline',
+        'us-none pointer underline',
         {
-          black: !disabled,
+          // NOTE: inherit styling from parent otherwise
           gray4: disabled,
         },
         className

@@ -20,6 +20,7 @@ import WarningBox from './WarningBox';
 import { composeValidator, buildCheckboxValidator } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
+import CopyButton from './CopyButton';
 
 export default function InlineEthereumTransaction({
   // from useEthereumTransaction.bind
@@ -78,7 +79,7 @@ export default function InlineEthereumTransaction({
     [resetGasPrice]
   );
 
-  const renderPrimaryButton = () => {
+  const renderPrimarySection = () => {
     if (error) {
       return (
         <Grid.Item full as={RestartButton} solid onClick={() => reset()}>
@@ -87,12 +88,9 @@ export default function InlineEthereumTransaction({
       );
     } else if (completed) {
       return (
-        <>
-          <Grid.Divider />
-          <Grid.Item full as={RestartButton} onClick={onReturn}>
-            Return
-          </Grid.Item>
-        </>
+        <Grid.Item full className="pv4 black f5">
+          Transaction Complete
+        </Grid.Item>
       );
     } else if (showBroadcastButton) {
       return (
@@ -121,12 +119,17 @@ export default function InlineEthereumTransaction({
     }
   };
 
+  const serializedTxHex = useMemo(
+    () => signedTransaction && hexify(signedTransaction.serialize()),
+    [signedTransaction]
+  );
+
   return (
     <Grid className={cn(className, 'mt1')}>
       <BridgeForm validate={validate} onValues={onValues}>
         {({ handleSubmit }) => (
           <>
-            {renderPrimaryButton()}
+            {renderPrimarySection()}
 
             {error && (
               <Grid.Item full as={ErrorText} className="mt1">
@@ -149,12 +152,14 @@ export default function InlineEthereumTransaction({
                   full
                   as={ToggleInput}
                   name="useAdvanced"
-                  label="Advanced Configuration"
-                  inverseLabel="Cancel Advanced Configuration"
+                  label="Advanced"
+                  inverseLabel="Back to Defaults"
+                  inverseColor="red3"
                   disabled={!showConfigureInput || initializing}
                 />
 
                 <Condition when="useAdvanced" is={true}>
+                  <Grid.Divider />
                   <Grid.Item
                     full
                     as={Flex}
@@ -183,13 +188,7 @@ export default function InlineEthereumTransaction({
                     <Flex.Item as={Text}>Cheap</Flex.Item>
                     <Flex.Item as={Text}>Fast</Flex.Item>
                   </Grid.Item>
-                  <Grid.Item full as={HelpText} className="mt3">
-                    Nonce: {nonce}
-                  </Grid.Item>
-                  <Grid.Item full as={HelpText} className="mt1">
-                    Chain ID: {chainId}
-                  </Grid.Item>
-                  <Grid.Divider className="mt3" />
+                  <Grid.Divider className="mt4" />
                 </Condition>
               </>
             )}
@@ -200,14 +199,42 @@ export default function InlineEthereumTransaction({
                   full
                   as={ToggleInput}
                   name="viewSigned"
-                  label="View Signed Transaction"
-                  inverseLabel="Hide Signed Transaction"
+                  label="Signed Transaction"
+                  inverseLabel="Hide"
                   disabled={!showSignedTx}
                 />
                 <Condition when="viewSigned" is={true}>
-                  <Grid.Item full as="code" className="f6 mono gray4 wrap">
-                    {hexify(signedTransaction.serialize())}
+                  <Grid.Divider />
+                  <Grid.Item
+                    full
+                    as={Flex}
+                    justify="between"
+                    className="pv4 black f5">
+                    <Flex.Item>Nonce</Flex.Item>
+                    <Flex.Item>{nonce}</Flex.Item>
                   </Grid.Item>
+                  <Grid.Divider />
+                  <Grid.Item
+                    full
+                    as={Flex}
+                    justify="between"
+                    className="pv4 black f5">
+                    <Flex.Item>Gas Price</Flex.Item>
+                    <Flex.Item>{gasPrice.toFixed()} Gwei</Flex.Item>
+                  </Grid.Item>
+                  <Grid.Divider />
+                  <Grid.Item
+                    full
+                    as={Flex}
+                    justify="between"
+                    className="mt3 mb2">
+                    <Flex.Item as={H5}>Signed Transaction Hex</Flex.Item>
+                    <Flex.Item as={CopyButton} text={serializedTxHex} />
+                  </Grid.Item>
+                  <Grid.Item full as="code" className="mb4 f6 mono gray4 wrap">
+                    {serializedTxHex}
+                  </Grid.Item>
+                  <Grid.Divider />
                 </Condition>
               </>
             )}
@@ -228,6 +255,15 @@ export default function InlineEthereumTransaction({
                     </Flex.Item>
                     <Flex.Item flex />
                   </Flex.Item>
+                </Grid.Item>
+                <Grid.Divider />
+              </>
+            )}
+
+            {completed && (
+              <>
+                <Grid.Item full as={RestartButton} onClick={onReturn}>
+                  Return
                 </Grid.Item>
                 <Grid.Divider />
               </>

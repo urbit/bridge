@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
 import { NETWORK_TYPES } from './network';
 import { DEFAULT_GAS_PRICE_GWEI } from './constants';
 
-async function getSuggestedGasPrice(networkType) {
+export default async function getSuggestedGasPrice(networkType) {
   switch (networkType) {
     case NETWORK_TYPES.ROPSTEN:
       return 10;
     case NETWORK_TYPES.OFFLINE:
       return DEFAULT_GAS_PRICE_GWEI;
+    case NETWORK_TYPES.LOCAL:
     default:
       try {
         const response = await fetch(
@@ -17,24 +17,17 @@ async function getSuggestedGasPrice(networkType) {
             cache: 'no-cache',
           }
         );
+
         const json = await response.json();
-        return Math.min(json.fast / 10, 20); // to gwei
+
+        // ethgasstation returns values in floating point, one order of magitude
+        // more than gwei. see: https://docs.ethgasstation.info
+        const suggestedGasPrice = json.fast / 10; // to gwei
+
+        // we don't want to charge users more than our default 20 gwei
+        return Math.min(suggestedGasPrice, DEFAULT_GAS_PRICE_GWEI);
       } catch (e) {
         return DEFAULT_GAS_PRICE_GWEI;
       }
   }
 }
-
-function useSuggestedGasPrice(networkType) {
-  const [gasPrice, _setGasPrice] = useState(DEFAULT_GAS_PRICE_GWEI);
-
-  useEffect(() => {
-    (async () => {
-      _setGasPrice(await getSuggestedGasPrice(networkType));
-    })();
-  }, [networkType]);
-
-  return { gasPrice };
-}
-
-export { getSuggestedGasPrice, useSuggestedGasPrice };

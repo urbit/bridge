@@ -9,7 +9,7 @@ import cn from 'classnames';
 import * as ob from 'urbit-ob';
 import * as azimuth from 'azimuth-js';
 import {
-  Grid,
+Grid,
   Flex,
   IconButton,
   HelpText,
@@ -35,7 +35,6 @@ import {
 } from 'lib/txn';
 import * as tank from 'lib/tank';
 import { MIN_PLANET, GAS_LIMITS } from 'lib/constants';
-import { useSuggestedGasPrice } from 'lib/useSuggestedGasPrice';
 import * as need from 'lib/need';
 import * as wg from 'lib/walletgen';
 import useSetState from 'lib/useSetState';
@@ -57,6 +56,7 @@ import { FORM_ERROR } from 'final-form';
 import SubmitButton from 'form/SubmitButton';
 import FormError from 'form/FormError';
 import { WARNING, onlyHasWarning } from 'form/helpers';
+import useGasPrice from 'lib/useGasPrice';
 
 const INITIAL_VALUES = { emails: [''] };
 
@@ -106,7 +106,7 @@ export default function InviteEmail() {
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
   const { getHasReceived, sendMail } = useMailer();
-  const { gasPrice } = useSuggestedGasPrice(networkType);
+  const { gasPrice } = useGasPrice();
 
   const cachedEmails = useRef({});
 
@@ -245,7 +245,7 @@ export default function InviteEmail() {
             nonce: nonce + i,
             // TODO: ^ make a useTransactionSigner to encapsulate this logic
             txn: inviteTx,
-            gasPrice: gasPrice.toString(),
+            gasPrice: gasPrice.toString(), // expects string gwei
             gasLimit: GAS_LIMIT.toString(),
           });
 
