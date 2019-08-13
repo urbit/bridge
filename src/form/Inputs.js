@@ -19,7 +19,7 @@ const PLACEHOLDER_TICKET = '~sampel-ticlyt-migfun-falmel';
 const PLACEHOLDER_ADDRESS = '0x12345abcdeDB11D175F123F6891AA64F01c24F7d';
 const PLACEHOLDER_PRIVATE_KEY =
   '0x12345abcdee6beb2f323fab48b432925c9785808d33a6ca6d7ba00b45e9370c3';
-const PLACEHOLDER_EMAIL = 'Email Address';
+const PLACEHOLDER_EMAIL = 'email@example.com';
 
 const formatPat = buildFormatter([downcase, ensurePatFormat]);
 
