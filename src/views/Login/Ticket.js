@@ -201,7 +201,12 @@ export default function Ticket({ className, goHome }) {
             <Grid.Item full as={FormError} />
 
             {submitSucceeded ? (
-              <Grid.Item full as={ForwardButton} solid onClick={goHome}>
+              <Grid.Item
+                full
+                as={ForwardButton}
+                solid
+                className="mt4"
+                onClick={goHome}>
                 Login Anyway
               </Grid.Item>
             ) : (
