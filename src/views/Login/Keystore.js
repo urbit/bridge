@@ -44,7 +44,7 @@ export default function Keystore({ className, goHome }) {
         const wallet = new EthereumWallet(privateKey);
         setWallet(Just(wallet));
       } catch (error) {
-        // console.error(error);
+        console.error(error);
         return {
           [FORM_ERROR]:
             "Couldn't decrypt wallet. You may have entered an incorrect password.",
