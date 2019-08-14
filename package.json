@@ -83,9 +83,8 @@
     "pilot:setup": "npm run pilot:ganache && npm run pilot:deploy",
     "pilot": "HTTPS=true npm-run-all pilot:setup start pilot:cleanup --continue-on-error",
     "pilot:cleanup": "pkill -f ganache-cli",
-    "lint": "prettier src/**/*.js",
-    "lint:check": "prettier -c 'src/**/*.js'",
-    "lint:fix": "prettier --write 'src/**/*.js'",
+    "lint:check": "eslint 'src/**/*.js'",
+    "lint:fix": "eslint --fix 'src/**/*.js'",
     "analyze": "source-map-explorer 'build/static/js/*.js'"
   },
   "browserslist": {
