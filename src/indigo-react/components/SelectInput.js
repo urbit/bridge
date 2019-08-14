@@ -20,12 +20,12 @@ export default function SelectInput({
 }) {
   const {
     input,
-    meta: { active, error, submitting, touched, valid },
+    meta: { active, error, submitting, submitSucceeded, touched, valid },
   } = useField(name, {
     type: 'select',
   });
 
-  disabled = disabled || submitting;
+  disabled = disabled || submitting || submitSucceeded;
 
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef();

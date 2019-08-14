@@ -35,7 +35,7 @@ import {
 import FormError from 'form/FormError';
 
 import { useActivateFlow } from './ActivateFlow';
-import { hasWarnings } from 'form/helpers';
+import { WARNING } from 'form/helpers';
 
 export default function ActivateCode() {
   const history = useHistory();
@@ -43,7 +43,7 @@ export default function ActivateCode() {
   const { contracts } = useNetwork();
   const impliedTicket = useImpliedTicket();
   const [hasDisclaimed] = useHasDisclaimed();
-  const warnings = useRef({});
+  const didWarn = useRef(false);
 
   const {
     setDerivedWallet,
@@ -71,7 +71,7 @@ export default function ActivateCode() {
   }, [hasDisclaimed, names.DISCLAIMER, names.PASSPORT, push]);
 
   const validateForm = useCallback((values, errors) => {
-    warnings.current.ticket = null;
+    didWarn.current = false;
 
     if (hasErrors(errors)) {
       return errors;
@@ -106,10 +106,14 @@ export default function ActivateCode() {
       const incoming = [...owned, ...transferring];
 
       if (incoming.length > 0) {
-        if (incoming.length > 1) {
-          warnings.current.ticket =
-            'This invite code has multiple points available.\n' +
-            "Once you've activated this point, activate the next with the same process.";
+        if (incoming.length > 1 && !didWarn.current) {
+          didWarn.current = true;
+          return {
+            [WARNING]:
+              'This invite code has multiple points available. ' +
+              "Once you've activated this point, " +
+              'activate the next with the same process.',
+          };
         }
 
         const point = parseInt(incoming[0], 10);
@@ -128,14 +132,6 @@ export default function ActivateCode() {
     [contracts, setDerivedPoint, setDerivedWallet, setInviteWallet]
   );
 
-  const afterSubmit = useCallback(() => {
-    if (hasWarnings(warnings.current)) {
-      return;
-    }
-
-    goToPassport();
-  }, [goToPassport]);
-
   const initialValues = useMemo(() => ({ ticket: impliedTicket || '' }), [
     impliedTicket,
   ]);
@@ -150,9 +146,9 @@ export default function ActivateCode() {
         <BridgeForm
           validate={validate}
           onSubmit={onSubmit}
-          afterSubmit={afterSubmit}
+          afterSubmit={goToPassport}
           initialValues={initialValues}>
-          {({ validating, submitting, submitSucceeded, handleSubmit }) => (
+          {({ validating, submitting, handleSubmit }) => (
             <>
               <Grid.Item
                 full
@@ -160,33 +156,25 @@ export default function ActivateCode() {
                 name="ticket"
                 label="Activation Code"
                 disabled={!activationAllowed}
-                warning={warnings.current.ticket}
               />
 
               <Grid.Item full as={FormError} />
 
-              {submitSucceeded ? (
-                <Grid.Item
-                  full
-                  as={ForwardButton}
-                  solid
-                  className="mt4"
-                  onClick={goToPassport}>
-                  Continue Activation
-                </Grid.Item>
-              ) : (
-                <Grid.Item
-                  full
-                  as={SubmitButton}
-                  className="mt4"
-                  handleSubmit={handleSubmit}>
-                  {validating
+              <Grid.Item
+                full
+                as={SubmitButton}
+                className="mt4"
+                handleSubmit={handleSubmit}>
+                {isWarning =>
+                  validating
                     ? 'Deriving...'
                     : submitting
                     ? 'Generating...'
-                    : 'Go'}
-                </Grid.Item>
-              )}
+                    : isWarning
+                    ? 'Continue Activation'
+                    : 'Go'
+                }
+              </Grid.Item>
 
               {!activationAllowed && (
                 <Grid.Item full as={WarningBox} className="mt4">

@@ -13,7 +13,6 @@ export default function Input({
   accessory,
   disabled = false,
   mono = false,
-  warning,
   obscure,
 
   // callbacks
@@ -27,10 +26,10 @@ export default function Input({
 }) {
   const {
     input,
-    meta: { active, error, submitting, touched, valid },
+    meta: { active, error, submitting, submitSucceeded, touched, valid },
   } = useField(name, config);
 
-  disabled = disabled || submitting;
+  disabled = disabled || submitting || submitSucceeded;
 
   // choose the base dom component
   const BaseComponent = type === 'textarea' ? 'textarea' : 'input';
@@ -107,12 +106,6 @@ export default function Input({
           </div>
         )}
       </Flex.Item>
-
-      {warning && (
-        <Flex.Item as={ErrorText} className="mv1">
-          {warning}
-        </Flex.Item>
-      )}
 
       {touched && !active && error && (
         <Flex.Item as={ErrorText} className="mv1">

@@ -5,6 +5,7 @@ import { useFormState } from 'react-final-form';
 import { ForwardButton } from 'components/Buttons';
 
 import { blinkIf } from 'components/Blinky';
+import { onlyHasWarning } from './helpers';
 
 export default function SubmitButton({
   as: As = ForwardButton,
@@ -20,13 +21,35 @@ export default function SubmitButton({
     hasValidationErrors,
     hasSubmitErrors,
     dirtySinceLastSubmit,
+    submitErrors,
+    submitSucceeded,
   } = useFormState();
 
+  const onlyWarningInSubmitErrors = onlyHasWarning(submitErrors);
+
+  // can submit if:
+  // 1) is valid
+  //      OR has submit errors AND is dirty or only has a warning (double conf)
+  // 2) AND is not validating
+  // 3) AND has no validation errors
+  // 4) AND is not actively submitting
+  // 5) AND submit has not yet succeeded
   const canSubmit =
-    (valid || (hasSubmitErrors && dirtySinceLastSubmit)) &&
+    (valid ||
+      (hasSubmitErrors &&
+        (dirtySinceLastSubmit || onlyWarningInSubmitErrors))) &&
     !validating &&
     !hasValidationErrors &&
-    !submitting;
+    !submitting &&
+    !submitSucceeded;
+
+  // show the warning action text if
+  // 1) we have that warning at all
+  // 2) we can submit or are submitting
+  const showWarningSubmitText =
+    onlyWarningInSubmitErrors &&
+    !dirtySinceLastSubmit &&
+    (canSubmit || submitting);
 
   return (
     <As
@@ -36,7 +59,9 @@ export default function SubmitButton({
       onClick={handleSubmit}
       solid
       {...rest}>
-      {children}
+      {typeof children === 'function'
+        ? children(showWarningSubmitText)
+        : children}
     </As>
   );
 }

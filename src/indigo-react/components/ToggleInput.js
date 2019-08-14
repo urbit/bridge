@@ -19,10 +19,10 @@ export default function ToggleInput({
 }) {
   const {
     input,
-    meta: { submitting },
+    meta: { submitting, submitSucceeded },
   } = useField(name, { type: 'checkbox' });
 
-  disabled = disabled || submitting;
+  disabled = disabled || submitting || submitSucceeded;
 
   return (
     <Flex

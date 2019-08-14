@@ -29,8 +29,7 @@ import {
 } from 'form/validators';
 import FormError from 'form/FormError';
 import SubmitButton from 'form/SubmitButton';
-import { hasWarnings } from 'form/helpers';
-import { ForwardButton } from 'components/Buttons';
+import { WARNING } from 'form/helpers';
 
 export default function Ticket({ className, goHome }) {
   useLoginView(WALLET_TYPES.TICKET);
@@ -39,10 +38,10 @@ export default function Ticket({ className, goHome }) {
   const { setUrbitWallet } = useWallet();
   const { setPointCursor } = usePointCursor();
   const impliedPoint = useImpliedPoint();
-  const warnings = useRef({});
+  const didWarn = useRef(false);
 
   const validateForm = useCallback((values, errors) => {
-    warnings.current.point = null;
+    didWarn.current = false;
 
     if (errors.point) {
       return errors;
@@ -90,10 +89,13 @@ export default function Ticket({ className, goHome }) {
         ]);
 
         const noPermissions = !isOwner && !isTransferProxy;
-        // notify the user, but allow login regardless
-        if (noPermissions) {
-          warnings.current.point =
-            'This wallet is not the owner or transfer proxy for this point.';
+        // warn the user
+        if (noPermissions && !didWarn.current) {
+          didWarn.current = true;
+          return {
+            [WARNING]:
+              'This wallet is not the owner or transfer proxy for this point.',
+          };
         }
 
         setUrbitWallet(Just(urbitWallet));
@@ -109,14 +111,6 @@ export default function Ticket({ className, goHome }) {
     },
     [contracts, setPointCursor, setUrbitWallet]
   );
-
-  const afterSubmit = useCallback(() => {
-    if (hasWarnings(warnings.current)) {
-      return;
-    }
-
-    goHome();
-  }, [goHome]);
 
   const validate = useMemo(
     () =>
@@ -150,16 +144,11 @@ export default function Ticket({ className, goHome }) {
       <BridgeForm
         validate={validate}
         onSubmit={onSubmit}
-        afterSubmit={afterSubmit}
+        afterSubmit={goHome}
         initialValues={initialValues}>
-        {({ handleSubmit, submitSucceeded }) => (
+        {({ handleSubmit, submitting }) => (
           <>
-            <Grid.Item
-              full
-              as={PointInput}
-              name="point"
-              warning={warnings.current.point}
-            />
+            <Grid.Item full as={PointInput} name="point" />
 
             <Condition when="useShards" is={false}>
               <Grid.Item
@@ -200,20 +189,15 @@ export default function Ticket({ className, goHome }) {
 
             <Grid.Item full as={FormError} />
 
-            {submitSucceeded ? (
-              <Grid.Item
-                full
-                as={ForwardButton}
-                solid
-                className="mt4"
-                onClick={goHome}>
-                Login Anyway
-              </Grid.Item>
-            ) : (
-              <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
-                Continue
-              </Grid.Item>
-            )}
+            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+              {isWarning =>
+                submitting
+                  ? 'Logging in...'
+                  : isWarning
+                  ? 'Login Anyway'
+                  : 'Continue'
+              }
+            </Grid.Item>
           </>
         )}
       </BridgeForm>

@@ -1,22 +1,34 @@
 import React from 'react';
 import { useFormState } from 'react-final-form';
 import { ErrorText } from 'indigo-react';
-import { FORM_ERROR } from 'final-form';
+
+import { WARNING } from './helpers';
 
 export default function FormError(props) {
-  const { submitError, errors, dirtySinceLastSubmit } = useFormState({
+  const {
+    submitError,
+    submitErrors,
+    error: validationError,
+    dirtySinceLastSubmit,
+  } = useFormState({
     subscription: {
       submitError: true,
+      submitErrors: true,
       errors: true,
       dirtySinceLastSubmit: true,
     },
   });
 
-  const formError = errors[FORM_ERROR];
-  const showFormError = !!formError;
+  const showValidationError = !!validationError;
+
   const showSubmitError = !!submitError && !dirtySinceLastSubmit;
 
-  return showSubmitError || showFormError ? (
-    <ErrorText {...props}>{submitError || formError}</ErrorText>
+  const warning = submitErrors && submitErrors[WARNING];
+  const showWarning = !!warning && !dirtySinceLastSubmit;
+
+  return showSubmitError || showValidationError || showWarning ? (
+    <ErrorText {...props}>
+      {submitError || validationError || warning}
+    </ErrorText>
   ) : null;
 }

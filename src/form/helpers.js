@@ -1,4 +1,5 @@
-import { some } from 'lodash';
+export const WARNING = 'warn';
 
-// we have warnings if some of the values are truthy
-export const hasWarnings = warnings => some(warnings, v => !!v);
+// if the object only has the WARNING key
+export const onlyHasWarning = obj =>
+  !!obj && Object.keys(obj).length === 1 && !!obj[WARNING];
