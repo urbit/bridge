@@ -1,38 +1,63 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, Input } from 'indigo-react';
+import { Grid } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
-import { useHexInput } from 'lib/useInputs';
 import { EthereumWallet, WALLET_TYPES, stripHexPrefix } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
 
-export default function PrivateKey({ className }) {
+import FormError from 'form/FormError';
+import BridgeForm from 'form/BridgeForm';
+import { HexInput } from 'form/Inputs';
+import { buildHexValidator, composeValidator } from 'form/validators';
+
+import SubmitButton from 'form/SubmitButton';
+
+export default function PrivateKey({ className, goHome }) {
   useLoginView(WALLET_TYPES.PRIVATE_KEY);
 
   const { setWallet } = useWallet();
 
-  const [privateKeyInput, { pass, data: privateKey }] = useHexInput({
-    length: 64,
-    name: 'privateKey',
-    label: 'Private key',
-    autoFocus: true,
-  });
+  const validate = useMemo(
+    () =>
+      composeValidator({
+        privateKey: buildHexValidator(64),
+      }),
+    []
+  );
 
-  useEffect(() => {
-    if (pass) {
-      const sec = Buffer.from(stripHexPrefix(privateKey), 'hex');
-      const newWallet = new EthereumWallet(sec);
-      setWallet(Just(newWallet));
-    } else {
-      setWallet(Nothing());
-    }
-  }, [pass, privateKey, setWallet]);
+  const onValues = useCallback(
+    ({ valid, values }) => {
+      if (valid) {
+        const sec = Buffer.from(stripHexPrefix(values.privateKey), 'hex');
+        const newWallet = new EthereumWallet(sec);
+        setWallet(Just(newWallet));
+      } else {
+        setWallet(Nothing());
+      }
+    },
+    [setWallet]
+  );
 
   return (
     <Grid className={className}>
-      <Grid.Item full as={Input} {...privateKeyInput} />
+      <BridgeForm validate={validate} onValues={onValues} afterSubmit={goHome}>
+        {({ handleSubmit }) => (
+          <>
+            <Grid.Item
+              full
+              as={HexInput}
+              name="privateKey"
+              label="Private key"
+            />
+            <Grid.Item full as={FormError} />
+            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+              Continue
+            </Grid.Item>
+          </>
+        )}
+      </BridgeForm>
     </Grid>
   );
 }

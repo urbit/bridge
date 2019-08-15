@@ -14,7 +14,7 @@ export default function MaybeSigil({ className, patp, size, ...rest }) {
   });
 
   return validPatp ? (
-    <Sigil patp={validPatp} size={size} margin={0} {...rest} />
+    <Sigil patp={validPatp} size={size} {...rest} />
   ) : (
     <AspectRatio aspectRatio={1} />
   );

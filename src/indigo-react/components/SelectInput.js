@@ -1,69 +1,51 @@
 import React, { useCallback, useRef, useState } from 'react';
 import cn from 'classnames';
+import { useField } from 'react-final-form';
+import useOnClickOutside from 'indigo-react/lib/useOnClickOutside';
 
 import Flex from './Flex';
 import { ErrorText } from './Typography';
-import useOnClickOutside from 'indigo-react/lib/useOnClickOutside';
 import AccessoryIcon from './AccessoryIcon';
 
 // NOTE: if we really care about accessibility, we should pull in a dependency
 export default function SelectInput({
-  // visuals
   name,
   label,
-  className,
-  accessory,
-  mono = false,
   placeholder,
-
-  // callbacks
-  onEnter,
-
-  // state from hook
-  focused,
-  pass,
-  syncPass,
-  visiblyPassed,
-  error,
-  hintError,
-  data,
-  bind,
-  autoFocus,
-  disabled,
-  options,
-  touched,
-
-  // ignored
-  initialValue,
-  validators,
-  transformers,
-
-  // extra
-  ...rest
+  className,
+  mono = false,
+  options = [],
+  disabled = false,
+  warning,
 }) {
+  const {
+    input,
+    meta: { active, error, submitting, submitSucceeded, touched, valid },
+  } = useField(name, {
+    type: 'select',
+  });
+
+  disabled = disabled || submitting || submitSucceeded;
+
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef();
 
   // close select on outside clicks
   useOnClickOutside(ref, useCallback(() => setIsOpen(false), [setIsOpen]));
 
-  const toggleOpen = useCallback(() => setIsOpen(isOpen => !isOpen), [
-    setIsOpen,
-  ]);
+  const toggleOpen = useCallback(() => {
+    input.onFocus();
+    setIsOpen(isOpen => !isOpen);
+  }, [input]);
 
   const onChange = value => {
-    // TODO: provide setValue here?
     // construct a pseudo event that sets the value correctly
-    bind.onChange({ target: { value } });
+    input.onChange({ target: { value } });
+    input.onBlur();
     setIsOpen(false);
   };
 
-  // redefine accessory because we still want to ignore it from the ..rest above
-  accessory = (
-    <AccessoryIcon className="gray4">{isOpen ? '▲' : '▼'}</AccessoryIcon>
-  );
-
-  const text = options.find(o => o.value === data).text;
+  const text = options.find(o => o.value === input.value).text;
 
   return (
     <Flex
@@ -81,7 +63,7 @@ export default function SelectInput({
       </Flex.Item>
       <Flex.Item as={Flex} row className="rel clickable" onClick={toggleOpen}>
         <Flex.Item
-          // as="select"
+          flex
           className={cn(
             'b b1 p3 outline-none',
             { mono },
@@ -94,16 +76,14 @@ export default function SelectInput({
               black: !isOpen,
             },
             {
-              'b-green3': visiblyPassed,
-              'b-black': focused && !visiblyPassed,
-              'b-yellow3': !focused && hintError,
-              'b-gray3': !focused && !hintError && !visiblyPassed,
+              'b-green3': valid,
+              'b-black': !valid && active,
+              'b-yellow3': !valid && !active && touched && error,
+              'b-gray2': !valid && !active && !touched && !error,
             }
           )}
           id={name}
-          name={name}
-          {...bind}
-          flex>
+          name={name}>
           {isOpen ? placeholder : text}
         </Flex.Item>
         <div
@@ -115,7 +95,7 @@ export default function SelectInput({
             width: '44px',
             overflow: 'hidden',
           }}>
-          {accessory}
+          <AccessoryIcon className="gray4">{isOpen ? '▲' : '▼'}</AccessoryIcon>
         </div>
         {isOpen && (
           <Flex
@@ -142,7 +122,14 @@ export default function SelectInput({
           </Flex>
         )}
       </Flex.Item>
-      {error && (
+
+      {warning && (
+        <Flex.Item as={ErrorText} className="mv1">
+          {warning}
+        </Flex.Item>
+      )}
+
+      {touched && !active && error && (
         <Flex.Item as={ErrorText} className="mv1">
           {error}
         </Flex.Item>

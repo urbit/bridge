@@ -2,11 +2,13 @@ import React from 'react';
 import { Grid, AccessoryIcon } from 'indigo-react';
 
 export default function Accordion({
+  className,
   views,
   options,
   currentTab,
   onTabChange,
-  className,
+
+  // Tab props
   ...rest
 }) {
   const Tab = views[currentTab];
@@ -37,7 +39,7 @@ export default function Accordion({
                 </AccessoryIcon>
               </div>
             </Grid.Item>
-            {isActive && <Grid.Item full as={Tab} />}
+            {isActive && <Grid.Item full as={Tab} {...rest} />}
             <Grid.Divider />
           </React.Fragment>
         );

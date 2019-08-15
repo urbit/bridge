@@ -3,6 +3,7 @@ import cn from 'classnames';
 
 import Flex from './Flex';
 import LinkButton from './LinkButton';
+import { useField } from 'react-final-form';
 
 export default function ToggleInput({
   // visuals
@@ -11,32 +12,21 @@ export default function ToggleInput({
   inverseLabel,
   className,
 
-  // callbacks
-  onEnter,
-
-  // state from hook
-  focused,
-  pass,
-  syncPass,
-  visiblyPassed,
-  error,
-  hintError,
-  data,
-  bind,
-  autoFocus,
-  disabled,
-  touched,
-
-  // ignored
-  initialValue,
-  validators,
-  transformers,
+  //
+  disabled = false,
 
   ...rest
 }) {
+  const {
+    input,
+    meta: { submitting, submitSucceeded },
+  } = useField(name, { type: 'checkbox' });
+
+  disabled = disabled || submitting || submitSucceeded;
+
   return (
     <Flex
-      className={cn(className)}
+      className={className}
       row
       align="center"
       style={{
@@ -52,7 +42,7 @@ export default function ToggleInput({
         className={cn('super-hidden')}
         id={name}
         name={name}
-        {...bind}
+        {...input}
       />
       {/* and then display a prettier one in its stead */}
       <Flex.Item
@@ -63,7 +53,7 @@ export default function ToggleInput({
         })}
         htmlFor={name}>
         <LinkButton disabled={disabled} className="f5">
-          {bind.checked ? inverseLabel : label}
+          {input.checked ? inverseLabel : label}
         </LinkButton>
       </Flex.Item>
     </Flex>

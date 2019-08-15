@@ -1,14 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import {
-  Grid,
-  Text,
-  H5,
-  Flex,
-  ToggleInput,
-  Input,
-  CheckboxInput,
-} from 'indigo-react';
+import { Grid, Text, H5, Flex, ToggleInput, CheckboxInput } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 import { randomHex } from 'web3-utils';
 
@@ -30,7 +22,6 @@ import { formatDotsWithTime } from 'lib/dateFormat';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import { addHexPrefix } from 'lib/wallet';
-import { useHexInput, useCheckboxInput } from 'lib/useInputs';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 import ViewHeader from 'components/ViewHeader';
@@ -39,6 +30,16 @@ import FooterButton from 'components/FooterButton';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import NoticeBox from 'components/NoticeBox';
+
+import { HexInput } from 'form/Inputs';
+import {
+  composeValidator,
+  buildCheckboxValidator,
+  buildHexValidator,
+} from 'form/validators';
+import BridgeForm from 'form/BridgeForm';
+import Condition from 'form/Condition';
+import FormError from 'form/FormError';
 
 const chainKeyProp = name => d =>
   d[name] === CURVE_ZERO_ADDR ? Nothing() : Just(d[name]);
@@ -163,58 +164,50 @@ export default function AdminNetworkingKeys() {
     keyfileBind,
   } = useSetKeys();
 
-  const [showNetworkSeedInput, { data: showNetworkSeed }] = useCheckboxInput({
-    name: 'shownetworkseed',
-    label: 'Use Custom Network Seed',
-    inverseLabel: 'Back to Derived Network Seed',
-    initialValue: false,
-    disabled: inputsLocked,
-  });
-
-  const [
-    networkSeedInput,
-    { pass: validNetworkSeed, data: networkSeed },
-    { reset: resetNetworkSeed },
-  ] = useHexInput({
-    name: 'networkseed',
-    label: 'Network Seed (64 bytes)',
-    length: 32, // 64 bytes
-    disabled: inputsLocked,
-  });
-
-  const [
-    discontinuityInput,
-    { pass: validDiscontinuity, data: isDiscontinuity },
-  ] = useCheckboxInput({
-    name: 'discontinuity',
-    label: 'Trigger New Continuity Era',
-    initialValue: false,
-    disabled: inputsLocked,
-  });
-
-  useEffect(() => {
-    const nothingOrValidSeed =
-      !showNetworkSeed || (showNetworkSeed && validNetworkSeed);
-    if (nothingOrValidSeed && validDiscontinuity) {
-      construct(networkSeed, isDiscontinuity);
-    } else {
-      unconstruct();
+  const validateForm = useCallback((values, errors) => {
+    if (values.useNetworkSeed && errors.networkSeed) {
+      return errors;
     }
-  }, [
-    construct,
-    unconstruct,
-    isDiscontinuity,
-    networkSeed,
-    showNetworkSeed,
-    validDiscontinuity,
-    validNetworkSeed,
-  ]);
+  }, []);
 
-  useEffect(() => {
-    if (!showNetworkSeed) {
-      resetNetworkSeed();
-    }
-  }, [resetNetworkSeed, showNetworkSeed]);
+  const validate = useMemo(
+    () =>
+      composeValidator(
+        {
+          useNetworkSeed: buildCheckboxValidator(),
+          networkSeed: buildHexValidator(32),
+          useDiscontinuity: buildCheckboxValidator(),
+        },
+        validateForm
+      ),
+    [validateForm]
+  );
+
+  const onValues = useCallback(
+    ({ valid, values, form }) => {
+      if (valid) {
+        construct(
+          values.useNetworkSeed ? values.networkSeed : undefined,
+          values.useDiscontinuity
+        );
+      } else {
+        unconstruct();
+      }
+
+      if (!values.useNetworkSeed && values.networkSeed) {
+        form.change('networkSeed', '');
+      }
+    },
+    [construct, unconstruct]
+  );
+
+  const initialValues = useMemo(
+    () => ({
+      useNetworkSeed: false,
+      useDiscontinuity: false,
+    }),
+    []
+  );
 
   const goRelocate = useCallback(() => push(names.RELOCATE), [push, names]);
 
@@ -241,16 +234,16 @@ export default function AdminNetworkingKeys() {
       </Grid.Item>
       {key.matchWith({
         Nothing: () => (
-          <Grid.Item full as="code" className="f5 gray4">
+          <Grid.Item full as="code" className="f5 mono gray4">
             Unset
           </Grid.Item>
         ),
         Just: ({ value: key }) => (
           <>
-            <Grid.Item full as="code" className="f5 wrap">
+            <Grid.Item full as="code" className="f5 mono wrap">
               0x
             </Grid.Item>
-            <Grid.Item full as="code" className="f5 wrap">
+            <Grid.Item full as="code" className="f5 mono wrap">
               {renderNetworkKey(key)}
             </Grid.Item>
           </>
@@ -335,29 +328,55 @@ export default function AdminNetworkingKeys() {
         )}
 
         {!completed && (
-          <>
-            <Grid.Item full as={ToggleInput} {...showNetworkSeedInput} />
-            {showNetworkSeed && (
+          <BridgeForm
+            validate={validate}
+            onValues={onValues}
+            initialValues={initialValues}>
+            {({ handleSubmit }) => (
               <>
-                <Grid.Item full as={NoticeBox} className="mb2">
-                  When using a custom network seed, you'll need to download your
-                  Arvo keyfile immediately after this transaction is completed —
-                  Bridge does not store your seed.
-                </Grid.Item>
-                <Grid.Item full as={Input} {...networkSeedInput} />
+                <Grid.Item
+                  full
+                  as={ToggleInput}
+                  name="useNetworkSeed"
+                  label="Use Custom Network Seed"
+                  inverseLabel="Back to Derived Network Seed"
+                  disabled={inputsLocked}
+                />
+                <Condition when="useNetworkSeed" is={true}>
+                  <Grid.Item full as={NoticeBox} className="mb2">
+                    When using a custom network seed, you'll need to download
+                    your Arvo keyfile immediately after this transaction is
+                    Bridge does not store your seed.
+                  </Grid.Item>
+                  <Grid.Item
+                    full
+                    as={HexInput}
+                    name="networkSeed"
+                    label="Network Seed (64 bytes)"
+                    disabled={inputsLocked}
+                  />
+                </Condition>
+                <Grid.Item
+                  full
+                  as={CheckboxInput}
+                  name="useDiscontinuity"
+                  label="Trigger New Continuity Era"
+                  disabled={inputsLocked}
+                />
+
+                <Grid.Item full as={FormError} />
+
+                <Grid.Item
+                  full
+                  as={InlineEthereumTransaction}
+                  {...bind}
+                  label={`${hasKeys ? 'Reset' : 'Set'} Networking Keys`}
+                  onReturn={() => pop()}
+                />
               </>
             )}
-            <Grid.Item full as={CheckboxInput} {...discontinuityInput} />
-          </>
+          </BridgeForm>
         )}
-
-        <Grid.Item
-          full
-          as={InlineEthereumTransaction}
-          {...bind}
-          label={`${hasKeys ? 'Reset' : 'Set'} Networking Keys`}
-          onReturn={() => pop()}
-        />
 
         {isDefaultState && renderDetails()}
 

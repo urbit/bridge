@@ -1,42 +1,28 @@
-import { useCallback } from 'react';
-import { Just, Nothing } from 'folktale/maybe';
+import { useCallback, useRef } from 'react';
 
 import { hasReceived, sendMail } from './inviteMail';
-import useSetState from './useSetState';
+import timeout from './timeout';
 
 const STUB_MAILER = process.env.REACT_APP_STUB_MAILER === 'true';
 
-function useHasReceivedCache() {
-  const [cache, addToCache] = useSetState();
+export default function useMailer() {
+  const cache = useRef({});
 
   const getHasReceived = useCallback(
-    email => cache[email] || Nothing(), //
+    async email => {
+      if (!cache.current[email]) {
+        if (STUB_MAILER) {
+          await timeout(350); // simulate request
+          cache.current[email] = false;
+        } else {
+          cache.current[email] = await hasReceived(email);
+        }
+      }
+
+      return cache.current[email];
+    },
     [cache]
   );
-
-  const syncHasReceivedForEmail = useCallback(
-    async email => {
-      if (Just.hasInstance(getHasReceived(email))) {
-        // never update the cache after we know about it
-        return;
-      }
-
-      if (STUB_MAILER) {
-        // always allow sending emails when stubbing
-        return addToCache({ [email]: Just(false) });
-      }
-
-      const _hasReceived = await hasReceived(email);
-      addToCache({ [email]: Just(_hasReceived) });
-    },
-    [getHasReceived, addToCache]
-  );
-
-  return { getHasReceived, syncHasReceivedForEmail };
-}
-
-export default function useMailer(emails) {
-  const hasReceivedCache = useHasReceivedCache(emails);
 
   // prefix to avoid clobbering sendMail import
   // also throws if return value is false
@@ -46,8 +32,11 @@ export default function useMailer(emails) {
       return true;
     }
 
-    return await sendMail(email, ticket, sender, rawTx);
+    const success = await sendMail(email, ticket, sender, rawTx);
+    if (!success) {
+      throw new Error('Failed to send mail');
+    }
   }, []);
 
-  return { ...hasReceivedCache, sendMail: _sendMail };
+  return { getHasReceived, sendMail: _sendMail };
 }

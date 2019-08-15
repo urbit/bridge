@@ -1,58 +1,63 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import cn from 'classnames';
-
+import { useField } from 'react-final-form';
 import Flex from './Flex';
 import { ErrorText } from './Typography';
 
-export default React.memo(function Input({
+export default function Input({
   // visuals
   type,
   name,
   label,
   className,
   accessory,
+  disabled = false,
   mono = false,
+  obscure,
 
   // callbacks
   onEnter,
 
-  // state from hook
-  focused,
-  pass,
-  syncPass,
-  visiblyPassed,
-  error,
-  hintError,
-  data,
-  bind,
-  autoFocus,
-  disabled,
-  touched,
-
-  // ignored
-  initialValue,
-  validators,
-  transformers,
+  // state
+  config,
 
   // extra
-  textarea = false,
   ...rest
 }) {
-  // NB(shrugs): we disable exhaustive deps because we don't want the callbacks
-  // (whose identity might change between renders) to trigger a re-notify of
-  // state that we already know
-  // this also happens to prevent render loops when rendering a map of inputs
+  const {
+    input,
+    meta: {
+      active,
+      error,
+      submitError,
+      dirtySinceLastSubmit,
+      submitting,
+      submitSucceeded,
+      touched,
+      valid,
+    },
+  } = useField(name, config);
+
+  disabled = disabled || submitting || submitSucceeded;
+
+  // choose the base dom component
+  const BaseComponent = type === 'textarea' ? 'textarea' : 'input';
 
   // notify parent of enter keypress iff not disabled and passing
-  const onKeyPress = useCallback(
-    e => !disabled && pass && e.key === 'Enter' && onEnter && onEnter(),
-    [disabled, pass] // eslint-disable-line react-hooks/exhaustive-deps
-  );
+  // TODO: integrate this into react-final-form submission
+  // const onKeyPress = useCallback(
+  //   e => !disabled && valid && e.key === 'Enter' && onEnter && onEnter(),
+  //   [disabled, valid] // eslint-disable-line react-hooks/exhaustive-deps
+  // );
+
+  const showError = !!error;
+  const showSubmitError = !!submitError && !dirtySinceLastSubmit;
+  const indicateError = touched && !active && (showError || showSubmitError);
 
   return (
     <Flex
-      className={cn(className, 'mb1')}
       col
+      className={cn(className, 'mb1')}
       style={{
         ...(disabled && {
           pointerEvents: 'none',
@@ -68,37 +73,35 @@ export default React.memo(function Input({
         htmlFor={name}>
         {label}
       </Flex.Item>
-      <Flex.Item as={Flex} className="rel" row>
+      <Flex.Item as={Flex} row className="rel">
         <Flex.Item
-          as={type === 'textarea' ? 'textarea' : 'input'}
-          type={type === 'textarea' ? undefined : type}
+          flex
+          as={BaseComponent}
           {...rest}
           // NOTE: 24px = 12px * 2 (from p3 styling)
           style={type === 'textarea' ? { minHeight: 'calc(1rem + 24px)' } : {}}
           className={cn(
-            'b b1 p3 outline-none',
+            'b b1 p3 outline-none bs-none',
             { mono },
             {
               'bg-white': !disabled,
               'bg-gray1': disabled,
             },
             {
-              gray4: !focused && !touched,
-              black: focused || touched,
+              gray4: !(active || touched),
+              black: active || touched,
             },
             {
-              'b-green3': visiblyPassed,
-              'b-black': focused && !visiblyPassed,
-              'b-yellow3': !focused && hintError,
-              'b-gray2': !focused && !hintError && !visiblyPassed,
+              'b-green3': valid,
+              'b-black': !valid && active,
+              'b-yellow3': !valid && !active && touched,
+              'b-gray2': !valid && !active && !touched,
             }
-            // TODO: inputClassName ?
           )}
           id={name}
           name={name}
-          onKeyPress={onKeyPress}
-          {...bind}
-          flex
+          {...input}
+          type={type === 'textarea' ? undefined : type}
         />
         {accessory && (
           <div
@@ -114,11 +117,12 @@ export default React.memo(function Input({
           </div>
         )}
       </Flex.Item>
-      {error && (
+
+      {indicateError && (
         <Flex.Item as={ErrorText} className="mv1">
-          {error}
+          {error || submitError}
         </Flex.Item>
       )}
     </Flex>
   );
-});
+}

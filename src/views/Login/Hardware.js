@@ -20,7 +20,7 @@ const OPTIONS = [
   { text: 'Trezor', value: NAMES.TREZOR },
 ];
 
-export default function Hardware({ loginCompleted, className }) {
+export default function Hardware({ className, ...rest }) {
   const [currentTab, setCurrentTab] = useState(undefined);
 
   return (
@@ -31,7 +31,7 @@ export default function Hardware({ loginCompleted, className }) {
       currentTab={currentTab}
       onTabChange={setCurrentTab}
       //
-      loginCompleted={loginCompleted}
+      {...rest}
     />
   );
 }

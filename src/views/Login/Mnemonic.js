@@ -1,20 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, Input, CheckboxInput } from 'indigo-react';
+import { Grid, CheckboxInput } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
-import {
-  usePassphraseInput,
-  useMnemonicInput,
-  useHdPathInput,
-  useCheckboxInput,
-} from 'lib/useInputs';
 import { walletFromMnemonic, WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
+import { MnemonicInput, HdPathInput, PassphraseInput } from 'form/Inputs';
+import {
+  composeValidator,
+  buildMnemonicValidator,
+  buildCheckboxValidator,
+  buildPassphraseValidator,
+  buildHdPathValidator,
+} from 'form/validators';
+import BridgeForm from 'form/BridgeForm';
+import Condition from 'form/Condition';
+import FormError from 'form/FormError';
+import SubmitButton from 'form/SubmitButton';
 
-export default function Mnemonic({ className }) {
+export default function Mnemonic({ className, goHome }) {
   useLoginView(WALLET_TYPES.MNEMONIC);
 
   const {
@@ -24,61 +30,81 @@ export default function Mnemonic({ className }) {
     setWalletHdPath,
   } = useWallet();
 
-  const [advancedInput, { data: useAdvanced }] = useCheckboxInput({
-    name: 'advanced',
-    label: 'Passphrase & HD Path',
-    initialValue: false,
-  });
-
-  const [mnemonicInput, { pass, data: mnemonic }] = useMnemonicInput({
-    name: 'mnemonic',
-    label: 'BIP39 Mnemonic',
-    autoFocus: true,
-  });
-
-  const [passphraseInput, { data: passphrase }] = usePassphraseInput({
-    name: 'passphrase',
-    label: 'Wallet Passphrase',
-  });
-
-  const [hdPathInput, { data: hdPath }] = useHdPathInput({
-    name: 'hdpath',
-    label: 'HD Path',
-    initialValue: walletHdPath,
-  });
+  const validate = useMemo(
+    () =>
+      composeValidator({
+        useAdvanced: buildCheckboxValidator(),
+        mnemonic: buildMnemonicValidator(),
+        passphrase: buildPassphraseValidator(),
+        hdpath: buildHdPathValidator(),
+      }),
+    []
+  );
 
   // when the properties change, re-derive wallet and set global state
-  useEffect(() => {
-    if (pass) {
-      setWalletHdPath(hdPath);
-      setAuthMnemonic(Just(mnemonic));
-      setWallet(walletFromMnemonic(mnemonic, hdPath, passphrase));
-    } else {
-      setAuthMnemonic(Nothing());
-      setWallet(Nothing());
-    }
-  }, [
-    pass,
-    mnemonic,
-    passphrase,
-    hdPath,
-    setWallet,
-    setAuthMnemonic,
-    setWalletHdPath,
-  ]);
+  const onValues = useCallback(
+    ({ valid, values }) => {
+      if (valid) {
+        setWalletHdPath(values.hdpath);
+        setAuthMnemonic(Just(values.mnemonic));
+        setWallet(
+          walletFromMnemonic(values.mnemonic, values.hdpath, values.passphrase)
+        );
+      } else {
+        setAuthMnemonic(Nothing());
+        setWallet(Nothing());
+      }
+    },
+    [setAuthMnemonic, setWallet, setWalletHdPath]
+  );
+
+  const initialValues = useMemo(
+    () => ({ hdpath: walletHdPath, useAdvanced: false }),
+    [walletHdPath]
+  );
 
   return (
     <Grid className={cn('mt4', className)}>
-      <Grid.Item full as={Input} {...mnemonicInput} />
+      <BridgeForm
+        validate={validate}
+        onValues={onValues}
+        afterSubmit={goHome}
+        initialValues={initialValues}>
+        {({ handleSubmit }) => (
+          <>
+            <Grid.Item
+              full
+              as={MnemonicInput}
+              name="mnemonic"
+              label="BIP39 Mnemonic"
+            />
 
-      {useAdvanced && (
-        <>
-          <Grid.Item full as={Input} {...passphraseInput} />
-          <Grid.Item full as={Input} {...hdPathInput} />
-        </>
-      )}
+            <Condition when="useAdvanced" is={true}>
+              <Grid.Item
+                full
+                as={PassphraseInput}
+                name="passphrase"
+                label="Passphrase"
+              />
 
-      <Grid.Item as={CheckboxInput} {...advancedInput} full />
+              <Grid.Item full as={HdPathInput} name="hdpath" label="HD Path" />
+            </Condition>
+
+            <Grid.Item
+              full
+              as={CheckboxInput}
+              name="useAdvanced"
+              label="Passphrase & HD Path"
+            />
+
+            <Grid.Item full as={FormError} />
+
+            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+              Continue
+            </Grid.Item>
+          </>
+        )}
+      </BridgeForm>
     </Grid>
   );
 }
