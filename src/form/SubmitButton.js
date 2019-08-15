@@ -29,7 +29,10 @@ export default function SubmitButton({
 
   // can submit if:
   // 1) is valid
-  //      OR has submit errors AND is dirty or only has a warning (double conf)
+  //      OR has submit errors
+  //      AND
+  //        a) is dirty
+  //        b) OR only has a warning (double conf)
   // 2) AND is not validating
   // 3) AND has no validation errors
   // 4) AND is not actively submitting

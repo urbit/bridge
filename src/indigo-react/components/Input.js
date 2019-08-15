@@ -26,7 +26,16 @@ export default function Input({
 }) {
   const {
     input,
-    meta: { active, error, submitting, submitSucceeded, touched, valid },
+    meta: {
+      active,
+      error,
+      submitError,
+      dirtySinceLastSubmit,
+      submitting,
+      submitSucceeded,
+      touched,
+      valid,
+    },
   } = useField(name, config);
 
   disabled = disabled || submitting || submitSucceeded;
@@ -41,7 +50,9 @@ export default function Input({
   //   [disabled, valid] // eslint-disable-line react-hooks/exhaustive-deps
   // );
 
-  // console.log(input);
+  const showError = !!error;
+  const showSubmitError = !!submitError && !dirtySinceLastSubmit;
+  const indicateError = touched && !active && (showError || showSubmitError);
 
   return (
     <Flex
@@ -70,7 +81,7 @@ export default function Input({
           // NOTE: 24px = 12px * 2 (from p3 styling)
           style={type === 'textarea' ? { minHeight: 'calc(1rem + 24px)' } : {}}
           className={cn(
-            'b b1 p3 outline-none',
+            'b b1 p3 outline-none bs-none',
             { mono },
             {
               'bg-white': !disabled,
@@ -107,9 +118,9 @@ export default function Input({
         )}
       </Flex.Item>
 
-      {touched && !active && error && (
+      {indicateError && (
         <Flex.Item as={ErrorText} className="mv1">
-          {error}
+          {error || submitError}
         </Flex.Item>
       )}
     </Flex>

@@ -1,16 +1,18 @@
 import { useCallback, useRef } from 'react';
 
 import { hasReceived, sendMail } from './inviteMail';
+import timeout from './timeout';
 
 const STUB_MAILER = process.env.REACT_APP_STUB_MAILER === 'true';
 
-export default function useMailer(emails) {
+export default function useMailer() {
   const cache = useRef({});
 
   const getHasReceived = useCallback(
     async email => {
       if (!cache.current[email]) {
         if (STUB_MAILER) {
+          await timeout(350); // simulate request
           cache.current[email] = false;
         } else {
           cache.current[email] = await hasReceived(email);

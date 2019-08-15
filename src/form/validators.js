@@ -17,7 +17,7 @@ import {
 import isPromise from 'lib/isPromise';
 
 // iterate over validators, exiting early if there's an error
-const buildValidator = (validators = []) => value => {
+const buildValidator = (validators = [], validate) => value => {
   for (const validator of validators) {
     try {
       const error = validator(value);
@@ -29,11 +29,22 @@ const buildValidator = (validators = []) => value => {
       return error.message;
     }
   }
+
+  if (validate) {
+    // the final validate function can optionally return a promise
+    return validate(value);
+  }
 };
 
 // maps a validator across an array of values
-export const buildArrayValidator = validator => async values =>
-  await Promise.all(values.map(validator));
+export const buildArrayValidator = validator => values => {
+  const errorsOrPromises = values.map(validator);
+  if (some(errorsOrPromises, isPromise)) {
+    return Promise.all(errorsOrPromises);
+  }
+
+  return errorsOrPromises;
+};
 
 // error object has errors if some of its fields are
 // 1) an array with any defined values
@@ -78,8 +89,8 @@ export const buildAddressValidator = () =>
   ]);
 export const buildNumberValidator = (min = 0) =>
   buildValidator([validateGreaterThan(min)]);
-export const buildEmailValidator = (validators = []) =>
-  buildValidator([validateNotEmpty, validateEmail, ...validators]);
+export const buildEmailValidator = validate =>
+  buildValidator([validateNotEmpty, validateEmail], validate);
 
 // the form validator is the composition of all of the field validators
 // plus an additional form validator function

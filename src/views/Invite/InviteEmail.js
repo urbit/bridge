@@ -56,6 +56,7 @@ import {
 import { FORM_ERROR } from 'final-form';
 import SubmitButton from 'form/SubmitButton';
 import FormError from 'form/FormError';
+import { WARNING, onlyHasWarning } from 'form/helpers';
 
 const INITIAL_VALUES = { emails: [''] };
 
@@ -71,6 +72,8 @@ const STATUS = {
   SUCCESS: 'SUCCESS',
   FAILURE: 'FAILURE',
 };
+
+const nameForEmailField = i => `emails[${i}]`;
 
 const buttonText = (status, count) => {
   switch (status) {
@@ -105,7 +108,7 @@ export default function InviteEmail() {
   const { getHasReceived, sendMail } = useMailer();
   const { gasPrice } = useSuggestedGasPrice(networkType);
 
-  const cachedEmails = useRef([]);
+  const cachedEmails = useRef({});
 
   const { availableInvites } = getInvites(point);
   const maxInvitesToSend = availableInvites.matchWith({
@@ -158,9 +161,7 @@ export default function InviteEmail() {
     () =>
       composeValidator(
         {
-          emails: buildArrayValidator(
-            buildEmailValidator([validateHasReceived])
-          ),
+          emails: buildArrayValidator(buildEmailValidator(validateHasReceived)),
         },
         validateForm
       ),
@@ -218,6 +219,7 @@ export default function InviteEmail() {
       // NB(shrugs) - must be processed in serial because main thread, etc
       let errorCount = 0;
       for (let i = 0; i < values.emails.length; i++) {
+        const name = nameForEmailField(i);
         try {
           const email = values.emails[i];
           const planet = planets[i];
@@ -249,20 +251,20 @@ export default function InviteEmail() {
 
           const rawTx = hexify(signedTx.serialize());
 
-          addInvite({ [email]: { email, ticket, signedTx, rawTx } });
+          addInvite({ [name]: { email, ticket, signedTx, rawTx } });
         } catch (error) {
           console.error(error);
           errorCount++;
+          addError({ [name]: 'Error generating invite.' });
         }
       }
 
       if (errorCount > 0) {
         return {
-          [FORM_ERROR]: `There ${pluralize(
+          [WARNING]: `There ${pluralize(errorCount, 'was', 'were')} ${pluralize(
             errorCount,
-            'was',
-            'were'
-          )} ${pluralize(errorCount, 'error')} while generating wallets.`,
+            'error'
+          )} while generating wallets. You can still send the invites that generated correctly.`,
         };
       }
     },
@@ -278,11 +280,17 @@ export default function InviteEmail() {
       networkType,
       gasPrice,
       addInvite,
+      addError,
     ]
   );
 
   const sendInvites = useCallback(async () => {
-    const emails = cachedEmails.current;
+    // compute all of the names of the fields
+    const allFieldNames = Object.keys(cachedEmails.current);
+    // only emails we're sending are the valid ones with invites
+    const names = allFieldNames.filter(name => !!invites[name]);
+    const emails = allFieldNames.map(name => cachedEmails.current[name]);
+
     const _web3 = web3.getOrElse(null);
     const _wallet = wallet.getOrElse(null);
     if (!_web3 || !_wallet) {
@@ -295,7 +303,7 @@ export default function InviteEmail() {
       point,
       _wallet.address,
       toWei((gasPrice * GAS_LIMIT * emails.length).toString(), 'gwei'),
-      emails.map(email => invites[email].rawTx),
+      names.map(name => invites[name].rawTx),
       (address, minBalance, balance) =>
         setNeedFunds({ address, minBalance, balance }),
       () => setNeedFunds(undefined)
@@ -306,8 +314,8 @@ export default function InviteEmail() {
 
     let unsentInvites = [];
     let orphanedInvites = [];
-    const txAndMailings = emails.map(async email => {
-      const invite = invites[email];
+    const txAndMailings = names.map(async name => {
+      const invite = invites[name];
       try {
         const txHash = await sendSignedTransaction(
           _web3,
@@ -334,7 +342,7 @@ export default function InviteEmail() {
         orphanedInvites.push(invite);
       }
 
-      addReceipt({ [email]: true });
+      addReceipt({ [name]: true });
     });
 
     await Promise.all(txAndMailings);
@@ -363,20 +371,28 @@ export default function InviteEmail() {
     wallet,
     point,
     gasPrice,
-    clearReceipts,
     invites,
+    clearReceipts,
     addReceipt,
     sendMail,
   ]);
 
   const onSubmit = useCallback(
     async values => {
-      cachedEmails.current = values.emails;
+      cachedEmails.current = values.emails.reduce((memo, email, i) => {
+        memo[nameForEmailField(i)] = email;
+        return memo;
+      }, {});
       setStatus(STATUS.GENERATING);
       const errors = await generateInvites(values);
-      if (errors) {
+      if (hasErrors(errors)) {
+        if (onlyHasWarning(errors)) {
+          setStatus(STATUS.CAN_SEND);
+        }
+
         return errors;
       }
+
       setStatus(STATUS.CAN_SEND);
     },
     [generateInvites]
@@ -409,130 +425,133 @@ export default function InviteEmail() {
         validate={validate}
         onSubmit={onSubmit}
         initialValues={INITIAL_VALUES}>
-        {({ handleSubmit, valid, values }) => (
+        {({ handleSubmit }) => (
           <FieldArray name="emails">
-            {({ fields }) => (
-              <>
-                <Grid.Item full as={Flex} justify="end">
-                  {/* use hidden class instead of removing component from dom */}
-                  {/* in order to avoid janky reflow */}
-                  <IconButton
-                    onClick={() => fields.push('')}
-                    disabled={!canInput || fields.length >= maxInvitesToSend}
-                    className={cn({ hidden: isDone })}
-                    solid>
-                    +
-                  </IconButton>
-                </Grid.Item>
+            {({ fields }) => {
+              const sentInviteNames = Object.keys(receipts);
+              return (
+                <>
+                  <Grid.Item full as={Flex} justify="end">
+                    {/* use hidden class instead of removing component from dom */}
+                    {/* in order to avoid janky reflow */}
+                    <IconButton
+                      onClick={() => fields.push('')}
+                      disabled={!canInput || fields.length >= maxInvitesToSend}
+                      className={cn({ hidden: isDone })}
+                      solid>
+                      +
+                    </IconButton>
+                  </Grid.Item>
 
-                {isDone ? (
-                  <>
-                    <Grid.Item as={Text} className="f5" full>
-                      <Highlighted>
-                        {pluralize(fields.length, 'invite')}
-                      </Highlighted>{' '}
-                      {pluralize(fields.length, 'has', 'have')} been
-                      successfully sent
-                    </Grid.Item>
-
-                    {fields.map(name => (
-                      <Grid.Item as={HelpText} key={name} full>
-                        <Field name={name}>
-                          {({ input: { value } }) => value}
-                        </Field>
+                  {isDone ? (
+                    <>
+                      <Grid.Item as={Text} className="f5" full>
+                        <Highlighted>
+                          {pluralize(sentInviteNames.length, 'invite')}
+                        </Highlighted>{' '}
+                        {pluralize(sentInviteNames.length, 'has', 'have')} been
+                        successfully sent
                       </Grid.Item>
-                    ))}
-                  </>
-                ) : (
-                  <>
-                    {fields.map((name, i) => {
-                      const isFirst = i === 0;
-                      return (
-                        <Grid.Item
-                          key={name}
-                          full
-                          as={Grid}
-                          gap={3}
-                          onMouseOver={() => setHovered({ [name]: true })}
-                          onMouseLeave={() => setHovered({ [name]: false })}>
-                          <Grid.Item
-                            cols={[1, 11]}
-                            as={EmailInput}
-                            name={name}
-                            label={isFirst ? 'Email Address' : undefined}
-                            accessory={accessoryFor(name)}
-                          />
+
+                      {sentInviteNames.map(name => (
+                        <Grid.Item as={HelpText} key={name} full>
                           <Field name={name}>
-                            {({ meta: { active } }) => {
-                              return (
-                                <>
-                                  {!isFirst &&
-                                    (active || hovered[name]) &&
-                                    canInput && (
-                                      <Grid.Item
-                                        cols={[11, 13]}
-                                        justifySelf="end"
-                                        alignSelf="center">
-                                        <IconButton
-                                          onClick={() => fields.remove(i)}
-                                          solid
-                                          secondary>
-                                          -
-                                        </IconButton>
-                                      </Grid.Item>
-                                    )}
-                                </>
-                              );
-                            }}
+                            {({ input: { value } }) => value}
                           </Field>
                         </Grid.Item>
-                      );
-                    })}
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      {fields.map((name, i) => {
+                        const isFirst = i === 0;
+                        return (
+                          <Grid.Item
+                            key={name}
+                            full
+                            as={Grid}
+                            gap={3}
+                            onMouseOver={() => setHovered({ [name]: true })}
+                            onMouseLeave={() => setHovered({ [name]: false })}>
+                            <Grid.Item
+                              cols={[1, 11]}
+                              as={EmailInput}
+                              name={name}
+                              label={isFirst ? 'Email Address' : undefined}
+                              accessory={accessoryFor(name)}
+                            />
+                            <Field name={name}>
+                              {({ meta: { active } }) => {
+                                return (
+                                  <>
+                                    {!isFirst &&
+                                      (active || hovered[name]) &&
+                                      canInput && (
+                                        <Grid.Item
+                                          cols={[11, 13]}
+                                          justifySelf="end"
+                                          alignSelf="center">
+                                          <IconButton
+                                            onClick={() => fields.remove(i)}
+                                            solid
+                                            secondary>
+                                            -
+                                          </IconButton>
+                                        </Grid.Item>
+                                      )}
+                                  </>
+                                );
+                              }}
+                            </Field>
+                          </Grid.Item>
+                        );
+                      })}
 
-                    {canInput ? (
-                      <Grid.Item
-                        full
-                        as={SubmitButton}
-                        handleSubmit={handleSubmit}
-                        accessory={`${visualProgress}/${fields.length}`}>
-                        {buttonText(status, fields.length)}
-                      </Grid.Item>
-                    ) : (
-                      <Grid.Item
-                        full
-                        as={LoadableButton}
-                        className="mt4"
-                        disabled={!canSend}
-                        accessory={`${visualProgress}/${fields.length}`}
-                        onClick={doSend}
-                        success={canSend}
-                        solid>
-                        {buttonText(status, fields.length)}
-                      </Grid.Item>
-                    )}
+                      {canInput ? (
+                        <Grid.Item
+                          full
+                          as={SubmitButton}
+                          handleSubmit={handleSubmit}
+                          accessory={`${visualProgress}/${fields.length}`}>
+                          {buttonText(status, fields.length)}
+                        </Grid.Item>
+                      ) : (
+                        <Grid.Item
+                          full
+                          as={LoadableButton}
+                          className="mt4"
+                          disabled={!canSend}
+                          accessory={`${visualProgress}/${fields.length}`}
+                          onClick={doSend}
+                          success={canSend}
+                          solid>
+                          {buttonText(status, fields.length)}
+                        </Grid.Item>
+                      )}
 
-                    {needFunds && (
-                      <Grid.Item full>
-                        <Highlighted warning>
-                          Your ownership address {needFunds.address} needs at
-                          least {fromWei(needFunds.minBalance)} ETH and
-                          currently has {fromWei(needFunds.balance)} ETH.
-                          Waiting until the account has enough funds.
-                        </Highlighted>
-                      </Grid.Item>
-                    )}
+                      {needFunds && (
+                        <Grid.Item full>
+                          <Highlighted warning>
+                            Your ownership address {needFunds.address} needs at
+                            least {fromWei(needFunds.minBalance)} ETH and
+                            currently has {fromWei(needFunds.balance)} ETH.
+                            Waiting until the account has enough funds.
+                          </Highlighted>
+                        </Grid.Item>
+                      )}
 
-                    <Grid.Item full as={FormError} />
+                      <Grid.Item full as={FormError} />
 
-                    {generalError && (
-                      <Grid.Item full as={ErrorText}>
-                        {generalError}
-                      </Grid.Item>
-                    )}
-                  </>
-                )}
-              </>
-            )}
+                      {generalError && (
+                        <Grid.Item full as={ErrorText}>
+                          {generalError}
+                        </Grid.Item>
+                      )}
+                    </>
+                  )}
+                </>
+              );
+            }}
           </FieldArray>
         )}
       </BridgeForm>

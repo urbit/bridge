@@ -37,6 +37,10 @@
   user-select: none;
 }
 
+.bs-none {
+  box-shadow: none !important;
+}
+
 .auto-rows-min {
   grid-auto-rows: min-content;
 }

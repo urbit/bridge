@@ -14,7 +14,7 @@ export default function FormError(props) {
     subscription: {
       submitError: true,
       submitErrors: true,
-      errors: true,
+      error: true,
       dirtySinceLastSubmit: true,
     },
   });
