@@ -71,7 +71,7 @@ const ensureFundsFor = async (
 
       const res = await fundTransactions(signedTxs);
       if (!res.success) {
-        throw new Error('tank: request rejected');
+        throw new Error('tank: request rejected', res);
       } else {
         await waitForTransactionConfirm(web3, res.txHash);
         let newBalance = await web3.eth.getBalance(address);
@@ -88,7 +88,7 @@ const ensureFundsFor = async (
       await waitForBalance(web3, address, cost, askForFunding, gotFunding);
     }
   } else {
-    console.log('tank: already have sufficient funds');
+    console.log('tank: already have sufficient funds', cost, address, balance);
   }
   return false;
 };
