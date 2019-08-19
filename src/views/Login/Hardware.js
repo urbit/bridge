@@ -30,7 +30,11 @@ export default function Hardware({ className, ...rest }) {
   const hardwareAllowed = useBreakpoints([false, true, true]);
 
   const options = useMemo(
-    () => OPTIONS.map(option => ({ ...option, disabled: !hardwareAllowed })),
+    () =>
+      OPTIONS.map(option => ({
+        ...option,
+        disabled: !hardwareAllowed && ' not availble on mobile',
+      })),
     [hardwareAllowed]
   );
 

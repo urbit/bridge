@@ -34,7 +34,7 @@ export default function Accordion({
               }>
               {option.text}
               {option.disabled && (
-                <sup className="f6"> Not Available on Mobile</sup>
+                <sup className="f6 lowercase">{option.disabled}</sup>
               )}
               <div
                 className="abs"
