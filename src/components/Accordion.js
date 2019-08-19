@@ -1,4 +1,5 @@
 import React from 'react';
+import cn from 'classnames';
 import { Grid, AccessoryIcon } from 'indigo-react';
 
 export default function Accordion({
@@ -22,9 +23,19 @@ export default function Accordion({
           <React.Fragment key={option.value}>
             <Grid.Item
               full
-              className="f5 pv3 rel clickable"
-              onClick={() => onTabChange(isActive ? undefined : option.value)}>
+              className={cn('f5 pv3 rel', {
+                clickable: !option.disabled,
+                gray3: option.disabled,
+              })}
+              onClick={
+                option.disabled
+                  ? null
+                  : () => onTabChange(isActive ? undefined : option.value)
+              }>
               {option.text}
+              {option.disabled && (
+                <sup className="f6"> Not Available on Mobile</sup>
+              )}
               <div
                 className="abs"
                 style={{
@@ -34,7 +45,10 @@ export default function Accordion({
                   width: '44px',
                   overflow: 'hidden',
                 }}>
-                <AccessoryIcon className="black">
+                <AccessoryIcon
+                  className={cn({
+                    black: !option.disabled,
+                  })}>
                   {isActive ? '▲' : '▼'}
                 </AccessoryIcon>
               </div>

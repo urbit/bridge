@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+
+import useBreakpoints from 'lib/useBreakpoints';
 
 import Accordion from 'components/Accordion';
 
@@ -23,11 +25,20 @@ const OPTIONS = [
 export default function Hardware({ className, ...rest }) {
   const [currentTab, setCurrentTab] = useState(undefined);
 
+  // using breakpoint to decide if we're on mobile or not
+  // see ActivateCode for more details on this approach
+  const hardwareAllowed = useBreakpoints([false, true, true]);
+
+  const options = useMemo(
+    () => OPTIONS.map(option => ({ ...option, disabled: !hardwareAllowed })),
+    [hardwareAllowed]
+  );
+
   return (
     <Accordion
       className={className}
       views={VIEWS}
-      options={OPTIONS}
+      options={options}
       currentTab={currentTab}
       onTabChange={setCurrentTab}
       //

@@ -1,6 +1,5 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState } from 'react';
 import { H4, Grid } from 'indigo-react';
-import { filter } from 'lodash';
 
 import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
@@ -17,7 +16,6 @@ import Ticket from './Login/Ticket';
 import Mnemonic from './Login/Mnemonic';
 import Advanced from './Login/Advanced';
 import Hardware from './Login/Hardware';
-import useBreakpoints from 'lib/useBreakpoints';
 
 const NAMES = {
   TICKET: 'TICKET',
@@ -63,20 +61,6 @@ export default function Login() {
   const { pop, push, names } = useHistory();
   const { walletType } = useWallet();
 
-  // again, using breakpoint to decide if we're on mobile or not
-  // see ActivateCode for more details
-  const hardwareAllowed = useBreakpoints([false, true, true]);
-
-  // filter out hardware if mobile
-  const options = useMemo(
-    () =>
-      filter(
-        OPTIONS,
-        ({ value }) => hardwareAllowed || value !== NAMES.HARDWARE
-      ),
-    [hardwareAllowed]
-  );
-
   // inputs
   const [currentTab, setCurrentTab] = useState(
     walletTypeToViewName(walletType)
@@ -105,7 +89,7 @@ export default function Login() {
           className="mt1"
           // Tabs
           views={VIEWS}
-          options={options}
+          options={OPTIONS}
           currentTab={currentTab}
           onTabChange={setCurrentTab}
           // Tab extra
