@@ -78,7 +78,7 @@
     "checksum": "cd build && find . -exec shasum -a256 {} ';' > ../checksums.txt && cd ..",
     "zip": "zip -ur bridge-$npm_package_version.zip README.md bridge-https.py checksums.txt && cd build && zip -ur ../bridge-$npm_package_version.zip ./* && cd ..",
     "release": "npm install && npm run build && npm run checksum && npm run zip",
-    "pilot:ganache": "ganache-cli --blockTime 1 --networkId 1 -m 'benefit crew supreme gesture quantum web media hazard theory mercy wing kitten' > /dev/null &",
+    "pilot:ganache": "ganache-cli --blockTime 1 --networkId 1 --host '0.0.0.0' -m 'benefit crew supreme gesture quantum web media hazard theory mercy wing kitten' > /dev/null &",
     "pilot:deploy": "cd node_modules/azimuth-solidity && truffle deploy",
     "pilot:setup": "npm run pilot:ganache && npm run pilot:deploy",
     "pilot": "HTTPS=true npm-run-all pilot:setup start pilot:cleanup --continue-on-error",

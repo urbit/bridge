@@ -40,7 +40,9 @@ const PointList = function({ points, className, actions, ...rest }) {
   return (
     <Grid gap={3} className={className}>
       {points.map((point, i) => (
-        <Grid.Item half={(i % 2) + 1} key={point}>
+        <Grid.Item
+          key={point}
+          className={`full half-${(i % 2) + 1}-md half-${(i % 2) + 1}-lg`}>
           <Flex col>
             <Passport.Mini
               point={point}
