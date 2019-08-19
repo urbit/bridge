@@ -12,15 +12,15 @@ import * as need from 'lib/need';
 import { isZeroAddress, abbreviateAddress } from 'lib/wallet';
 import useIsEclipticOwner from 'lib/useIsEclipticOwner';
 import { useSyncKnownPoints } from 'lib/useSyncPoints';
+import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
+import pluralize from 'lib/pluralize';
+import useCopiable from 'lib/useCopiable';
 
 import View from 'components/View';
 import Blinky from 'components/Blinky';
 import Passport from 'components/Passport';
-import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
-import pluralize from 'lib/pluralize';
 import Footer from 'components/Footer';
 import { ForwardButton } from 'components/Buttons';
-import useCopiable from 'lib/useCopiable';
 
 const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
