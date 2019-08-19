@@ -25,6 +25,7 @@ import {
   hasErrors,
 } from 'form/validators';
 import FormError from 'form/FormError';
+import CopiableAddress from 'components/CopiableAddress';
 
 function useCreateGalaxy() {
   const { contracts } = useNetwork();
@@ -127,7 +128,7 @@ export default function CreateGalaxy() {
                     green3: completed,
                   })}>
                   {values.galaxyName} has been created and can be claimed by{' '}
-                  {values.owner}.
+                  <CopiableAddress>{values.owner}</CopiableAddress>.
                 </Grid.Item>
               )}
 

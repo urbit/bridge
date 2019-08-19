@@ -20,6 +20,7 @@ import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTrans
 import pluralize from 'lib/pluralize';
 import Footer from 'components/Footer';
 import { ForwardButton } from 'components/Buttons';
+import useCopiable from 'lib/useCopiable';
 
 const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -162,6 +163,7 @@ export default function Points() {
   ]);
 
   const address = need.addressFromWallet(wallet);
+  const [doCopy, didCopy] = useCopiable(address);
 
   const loading = Nothing.hasInstance(controlledPoints);
 
@@ -208,8 +210,12 @@ export default function Points() {
   return (
     <View pop={pop} inset>
       <Grid>
-        <Grid.Item full as={H1} className="f6 mono gray4 mb4">
-          {abbreviateAddress(address)}
+        <Grid.Item
+          full
+          as={H1}
+          className="f6 mono gray4 mb4 us-none clickable"
+          onClick={doCopy}>
+          {`${abbreviateAddress(address)}${didCopy ? ' (copied!)' : ''}`}
         </Grid.Item>
 
         {loading && (

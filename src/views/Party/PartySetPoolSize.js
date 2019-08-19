@@ -27,6 +27,7 @@ import {
   buildPointValidator,
 } from 'form/validators';
 import FormError from 'form/FormError';
+import CopiableAddress from 'components/CopiableAddress';
 
 function useSetPoolSize() {
   const { contracts } = useNetwork();
@@ -98,11 +99,11 @@ export default function PartySetPoolSize() {
         </Grid.Item>
 
         {!spawnIsDelegatedSending && (
-          <Grid.Item full as={WarningBox} className="mb4">
+          <Grid.Item full as={WarningBox} className="mb4 f6">
             The spawn proxy must be set to{' '}
-            <code className="mono f6">
+            <CopiableAddress>
               {_contracts.delegatedSending.address}
-            </code>{' '}
+            </CopiableAddress>{' '}
             for invitations to be available.
           </Grid.Item>
         )}
@@ -119,9 +120,14 @@ export default function PartySetPoolSize() {
                 className={cn('f5 wrap', {
                   green3: completed,
                 })}>
-                {completed
-                  ? `${values.poolSize} invites have been allocated to ${values.poolOwner}`
-                  : `Allocate invites to a child point.`}
+                {completed ? (
+                  <>
+                    {values.poolSize} invites have been allocated to{' '}
+                    <CopiableAddress>{values.poolOwner}</CopiableAddress>
+                  </>
+                ) : (
+                  `Allocate invites to a child point.`
+                )}
               </Grid.Item>
 
               {!completed && (

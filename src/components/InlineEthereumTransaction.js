@@ -22,6 +22,7 @@ import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
 import WarningBox from './WarningBox';
 import CopyButton from './CopyButton';
 import ProgressButton from './ProgressButton';
+import CopiableAddress from './CopiableAddress';
 
 export default function InlineEthereumTransaction({
   // from useEthereumTransaction.bind
@@ -144,15 +145,16 @@ export default function InlineEthereumTransaction({
             {renderPrimarySection()}
 
             {error && (
-              <Grid.Item full as={ErrorText} className="mt1">
+              <Grid.Item full as={ErrorText} className="mv1">
                 {error.message}
               </Grid.Item>
             )}
 
             {needFunds && (
               <Grid.Item full as={WarningBox} className="mt3">
-                The address {needFunds.address} needs at least{' '}
-                {fromWei(needFunds.minBalance)} ETH and currently has{' '}
+                The address{' '}
+                <CopiableAddress>{needFunds.address}</CopiableAddress> needs at
+                least {fromWei(needFunds.minBalance)} ETH and currently has{' '}
                 {fromWei(needFunds.balance)} ETH. Waiting until the account has
                 enough funds.
               </Grid.Item>
