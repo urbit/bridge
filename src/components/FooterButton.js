@@ -6,7 +6,7 @@ import Footer from './Footer';
 export default function FooterButton({ as: As = Button, ...props }) {
   return (
     <Footer>
-      <Grid className="pt2">
+      <Grid className="pt4">
         <Grid.Divider />
         <Grid.Item full>
           <As {...props} />

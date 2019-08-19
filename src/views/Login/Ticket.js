@@ -1,187 +1,206 @@
-import { Just, Nothing } from 'folktale/maybe';
+import React, { useCallback, useMemo, useRef } from 'react';
+import { Just } from 'folktale/maybe';
 import cn from 'classnames';
-import React, { useCallback, useState, useEffect } from 'react';
 import * as azimuth from 'azimuth-js';
-import * as ob from 'urbit-ob';
 import * as kg from 'urbit-key-generation/dist/index';
-import { Input, Grid, CheckboxInput } from 'indigo-react';
+import { Grid, CheckboxInput } from 'indigo-react';
+import { FORM_ERROR } from 'final-form';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 
-import {
-  usePointInput,
-  useTicketInput,
-  usePassphraseInput,
-  useCheckboxInput,
-} from 'lib/useInputs';
 import * as need from 'lib/need';
 import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
 import useImpliedPoint from 'lib/useImpliedPoint';
 import useLoginView from 'lib/useLoginView';
 import patp2dec from 'lib/patp2dec';
+import timeout from 'lib/timeout';
 
-export default function Ticket({ className }) {
+import BridgeForm from 'form/BridgeForm';
+import Condition from 'form/Condition';
+import { TicketInput, PassphraseInput, PointInput } from 'form/Inputs';
+import {
+  composeValidator,
+  buildCheckboxValidator,
+  buildPatqValidator,
+  buildPassphraseValidator,
+  buildPointValidator,
+} from 'form/validators';
+import FormError from 'form/FormError';
+import SubmitButton from 'form/SubmitButton';
+import { WARNING } from 'form/helpers';
+
+export default function Ticket({ className, goHome }) {
   useLoginView(WALLET_TYPES.TICKET);
 
   const { contracts } = useNetwork();
   const { setUrbitWallet } = useWallet();
   const { setPointCursor } = usePointCursor();
   const impliedPoint = useImpliedPoint();
+  const didWarn = useRef(false);
 
-  // point
-  const [pointInput, { data: pointName }] = usePointInput({
-    name: 'point',
-    initialValue: impliedPoint || '',
-    autoFocus: true,
-  });
+  const validateForm = useCallback((values, errors) => {
+    didWarn.current = false;
 
-  // passphrase
-  const [passphraseInput, { data: passphrase }] = usePassphraseInput({
-    name: 'passphrase',
-    label: 'Wallet Passphrase',
-  });
-
-  const [hasPassphraseInput, { data: hasPassphrase }] = useCheckboxInput({
-    name: 'has-passphrase',
-    label: 'Passphrase',
-    initialValue: false,
-  });
-
-  // ticket
-  const [error, setError] = useState();
-  const [deriving, setDeriving] = useState(false);
-  const [ticketInput, { data: ticket, pass: validTicket }] = useTicketInput({
-    name: 'ticket',
-    label: 'Master Ticket',
-    error,
-    deriving,
-  });
-
-  // shards
-  const [shardsInput, { data: isUsingShards }] = useCheckboxInput({
-    name: 'shards',
-    label: 'Shards',
-    initialValue: false,
-  });
-
-  const [shard1Input, { data: shard1, pass: shard1Pass }] = useTicketInput({
-    name: 'shard1',
-    label: 'Shard 1',
-  });
-
-  const [shard2Input, { data: shard2, pass: shard2Pass }] = useTicketInput({
-    name: 'shard2',
-    label: 'Shard 2',
-  });
-
-  const [shard3Input, { data: shard3, pass: shard3Pass }] = useTicketInput({
-    name: 'shard3',
-    label: 'Shard 3',
-  });
-
-  const shardsReady = shard1Pass && shard2Pass && shard3Pass;
-
-  // TODO: maybe want to do this only on-go, because wallet derivation is slow...
-  const deriveWalletFromTicket = useCallback(async () => {
-    // clear states
-    setError();
-    setDeriving(true);
-    setUrbitWallet(Nothing());
-
-    if (
-      !ticket ||
-      !pointName ||
-      !ob.isValidPatq(ticket) ||
-      !ob.isValidPatp(pointName)
-    ) {
-      setDeriving(false);
-      return;
+    if (errors.point) {
+      return errors;
     }
 
-    const _contracts = need.contracts(contracts);
-    const point = patp2dec(pointName);
-    const urbitWallet = await urbitWalletFromTicket(ticket, point, passphrase);
-    const [isOwner, isTransferProxy] = await Promise.all([
-      azimuth.azimuth.isOwner(
-        _contracts,
-        point,
-        urbitWallet.ownership.keys.address
+    if (values.useShards) {
+      if (errors.shard1 || errors.shard2 || errors.shard3) {
+        return errors;
+      }
+    } else {
+      if (errors.ticket) {
+        return errors;
+      }
+    }
+  }, []);
+
+  const onSubmit = useCallback(
+    async values => {
+      const ticket = values.useShards
+        ? kg.combine([values.shard1, values.shard2, values.shard3])
+        : values.ticket;
+
+      try {
+        const _contracts = need.contracts(contracts);
+        const point = patp2dec(values.point);
+
+        await timeout(16); // allow ui events to flush
+        const urbitWallet = await urbitWalletFromTicket(
+          ticket,
+          point,
+          values.passphrase
+        );
+
+        const [isOwner, isTransferProxy] = await Promise.all([
+          azimuth.azimuth.isOwner(
+            _contracts,
+            point,
+            urbitWallet.ownership.keys.address
+          ),
+          azimuth.azimuth.isTransferProxy(
+            _contracts,
+            point,
+            urbitWallet.ownership.keys.address
+          ),
+        ]);
+
+        const noPermissions = !isOwner && !isTransferProxy;
+        // warn the user
+        if (noPermissions && !didWarn.current) {
+          didWarn.current = true;
+          return {
+            [WARNING]:
+              'This wallet is not the owner or transfer proxy for this point.',
+          };
+        }
+
+        setUrbitWallet(Just(urbitWallet));
+        setPointCursor(Just(patp2dec(values.point)));
+      } catch (error) {
+        console.error(error);
+        return {
+          [FORM_ERROR]: `Unable to derive wallet from ${
+            values.useShards ? 'shards' : 'ticket'
+          }.`,
+        };
+      }
+    },
+    [contracts, setPointCursor, setUrbitWallet]
+  );
+
+  const validate = useMemo(
+    () =>
+      composeValidator(
+        {
+          usePassphrase: buildCheckboxValidator(),
+          useShards: buildCheckboxValidator(),
+          point: buildPointValidator(4),
+          ticket: buildPatqValidator(),
+          shard1: buildPatqValidator(),
+          shard2: buildPatqValidator(),
+          shard3: buildPatqValidator(),
+          passphrase: buildPassphraseValidator(),
+        },
+        validateForm
       ),
-      azimuth.azimuth.isTransferProxy(
-        _contracts,
-        point,
-        urbitWallet.ownership.keys.address
-      ),
-    ]);
+    [validateForm]
+  );
 
-    if (!isOwner && !isTransferProxy) {
-      // notify the user, but allow login regardless
-      setError(
-        'This ticket is not the owner of or transfer proxy for this point.'
-      );
-    }
-
-    setUrbitWallet(Just(urbitWallet));
-    setPointCursor(Just(point));
-    setDeriving(false);
-  }, [
-    pointName,
-    ticket,
-    passphrase,
-    contracts,
-    setUrbitWallet,
-    setPointCursor,
-    setDeriving,
-  ]);
-
-  const deriveWalletFromShards = useCallback(async () => {
-    const s1 = shard1 || undefined;
-    const s2 = shard2 || undefined;
-    const s3 = shard3 || undefined;
-
-    try {
-      const ticket = kg.combine([s1, s2, s3]);
-      const point = patp2dec(pointName);
-      const uhdw = await urbitWalletFromTicket(ticket, point, passphrase);
-      setUrbitWallet(Just(uhdw));
-    } catch (_) {
-      // do nothing
-    }
-  }, [passphrase, pointName, setUrbitWallet, shard1, shard2, shard3]);
-
-  // derive wallet on change
-  useEffect(() => {
-    if (isUsingShards && shardsReady) {
-      deriveWalletFromShards();
-    } else if (validTicket) {
-      deriveWalletFromTicket();
-    }
-  }, [
-    isUsingShards,
-    validTicket,
-    shardsReady,
-    deriveWalletFromShards,
-    deriveWalletFromTicket,
-  ]);
+  const initialValues = useMemo(
+    () => ({
+      point: impliedPoint || '',
+      usePasshrase: false,
+      useShards: false,
+    }),
+    [impliedPoint]
+  );
 
   return (
     <Grid className={cn('mt4', className)}>
-      <Grid.Item full as={Input} {...pointInput} />
+      <BridgeForm
+        validate={validate}
+        onSubmit={onSubmit}
+        afterSubmit={goHome}
+        initialValues={initialValues}>
+        {({ handleSubmit, submitting }) => (
+          <>
+            <Grid.Item full as={PointInput} name="point" />
 
-      {!isUsingShards && <Grid.Item full as={Input} {...ticketInput} />}
-      {isUsingShards && (
-        <>
-          <Grid.Item full as={Input} {...shard1Input} />
-          <Grid.Item full as={Input} {...shard2Input} />
-          <Grid.Item full as={Input} {...shard3Input} />
-        </>
-      )}
-      {hasPassphrase && <Grid.Item full as={Input} {...passphraseInput} />}
+            <Condition when="useShards" is={false}>
+              <Grid.Item
+                full
+                as={TicketInput}
+                name="ticket"
+                label="Master Ticket"
+              />
+            </Condition>
 
-      <Grid.Item full as={CheckboxInput} {...hasPassphraseInput} />
-      <Grid.Item full as={CheckboxInput} {...shardsInput} />
+            <Condition when="useShards" is={true}>
+              <Grid.Item full as={TicketInput} name="shard1" label="Shard 1" />
+              <Grid.Item full as={TicketInput} name="shard2" label="Shard 2" />
+              <Grid.Item full as={TicketInput} name="shard3" label="Shard 3" />
+            </Condition>
+
+            <Condition when="usePassphrase" is={true}>
+              <Grid.Item
+                full
+                as={PassphraseInput}
+                name="passphrase"
+                label="Wallet Passphrase"
+              />
+            </Condition>
+
+            <Grid.Item
+              full
+              as={CheckboxInput}
+              name="usePassphrase"
+              label="Passphrase"
+            />
+            <Grid.Item
+              full
+              as={CheckboxInput}
+              name="useShards"
+              label="Shards"
+            />
+
+            <Grid.Item full as={FormError} />
+
+            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+              {isWarning =>
+                submitting
+                  ? 'Logging in...'
+                  : isWarning
+                  ? 'Login Anyway'
+                  : 'Continue'
+              }
+            </Grid.Item>
+          </>
+        )}
+      </BridgeForm>
     </Grid>
   );
 }

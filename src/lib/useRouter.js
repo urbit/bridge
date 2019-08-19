@@ -53,7 +53,7 @@ export default function useRouter({
       if (size <= 1) {
         // if we are at the root, pass this event to our parent
         if (oldPopState.current) {
-          window.history.back();
+          oldPopState.current();
         }
         return;
       }
@@ -108,7 +108,7 @@ export default function useRouter({
 
     // construct new onpopstate handler
     window.onpopstate = e => {
-      e.stopImmediatePropagation();
+      e && e.stopImmediatePropagation();
       pop();
     };
 

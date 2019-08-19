@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
-import { Grid, Text, Input } from 'indigo-react';
+import { Grid, Text } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from 'store/network';
@@ -9,13 +9,16 @@ import { usePointCache } from 'store/pointCache';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
-import { useAddressInput } from 'lib/useInputs';
 import useCurrentPointName from 'lib/useCurrentPointName';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
+import { AddressInput } from 'form/Inputs';
+import { composeValidator, buildAddressValidator } from 'form/validators';
+import BridgeForm from 'form/BridgeForm';
+import FormError from 'form/FormError';
 
 function useTransfer() {
   const { contracts } = useNetwork();
@@ -47,46 +50,64 @@ export default function AdminTransfer() {
     bind,
   } = useTransfer();
 
-  const [addressInput, { pass, data: address }] = useAddressInput({
-    name: 'address',
-    label: `Ethereum Address`,
-    disabled: inputsLocked,
-  });
+  const validate = useMemo(
+    () => composeValidator({ address: buildAddressValidator() }),
+    []
+  );
 
-  useEffect(() => {
-    if (pass) {
-      construct(address);
-    } else {
-      unconstruct();
-    }
-  }, [pass, address, construct, unconstruct]);
+  const onValues = useCallback(
+    ({ valid, values }) => {
+      if (valid) {
+        construct(values.address);
+      } else {
+        unconstruct();
+      }
+    },
+    [construct, unconstruct]
+  );
 
   return (
     <Grid>
       <Grid.Item full as={ViewHeader}>
         Transfer Point
       </Grid.Item>
-      <Grid.Item
-        full
-        as={Text}
-        className={cn('f5 wrap', {
-          green3: completed,
-        })}>
-        {completed
-          ? `${address} is now the Transfer Proxy for ${name} and can accept the transfer by logging into Multipass themselves. Until they accept your transfer, you will still have ownership over ${name}.`
-          : `Transfer ${name} to a new owner.`}
-      </Grid.Item>
 
-      {!completed && (
-        <Grid.Item full as={Input} {...addressInput} className="mv4" />
-      )}
+      <BridgeForm validate={validate} onValues={onValues}>
+        {({ handleSubmit, values }) => (
+          <>
+            <Grid.Item
+              full
+              as={Text}
+              className={cn('f5 wrap', {
+                green3: completed,
+              })}>
+              {completed
+                ? `${values.address} is now the Transfer Proxy for ${name} and can accept the transfer by logging into Bridge themselves. Until they accept your transfer, you will still have ownership over ${name}.`
+                : `Transfer ${name} to a new owner.`}
+            </Grid.Item>
 
-      <Grid.Item
-        full
-        as={InlineEthereumTransaction}
-        {...bind}
-        onReturn={() => pop()}
-      />
+            {!completed && (
+              <Grid.Item
+                full
+                as={AddressInput}
+                className="mv4"
+                name="address"
+                label="Ethereum Address"
+                disabled={inputsLocked}
+              />
+            )}
+
+            <Grid.Item full as={FormError} />
+
+            <Grid.Item
+              full
+              as={InlineEthereumTransaction}
+              {...bind}
+              onReturn={() => pop()}
+            />
+          </>
+        )}
+      </BridgeForm>
     </Grid>
   );
 }

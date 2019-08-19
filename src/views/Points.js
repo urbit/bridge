@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H5, H1, HelpText, LinkButton, Flex } from 'indigo-react';
 import { get } from 'lodash';
@@ -79,7 +79,7 @@ function ActionButtons({ actions = [] }) {
 
 export default function Points() {
   const { wallet } = useWallet();
-  const { pop, push, names } = useHistory();
+  const { pop, push, popAndPush, names } = useHistory();
   const { setPointCursor } = usePointCursor();
   const { controlledPoints, getDetails } = usePointCache();
   const isEclipticOwner = useIsEclipticOwner();
@@ -87,6 +87,77 @@ export default function Points() {
     rejectedPoints,
     addRejectedPoint,
   ] = useRejectedIncomingPointTransfers();
+
+  const maybeOutgoingPoints = useMemo(
+    () =>
+      controlledPoints.chain(points =>
+        points.matchWith({
+          Error: () => Nothing(),
+          Ok: c => {
+            const points = c.value.ownedPoints.map(point =>
+              getDetails(point).chain(details =>
+                Just({ point: point, has: hasTransferProxy(details) })
+              )
+            );
+            // if we have details for every point,
+            // return the array of pending transfers.
+            if (points.every(p => Just.hasInstance(p))) {
+              const outgoing = points
+                .filter(p => p.value.has)
+                .map(p => p.value.point);
+              return Just(outgoing);
+            } else {
+              return Nothing();
+            }
+          },
+        })
+      ),
+    [getDetails, controlledPoints]
+  );
+
+  // if we can only interact with a single point, forget about the existence
+  // of this page and jump to the point page.
+  // if there are any pending transfers, incoming or outgoing, stay on this
+  // page, because those can only be completed/cancelled here.
+  useEffect(() => {
+    if (Nothing.hasInstance(maybeOutgoingPoints)) {
+      return;
+    }
+    controlledPoints.matchWith({
+      Nothing: () => null,
+      Just: r => {
+        r.value.matchWith({
+          Error: () => null,
+          Ok: c => {
+            let all = [
+              ...c.value.ownedPoints,
+              ...c.value.votingPoints,
+              ...c.value.managingPoints,
+              ...c.value.spawningPoints,
+            ];
+            const incoming = c.value.incomingPoints.filter(
+              p => !rejectedPoints.includes(p)
+            );
+            if (
+              all.length === 1 &&
+              incoming.length === 0 &&
+              maybeOutgoingPoints.value.length === 0
+            ) {
+              setPointCursor(Just(all[0]));
+              popAndPush(names.POINT);
+            }
+          },
+        });
+      },
+    });
+  }, [
+    controlledPoints,
+    rejectedPoints,
+    maybeOutgoingPoints,
+    setPointCursor,
+    popAndPush,
+    names,
+  ]);
 
   const address = need.addressFromWallet(wallet);
 
@@ -101,14 +172,9 @@ export default function Points() {
   const managingPoints = maybeGetResult(controlledPoints, 'managingPoints', []);
   const votingPoints = maybeGetResult(controlledPoints, 'votingPoints', []);
   const spawningPoints = maybeGetResult(controlledPoints, 'spawningPoints', []);
-  const outgoingPoints = ownedPoints.filter(point =>
-    getDetails(point).matchWith({
-      Nothing: () => false,
-      Just: p => hasTransferProxy(p.value),
-    })
-  );
+  const outgoingPoints = maybeOutgoingPoints.getOrElse([]);
 
-  const multipassPoints = [
+  const allPoints = [
     ...ownedPoints.filter(p => !outgoingPoints.includes(p)),
     ...managingPoints,
     ...votingPoints,
@@ -116,7 +182,7 @@ export default function Points() {
   ];
 
   const displayEmptyState =
-    !loading && incomingPoints.length === 0 && multipassPoints.length === 0;
+    !loading && incomingPoints.length === 0 && allPoints.length === 0;
 
   // sync display details for known points
   useSyncKnownPoints([
@@ -226,12 +292,12 @@ export default function Points() {
           </Grid.Item>
         )}
 
-        {multipassPoints.length > 0 && (
+        {allPoints.length > 0 && (
           <Grid.Item full as={Grid} gap={1}>
             <Grid.Item full as={H5}>
-              {pluralize(multipassPoints.length, 'Multipass', 'Multipasses')}
+              {pluralize(allPoints.length, 'Point')}
             </Grid.Item>
-            <Grid.Item full as={PointList} points={multipassPoints} />
+            <Grid.Item full as={PointList} points={allPoints} />
           </Grid.Item>
         )}
 

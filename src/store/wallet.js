@@ -33,7 +33,12 @@ const DEFAULT_WALLET_TYPE = WALLET_TYPES.TICKET;
 // JSON keystore files, and Metamask authentication, it wraps an
 // 'EthereumWallet'.
 function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
-  const [walletType, _setWalletType] = useState(DEFAULT_WALLET_TYPE);
+  const [walletType, _setWalletType] = useState(() =>
+    initialMnemonic.matchWith({
+      Nothing: () => DEFAULT_WALLET_TYPE,
+      Just: () => WALLET_TYPES.MNEMONIC,
+    })
+  );
   const [walletHdPath, setWalletHdPath] = useState(DEFAULT_HD_PATH);
   const [wallet, _setWallet] = useState(initialWallet);
   const [urbitWallet, _setUrbitWallet] = useState(Nothing());

@@ -4,7 +4,7 @@ import Flex from './Flex';
 
 const PENDING_ACCESSORY = '⋯';
 const SUCCESS_ACCESSORY = '✓';
-const FAILURE_ACCESSORY = '✗';
+const FAILURE_ACCESSORY = '!';
 
 function AccessoryIcon({ ...props }) {
   return (

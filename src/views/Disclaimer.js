@@ -1,24 +1,28 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
 import { Grid, H3, B, Text, CheckboxInput } from 'indigo-react';
 
-import { useCheckboxInput } from 'lib/useInputs';
 import { useHistory } from 'store/history';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
 
 import View from 'components/View';
-import { ForwardButton } from 'components/Buttons';
 import WarningBox from 'components/WarningBox';
+import BridgeForm from 'form/BridgeForm';
+import SubmitButton from 'form/SubmitButton';
+import { composeValidator, buildCheckboxValidator } from 'form/validators';
 
 const TEXT_STYLE = 'f5';
 
 export default function ActivateDisclaimer() {
   const { pop } = useHistory();
   const [, setHasDisclaimed] = useHasDisclaimed();
-  const [understoodInput, { data: isUnderstood }] = useCheckboxInput({
-    name: 'checkbox',
-    label: 'I acknowledge and understand these rights',
-  });
+
+  const validate = useMemo(
+    () => composeValidator({ checkbox: buildCheckboxValidator(true) }),
+    []
+  );
+
+  const initialValues = useMemo(() => ({ checkbox: false }), []);
 
   const goBack = useCallback(async () => {
     setHasDisclaimed(true);
@@ -76,15 +80,25 @@ export default function ActivateDisclaimer() {
         <Grid.Item full as={WarningBox}>
           Warning: Nobody but you can restore or reset your Master Ticket
         </Grid.Item>
-        <Grid.Item as={CheckboxInput} {...understoodInput} full />
-        <Grid.Item
-          as={ForwardButton}
-          disabled={!isUnderstood}
-          onClick={goBack}
-          solid
-          full>
-          Continue
-        </Grid.Item>
+        <BridgeForm
+          validate={validate}
+          afterSubmit={goBack}
+          initialValues={initialValues}>
+          {({ handleSubmit }) => (
+            <>
+              <Grid.Item
+                full
+                as={CheckboxInput}
+                name="checkbox"
+                label="I acknowledge and understand these rights"
+              />
+
+              <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+                Continue
+              </Grid.Item>
+            </>
+          )}
+        </BridgeForm>
       </Grid>
     </View>
   );

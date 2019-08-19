@@ -57,12 +57,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
   const [needFunds, setNeedFunds] = useState();
 
   const goToLogin = useCallback(
-    () =>
-      replaceWith([
-        { key: names.LOGIN },
-        { key: names.POINTS },
-        { key: names.POINT },
-      ]),
+    () => replaceWith([{ key: names.LOGIN }, { key: names.POINT }]),
     [replaceWith, names]
   );
 

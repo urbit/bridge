@@ -1,15 +1,7 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
-import { Just, Nothing } from 'folktale/maybe';
-import {
-  P,
-  Text,
-  Input,
-  Grid,
-  H5,
-  CheckboxInput,
-  SelectInput,
-} from 'indigo-react';
+import { Just } from 'folktale/maybe';
+import { P, Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react';
 import { times } from 'lodash';
 import * as bip32 from 'bip32';
 import Transport from '@ledgerhq/hw-transport-u2f';
@@ -17,14 +9,6 @@ import Eth from '@ledgerhq/hw-app-eth';
 import * as secp256k1 from 'secp256k1';
 
 import { useWallet } from 'store/wallet';
-
-import { ForwardButton } from 'components/Buttons';
-
-import {
-  useCheckboxInput,
-  useHdPathInput,
-  useSelectInput,
-} from 'lib/useInputs';
 
 import {
   LEDGER_LIVE_PATH,
@@ -35,6 +19,18 @@ import {
 import { WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
 import useBreakpoints from 'lib/useBreakpoints';
+import {
+  composeValidator,
+  buildCheckboxValidator,
+  buildHdPathValidator,
+  buildSelectValidator,
+} from 'form/validators';
+import BridgeForm from 'form/BridgeForm';
+import FormError from 'form/FormError';
+import SubmitButton from 'form/SubmitButton';
+import Condition from 'form/Condition';
+import { FORM_ERROR } from 'final-form';
+import { HdPathInput } from 'form/Inputs';
 
 const PATH_OPTIONS = [
   { text: 'Ledger Live', value: LEDGER_LIVE_PATH },
@@ -46,74 +42,68 @@ const ACCOUNT_OPTIONS = times(20, i => ({
   value: i,
 }));
 
-export default function Ledger({ className }) {
+export default function Ledger({ className, goHome }) {
   useLoginView(WALLET_TYPES.LEDGER);
 
   const { setWallet, setWalletHdPath } = useWallet();
 
-  // derivation path input
-  const [derivationPathInput, { data: basePathPattern }] = useSelectInput({
-    name: 'derivationpath',
-    label: 'Derivation Path',
-    placeholder: 'Choose path pattern...',
-    options: PATH_OPTIONS,
-  });
+  const validate = useMemo(
+    () =>
+      composeValidator({
+        useCustomPath: buildCheckboxValidator(),
+        derivationpath: buildSelectValidator(PATH_OPTIONS),
+        account: buildSelectValidator(ACCOUNT_OPTIONS),
+        hdpath: buildHdPathValidator(),
+      }),
+    []
+  );
 
-  // account input
-  const [accountInput, { data: accountIndex }] = useSelectInput({
-    name: 'account',
-    label: 'Account',
-    placeholder: 'Choose account...',
-    options: ACCOUNT_OPTIONS,
-  });
+  const onSubmit = useCallback(
+    async values => {
+      const transport = await Transport.create();
+      const eth = new Eth(transport);
+      const path = chopHdPrefix(values.hdpath);
 
-  // custom toggle
-  const [customPathInput, { data: useCustomPath }] = useCheckboxInput({
-    name: 'customPath',
-    label: 'Custom HD Path',
-    autoComplete: 'off',
-    initialValue: false,
-  });
+      try {
+        const info = await eth.getAddress(path, false, true);
+        const publicKey = Buffer.from(info.publicKey, 'hex');
+        const chainCode = Buffer.from(info.chainCode, 'hex');
+        const pub = secp256k1.publicKeyConvert(publicKey, true);
+        const hd = bip32.fromPublicKey(pub, chainCode);
 
-  // hd path input
-  const [
-    hdPathInput,
-    { data: hdPath },
-    { setValue: setHdPath },
-  ] = useHdPathInput({
-    name: 'hdpath',
-    label: 'HD Path',
-    initialValue: basePathPattern.replace(/x/g, 0),
-  });
+        setWallet(Just(hd));
+        setWalletHdPath(addHdPrefix(values.hdpath));
+      } catch (error) {
+        return { [FORM_ERROR]: error.message };
+      }
+    },
+    [setWallet, setWalletHdPath]
+  );
 
-  const pollDevice = useCallback(async () => {
-    const transport = await Transport.create();
-    const eth = new Eth(transport);
-    const path = chopHdPrefix(hdPath);
-
-    try {
-      const info = await eth.getAddress(path, false, true);
-      const publicKey = Buffer.from(info.publicKey, 'hex');
-      const chainCode = Buffer.from(info.chainCode, 'hex');
-      const pub = secp256k1.publicKeyConvert(publicKey, true);
-      const hd = bip32.fromPublicKey(pub, chainCode);
-      setWallet(Just(hd));
-      setWalletHdPath(addHdPrefix(hdPath));
-    } catch (error) {
-      console.error(error);
-      setWallet(Nothing());
+  const onValues = useCallback(({ valid, values, form }) => {
+    if (!valid) {
+      return;
     }
-  }, [hdPath, setWallet, setWalletHdPath]);
 
-  // when the base path pattern or the account index changes
-  // update the hd path in our input
-  useEffect(() => {
-    if (useCustomPath) {
-      // updated by useForm
-    } else {
-      setHdPath(basePathPattern.replace(/x/g, accountIndex));
+    // when the base path pattern or the account index changes
+    // update the hd path in our input
+    if (!values.useCustomPath) {
+      form.change(
+        'hdpath',
+        values.derivationpath.replace(/x/g, values.account)
+      );
     }
-  }, [useCustomPath, setHdPath, basePathPattern, accountIndex]);
+  }, []);
+
+  const initialValues = useMemo(
+    () => ({
+      useCustomPath: false,
+      hdpath: PATH_OPTIONS[0].value.replace(/x/g, ACCOUNT_OPTIONS[0].value),
+      derivationpath: PATH_OPTIONS[0].value,
+      account: ACCOUNT_OPTIONS[0].value,
+    }),
+    []
+  );
 
   const full = useBreakpoints([true, true, false]);
   const half = useBreakpoints([false, false, true]);
@@ -170,37 +160,58 @@ export default function Ledger({ className }) {
         enable the "contract data" option.
       </Grid.Item>
 
-      {useCustomPath && <Grid.Item full as={Input} {...hdPathInput} />}
+      <BridgeForm
+        validate={validate}
+        onValues={onValues}
+        onSubmit={onSubmit}
+        afterSubmit={goHome}
+        initialValues={initialValues}>
+        {({ handleSubmit }) => (
+          <>
+            <Condition when="useCustomPath" is={true}>
+              <Grid.Item full as={HdPathInput} name="hdpath" label="HD Path" />
+            </Condition>
 
-      {!useCustomPath && (
-        <>
-          <Grid.Item
-            full={full}
-            half={half && 1}
-            as={SelectInput}
-            className={cn({ pr1: half })}
-            {...derivationPathInput}
-          />
-          <Grid.Item
-            full={full}
-            half={half && 2}
-            as={SelectInput}
-            className={cn({ pl1: half })}
-            {...accountInput}
-          />
-        </>
-      )}
+            <Condition when="useCustomPath" is={false}>
+              <Grid.Item
+                full={full}
+                half={half && 1}
+                as={SelectInput}
+                className={cn({ pr1: half })}
+                name="derivationpath"
+                label="Derivation Path"
+                placeholder="Choose path pattern..."
+                options={PATH_OPTIONS}
+              />
 
-      <Grid.Item full as={CheckboxInput} className="mv3" {...customPathInput} />
+              <Grid.Item
+                full={full}
+                half={half && 2}
+                as={SelectInput}
+                className={cn({ pl1: half })}
+                name="account"
+                label="Account"
+                placeholder="Choose account..."
+                options={ACCOUNT_OPTIONS}
+              />
+            </Condition>
 
-      <Grid.Item
-        full
-        as={ForwardButton}
-        solid
-        className="mt2"
-        onClick={pollDevice}>
-        Authenticate
-      </Grid.Item>
+            <Grid.Item
+              full
+              as={CheckboxInput}
+              className="mv3"
+              name="useCustomPath"
+              label="Custom HD Path"
+            />
+
+            <Grid.Item full as={FormError} />
+
+            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+              Authenticate
+            </Grid.Item>
+          </>
+        )}
+      </BridgeForm>
     </>
   );
 

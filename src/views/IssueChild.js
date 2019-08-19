@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Nothing, Just } from 'folktale/maybe';
+import React, { useCallback, useMemo, useState } from 'react';
 import cn from 'classnames';
-import { Grid, Text, Input } from 'indigo-react';
+import { Grid, Text } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
 
@@ -10,18 +9,25 @@ import { usePointCache } from 'store/pointCache';
 import { usePointCursor } from 'store/pointCursor';
 
 import * as need from 'lib/need';
-import { useAddressInput, usePointInput } from 'lib/useInputs';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import patp2dec from 'lib/patp2dec';
-import useLifecycle from 'lib/useLifecycle';
-import { validateNameInNumberSet } from 'lib/validators';
 import { getSpawnCandidate } from 'lib/child';
 import { useLocalRouter } from 'lib/LocalRouter';
+import useConstant from 'lib/useConstant';
 
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
+import { PointInput, AddressInput } from 'form/Inputs';
+import {
+  composeValidator,
+  buildPointValidator,
+  buildAddressValidator,
+  hasErrors,
+} from 'form/validators';
+import BridgeForm from 'form/BridgeForm';
+import FormError from 'form/FormError';
 
 function useIssueChild() {
   const { contracts } = useNetwork();
@@ -55,7 +61,11 @@ export default function IssueChild() {
   const _contracts = need.contracts(contracts);
   const _point = parseInt(need.point(pointCursor), 10);
 
-  const [availablePoints, setAvailablePoints] = useState(Nothing());
+  const availablePointsPromise = useConstant(() =>
+    azimuth.azimuth
+      .getUnspawnedChildren(_contracts, _point)
+      .then(points => new Set(points))
+  );
 
   const candidates = useMemo(() => {
     const getCandidate = () => ob.patp(getSpawnCandidate(_point));
@@ -72,62 +82,51 @@ export default function IssueChild() {
     bind,
   } = useIssueChild();
 
-  const validators = useMemo(
-    () => [
-      validateNameInNumberSet(
-        availablePoints.getOrElse(new Set()),
-        'This point cannot be spawned.'
-      ),
-    ],
-    [availablePoints]
+  const validateFormAsync = useCallback(
+    async values => {
+      const point = patp2dec(values.name);
+      const hasPoint = (await availablePointsPromise).has(point);
+
+      if (!hasPoint) {
+        return { point: 'This point cannot be spawned.' };
+      }
+    },
+    [availablePointsPromise]
   );
-  const [
-    pointNameInput,
-    { pass: validPointName, value: pointName },
-    // ^ we use value: here so our effect runs onChange
-  ] = usePointInput({
-    name: 'point',
-    disabled: inputsLocked,
-    autoFocus: true,
-    validators,
-    error: availablePoints.matchWith({
-      Nothing: () => 'Loading availability...',
-      Just: () => undefined,
-    }),
-  });
 
-  const [ownerInput, { pass: validOwner, data: owner }] = useAddressInput({
-    name: 'owner',
-    label: `Ethereum Address`,
-    disabled: inputsLocked,
-  });
-
-  useEffect(() => {
-    if (validPointName && validOwner) {
-      construct(patp2dec(pointName), owner);
-    } else {
-      unconstruct();
-    }
-  }, [owner, construct, unconstruct, validPointName, validOwner, pointName]);
-
-  useLifecycle(() => {
-    let mounted = true;
-
-    (async () => {
-      const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
-        _contracts,
-        _point
-      );
-
-      if (!mounted) {
-        return;
+  const validateForm = useCallback(
+    (values, errors) => {
+      if (hasErrors(errors)) {
+        return errors;
       }
 
-      setAvailablePoints(Just(new Set(availablePoints)));
-    })();
+      return validateFormAsync(values, errors);
+    },
+    [validateFormAsync]
+  );
 
-    return () => (mounted = false);
-  });
+  const validate = useMemo(
+    () =>
+      composeValidator(
+        {
+          point: buildPointValidator(4),
+          owner: buildAddressValidator(),
+        },
+        validateForm
+      ),
+    [validateForm]
+  );
+
+  const onValues = useCallback(
+    ({ valid, values }) => {
+      if (valid) {
+        construct(patp2dec(values.point), values.owner);
+      } else {
+        unconstruct();
+      }
+    },
+    [construct, unconstruct]
+  );
 
   return (
     <View pop={pop} inset>
@@ -143,30 +142,52 @@ export default function IssueChild() {
           </Grid.Item>
         )}
 
-        {completed && (
-          <Grid.Item
-            full
-            as={Text}
-            className={cn('f5 wrap', {
-              green3: completed,
-            })}>
-            {pointName} has been spawned and can be claimed by {owner}.
-          </Grid.Item>
-        )}
+        <BridgeForm validate={validate} onValues={onValues}>
+          {({ handleSubmit, values }) => (
+            <>
+              {completed && (
+                <Grid.Item
+                  full
+                  as={Text}
+                  className={cn('f5 wrap', {
+                    green3: completed,
+                  })}>
+                  {values.point} has been spawned and can be claimed by{' '}
+                  {values.owner}.
+                </Grid.Item>
+              )}
 
-        {!completed && (
-          <>
-            <Grid.Item full as={Input} {...pointNameInput} className="mt4" />
-            <Grid.Item full as={Input} {...ownerInput} className="mb4" />
-          </>
-        )}
+              {!completed && (
+                <>
+                  <Grid.Item
+                    full
+                    as={PointInput}
+                    name="point"
+                    disabled={inputsLocked}
+                    className="mt4"
+                  />
+                  <Grid.Item
+                    full
+                    as={AddressInput}
+                    className="mb4"
+                    name="owner"
+                    label="Ethereum Address"
+                    disabled={inputsLocked}
+                  />
+                </>
+              )}
 
-        <Grid.Item
-          full
-          as={InlineEthereumTransaction}
-          {...bind}
-          onReturn={() => pop()}
-        />
+              <Grid.Item full as={FormError} />
+
+              <Grid.Item
+                full
+                as={InlineEthereumTransaction}
+                {...bind}
+                onReturn={() => pop()}
+              />
+            </>
+          )}
+        </BridgeForm>
       </Grid>
     </View>
   );

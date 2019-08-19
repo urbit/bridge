@@ -16,6 +16,8 @@ const seq = n => Array.from(Array(n), (_, i) => i);
 
 const fill = (n, v) => Array.from(Array(n), () => v);
 
+const strSplice = (arr, i, val) => `${arr.slice(0, i)}${val}${arr.slice(i)}`;
+
 const isValidGalaxy = name => {
   let point;
   try {
@@ -48,6 +50,7 @@ export {
   defaultTo,
   seq,
   fill,
+  strSplice,
   isValidGalaxy,
   randomPatq,
   patpStringLength,

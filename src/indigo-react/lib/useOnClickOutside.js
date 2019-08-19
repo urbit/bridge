@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 
 // via https:// usehooks.com/useOnClickOutside/
-
 export default function useOnClickOutside(ref, handler) {
   useEffect(() => {
     const listener = event => {

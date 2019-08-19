@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Just } from 'folktale/maybe';
-import * as ob from 'urbit-ob';
 
 import MaybeSigil from './MaybeSigil';
 
-const selectColorway = (pass, fail, focused) => {
-  if (pass) {
+const selectColorway = (valid, error, active) => {
+  if (valid) {
     return ['#2AA779', '#FFFFFF'];
   }
 
-  if (focused) {
+  if (active) {
     return ['#4330FC', '#FFFFFF'];
   }
 
-  if (fail) {
+  if (error) {
     return ['#F8C134', '#FFFFFF'];
   }
 
@@ -24,24 +23,24 @@ export default function InputSigil({
   className,
   patp,
   size,
-  pass,
+  valid,
   error,
-  focused,
+  active,
   ...rest
 }) {
   const [lastValidPatp, setLastValidPatp] = useState(patp);
 
   useEffect(() => {
-    if (ob.isValidPatp(patp)) {
+    if (valid) {
       setLastValidPatp(patp);
     }
-  }, [patp]);
+  }, [patp, valid]);
 
   return (
     <MaybeSigil
       patp={Just(lastValidPatp)}
       size={size}
-      colors={selectColorway(pass, error, focused)}
+      colors={selectColorway(valid, error, active)}
       {...rest}
     />
   );

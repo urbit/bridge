@@ -1,16 +1,19 @@
 import React, { useCallback, useMemo } from 'react';
-import { Grid, Input, P } from 'indigo-react';
+import { Grid, P } from 'indigo-react';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
-import { useTicketInput } from 'lib/useInputs';
 import { validateExactly } from 'lib/validators';
 import { isDevelopment } from 'lib/flags';
 
-import { ForwardButton } from 'components/Buttons';
+import SubmitButton from 'form/SubmitButton';
+import { TicketInput } from 'form/Inputs';
+import { composeValidator, buildPatqValidator } from 'form/validators';
+import BridgeForm from 'form/BridgeForm';
 
 import { useActivateFlow } from './ActivateFlow';
 import PassportView from './PassportView';
+import FormError from 'form/FormError';
 
 const STUB_VERIFY_TICKET = isDevelopment;
 
@@ -20,17 +23,22 @@ export default function PassportVerify({ className }) {
   const goToTransfer = useCallback(() => push(names.TRANSFER), [push, names]);
 
   const { ticket } = need.wallet(derivedWallet);
-  const validators = useMemo(
-    () => [validateExactly(ticket, 'Does not match expected master ticket.')],
+  const validate = useMemo(
+    () =>
+      composeValidator({
+        ticket: buildPatqValidator([
+          validateExactly(ticket, 'Does not match expected master ticket.'),
+        ]),
+      }),
     [ticket]
   );
-  const [ticketInput, { pass }] = useTicketInput({
-    name: 'ticket',
-    label: 'Master Ticket',
-    initialValue: STUB_VERIFY_TICKET ? ticket : undefined,
-    autoFocus: true,
-    validators,
-  });
+
+  const initialValues = useMemo(
+    () => ({
+      ticket: STUB_VERIFY_TICKET ? ticket : undefined,
+    }),
+    [ticket]
+  );
 
   return (
     <PassportView header="Verify Passport" step={2} className={className}>
@@ -40,16 +48,31 @@ export default function PassportVerify({ className }) {
           should be a folder of image files. One of them is your Master Ticket.
           Open it and enter the 4 word phrase below (with hyphens).
         </Grid.Item>
-        <Grid.Item full as={Input} {...ticketInput} />
-        <Grid.Item
-          full
-          className="mt3"
-          as={ForwardButton}
-          disabled={!pass}
-          onClick={goToTransfer}
-          solid>
-          Verify
-        </Grid.Item>
+        <BridgeForm
+          validate={validate}
+          afterSubmit={goToTransfer}
+          initialValues={initialValues}>
+          {({ handleSubmit }) => (
+            <>
+              <Grid.Item
+                full
+                as={TicketInput}
+                name="ticket"
+                label="Master Ticket"
+              />
+
+              <Grid.Item full as={FormError} />
+
+              <Grid.Item
+                full
+                className="mt3"
+                as={SubmitButton}
+                handleSubmit={handleSubmit}>
+                Verify
+              </Grid.Item>
+            </>
+          )}
+        </BridgeForm>
       </Grid>
     </PassportView>
   );
