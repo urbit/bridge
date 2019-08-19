@@ -116,6 +116,7 @@ export default function Ticket({ className, goHome }) {
     () =>
       composeValidator(
         {
+          useAdvanced: buildCheckboxValidator(),
           usePassphrase: buildCheckboxValidator(),
           useShards: buildCheckboxValidator(),
           point: buildPointValidator(4),
@@ -123,6 +124,7 @@ export default function Ticket({ className, goHome }) {
           shard1: buildPatqValidator(),
           shard2: buildPatqValidator(),
           shard3: buildPatqValidator(),
+          showTicket: buildCheckboxValidator(),
           passphrase: buildPassphraseValidator(),
         },
         validateForm
@@ -156,9 +158,9 @@ export default function Ticket({ className, goHome }) {
               <Grid.Item
                 full
                 as={TicketInput}
+                type={values.showTicket ? 'text' : 'password'}
                 name="ticket"
                 label="Master Ticket"
-                type={values.showTicket ? 'text' : 'password'}
               />
             </Condition>
 
@@ -166,23 +168,23 @@ export default function Ticket({ className, goHome }) {
               <Grid.Item
                 full
                 as={TicketInput}
+                type={values.showTicket ? 'text' : 'password'}
                 name="shard1"
                 label="Shard 1"
-                type={values.showTicket ? 'text' : 'password'}
               />
               <Grid.Item
                 full
                 as={TicketInput}
+                type={values.showTicket ? 'text' : 'password'}
                 name="shard2"
                 label="Shard 2"
-                type={values.showTicket ? 'text' : 'password'}
               />
               <Grid.Item
                 full
                 as={TicketInput}
+                type={values.showTicket ? 'text' : 'password'}
                 name="shard3"
                 label="Shard 3"
-                type={values.showTicket ? 'text' : 'password'}
               />
             </Condition>
 

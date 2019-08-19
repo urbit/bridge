@@ -110,12 +110,12 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
     if (generalError) {
       return (
         <>
-          <Grid.Item full>
+          <Grid.Item full className="mt4">
             <ErrorText>{generalError.message.toString()}</ErrorText>
           </Grid.Item>
           <Grid.Item
             full
-            className="mt3"
+            className="mt4"
             as={RestartButton}
             solid
             onClick={goToRestart}>
@@ -127,7 +127,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
 
     if (needFunds) {
       return (
-        <Grid.Item full>
+        <Grid.Item full className="mt4">
           <Highlighted warning>
             The address {needFunds.address} needs at least{' '}
             {fromWei(needFunds.minBalance)} ETH and currently has{' '}
@@ -139,21 +139,21 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
     }
 
     return (
-      <Grid.Item full as={WarningBox}>
+      <Grid.Item full as={WarningBox} className="mt4">
         Never give your Master Ticket to anyone
       </Grid.Item>
     );
   };
 
   return (
-    <Grid gap={4} className="mt4">
+    <Grid className="mt4">
       <Grid.Item full as={H4}>
         {labelForProgress(progress)}
       </Grid.Item>
 
       {isDone ? (
         <>
-          <Grid.Item full as={Text}>
+          <Grid.Item full as={Text} className="mt4">
             Your changes are now reflected on-chain and you can use the new
             ticket to manage your point.
           </Grid.Item>
@@ -161,6 +161,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
             full
             as={ForwardButton}
             solid
+            className="mt4"
             accessory="↺"
             onClick={loginAndGoHome}>
             Login with New Master Ticket
@@ -168,13 +169,11 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
         </>
       ) : (
         <>
-          <Grid.Item full as={Grid} className="mt3" gap={3}>
+          <Grid.Item full as={Grid} className="mt4" gap={3}>
             <Grid.Item full as={LoadingBar} progress={progress} />
-            <Grid.Item full>
-              <Text className="f5 green4">
-                This process can take up to 5 minutes to complete. Don't close
-                this page until the process is complete.
-              </Text>
+            <Grid.Item full as={Text} className="f5 green4">
+              This process can take up to 5 minutes to complete. Don't close
+              this page until the process is complete.
             </Grid.Item>
           </Grid.Item>
 

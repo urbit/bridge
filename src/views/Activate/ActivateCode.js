@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import { Just } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
-import { Grid, H4 } from 'indigo-react';
+import { Grid, H4, CheckboxInput } from 'indigo-react';
 import { FORM_ERROR } from 'final-form';
 
 import View from 'components/View';
@@ -31,6 +31,7 @@ import {
   composeValidator,
   buildPatqValidator,
   hasErrors,
+  buildCheckboxValidator,
 } from 'form/validators';
 import FormError from 'form/FormError';
 
@@ -79,7 +80,11 @@ export default function ActivateCode() {
   }, []);
 
   const validate = useMemo(
-    () => composeValidator({ ticket: buildPatqValidator() }, validateForm),
+    () =>
+      composeValidator(
+        { ticket: buildPatqValidator(), showTicket: buildCheckboxValidator() },
+        validateForm
+      ),
     [validateForm]
   );
 
@@ -132,9 +137,10 @@ export default function ActivateCode() {
     [contracts, setDerivedPoint, setDerivedWallet, setInviteWallet]
   );
 
-  const initialValues = useMemo(() => ({ ticket: impliedTicket || '' }), [
-    impliedTicket,
-  ]);
+  const initialValues = useMemo(
+    () => ({ ticket: impliedTicket || '', showTicket: true }),
+    [impliedTicket]
+  );
 
   return (
     <View inset>
@@ -148,14 +154,22 @@ export default function ActivateCode() {
           onSubmit={onSubmit}
           afterSubmit={goToPassport}
           initialValues={initialValues}>
-          {({ validating, submitting, handleSubmit }) => (
+          {({ validating, values, submitting, handleSubmit }) => (
             <>
               <Grid.Item
                 full
                 as={TicketInput}
+                type={values.showTicket ? 'text' : 'password'}
                 name="ticket"
                 label="Activation Code"
                 disabled={!activationAllowed}
+              />
+
+              <Grid.Item
+                full
+                as={CheckboxInput}
+                name="showTicket"
+                label="Show"
               />
 
               <Grid.Item full as={FormError} />
