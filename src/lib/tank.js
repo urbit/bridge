@@ -55,41 +55,43 @@ const ensureFundsFor = async (
 ) => {
   let balance = await web3.eth.getBalance(address);
 
-  if (cost > balance) {
-    try {
-      if (point !== null) {
-        const fundsRemaining = await remainingTransactions(point);
-        if (fundsRemaining < signedTxs.length) {
-          throw new Error('tank: request invalid');
-        }
-      } else {
-        console.log('tank: skipping remaining-funds check');
-        //TODO if we can't always (easily) provide a point, and the
-        //     fundTransactions call is gonna fail anyway, should we maybe
-        //     just not bother doing this check in the first place?
-      }
-
-      const res = await fundTransactions(signedTxs);
-      if (!res.success) {
-        throw new Error('tank: request rejected', res);
-      } else {
-        await waitForTransactionConfirm(web3, res.txHash);
-        let newBalance = await web3.eth.getBalance(address);
-        console.log(
-          'tank: funds have confirmed',
-          balance >= cost,
-          balance,
-          newBalance
-        );
-        return true;
-      }
-    } catch (e) {
-      console.log('tank: funding failed', e);
-      await waitForBalance(web3, address, cost, askForFunding, gotFunding);
-    }
-  } else {
+  if (cost <= balance) {
     console.log('tank: already have sufficient funds', cost, address, balance);
+    return false;
   }
+
+  try {
+    if (point !== null) {
+      const fundsRemaining = await remainingTransactions(point);
+      if (fundsRemaining < signedTxs.length) {
+        throw new Error('tank: request invalid');
+      }
+    } else {
+      console.log('tank: no point provided. skipping remaining-funds check');
+      //TODO if we can't always (easily) provide a point, and the
+      //     fundTransactions call is gonna fail anyway, should we maybe
+      //     just not bother doing this check in the first place?
+    }
+
+    const res = await fundTransactions(signedTxs);
+    if (!res.success) {
+      throw new Error('tank: request rejected', res);
+    }
+
+    await waitForTransactionConfirm(web3, res.txHash);
+    const newBalance = await web3.eth.getBalance(address);
+    console.log(
+      'tank: funds have confirmed',
+      balance >= cost,
+      balance,
+      newBalance
+    );
+    return true;
+  } catch (e) {
+    console.log('tank: funding failed, waiting on user funds.', e);
+    await waitForBalance(web3, address, cost, askForFunding, gotFunding);
+  }
+
   return false;
 };
 
