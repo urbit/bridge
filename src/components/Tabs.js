@@ -36,8 +36,7 @@ export default function Tabs({
                     // the first one is flush to the left
                     'ml2 pl2': !isFirst,
                   }
-                )}
-                style={{ marginBottom: '-1px' }}>
+                )}>
                 {option.text}
               </Flex.Item>
             );
