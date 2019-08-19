@@ -3,7 +3,7 @@ import { Just } from 'folktale/maybe';
 import cn from 'classnames';
 import * as azimuth from 'azimuth-js';
 import * as kg from 'urbit-key-generation/dist/index';
-import { Grid, CheckboxInput } from 'indigo-react';
+import { Grid, CheckboxInput, Flex, ToggleInput } from 'indigo-react';
 import { FORM_ERROR } from 'final-form';
 
 import { useNetwork } from 'store/network';
@@ -135,6 +135,8 @@ export default function Ticket({ className, goHome }) {
       point: impliedPoint || '',
       usePasshrase: false,
       useShards: false,
+      showTicket: true,
+      useAdvanced: false,
     }),
     [impliedPoint]
   );
@@ -146,7 +148,7 @@ export default function Ticket({ className, goHome }) {
         onSubmit={onSubmit}
         afterSubmit={goHome}
         initialValues={initialValues}>
-        {({ handleSubmit, submitting }) => (
+        {({ handleSubmit, values, submitting }) => (
           <>
             <Grid.Item full as={PointInput} name="point" />
 
@@ -156,14 +158,35 @@ export default function Ticket({ className, goHome }) {
                 as={TicketInput}
                 name="ticket"
                 label="Master Ticket"
+                type={values.showTicket ? 'text' : 'password'}
               />
             </Condition>
 
             <Condition when="useShards" is={true}>
-              <Grid.Item full as={TicketInput} name="shard1" label="Shard 1" />
-              <Grid.Item full as={TicketInput} name="shard2" label="Shard 2" />
-              <Grid.Item full as={TicketInput} name="shard3" label="Shard 3" />
+              <Grid.Item
+                full
+                as={TicketInput}
+                name="shard1"
+                label="Shard 1"
+                type={values.showTicket ? 'text' : 'password'}
+              />
+              <Grid.Item
+                full
+                as={TicketInput}
+                name="shard2"
+                label="Shard 2"
+                type={values.showTicket ? 'text' : 'password'}
+              />
+              <Grid.Item
+                full
+                as={TicketInput}
+                name="shard3"
+                label="Shard 3"
+                type={values.showTicket ? 'text' : 'password'}
+              />
             </Condition>
+
+            <Grid.Item full as={CheckboxInput} name="showTicket" label="Show" />
 
             <Condition when="usePassphrase" is={true}>
               <Grid.Item
@@ -173,19 +196,6 @@ export default function Ticket({ className, goHome }) {
                 label="Wallet Passphrase"
               />
             </Condition>
-
-            <Grid.Item
-              full
-              as={CheckboxInput}
-              name="usePassphrase"
-              label="Passphrase"
-            />
-            <Grid.Item
-              full
-              as={CheckboxInput}
-              name="useShards"
-              label="Shards"
-            />
 
             <Grid.Item full as={FormError} />
 
@@ -197,6 +207,29 @@ export default function Ticket({ className, goHome }) {
                   ? 'Login Anyway'
                   : 'Continue'
               }
+            </Grid.Item>
+
+            <Grid.Item full as={Flex} justify="between">
+              <Flex.Item
+                as={ToggleInput}
+                name="useAdvanced"
+                label="Advanced"
+                inverseLabel="Hide"
+              />
+              <Condition when="useAdvanced" is={true}>
+                <Flex.Item as={Flex}>
+                  <Flex.Item
+                    as={CheckboxInput}
+                    name="usePassphrase"
+                    label="Passphrase"
+                  />
+                  <Flex.Item
+                    as={CheckboxInput}
+                    name="useShards"
+                    label="Shards"
+                  />
+                </Flex.Item>
+              </Condition>
             </Grid.Item>
           </>
         )}
