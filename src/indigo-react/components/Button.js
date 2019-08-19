@@ -6,7 +6,7 @@ import Flex from './Flex';
 import { HelpText } from './Typography';
 
 export default function Button({
-  as: As = 'a',
+  as: As = 'span',
   solid = false,
   success = false,
   disabled = false,
