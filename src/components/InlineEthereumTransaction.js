@@ -8,18 +8,18 @@ import {
   LinkButton,
   H5,
   Text,
-  HelpText,
 } from 'indigo-react';
 import { fromWei } from 'web3-utils';
 
 import { useExploreTxUrl } from 'lib/explorer';
 import { hexify } from 'lib/txn';
 
-import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
-import WarningBox from './WarningBox';
 import { composeValidator, buildCheckboxValidator } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
+
+import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
+import WarningBox from './WarningBox';
 import CopyButton from './CopyButton';
 
 export default function InlineEthereumTransaction({
