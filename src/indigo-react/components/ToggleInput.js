@@ -50,7 +50,7 @@ export default function ToggleInput({
         flex
         as="label"
         className={cn('f6 pv2 lh-tall us-none flex-row align-center', {
-          clickable: !disabled,
+          pointer: !disabled,
         })}
         htmlFor={name}>
         <LinkButton

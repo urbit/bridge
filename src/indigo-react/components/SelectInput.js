@@ -61,7 +61,7 @@ export default function SelectInput({
       <Flex.Item as="label" className="f6 lh-tall" htmlFor={name}>
         {label}
       </Flex.Item>
-      <Flex.Item as={Flex} row className="rel clickable" onClick={toggleOpen}>
+      <Flex.Item as={Flex} row className="rel pointer" onClick={toggleOpen}>
         <Flex.Item
           flex
           className={cn(

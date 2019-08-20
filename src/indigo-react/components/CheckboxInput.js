@@ -39,7 +39,7 @@ export default function CheckboxInput({
       <Flex.Item
         flex
         as="label"
-        className="f6 mr3 lh-tall us-none clickable flex-row align-center"
+        className="f6 mr3 lh-tall us-none pointer flex-row align-center"
         htmlFor={name}>
         <Flex
           justify="center"

@@ -24,7 +24,7 @@ export default function Accordion({
             <Grid.Item
               full
               className={cn('f5 pv3 rel', {
-                clickable: !option.disabled,
+                pointer: !option.disabled,
                 gray3: option.disabled,
               })}
               onClick={

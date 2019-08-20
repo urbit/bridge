@@ -16,7 +16,7 @@ export default function Crumbs({ className, routes = [] }) {
               as={Breadcrumb}
               onClick={route.action}
               disabled={disabled}
-              className={cn(textStyle, { 'clickable underline': !disabled })}>
+              className={cn(textStyle, { 'pointer underline': !disabled })}>
               {route.text}
             </Flex.Item>
             {i !== lastIndex && (
