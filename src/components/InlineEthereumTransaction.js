@@ -21,6 +21,7 @@ import Condition from 'form/Condition';
 import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
 import WarningBox from './WarningBox';
 import CopyButton from './CopyButton';
+import ProgressButton from './ProgressButton';
 
 export default function InlineEthereumTransaction({
   // from useEthereumTransaction.bind
@@ -42,6 +43,7 @@ export default function InlineEthereumTransaction({
   chainId,
   needFunds,
   signedTransaction,
+  confirmationProgress,
 
   // additional from parent
   label = 'Generate & Sign Transaction',
@@ -53,9 +55,9 @@ export default function InlineEthereumTransaction({
   // show configure controls pre-broadcast
   const showConfigureInput = !(signed || broadcasted || confirmed || completed);
   // show the send/loading button while signed, broadcasting, or confirme
-  const showBroadcastButton = signed || broadcasted || confirmed;
+  const showBroadcastButton = signed;
+  const showLoadingButton = broadcasted || confirmed;
   const canBroadcast = signed && !needFunds;
-  const isLoading = broadcasted || confirmed;
   // show signed tx only when signing (for offline usage)
   const showSignedTx = signed;
 
@@ -100,9 +102,18 @@ export default function InlineEthereumTransaction({
           solid
           success
           disabled={!canBroadcast}
-          loading={isLoading}
           onClick={() => broadcast()}>
           Send Transaction
+        </Grid.Item>
+      );
+    } else if (showLoadingButton) {
+      return (
+        <Grid.Item
+          full
+          as={ProgressButton}
+          disabled={true}
+          progress={confirmationProgress}>
+          Sending Transaction
         </Grid.Item>
       );
     } else {

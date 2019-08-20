@@ -15,6 +15,7 @@ export default function Button({
   className,
   accessory = '→',
   onClick,
+  background,
   children,
   ...rest
 }) {
@@ -23,7 +24,7 @@ export default function Button({
       as={As}
       gap={1}
       className={cn(
-        'pointer pv4 truncate flex-row justify-between us-none',
+        'rel pointer pv4 truncate flex-row justify-between us-none',
         {
           p4: solid,
         },
@@ -49,17 +50,18 @@ export default function Button({
       }}
       onClick={!disabled && onClick ? onClick : undefined}
       {...rest}>
-      <Grid.Item full as={Flex} justify="between">
+      {background}
+      <Grid.Item full as={Flex} justify="between" className="z2">
         <span>{children}</span>
         <div className={cn('pl4')}>{accessory}</div>
       </Grid.Item>
       {detail && (
-        <Grid.Item full as={HelpText}>
+        <Grid.Item full as={HelpText} className="z2">
           {detail}
         </Grid.Item>
       )}
       {disabled && disabledDetail && (
-        <Grid.Item full className="f6 black mt1">
+        <Grid.Item full className="f6 black mt1 z2">
           {disabledDetail}
         </Grid.Item>
       )}

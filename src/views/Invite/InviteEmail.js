@@ -41,7 +41,7 @@ import useSetState from 'lib/useSetState';
 import pluralize from 'lib/pluralize';
 import useMailer from 'lib/useMailer';
 
-import LoadableButton from 'components/LoadableButton';
+import ProgressButton from 'components/ProgressButton';
 import Highlighted from 'components/Highlighted';
 import BridgeForm from 'form/BridgeForm';
 import { Field } from 'react-final-form';
@@ -518,7 +518,7 @@ export default function InviteEmail() {
                       ) : (
                         <Grid.Item
                           full
-                          as={LoadableButton}
+                          as={ProgressButton}
                           className="mt4"
                           disabled={!canSend}
                           accessory={`${visualProgress}/${fields.length}`}

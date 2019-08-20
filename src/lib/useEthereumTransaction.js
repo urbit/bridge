@@ -17,6 +17,7 @@ import * as need from 'lib/need';
 import { ensureFundsFor } from 'lib/tank';
 import useDeepEqualReference from './useDeepEqualReference';
 import useGasPrice from './useGasPrice';
+import timeout from './timeout';
 
 const STATE = {
   NONE: 'NONE',
@@ -65,6 +66,7 @@ export default function useEthereumTransaction(
   const [signedTransaction, setSignedTransaction] = useState();
   const [txHash, setTxHash] = useState();
   const [needFunds, setNeedFunds] = useState();
+  const [confirmationProgress, setConfirmationProgress] = useState(0.0);
 
   const initializing = nonce === undefined || chainId === undefined;
   const constructed = !!unsignedTransaction;
@@ -126,6 +128,7 @@ export default function useEthereumTransaction(
 
   const broadcast = useCallback(async () => {
     try {
+      setConfirmationProgress(0.0);
       setError(undefined);
 
       const rawTx = hexify(signedTransaction.serialize());
@@ -156,7 +159,13 @@ export default function useEthereumTransaction(
       setState(STATE.BROADCASTED);
       setTxHash(txHash);
 
+      await timeout(500); // wait for .animated-width to complete
+
+      setConfirmationProgress(0.2);
+
       await waitForTransactionConfirm(_web3, txHash);
+
+      setConfirmationProgress(0.9);
 
       setState(STATE.CONFIRMED);
     } catch (error) {
@@ -181,6 +190,7 @@ export default function useEthereumTransaction(
     setState(STATE.NONE);
     setError(undefined);
     setNeedFunds(undefined);
+    setConfirmationProgress(0.0);
   }, [resetGasPrice, setError]);
 
   useEffect(() => {
@@ -236,6 +246,14 @@ export default function useEthereumTransaction(
           return;
         }
 
+        setConfirmationProgress(1.0);
+
+        await timeout(500); // wait for .animated-width to complete
+
+        if (!mounted) {
+          return;
+        }
+
         setState(STATE.COMPLETED);
       })();
     }
@@ -259,7 +277,7 @@ export default function useEthereumTransaction(
     reset,
     error,
     inputsLocked,
-    //
+    confirmationProgress,
     txHash,
     signedTransaction,
     gasPrice,

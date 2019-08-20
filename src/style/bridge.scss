@@ -66,3 +66,9 @@ input[type='range'] {
     background-color: #e6e6e6;
   }
 }
+
+// animated width
+
+.animated-width {
+  transition: width 500ms ease-out;
+}
