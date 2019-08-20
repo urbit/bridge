@@ -55,7 +55,7 @@ const ensureFundsFor = async (
 ) => {
   let balance = await web3.eth.getBalance(address);
 
-  if (cost > balance) {
+  if (web3.utils.toBN(cost).gt(web3.utils.toBN(balance))) {
     try {
       if (point !== null) {
         const fundsRemaining = await remainingTransactions(point);
@@ -97,7 +97,7 @@ const ensureFundsFor = async (
 function waitForBalance(web3, address, minBalance, askForFunding, gotFunding) {
   return retry(async (bail, n) => {
     const balance = await web3.eth.getBalance(address);
-    if (balance >= minBalance) {
+    if (web3.utils.toBN(balance).gte(web3.utils.toBN(minBalance))) {
       gotFunding && gotFunding();
       return;
     } else {
