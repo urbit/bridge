@@ -20,13 +20,14 @@ export default function ReticketDownload({ newWallet }) {
   const goVerify = useCallback(() => push(names.VERIFY), [push, names]);
 
   return (
-    <Grid gap={4} className="mt4">
+    <Grid className="mt4">
       <Grid.Item full as={Text}>
         Download the thing, and keep it somewhere safe!
       </Grid.Item>
       <Grid.Item
         full
         as={!downloaded ? DownloadButton : ForwardButton}
+        className="mt4"
         disabled={Nothing.hasInstance(newWallet)}
         onClick={!downloaded ? download : goVerify}
         success={downloaded}

@@ -123,7 +123,7 @@ export default function CreateGalaxy() {
                 <Grid.Item
                   full
                   as={Text}
-                  className={cn('f5', {
+                  className={cn('f5 wrap', {
                     green3: completed,
                   })}>
                   {values.galaxyName} has been created and can be claimed by{' '}

@@ -78,7 +78,7 @@ function Passport({ point, className, ticket = null, address = Nothing() }) {
         <MaybeSigil patp={name} size={64} />
       </Grid.Item>
       <Grid.Item as={Flex} cols={[4, 13]} col justify="between">
-        <Flex.Item className="mono white f5">{visualName}</Flex.Item>
+        <Flex.Item className="mono white f5 pb2">{visualName}</Flex.Item>
         <Flex.Item as={Flex} col>
           <Flex.Item as={Text} className="mono f6 f5-ns gray4 uppercase">
             Birth Time

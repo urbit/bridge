@@ -41,7 +41,7 @@ function _useNetwork(initialNetworkType = null) {
     switch (networkType) {
       case NETWORK_TYPES.LOCAL: {
         const protocol = isDevelopment ? 'ws' : 'wss';
-        const endpoint = `${protocol}://localhost:8545`;
+        const endpoint = `${protocol}://${document.location.hostname}:8545`;
 
         return initWeb3(
           new Web3.providers.WebsocketProvider(endpoint),

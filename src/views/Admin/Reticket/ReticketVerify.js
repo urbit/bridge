@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Text, Grid } from 'indigo-react';
+import { Text, Grid, CheckboxInput } from 'indigo-react';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import { validateExactly } from 'lib/validators';
@@ -37,7 +37,7 @@ export default function ReticketVerify({ newWallet }) {
   const goExecute = useCallback(() => push(names.EXECUTE), [push, names]);
 
   return (
-    <Grid gap={4} className="mt4">
+    <Grid className="mt4">
       <Grid.Item full as={Text}>
         Verify New Master Ticket
       </Grid.Item>
@@ -45,14 +45,18 @@ export default function ReticketVerify({ newWallet }) {
         validate={validate}
         afterSubmit={goExecute}
         initialValues={initialValues}>
-        {({ handleSubmit }) => (
+        {({ handleSubmit, values }) => (
           <>
             <Grid.Item
               full
               as={TicketInput}
+              className="mt4"
+              type={values.showTicket ? 'text' : 'password'}
               name="ticket"
               label="New master ticket"
             />
+
+            <Grid.Item full as={CheckboxInput} name="showTicket" label="Show" />
 
             <Grid.Item full as={FormError} />
 

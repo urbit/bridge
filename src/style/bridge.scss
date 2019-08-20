@@ -1,18 +1,4 @@
-@keyframes autofill {
-  to {
-    color: #000;
-    background: transparent;
-  }
-}
-
-/* avoid yellow autofill highlight on browsers that respect this attribute */
-input:-webkit-autofill {
-  animation-name: autofill;
-  animation-fill-mode: both;
-
-  -webkit-animation-name: autofill;
-  -webkit-animation-fill-mode: both;
-}
+$handle-extent: 24px; // $lh-regular
 
 // min-height the top elements so footer behavior works correctly
 html {
@@ -36,7 +22,7 @@ input[type='range'] {
 
   /* Chrome */
   &::-webkit-slider-runnable-track {
-    height: 24px;
+    height: $handle-extent;
     -webkit-appearance: none;
     background-color: #e6e6e6;
     margin-top: -1px;
@@ -44,7 +30,7 @@ input[type='range'] {
 
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 24px;
+    width: $handle-extent;
     height: 100%;
     background-color: #000;
     border: none;
@@ -63,7 +49,7 @@ input[type='range'] {
   }
 
   &::-moz-range-thumb {
-    width: 24px;
+    width: $handle-extent;
     height: 100%;
     background-color: #000;
     border: none;
