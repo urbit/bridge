@@ -111,7 +111,8 @@ export default function InlineEthereumTransaction({
         <Grid.Item
           full
           as={ProgressButton}
-          disabled={true}
+          success
+          disabled
           progress={confirmationProgress}>
           Sending Transaction
         </Grid.Item>

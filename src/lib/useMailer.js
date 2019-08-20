@@ -29,6 +29,7 @@ export default function useMailer() {
   const _sendMail = useCallback(async (email, ticket, sender, rawTx) => {
     if (STUB_MAILER) {
       console.log(`${email} - ${ticket}`);
+      await timeout(Math.random() * 1000); // simulate request with randomness
       return true;
     }
 
