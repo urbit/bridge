@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Grid, P } from 'indigo-react';
+import { Grid, P, CheckboxInput } from 'indigo-react';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -8,7 +8,11 @@ import { isDevelopment } from 'lib/flags';
 
 import SubmitButton from 'form/SubmitButton';
 import { TicketInput } from 'form/Inputs';
-import { composeValidator, buildPatqValidator } from 'form/validators';
+import {
+  composeValidator,
+  buildPatqValidator,
+  buildCheckboxValidator,
+} from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 
 import { useActivateFlow } from './ActivateFlow';
@@ -29,6 +33,7 @@ export default function PassportVerify({ className }) {
         ticket: buildPatqValidator([
           validateExactly(ticket, 'Does not match expected master ticket.'),
         ]),
+        showTicket: buildCheckboxValidator(),
       }),
     [ticket]
   );
@@ -36,6 +41,7 @@ export default function PassportVerify({ className }) {
   const initialValues = useMemo(
     () => ({
       ticket: STUB_VERIFY_TICKET ? ticket : undefined,
+      showTicket: true,
     }),
     [ticket]
   );
@@ -52,13 +58,21 @@ export default function PassportVerify({ className }) {
           validate={validate}
           afterSubmit={goToTransfer}
           initialValues={initialValues}>
-          {({ handleSubmit }) => (
+          {({ values, handleSubmit }) => (
             <>
               <Grid.Item
                 full
                 as={TicketInput}
+                type={values.showTicket ? 'text' : 'password'}
                 name="ticket"
                 label="Master Ticket"
+              />
+
+              <Grid.Item
+                full
+                as={CheckboxInput}
+                name="showTicket"
+                label="Show"
               />
 
               <Grid.Item full as={FormError} />

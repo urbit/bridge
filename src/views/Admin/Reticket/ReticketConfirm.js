@@ -65,12 +65,12 @@ export default function ReticketConfirm({ newWallet, setNewWallet }) {
   });
 
   return (
-    <Grid gap={4} className="mt4">
+    <Grid className="mt4">
       <Grid.Item full as={Text}>
         Reticketing is the process of generating a completely fresh wallet and
         transferring ownership of your point to that wallet.
       </Grid.Item>
-      <Grid.Item full as={WarningBox}>
+      <Grid.Item full as={WarningBox} className="mt4">
         Beware, this resets your proxy addresses; if you're using smart
         contracts, this might break them! It will also change your networking
         keys!
@@ -79,6 +79,7 @@ export default function ReticketConfirm({ newWallet, setNewWallet }) {
         full
         as={ForwardButton}
         solid
+        className="mt4"
         accessory={blinkIf(Nothing.hasInstance(newWallet))}
         disabled={Nothing.hasInstance(newWallet)}
         onClick={goDownload}>
