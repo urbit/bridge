@@ -7,14 +7,12 @@ export default function ProgressButton({
   as: As = Button,
   progress = 0.0,
   color = 'green4',
-  success = true,
   ...rest
 }) {
   return (
     <As
       {...rest}
       solid
-      success={success}
       accessory={blinkIf(progress < 1.0, '->')}
       background={
         <span
