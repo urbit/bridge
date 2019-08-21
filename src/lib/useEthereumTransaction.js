@@ -6,7 +6,11 @@ import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 
-import { GAS_LIMITS, DEFAULT_GAS_PRICE_GWEI } from './constants';
+import {
+  GAS_LIMITS,
+  DEFAULT_GAS_PRICE_GWEI,
+  PROGRESS_ANIMATION_DELAY_MS,
+} from './constants';
 import {
   signTransaction,
   sendSignedTransaction,
@@ -15,9 +19,9 @@ import {
 } from './txn';
 import * as need from 'lib/need';
 import { ensureFundsFor } from 'lib/tank';
-import useDeepEqualReference from './useDeepEqualReference';
-import useGasPrice from './useGasPrice';
-import timeout from './timeout';
+import useDeepEqualReference from 'lib/useDeepEqualReference';
+import useGasPrice from 'lib/useGasPrice';
+import timeout from 'lib/timeout';
 
 const STATE = {
   NONE: 'NONE',
@@ -159,7 +163,7 @@ export default function useEthereumTransaction(
       setState(STATE.BROADCASTED);
       setTxHash(txHash);
 
-      await timeout(500); // wait for .animated-width to complete
+      await timeout(PROGRESS_ANIMATION_DELAY_MS);
 
       setConfirmationProgress(0.2);
 
@@ -248,7 +252,7 @@ export default function useEthereumTransaction(
 
         setConfirmationProgress(1.0);
 
-        await timeout(500); // wait for .animated-width to complete
+        await timeout(PROGRESS_ANIMATION_DELAY_MS);
 
         if (!mounted) {
           return;
