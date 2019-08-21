@@ -2,11 +2,11 @@ import React from 'react';
 import cn from 'classnames';
 
 // progrss is [0, 1]
-export default function LoadingBar({ className, progress = 1 }) {
+export default function LoadingBar({ className, progress = 1.0 }) {
   return (
     <div className={cn('rel bg-gray2', className)} style={{ height: '4px' }}>
       <div
-        className="abs bg-green3"
+        className="abs bg-green3 animated-width"
         style={{
           top: 0,
           bottom: 0,

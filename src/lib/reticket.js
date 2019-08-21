@@ -10,7 +10,7 @@ import {
 } from './keys';
 import { addHexPrefix } from './wallet';
 import { sendAndAwaitAll } from './txn';
-import { getSuggestedGasPrice } from './useSuggestedGasPrice';
+import getSuggestedGasPrice from './getSuggestedGasPrice';
 import { GAS_LIMITS } from './constants';
 import { toWei } from 'web3-utils';
 

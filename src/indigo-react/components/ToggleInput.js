@@ -10,6 +10,7 @@ export default function ToggleInput({
   name,
   label,
   inverseLabel,
+  inverseColor = 'black',
   className,
 
   //
@@ -49,10 +50,15 @@ export default function ToggleInput({
         flex
         as="label"
         className={cn('f6 pv2 lh-tall us-none flex-row align-center', {
-          clickable: !disabled,
+          pointer: !disabled,
         })}
         htmlFor={name}>
-        <LinkButton disabled={disabled} className="f5">
+        <LinkButton
+          disabled={disabled}
+          className={cn('f5', {
+            black: !input.checked,
+            [inverseColor]: input.checked,
+          })}>
           {input.checked ? inverseLabel : label}
         </LinkButton>
       </Flex.Item>

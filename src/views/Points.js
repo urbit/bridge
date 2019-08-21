@@ -46,7 +46,7 @@ const PointList = function({ points, className, actions, ...rest }) {
           <Flex col>
             <Passport.Mini
               point={point}
-              className="clickable"
+              className="pointer"
               onClick={() => {
                 setPointCursor(Just(point));
                 push(names.POINT);

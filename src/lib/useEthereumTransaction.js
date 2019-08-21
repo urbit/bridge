@@ -1,22 +1,27 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Just } from 'folktale/maybe';
-import { fromWei, toWei } from 'web3-utils';
+import { toWei } from 'web3-utils';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
-import { useSuggestedGasPrice } from 'lib/useSuggestedGasPrice';
 
-import { GAS_LIMITS } from './constants';
+import {
+  GAS_LIMITS,
+  DEFAULT_GAS_PRICE_GWEI,
+  PROGRESS_ANIMATION_DELAY_MS,
+} from './constants';
 import {
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,
   hexify,
 } from './txn';
-import * as need from './need';
-import { ensureFundsFor } from './tank';
-import useDeepEqualReference from './useDeepEqualReference';
+import * as need from 'lib/need';
+import { ensureFundsFor } from 'lib/tank';
+import useDeepEqualReference from 'lib/useDeepEqualReference';
+import useGasPrice from 'lib/useGasPrice';
+import timeout from 'lib/timeout';
 
 const STATE = {
   NONE: 'NONE',
@@ -37,7 +42,7 @@ export default function useEthereumTransaction(
   transactionBuilder,
   refetch,
   initialGasLimit = GAS_LIMITS.DEFAULT,
-  initialGasPrice = 20
+  initialGasPrice = DEFAULT_GAS_PRICE_GWEI
 ) {
   const { wallet, walletType, walletHdPath } = useWallet();
   const { web3, networkType } = useNetwork();
@@ -59,14 +64,13 @@ export default function useEthereumTransaction(
   const [state, setState] = useState(STATE.NONE);
   const [chainId, setChainId] = useState();
   const [nonce, setNonce] = useState();
-  const [gasPrice, setGasPrice] = useState(initialGasPrice); // gwei
-  const [suggestedGasPrice, setSuggestedGasPrice] = useState(gasPrice); // gwei
-  const { gasPrice: estimatedGasPrice } = useSuggestedGasPrice();
+  const { gasPrice, setGasPrice, resetGasPrice } = useGasPrice(initialGasPrice);
   const [gasLimit] = useState(initialGasLimit);
   const [unsignedTransaction, setUnsignedTransaction] = useState();
   const [signedTransaction, setSignedTransaction] = useState();
   const [txHash, setTxHash] = useState();
   const [needFunds, setNeedFunds] = useState();
+  const [confirmationProgress, setConfirmationProgress] = useState(0.0);
 
   const initializing = nonce === undefined || chainId === undefined;
   const constructed = !!unsignedTransaction;
@@ -128,6 +132,7 @@ export default function useEthereumTransaction(
 
   const broadcast = useCallback(async () => {
     try {
+      setConfirmationProgress(0.0);
       setError(undefined);
 
       const rawTx = hexify(signedTransaction.serialize());
@@ -158,7 +163,13 @@ export default function useEthereumTransaction(
       setState(STATE.BROADCASTED);
       setTxHash(txHash);
 
+      await timeout(PROGRESS_ANIMATION_DELAY_MS);
+
+      setConfirmationProgress(0.2);
+
       await waitForTransactionConfirm(_web3, txHash);
+
+      setConfirmationProgress(0.9);
 
       setState(STATE.CONFIRMED);
     } catch (error) {
@@ -179,25 +190,12 @@ export default function useEthereumTransaction(
     setSignedTransaction(undefined);
     setNonce(undefined);
     setChainId(undefined);
-    setGasPrice(suggestedGasPrice);
+    resetGasPrice();
     setState(STATE.NONE);
     setError(undefined);
     setNeedFunds(undefined);
-  }, [suggestedGasPrice, setError]);
-
-  const resetGasPrice = useCallback(() => setGasPrice(suggestedGasPrice), [
-    setGasPrice,
-    suggestedGasPrice,
-  ]);
-
-  useEffect(() => {
-    const gasPrice = parseInt(
-      fromWei(estimatedGasPrice.toString(), 'gwei'),
-      10
-    );
-    setSuggestedGasPrice(gasPrice);
-    setGasPrice(gasPrice);
-  }, [estimatedGasPrice]);
+    setConfirmationProgress(0.0);
+  }, [resetGasPrice, setError]);
 
   useEffect(() => {
     let mounted = true;
@@ -226,15 +224,7 @@ export default function useEthereumTransaction(
     })();
 
     return () => (mounted = false);
-  }, [
-    _wallet,
-    _web3,
-    setError,
-    nonce,
-    chainId,
-    networkType,
-    estimatedGasPrice,
-  ]);
+  }, [_wallet, _web3, setError, nonce, chainId, networkType, initialGasPrice]);
 
   useEffect(() => {
     let mounted = true;
@@ -255,6 +245,14 @@ export default function useEthereumTransaction(
             );
           }
         }
+
+        if (!mounted) {
+          return;
+        }
+
+        setConfirmationProgress(1.0);
+
+        await timeout(PROGRESS_ANIMATION_DELAY_MS);
 
         if (!mounted) {
           return;
@@ -283,7 +281,7 @@ export default function useEthereumTransaction(
     reset,
     error,
     inputsLocked,
-    //
+    confirmationProgress,
     txHash,
     signedTransaction,
     gasPrice,

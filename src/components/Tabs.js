@@ -25,7 +25,7 @@ export default function Tabs({
                 key={option.value}
                 onClick={() => onTabChange(option.value)}
                 className={cn(
-                  'f5 pv3 clickable nowrap',
+                  'f5 pv3 pointer nowrap',
                   {
                     'black b-black bb1': isActive,
                     gray3: !isActive,

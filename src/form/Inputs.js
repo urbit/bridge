@@ -16,9 +16,8 @@ const PLACEHOLDER_HD_PATH = DEFAULT_HD_PATH;
 const PLACEHOLDER_MNEMONIC =
   'example crew supreme gesture quantum web media hazard theory mercy wing kitten';
 const PLACEHOLDER_TICKET = '~sampel-ticlyt-migfun-falmel';
-const PLACEHOLDER_ADDRESS = '0x12345abcdeDB11D175F123F6891AA64F01c24F7d';
-const PLACEHOLDER_PRIVATE_KEY =
-  '0x12345abcdee6beb2f323fab48b432925c9785808d33a6ca6d7ba00b45e9370c3';
+const PLACEHOLDER_ADDRESS = '0x';
+const PLACEHOLDER_PRIVATE_KEY = '0x';
 const PLACEHOLDER_EMAIL = 'email@example.com';
 
 const formatPat = buildFormatter([downcase, ensurePatFormat]);
