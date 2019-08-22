@@ -21,6 +21,10 @@ const trezorSignTransaction = async (txn, hdpath) => {
     transaction: trezorFormattedTxn,
   });
 
+  if (!sig.success) {
+    throw new Error(sig.payload.error);
+  }
+
   const payload = sig.payload;
 
   txn.v = Buffer.from(payload.v.slice(2), 'hex');
