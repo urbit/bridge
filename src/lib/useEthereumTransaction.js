@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Just } from 'folktale/maybe';
-import { toWei } from 'web3-utils';
+import { toWei, toBN } from 'web3-utils';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
@@ -136,7 +136,7 @@ export default function useEthereumTransaction(
       setError(undefined);
 
       const rawTx = hexify(signedTransaction.serialize());
-      const cost = toWei(gasPrice.toFixed(0), 'gwei') * gasLimit;
+      const cost = toWei(toBN(gasLimit).mul(toBN(gasPrice)), 'gwei');
 
       let usedTank = false;
       // if this ethereum transaction is being executed by a specific point
