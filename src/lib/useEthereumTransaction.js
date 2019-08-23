@@ -136,7 +136,8 @@ export default function useEthereumTransaction(
       setError(undefined);
 
       const rawTx = hexify(signedTransaction.serialize());
-      const cost = toWei(toBN(gasLimit).mul(toBN(gasPrice)), 'gwei');
+      const costGwei = toBN(gasLimit).mul(toBN(gasPrice));
+      const cost = toWei(costGwei.toString(), 'gwei');
 
       let usedTank = false;
       // if this ethereum transaction is being executed by a specific point

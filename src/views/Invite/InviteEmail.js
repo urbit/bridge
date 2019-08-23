@@ -304,16 +304,14 @@ export default function InviteEmail() {
     }
 
     setStatus(STATUS.FUNDING);
+    const totalCost = toBN(GAS_LIMIT)
+      .mul(toBN(gasPrice))
+      .mul(toBN(emails.length));
     const tankWasUsed = await tank.ensureFundsFor(
       _web3,
       point,
       _wallet.address,
-      toWei(
-        toBN(GAS_LIMIT)
-          .mul(toBN(gasPrice))
-          .mul(toBN(emails.length)),
-        'gwei'
-      ),
+      toWei(totalCost.toString(), 'gwei'),
       names.map(name => invites[name].rawTx),
       (address, minBalance, balance) =>
         setNeedFunds({ address, minBalance, balance }),
