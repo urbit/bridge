@@ -42,7 +42,7 @@ export default function Trezor({ className, goHome }) {
       composeValidator({
         useCustomPath: buildCheckboxValidator(),
         account: buildSelectValidator(ACCOUNT_OPTIONS),
-        hdpath: buildHdPathValidator(),
+        hdPath: buildHdPathValidator(),
       }),
     []
   );
@@ -55,7 +55,7 @@ export default function Trezor({ className, goHome }) {
       });
 
       const { success, payload } = await TrezorConnect.getPublicKey({
-        path: values.hdpath,
+        path: values.hdPath,
       });
 
       if (!success) {
@@ -79,14 +79,14 @@ export default function Trezor({ className, goHome }) {
     }
 
     if (!values.useCustomPath) {
-      form.change('hdpath', TREZOR_PATH.replace(/x/g, values.account));
+      form.change('hdPath', TREZOR_PATH.replace(/x/g, values.account));
     }
   }, []);
 
   const initialValues = useMemo(
     () => ({
       useCustomPath: false,
-      hdpath: TREZOR_PATH.replace(/x/g, ACCOUNT_OPTIONS[0].value),
+      hdPath: TREZOR_PATH.replace(/x/g, ACCOUNT_OPTIONS[0].value),
       account: ACCOUNT_OPTIONS[0].value,
     }),
     []
@@ -112,7 +112,7 @@ export default function Trezor({ className, goHome }) {
         {({ handleSubmit }) => (
           <>
             <Condition when="useCustomPath" is={true}>
-              <Grid.Item full as={HdPathInput} name="hdpath" label="HD Path" />
+              <Grid.Item full as={HdPathInput} name="hdPath" label="HD Path" />
             </Condition>
 
             <Condition when="useCustomPath" is={false}>
