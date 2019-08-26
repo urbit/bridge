@@ -62,8 +62,7 @@ export default function ActivateDisclaimer() {
             2. JSON files <br />
             3. Hardware wallet PINs; <br />
             4. Downloading this software from a reliable site, and ensuring it
-            has not been tampered with. [add something about using the checksum
-            here]
+            has not been tampered with.
           </Text>
 
           <B className={TEXT_STYLE}>To be clear</B>
