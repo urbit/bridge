@@ -13,8 +13,13 @@ import {
   validateGreaterThan,
   validateEmail,
   validateNotNullAddress,
+  validateHexPrefix,
+  validateLength,
 } from 'lib/validators';
 import isPromise from 'lib/isPromise';
+
+const PRIVATE_KEY_CHAR_LENGTH = 64; // 64 hex characters
+const ADDRESS_CHAR_LENGTH = 40; // 40 hex characters
 
 // iterate over validators, exiting early if there's an error
 const buildValidator = (validators = [], validate) => value => {
@@ -75,15 +80,23 @@ export const buildSelectValidator = options =>
 export const buildHexValidator = length =>
   buildValidator([
     validateNotEmpty,
+    validateHexPrefix,
     validateHexString,
     validateHexLength(length),
+  ]);
+export const buildPrivateKeyValidator = () =>
+  buildValidator([
+    validateNotEmpty,
+    validateHexString,
+    validateLength(PRIVATE_KEY_CHAR_LENGTH),
   ]);
 export const buildUploadValidator = () => buildValidator([validateNotEmpty]);
 export const buildAddressValidator = () =>
   buildValidator([
     validateNotEmpty,
+    validateHexPrefix,
     validateHexString,
-    validateHexLength(40),
+    validateHexLength(ADDRESS_CHAR_LENGTH),
     validateNotNullAddress,
     validateEthereumAddress,
   ]);
