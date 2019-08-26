@@ -135,6 +135,7 @@ export default function InviteEmail() {
   const canInput = status === STATUS.INPUT;
   const isGenerating = status === STATUS.GENERATING;
   const canSend = status === STATUS.CAN_SEND;
+  const isFunding = status === STATUS.FUNDING;
   const isSending = status === STATUS.SENDING;
   const isFailed = status === STATUS.FAILURE;
   const isDone = status === STATUS.SUCCESS;
@@ -471,6 +472,21 @@ export default function InviteEmail() {
           success
           accessory={`${visualProgress}/${fields.length}`}
           onClick={doSend}>
+          {buttonText(status, fields.length)}
+        </Grid.Item>
+      );
+    }
+
+    if (isFunding) {
+      return (
+        <Grid.Item
+          full
+          as={ForwardButton}
+          className="mt4"
+          solid
+          success
+          disabled
+          accessory={`${visualProgress}/${fields.length}`}>
           {buttonText(status, fields.length)}
         </Grid.Item>
       );
