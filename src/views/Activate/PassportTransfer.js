@@ -22,6 +22,7 @@ import { RestartButton } from 'components/Buttons';
 
 import { useActivateFlow } from './ActivateFlow';
 import PassportView from './PassportView';
+import CopiableAddress from 'components/CopiableAddress';
 
 const labelForProgress = progress => {
   if (progress <= 0) {
@@ -163,8 +164,8 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
       return (
         <Grid.Item full className="mt8">
           <Highlighted warning>
-            The address {needFunds.address} needs at least{' '}
-            {fromWei(needFunds.minBalance)} ETH and currently has{' '}
+            The address <CopiableAddress>{needFunds.address}</CopiableAddress>{' '}
+            needs at least {fromWei(needFunds.minBalance)} ETH and currently has{' '}
             {fromWei(needFunds.balance)} ETH. Waiting until the account has
             enough funds.
           </Highlighted>

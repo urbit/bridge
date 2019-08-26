@@ -6,13 +6,14 @@ import Flex from './Flex';
 import { HelpText } from './Typography';
 
 export default function Button({
-  as: As = 'a',
+  as: As = 'span',
   solid = false,
   success = false,
   disabled = false,
   disabledDetail,
   detail,
   className,
+  detailClassName,
   accessory = '→',
   onClick,
   background,
@@ -56,7 +57,7 @@ export default function Button({
         <div className={cn('pl4')}>{accessory}</div>
       </Grid.Item>
       {detail && (
-        <Grid.Item full as={HelpText} className="z2">
+        <Grid.Item full as={HelpText} className={cn('z2', detailClassName)}>
           {detail}
         </Grid.Item>
       )}

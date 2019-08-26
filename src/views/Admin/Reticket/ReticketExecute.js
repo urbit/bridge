@@ -21,6 +21,7 @@ import WarningBox from 'components/WarningBox';
 import LoadingBar from 'components/LoadingBar';
 import Highlighted from 'components/Highlighted';
 import { WALLET_TYPES } from 'lib/wallet';
+import CopiableAddress from 'components/CopiableAddress';
 
 const labelForProgress = progress => {
   if (progress <= 0) {
@@ -129,8 +130,8 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
       return (
         <Grid.Item full className="mt4">
           <Highlighted warning>
-            The address {needFunds.address} needs at least{' '}
-            {fromWei(needFunds.minBalance)} ETH and currently has{' '}
+            The address <CopiableAddress>{needFunds.address}</CopiableAddress>{' '}
+            needs at least {fromWei(needFunds.minBalance)} ETH and currently has{' '}
             {fromWei(needFunds.balance)} ETH. Waiting until the account has
             enough funds.
           </Highlighted>

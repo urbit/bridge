@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid } from 'indigo-react';
+import { Grid, LinkButton } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
 
 import { useNetwork } from 'store/network';
@@ -18,6 +18,7 @@ import useCurrentPermissions from 'lib/useCurrentPermissions';
 import ViewHeader from 'components/ViewHeader';
 import { ForwardButton } from 'components/Buttons';
 import { matchBlinkyDate } from 'components/Blinky';
+import CopyButton from 'components/CopyButton';
 
 export default function AdminEditPermissions() {
   const { push, names } = useLocalRouter();
@@ -55,13 +56,15 @@ export default function AdminEditPermissions() {
 
     return (
       <>
-        <Grid.Item full>
-          <ForwardButton
-            disabled={!isOwner}
-            onClick={() => goSetProxy(proxyType)}
-            detail={address}>
-            {capitalize(proxyTypeToHuman(proxyType))} Proxy Address
-          </ForwardButton>
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!isOwner}
+          onClick={() => goSetProxy(proxyType)}
+          detail={address}
+          detailClassName="mono"
+          accessory={<LinkButton>Edit</LinkButton>}>
+          {capitalize(proxyTypeToHuman(proxyType))} Proxy Address
         </Grid.Item>
         <Grid.Divider />
       </>
@@ -95,7 +98,12 @@ export default function AdminEditPermissions() {
         Permissions
       </Grid.Item>
 
-      <Grid.Item full as={ForwardButton} detail={details.owner} disabled>
+      <Grid.Item
+        full
+        as={ForwardButton}
+        detail={details.owner}
+        detailClassName="mono"
+        accessory={<CopyButton text={details.owner} />}>
         Ownership Address
       </Grid.Item>
       <Grid.Divider />
@@ -111,7 +119,8 @@ export default function AdminEditPermissions() {
         as={ForwardButton}
         disabled={!canManage}
         onClick={goNetworkingKeys}
-        detail={renderNetworkKeysDetail()}>
+        detail={renderNetworkKeysDetail()}
+        accessory={<LinkButton>View</LinkButton>}>
         Networking Keys
       </Grid.Item>
       <Grid.Divider />

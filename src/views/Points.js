@@ -12,12 +12,13 @@ import * as need from 'lib/need';
 import { isZeroAddress, abbreviateAddress } from 'lib/wallet';
 import useIsEclipticOwner from 'lib/useIsEclipticOwner';
 import { useSyncKnownPoints } from 'lib/useSyncPoints';
+import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
+import pluralize from 'lib/pluralize';
+import useCopiable from 'lib/useCopiable';
 
 import View from 'components/View';
 import Blinky from 'components/Blinky';
 import Passport from 'components/Passport';
-import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
-import pluralize from 'lib/pluralize';
 import Footer from 'components/Footer';
 import { ForwardButton } from 'components/Buttons';
 
@@ -162,6 +163,7 @@ export default function Points() {
   ]);
 
   const address = need.addressFromWallet(wallet);
+  const [doCopy, didCopy] = useCopiable(address);
 
   const loading = Nothing.hasInstance(controlledPoints);
 
@@ -208,8 +210,12 @@ export default function Points() {
   return (
     <View pop={pop} inset>
       <Grid>
-        <Grid.Item full as={H1} className="f6 mono gray4 mb4">
-          {abbreviateAddress(address)}
+        <Grid.Item
+          full
+          as={H1}
+          className="f6 mono gray4 mb4 us-none clickable"
+          onClick={doCopy}>
+          {`${abbreviateAddress(address)}${didCopy ? ' (copied!)' : ''}`}
         </Grid.Item>
 
         {loading && (
