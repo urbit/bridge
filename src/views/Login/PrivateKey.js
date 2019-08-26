@@ -9,8 +9,8 @@ import useLoginView from 'lib/useLoginView';
 
 import FormError from 'form/FormError';
 import BridgeForm from 'form/BridgeForm';
-import { HexInput } from 'form/Inputs';
-import { buildHexValidator, composeValidator } from 'form/validators';
+import { PrivateKeyInput } from 'form/Inputs';
+import { composeValidator, buildPrivateKeyValidator } from 'form/validators';
 
 import SubmitButton from 'form/SubmitButton';
 
@@ -22,7 +22,7 @@ export default function PrivateKey({ className, goHome }) {
   const validate = useMemo(
     () =>
       composeValidator({
-        privateKey: buildHexValidator(64),
+        privateKey: buildPrivateKeyValidator(64),
       }),
     []
   );
@@ -47,7 +47,7 @@ export default function PrivateKey({ className, goHome }) {
           <>
             <Grid.Item
               full
-              as={HexInput}
+              as={PrivateKeyInput}
               name="privateKey"
               label="Private key"
             />
