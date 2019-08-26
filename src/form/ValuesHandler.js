@@ -6,12 +6,13 @@ import { useForm } from 'react-final-form';
  */
 export default function ValuesHandler({ valid, validating, values, onValues }) {
   const form = useForm();
+  const validationPaused = form.isValidationPaused();
 
   useEffect(() => {
-    if (!validating && !form.isValidationPaused()) {
+    if (!validating && !validationPaused) {
       onValues && onValues({ valid, values, form });
     }
-  }, [form, onValues, valid, validating, values]);
+  }, [form, onValues, valid, validating, validationPaused, values]);
 
   return null;
 }

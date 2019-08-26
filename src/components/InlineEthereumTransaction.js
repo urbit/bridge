@@ -140,7 +140,7 @@ export default function InlineEthereumTransaction({
   return (
     <Grid className={cn(className, 'mt1')}>
       <BridgeForm validate={validate} onValues={onValues}>
-        {({ handleSubmit }) => (
+        {() => (
           <>
             {renderPrimarySection()}
 
