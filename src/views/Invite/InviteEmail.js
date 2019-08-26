@@ -18,7 +18,7 @@ import {
   AccessoryIcon,
 } from 'indigo-react';
 import { uniq } from 'lodash';
-import { fromWei, toWei } from 'web3-utils';
+import { fromWei, toWei, toBN } from 'web3-utils';
 import { FieldArray } from 'react-final-form-arrays';
 
 import { usePointCursor } from 'store/pointCursor';
@@ -306,11 +306,14 @@ export default function InviteEmail() {
     }
 
     setStatus(STATUS.FUNDING);
+    const totalCost = toBN(GAS_LIMIT)
+      .mul(toBN(gasPrice))
+      .mul(toBN(emails.length));
     const tankWasUsed = await tank.ensureFundsFor(
       _web3,
       point,
       _wallet.address,
-      toWei((gasPrice * GAS_LIMIT * emails.length).toFixed(), 'gwei'),
+      toWei(totalCost.toString(), 'gwei'),
       names.map(name => invites[name].rawTx),
       (address, minBalance, balance) =>
         setNeedFunds({ address, minBalance, balance }),

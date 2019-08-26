@@ -1,6 +1,7 @@
 // /lib/tank: functions for funding transactions
 
 import retry from 'async-retry';
+import { toBN } from 'web3-utils';
 import { RETRY_OPTIONS, waitForTransactionConfirm } from './txn';
 
 //NOTE if accessing this in a localhost configuration fails with "CORS request
@@ -53,9 +54,10 @@ const ensureFundsFor = async (
   askForFunding,
   gotFunding
 ) => {
-  let balance = await web3.eth.getBalance(address);
+  let balance = toBN(await web3.eth.getBalance(address));
+  cost = toBN(cost);
 
-  if (cost > balance) {
+  if (cost.gt(balance)) {
     try {
       if (point !== null) {
         const fundsRemaining = await remainingTransactions(point);
@@ -77,36 +79,42 @@ const ensureFundsFor = async (
         let newBalance = await web3.eth.getBalance(address);
         console.log(
           'tank: funds have confirmed',
-          balance >= cost,
-          balance,
+          balance.toString(),
           newBalance
         );
         return true;
       }
     } catch (e) {
       console.log('tank: funding failed', e);
-      await waitForBalance(web3, address, cost, askForFunding, gotFunding);
+      await waitForBalance(
+        web3,
+        address,
+        cost.toString(),
+        askForFunding,
+        gotFunding
+      );
     }
   } else {
-    console.log('tank: already have sufficient funds', cost, address, balance);
+    console.log(
+      'tank: already have sufficient funds',
+      cost.toString(),
+      address,
+      balance.toString()
+    );
   }
   return false;
 };
 
 // returns a promise that resolves when address has at least minBalance
 function waitForBalance(web3, address, minBalance, askForFunding, gotFunding) {
+  minBalance = toBN(minBalance);
   return retry(async (bail, n) => {
-    const balance = await web3.eth.getBalance(address);
-    if (balance >= minBalance) {
+    const balance = toBN(await web3.eth.getBalance(address));
+    if (balance.gte(minBalance)) {
       gotFunding && gotFunding();
       return;
     } else {
-      // TODO: minBalance is a `number` type
-      // but we want to display ETH, which will never accept a number
-      // but instead wants string or BN/BigNumber.
-      // this will be heavily refactored to correctly do BN math, but until
-      // then we'll manually convert this number to an integer string
-      askForFunding(address, minBalance.toFixed(), balance);
+      askForFunding(address, minBalance, balance);
       throw new Error('retrying');
     }
   }, RETRY_OPTIONS);
