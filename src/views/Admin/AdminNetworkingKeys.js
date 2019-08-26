@@ -332,7 +332,7 @@ export default function AdminNetworkingKeys() {
             validate={validate}
             onValues={onValues}
             initialValues={initialValues}>
-            {({ handleSubmit }) => (
+            {() => (
               <>
                 <Grid.Item
                   full
