@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 
 export default function WithTooltip({ content, children }) {
-  const [isHovered, setHovered] = useState(true);
+  const [isHovered, setHovered] = useState(false);
   const onMouseEnter = useCallback(() => setHovered(true), []);
   const onMouseLeave = useCallback(() => setHovered(false), []);
 
