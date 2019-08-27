@@ -29,7 +29,7 @@ export default function ReticketVerify({ newWallet }) {
 
   const initialValues = useMemo(
     () => ({
-      ticket: STUB_VERIFY_TICKET ? ticket : 'undefined',
+      ticket: STUB_VERIFY_TICKET ? ticket : undefined,
     }),
     [ticket]
   );
