@@ -2,8 +2,8 @@ import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
 import { Grid, H3, B, Text, CheckboxInput } from 'indigo-react';
 
-import { useHistory } from 'store/history';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
+import { useLocalRouter } from 'lib/LocalRouter';
 
 import View from 'components/View';
 import WarningBox from 'components/WarningBox';
@@ -14,7 +14,7 @@ import { composeValidator, buildCheckboxValidator } from 'form/validators';
 const TEXT_STYLE = 'f5';
 
 export default function ActivateDisclaimer() {
-  const { pop } = useHistory();
+  const { pop, popAndPush, data } = useLocalRouter();
   const [, setHasDisclaimed] = useHasDisclaimed();
 
   const validate = useMemo(
@@ -24,10 +24,14 @@ export default function ActivateDisclaimer() {
 
   const initialValues = useMemo(() => ({ checkbox: false }), []);
 
-  const goBack = useCallback(async () => {
+  const goNext = useCallback(async () => {
     setHasDisclaimed(true);
-    pop();
-  }, [pop, setHasDisclaimed]);
+    if (data.next) {
+      popAndPush(data.next);
+    } else {
+      pop();
+    }
+  }, [data, pop, popAndPush, setHasDisclaimed]);
 
   return (
     <View>
@@ -81,7 +85,7 @@ export default function ActivateDisclaimer() {
         </Grid.Item>
         <BridgeForm
           validate={validate}
-          afterSubmit={goBack}
+          afterSubmit={goNext}
           initialValues={initialValues}>
           {({ handleSubmit }) => (
             <>
