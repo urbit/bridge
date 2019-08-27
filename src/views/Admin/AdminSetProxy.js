@@ -29,6 +29,7 @@ import {
 } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
+import CopiableAddress from 'components/CopiableAddress';
 
 const proxyFromDetails = (details, contracts, proxyType) => {
   switch (proxyType) {
@@ -191,7 +192,11 @@ export default function AdminSetProxy() {
                   gray4: !completed && !isProxySet,
                   green3: completed,
                 })}>
-                {isProxySet ? proxyAddress : 'Unset'}
+                {isProxySet ? (
+                  <CopiableAddress>{proxyAddress}</CopiableAddress>
+                ) : (
+                  'Unset'
+                )}
               </Flex.Item>
               {!completed && isProxySet && (
                 <Flex.Item
