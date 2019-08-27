@@ -1,9 +1,11 @@
 import TrezorConnect from 'trezor-connect';
+import convertToInt from './convertToInt';
 
 const TREZOR_PATH = "m/44'/60'/0'/0/x";
 
+// handles 0x-prefixed hex string as well as number type
 const formatChainId = val =>
-  typeof val === 'number' ? val : parseInt(val.slice(2), 16); // assume 0x-prefixed hex string
+  typeof val === 'number' ? val : convertToInt(val.slice(2), 16);
 
 const trezorSignTransaction = async (txn, hdpath) => {
   const trezorFormattedTxn = {

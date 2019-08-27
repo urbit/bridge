@@ -29,6 +29,7 @@ import {
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 import CopiableAddress from 'components/CopiableAddress';
+import convertToInt from 'lib/convertToInt';
 
 function useIssueChild() {
   const { contracts } = useNetwork();
@@ -60,7 +61,7 @@ export default function IssueChild() {
   const { pointCursor } = usePointCursor();
 
   const _contracts = need.contracts(contracts);
-  const _point = parseInt(need.point(pointCursor), 10);
+  const _point = convertToInt(need.point(pointCursor), 10);
 
   const availablePointsPromise = useConstant(() =>
     azimuth.azimuth

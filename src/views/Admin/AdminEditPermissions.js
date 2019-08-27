@@ -19,6 +19,7 @@ import ViewHeader from 'components/ViewHeader';
 import { ForwardButton } from 'components/Buttons';
 import { matchBlinkyDate } from 'components/Blinky';
 import CopyButton from 'components/CopyButton';
+import convertToInt from 'lib/convertToInt';
 
 export default function AdminEditPermissions() {
   const { push, names } = useLocalRouter();
@@ -34,7 +35,7 @@ export default function AdminEditPermissions() {
   const isSenate = pointSize === azimuth.PointSize.Galaxy;
 
   const details = need.details(getDetails(point));
-  const networkRevision = parseInt(details.keyRevisionNumber, 10);
+  const networkRevision = convertToInt(details.keyRevisionNumber, 10);
   const { canManage, isOwner } = useCurrentPermissions();
 
   const goSetProxy = useCallback(

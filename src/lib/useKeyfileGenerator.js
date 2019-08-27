@@ -16,6 +16,7 @@ import {
   compileNetworkingKey,
 } from './keys';
 import useCurrentPermissions from './useCurrentPermissions';
+import convertToInt from './convertToInt';
 
 export default function useKeyfileGenerator(manualNetworkSeed) {
   const { urbitWallet, wallet, authMnemonic } = useWallet();
@@ -30,7 +31,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
   const _point = need.point(pointCursor);
   const _details = need.details(getDetails(_point));
 
-  const networkRevision = parseInt(_details.keyRevisionNumber, 10);
+  const networkRevision = convertToInt(_details.keyRevisionNumber, 10);
   const { isOwner, isManagementProxy } = useCurrentPermissions();
 
   const hasNetworkingKeys = networkRevision > 0;
