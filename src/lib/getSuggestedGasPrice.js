@@ -22,7 +22,7 @@ export default async function getSuggestedGasPrice(networkType) {
 
         // ethgasstation returns values in floating point, one order of magitude
         // more than gwei. see: https://docs.ethgasstation.info
-        const suggestedGasPrice = json.fast / 10; // to gwei
+        const suggestedGasPrice = Math.ceil(json.fast / 10); // to gwei
 
         // we don't want to charge users more than our default 20 gwei
         return Math.min(suggestedGasPrice, DEFAULT_GAS_PRICE_GWEI);
