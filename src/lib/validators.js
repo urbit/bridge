@@ -14,8 +14,11 @@ import { MIN_GALAXY, MAX_GALAXY } from './constants';
 // via: https://emailregex.com/
 const emailRegExp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-// is this only hex values with a 0x prefix?
-const isHexString = /0x[0-9A-Fa-f]/;
+// validate only strings that use hex characters
+const isHexString = /[0-9A-Fa-f]/;
+
+// validate only strings that are prefixed with 0x
+const isHexPrefixed = /^0x/;
 
 // Validates a bip39 mnemonic
 export const validateMnemonic = v =>
@@ -63,6 +66,9 @@ export const validateOneOf = (options = []) => v =>
 
 export const validateHexString = v =>
   !isHexString.test(v) && 'This is not a valid hex string.';
+
+export const validateHexPrefix = v =>
+  !isHexPrefixed.test(v) && 'Must include 0x prefix.';
 
 export const validateEthereumAddress = v =>
   !isValidAddress(v) && 'This is not a valid Ethereum address.';

@@ -7,6 +7,8 @@ import {
   buildFormatter,
   downcase,
   ensurePatFormat,
+  stripHexPrefix,
+  ensureHexPrefix,
 } from 'form/formatters';
 import { DEFAULT_HD_PATH } from 'lib/wallet';
 import InputSigil from 'components/InputSigil';
@@ -17,7 +19,9 @@ const PLACEHOLDER_MNEMONIC =
   'example crew supreme gesture quantum web media hazard theory mercy wing kitten';
 const PLACEHOLDER_TICKET = '~sampel-ticlyt-migfun-falmel';
 const PLACEHOLDER_ADDRESS = '0x';
-const PLACEHOLDER_PRIVATE_KEY = '0x';
+const PLACEHOLDER_HEX = '0x';
+const PLACEHOLDER_PRIVATE_KEY =
+  'a44de2416ee6beb2f323fab48b432925c9785808d33a6ca6d7ba00b45e9370c3';
 const PLACEHOLDER_EMAIL = 'email@example.com';
 
 const formatPat = buildFormatter([downcase, ensurePatFormat]);
@@ -136,11 +140,23 @@ export function HexInput({ ...rest }) {
   return (
     <Input
       type="text"
-      placeholder={PLACEHOLDER_PRIVATE_KEY}
+      placeholder={PLACEHOLDER_HEX}
       autoCapitalize="none"
       autoComplete="off"
       autoCorrect="off"
       mono
+      config={{ parse: ensureHexPrefix }}
+      {...rest}
+    />
+  );
+}
+
+export function PrivateKeyInput({ ...rest }) {
+  return (
+    <HexInput
+      type="password"
+      placeholder={PLACEHOLDER_PRIVATE_KEY}
+      config={{ parse: stripHexPrefix }}
       {...rest}
     />
   );

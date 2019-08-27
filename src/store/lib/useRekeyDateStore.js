@@ -44,17 +44,28 @@ export default function useRekeyDateStore() {
         },
       });
 
-      if (logs.length === 0) {
-        //TODO: better encoding for "no rekeyDate" state?
-        addToRekeyDateCache({
-          [point]: Just(Result.Error('No rekey date available.')),
-        });
-      } else {
+      // NB(shrugs) using try-catch here to simplify our error handling
+      try {
+        if (logs.length === 0) {
+          throw new Error('No logs available.');
+        }
+
         // last log is most recent
         const blockNumber = logs[logs.length - 1].blockNumber;
+        if (blockNumber === null) {
+          // the "latest" parameter includes pending blocks,
+          // which won't have a blockNumber just yet
+          throw new Error('Latest rekey is still pending');
+        }
+
         const block = await _web3.eth.getBlock(blockNumber);
         addToRekeyDateCache({
           [point]: Just(Result.Ok(new Date(block.timestamp * 1000))),
+        });
+      } catch {
+        //TODO: better encoding for "no rekeyDate" state?
+        addToRekeyDateCache({
+          [point]: Just(Result.Error('No rekey date available.')),
         });
       }
     },

@@ -1,5 +1,6 @@
 import { compose, strSplice } from 'lib/lib';
 
+const HEX_PREFIX = '0x';
 const TICKET_MAX_BYTE_LEN = 32; // tickets can be as large as 32 bytes
 const PAT_BLOCK_CHAR_LENGTH = 6; // pat{p,q} blocks are 6 characters long
 
@@ -38,6 +39,14 @@ export const ensurePatFormat = s => {
   return s;
 };
 
+export const ensureHexPrefix = s => {
+  if (!s || s.length < HEX_PREFIX.length) {
+    return s || '';
+  }
+
+  return s.indexOf(HEX_PREFIX) !== 0 ? `${HEX_PREFIX}${s}` : s;
+};
+
 export const convertToNumber = s => {
   try {
     return parseInt(s, 10);
@@ -54,10 +63,12 @@ export const downcase = s => {
   return s.toLowerCase();
 };
 
-// const hideAllButLast = s => {
-//   const ll = s[s.length -1];
-//   const bs = fill(s.length - 1, '•')
-//   return `${bs}${ll}`
-// };
-//
-// const hideAll = s => fill(s.length, '•');
+export const stripHexPrefix = s => {
+  if (!s) {
+    return s;
+  }
+
+  return s.toLowerCase().indexOf(HEX_PREFIX) === 0
+    ? s.slice(HEX_PREFIX.length)
+    : s;
+};

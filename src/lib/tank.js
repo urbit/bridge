@@ -1,6 +1,7 @@
 // /lib/tank: functions for funding transactions
 
 import retry from 'async-retry';
+import { toBN } from 'web3-utils';
 import { RETRY_OPTIONS, waitForTransactionConfirm } from './txn';
 
 //NOTE if accessing this in a localhost configuration fails with "CORS request
@@ -53,24 +54,29 @@ const ensureFundsFor = async (
   askForFunding,
   gotFunding
 ) => {
-  let balance = await web3.eth.getBalance(address);
+  const balance = toBN(await web3.eth.getBalance(address));
+  cost = toBN(cost);
 
-  if (cost <= balance) {
-    console.log('tank: already have sufficient funds', cost, address, balance);
+  if (balance.gte(cost)) {
+    console.log(
+      `tank: already have sufficient funds: ${address} proposed ` +
+        `a transacton(s) that will cost ${cost.toString()}wei but it ` +
+        `already has ${balance.toString}wei`
+    );
     return false;
   }
 
   try {
+    // TODO: if we can't always (easily) provide a point, and the
+    // fundTransactions call is gonna fail anyway, should we maybe
+    // just not bother doing this check in the first place?
     if (point !== null) {
       const fundsRemaining = await remainingTransactions(point);
       if (fundsRemaining < signedTxs.length) {
         throw new Error('tank: request invalid');
       }
     } else {
-      console.log('tank: no point provided. skipping remaining-funds check');
-      //TODO if we can't always (easily) provide a point, and the
-      //     fundTransactions call is gonna fail anyway, should we maybe
-      //     just not bother doing this check in the first place?
+      console.log('tank: no point provided. skipping remaining-funds check...');
     }
 
     const res = await fundTransactions(signedTxs);
@@ -79,16 +85,15 @@ const ensureFundsFor = async (
     }
 
     await waitForTransactionConfirm(web3, res.txHash);
+
     const newBalance = await web3.eth.getBalance(address);
     console.log(
-      'tank: funds have confirmed',
-      balance >= cost,
-      balance,
-      newBalance
+      `tank: funds have confirmed: ${address} now has ` +
+        ` ${newBalance.toString()}wei, up from ${balance.toString()}wei`
     );
     return true;
   } catch (e) {
-    console.log('tank: funding failed, waiting on user funds.', e);
+    console.log('tank: funding failed, waiting on user funds...', e);
     await waitForBalance(web3, address, cost, askForFunding, gotFunding);
   }
 
@@ -98,17 +103,12 @@ const ensureFundsFor = async (
 // returns a promise that resolves when address has at least minBalance
 function waitForBalance(web3, address, minBalance, askForFunding, gotFunding) {
   return retry(async (bail, n) => {
-    const balance = await web3.eth.getBalance(address);
-    if (balance >= minBalance) {
+    const balance = toBN(await web3.eth.getBalance(address));
+    if (balance.gte(minBalance)) {
       gotFunding && gotFunding();
       return;
     } else {
-      // TODO: minBalance is a `number` type
-      // but we want to display ETH, which will never accept a number
-      // but instead wants string or BN/BigNumber.
-      // this will be heavily refactored to correctly do BN math, but until
-      // then we'll manually convert this number to an integer string
-      askForFunding(address, minBalance.toFixed(), balance);
+      askForFunding(address, minBalance.toString(), balance);
       throw new Error('retrying');
     }
   }, RETRY_OPTIONS);
