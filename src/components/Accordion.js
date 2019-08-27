@@ -23,10 +23,12 @@ export default function Accordion({
           <React.Fragment key={option.value}>
             <Grid.Item
               full
-              className={cn('f5 pv3 rel', {
+              as="button"
+              className={cn('button f5 pv3 rel', {
                 pointer: !option.disabled,
                 gray3: option.disabled,
               })}
+              tabIndex="0"
               onClick={
                 option.disabled
                   ? null

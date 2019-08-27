@@ -145,8 +145,8 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
     if (generalError) {
       return (
         <>
-          <Grid.Item full className="mt8">
-            <ErrorText>{generalError.message.toString()}</ErrorText>
+          <Grid.Item full as={ErrorText} className="mt8">
+            {generalError.message.toString()}
           </Grid.Item>
           <Grid.Item
             full

@@ -2,7 +2,7 @@ import React from 'react';
 import cn from 'classnames';
 
 export default function LinkButton({
-  as: As = 'a',
+  as: As = 'button',
   disabled = false,
   className,
   onClick,
@@ -11,6 +11,7 @@ export default function LinkButton({
 }) {
   return (
     <As
+      tabIndex="0"
       onClick={!disabled && onClick ? onClick : undefined}
       style={{
         ...(disabled && {
@@ -19,7 +20,7 @@ export default function LinkButton({
         }),
       }}
       className={cn(
-        'us-none pointer underline',
+        'button us-none pointer underline',
         {
           // NOTE: inherit styling from parent otherwise
           gray4: disabled,

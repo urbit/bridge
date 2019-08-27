@@ -15,10 +15,24 @@ import { isDevelopment } from 'lib/flags';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
 
-import 'style/index.scss';
+/* Form Reset */
+import 'style/form-reset.scss';
+
+/* Indigo */
+import 'style/indigo-reset.scss';
+import 'indigo-react/indigo.css';
+import 'style/indigo-proposals.scss';
+
+/* Fonts */
+/* we need to load these as base64 (inline) to avoid lazy loading
+   see also #218 */
+import 'style/font64.scss';
+
+/* Bridge Styles */
+import 'style/bridge.scss';
 
 const INITIAL_NETWORK_TYPE = isDevelopment
-  ? NETWORK_TYPES.OFFLINE
+  ? NETWORK_TYPES.LOCAL
   : NETWORK_TYPES.MAINNET;
 
 // NB(shrugs): modify these variables to change the default local state.

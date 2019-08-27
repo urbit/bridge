@@ -5,8 +5,8 @@ export default function UploadButton({ children, onChange, ...rest }) {
   const button = useRef();
 
   return (
-    <label htmlFor="file" {...rest}>
-      <Button accessory="↑" solid>
+    <label role="button" tabIndex="0" htmlFor="file" {...rest}>
+      <Button accessory="↑" solid className="w-full">
         {children}
       </Button>
       <input

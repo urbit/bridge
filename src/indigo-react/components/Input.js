@@ -53,6 +53,7 @@ export default function Input({
   const showError = !!error;
   const showSubmitError = !!submitError && !dirtySinceLastSubmit;
   const indicateError = touched && !active && (showError || showSubmitError);
+  const errorId = `${name}-error`;
 
   return (
     <Flex
@@ -66,17 +67,20 @@ export default function Input({
       }}>
       <Flex.Item
         as="label"
+        htmlFor={name}
         className={cn('f6 lh-tall', {
           black: !disabled,
           gray4: disabled,
-        })}
-        htmlFor={name}>
+        })}>
         {label}
       </Flex.Item>
       <Flex.Item as={Flex} row className="rel">
         <Flex.Item
           flex
           as={BaseComponent}
+          aria-label={label}
+          aria-labelledby={errorId}
+          aria-invalid={indicateError}
           {...rest}
           // NOTE: 1.15 from input line-height, 24px = 12px * 2 (from p3 styling)
           style={type === 'textarea' ? { minHeight: 'calc(1.5rem * 3)' } : {}}
@@ -119,7 +123,7 @@ export default function Input({
       </Flex.Item>
 
       {indicateError && (
-        <Flex.Item as={ErrorText} className="mv1">
+        <Flex.Item id={errorId} as={ErrorText} className="mv1">
           {error || submitError}
         </Flex.Item>
       )}

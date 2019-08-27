@@ -39,6 +39,8 @@ export default function CheckboxInput({
       <Flex.Item
         flex
         as="label"
+        tabIndex="0"
+        aria-pressed={input.value ? 'true' : 'false'}
         className="f6 mr3 lh-tall us-none pointer flex-row align-center"
         htmlFor={name}>
         <Flex

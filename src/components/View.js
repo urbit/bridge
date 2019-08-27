@@ -7,6 +7,8 @@ import useBreakpoints from 'lib/useBreakpoints';
 import MiniBackButton from './MiniBackButton';
 import { useHistory } from 'store/history';
 
+const MainFlex = props => <Flex as="main" {...props} />;
+
 // View is a top-level component that all Views must render to inherit styling
 function View({
   className,
@@ -50,14 +52,14 @@ function View({
         className={cn(insetPadding)}>
         {showBackButton && (
           <MiniBackButton
-            hpadding={!isMobile}
-            vpadding={isMobile}
+            hspacing={!isMobile}
+            vspacing={isMobile}
             onClick={goBack}
           />
         )}
       </Flex.Item>
 
-      <Flex.Item flex={1} as={Flex} col justify="between">
+      <Flex.Item flex={1} as={MainFlex} col justify="between">
         <Flex.Item className={cn('pb5', insetPadding)}>{children}</Flex.Item>
         <Flex.Item as={Footer.Target} />
       </Flex.Item>

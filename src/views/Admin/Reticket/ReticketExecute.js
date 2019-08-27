@@ -112,8 +112,8 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
     if (generalError) {
       return (
         <>
-          <Grid.Item full className="mt4">
-            <ErrorText>{generalError.message.toString()}</ErrorText>
+          <Grid.Item full as={ErrorText} className="mt4">
+            {generalError.message.toString()}
           </Grid.Item>
           <Grid.Item
             full

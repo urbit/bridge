@@ -1,9 +1,11 @@
 import React from 'react';
 import cn from 'classnames';
 
-const typeWith = (DefaultComponent, defaultClassName) =>
+const typeWith = (DefaultComponent, defaultClassName, props = {}) =>
   function({ as: As = DefaultComponent, className, ...rest }) {
-    return <As className={cn(defaultClassName, className)} {...rest} />;
+    return (
+      <As className={cn(defaultClassName, className)} {...props} {...rest} />
+    );
   };
 
 export const H1 = typeWith('h1');
@@ -19,4 +21,4 @@ export const B = typeWith('b', 'fw-bold');
 export const Breadcrumb = typeWith('span', 'f6');
 export const Text = typeWith('span');
 export const HelpText = typeWith('span', 'f6 gray4');
-export const ErrorText = typeWith('span', 'f6 red3');
+export const ErrorText = typeWith('span', 'f6 red3', { role: 'alert' });

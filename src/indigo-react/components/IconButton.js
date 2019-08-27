@@ -4,26 +4,28 @@ import cn from 'classnames';
 import Flex from './Flex';
 
 export default function IconButton({
+  as: As = 'button',
   children,
   className,
   onClick,
   disabled = false,
   secondary = false,
   solid = false,
-  hpadding = true,
-  vpadding = true,
+  hspacing = true,
+  vspacing = true,
   ...rest
 }) {
   return (
     <Flex
-      as="a"
+      as="button"
+      tabIndex="0"
       align="center"
       justify="center"
       className={cn(
         'pointer',
         {
-          ph2: hpadding,
-          pv2: vpadding,
+          mh2: hspacing,
+          mv2: vspacing,
         },
         {
           'bg-black': solid && !secondary && !disabled,

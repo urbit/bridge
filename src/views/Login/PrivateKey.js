@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import cn from 'classnames';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid } from 'indigo-react';
 
@@ -41,7 +42,7 @@ export default function PrivateKey({ className, goHome }) {
   );
 
   return (
-    <Grid className={className}>
+    <Grid className={cn(className, 'mb4')}>
       <BridgeForm validate={validate} onValues={onValues} afterSubmit={goHome}>
         {({ handleSubmit }) => (
           <>

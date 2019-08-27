@@ -20,7 +20,16 @@ export default function SelectInput({
 }) {
   const {
     input,
-    meta: { active, error, submitting, submitSucceeded, touched, valid },
+    meta: {
+      active,
+      error,
+      submitting,
+      submitSucceeded,
+      submitError,
+      dirtySinceLastSubmit,
+      touched,
+      valid,
+    },
   } = useField(name, {
     type: 'select',
   });
@@ -47,6 +56,11 @@ export default function SelectInput({
 
   const text = options.find(o => o.value === input.value).text;
 
+  const showError = !!error;
+  const showSubmitError = !!submitError && !dirtySinceLastSubmit;
+  const indicateError = touched && !active && (showError || showSubmitError);
+  const errorId = `${name}-error`;
+
   return (
     <Flex
       ref={ref}
@@ -58,12 +72,16 @@ export default function SelectInput({
           cursor: 'not-allowed',
         }),
       }}>
-      <Flex.Item as="label" className="f6 lh-tall" htmlFor={name}>
+      <Flex.Item as="label" htmlFor={name} className="f6 lh-tall">
         {label}
       </Flex.Item>
       <Flex.Item as={Flex} row className="rel pointer" onClick={toggleOpen}>
         <Flex.Item
           flex
+          aria-invalid={indicateError}
+          aria-describedBy={errorId}
+          aria-haspopup="true"
+          aria-expanded={isOpen}
           className={cn(
             'b b1 p3 outline-none',
             { mono },
@@ -101,6 +119,7 @@ export default function SelectInput({
           <Flex
             col
             className="abs bg-white b-black b1 z10"
+            role="menu"
             style={{
               top: 'calc(100% + 4px)',
               left: 0,
@@ -111,6 +130,7 @@ export default function SelectInput({
             {options.map(option => (
               <Flex.Item
                 key={option.value}
+                role="menuitem"
                 className="pv2 ph3 hover-bg-grey3"
                 onClick={e => {
                   e.stopPropagation();
@@ -129,8 +149,8 @@ export default function SelectInput({
         </Flex.Item>
       )}
 
-      {touched && !active && error && (
-        <Flex.Item as={ErrorText} className="mv1">
+      {indicateError && (
+        <Flex.Item id={errorId} as={ErrorText} className="mv1">
           {error}
         </Flex.Item>
       )}

@@ -202,11 +202,6 @@ export default function Points() {
     push,
   ]);
 
-  const goViewPoint = useCallback(() => push(names.VIEW_POINT), [
-    names.VIEW_POINT,
-    push,
-  ]);
-
   return (
     <View pop={pop} inset>
       <Grid>
@@ -324,13 +319,6 @@ export default function Points() {
                 <Grid.Divider />
               </>
             )}
-            <Grid.Item
-              full
-              as={ForwardButton}
-              detail="View a point"
-              onClick={goViewPoint}>
-              View a point
-            </Grid.Item>
           </Grid>
         </Footer>
       </Grid>

@@ -54,6 +54,7 @@ export default function ToggleInput({
         })}
         htmlFor={name}>
         <LinkButton
+          as="span"
           disabled={disabled}
           className={cn('f5', {
             black: !input.checked,

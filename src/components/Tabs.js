@@ -23,9 +23,11 @@ export default function Tabs({
             return (
               <Flex.Item
                 key={option.value}
+                as="button"
+                tabIndex="0"
                 onClick={() => onTabChange(option.value)}
                 className={cn(
-                  'f5 pv3 pointer nowrap',
+                  'button f5 pv3 pointer nowrap',
                   {
                     'black b-black bb1': isActive,
                     gray3: !isActive,

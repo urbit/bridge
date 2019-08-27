@@ -127,9 +127,10 @@ Passport.Mini = function MiniPassport({ point, className, inverted, ...rest }) {
 
   return (
     <Grid
+      as="button"
       gap={4}
       className={cn(
-        'r8 p4',
+        'button r8 p4',
         {
           'bg-black': !inverted,
           'bg-white b-gray4 b1': inverted,

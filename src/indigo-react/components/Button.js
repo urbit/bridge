@@ -6,7 +6,7 @@ import Flex from './Flex';
 import { HelpText } from './Typography';
 
 export default function Button({
-  as: As = 'span',
+  as: As = 'button',
   solid = false,
   success = false,
   disabled = false,
@@ -23,9 +23,10 @@ export default function Button({
   return (
     <Grid
       as={As}
+      tabIndex="0"
       gap={1}
       className={cn(
-        'rel pointer pv4 truncate flex-row justify-between us-none',
+        'button rel pointer pv4 truncate flex-row justify-between us-none',
         {
           p4: solid,
         },
@@ -50,6 +51,8 @@ export default function Button({
         }),
       }}
       onClick={!disabled && onClick ? onClick : undefined}
+      aria-disabled={disabled}
+      disabled={disabled}
       {...rest}>
       {background}
       <Grid.Item full as={Flex} justify="between" className="z2">

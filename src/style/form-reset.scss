@@ -18,11 +18,11 @@ select {
   border-radius: 0;
   -webkit-appearance: none;
 
-  &:focus,
-  &:hover,
-  &:active {
-    outline: 0;
-  }
+  // &:focus,
+  // &:hover,
+  // &:active {
+  //   outline: 0;
+  // }
 
   &::-moz-focus-inner {
     border: 0;
