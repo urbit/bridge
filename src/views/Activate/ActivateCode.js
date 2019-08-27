@@ -37,6 +37,7 @@ import FormError from 'form/FormError';
 
 import { useActivateFlow } from './ActivateFlow';
 import { WARNING } from 'form/helpers';
+import convertToInt from 'lib/convertToInt';
 
 export default function ActivateCode() {
   const history = useHistory();
@@ -121,7 +122,7 @@ export default function ActivateCode() {
           };
         }
 
-        const point = parseInt(incoming[0], 10);
+        const point = convertToInt(incoming[0], 10);
 
         setDerivedPoint(Just(point));
         setInviteWallet(inviteWallet);

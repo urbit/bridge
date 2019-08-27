@@ -40,6 +40,7 @@ import {
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
 import FormError from 'form/FormError';
+import convertToInt from 'lib/convertToInt';
 
 const chainKeyProp = name => d =>
   d[name] === CURVE_ZERO_ADDR ? Nothing() : Just(d[name]);
@@ -64,7 +65,7 @@ function useSetKeys() {
   const _contracts = need.contracts(contracts);
   const _details = need.details(getDetails(_point));
 
-  const networkRevision = parseInt(_details.keyRevisionNumber, 10);
+  const networkRevision = convertToInt(_details.keyRevisionNumber, 10);
   const randomSeed = useRef();
 
   // NOTE: nd = 'nondeterministic' (can also be a 'manual' seed)
@@ -151,6 +152,8 @@ export default function AdminNetworkingKeys() {
   const hasKeys = details.matchWith({
     Nothing: () => false,
     Just: ({ value: details }) => parseInt(details.keyRevisionNumber, 10) > 0,
+    // we actually don't mind the default NaN behavior of parseInt here,
+    // since NaN > 0 === false and that's a reasonable result
   });
 
   const {

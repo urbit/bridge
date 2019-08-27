@@ -1,4 +1,5 @@
 import { compose, strSplice } from 'lib/lib';
+import convertToInt from 'lib/convertToInt';
 
 const HEX_PREFIX = '0x';
 const TICKET_MAX_BYTE_LEN = 32; // tickets can be as large as 32 bytes
@@ -48,8 +49,12 @@ export const ensureHexPrefix = s => {
 };
 
 export const convertToNumber = s => {
+  if (!s) {
+    return s || '';
+  }
+
   try {
-    return parseInt(s, 10);
+    return convertToInt(s, 10);
   } catch {
     return 0;
   }

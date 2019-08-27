@@ -22,6 +22,7 @@ import LoadingBar from 'components/LoadingBar';
 import Highlighted from 'components/Highlighted';
 import { WALLET_TYPES } from 'lib/wallet';
 import CopiableAddress from 'components/CopiableAddress';
+import convertToInt from 'lib/convertToInt';
 
 const labelForProgress = progress => {
   if (progress <= 0) {
@@ -58,7 +59,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
     (async () => {
       const point = need.point(pointCursor);
       const details = need.details(getDetails(point));
-      const networkRevision = parseInt(details.keyRevisionNumber, 10);
+      const networkRevision = convertToInt(details.keyRevisionNumber, 10);
       try {
         await reticketPointBetweenWallets({
           fromWallet: need.wallet(wallet),

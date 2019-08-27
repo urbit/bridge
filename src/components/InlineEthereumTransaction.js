@@ -23,6 +23,7 @@ import WarningBox from './WarningBox';
 import CopyButton from './CopyButton';
 import ProgressButton from './ProgressButton';
 import CopiableAddress from './CopiableAddress';
+import convertToInt from 'lib/convertToInt';
 
 export default function InlineEthereumTransaction({
   // from useEthereumTransaction.bind
@@ -191,7 +192,9 @@ export default function InlineEthereumTransaction({
                     min="1"
                     max="100"
                     value={gasPrice}
-                    onChange={e => setGasPrice(parseInt(e.target.value, 10))}
+                    onChange={e =>
+                      setGasPrice(convertToInt(e.target.value, 10))
+                    }
                   />
                   <Grid.Item
                     full
