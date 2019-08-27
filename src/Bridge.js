@@ -18,7 +18,7 @@ import useHasDisclaimed from 'lib/useHasDisclaimed';
 import 'style/index.scss';
 
 const INITIAL_NETWORK_TYPE = isDevelopment
-  ? NETWORK_TYPES.LOCAL
+  ? NETWORK_TYPES.OFFLINE
   : NETWORK_TYPES.MAINNET;
 
 // NB(shrugs): modify these variables to change the default local state.

@@ -2,11 +2,13 @@
   "extends": [
     "react-app",
     "prettier",
-    "prettier/react"
+    "prettier/react",
+    "plugin:jsx-a11y/recommended"
   ],
   "plugins": [
     "prettier",
-    "react-hooks"
+    "react-hooks",
+    "jsx-a11y"
   ],
   "rules": {
     "prettier/prettier": "error"

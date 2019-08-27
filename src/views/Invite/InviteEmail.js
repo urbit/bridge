@@ -564,6 +564,8 @@ export default function InviteEmail() {
                             full
                             as={Grid}
                             gap={3}
+                            onFocus={() => setHovered({ [name]: true })}
+                            onBlur={() => setHovered({ [name]: false })}
                             onMouseOver={() => setHovered({ [name]: true })}
                             onMouseLeave={() => setHovered({ [name]: false })}>
                             <Grid.Item
