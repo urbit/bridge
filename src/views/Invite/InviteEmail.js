@@ -470,7 +470,6 @@ export default function InviteEmail() {
           className="mt4"
           solid
           success
-          accessory={`${visualProgress}/${fields.length}`}
           onClick={doSend}>
           {buttonText(status, fields.length)}
         </Grid.Item>
