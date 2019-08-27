@@ -18,7 +18,7 @@ export default function NeedFundsNotice({
         Your ownership address <CopiableAddress>{address}</CopiableAddress>{' '}
         needs at least {fromWei(minBalance)} ETH and currently has{' '}
         {fromWei(balance)} ETH. The transaction will automatically resume once
-        ETH is available. Waiting... <Blinky />
+        enough ETH is available. Waiting... <Blinky />
       </Highlighted>
     </WarningBox>
   );
