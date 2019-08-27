@@ -81,20 +81,36 @@ const ensureFundsFor = async (
 
     const res = await fundTransactions(signedTxs);
     if (!res.success) {
-      throw new Error('tank: request rejected', res);
+      throw new Error(`tank: request rejected ${JSON.stringify(res)}`);
     }
 
     await waitForTransactionConfirm(web3, res.txHash);
 
     const newBalance = await web3.eth.getBalance(address);
+
+    // sanity check
+    if (newBalance.lt(cost)) {
+      throw new Error(
+        `tank: transaction funded but the new balance of ` +
+          `${newBalance.toString()}wei is still less than ` +
+          `${cost.toString()}wei.`
+      );
+    }
+
     console.log(
       `tank: funds have confirmed: ${address} now has ` +
         ` ${newBalance.toString()}wei, up from ${balance.toString()}wei`
     );
     return true;
-  } catch (e) {
-    console.log('tank: funding failed, waiting on user funds...', e);
-    await waitForBalance(web3, address, cost, askForFunding, gotFunding);
+  } catch (error) {
+    console.error(error);
+    await waitForBalance(
+      web3,
+      address,
+      cost.toString(),
+      askForFunding,
+      gotFunding
+    );
   }
 
   return false;
@@ -102,6 +118,7 @@ const ensureFundsFor = async (
 
 // returns a promise that resolves when address has at least minBalance
 function waitForBalance(web3, address, minBalance, askForFunding, gotFunding) {
+  minBalance = toBN(minBalance);
   return retry(async (bail, n) => {
     const balance = toBN(await web3.eth.getBalance(address));
     if (balance.gte(minBalance)) {
