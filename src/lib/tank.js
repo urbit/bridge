@@ -61,7 +61,7 @@ const ensureFundsFor = async (
     console.log(
       `tank: already have sufficient funds: ${address} proposed ` +
         `transaction(s) that will cost ${cost.toString()}wei but it ` +
-        `already has ${balance.toString}wei`
+        `already has ${balance.toString()}wei`
     );
     return false;
   }
