@@ -46,7 +46,6 @@
     "react-final-form-arrays": "^3.1.0",
     "react-hot-loader": "^4.12.0",
     "react-scripts": "3.0.1",
-    "react-simple-tooltip": "^2.6.1",
     "react-teleporter": "^1.1.0",
     "secp256k1": "^3.5.2",
     "trezor-connect": "^7.0.1",
