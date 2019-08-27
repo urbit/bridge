@@ -39,6 +39,7 @@
     "keythereum": "^1.0.4",
     "lodash": "^4.17.14",
     "more-entropy": "^0.0.7",
+    "new-github-issue-url": "^0.2.1",
     "prop-types": "^15.6.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
