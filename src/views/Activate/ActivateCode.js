@@ -64,10 +64,10 @@ export default function ActivateCode() {
   ]);
 
   const goToPassport = useCallback(() => {
-    push(names.PASSPORT);
-
     if (!hasDisclaimed) {
-      push(names.DISCLAIMER);
+      push(names.DISCLAIMER, { next: names.PASSPORT });
+    } else {
+      push(names.PASSPORT);
     }
   }, [hasDisclaimed, names.DISCLAIMER, names.PASSPORT, push]);
 

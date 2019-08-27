@@ -48,12 +48,15 @@ function useInitialRoutes() {
     ];
   }
 
-  return hasImpliedTicket
-    ? [{ key: ROUTE_NAMES.ACTIVATE }]
-    : [
-        { key: ROUTE_NAMES.LOGIN },
-        ...(!hasDisclaimed ? [{ key: ROUTE_NAMES.DISCLAIMER }] : []),
-      ];
+  if (hasImpliedTicket) {
+    return [{ key: ROUTE_NAMES.ACTIVATE }];
+  }
+
+  if (!hasDisclaimed) {
+    return [{ key: ROUTE_NAMES.DISCLAIMER, data: { next: ROUTE_NAMES.LOGIN } }];
+  }
+
+  return [{ key: ROUTE_NAMES.LOGIN }];
 }
 
 function Bridge() {
