@@ -54,54 +54,65 @@ const ensureFundsFor = async (
   askForFunding,
   gotFunding
 ) => {
-  let balance = toBN(await web3.eth.getBalance(address));
+  const balance = toBN(await web3.eth.getBalance(address));
   cost = toBN(cost);
 
-  if (cost.gt(balance)) {
-    try {
-      if (point !== null) {
-        const fundsRemaining = await remainingTransactions(point);
-        if (fundsRemaining < signedTxs.length) {
-          throw new Error('tank: request invalid');
-        }
-      } else {
-        console.log('tank: skipping remaining-funds check');
-        //TODO if we can't always (easily) provide a point, and the
-        //     fundTransactions call is gonna fail anyway, should we maybe
-        //     just not bother doing this check in the first place?
-      }
+  if (balance.gte(cost)) {
+    console.log(
+      `tank: already have sufficient funds: ${address} proposed ` +
+        `transaction(s) that will cost ${cost.toString()}wei but it ` +
+        `already has ${balance.toString}wei`
+    );
+    return false;
+  }
 
-      const res = await fundTransactions(signedTxs);
-      if (!res.success) {
-        throw new Error('tank: request rejected', res);
-      } else {
-        await waitForTransactionConfirm(web3, res.txHash);
-        let newBalance = await web3.eth.getBalance(address);
-        console.log(
-          'tank: funds have confirmed',
-          balance.toString(),
-          newBalance
-        );
-        return true;
+  try {
+    // TODO: if we can't always (easily) provide a point, and the
+    // fundTransactions call is gonna fail anyway, should we maybe
+    // just not bother doing this check in the first place?
+    if (point !== null) {
+      const fundsRemaining = await remainingTransactions(point);
+      if (fundsRemaining < signedTxs.length) {
+        throw new Error('tank: request invalid');
       }
-    } catch (e) {
-      console.log('tank: funding failed', e);
-      await waitForBalance(
-        web3,
-        address,
-        cost.toString(),
-        askForFunding,
-        gotFunding
+    } else {
+      console.log('tank: no point provided. skipping remaining-funds check...');
+    }
+
+    const res = await fundTransactions(signedTxs);
+    if (!res.success) {
+      throw new Error(`tank: request rejected ${JSON.stringify(res)}`);
+    }
+
+    await waitForTransactionConfirm(web3, res.txHash);
+
+    const newBalance = await web3.eth.getBalance(address);
+
+    // sanity check
+    if (newBalance.lt(cost)) {
+      throw new Error(
+        `tank: transaction funded but the new balance of ` +
+          `${newBalance.toString()}wei is still less than ` +
+          `${cost.toString()}wei.`
       );
     }
-  } else {
+
     console.log(
-      'tank: already have sufficient funds',
-      cost.toString(),
+      `tank: funds have confirmed: ${address} now has ` +
+        ` ${newBalance.toString()}wei, up from ${balance.toString()}wei`
+    );
+    return true;
+  } catch (error) {
+    console.error(error);
+    await waitForBalance(
+      web3,
       address,
-      balance.toString()
+      cost.toString(),
+      askForFunding,
+      gotFunding
     );
   }
+
   return false;
 };
 
@@ -114,7 +125,7 @@ function waitForBalance(web3, address, minBalance, askForFunding, gotFunding) {
       gotFunding && gotFunding();
       return;
     } else {
-      askForFunding(address, minBalance, balance);
+      askForFunding(address, minBalance.toString(), balance);
       throw new Error('retrying');
     }
   }, RETRY_OPTIONS);
