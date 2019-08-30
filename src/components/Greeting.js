@@ -19,31 +19,35 @@ export default function ActivateDisclaimer({ point }) {
   return (
     !wasGreeted && (
       <Grid gap={4} className="mb10">
-        <Grid.Item as={H4} full>
-          Welcome
-        </Grid.Item>
         <Grid.Item full>
           <Text className={cn(TEXT_STYLE, 'block mb4')}>
-            Hi <code>{pointName}</code>,
+            Welcome <code>{pointName}</code>,
           </Text>
 
-          <Text className={cn(TEXT_STYLE, 'block mb4')}>
-            Yes, <code>{pointName}</code> is your name here. It's good to meet
-            you. As of this very moment, you own a digital identity that you can
-            keep for the rest of your life.
+          <Text className={cn(TEXT_STYLE, 'block mb2')}>
+            As of this very moment, you own an Urbit identity – a digital identity that you can keep for the rest of your life. Use the Master Ticket included in your Passport to access your Urbit identity at any time. Right now you can:
           </Text>
+        </Grid.Item>
 
-          <Text className={cn(TEXT_STYLE, 'block mb4')}>
-            Welcome to Azimuth. We hope you like it.
+        <Grid.Item full as={LinkButton} onClick={dismiss}>
+          <Text className={cn(TEXT_STYLE, 'block mb2 yellow-dark')}>
+            Invite your friends
           </Text>
+        </Grid.Item>
 
+        <Grid.Item full as={LinkButton} onClick={dismiss}>
+          <Text className={cn(TEXT_STYLE, 'block mb2')}>
+            Boot your computer
+          </Text>
+        </Grid.Item>
+
+        <Grid.Item full>
           <Text className={cn(TEXT_STYLE, 'block mb4')}>
-            Get started by booting and exploring Arvo, our full operating system
-            (still in early stages!)
+            Welcome to Urbit. See you online.
           </Text>
         </Grid.Item>
         <Grid.Item full as={LinkButton} onClick={dismiss}>
-          Dismiss
+          Close
         </Grid.Item>
       </Grid>
     )
