@@ -1,13 +1,17 @@
 import React, { useCallback } from 'react';
 import cn from 'classnames';
 import * as ob from 'urbit-ob';
-import { Grid, H4, Text, LinkButton } from 'indigo-react';
+import { Grid, Text, LinkButton } from 'indigo-react';
+
+import { useLocalRouter } from 'lib/LocalRouter';
 
 import useWasGreeted from 'lib/useWasGreeted';
 
 const TEXT_STYLE = 'f5';
 
 export default function ActivateDisclaimer({ point }) {
+  const { pop, push, names } = useLocalRouter();
+
   const [wasGreeted, setWasGreeted] = useWasGreeted();
 
   const pointName = ob.patp(point);
@@ -15,6 +19,8 @@ export default function ActivateDisclaimer({ point }) {
   const dismiss = useCallback(async () => {
     setWasGreeted(true);
   }, [setWasGreeted]);
+
+  const goInvite = useCallback(() => push(names.INVITE), [push, names]);
 
   return (
     !wasGreeted && (
