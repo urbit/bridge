@@ -28,6 +28,7 @@ function View({
   const goBack = useCallback(() => pop(), [pop]);
 
   const showBackButton = size > 1 && !!pop;
+  const backIsLogout = size === 2;
 
   return (
     <Flex
@@ -52,6 +53,7 @@ function View({
           <MiniBackButton
             hpadding={!isMobile}
             vpadding={isMobile}
+            isExit={backIsLogout}
             onClick={goBack}
           />
         )}
