@@ -29,8 +29,8 @@ export default function ActivateDisclaimer({ point }) {
           </Text>
         </Grid.Item>
 
-        <Grid.Item full as={LinkButton} onClick={dismiss}>
-          <Text className={cn(TEXT_STYLE, 'block mb2 yellow-dark')}>
+        <Grid.Item full as={LinkButton} onClick={dismiss} className={'yellow4'}>
+          <Text className={cn(TEXT_STYLE, 'block mb2')}>
             Invite your friends
           </Text>
         </Grid.Item>
