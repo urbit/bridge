@@ -12,6 +12,7 @@ import Activate from 'views/Activate';
 import PartySetPoolSize from 'views/Party/PartySetPoolSize';
 import AcceptTransfer from 'views/AcceptTransfer';
 import CancelTransfer from 'views/CancelTransfer';
+import ViewPoint from 'views/ViewPoint';
 
 import { ROUTE_NAMES } from './routeNames';
 
@@ -30,4 +31,5 @@ export const ROUTES = {
   [ROUTE_NAMES.ACCEPT_TRANSFER]: AcceptTransfer,
   // TODO: replace this with deep link to AdminCancelTransfer
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
+  [ROUTE_NAMES.VIEW_POINT]: ViewPoint,
 };

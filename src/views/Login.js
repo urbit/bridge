@@ -71,6 +71,11 @@ export default function Login() {
     names.ACTIVATE,
   ]);
 
+  const goToViewPoint = useCallback(() => push(names.VIEW_POINT), [
+    push,
+    names.VIEW_POINT,
+  ]);
+
   const goHome = useCallback(() => {
     push(names.POINTS);
   }, [push, names]);
@@ -102,6 +107,10 @@ export default function Login() {
           <Grid.Divider />
           <Grid.Item full as={ForwardButton} onClick={goToActivate}>
             Activate
+          </Grid.Item>
+          <Grid.Divider />
+          <Grid.Item full as={ForwardButton} onClick={goToViewPoint}>
+            View Point
           </Grid.Item>
           <Grid.Divider />
           <Grid.Item full as={OfflineButton} />
