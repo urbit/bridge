@@ -11,7 +11,7 @@ import useCurrentPermissions from 'lib/useCurrentPermissions';
 const TEXT_STYLE = 'f5';
 
 export default function ActivateDisclaimer({ point }) {
-  const { pop, push, names } = useLocalRouter();
+  const { push, names } = useLocalRouter();
 
   const [wasGreeted, setWasGreeted] = useWasGreeted();
   const { isActiveOwner } = useCurrentPermissions();
