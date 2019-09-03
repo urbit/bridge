@@ -6,6 +6,7 @@ import { Grid, Text, LinkButton } from 'indigo-react';
 import { useLocalRouter } from 'lib/LocalRouter';
 
 import useWasGreeted from 'lib/useWasGreeted';
+import useCurrentPermissions from 'lib/useCurrentPermissions';
 
 const TEXT_STYLE = 'f5';
 
@@ -13,6 +14,7 @@ export default function ActivateDisclaimer({ point }) {
   const { pop, push, names } = useLocalRouter();
 
   const [wasGreeted, setWasGreeted] = useWasGreeted();
+  const { isActiveOwner } = useCurrentPermissions();
 
   const pointName = ob.patp(point);
 
@@ -38,15 +40,17 @@ export default function ActivateDisclaimer({ point }) {
           </Text>
         </Grid.Item>
 
-        <Grid.Item
-          full
-          as={LinkButton}
-          onClick={goInvite}
-          className={'yellow4'}>
-          <Text className={cn(TEXT_STYLE, 'block mb2')}>
-            Invite your friends
-          </Text>
-        </Grid.Item>
+        {isActiveOwner && (
+          <Grid.Item
+            full
+            as={LinkButton}
+            onClick={goInvite}
+            className={'yellow4'}>
+            <Text className={cn(TEXT_STYLE, 'block mb2')}>
+              Invite your friends
+            </Text>
+          </Grid.Item>
+        )}
 
         <Grid.Item
           full
