@@ -31,17 +31,27 @@ export default function ActivateDisclaimer({ point }) {
           </Text>
 
           <Text className={cn(TEXT_STYLE, 'block mb2')}>
-            As of this very moment, you own an Urbit identity – a digital identity that you can keep for the rest of your life. Use the Master Ticket included in your Passport to access your Urbit identity at any time. Right now you can:
+            As of this very moment, you own an Urbit identity – a digital
+            identity that you can keep for the rest of your life. Use the Master
+            Ticket included in your Passport to access your Urbit identity at
+            any time. Right now you can:
           </Text>
         </Grid.Item>
 
-        <Grid.Item full as={LinkButton} onClick={dismiss} className={'yellow4'}>
+        <Grid.Item
+          full
+          as={LinkButton}
+          onClick={goInvite}
+          className={'yellow4'}>
           <Text className={cn(TEXT_STYLE, 'block mb2')}>
             Invite your friends
           </Text>
         </Grid.Item>
 
-        <Grid.Item full as={LinkButton} onClick={dismiss}>
+        <Grid.Item
+          full
+          as={LinkButton}
+          href="https://urbit.org/docs/getting-started/">
           <Text className={cn(TEXT_STYLE, 'block mb2')}>
             Boot your computer
           </Text>
