@@ -7,7 +7,7 @@ import { downloadWallet } from 'lib/invite';
 import { useLocalRouter } from 'lib/LocalRouter';
 
 import { DownloadButton, ForwardButton } from 'components/Buttons';
-import PaperRenderer from 'components/PaperRenderer';
+import PaperBuilder from 'components/PaperBuilder';
 
 import { useActivateFlow } from './ActivateFlow';
 import PassportView from './PassportView';
@@ -77,7 +77,7 @@ export default function PassportDownload({ className }) {
           </Grid.Item>
         </Grid>
       </PassportView>
-      <PaperRenderer
+      <PaperBuilder
         point={pointAsString}
         wallet={wallet}
         callback={data => setPaper(Just(data))}
