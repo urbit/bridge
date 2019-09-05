@@ -33,14 +33,7 @@ export default function ActivateDisclaimer({ point }) {
           </Text>
 
           <Text className={cn(TEXT_STYLE, 'block mb2')}>
-<<<<<<< HEAD
-            As of this very moment, you own an Urbit identity – a digital
-            identity that you can keep for the rest of your life. Use the Master
-            Ticket included in your Passport to access your Urbit identity at
-            any time. Right now you can:
-=======
             As of this moment, you own an Urbit identity – a digital identity that you can keep for the rest of your life. Use the Master Ticket included in your Passport to access your Urbit identity at any time. Right now you can:
->>>>>>> 02a07298... tone down copy
           </Text>
         </Grid.Item>
 
