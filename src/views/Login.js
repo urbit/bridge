@@ -16,12 +16,14 @@ import Ticket from './Login/Ticket';
 import Mnemonic from './Login/Mnemonic';
 import Advanced from './Login/Advanced';
 import Hardware from './Login/Hardware';
+import Metamask from './Login/Metamask';
 
 const NAMES = {
   TICKET: 'TICKET',
   MNEMONIC: 'MNEMONIC',
   HARDWARE: 'HARDWARE',
   ADVANCED: 'ADVANCED',
+  METAMASK: 'METAMASK',
 };
 
 const VIEWS = {
@@ -29,6 +31,7 @@ const VIEWS = {
   [NAMES.MNEMONIC]: Mnemonic,
   [NAMES.HARDWARE]: Hardware,
   [NAMES.ADVANCED]: Advanced,
+  [NAMES.METAMASK]: Metamask,
 };
 
 const OPTIONS = [
@@ -36,6 +39,7 @@ const OPTIONS = [
   { text: 'Mnemonic', value: NAMES.MNEMONIC },
   { text: 'Hardware', value: NAMES.HARDWARE },
   { text: 'Advanced', value: NAMES.ADVANCED },
+  { text: 'Metamask', value: NAMES.METAMASK },
 ];
 
 const walletTypeToViewName = walletType => {

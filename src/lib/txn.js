@@ -5,6 +5,7 @@ import retry from 'async-retry';
 import { NETWORK_TYPES } from './network';
 import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
+import { metamaskSignTransaction, FakeMetamaskTransaction } from './metamask';
 import { WALLET_TYPES, addHexPrefix } from './wallet';
 import { CHECK_BLOCK_EVERY_MS } from './constants';
 import patp2dec from './patp2dec';
@@ -89,6 +90,8 @@ const signTransaction = async ({
     await ledgerSignTransaction(stx, walletHdPath);
   } else if (walletType === WALLET_TYPES.TREZOR) {
     await trezorSignTransaction(stx, walletHdPath);
+  } else if (walletType === WALLET_TYPES.METAMASK) {
+    return metamaskSignTransaction(stx, wallet.address);
   } else {
     stx.sign(wallet.privateKey);
   }
@@ -97,6 +100,20 @@ const signTransaction = async ({
 };
 
 const sendSignedTransaction = (web3, stx, doubtNonceError) => {
+  // Handle fake metamask transaction
+  if (stx instanceof FakeMetamaskTransaction) {
+    const { ethereum } = window;
+    const sendTxs = {
+      method: 'eth_sendTransaction',
+      params: [stx.txnData],
+      from: stx.txnData.from,
+    };
+    return new Promise((resolve, reject) =>
+      ethereum.sendAsync(sendTxs, (err, data) =>
+        err ? reject(err) : resolve(data.result)
+      )
+    );
+  }
   const rawTx = hexify(stx.serialize());
 
   return new Promise(async (resolve, reject) => {
