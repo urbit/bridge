@@ -72,7 +72,7 @@ export default function Point() {
               as={ForwardButton}
               disabled={!isActiveOwner}
               onClick={goPartiesSetPoolSize}>
-              Manage Parties
+              Manage Invite Pools
             </Grid.Item>
             <Grid.Divider />
           </>
