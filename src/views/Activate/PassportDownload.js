@@ -79,8 +79,10 @@ export default function PassportDownload({ className }) {
       </PassportView>
       <PaperBuilder
         point={pointAsString}
-        wallet={wallet}
-        callback={data => setPaper(Just(data))}
+        wallets={[wallet]}
+        callback={data => {
+          setPaper(Just(data));
+        }}
       />
     </>
   );

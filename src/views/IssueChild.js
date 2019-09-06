@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import cn from 'classnames';
 import { Grid, Text } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
-import * as ob from 'urbit-ob';
+import ob from 'urbit-ob';
 
 import { useNetwork } from 'store/network';
 import { usePointCache } from 'store/pointCache';

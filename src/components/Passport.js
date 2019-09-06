@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import cn from 'classnames';
 import { Just, Nothing } from 'folktale/maybe';
-import * as ob from 'urbit-ob';
+import ob from 'urbit-ob';
 import { Grid, Flex, Text } from 'indigo-react';
 import { times } from 'lodash';
 

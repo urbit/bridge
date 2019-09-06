@@ -1,5 +1,5 @@
 import React from 'react';
-import * as ob from 'urbit-ob';
+import ob from 'urbit-ob';
 
 import Sigil from './Sigil';
 import AspectRatio from './AspectRatio';

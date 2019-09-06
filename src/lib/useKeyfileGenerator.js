@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import saveAs from 'file-saver';
-import * as ob from 'urbit-ob';
+import ob from 'urbit-ob';
 
 import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';

@@ -56,7 +56,7 @@ export default function ReticketConfirm({ newWallet, setNewWallet }) {
     Just: ({ value: wallet }) => (
       <PaperBuilder
         point={point}
-        wallet={wallet}
+        wallets={[wallet]}
         callback={paper => {
           setNewWallet(wallet, paper);
         }}

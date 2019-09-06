@@ -1,14 +1,16 @@
 import React from 'react';
 import PaperRenderer from 'urbit-paper-renderer';
 
-export default function PaperBuilder({ point, wallet, callback, ...props }) {
+export default function PaperBuilder({ point, wallets, callback, ...props }) {
   return (
     <PaperRenderer
-      wallet={[wallet]}
-      callback={callback}
-      className="super-hidden"
+      wallets={wallets}
+      callback={data => {
+        callback(data);
+      }}
       show={false}
       debug={false}
+      output={'png'}
     />
   );
 }
