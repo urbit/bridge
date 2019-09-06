@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef } from 'react';
 import { Just } from 'folktale/maybe';
 import cn from 'classnames';
 import * as azimuth from 'azimuth-js';
-import * as kg from 'urbit-key-generation/dist';
+import * as kg from 'urbit-key-generation';
 import { Grid, CheckboxInput, Flex, ToggleInput } from 'indigo-react';
 import { FORM_ERROR } from 'final-form';
 

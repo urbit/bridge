@@ -6,6 +6,7 @@ export default function PaperBuilder({ point, wallets, callback, ...props }) {
     <PaperRenderer
       wallets={wallets}
       callback={data => {
+        console.log(data);
         callback(data);
       }}
       show={false}
