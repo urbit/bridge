@@ -1,5 +1,5 @@
 import * as bip39 from 'bip39';
-import * as ob from 'urbit-ob';
+import ob from 'urbit-ob';
 import { includes } from 'lodash';
 
 import { isValidAddress, ETH_ZERO_ADDR, ETH_ZERO_ADDR_SHORT } from './wallet';
