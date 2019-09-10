@@ -1,5 +1,5 @@
-import * as ob from 'urbit-ob';
-import * as kg from 'urbit-key-generation/dist';
+import ob from 'urbit-ob';
+import kg from 'urbit-key-generation';
 import * as more from 'more-entropy';
 import { chunk, flatMap, zipWith } from 'lodash';
 
