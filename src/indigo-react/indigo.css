@@ -324,7 +324,7 @@ button {
   -webkit-font-smoothing: antialiased; }
 
 body {
-  font-family: "Inter UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
   color: #000000; }
 
 h1,
@@ -647,7 +647,7 @@ caption,
     max-width: 34rem; } }
 
 .sans {
-  font-family: "Inter UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji"; }
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji"; }
 
 .mono {
   font-family: "Source Code Pro", "Roboto mono", "Courier New", monospace; }
