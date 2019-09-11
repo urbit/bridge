@@ -51,7 +51,13 @@ const buildKeyType = permissions => {
  * ticket is null | boolean
  * address is null | Maybe<string>
  */
-function Passport({ point, className, ticket = null, address = Nothing() }) {
+function Passport({
+  point,
+  className,
+  ticket = null,
+  address = Nothing(),
+  onClick,
+}) {
   const birthday = usePointBirthday(point.getOrElse(null));
   const visualBirthday = matchBlinkyDate(birthday);
 
@@ -73,7 +79,7 @@ function Passport({ point, className, ticket = null, address = Nothing() }) {
   })}${ADDRESS_BUFFER_CHARS}`;
 
   return (
-    <Grid gap={4} className={cn('bg-black r8 p7', className)}>
+    <Grid onClick={onClick} gap={4} className={cn('bg-black r8 p7', className)}>
       <Grid.Item cols={[1, 4]}>
         <MaybeSigil patp={name} size={64} />
       </Grid.Item>
