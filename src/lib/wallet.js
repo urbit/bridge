@@ -19,6 +19,7 @@ export const WALLET_TYPES = {
   TREZOR: Symbol('TREZOR'),
   PRIVATE_KEY: Symbol('PRIVATE_KEY'),
   KEYSTORE: Symbol('KEYSTORE'),
+  METAMASK: Symbol('METAMASK'),
 };
 
 export function EthereumWallet(privateKey) {
