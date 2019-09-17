@@ -17,7 +17,6 @@ export const initCanvas = (canvas, size) => {
 export const loadImg = src =>
   new Promise((resolve, reject) => {
     const img = new Image();
-    debugger;
     img.onload = () => resolve(img);
     img.onerror = () => reject(`Error loading image. src: ${src}`);
     img.src = src;

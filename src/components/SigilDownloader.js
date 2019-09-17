@@ -1,12 +1,14 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import * as ob from 'urbit-ob';
 import { saveAs } from 'file-saver';
 import { sigil, stringRenderer } from 'urbit-sigil-js';
 
 import { dataURItoBlob, loadImg, initCanvas } from 'lib/SigilDownloader';
 
-// const attachClickHandler = (children, handler) => Array.isArray(children) ? children.map((Child,key) => (<Child key={key} onClick={handler} />)) : (<children onClick={handler}>);
+import WithTooltip from 'components/WithTooltip';
+
 export default function SigilDownloader({ point, children }) {
+  const [downloaded, setDownloaded] = useState(false);
   const downloadSigil = () => {
     const patp = ob.patp(point);
 
@@ -36,14 +38,13 @@ export default function SigilDownloader({ point, children }) {
     const svgText = new XMLSerializer().serializeToString(svgDocument);
     const svg64 = btoa(svgText);
 
-    const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
-    saveAs(svgBlob, `${patp}.svg`);
-
     const pngTask = loadImg(DATA_URI_PREFIX + svg64, _size, _size).then(img => {
       ctx.drawImage(img, 0, 0, _size, _size);
       const png = dataURItoBlob(canvas.toDataURL('image/png'));
       saveAs(png, `${patp}.png`);
       ctx.clearRect(0, 0, pngSize, pngSize);
+
+      setDownloaded(true);
     });
 
     return pngTask;
@@ -51,11 +52,11 @@ export default function SigilDownloader({ point, children }) {
   const canvasRef = useRef(null);
 
   return (
-    <>
+    <WithTooltip content={downloaded ? 'Downloaded!' : 'Download'}>
       {React.Children.map(children, child =>
         React.cloneElement(child, { onClick: downloadSigil })
       )}
       <canvas style={{ display: 'none' }} ref={canvasRef} />
-    </>
+    </WithTooltip>
   );
 }
