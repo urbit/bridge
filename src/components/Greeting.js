@@ -33,10 +33,15 @@ export default function ActivateDisclaimer({ point }) {
           </Text>
 
           <Text className={cn(TEXT_STYLE, 'block mb2')}>
-            As of this very moment, you own an Urbit identity – a digital
-            identity that you can keep for the rest of your life. Use the Master
-            Ticket included in your Passport to access your Urbit identity at
-            any time. Right now you can:
+            As of this moment, you own a piece of Urbit. No one can take it from
+            you, and you can keep it for the rest of your life.
+          </Text>
+          <Text className={cn(TEXT_STYLE, 'block mb2')}>
+            Keep your Master Ticket safe. No one can recover it for you. But it
+            can get you back into Urbit at any time.
+          </Text>
+          <Text className={cn(TEXT_STYLE, 'block mb2')}>
+            Right now you can:
           </Text>
         </Grid.Item>
 
@@ -57,7 +62,7 @@ export default function ActivateDisclaimer({ point }) {
           as={LinkButton}
           href="https://urbit.org/docs/getting-started/">
           <Text className={cn(TEXT_STYLE, 'block mb2')}>
-            Boot your computer
+            Boot Arvo, the Urbit OS
           </Text>
         </Grid.Item>
 
