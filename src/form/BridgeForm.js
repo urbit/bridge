@@ -36,11 +36,11 @@ export default function BridgeForm({
   return (
     <Form mutators={{ ...arrayMutators }} onSubmit={_onSubmit} {...rest}>
       {formProps => (
-        <>
+        <form style={{ display: 'contents' }} onSubmit={formProps.handleSubmit}>
           <ValidationPauser />
           {children(formProps)}
           {onValues && <ValuesHandler {...formProps} onValues={onValues} />}
-        </>
+        </form>
       )}
     </Form>
   );
