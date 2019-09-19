@@ -52,14 +52,20 @@ export default function PassportDownload({ className }) {
 
   return (
     <>
-      <PassportView className={className} header="Download Your Urbit Passport" step={1}>
+      <PassportView
+        className={className}
+        header="Download Your Urbit Passport"
+        step={1}>
         <Grid>
           <Grid.Item full>
             <P>
-             Your Passport includes your Master Ticket, a password giving you total control of your Urbit identity. You’ll need it to access the network and manage your identity.
+              Your Passport includes your Master Ticket, a password giving you
+              total control of your Urbit identity. You’ll need it to access the
+              network and manage your identity.
             </P>
             <P>
-             After your Passport is downloaded, make sure to print it out on paper and store it somewhere safe.
+              After your Passport is downloaded, make sure to print it out on
+              paper and store it somewhere safe.
             </P>
           </Grid.Item>
           <Grid.Item

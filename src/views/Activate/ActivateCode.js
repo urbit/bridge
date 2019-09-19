@@ -151,7 +151,8 @@ export default function ActivateCode() {
           Activate
         </Grid.Item>
         <Grid.Item full as={P} className="mb2">
-          Someone has invited you to claim your Urbit identity and join the network. Enter your activation code to continue.
+          Someone has invited you to claim your Urbit identity and join the
+          network. Enter your activation code to continue.
         </Grid.Item>
         <BridgeForm
           validate={validate}
