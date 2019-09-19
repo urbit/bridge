@@ -20,10 +20,17 @@ export default function Button({
   children,
   ...rest
 }) {
+  const handleKeyPress = e => {
+    if (e.key === 'Enter' && !disabled) {
+      onClick();
+    }
+  };
   return (
     <Grid
       as={As}
       gap={1}
+      tabIndex={!disabled ? 0 : undefined}
+      onKeyPress={handleKeyPress}
       className={cn(
         'rel pointer pv4 truncate flex-row justify-between us-none',
         {
