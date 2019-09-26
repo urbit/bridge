@@ -1,4 +1,4 @@
-import * as ob from 'urbit-ob';
+import ob from 'urbit-ob';
 
 import { usePointCursor } from 'store/pointCursor';
 

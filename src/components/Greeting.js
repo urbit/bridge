@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import cn from 'classnames';
-import * as ob from 'urbit-ob';
+import ob from 'urbit-ob';
 import { Grid, Text, LinkButton } from 'indigo-react';
 
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -33,7 +33,12 @@ export default function ActivateDisclaimer({ point }) {
           </Text>
 
           <Text className={cn(TEXT_STYLE, 'block mb2')}>
-            As of this moment, you own an Urbit identity — a digital identity that you can keep for the rest of your life. Use the Master Ticket included in your Passport to access your Urbit identity at any time. Right now you can:
+            As of this moment, you own an Urbit identity — a digital identity
+            that you can keep for the rest of your life. Use the Master Ticket
+            included in your Passport to access your Urbit identity at any time.
+          </Text>
+          <Text className={cn(TEXT_STYLE, 'block mb2')}>
+            Right now you can:
           </Text>
         </Grid.Item>
 
@@ -54,7 +59,7 @@ export default function ActivateDisclaimer({ point }) {
           as={LinkButton}
           href="https://urbit.org/docs/getting-started/">
           <Text className={cn(TEXT_STYLE, 'block mb2')}>
-            Boot your computer
+            Boot Arvo, the Urbit OS
           </Text>
         </Grid.Item>
 

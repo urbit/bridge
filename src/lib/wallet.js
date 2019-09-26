@@ -4,7 +4,7 @@ import keccak from 'keccak';
 import { reduce } from 'lodash';
 import { Just, Nothing } from 'folktale/maybe';
 import * as secp256k1 from 'secp256k1';
-import * as kg from 'urbit-key-generation/dist';
+import * as kg from 'urbit-key-generation';
 import { isAddress } from 'web3-utils';
 
 export const DEFAULT_HD_PATH = "m/44'/60'/0'/0/0";
@@ -19,6 +19,7 @@ export const WALLET_TYPES = {
   TREZOR: Symbol('TREZOR'),
   PRIVATE_KEY: Symbol('PRIVATE_KEY'),
   KEYSTORE: Symbol('KEYSTORE'),
+  METAMASK: Symbol('METAMASK'),
 };
 
 export function EthereumWallet(privateKey) {

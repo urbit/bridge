@@ -5,7 +5,7 @@ import * as need from 'lib/need';
 import { usePointCursor } from 'store/pointCursor';
 
 import { DownloadButton, RestartButton } from 'components/Buttons';
-import PaperRenderer from 'components/PaperRenderer';
+import PaperBuilder from 'components/PaperBuilder';
 
 import { downloadWallet } from 'lib/invite';
 
@@ -60,9 +60,9 @@ export default function AdminRedownload() {
           </Grid.Item>
         )}
       </Grid>
-      <PaperRenderer
+      <PaperBuilder
         point={point}
-        wallet={_urbitWallet}
+        wallets={[_urbitWallet]}
         callback={paper => {
           setPaper(Just(paper));
         }}

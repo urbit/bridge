@@ -1,4 +1,4 @@
-import * as ob from 'urbit-ob';
+import ob from 'urbit-ob';
 import patp2dec from './patp2dec';
 
 const compose = (...fs) =>

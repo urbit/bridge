@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import { Just } from 'folktale/maybe';
-import * as need from 'lib/need';
 import { Grid } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
 
@@ -11,7 +10,9 @@ import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
 import { ForwardButton, BootArvoButton } from 'components/Buttons';
 import { matchBlinky } from 'components/Blinky';
+import SigilDownloader from 'components/SigilDownloader';
 
+import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
 import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
@@ -72,7 +73,7 @@ export default function Point() {
               as={ForwardButton}
               disabled={!isActiveOwner}
               onClick={goPartiesSetPoolSize}>
-              Manage Parties
+              Manage Invite Pools
             </Grid.Item>
             <Grid.Divider />
           </>
@@ -89,7 +90,9 @@ export default function Point() {
   return (
     <View pop={pop} inset>
       <Greeting point={point} />
-      <Passport point={Just(point)} />
+      <SigilDownloader point={point}>
+        <Passport point={Just(point)} />
+      </SigilDownloader>
       <Grid className="pt2">
         {inviteButton}
         <Grid.Item

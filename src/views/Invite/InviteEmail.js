@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import cn from 'classnames';
-import * as ob from 'urbit-ob';
+import ob from 'urbit-ob';
 import * as azimuth from 'azimuth-js';
 import {
   Grid,
