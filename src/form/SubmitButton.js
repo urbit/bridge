@@ -56,6 +56,7 @@ export default function SubmitButton({
 
   return (
     <As
+      type="submit"
       className={cn('mt4', className)}
       disabled={!canSubmit}
       accessory={blinkIf(validating || submitting)}
