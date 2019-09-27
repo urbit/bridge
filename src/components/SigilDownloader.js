@@ -41,7 +41,7 @@ export default function SigilDownloader({ point, children }) {
     const pngTask = loadImg(DATA_URI_PREFIX + svg64, _size, _size).then(img => {
       ctx.drawImage(img, 0, 0, _size, _size);
       const png = dataURItoBlob(canvas.toDataURL('image/png'));
-      saveAs(png, `${patp}.png`);
+      saveAs(png, `${patp.slice(1)}-sigil.png`);
       ctx.clearRect(0, 0, pngSize, pngSize);
 
       setDownloaded(true);
