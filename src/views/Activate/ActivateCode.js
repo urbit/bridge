@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import { Just } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
-import { Grid, H4, CheckboxInput } from 'indigo-react';
+import { Grid, H4, P, CheckboxInput } from 'indigo-react';
 import { FORM_ERROR } from 'final-form';
 
 import View from 'components/View';
@@ -147,8 +147,12 @@ export default function ActivateCode() {
     <View inset>
       <Grid>
         <Grid.Item full as={Passport} point={derivedPoint} />
-        <Grid.Item full as={H4} className="mt3 mb2">
+        <Grid.Item full as={H4} className="mt3">
           Activate
+        </Grid.Item>
+        <Grid.Item full as={P} className="mb2">
+          Someone has invited you to claim your Urbit identity and join the
+          network. Enter your activation code to continue.
         </Grid.Item>
         <BridgeForm
           validate={validate}

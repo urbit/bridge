@@ -385,7 +385,7 @@ export default function AdminNetworkingKeys() {
 
         {completed && (
           <>
-            <Grid.Item full as={BootArvoButton} disabled />
+            <Grid.Item full as={BootArvoButton} />
             <Grid.Divider />
           </>
         )}

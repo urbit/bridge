@@ -25,7 +25,10 @@ export const OfflineButton = props => (
 );
 
 export const BootArvoButton = props => (
-  <ForwardButton detail="Boot your computer" {...props}>
+  <OutButton
+    href="https://urbit.org/docs/getting-started"
+    detail="Boot your computer"
+    {...props}>
     Boot Arvo
-  </ForwardButton>
+  </OutButton>
 );

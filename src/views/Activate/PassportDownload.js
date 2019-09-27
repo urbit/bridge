@@ -7,7 +7,7 @@ import { downloadWallet } from 'lib/invite';
 import { useLocalRouter } from 'lib/LocalRouter';
 
 import { DownloadButton, ForwardButton } from 'components/Buttons';
-import PaperRenderer from 'components/PaperRenderer';
+import PaperBuilder from 'components/PaperBuilder';
 
 import { useActivateFlow } from './ActivateFlow';
 import PassportView from './PassportView';
@@ -52,18 +52,20 @@ export default function PassportDownload({ className }) {
 
   return (
     <>
-      <PassportView className={className} header="Passport" step={1}>
+      <PassportView
+        className={className}
+        header="Download Your Urbit Passport"
+        step={1}>
         <Grid>
           <Grid.Item full>
             <P>
-              After you’ve downloaded your passport, back up the ticket manually
-              or store on a trusted device.
+              Your Passport includes your Master Ticket, a password giving you
+              total control of your Urbit identity. You’ll need it to access the
+              network and manage your identity.
             </P>
             <P>
-              What is digital identity? A passport is your digital identity. You
-              will use your passport to access your true computer, send
-              payments, and administer your identity. So naturally, you must
-              keep this secure.
+              After your Passport is downloaded, make sure to print it out on
+              paper and store it somewhere safe.
             </P>
           </Grid.Item>
           <Grid.Item
@@ -77,10 +79,12 @@ export default function PassportDownload({ className }) {
           </Grid.Item>
         </Grid>
       </PassportView>
-      <PaperRenderer
+      <PaperBuilder
         point={pointAsString}
-        wallet={wallet}
-        callback={data => setPaper(Just(data))}
+        wallets={[wallet]}
+        callback={data => {
+          setPaper(Just(data));
+        }}
       />
     </>
   );

@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { Grid, Text, ErrorText } from 'indigo-react';
-import { fromWei } from 'web3-utils';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
@@ -17,12 +16,11 @@ import timeout from 'lib/timeout';
 
 import WarningBox from 'components/WarningBox';
 import LoadingBar from 'components/LoadingBar';
-import Highlighted from 'components/Highlighted';
 import { RestartButton } from 'components/Buttons';
+import NeedFundsNotice from 'components/NeedFundsNotice';
 
 import { useActivateFlow } from './ActivateFlow';
 import PassportView from './PassportView';
-import CopiableAddress from 'components/CopiableAddress';
 
 const labelForProgress = progress => {
   if (progress <= 0) {
@@ -162,14 +160,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
 
     if (needFunds) {
       return (
-        <Grid.Item full className="mt8">
-          <Highlighted warning>
-            The address <CopiableAddress>{needFunds.address}</CopiableAddress>{' '}
-            needs at least {fromWei(needFunds.minBalance)} ETH and currently has{' '}
-            {fromWei(needFunds.balance)} ETH. Waiting until the account has
-            enough funds.
-          </Highlighted>
-        </Grid.Item>
+        <Grid.Item full as={NeedFundsNotice} className="mt8" {...needFunds} />
       );
     }
 

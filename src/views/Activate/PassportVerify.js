@@ -47,12 +47,22 @@ export default function PassportVerify({ className }) {
   );
 
   return (
-    <PassportView header="Verify Passport" step={2} className={className}>
+    <PassportView
+      header="Verify Your Master Ticket"
+      step={2}
+      className={className}>
       <Grid>
         <Grid.Item full as={P}>
-          After you download your passport, verify your custody. Your passport
-          should be a folder of image files. One of them is your Master Ticket.
-          Open it and enter the 4 word phrase below (with hyphens).
+          We need to verify that you’re you. Unzip the file you downloaded in
+          the previous step. It should yield a directory of images.
+        </Grid.Item>
+        <Grid.Item full as={P}>
+          One of the images includes your Master Ticket. It’s a four-word phrase
+          separated with hyphens. Enter it below to verify you recieved it
+          (include the hyphens).
+        </Grid.Item>
+        <Grid.Item full as={P}>
+          <b>Never share your Master Ticket with anyone else.</b>
         </Grid.Item>
         <BridgeForm
           validate={validate}

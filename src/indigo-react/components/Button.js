@@ -17,13 +17,21 @@ export default function Button({
   accessory = '→',
   onClick,
   background,
+  type,
   children,
   ...rest
 }) {
+  const handleKeyPress = e => {
+    if (e.key === 'Enter' && !disabled) {
+      onClick();
+    }
+  };
   return (
     <Grid
       as={As}
       gap={1}
+      tabIndex={!disabled ? 0 : undefined}
+      onKeyPress={handleKeyPress}
       className={cn(
         'rel pointer pv4 truncate flex-row justify-between us-none',
         {
@@ -54,6 +62,7 @@ export default function Button({
       {background}
       <Grid.Item full as={Flex} justify="between" className="z2">
         <span>{children}</span>
+        {type && <button type={type} style={{ display: 'none' }}></button>}
         <div className={cn('pl4')}>{accessory}</div>
       </Grid.Item>
       {detail && (

@@ -11,7 +11,7 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import { isDevelopment } from 'lib/flags';
 
 import { ForwardButton } from 'components/Buttons';
-import PaperRenderer from 'components/PaperRenderer';
+import PaperBuilder from 'components/PaperBuilder';
 import WarningBox from 'components/WarningBox';
 import { blinkIf } from 'components/Blinky';
 import useCurrentPointName from 'lib/useCurrentPointName';
@@ -54,9 +54,9 @@ export default function ReticketConfirm({ newWallet, setNewWallet }) {
   const paperRenderer = generatedWallet.matchWith({
     Nothing: () => null,
     Just: ({ value: wallet }) => (
-      <PaperRenderer
+      <PaperBuilder
         point={point}
-        wallet={wallet}
+        wallets={[wallet]}
         callback={paper => {
           setNewWallet(wallet, paper);
         }}

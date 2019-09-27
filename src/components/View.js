@@ -7,6 +7,8 @@ import useBreakpoints from 'lib/useBreakpoints';
 import MiniBackButton from './MiniBackButton';
 import { useHistory } from 'store/history';
 
+const EXPECT_LOGOUT_WHEN_POPPING_AT_DEPTH = 2;
+
 // View is a top-level component that all Views must render to inherit styling
 function View({
   className,
@@ -28,6 +30,7 @@ function View({
   const goBack = useCallback(() => pop(), [pop]);
 
   const showBackButton = size > 1 && !!pop;
+  const backIsLogout = size === EXPECT_LOGOUT_WHEN_POPPING_AT_DEPTH;
 
   return (
     <Flex
@@ -52,6 +55,7 @@ function View({
           <MiniBackButton
             hpadding={!isMobile}
             vpadding={isMobile}
+            isExit={backIsLogout}
             onClick={goBack}
           />
         )}

@@ -8,7 +8,7 @@
 /* Fonts */
 /* we need to load these as base64 (inline) to avoid lazy loading
    see also #218 */
-@import './font64.scss';
+@import './fonts64.scss';
 
 /* Bridge Styles */
 @import './bridge.scss';
