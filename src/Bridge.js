@@ -18,6 +18,8 @@ import useImpliedTicket from 'lib/useImpliedTicket';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
 
 import 'style/index.scss';
+import WithErrorBoundary from 'components/WithErrorBoundary';
+import GlobalErrorBoundary from 'components/GlobalErrorBoundary';
 
 const INITIAL_NETWORK_TYPE = isDevelopment
   ? NETWORK_TYPES.LOCAL
@@ -65,19 +67,21 @@ function Bridge() {
   const initialRoutes = useInitialRoutes();
 
   return (
-    <Provider
-      views={ROUTES}
-      names={ROUTE_NAMES}
-      initialRoutes={initialRoutes}
-      initialNetworkType={INITIAL_NETWORK_TYPE}
-      initialWallet={INITIAL_WALLET}
-      initialMnemonic={INITIAL_MNEMONIC}
-      initialPointCursor={INITIAL_POINT_CURSOR}>
-      <Header />
-      <IndigoApp>
-        <Router />
-      </IndigoApp>
-    </Provider>
+    <WithErrorBoundary render={error => <GlobalErrorBoundary error={error} />}>
+      <Provider
+        views={ROUTES}
+        names={ROUTE_NAMES}
+        initialRoutes={initialRoutes}
+        initialNetworkType={INITIAL_NETWORK_TYPE}
+        initialWallet={INITIAL_WALLET}
+        initialMnemonic={INITIAL_MNEMONIC}
+        initialPointCursor={INITIAL_POINT_CURSOR}>
+        <Header />
+        <IndigoApp>
+          <Router />
+        </IndigoApp>
+      </Provider>
+    </WithErrorBoundary>
   );
 }
 
