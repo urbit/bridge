@@ -26,7 +26,7 @@ export default function Point() {
 
   const point = need.point(pointCursor);
 
-  const { code } = useKeyfileGenerator();
+  const { code, notice } = useKeyfileGenerator();
 
   const {
     isParent,
@@ -108,8 +108,8 @@ export default function Point() {
         <Grid.Item
           full
           as={ForwardButton}
-          accessory={<CopyButton text={code} />}
-          detail={code}
+          accessory={code && <CopyButton text={code} />}
+          detail={code || notice}
           detailClassName="mono">
           Login Code
         </Grid.Item>
