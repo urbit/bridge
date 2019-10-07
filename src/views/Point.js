@@ -4,13 +4,13 @@ import { Grid } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';
+import { useWallet } from 'store/wallet';
 
 import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
 import { ForwardButton, BootArvoButton } from 'components/Buttons';
 import { matchBlinky } from 'components/Blinky';
-import SigilDownloader from 'components/SigilDownloader';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
@@ -22,6 +22,7 @@ export default function Point() {
   const { pop, push, names } = useLocalRouter();
   const { pointCursor } = usePointCursor();
 
+  const { wallet } = useWallet();
   const point = need.point(pointCursor);
 
   const {
@@ -87,12 +88,16 @@ export default function Point() {
   // sync the current cursor
   useSyncOwnedPoints([point]);
 
+  const address = need.addressFromWallet(wallet);
+
   return (
     <View pop={pop} inset>
       <Greeting point={point} />
-      <SigilDownloader point={point}>
-        <Passport point={Just(point)} />
-      </SigilDownloader>
+      <Passport
+        point={Just(point)}
+        address={Just(address)}
+        animationMode={'none'}
+      />
       <Grid className="pt2">
         {inviteButton}
         <Grid.Item
