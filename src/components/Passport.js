@@ -10,7 +10,7 @@ import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 
 import { useWallet } from 'store/wallet';
 
-import MaybeSigil from './MaybeSigil';
+import Sigil from './Sigil';
 import { sigil, reactRenderer } from 'urbit-sigil-js';
 
 function makeSigil(size, patp, colors) {
@@ -21,28 +21,33 @@ function makeSigil(size, patp, colors) {
     renderer: reactRenderer,
   };
 
+  console.log(patp);
+
   // Planet
   if (patp.length === 14) {
     return sigil({
-      ...config,
+      patp: patp,
       size: size,
+      ...config,
     });
   }
   // Star
   if (patp.length === 7) {
     return sigil({
-      ...config,
+      patp: patp,
       width: size * 2,
       height: size,
       full: true,
+      ...config,
     });
   }
   // Galaxy
   if (patp.length === 4) {
     return sigil({
-      ...config,
+      patp: patp,
       size: size,
       full: true,
+      ...config,
     });
   }
 }
@@ -78,6 +83,8 @@ function Passport({ address, point, inverted, animationMode, keyType }) {
   };
 
   const patp = ob.patp(point.value);
+
+  console.log(point.value);
 
   const makeMatrix = addr => {
     // remove the 0x
@@ -119,6 +126,7 @@ function Passport({ address, point, inverted, animationMode, keyType }) {
         border: inverted ? '2px solid #E6E6E6' : '2px solid black',
         borderRadius: '20px',
         marginBottom: '16px',
+        width: `${16 + 16 + cols * tile}px`,
         minWidth: `${16 + 16 + cols * tile}px`,
         display: 'flex',
         flexDirection: 'column',
@@ -135,9 +143,7 @@ function Passport({ address, point, inverted, animationMode, keyType }) {
             display: 'flex',
             alignItems: 'center',
           }}>
-          {Just.hasInstance(point) && (
-            <MaybeSigil patp={patp.map(ob.patp).value} />
-          )}
+          {Just.hasInstance(point) && makeSigil(64, patp, [bgColor, fgColor])}
           <div
             style={{
               marginLeft: '16px',
