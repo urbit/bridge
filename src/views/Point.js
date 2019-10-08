@@ -10,7 +10,7 @@ import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
 import { ForwardButton, BootArvoButton } from 'components/Buttons';
 import { matchBlinky } from 'components/Blinky';
-import SigilDownloader from 'components/SigilDownloader';
+import DownloadSigilButton from 'components/SigilDownloader';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
@@ -90,9 +90,7 @@ export default function Point() {
   return (
     <View pop={pop} inset>
       <Greeting point={point} />
-      <SigilDownloader point={point}>
-        <Passport point={Just(point)} />
-      </SigilDownloader>
+      <Passport point={Just(point)} />
       <Grid className="pt2">
         {inviteButton}
         <Grid.Item
@@ -116,6 +114,8 @@ export default function Point() {
           </>
         )}
         <Grid.Item full as={BootArvoButton} />
+        <Grid.Divider />
+        <Grid.Item full as={DownloadSigilButton} point={point} />
         <Grid.Divider />
       </Grid>
     </View>

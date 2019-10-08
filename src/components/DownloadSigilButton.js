@@ -5,9 +5,13 @@ import { sigil, stringRenderer } from 'urbit-sigil-js';
 
 import { dataURItoBlob, loadImg, initCanvas } from 'lib/SigilDownloader';
 
-import WithTooltip from 'components/WithTooltip';
+import { DownloadButton } from 'components/Buttons';
 
-export default function SigilDownloader({ point, children }) {
+export default function DownloadSigilButton({
+  point,
+  children = 'Download Sigil',
+  ...rest
+}) {
   const [downloaded, setDownloaded] = useState(false);
   const downloadSigil = () => {
     const patp = ob.patp(point);
@@ -24,7 +28,6 @@ export default function SigilDownloader({ point, children }) {
     // make sigil svg and encoded into base64
     const svg = sigil({
       patp,
-      full: true,
       renderer: stringRenderer,
       size: _size,
       colors: ['#FFFFFF', '#000000'],
@@ -52,11 +55,18 @@ export default function SigilDownloader({ point, children }) {
   const canvasRef = useRef(null);
 
   return (
-    <WithTooltip content={downloaded ? 'Downloaded!' : 'Download'}>
-      {React.Children.map(children, child =>
-        React.cloneElement(child, { onClick: downloadSigil })
-      )}
+    <>
+      <DownloadButton
+        as="span"
+        disabled={downloaded}
+        onClick={downloadSigil}
+        detail={
+          downloaded ? 'Downloaded!' : 'Download the sigil for this point'
+        }
+        {...rest}>
+        {children}
+      </DownloadButton>
       <canvas style={{ display: 'none' }} ref={canvasRef} />
-    </WithTooltip>
+    </>
   );
 }
