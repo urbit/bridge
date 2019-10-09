@@ -1,4 +1,5 @@
 import { hex2patp } from 'urbit-ob';
+import { createRing } from 'lib/keys';
 
 import jssha256 from 'js-sha256';
 
@@ -7,7 +8,7 @@ function shax(buf) {
   return Buffer.from(hashed);
 }
 
-function hexToArrayBuffer(hex) {
+function hex2buf(hex) {
   return Buffer.from(hex, 'hex').reverse();
 }
 
@@ -38,10 +39,10 @@ function shaf(buf, salt) {
   return xor(front, back);
 }
 
-export const generateCode = async privKeyHex => {
-  const privKey = hexToArrayBuffer(privKeyHex);
-  const salt = hexToArrayBuffer('73736170');
-  const hash = shax(privKey);
+export const generateCode = pair => {
+  const ring = hex2buf(createRing(pair));
+  const salt = hex2buf('73736170'); // salt is the noun %pass
+  const hash = shax(ring);
   const result = shaf(hash, salt);
   const half = result.slice(0, result.length / 2);
 

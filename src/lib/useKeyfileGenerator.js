@@ -74,7 +74,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
 
     const pair = deriveNetworkKeys(_networkSeed);
 
-    generateCode(pair.crypt.private + pair.auth.private + '42').then(setCode);
+    setCode(generateCode(pair));
 
     if (!keysMatchChain(pair, _details)) {
       setGenerating(false);

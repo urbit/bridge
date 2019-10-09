@@ -59,6 +59,9 @@ const jam = seed => {
 // simple alias to avoid importing kg into component scope
 export const deriveNetworkKeys = seed => kg.deriveNetworkKeys(seed);
 
+export const createRing = pair =>
+  pair.crypt.private + pair.auth.private + NETWORK_KEY_CURVE_PARAMETER;
+
 /**
  * @param {object} pair
  * @param {number} point
@@ -66,10 +69,7 @@ export const deriveNetworkKeys = seed => kg.deriveNetworkKeys(seed);
  * @return {string}
  */
 export const compileNetworkingKey = (pair, point, revision) => {
-  const bnsec = new BN(
-    pair.crypt.private + pair.auth.private + NETWORK_KEY_CURVE_PARAMETER,
-    'hex'
-  );
+  const bnsec = new BN(createRing(pair), 'hex');
 
   const sed = noun.dwim(
     noun.Atom.fromInt(point),
