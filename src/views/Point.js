@@ -10,7 +10,7 @@ import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
 import { ForwardButton, BootArvoButton } from 'components/Buttons';
 import { matchBlinky } from 'components/Blinky';
-import DownloadSigilButton from 'components/SigilDownloader';
+import DownloadSigilButton from 'components/DownloadSigilButton';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
