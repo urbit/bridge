@@ -142,10 +142,10 @@ export default function InviteEmail() {
 
   const validateHasReceived = useCallback(
     async email => {
-      const hasReceived = await getHasReceived(email);
-      if (hasReceived) {
-        return HAS_RECEIVED_TEXT;
-      }
+      //const hasReceived = await getHasReceived(email);
+      //if (hasReceived) {
+      //  return HAS_RECEIVED_TEXT;
+      //}
     },
     [getHasReceived]
   );
@@ -342,17 +342,17 @@ export default function InviteEmail() {
         return;
       }
 
-      try {
-        await sendMail(
-          invite.email,
-          invite.ticket,
-          ob.patp(point),
-          invite.rawTx
-        );
-      } catch (error) {
-        console.error(error);
+      //try {
+      //  await sendMail(
+      //    invite.email,
+      //    invite.ticket,
+      //    ob.patp(point),
+      //    invite.rawTx
+      //  );
+      //} catch (error) {
+      //  console.error(error);
         orphanedInvites.push(invite);
-      }
+      //}
 
       addReceipt({ [name]: true });
     });
