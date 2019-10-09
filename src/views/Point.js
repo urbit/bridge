@@ -110,6 +110,7 @@ export default function Point() {
           as={ForwardButton}
           accessory={code && <CopyButton text={code} />}
           detail={code || notice}
+          disabled={!code}
           detailClassName="mono">
           Login Code
         </Grid.Item>
