@@ -96,7 +96,7 @@ export default function Point() {
       <Passport
         point={Just(point)}
         address={Just(address)}
-        animationMode={'none'}
+        animationMode={'slide'}
       />
       <Grid className="pt2">
         {inviteButton}

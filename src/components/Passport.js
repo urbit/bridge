@@ -2,6 +2,7 @@ import React from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import ob from 'urbit-ob';
 import BN from 'bn.js';
+import 'style/anim.css';
 
 import * as need from 'lib/need';
 import { chunkStr, Matrix, walk, rand } from 'lib/card';
@@ -74,7 +75,13 @@ const symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
  * animationMode is 'slide' | 'step' | 'none'
  *
  */
-function Passport({ address, point, inverted, animationMode, keyType }) {
+function Passport({
+  address,
+  point,
+  inverted,
+  animationMode = 'none',
+  keyType,
+}) {
   const [cols, rows, tile] = [35, 12, 12];
 
   const loading = Nothing.hasInstance(address) || Nothing.hasInstance(point);
@@ -83,8 +90,6 @@ function Passport({ address, point, inverted, animationMode, keyType }) {
   };
 
   const patp = ob.patp(point.value);
-
-  console.log(point.value);
 
   const makeMatrix = addr => {
     // remove the 0x
@@ -155,7 +160,7 @@ function Passport({ address, point, inverted, animationMode, keyType }) {
                 fontSize: '16px',
                 fontFamily: 'Source Code Pro',
               }}>
-              {patp}
+              {Just.hasInstance(point) && patp}
             </div>
             {keyType !== '' ? (
               <div
