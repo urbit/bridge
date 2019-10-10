@@ -9,6 +9,7 @@ import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
 import { ForwardButton, BootArvoButton } from 'components/Buttons';
+import CopyButton from 'components/CopyButton';
 import { matchBlinky } from 'components/Blinky';
 import DownloadSigilButton from 'components/DownloadSigilButton';
 
@@ -17,12 +18,15 @@ import useInvites from 'lib/useInvites';
 import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 export default function Point() {
   const { pop, push, names } = useLocalRouter();
   const { pointCursor } = usePointCursor();
 
   const point = need.point(pointCursor);
+
+  const { code, notice } = useKeyfileGenerator();
 
   const {
     isParent,
@@ -99,6 +103,16 @@ export default function Point() {
           disabled={!canManage}
           onClick={goAdmin}>
           Admin
+        </Grid.Item>
+        <Grid.Divider />
+        <Grid.Item
+          full
+          as={ForwardButton}
+          accessory={code && <CopyButton text={code} />}
+          detail={code || notice}
+          disabled={!code}
+          detailClassName="mono">
+          Login Code
         </Grid.Item>
         <Grid.Divider />
         {isParent && (
