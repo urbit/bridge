@@ -263,7 +263,7 @@ function MiniPassport({ point, inverted, ...rest }) {
         border: inverted ? '2px solid #E6E6E6' : '2px solid black',
         borderRadius: '20px',
         marginBottom: '16px',
-        width: `${230}px`,
+        maxWidth: `${230}px`,
         display: 'flex',
         flexDirection: 'column',
       }}
