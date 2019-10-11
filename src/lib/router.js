@@ -1,5 +1,6 @@
 import Disclaimer from 'views/Disclaimer';
-import Login from 'views/Login.js';
+import Login from 'views/Login';
+import Sender from 'views/Sender';
 import Admin from 'views/Admin';
 import CreateGalaxy from 'views/CreateGalaxy';
 import IssueChild from 'views/IssueChild';
@@ -19,6 +20,7 @@ export const ROUTES = {
   [ROUTE_NAMES.DISCLAIMER]: Disclaimer,
   [ROUTE_NAMES.ACTIVATE]: Activate,
   [ROUTE_NAMES.LOGIN]: Login,
+  [ROUTE_NAMES.SENDER]: Sender,
   [ROUTE_NAMES.POINTS]: Points,
   [ROUTE_NAMES.POINT]: Point,
   [ROUTE_NAMES.CREATE_GALAXY]: CreateGalaxy,

@@ -8,6 +8,7 @@ export const ROUTE_NAMES = {
   INVITES_MANAGE: Symbol('INVITES_MANAGE'),
   //
   LOGIN: Symbol('LOGIN'),
+  SENDER: Symbol('SENDER'),
   ADMIN: Symbol('ADMIN'),
   REDOWNLOAD: Symbol('REDOWNLOAD'),
   RETICKET: Symbol('RETICKET'),

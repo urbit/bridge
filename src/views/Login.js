@@ -53,7 +53,7 @@ export default function Login() {
   ]);
 
   const goHome = useCallback(() => {
-    push(names.POINTS);
+    push(names.SENDER);
   }, [push, names]);
 
   return (
