@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import cn from 'classnames';
-import { Grid } from 'indigo-react';
+import { Grid, Flex } from 'indigo-react';
 
 import { LocalRouterProvider, useLocalRouter } from 'lib/LocalRouter';
 
@@ -62,12 +62,12 @@ export default function ActivatePassport() {
         .map(wallet => addressFromSecp256k1Public(wallet.publicKey)),
     [derivedWallet]
   );
-
+  //~hobbyn-mismur-fonrux-datber
   return (
-    <View full={fullView}>
+    <View inset>
       <LocalRouterProvider value={router}>
         <Grid gap={gap} className="mt8 mb10">
-          <Grid.Item half={half && 1} full={full}>
+          <Grid.Item full>
             <Passport
               className={cn({ [`mt${marginTop}`]: marginTop })}
               point={derivedPoint}
@@ -76,8 +76,7 @@ export default function ActivatePassport() {
             />
           </Grid.Item>
           <Grid.Item
-            half={half && 2}
-            full={full}
+            full
             as={Route}
             resetActivateRouter={resetActivateRouter}
           />
