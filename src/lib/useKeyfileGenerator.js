@@ -32,9 +32,12 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
   const [code, setCode] = useState(false);
 
   const _point = need.point(pointCursor);
-  const _details = need.details(getDetails(_point));
+  const details = getDetails(_point);
 
-  const networkRevision = convertToInt(_details.keyRevisionNumber, 10);
+  const networkRevision = details.matchWith({
+    Just: ({ value }) => convertToInt(value.keyRevisionNumber, 10),
+    Nothing: () => 0,
+  });
   const { isOwner, isManagementProxy } = useCurrentPermissions();
 
   const hasNetworkingKeys = networkRevision > 0;
@@ -50,6 +53,8 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
       );
       return;
     }
+
+    const _details = need.details(details);
 
     const networkSeed = manualNetworkSeed
       ? Just(manualNetworkSeed)
@@ -94,7 +99,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     wallet,
     authMnemonic,
     setCode,
-    _details,
+    details,
     _point,
   ]);
 
