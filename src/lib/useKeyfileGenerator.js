@@ -8,6 +8,7 @@ import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 
 import * as need from 'lib/need';
+import { generateCode } from 'lib/networkCode';
 
 import {
   attemptNetworkSeedDerivation,
@@ -27,6 +28,8 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
   const [downloaded, setDownloaded] = useState(false);
   const [generating, setGenerating] = useState(true);
   const [keyfile, setKeyfile] = useState(false);
+
+  const [code, setCode] = useState(false);
 
   const _point = need.point(pointCursor);
   const _details = need.details(getDetails(_point));
@@ -71,6 +74,8 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
 
     const pair = deriveNetworkKeys(_networkSeed);
 
+    setCode(generateCode(pair));
+
     if (!keysMatchChain(pair, _details)) {
       setGenerating(false);
       setNotice('Derived networking keys do not match on-chain details.');
@@ -88,6 +93,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     urbitWallet,
     wallet,
     authMnemonic,
+    setCode,
     _details,
     _point,
   ]);
@@ -113,6 +119,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     downloaded,
     download,
     notice,
+    code,
   };
 
   return { ...values, bind: values };
