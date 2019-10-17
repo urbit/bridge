@@ -4,6 +4,7 @@ import { Grid } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';
+import { useWallet } from 'store/wallet';
 
 import View from 'components/View';
 import Greeting from 'components/Greeting';
@@ -22,6 +23,7 @@ export default function Point() {
   const { pop, push, names } = useLocalRouter();
   const { pointCursor } = usePointCursor();
 
+  const { wallet } = useWallet();
   const point = need.point(pointCursor);
 
   const {
@@ -87,10 +89,16 @@ export default function Point() {
   // sync the current cursor
   useSyncOwnedPoints([point]);
 
+  const address = need.addressFromWallet(wallet);
+
   return (
     <View pop={pop} inset>
       <Greeting point={point} />
-      <Passport point={Just(point)} />
+      <Passport
+        point={Just(point)}
+        address={Just(address)}
+        animationMode={'slide'}
+      />
       <Grid className="pt2">
         {inviteButton}
         <Grid.Item
