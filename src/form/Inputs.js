@@ -112,7 +112,7 @@ export function PointInput({ name, size = 4, ...rest }) {
   return (
     <Input
       type="text"
-      label="Point"
+      label="Urbit ID"
       name={name}
       placeholder={PLACEHOLDER_POINT}
       autoCapitalize="none"

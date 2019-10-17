@@ -300,7 +300,7 @@ export default function Points() {
         {allPoints.length > 0 && (
           <Grid.Item full as={Grid} gap={1}>
             <Grid.Item full as={H5}>
-              {pluralize(allPoints.length, 'Point')}
+              {pluralize(allPoints.length, 'ID')}
             </Grid.Item>
             <Grid.Item full as={PointList} points={allPoints} />
           </Grid.Item>
@@ -324,7 +324,7 @@ export default function Points() {
             <Grid.Item
               full
               as={ForwardButton}
-              detail="View a point"
+              detail="View an ID"
               onClick={goViewPoint}>
               View a point
             </Grid.Item>

@@ -94,7 +94,7 @@ export default function AdminHome() {
             full
             as={ForwardButton}
             onClick={goTransfer}
-            detail="Transfer ownership of this point"
+            detail="Transfer ownership of this ID"
             disabled={!canTransfer}>
             Transfer
           </Grid.Item>
