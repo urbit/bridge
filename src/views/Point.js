@@ -11,6 +11,7 @@ import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
 import { ForwardButton, BootArvoButton } from 'components/Buttons';
 import { matchBlinky } from 'components/Blinky';
+import DownloadSigilButton from 'components/DownloadSigilButton';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
@@ -121,6 +122,8 @@ export default function Point() {
           </>
         )}
         <Grid.Item full as={BootArvoButton} />
+        <Grid.Divider />
+        <Grid.Item full as={DownloadSigilButton} point={point} />
         <Grid.Divider />
       </Grid>
     </View>

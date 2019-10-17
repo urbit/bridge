@@ -26,13 +26,13 @@ const labelForProgress = progress => {
   if (progress <= 0) {
     return 'Starting...';
   } else if (progress <= TRANSACTION_PROGRESS.GENERATING) {
-    return 'Generating Transactions...';
+    return 'Generating Ethereum Transactions...';
   } else if (progress <= TRANSACTION_PROGRESS.SIGNING) {
-    return 'Signing Transactions...';
+    return 'Signing Ethereum Transactions...';
   } else if (progress <= TRANSACTION_PROGRESS.FUNDING) {
-    return 'Funding Transactions...';
+    return 'Funding Ethereum Transactions...';
   } else if (progress <= TRANSACTION_PROGRESS.TRANSFERRING) {
-    return 'Transferring Point...';
+    return 'Transferring ID...';
   } else if (progress <= TRANSACTION_PROGRESS.CLEANING) {
     return 'Cleaning Up...';
   } else if (progress <= TRANSACTION_PROGRESS.DONE) {
