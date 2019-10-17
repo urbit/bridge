@@ -1,5 +1,5 @@
 import React from 'react';
-import { fromWei } from 'web3-utils';
+import { fromWei, toBN } from 'web3-utils';
 
 import Highlighted from './Highlighted';
 import CopiableAddress from './CopiableAddress';
@@ -16,9 +16,9 @@ export default function NeedFundsNotice({
     <WarningBox {...rest}>
       <Highlighted warning>
         Your ownership address <CopiableAddress>{address}</CopiableAddress>{' '}
-        needs at least {fromWei(minBalance)} ETH and currently has{' '}
-        {fromWei(balance)} ETH. The transaction will automatically resume once
-        enough ETH is available. Waiting... <Blinky />
+        needs at least {fromWei(toBN(minBalance))} ETH and currently has{' '}
+        {fromWei(toBN(balance))} ETH. The transaction will automatically resume
+        once enough ETH is available. Waiting... <Blinky />
       </Highlighted>
     </WarningBox>
   );
