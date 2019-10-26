@@ -46,5 +46,5 @@ export const generateCode = pair => {
   const result = shaf(hash, salt);
   const half = result.slice(0, result.length / 2);
 
-  return hex2patp(buf2hex(half));
+  return hex2patp(buf2hex(half)).slice(1);
 };
