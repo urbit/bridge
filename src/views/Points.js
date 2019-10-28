@@ -206,6 +206,23 @@ export default function Points() {
     push,
   ]);
 
+  if (
+    loading ||
+    (allPoints.length === 1 &&
+      ownedPoints.length === 1 &&
+      outgoingPoints.length === 0)
+  ) {
+    return (
+      <View inset pop={pop}>
+        <Grid>
+          <Grid.Item full as={HelpText} className="mt8 t-center">
+            <Blinky /> Loading...
+          </Grid.Item>
+        </Grid>
+      </View>
+    );
+  }
+
   return (
     <View pop={pop} inset>
       <Grid>
@@ -214,12 +231,6 @@ export default function Points() {
             {abbreviateAddress(address)}
           </CopiableAddress>
         </Grid.Item>
-
-        {loading && (
-          <Grid.Item full as={HelpText} className="mt8 t-center">
-            <Blinky /> Loading...
-          </Grid.Item>
-        )}
 
         {displayEmptyState && (
           <Grid.Item full as={HelpText} className="mt8 t-center">
