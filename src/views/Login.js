@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { H4, Grid } from 'indigo-react';
+import { P, H4, Grid } from 'indigo-react';
+
+import { version } from '../../package.json';
 
 import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
@@ -76,6 +78,9 @@ export default function Login() {
           // Tab extra
           goHome={goHome}
         />
+        <Grid.Item full as={P} className="f6">
+          Version {version}
+        </Grid.Item>
       </Grid>
 
       <Footer>
