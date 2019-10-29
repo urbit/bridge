@@ -1,5 +1,5 @@
 import Tx from 'ethereumjs-tx';
-import { toWei, fromWei, toHex } from 'web3-utils';
+import { toWei, fromWei, toHex, toBN } from 'web3-utils';
 import retry from 'async-retry';
 
 import { NETWORK_TYPES } from './network';
@@ -193,7 +193,7 @@ const getTxnInfo = async (web3, addr) => {
   return {
     nonce: nonce,
     chainId: chainId,
-    gasPrice: fromWei(gasPrice, 'gwei'),
+    gasPrice: fromWei(toBN(gasPrice), 'gwei'),
   };
 };
 
