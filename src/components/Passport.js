@@ -22,8 +22,6 @@ function makeSigil(size, patp, colors) {
     renderer: reactRenderer,
   };
 
-  console.log(patp);
-
   // Planet
   if (patp.length === 14) {
     return sigil({
