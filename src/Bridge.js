@@ -3,8 +3,6 @@ import { hot } from 'react-hot-loader/root';
 import { Just, Nothing } from 'folktale/maybe';
 import { IndigoApp } from 'indigo-react';
 
-import Header from 'components/Header';
-
 import Router from 'components/Router';
 
 import Provider from 'store/Provider';
@@ -76,7 +74,6 @@ function Bridge() {
         initialWallet={INITIAL_WALLET}
         initialMnemonic={INITIAL_MNEMONIC}
         initialPointCursor={INITIAL_POINT_CURSOR}>
-        <Header />
         <IndigoApp>
           <Router />
         </IndigoApp>

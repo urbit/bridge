@@ -23,7 +23,7 @@ function View({
   const shouldInset = inset && !isMobile;
 
   const insetPadding = cn({
-    pt10: shouldInset,
+    pt7: shouldInset,
     pt5: !shouldInset,
   });
 
