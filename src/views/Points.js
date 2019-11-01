@@ -209,7 +209,7 @@ export default function Points() {
   if (
     loading ||
     (allPoints.length === 1 &&
-      ownedPoints.length === 1 &&
+      incomingPoints.length === 0 &&
       outgoingPoints.length === 0)
   ) {
     return (
