@@ -6,6 +6,7 @@ import Footer from './Footer';
 import useBreakpoints from 'lib/useBreakpoints';
 import MiniBackButton from './MiniBackButton';
 import { useHistory } from 'store/history';
+import NavHeader from './NavHeader';
 
 const EXPECT_LOGOUT_WHEN_POPPING_AT_DEPTH = 2;
 
@@ -32,6 +33,21 @@ function View({
   const showBackButton = size > 1 && !!pop;
   const backIsLogout = size === EXPECT_LOGOUT_WHEN_POPPING_AT_DEPTH;
 
+  const Header = useCallback(({ logout }) => {
+    return backIsLogout ? (
+      <Flex.Item
+        as={Flex}
+        className={cn(insetPadding, 'flex-row-r justify-between pb5')}>
+        <Flex.Item onClick={logout} as="a" className="f5 gray4 underline mr2">
+          Logout
+        </Flex.Item>
+        <Flex.Item as={NavHeader.Target} />
+      </Flex.Item>
+    ) : (
+      <Flex.Item className={insetPadding} as={NavHeader.Target} />
+    );
+  });
+
   return (
     <Flex
       row={!isMobile}
@@ -51,7 +67,7 @@ function View({
         col
         style={{ width: '48px' }}
         className={cn(insetPadding)}>
-        {showBackButton && (
+        {showBackButton && !backIsLogout && (
           <MiniBackButton
             hpadding={!isMobile}
             vpadding={isMobile}
@@ -62,7 +78,10 @@ function View({
       </Flex.Item>
 
       <Flex.Item flex={1} as={Flex} col justify="between">
-        <Flex.Item className={cn('pb5', insetPadding)}>{children}</Flex.Item>
+        <Flex.Item className="pb5 ">
+          <Header logout={goBack} />
+          {children}
+        </Flex.Item>
         <Flex.Item as={Footer.Target} />
       </Flex.Item>
 
