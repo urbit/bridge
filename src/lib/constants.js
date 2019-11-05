@@ -31,7 +31,7 @@ const GAS_LIMITS = {
   REJECT: 200000, //NOTE no samples
   DETACH: 200000, //NOTE no samples
   //
-  GIFT_PLANET: 400000, //NOTE low sample size
+  GIFT_PLANET: 420000, //NOTE low sample size
   //
   SEND_ETH: 21000,
   //
