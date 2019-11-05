@@ -86,7 +86,7 @@ const ensureFundsFor = async (
 
     await waitForTransactionConfirm(web3, res.txHash);
 
-    const newBalance = await web3.eth.getBalance(address);
+    const newBalance = toBN(await web3.eth.getBalance(address));
 
     // sanity check
     if (newBalance.lt(cost)) {
@@ -99,7 +99,7 @@ const ensureFundsFor = async (
 
     console.log(
       `tank: funds have confirmed: ${address} now has ` +
-        ` ${newBalance.toString()}wei, up from ${balance.toString()}wei`
+        `${newBalance.toString()}wei, up from ${balance.toString()}wei`
     );
     return true;
   } catch (error) {
