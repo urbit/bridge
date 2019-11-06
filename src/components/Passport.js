@@ -11,7 +11,6 @@ import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 
 import { useWallet } from 'store/wallet';
 
-import Sigil from './Sigil';
 import { sigil, reactRenderer } from 'urbit-sigil-js';
 
 function makeSigil(size, patp, colors) {

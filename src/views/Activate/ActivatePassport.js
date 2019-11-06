@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import cn from 'classnames';
-import { Grid, Flex } from 'indigo-react';
+import { Grid } from 'indigo-react';
 
 import { LocalRouterProvider, useLocalRouter } from 'lib/LocalRouter';
 
@@ -42,11 +42,8 @@ export default function ActivatePassport() {
     initialRoutes: [{ key: NAMES.DOWNLOAD }],
   });
 
-  const fullView = useBreakpoints([false, false, true]);
   const gap = useBreakpoints([4, 4, 7]);
   const marginTop = useBreakpoints([false, false, 8]);
-  const full = useBreakpoints([true, true, false]);
-  const half = useBreakpoints([false, false, true]);
 
   // addresses are not derived until we set[Urbit]Wallet(), so do that inline
   const address = useMemo(
