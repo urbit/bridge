@@ -9,7 +9,7 @@ import { useWallet } from 'store/wallet';
 import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
-import { ForwardButton, BootArvoButton } from 'components/Buttons';
+import { ForwardButton, BootUrbitOSButton } from 'components/Buttons';
 import CopyButton from 'components/CopyButton';
 import { matchBlinky } from 'components/Blinky';
 import DownloadSigilButton from 'components/DownloadSigilButton';
@@ -135,7 +135,7 @@ export default function Point() {
             <Grid.Divider />
           </>
         )}
-        <Grid.Item full as={BootArvoButton} />
+        <Grid.Item full as={BootUrbitOSButton} />
         <Grid.Divider />
         <Grid.Item full as={DownloadSigilButton} point={point} />
         <Grid.Divider />
