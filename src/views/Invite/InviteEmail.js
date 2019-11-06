@@ -378,7 +378,16 @@ export default function InviteEmail() {
     if (errorString !== '') {
       throw new Error(errorString);
     }
-  }, [web3, wallet, point, gasPrice, invites, clearReceipts, addReceipt]);
+  }, [
+    web3,
+    wallet,
+    point,
+    gasPrice,
+    invites,
+    clearReceipts,
+    addReceipt,
+    sendMail,
+  ]);
 
   const onSubmit = useCallback(
     async values => {
