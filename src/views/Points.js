@@ -11,7 +11,7 @@ import { usePointCursor } from 'store/pointCursor';
 import * as need from 'lib/need';
 import { isZeroAddress, abbreviateAddress } from 'lib/wallet';
 import useIsEclipticOwner from 'lib/useIsEclipticOwner';
-import { useSyncKnownPoints } from 'lib/useSyncPoints';
+import { useSyncKnownPoints, useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
 import pluralize from 'lib/pluralize';
 
@@ -196,6 +196,8 @@ export default function Points() {
     ...spawningPoints,
   ]);
 
+  useSyncOwnedPoints(ownedPoints);
+
   const goCreateGalaxy = useCallback(() => push(names.CREATE_GALAXY), [
     names.CREATE_GALAXY,
     push,
@@ -206,6 +208,23 @@ export default function Points() {
     push,
   ]);
 
+  if (
+    loading ||
+    (allPoints.length === 1 &&
+      incomingPoints.length === 0 &&
+      outgoingPoints.length === 0)
+  ) {
+    return (
+      <View inset pop={pop}>
+        <Grid>
+          <Grid.Item full as={HelpText} className="mt8 t-center">
+            <Blinky /> Loading...
+          </Grid.Item>
+        </Grid>
+      </View>
+    );
+  }
+
   return (
     <View pop={pop} inset>
       <Grid>
@@ -214,12 +233,6 @@ export default function Points() {
             {abbreviateAddress(address)}
           </CopiableAddress>
         </Grid.Item>
-
-        {loading && (
-          <Grid.Item full as={HelpText} className="mt8 t-center">
-            <Blinky /> Loading...
-          </Grid.Item>
-        )}
 
         {displayEmptyState && (
           <Grid.Item full as={HelpText} className="mt8 t-center">
