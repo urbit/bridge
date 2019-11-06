@@ -11,7 +11,7 @@ import { usePointCursor } from 'store/pointCursor';
 import * as need from 'lib/need';
 import { isZeroAddress, abbreviateAddress } from 'lib/wallet';
 import useIsEclipticOwner from 'lib/useIsEclipticOwner';
-import { useSyncKnownPoints } from 'lib/useSyncPoints';
+import { useSyncKnownPoints, useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
 import pluralize from 'lib/pluralize';
 
@@ -195,6 +195,8 @@ export default function Points() {
     ...votingPoints,
     ...spawningPoints,
   ]);
+
+  useSyncOwnedPoints(ownedPoints);
 
   const goCreateGalaxy = useCallback(() => push(names.CREATE_GALAXY), [
     names.CREATE_GALAXY,
