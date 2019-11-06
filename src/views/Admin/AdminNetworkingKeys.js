@@ -355,7 +355,7 @@ export default function AdminNetworkingKeys() {
                     full
                     as={HexInput}
                     name="networkSeed"
-                    label="Network Seed (64 bytes)"
+                    label="Network Seed (32 bytes)"
                     disabled={inputsLocked}
                   />
                 </Condition>
