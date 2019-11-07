@@ -33,20 +33,23 @@ function View({
   const showBackButton = size > 1 && !!pop;
   const backIsLogout = size === EXPECT_LOGOUT_WHEN_POPPING_AT_DEPTH;
 
-  const Header = useCallback(({ logout }) => {
-    return showBackButton ? (
-      <Flex.Item
-        as={Flex}
-        className={cn(insetPadding, 'flex-row-r justify-between pb5')}>
-        <Flex.Item onClick={logout} as="a" className="f5 gray4 underline mr2">
-          Logout
+  const Header = useCallback(
+    ({ logout }) => {
+      return showBackButton ? (
+        <Flex.Item
+          as={Flex}
+          className={cn(insetPadding, 'flex-row-r justify-between pb5')}>
+          <Flex.Item onClick={logout} as="a" className="f5 gray4 underline mr2">
+            Logout
+          </Flex.Item>
+          <Flex.Item as={NavHeader.Target} />
         </Flex.Item>
-        <Flex.Item as={NavHeader.Target} />
-      </Flex.Item>
-    ) : (
-      <Flex.Item className={insetPadding} as={NavHeader.Target} />
-    );
-  });
+      ) : (
+        <Flex.Item className={insetPadding} as={NavHeader.Target} />
+      );
+    },
+    [insetPadding, showBackButton]
+  );
 
   return (
     <Flex
