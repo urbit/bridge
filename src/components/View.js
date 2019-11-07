@@ -34,7 +34,7 @@ function View({
   const backIsLogout = size === EXPECT_LOGOUT_WHEN_POPPING_AT_DEPTH;
 
   const Header = useCallback(({ logout }) => {
-    return backIsLogout ? (
+    return showBackButton ? (
       <Flex.Item
         as={Flex}
         className={cn(insetPadding, 'flex-row-r justify-between pb5')}>
