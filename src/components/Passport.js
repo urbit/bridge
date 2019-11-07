@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import ob from 'urbit-ob';
 import BN from 'bn.js';
@@ -120,6 +120,10 @@ function Passport({
 
   const fgColor = inverted ? 'black' : 'white';
 
+  const sigil = useMemo(
+    () => Just.hasInstance(point) && makeSigil(64, patp, [bgColor, fgColor]),
+    [patp, point, bgColor, fgColor]
+  );
   return (
     <div
       style={{
@@ -145,7 +149,7 @@ function Passport({
             display: 'flex',
             alignItems: 'center',
           }}>
-          {Just.hasInstance(point) && makeSigil(64, patp, [bgColor, fgColor])}
+          {sigil}
           <div
             style={{
               marginLeft: '16px',
@@ -252,6 +256,11 @@ function MiniPassport({ point, inverted, ...rest }) {
   const patp = ob.patp(point);
   const permissions = usePermissionsForPoint(address, point);
   const keyType = buildKeyType(permissions);
+  const sigil = useMemo(
+    () =>
+      makeSigil(44, patp, inverted ? ['white', 'black'] : ['black', 'white']),
+    [inverted, patp]
+  );
   return (
     <div
       style={{
@@ -277,11 +286,7 @@ function MiniPassport({ point, inverted, ...rest }) {
             display: 'flex',
             alignItems: 'center',
           }}>
-          {makeSigil(
-            44,
-            patp,
-            inverted ? ['white', 'black'] : ['black', 'white']
-          )}
+          {sigil}
           <div
             style={{
               marginLeft: '16px',
