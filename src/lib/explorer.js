@@ -20,6 +20,11 @@ export function useExploreTxUrl(txHash) {
 
   return `${domain}/tx/${txHash}`;
 }
+export function useExploreTxUrls(txHashes = []) {
+  const domain = useEtherscanDomain();
+
+  return txHashes.map(txHash => `${domain}/tx/${txHash}`);
+}
 
 export function useExploreAddressUrl(address) {
   const domain = useEtherscanDomain();
