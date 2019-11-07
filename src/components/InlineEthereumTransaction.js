@@ -289,13 +289,9 @@ function HashReceiptList({ txHashes }) {
 
         {txHashes &&
           txHashes.map((txHash, i) => (
-            <Flex.Item className="mb3" as={Flex}>
+            <Flex.Item key={i} className="mb3" as={Flex}>
               <>
-                <Flex.Item
-                  key={i}
-                  flex
-                  as="code"
-                  className="f6 mono gray4 wrap mr3">
+                <Flex.Item flex as="code" className="f6 mono gray4 wrap mr3">
                   {txHash}
                 </Flex.Item>
                 <Flex.Item as={LinkButton} href={txUrls[i]}>

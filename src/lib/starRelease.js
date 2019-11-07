@@ -1,5 +1,4 @@
 import { linearSR, conditionalSR } from 'azimuth-js';
-import { Just, Nothing } from 'folktale/maybe';
 
 function mapRange(amount, cb) {
   return [...Array(amount).keys()].map(cb);

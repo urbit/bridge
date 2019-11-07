@@ -3397,6 +3397,9 @@ caption,
 .h-auto {
   height: auto; }
 
+.h-full {
+  height: 100%; }
+
 @media only screen and (min-width: 550px) {
   .h-auto-ns {
     height: auto; } }

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { H4, Grid } from 'indigo-react';
+import { H1, Grid } from 'indigo-react';
 import { Just } from 'folktale/maybe';
 
 import * as need from 'lib/need';
@@ -11,6 +11,7 @@ import { usePointCursor } from 'store/pointCursor';
 import View from 'components/View';
 import Tabs from 'components/Tabs';
 import Crumbs from 'components/Crumbs';
+import CopiableAddress from 'components/CopiableAddress';
 
 import Active from 'views/Release/Active';
 import Locked from 'views/Release/Locked';
@@ -45,14 +46,18 @@ export default function ReleaseView() {
   // inputs
   const [currentTab, setCurrentTab] = useState(NAMES.ACTIVE);
 
+  const goActive = useCallback(() => {
+    setCurrentTab(NAMES.ACTIVE);
+  }, [setCurrentTab]);
+
   const address = need.addressFromWallet(wallet);
 
   return (
     <View pop={pop} inset>
       <Grid>
         <Grid.Item full as={Crumbs} />
-        <Grid.Item full as={H4} className="mt4">
-          {address}
+        <Grid.Item full as={H1} className="f6 mono gray4 us-none pointer">
+          <CopiableAddress text={address}>{address}</CopiableAddress>
         </Grid.Item>
 
         <Grid.Item
@@ -66,6 +71,7 @@ export default function ReleaseView() {
           onTabChange={setCurrentTab}
           // Tab extra
           goPoint={goPoint}
+          goActive={goActive}
           //
           //
         />

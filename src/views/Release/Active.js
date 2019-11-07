@@ -10,11 +10,13 @@ import { useWallet } from 'store/wallet';
 
 import * as need from 'lib/need';
 import usePermissionsForPoint from 'lib/usePermissionsForPoint';
+import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import { buildKeyType } from 'lib/point';
 
 function ActiveViewRow({ point, goPoint }) {
   const { wallet } = useWallet();
   const address = need.addressFromWallet(wallet);
+  useSyncOwnedPoints([point]);
   const permissions = usePermissionsForPoint(address, point);
 
   const keyType = buildKeyType(permissions);
@@ -37,13 +39,13 @@ function ActiveViewRow({ point, goPoint }) {
           <Sigil patp={patp} size={25} colors={['#FFFFFF', '#000000']} />
         </div>
       </Grid.Item>
-      <Grid.Item className="flex-center" cols={[6, 10]}>
+      <Grid.Item className="flex-row align-center" cols={[6, 10]}>
         {keyType}
       </Grid.Item>
       <Grid.Item
         onClick={onClick}
         cols={[10, 13]}
-        className="flex-row-r align-center">
+        className="flex-row-r align-center mr2">
         ->
       </Grid.Item>
       <Grid.Divider />
@@ -76,13 +78,18 @@ export default function ActiveView({ className, goPoint }) {
 
   return (
     <Grid full className={cn('f5', className)}>
-      <Grid.Item cols={[1, 6]} third={1}>
+      <Grid.Item className="pv3 " cols={[1, 6]} third={1}>
         Point
       </Grid.Item>
-      <Grid.Item className="flex-center" cols={[6, 10]}>
+      <Grid.Item className="pv3 " cols={[6, 10]}>
         Key Type
       </Grid.Item>
       <Grid.Divider />
+      {points.length === 0 && (
+        <Grid.Item full className="flex-center pv8 f5 gray4">
+          You have no active stars
+        </Grid.Item>
+      )}
       {points.map(point => (
         <ActiveViewRow
           key={point}
