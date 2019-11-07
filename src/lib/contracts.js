@@ -18,6 +18,8 @@ const CONTRACT_ADDRESSES = {
     azimuth: '0x223c067f8cf28ae173ee5cafea60ca44c335fecb',
     polls: '0x7fecab617c868bb5996d99d95200d2fa708218e4',
     delegatedSending: '0xF7908Ab1F1e352F83c5ebc75051c0565AEaea5FB',
+    linearSR: '0x86cd9cd0992f04231751e3761de45cecea5d1801',
+    conditionalSR: '0x8c241098c3d3498fe1261421633fd57986d74aea',
   },
 };
 
