@@ -350,7 +350,6 @@ export default function Points() {
             )}
             {starReleasing && (
               <>
-                <Grid.Divider />
                 <Grid.Item
                   full
                   as={ForwardButton}
@@ -358,6 +357,7 @@ export default function Points() {
                   onClick={goStarRelease}>
                   View Star Release
                 </Grid.Item>
+                <Grid.Divider />
               </>
             )}
             <Grid.Item
