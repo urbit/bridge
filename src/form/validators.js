@@ -11,6 +11,7 @@ import {
   validateHexLength,
   validateEthereumAddress,
   validateGreaterThan,
+  validateLessThan,
   validateEmail,
   validateNotNullAddress,
   validateHexPrefix,
@@ -100,8 +101,9 @@ export const buildAddressValidator = () =>
     validateNotNullAddress,
     validateEthereumAddress,
   ]);
-export const buildNumberValidator = (min = 0) =>
-  buildValidator([validateGreaterThan(min)]);
+export const buildNumberValidator = (min = 0, max = NaN) =>
+  buildValidator([validateGreaterThan(min), validateLessThan(max)]);
+
 export const buildEmailValidator = validate =>
   buildValidator([validateNotEmpty, validateEmail], validate);
 

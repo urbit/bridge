@@ -3,6 +3,7 @@ import Login from 'views/Login.js';
 import Admin from 'views/Admin';
 import CreateGalaxy from 'views/CreateGalaxy';
 import IssueChild from 'views/IssueChild';
+import StarRelease from 'views/Release';
 
 import Point from 'views/Point';
 import Points from 'views/Points';
@@ -30,4 +31,5 @@ export const ROUTES = {
   [ROUTE_NAMES.ACCEPT_TRANSFER]: AcceptTransfer,
   // TODO: replace this with deep link to AdminCancelTransfer
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
+  [ROUTE_NAMES.STAR_RELEASE]: StarRelease,
 };

@@ -93,6 +93,8 @@ export const validateMaximumLength = l => v =>
 export const validateGreaterThan = l => v =>
   !(v > l) && `Must be at least ${l}.`;
 
+export const validateLessThan = l => v => !(v < l) && `Must be less than ${l}`;
+
 export const validateInSet = (set, error) => v => !set.has(v) && error;
 
 export const validateMaximumPatpByteLength = byteLength =>

@@ -10,7 +10,7 @@ import {
   Text,
 } from 'indigo-react';
 
-import { useExploreTxUrl, useExploreTxUrls } from 'lib/explorer';
+import { useExploreTxUrls } from 'lib/explorer';
 import { hexify } from 'lib/txn';
 import pluralize from 'lib/pluralize';
 
@@ -289,13 +289,13 @@ function HashReceiptList({ txHashes }) {
 
         {txHashes &&
           txHashes.map((txHash, i) => (
-            <Flex.Item as={Flex}>
+            <Flex.Item className="mb3" as={Flex}>
               <>
                 <Flex.Item
                   key={i}
                   flex
                   as="code"
-                  className="f6 mono gray4 wrap">
+                  className="f6 mono gray4 wrap mr3">
                   {txHash}
                 </Flex.Item>
                 <Flex.Item as={LinkButton} href={txUrls[i]}>

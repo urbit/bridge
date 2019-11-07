@@ -54,7 +54,7 @@ export default function useStarRelease() {
       if (!(_contracts && _wallet)) {
         return [];
       }
-      return generateWithdrawTxs(contracts, batchLimits, amount, to);
+      return generateWithdrawTxs(_contracts, batchLimits, amount, to);
     },
     [batchLimits, contracts, wallet]
   );
