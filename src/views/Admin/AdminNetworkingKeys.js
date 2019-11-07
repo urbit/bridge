@@ -363,7 +363,7 @@ export default function AdminNetworkingKeys() {
                   full
                   as={CheckboxInput}
                   name="useDiscontinuity"
-                  label="Trigger New Continuity Era"
+                  label="Breach Continuity"
                   disabled={inputsLocked}
                 />
 
