@@ -30,6 +30,8 @@ function View({
 
   const goBack = useCallback(() => pop(), [pop]);
 
+  const goLogout = useCallback(() => pop(size - 1), [pop, size]);
+
   const showBackButton = size > 1 && !!pop;
   const backIsLogout = size === EXPECT_LOGOUT_WHEN_POPPING_AT_DEPTH;
 
@@ -39,7 +41,10 @@ function View({
         <Flex.Item
           as={Flex}
           className={cn(insetPadding, 'flex-row-r justify-between pb5')}>
-          <Flex.Item onClick={logout} as="a" className="f5 gray4 underline mr2">
+          <Flex.Item
+            onClick={goLogout}
+            as="a"
+            className="f5 gray4 underline mr2 pointer">
             Logout
           </Flex.Item>
           <Flex.Item as={NavHeader.Target} />
