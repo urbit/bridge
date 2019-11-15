@@ -125,7 +125,10 @@ export default function Points() {
   // if there are any pending transfers, incoming or outgoing, stay on this
   // page, because those can only be completed/cancelled here.
   useEffect(() => {
-    if (Nothing.hasInstance(maybeOutgoingPoints)) {
+    if (
+      Nothing.hasInstance(maybeOutgoingPoints) ||
+      Nothing.hasInstance(starReleaseDetails)
+    ) {
       return;
     }
     controlledPoints.matchWith({
@@ -146,7 +149,8 @@ export default function Points() {
             if (
               all.length === 1 &&
               incoming.length === 0 &&
-              maybeOutgoingPoints.value.length === 0
+              maybeOutgoingPoints.value.length === 0 &&
+              starReleaseDetails.value.total === 0
             ) {
               setPointCursor(Just(all[0]));
               popAndPush(names.POINT);
@@ -162,6 +166,7 @@ export default function Points() {
     setPointCursor,
     popAndPush,
     names,
+    starReleaseDetails,
   ]);
 
   const address = need.addressFromWallet(wallet);
@@ -226,7 +231,8 @@ export default function Points() {
     loading ||
     (allPoints.length === 1 &&
       incomingPoints.length === 0 &&
-      outgoingPoints.length === 0)
+      outgoingPoints.length === 0 &&
+      !starReleasing)
   ) {
     return (
       <View inset pop={pop}>
