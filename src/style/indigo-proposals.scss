@@ -1,0 +1,58 @@
+.mw1 {
+  margin: 0 auto;
+  max-width: calc(28rem + 52px * 2);
+  // TODO: this css is gross, fix
+}
+
+.mw2 {
+  margin: 0 auto;
+  max-width: 64rem;
+}
+
+.lh-tall {
+  line-height: 2;
+}
+
+.bg-gray1-hover:hover {
+  background-color: #f9f9f9;
+}
+
+.bg-gray6-hover:hover {
+  background-color: #333333;
+}
+
+.minh-100 {
+  min-height: 100vh;
+}
+
+.outline-none {
+  outline: none;
+}
+
+.us-none {
+  user-select: none;
+}
+
+.bs-none {
+  box-shadow: none !important;
+}
+
+.auto-rows-min {
+  grid-auto-rows: min-content;
+}
+
+.hover-bg-grey3:hover {
+  background-color: #e6e6e6;
+}
+
+.arial {
+  font-family: Arial, monospace;
+}
+
+.scroll-x {
+  overflow-x: auto;
+}
+
+.hidden-y {
+  overflow-y: hidden;
+}

@@ -1,0 +1,16 @@
+// min-height the top elements so footer behavior works correctly
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.animated-width {
+  transition: width 500ms ease-out;
+}
