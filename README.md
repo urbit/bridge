@@ -6,7 +6,7 @@ An application for interacting with Azimuth.
 
 ## Usage
 
-The latest version of Bridge is accessible online at [bridge.azimuth.network](https://bridge.azimuth.network). No setup needed.
+**The latest version of Bridge is accessible online at [bridge.urbit.org](https://bridge.urbit.org). No setup needed.**
 
 If you would rather host Bridge on your own machine, read on.
 
