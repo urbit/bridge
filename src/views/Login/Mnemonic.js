@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, CheckboxInput } from 'indigo-react';
+import { Grid, CheckboxInput } from 'indigo-react-local';
 
 import { useWallet } from 'store/wallet';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import * as need from 'lib/need';
-import { Grid, Text } from 'indigo-react';
+import { Grid, Text } from 'indigo-react-local';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useHistory } from 'store/history';

@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { P, H4, Grid } from 'indigo-react';
+import { Grid } from 'indigo-react-local';
+import theme from 'indigo-tokens';
+import { P , H4, H5, Box } from 'indigo-react';
 
 import { version } from '../../package.json';
 
@@ -62,9 +64,9 @@ export default function Login() {
     <View pop={pop} inset>
       <Grid>
         <Grid.Item full as={Crumbs} routes={[{ text: 'Bridge' }]} />
-        <Grid.Item full as={H4} className="mt4">
+        <H4 fontSize="3" marginTop="3" marginBottom="0">
           Login
-        </Grid.Item>
+        </H4>
 
         <Grid.Item
           full

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, Text, H5, Flex, ToggleInput, CheckboxInput } from 'indigo-react';
+import { Grid, Text, H5, Flex, ToggleInput, CheckboxInput } from 'indigo-react-local';
 import * as azimuth from 'azimuth-js';
 import { randomHex } from 'web3-utils';
 

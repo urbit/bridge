@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Grid, Button } from 'indigo-react';
+import { Grid, Button } from 'indigo-react-local';
 
 import { usePointCursor } from 'store/pointCursor';
 

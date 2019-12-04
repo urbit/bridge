@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import { Button } from 'indigo-react';
+import { Button } from 'indigo-react-local';
 import { blinkIf } from './Blinky';
 
 export default function ProgressButton({

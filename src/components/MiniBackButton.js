@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import { IconButton } from 'indigo-react';
+import { IconButton } from 'indigo-react-local';
 
 import { ReactComponent as Back } from 'assets/back.svg';
 

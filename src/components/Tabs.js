@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import { Grid, Flex } from 'indigo-react';
+import { Grid, Flex } from 'indigo-react-local';
 
 export default function Tabs({
   views,

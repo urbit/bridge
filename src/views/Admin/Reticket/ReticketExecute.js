@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, H4, Text, ErrorText } from 'indigo-react';
+import { Grid, H4, Text, ErrorText } from 'indigo-react-local';
 
 import {
   reticketPointBetweenWallets,

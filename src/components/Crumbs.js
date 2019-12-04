@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import { Flex, Breadcrumb } from 'indigo-react';
+import { Flex, Breadcrumb } from 'indigo-react-local';
 
 export default function Crumbs({ className, routes = [] }) {
   const lastIndex = routes.length - 1;

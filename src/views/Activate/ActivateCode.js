@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
-import { Grid, H4, P, CheckboxInput } from 'indigo-react';
+import { Grid, H4, P, CheckboxInput } from 'indigo-react-local';
 import { FORM_ERROR } from 'final-form';
 
 import View from 'components/View';

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useField } from 'react-final-form';
 import UploadButton from 'components/UploadButton';
-import { AccessoryIcon } from 'indigo-react';
+import { AccessoryIcon } from 'indigo-react-local';
 
 export default function UploadInput({ name, label, ...rest }) {
   const {

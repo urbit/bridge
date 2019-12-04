@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
-import { Grid, Text, Flex, ToggleInput } from 'indigo-react';
+import { Grid, Text, Flex, ToggleInput } from 'indigo-react-local';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from 'store/network';

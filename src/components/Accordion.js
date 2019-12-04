@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import { Grid, AccessoryIcon } from 'indigo-react';
+import { Grid, AccessoryIcon } from 'indigo-react-local';
 
 export default function Accordion({
   className,

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { Just } from 'folktale/maybe';
-import { P, Grid } from 'indigo-react';
+import { P, Grid } from 'indigo-react-local';
 import * as keythereum from 'keythereum';
 
 import { useWallet } from 'store/wallet';

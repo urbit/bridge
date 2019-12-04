@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import { Flex, Text } from 'indigo-react';
+import { Flex, Text } from 'indigo-react-local';
 
 export default function WarningBox({ className, children }) {
   return (

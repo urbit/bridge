@@ -8,7 +8,7 @@ import {
   LinkButton,
   H5,
   Text,
-} from 'indigo-react';
+} from 'indigo-react-local';
 
 import { useExploreTxUrl, useExploreTxUrls } from 'lib/explorer';
 import { hexify } from 'lib/txn';

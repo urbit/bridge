@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import cn from 'classnames';
 import { useField } from 'react-final-form';
-import useOnClickOutside from 'indigo-react/lib/useOnClickOutside';
+import useOnClickOutside from 'indigo-react-local/lib/useOnClickOutside';
 
 import Flex from './Flex';
 import { ErrorText } from './Typography';

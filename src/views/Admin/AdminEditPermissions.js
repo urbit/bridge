@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, LinkButton } from 'indigo-react';
+import { Grid, LinkButton } from 'indigo-react-local';
 import { azimuth } from 'azimuth-js';
 
 import { useNetwork } from 'store/network';

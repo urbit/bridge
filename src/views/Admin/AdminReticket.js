@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, Flex } from 'indigo-react';
+import { Grid, Flex } from 'indigo-react-local';
 
 import { LocalRouterProvider } from 'lib/LocalRouter';
 import useRouter from 'lib/useRouter';

@@ -4,7 +4,7 @@ import * as bip32 from 'bip32';
 import { times } from 'lodash';
 import TrezorConnect from 'trezor-connect';
 import * as secp256k1 from 'secp256k1';
-import { Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react';
+import { Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react-local';
 
 import { useWallet } from 'store/wallet';
 

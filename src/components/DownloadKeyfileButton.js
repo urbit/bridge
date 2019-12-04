@@ -1,5 +1,5 @@
 import React from 'react';
-import { B } from 'indigo-react';
+import { B } from 'indigo-react-local';
 
 import { DownloadButton } from 'components/Buttons';
 

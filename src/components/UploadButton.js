@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Button } from 'indigo-react';
+import { Button } from 'indigo-react-local';
 
 export default function UploadButton({ children, onChange, ...rest }) {
   const button = useRef();

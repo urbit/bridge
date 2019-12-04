@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Button } from 'indigo-react';
+import { Grid, Button } from 'indigo-react-local';
 
 import Footer from './Footer';
 

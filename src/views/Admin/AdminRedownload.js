@@ -10,7 +10,7 @@ import PaperBuilder from 'components/PaperBuilder';
 import { downloadWallet } from 'lib/invite';
 
 import { useWallet } from 'store/wallet';
-import { Grid, P } from 'indigo-react';
+import { Grid, P } from 'indigo-react-local';
 import ViewHeader from 'components/ViewHeader';
 import { useLocalRouter } from 'lib/LocalRouter';
 

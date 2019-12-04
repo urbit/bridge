@@ -17,7 +17,7 @@ import {
   Text,
   ErrorText,
   AccessoryIcon,
-} from 'indigo-react';
+} from 'indigo-react-local';
 import { uniq } from 'lodash';
 import { toWei, toBN } from 'web3-utils';
 import { FieldArray } from 'react-final-form-arrays';

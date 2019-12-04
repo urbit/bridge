@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormState } from 'react-final-form';
-import { ErrorText } from 'indigo-react';
+import { ErrorText } from 'indigo-react-local';
 
 import { WARNING } from './helpers';
 

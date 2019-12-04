@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, Text } from 'indigo-react';
+import { Grid, Text } from 'indigo-react-local';
 import * as need from 'lib/need';
 
 import { usePointCursor } from 'store/pointCursor';

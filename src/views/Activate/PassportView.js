@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import { Grid, H4 } from 'indigo-react';
+import { Grid, H4 } from 'indigo-react-local';
 
 import Steps from 'components/Steps';
 

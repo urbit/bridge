@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Grid, Text, LinkButton, H5 } from 'indigo-react';
+import { Grid, Text, LinkButton, H5 } from 'indigo-react-local';
 import { Just } from 'folktale/maybe';
 
 import { useWallet } from 'store/wallet';

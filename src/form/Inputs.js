@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input, AccessoryIcon } from 'indigo-react';
+import { Input, AccessoryIcon } from 'indigo-react-local';
 import { useField } from 'react-final-form';
 
 import {

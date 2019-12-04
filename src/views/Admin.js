@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid } from 'indigo-react';
+import { Grid } from 'indigo-react-local';
 
 import { useHistory } from 'store/history';
 

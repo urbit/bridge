@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Nothing } from 'folktale/maybe';
-import { Grid, Text } from 'indigo-react';
+import { Grid, Text } from 'indigo-react-local';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import { downloadWallet } from 'lib/invite';

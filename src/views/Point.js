@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Just } from 'folktale/maybe';
-import { Grid } from 'indigo-react';
+import { Grid } from 'indigo-react-local';
 import { azimuth } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';

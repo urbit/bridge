@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import cn from 'classnames';
 import ob from 'urbit-ob';
-import { Grid, Text, LinkButton } from 'indigo-react';
+import { Grid, Text, LinkButton } from 'indigo-react-local';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 

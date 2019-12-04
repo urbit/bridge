@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, P } from 'indigo-react';
+import { Grid, P } from 'indigo-react-local';
 
 import * as need from 'lib/need';
 import { downloadWallet } from 'lib/invite';

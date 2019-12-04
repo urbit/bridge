@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Grid, Text, ErrorText } from 'indigo-react';
+import { Grid, Text, ErrorText } from 'indigo-react-local';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';

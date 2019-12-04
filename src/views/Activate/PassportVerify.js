@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Grid, P, CheckboxInput } from 'indigo-react';
+import { Grid, P, CheckboxInput } from 'indigo-react-local';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';

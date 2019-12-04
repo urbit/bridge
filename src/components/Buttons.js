@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'indigo-react';
+import { Button } from 'indigo-react-local';
 
 import { blinkIf } from './Blinky';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import { Text } from 'indigo-react';
+import { Text } from 'indigo-react-local';
 
 export default function Steps({ num = 1, total = 3, className, ...rest }) {
   return (

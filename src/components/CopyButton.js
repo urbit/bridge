@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import { LinkButton } from 'indigo-react';
+import { LinkButton } from 'indigo-react-local';
 
 import useCopiable from 'lib/useCopiable';
 

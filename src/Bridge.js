@@ -1,8 +1,9 @@
 import React from 'react';
 import { hot } from 'react-hot-loader/root';
 import { Just, Nothing } from 'folktale/maybe';
-import { IndigoApp } from 'indigo-react';
-
+import { IndigoApp } from 'indigo-react-local';
+import theme from 'indigo-tokens';
+import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 import Router from 'components/Router';
 
 import Provider from 'store/Provider';
@@ -74,9 +75,11 @@ function Bridge() {
         initialWallet={INITIAL_WALLET}
         initialMnemonic={INITIAL_MNEMONIC}
         initialPointCursor={INITIAL_POINT_CURSOR}>
-        <IndigoApp>
-          <Router />
-        </IndigoApp>
+        <ThemeProvider theme={theme}>
+          <IndigoApp>
+            <Router />
+          </IndigoApp>
+        </ThemeProvider>
       </Provider>
     </WithErrorBoundary>
   );
