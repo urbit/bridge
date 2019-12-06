@@ -10,6 +10,7 @@ import * as need from 'lib/need';
 import useLifecycle from 'lib/useLifecycle';
 import { WALLET_TYPES } from 'lib/wallet';
 import convertToInt from 'lib/convertToInt';
+import useBlockWindowClose from 'lib/useBlockWindowClose';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
@@ -51,6 +52,8 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
   const [progress, setProgress] = useState(0);
   const [needFunds, setNeedFunds] = useState();
   const isDone = progress >= 1.0;
+
+  useBlockWindowClose();
 
   // start reticketing transactions on mount
   useLifecycle(() => {
