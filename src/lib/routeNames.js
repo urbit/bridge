@@ -22,4 +22,5 @@ export const ROUTE_NAMES = {
   INVITE_COHORT: Symbol('INVITE_COHORT'),
   STAR_RELEASE: Symbol('STAR_RELEASE'),
   URBIT_OS: Symbol('URBIT_OS'),
+  HOSTING: Symbol('HOSTING'),
 };

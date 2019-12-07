@@ -17,6 +17,9 @@ import AcceptTransfer from 'views/AcceptTransfer';
 import CancelTransfer from 'views/CancelTransfer';
 import UrbitOS from 'views/UrbitOS';
 
+import Boot from 'views/Boot';
+import Hosting from 'views/Hosting';
+
 import { ROUTE_NAMES } from './routeNames';
 
 export const ROUTES = {
@@ -38,4 +41,6 @@ export const ROUTES = {
   [ROUTE_NAMES.STAR_RELEASE]: StarRelease,
   [ROUTE_NAMES.SIGIL_GENERATOR]: SigilGenerator,
   [ROUTE_NAMES.URBIT_OS]: UrbitOS,
+  [ROUTE_NAMES.BOOT]: Boot,
+  [ROUTE_NAMES.HOSTING]: Hosting,
 };

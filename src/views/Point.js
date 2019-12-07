@@ -15,6 +15,9 @@ import Blinky from 'components/Blinky';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
 import InviteSigilList from 'components/InviteSigilList';
+import CopyButton from 'components/CopyButton';
+import { matchBlinky } from 'components/Blinky';
+import DownloadSigilButton from 'components/DownloadSigilButton';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
@@ -86,6 +89,8 @@ export default function Point() {
   const isPlanet = azimuth.getPointSize(point) === azimuth.PointSize.Planet;
 
   const [showInviteForm, setShowInviteForm] = useState(false);
+
+  const goBoot = useCallback(() => push(names.BOOT), [push, names]);
 
   const inviteButton = (() => {
     if (azimuth.getPointSize(point) === azimuth.PointSize.Star) {
@@ -248,6 +253,26 @@ export default function Point() {
           </>
         )}
         {senateButton}
+        <Grid.Item
+          full
+          as={ForwardButton}
+          detail="Boot your computer"
+          onClick={goBoot}>
+          Boot Urbit OS
+        </Grid.Item>
+        <Grid.Divider />
+        <Grid.Item
+          full
+          as={ForwardButton}
+          accessory={code && <CopyButton text={code} />}
+          detail={code || notice}
+          disabled={!code}
+          detailClassName="mono">
+          Login Code
+        </Grid.Item>
+        <Grid.Divider />
+        <Grid.Item full as={DownloadSigilButton} point={point} />
+        <Grid.Divider />
       </Grid>
     </View>
   );
