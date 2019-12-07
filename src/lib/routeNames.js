@@ -20,6 +20,10 @@ export const ROUTE_NAMES = {
   CREATE_GALAXY: Symbol('CREATE_GALAXY'),
   ISSUE_CHILD: Symbol('ISSUE_CHILD'),
   PARTY_SET_POOL_SIZE: Symbol('PARTY_SET_POOL_SIZE'),
+<<<<<<< HEAD
   INVITE_COHORT: Symbol('INVITE_COHORT'),
   STAR_RELEASE: Symbol('STAR_RELEASE'),
+=======
+  HOSTING: Symbol('HOSTING'),
+>>>>>>> Adding initial Boot and Hosting view skeletons
 };
