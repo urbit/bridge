@@ -10,11 +10,11 @@ import { useWallet } from 'store/wallet';
 import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
-import { ForwardButton } from 'components/Buttons';
 import Blinky from 'components/Blinky';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
 import InviteSigilList from 'components/InviteSigilList';
+import { ForwardButton, HostingButton } from 'components/Buttons';
 import CopyButton from 'components/CopyButton';
 import { matchBlinky } from 'components/Blinky';
 import DownloadSigilButton from 'components/DownloadSigilButton';
@@ -91,6 +91,7 @@ export default function Point() {
   const [showInviteForm, setShowInviteForm] = useState(false);
 
   const goBoot = useCallback(() => push(names.BOOT), [push, names]);
+  const goHosting = useCallback(() => push(names.HOSTING), [push, names]);
 
   const inviteButton = (() => {
     if (azimuth.getPointSize(point) === azimuth.PointSize.Star) {
@@ -260,7 +261,10 @@ export default function Point() {
           onClick={goBoot}>
           Boot Urbit OS
         </Grid.Item>
+
+        <Grid.Item full as={HostingButton} onClick={goHosting} />
         <Grid.Divider />
+
         <Grid.Item
           full
           as={ForwardButton}
