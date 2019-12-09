@@ -75,11 +75,11 @@ export default function Senate() {
   } = useCastDocumentVote();
 
   const [documentHash, setDocumentHash] = useState('0x...');
-  const [majorities, setMajorities] = useState([]); //TODO gh.com/proposals/doc.txt
+  const [majorities, setMajorities] = useState([]);
   const [proposals, setProposals] = useState([]);
   const [polls, setPolls] = useState({});
   const [loading, setLoading] = useState(true);
-  const [votingOn, setVotingOn] = useState(null);
+  const [votingOn, setVotingOn] = useState({});
 
   //TODO update every second?
   const now = Math.round(new Date().getTime() / 1000);
@@ -90,7 +90,6 @@ export default function Senate() {
     let polls = {};
     for (let doc of proposals) {
       let poll = await azimuth.polls.getDocumentPoll(_contracts, doc);
-      console.log('got poll', doc, poll);
       poll.endTime = polls.start + poll.duration;
       poll.hasVoted = await azimuth.polls.hasVotedOnDocumentPoll(
         _contracts,
@@ -101,7 +100,6 @@ export default function Senate() {
     }
     setMajorities(majorities);
     setProposals(proposals);
-    console.log('setting polls', polls);
     setPolls(polls);
     setLoading(false);
     return;
@@ -111,8 +109,6 @@ export default function Senate() {
     let open = [];
     let closed = [];
     if (loading) return [open, closed];
-    console.log('proposals', proposals);
-    console.log('polls', polls);
     for (let doc of proposals) {
       if (now > polls[doc].endTime) {
         closed.push(doc);
@@ -126,7 +122,7 @@ export default function Senate() {
   const doVote = useCallback(
     (hash, accept) => {
       construct(hash, accept);
-      setVotingOn(hash);
+      setVotingOn({ hash, accept });
     },
     [construct, setVotingOn]
   );
@@ -134,19 +130,20 @@ export default function Senate() {
   const didVote = useCallback(() => {
     polls[votingOn].hasVoted = true;
     setPolls(polls);
+    setVotingOn({});
   }, [polls, setPolls, votingOn]);
 
   const majorityList = useMemo(() => {
     return majorities.map(doc => {
       return (
-        <Text>
+        <Grid.Item full as={Text}>
           <a
             target="_blank"
             rel="noopener noreferrer"
             href={`https://github.com/urbit/azimuth/blob/master/proposals/${doc}.txt`}>
-            <code>{doc}</code>
+            <code>{doc}</code>↗
           </a>
-        </Text>
+        </Grid.Item>
       );
     });
   }, [majorities]);
@@ -165,10 +162,20 @@ export default function Senate() {
                 'Your vote has been cast.'
               ) : (
                 <>
-                  <LinkButton onClick={() => doVote(doc, true)}>aye</LinkButton>
+                  <LinkButton onClick={() => doVote(doc, true)}>
+                    {votingOn.hash === doc && votingOn.accept ? (
+                      <b>support</b>
+                    ) : (
+                      <>support</>
+                    )}
+                  </LinkButton>
                   {' / '}
                   <LinkButton onClick={() => doVote(doc, false)}>
-                    nay
+                    {votingOn.hash === doc && !votingOn.accept ? (
+                      <b>reject</b>
+                    ) : (
+                      <>reject</>
+                    )}
                   </LinkButton>
                 </>
               )}
@@ -178,7 +185,7 @@ export default function Senate() {
         </>
       );
     });
-  }, [open, polls]);
+  }, [open, polls, votingOn]);
 
   const onDocumentChange = useCallback(({ valid, values }) => {
     if (values.document) {
@@ -196,43 +203,47 @@ export default function Senate() {
           Senate: Document Proposals
         </Grid.Item>
 
-        <Grid.Item full as={P}>
-          Accepted documents:
+        <Grid.Item full as={Grid}>
+          <Grid.Item full as={P}>
+            Accepted documents:
+          </Grid.Item>
           {majorityList}
         </Grid.Item>
 
-        <Grid>
+        <Grid.Divider />
+
+        <Grid.Item full as={Grid}>
           <Grid.Item full as={P}>
             Open document polls:
           </Grid.Item>
           {openList}
-        </Grid>
+        </Grid.Item>
 
         <BridgeForm onValues={onDocumentChange}>
           {({ onSubmit, values }) => (
-            <>
-              <Grid.Item
-                full
-                as={InlineEthereumTransaction}
-                {...bind}
-                onReturn={didVote}
-              />
+            // <>
+            <Grid.Item
+              full
+              as={InlineEthereumTransaction}
+              {...bind}
+              onReturn={didVote}
+            />
 
-              <Grid.Divider />
-
-              <Grid.Item
-                full
-                as={Input}
-                type="textarea"
-                placeholder="Input some text to find its hash..."
-                name="document"
-                className="mt4"
-              />
-
-              <Grid.Item full as={CopiableAddress}>
-                {documentHash}
-              </Grid.Item>
-            </>
+            // <Grid.Divider />
+            //
+            // <Grid.Item
+            //   full
+            //   as={Input}
+            //   type="textarea"
+            //   placeholder="Input some text to find its hash..."
+            //   name="document"
+            //   className="mt4"
+            // />
+            //
+            // <Grid.Item full as={CopiableAddress}>
+            //   {documentHash}
+            // </Grid.Item>
+            // </>
           )}
         </BridgeForm>
       </Grid>
