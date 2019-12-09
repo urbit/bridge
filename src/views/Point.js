@@ -10,7 +10,7 @@ import { useWallet } from 'store/wallet';
 import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
-import { ForwardButton } from 'components/Buttons';
+import { ForwardButton, HostingButton } from 'components/Buttons';
 import CopyButton from 'components/CopyButton';
 import Blinky, { matchBlinky } from 'components/Blinky';
 import DownloadSigilButton from 'components/DownloadSigilButton';
@@ -86,13 +86,11 @@ export default function Point() {
     push,
   ]);
 
-<<<<<<< HEAD
   const isPlanet = azimuth.getPointSize(point) === azimuth.PointSize.Planet;
 
   const [showInviteForm, setShowInviteForm] = useState(false);
-=======
-  const goBoot = useCallback(() => push(names.BOOT), [push, names]);
->>>>>>> Adding initial Boot and Hosting view skeletons
+
+  const goHosting = useCallback(() => push(names.HOSTING), [push, names]);
 
   const inviteButton = (() => {
     if (azimuth.getPointSize(point) === azimuth.PointSize.Star) {
@@ -242,16 +240,15 @@ export default function Point() {
             <Grid.Divider />
           </>
         )}
+        
         {senateButton}
-        <GridItem full as={BootUrbitOSButton} />
+       
         <Grid.Item
           full
-          as={ForwardButton}
-          detail="Boot your computer"
-          onClick={goBoot}>
-          Boot Urbit OS
-        </Grid.Item>
+          as={HostingButton}
+          onClick={goHosting} />
         <Grid.Divider />
+
         <Grid.Item
           full
           as={ForwardButton}
