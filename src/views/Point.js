@@ -35,12 +35,15 @@ export default function Point() {
     isActiveOwner,
     canManage,
     canSpawn,
+    canVote,
   } = useCurrentPermissions();
 
   // fetch the invites for the current cursor
   const { availableInvites } = useInvites(point);
 
   const goAdmin = useCallback(() => push(names.ADMIN), [push, names]);
+
+  const goSenate = useCallback(() => push(names.SENATE), [push, names]);
 
   const goInvite = useCallback(() => push(names.INVITE), [push, names]);
 
@@ -90,6 +93,24 @@ export default function Point() {
     }
   })();
 
+  const senateButton = (() => {
+    if (azimuth.getPointSize(point) !== azimuth.PointSize.Galaxy) {
+      return null;
+    }
+    return (
+      <>
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!canVote}
+          onClick={goSenate}>
+          Senate
+        </Grid.Item>
+        <Grid.Divider />
+      </>
+    );
+  })();
+
   // sync the current cursor
   useSyncOwnedPoints([point]);
 
@@ -126,6 +147,7 @@ export default function Point() {
             <Grid.Divider />
           </>
         )}
+        {senateButton}
         <Grid.Item full as={BootUrbitOSButton} />
         <Grid.Divider />
         <Grid.Item

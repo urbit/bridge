@@ -22,6 +22,7 @@ import Passport from 'components/Passport';
 import Footer from 'components/Footer';
 import { ForwardButton } from 'components/Buttons';
 import CopiableAddress from 'components/CopiableAddress';
+import NavHeader from 'components/NavHeader';
 
 const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -247,13 +248,14 @@ export default function Points() {
 
   return (
     <View pop={pop} inset>
+      <NavHeader>
+        <CopiableAddress
+          text={address}
+          className="f6 mono gray4 mb4 us-none pointer">
+          {abbreviateAddress(address)}
+        </CopiableAddress>
+      </NavHeader>
       <Grid>
-        <Grid.Item full as={H1} className="f6 mono gray4 mb4 us-none pointer">
-          <CopiableAddress text={address}>
-            {abbreviateAddress(address)}
-          </CopiableAddress>
-        </Grid.Item>
-
         {displayEmptyState && (
           <Grid.Item full as={HelpText} className="mt8 t-center">
             No points to display. This wallet is not the owner or proxy for any

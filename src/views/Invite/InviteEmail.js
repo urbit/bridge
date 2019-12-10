@@ -11,6 +11,7 @@ import * as azimuth from 'azimuth-js';
 import {
   Grid,
   Flex,
+  Input,
   IconButton,
   HelpText,
   Text,
@@ -127,6 +128,7 @@ export default function InviteEmail() {
   const [errors, addError] = useSetState();
 
   // manage general state that affects the whole form
+  const [message, setMessage] = useState('');
   const [status, setStatus] = useState(STATUS.INPUT);
   const [needFunds, setNeedFunds] = useState(null);
   const [generalError, setGeneralError] = useState(null);
@@ -347,6 +349,7 @@ export default function InviteEmail() {
           invite.email,
           invite.ticket,
           ob.patp(point),
+          message,
           invite.rawTx
         );
       } catch (error) {
@@ -391,6 +394,7 @@ export default function InviteEmail() {
 
   const onSubmit = useCallback(
     async values => {
+      setMessage(values.message);
       cachedEmails.current = values.emails.reduce((memo, email, i) => {
         memo[nameForEmailField(i)] = email;
         return memo;
@@ -598,6 +602,16 @@ export default function InviteEmail() {
                           </Grid.Item>
                         );
                       })}
+
+                      <Grid.Item
+                        full
+                        as={Input}
+                        type="text"
+                        name="message"
+                        label="Message (optional)"
+                        placeholder="Welcome aboard!"
+                        value={message}
+                      />
 
                       {renderButton({ handleSubmit, fields })}
 

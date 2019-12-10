@@ -1,6 +1,7 @@
 import Disclaimer from 'views/Disclaimer';
 import Login from 'views/Login.js';
 import Admin from 'views/Admin';
+import Senate from 'views/Senate';
 import CreateGalaxy from 'views/CreateGalaxy';
 import IssueChild from 'views/IssueChild';
 import StarRelease from 'views/Release';
@@ -26,6 +27,7 @@ export const ROUTES = {
   [ROUTE_NAMES.ISSUE_CHILD]: IssueChild,
   [ROUTE_NAMES.INVITE]: Invite,
   [ROUTE_NAMES.ADMIN]: Admin,
+  [ROUTE_NAMES.SENATE]: Senate,
   // TODO: nest this route under the Party.js router
   [ROUTE_NAMES.PARTY_SET_POOL_SIZE]: PartySetPoolSize,
   [ROUTE_NAMES.ACCEPT_TRANSFER]: AcceptTransfer,
