@@ -140,7 +140,7 @@ export default function Senate() {
           <a
             target="_blank"
             rel="noopener noreferrer"
-            href={`https://github.com/urbit/azimuth/blob/master/proposals/${doc}.txt`}>
+            href={`https://raw.githubusercontent.com/urbit/azimuth/master/proposals/${doc}.txt`}>
             <code>{doc}</code>↗
           </a>
         </Grid.Item>
