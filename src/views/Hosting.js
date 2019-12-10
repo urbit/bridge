@@ -1,27 +1,34 @@
-import React, { useCallback } from 'react';
-import { Just } from 'folktale/maybe';
+import React from 'react';
 import { Grid } from 'indigo-react';
+import { Just } from 'folktale/maybe';
+import ob from 'urbit-ob';
+
+import { usePointCursor } from 'store/pointCursor';
+import { useWallet } from 'store/wallet';
+
+import * as need from 'lib/need';
+import { useLocalRouter } from 'lib/LocalRouter';
+import { useHostedShip } from 'lib/useHostedShip';
+import SolarisClient from 'lib/SolarisClient';
 
 import View from 'components/View';
 import Passport from 'components/Passport';
-import { OutButton } from 'components/Buttons';
+import { OutButton, ForwardButton } from 'components/Buttons';
 import HostedShip from 'components/HostedShip';
-
-import * as need from 'lib/need';
-import { usePointCursor } from 'store/pointCursor';
-import { useWallet } from 'store/wallet';
-import { useLocalRouter } from 'lib/LocalRouter';
-import { useHostedShip } from 'lib/useHostedShip';
+import Footer from 'components/Footer';
 
 export default function Hosting() {
   const { pop } = useLocalRouter();
+
   const { pointCursor } = usePointCursor();
+  const point = need.point(pointCursor);
+  const patp = ob.patp(point);
 
   const { wallet } = useWallet();
-  const point = need.point(pointCursor);
   const address = need.addressFromWallet(wallet);
 
-  const { bind } = useHostedShip(point);
+  const client = new SolarisClient('https://localhost:3030');
+  const ship = useHostedShip(client, patp);
 
   return (
     <View pop={pop} inset>
@@ -31,17 +38,26 @@ export default function Hosting() {
           address={Just(address)}
           animationMode={'slide'}
         />
-
-        <Grid.Item
-          full
-          as={OutButton}
-          href="https://urbit.org/docs/getting-started"
-          detail="Run your own Urbit OS">
-          Hosting Instructions
-        </Grid.Item>
-
-        <Grid.Item full as={HostedShip} {...bind} onReturn={() => pop()} />
+        <Grid.Item full as={HostedShip} ship={ship} onReturn={() => pop()} />
+        <Grid.Divider />
       </Grid>
+
+      <Footer>
+        <Grid>
+          <Grid.Divider />
+          <Grid.Item full as={ForwardButton} disabled={!ship.running}>
+            Redirect to Urbit OS Dojo
+          </Grid.Item>
+          <Grid.Divider />
+          <Grid.Item
+            full
+            as={OutButton}
+            href="https://urbit.org/docs/getting-started"
+            detail="Run your own Urbit OS">
+            Hosting Instructions
+          </Grid.Item>
+        </Grid>
+      </Footer>
     </View>
   );
 }

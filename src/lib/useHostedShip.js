@@ -1,62 +1,80 @@
 import { useCallback, useState } from 'react';
-import ob from 'urbit-ob';
-
-import SolarisClient from 'lib/SolarisClient';
-import useDeepEqualReference from './useDeepEqualReference';
 
 const STATE = {
-  NOT_FOUND: 'NOT_FOUND',
+  // container states
+  UNKNOWN: 'UNKNOWN',
+  MISSING: 'MISSING',
   RUNNING: 'RUNNING',
+  PENDING: 'PENDING',
+  // api states
+  QUERYING: 'QUERYING',
   BOOTING: 'BOOTING',
   CONNECTING: 'CONNECTING',
+  // connection states
   CONNECTED: 'CONNECTED',
-  UNKNOWN: 'UNKNOWN',
 };
 
-export function useHostedShip(point, endpoint = 'http://localhost:3030') {
-  const patp = ob.patp(point.value);
-  const client = new SolarisClient(endpoint);
+export function useHostedShip(client, patp) {
+  const [state, _setState] = useState(STATE.UNKNOWN);
+  const setState = useCallback(
+    s => {
+      console.log(s);
+      _setState(s);
+    },
+    [_setState]
+  );
 
-  const [state, setState] = useState(STATE.UNKNOWN);
-  const [events, setEvents] = useState([]);
+  const [sysEvents, setSysEvents] = useState([]);
+  const [newEvents, setNewEvents] = useState([]);
+  const [runEvents, setRunEvents] = useState([]);
+
   const [error, _setError] = useState();
-
   const setError = useCallback(
     error => {
       _setError(error);
-      setState(STATE.UNKNOWN);
       if (error) {
+        setState(STATE.UNKNOWN);
         console.error(error);
       }
     },
-    [_setError]
+    [_setError, setState]
   );
 
-  const addEvent = event => {
-    setEvents(current => current.push(event));
-  };
-
-  const notFound = state === STATE.NOT_FOUND;
+  const unknown = state === STATE.UNKNOWN;
+  const missing = state === STATE.MISSING;
   const running = state === STATE.RUNNING;
+  const pending = state === STATE.PENDING;
+  const querying = state === STATE.QUERYING;
   const booting = state === STATE.BOOTING;
   const connecting = state === STATE.CONNECTING;
   const connected = state === STATE.CONNECTED;
-  const unknown = state === STATE.UNKNOWN;
 
-  const checkShipExists = useCallback(async () => {
+  const resetEvents = useCallback(() => {
+    setSysEvents([]);
+    setNewEvents([]);
+    setRunEvents([]);
+  }, []);
+
+  const getStatus = useCallback(async () => {
     try {
       setError(undefined);
+
+      resetEvents();
+
+      setState(STATE.QUERYING);
 
       const response = await client.getShipsByPatp(patp);
 
       if (response.status === 404) {
-        setState(STATE.NOT_FOUND);
+        setState(STATE.MISSING);
       } else if (!response.ok) {
         setError(response.statusText);
       } else {
         const ship = await response.json();
 
-        if (ship.status === 'Running') {
+        if (ship.status === 'Pending') {
+          setState(STATE.PENDING);
+        } else if (ship.status === 'Running') {
           setState(STATE.RUNNING);
         } else {
           setError(ship);
@@ -65,44 +83,47 @@ export function useHostedShip(point, endpoint = 'http://localhost:3030') {
     } catch (error) {
       setError(error);
     }
-  }, [client, patp, setError]);
+  }, [client, patp, resetEvents, setError]);
 
-  const getShipEvents = useCallback(async () => {
+  const getEvents = useCallback(() => {
     try {
       setError(undefined);
+
+      resetEvents();
+
       setState(STATE.CONNECTING);
 
-      const response = await client.getShipsByPatpEvents(patp);
+      const url = client.getShipsByPatpUrl(patp) + '/events';
+      const source = new EventSource(url);
 
-      if (!response.ok) {
-        setError(response.statusText);
-      } else {
-        const reader = response.body.getReader();
+      source.onopen = () => setState(STATE.CONNECTED);
+      // source.onerror = () => setState(STATE.UNKNOWN);
+      // source.onmessage = console.log;
 
-        reader.read().then(function yieldEvent({ done, value }) {
-          setState(STATE.CONNECTED);
+      source.addEventListener('sys', event => {
+        setSysEvents(previous => [...previous, JSON.parse(event.data)]);
+      });
 
-          // Result objects contain two properties:
-          // done  - true if the stream has already given you all its data.
-          // value - some data. Always undefined when done is true.
-          if (done) {
-            return;
-          }
+      source.addEventListener('new', event => {
+        if (event.data !== '') {
+          setNewEvents(previous => [...previous, event.data]);
+        }
+      });
 
-          addEvent(JSON.parse(value));
-
-          // Read some more, and call this function again
-          return reader.read().then(yieldEvent);
-        });
-      }
+      source.addEventListener('run', event => {
+        if (event.data !== '') {
+          setRunEvents(previous => [...previous, event.data]);
+        }
+      });
     } catch (error) {
       setError(error);
     }
-  }, [client, patp, setError]);
+  }, [setError, resetEvents, client, patp, setState]);
 
-  const createNewShip = useCallback(async () => {
+  const create = useCallback(async () => {
     try {
       setError(undefined);
+
       setState(STATE.BOOTING);
 
       const response = await client.postShips({
@@ -113,26 +134,33 @@ export function useHostedShip(point, endpoint = 'http://localhost:3030') {
       if (!response.ok) {
         setError(response.statusText);
       } else {
-        checkShipExists();
+        getEvents();
       }
     } catch (error) {
       setError(error);
     }
-  }, [checkShipExists, client, patp, setError]);
+  }, [setError, client, patp, getEvents]);
 
-  const values = useDeepEqualReference({
+  return {
     error,
-    notFound,
+    unknown,
+    missing,
     running,
+    pending,
+    querying,
     booting,
     connecting,
     connected,
-    unknown,
-    events,
-    checkShipExists,
-    getShipEvents,
-    createNewShip,
-  });
 
-  return { ...values, bind: values };
+    sysEvents,
+    newEvents,
+    runEvents,
+
+    getStatus,
+    getEvents,
+    create,
+
+    // debugging
+    state,
+  };
 }

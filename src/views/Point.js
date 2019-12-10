@@ -240,13 +240,10 @@ export default function Point() {
             <Grid.Divider />
           </>
         )}
-        
+
         {senateButton}
-       
-        <Grid.Item
-          full
-          as={HostingButton}
-          onClick={goHosting} />
+
+        <Grid.Item full as={HostingButton} onClick={goHosting} />
         <Grid.Divider />
 
         <Grid.Item
