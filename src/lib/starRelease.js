@@ -17,6 +17,18 @@ export function generateWithdrawTxs(contracts, batchLimits, amount, to) {
   return [...csrTxs, ...lsrTxs];
 }
 
+/**
+ * Recurse over batchLimits to generate a valid number of withdraw txs.
+ * amount may exceed the number of withdraw txs available in the consolidated SR contract.
+ *
+ * @param {object} contracts - The azimuth contracts object
+ * @param {array} batchLimits - An array of the maximum withdraw limit for each batch
+ * @param {amount} amount - The number of txs to be generated
+ * @param {string} to - The addresss to withdraw to
+ * @return {array} An array with the number of transactions missing as the head
+ * (i.e. requested amount exceeded available), and the generated transactions
+ * as the rest of the list
+ */
 function generateConditionalWithdrawTxs(
   contracts,
   batchLimits,
@@ -24,11 +36,11 @@ function generateConditionalWithdrawTxs(
   to,
   offset = 0
 ) {
-  // Successfully withdraw all requesed
+  // Successfully withdrawn all requested, none missing
   if (amount <= 0) {
     return [0];
   }
-  // Return missing amount in car
+  // Return missing amount in head of list
   if (batchLimits.length === 0) {
     return [amount];
   }
