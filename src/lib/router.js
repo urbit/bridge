@@ -17,7 +17,6 @@ import AcceptTransfer from 'views/AcceptTransfer';
 import CancelTransfer from 'views/CancelTransfer';
 import UrbitOS from 'views/UrbitOS';
 
-import Boot from 'views/Boot';
 import Hosting from 'views/Hosting';
 
 import { ROUTE_NAMES } from './routeNames';
