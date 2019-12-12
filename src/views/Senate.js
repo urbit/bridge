@@ -90,7 +90,7 @@ export default function Senate() {
     let polls = {};
     for (let doc of proposals) {
       let poll = await azimuth.polls.getDocumentPoll(_contracts, doc);
-      poll.endTime = polls.start + poll.duration;
+      poll.endTime = convertToInt(poll.start) + convertToInt(poll.duration);
       poll.hasVoted = await azimuth.polls.hasVotedOnDocumentPoll(
         _contracts,
         _point,
