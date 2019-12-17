@@ -73,25 +73,24 @@ export default function HostedShip({
 
   const renderEvents = (title, detail, events) => {
     return (
-      events.length > 0 && (
-        <>
-          <Grid.Item
-            full
-            as={ForwardButton}
-            accessory=""
-            disabled
-            detail={detail}>
-            {title}
-          </Grid.Item>
-          <Grid.Item full>
-            <ul className="hosting-events">
-              {events.map(event => (
-                <li>{event}</li>
-              ))}
-            </ul>
-          </Grid.Item>
-        </>
-      )
+      <>
+        <Grid.Item
+          full
+          as={ForwardButton}
+          accessory=""
+          disabled
+          detail={detail}>
+          {title}
+        </Grid.Item>
+        <Grid.Item full>
+          <ul className="hosting-events">
+            {events.length === 0 && (<li>&lt;Waiting&gt;</li>)}
+            {events.map(event => (
+              <li>{event}</li>
+            ))}
+          </ul>
+        </Grid.Item>
+      </>
     );
   };
 

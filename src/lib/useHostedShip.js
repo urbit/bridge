@@ -15,7 +15,14 @@ const STATE = {
 };
 
 export function useHostedShip(client, patp) {
-  const [state, setState] = useState(STATE.UNKNOWN);
+  const [state, _setState] = useState(STATE.UNKNOWN);
+  const setState = useCallback(
+    s => {
+      console.log(s);
+      _setState(s);
+    },
+    [_setState]
+  );
 
   const [sysEvents, setSysEvents] = useState([]);
   const [newEvents, setNewEvents] = useState([]);
