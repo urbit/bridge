@@ -204,11 +204,6 @@ export default function Points() {
     push,
   ]);
 
-  const goViewPoint = useCallback(() => push(names.VIEW_POINT), [
-    names.VIEW_POINT,
-    push,
-  ]);
-
   if (
     loading ||
     (allPoints.length === 1 &&
@@ -321,30 +316,21 @@ export default function Points() {
           </Grid.Item>
         )}
 
-        <Footer>
-          <Grid>
-            <Grid.Divider />
-            {isEclipticOwner && (
-              <>
-                <Grid.Item
-                  full
-                  as={ForwardButton}
-                  detail="You have the authority to create a new Galaxy."
-                  onClick={goCreateGalaxy}>
-                  Create a galaxy
-                </Grid.Item>
-                <Grid.Divider />
-              </>
-            )}
-            <Grid.Item
-              full
-              as={ForwardButton}
-              detail="View an ID"
-              onClick={goViewPoint}>
-              View a point
-            </Grid.Item>
-          </Grid>
-        </Footer>
+        {isEclipticOwner && (
+          <Footer>
+            <Grid>
+              <Grid.Divider />
+              <Grid.Item
+                full
+                as={ForwardButton}
+                detail="You have the authority to create a new Galaxy."
+                onClick={goCreateGalaxy}>
+                Create a galaxy
+              </Grid.Item>
+              <Grid.Divider />
+            </Grid>
+          </Footer>
+        )}
       </Grid>
     </View>
   );
