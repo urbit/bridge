@@ -79,8 +79,6 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
 
     const pair = deriveNetworkKeys(_networkSeed);
 
-    setCode(generateCode(pair));
-
     if (!keysMatchChain(pair, _details)) {
       setGenerating(false);
       setNotice('Derived networking keys do not match on-chain details.');
@@ -89,6 +87,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     }
 
     setNotice();
+    setCode(generateCode(pair));
     setKeyfile(compileNetworkingKey(pair, _point, networkRevision));
     setGenerating(false);
   }, [
