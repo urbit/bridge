@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
+import { chain } from 'lodash';
 
 import { useNetwork } from '../network';
 import useSetState from 'lib/useSetState';
@@ -10,6 +11,8 @@ const EMPTY_INVITES = {
   availableInvites: Nothing(),
   sentInvites: Nothing(),
   acceptedInvites: Nothing(),
+  acceptedPoints: Nothing(),
+  pendingPoints: Nothing(),
 };
 
 export default function useInvitesStore() {
@@ -42,11 +45,23 @@ export default function useInvitesStore() {
       const sentInvites = invitedPoints.length;
       const acceptedInvites = activity.filter(i => !!i).length;
 
+      console.log(invitedPoints);
+
+      const [acceptedPoints, pendingPoints] = chain(invitedPoints)
+        .zipWith(activity, (point, active) => ({
+          point,
+          active: !!active,
+        }))
+        .partition('active')
+        .map(arr => arr.map(x => x.point));
+
       addToInvitesCache({
         [point]: {
           availableInvites: Just(availableInvites),
           sentInvites: Just(sentInvites),
           acceptedInvites: Just(acceptedInvites),
+          pendingPoints: Just(pendingPoints),
+          acceptedPoints: Just(acceptedPoints),
         },
       });
     },
