@@ -5,6 +5,7 @@ import { OnlineProvider } from './online';
 import { NetworkProvider } from './network';
 import { WalletProvider } from './wallet';
 import { PointCursorProvider } from './pointCursor';
+import { StarReleaseCacheProvider } from './starRelease';
 import { PointCacheProvider } from './pointCache';
 import { TxnCursorProvider } from './txnCursor';
 import { MediaQueryProvider } from 'lib/MediaQuery';
@@ -19,4 +20,5 @@ export default nest([
   PointCacheProvider,
   TxnCursorProvider,
   MediaQueryProvider,
+  StarReleaseCacheProvider,
 ]);
