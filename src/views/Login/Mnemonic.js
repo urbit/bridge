@@ -5,7 +5,7 @@ import { Grid, CheckboxInput } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
-import { walletFromMnemonic, WALLET_TYPES } from 'lib/wallet';
+import { walletFromMnemonic, WALLET_TYPES, DEFAULT_HD_PATH } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
 import { MnemonicInput, HdPathInput, PassphraseInput } from 'form/Inputs';
 import {
@@ -23,12 +23,7 @@ import SubmitButton from 'form/SubmitButton';
 export default function Mnemonic({ className, goHome }) {
   useLoginView(WALLET_TYPES.MNEMONIC);
 
-  const {
-    setWallet,
-    setAuthMnemonic,
-    walletHdPath,
-    setWalletHdPath,
-  } = useWallet();
+  const { setWallet, setAuthMnemonic, setWalletHdPath } = useWallet();
 
   const validate = useMemo(
     () =>
@@ -58,10 +53,7 @@ export default function Mnemonic({ className, goHome }) {
     [setAuthMnemonic, setWallet, setWalletHdPath]
   );
 
-  const initialValues = useMemo(
-    () => ({ hdpath: walletHdPath, useAdvanced: false }),
-    [walletHdPath]
-  );
+  const initialValues = { hdpath: DEFAULT_HD_PATH, useAdvanced: false };
 
   return (
     <Grid className={cn('mt4', className)}>
