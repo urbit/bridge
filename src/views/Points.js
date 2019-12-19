@@ -218,11 +218,6 @@ export default function Points() {
     push,
   ]);
 
-  const goViewPoint = useCallback(() => push(names.VIEW_POINT), [
-    names.VIEW_POINT,
-    push,
-  ]);
-
   const goStarRelease = useCallback(() => push(names.STAR_RELEASE), [
     names.STAR_RELEASE,
     push,
@@ -368,13 +363,6 @@ export default function Points() {
                 <Grid.Divider />
               </>
             )}
-            <Grid.Item
-              full
-              as={ForwardButton}
-              detail="View an ID"
-              onClick={goViewPoint}>
-              View a point
-            </Grid.Item>
           </Grid>
         </Footer>
       </Grid>
