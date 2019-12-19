@@ -24,6 +24,10 @@ const isHexPrefixed = /^0x/;
 export const validateMnemonic = v =>
   !bip39.validateMnemonic(v) && 'This is not a valid mnemonic.';
 
+const isHdPath = /^m(\/[0-9]+'?)*$/;
+export const validateHdPath = v =>
+  !isHdPath.test(v) && 'Invalid HD derivation path.';
+
 // Checks an empty field
 export const validateNotEmpty = v =>
   (v === undefined || v.length === 0) && 'This field is required.';

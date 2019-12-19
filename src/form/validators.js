@@ -4,6 +4,7 @@ import {
   validateNotEmpty,
   validatePatq,
   validateMnemonic,
+  validateHdPath,
   validatePoint,
   validateMaximumPatpByteLength,
   validateOneOf,
@@ -67,7 +68,7 @@ export const buildCheckboxValidator = mustBe =>
   ]);
 export const buildPassphraseValidator = () => buildValidator([]);
 // TODO: validate hdpath format
-export const buildHdPathValidator = () => buildValidator([validateNotEmpty]);
+export const buildHdPathValidator = () => buildValidator([validateHdPath]);
 export const buildPointValidator = (size = 4, validators = []) =>
   buildValidator([
     validateNotEmpty,
