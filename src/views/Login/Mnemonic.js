@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import cn from 'classnames';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, CheckboxInput } from 'indigo-react';
@@ -10,6 +10,7 @@ import useLoginView from 'lib/useLoginView';
 import { MnemonicInput, HdPathInput, PassphraseInput } from 'form/Inputs';
 import {
   composeValidator,
+  buildAnyMnemonicValidator,
   buildMnemonicValidator,
   buildCheckboxValidator,
   buildPassphraseValidator,
@@ -25,25 +26,34 @@ export default function Mnemonic({ className, goHome }) {
 
   const { setWallet, setAuthMnemonic, setWalletHdPath } = useWallet();
 
-  const validate = useMemo(
-    () =>
-      composeValidator({
-        useAdvanced: buildCheckboxValidator(),
-        mnemonic: buildMnemonicValidator(),
-        passphrase: buildPassphraseValidator(),
-        hdpath: buildHdPathValidator(),
-      }),
-    []
-  );
+  const [anyMnemonic, setAnyMnemonic] = useState(false);
+
+  const validate = useMemo(() => {
+    const mnemonicValidator = anyMnemonic
+      ? buildAnyMnemonicValidator()
+      : buildMnemonicValidator();
+    return composeValidator({
+      useAdvanced: buildCheckboxValidator(),
+      mnemonic: mnemonicValidator,
+      passphrase: buildPassphraseValidator(),
+      hdpath: buildHdPathValidator(),
+    });
+  }, [anyMnemonic]);
 
   // when the properties change, re-derive wallet and set global state
   const onValues = useCallback(
     ({ valid, values }) => {
+      setAnyMnemonic(values.anyMnemonic);
       if (valid) {
         setWalletHdPath(values.hdpath);
         setAuthMnemonic(Just(values.mnemonic));
         setWallet(
-          walletFromMnemonic(values.mnemonic, values.hdpath, values.passphrase)
+          walletFromMnemonic(
+            values.mnemonic,
+            values.hdpath,
+            values.passphrase,
+            values.anyMnemonic
+          )
         );
       } else {
         setAuthMnemonic(Nothing());
@@ -53,7 +63,11 @@ export default function Mnemonic({ className, goHome }) {
     [setAuthMnemonic, setWallet, setWalletHdPath]
   );
 
-  const initialValues = { hdpath: DEFAULT_HD_PATH, useAdvanced: false };
+  const initialValues = {
+    hdpath: DEFAULT_HD_PATH,
+    useAdvanced: false,
+    anyMnemonic: false,
+  };
 
   return (
     <Grid className={cn('mt4', className)}>
@@ -69,6 +83,13 @@ export default function Mnemonic({ className, goHome }) {
               as={MnemonicInput}
               name="mnemonic"
               label="BIP39 Mnemonic"
+            />
+
+            <Grid.Item
+              full
+              as={CheckboxInput}
+              name="anyMnemonic"
+              label="Skip mnemonic validation"
             />
 
             <Condition when="useAdvanced" is={true}>

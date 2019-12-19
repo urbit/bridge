@@ -60,6 +60,8 @@ export const hasErrors = iter =>
 
 export const buildPatqValidator = (validators = []) =>
   buildValidator([validateNotEmpty, validatePatq, ...validators]);
+export const buildAnyMnemonicValidator = () =>
+  buildValidator([validateNotEmpty]);
 export const buildMnemonicValidator = () =>
   buildValidator([validateNotEmpty, validateMnemonic]);
 export const buildCheckboxValidator = mustBe =>
