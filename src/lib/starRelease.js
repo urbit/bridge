@@ -70,6 +70,10 @@ export async function getConditional(contracts, address) {
     conditionalSR.getBatches(contracts, address),
   ]);
 
+  if (commitment === null || batches === null) {
+    return { total: 0, available: 0, withdrawn: 0, batchLimits: [] };
+  }
+
   const { total } = commitment;
   const withdrawLimits = await Promise.all(
     batches.map((_, idx) =>
