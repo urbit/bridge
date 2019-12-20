@@ -1,42 +1,26 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import cn from 'classnames';
-import { Grid, Text, Input, P, LinkButton } from 'indigo-react';
+import { Grid, Text, P, LinkButton } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
-import ob from 'urbit-ob';
 
 import { useNetwork } from 'store/network';
-import { usePointCache } from 'store/pointCache';
 import { usePointCursor } from 'store/pointCursor';
 
 import * as need from 'lib/need';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
-import patp2dec from 'lib/patp2dec';
-import { getSpawnCandidate } from 'lib/child';
 import { useLocalRouter } from 'lib/LocalRouter';
-import useConstant from 'lib/useConstant';
 
 import { keccak256 } from 'lib/wallet';
 
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
-import { PointInput, AddressInput } from 'form/Inputs';
-import {
-  composeValidator,
-  buildPointValidator,
-  buildAddressValidator,
-  hasErrors,
-} from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
-import FormError from 'form/FormError';
-import CopiableAddress from 'components/CopiableAddress';
 import convertToInt from 'lib/convertToInt';
 
 function useCastDocumentVote() {
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
-  const { syncDetails } = usePointCache();
 
   const _contracts = need.contracts(contracts);
   const _point = need.point(pointCursor);
@@ -66,15 +50,9 @@ export default function Senate() {
   const _contracts = need.contracts(contracts);
   const _point = convertToInt(need.point(pointCursor), 10);
 
-  const {
-    construct,
-    unconstruct,
-    inputsLocked,
-    completed,
-    bind,
-  } = useCastDocumentVote();
+  const { construct, bind } = useCastDocumentVote();
 
-  const [documentHash, setDocumentHash] = useState('0x...');
+  // const [documentHash, setDocumentHash] = useState('0x...');
   const [majorities, setMajorities] = useState([]);
   const [proposals, setProposals] = useState([]);
   const [polls, setPolls] = useState({});
@@ -103,7 +81,7 @@ export default function Senate() {
     setPolls(polls);
     setLoading(false);
     return;
-  }, [_contracts]);
+  }, [_contracts, _point]);
 
   const [open, closed] = useMemo(() => {
     let open = [];
@@ -185,15 +163,15 @@ export default function Senate() {
         </>
       );
     });
-  }, [open, polls, votingOn]);
+  }, [open, polls, votingOn, doVote]);
 
   const onDocumentChange = useCallback(({ valid, values }) => {
-    if (values.document) {
-      const hash = '0x' + keccak256(values.document.trim()).toString('hex');
-      setDocumentHash(hash);
-    } else {
-      setDocumentHash('0x...');
-    }
+    // if (values.document) {
+    //   const hash = '0x' + keccak256(values.document.trim()).toString('hex');
+    //   setDocumentHash(hash);
+    // } else {
+    //   setDocumentHash('0x...');
+    // }
   }, []);
 
   return (
