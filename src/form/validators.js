@@ -104,8 +104,13 @@ export const buildAddressValidator = () =>
     validateNotNullAddress,
     validateEthereumAddress,
   ]);
-export const buildNumberValidator = (min = 0, max = NaN) =>
-  buildValidator([validateGreaterThan(min), validateLessThan(max)]);
+export const buildNumberValidator = (min = 0, max = null) => {
+  let validators = [validateGreaterThan(min)];
+  if (max !== null) {
+    validators.push(validateLessThan(max));
+  }
+  return buildValidator(validators);
+};
 
 export const buildEmailValidator = validate =>
   buildValidator([validateNotEmpty, validateEmail], validate);
