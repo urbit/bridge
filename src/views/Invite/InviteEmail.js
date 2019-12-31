@@ -142,15 +142,12 @@ export default function InviteEmail() {
   const isFailed = status === STATUS.FAILURE;
   const isDone = status === STATUS.SUCCESS;
 
-  const validateHasReceived = useCallback(
-    async email => {
-      const hasReceived = await getHasReceived(email);
-      if (hasReceived) {
-        return HAS_RECEIVED_TEXT;
-      }
-    },
-    [getHasReceived]
-  );
+  const validateHasReceived = useCallback(async email => {
+    // const hasReceived = await getHasReceived(email);
+    // if (hasReceived) {
+    // return HAS_RECEIVED_TEXT;
+    // }
+  }, []);
 
   const validateForm = useCallback((values, errors) => {
     if (hasErrors(errors)) {
@@ -384,12 +381,13 @@ export default function InviteEmail() {
   }, [
     web3,
     wallet,
-    point,
     gasPrice,
-    invites,
+    point,
     clearReceipts,
+    invites,
     addReceipt,
     sendMail,
+    message,
   ]);
 
   const onSubmit = useCallback(

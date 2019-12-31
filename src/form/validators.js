@@ -15,6 +15,7 @@ import {
   validateNotNullAddress,
   validateHexPrefix,
   validateLength,
+  validateUnique,
 } from 'lib/validators';
 import isPromise from 'lib/isPromise';
 
@@ -105,6 +106,8 @@ export const buildNumberValidator = (min = 0) =>
 export const buildEmailValidator = validate =>
   buildValidator([validateNotEmpty, validateEmail], validate);
 
+export const buildEmailArrayValidator = () =>
+  buildValidator([validateUnique, buildArrayValidator(buildEmailValidator())]);
 // the form validator is the composition of all of the field validators
 // plus an additional form validator function
 export const composeValidator = (

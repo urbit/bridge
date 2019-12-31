@@ -1,7 +1,10 @@
-import React, { useCallback } from 'react';
-import { Just } from 'folktale/maybe';
+import React, { useCallback, useState } from 'react';
+import { Just, Nothing } from 'folktale/maybe';
 import { Grid } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
+import cn from 'classnames';
+import { take } from 'lodash';
+import ob from 'urbit-ob';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useWallet } from 'store/wallet';
@@ -13,6 +16,8 @@ import { ForwardButton, BootUrbitOSButton } from 'components/Buttons';
 import CopyButton from 'components/CopyButton';
 import { matchBlinky } from 'components/Blinky';
 import DownloadSigilButton from 'components/DownloadSigilButton';
+import BarGraph from 'components/BarGraph';
+import MaybeSigil from 'components/MaybeSigil';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
@@ -20,6 +25,46 @@ import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
+
+import InviteCohort from 'views/Invite/Cohort';
+
+const InviteSigilList = ({ className, pendingPoints, acceptedPoints }) => {
+  const _acceptedPoints = take(
+    acceptedPoints.getOrElse([]).map(x => Just(ob.patp(x))),
+    6
+  );
+
+  const _pendingPoints = take(
+    pendingPoints.getOrElse([]).map(x => Just(ob.patp(x))),
+    6 - _acceptedPoints.length
+  );
+
+  const empty = [
+    ...Array(
+      Math.max(6 - _acceptedPoints.length - _pendingPoints.length, 0)
+    ).keys(),
+  ].map(() => Nothing());
+
+  const renderSigil = (points, colors, klassName) => {
+    return (
+      <>
+        {points.map((point, idx) => (
+          <div className={cn(klassName, 'h9 w9')}>
+            <MaybeSigil patp={point} size={50} colors={colors} />
+          </div>
+        ))}
+      </>
+    );
+  };
+
+  return (
+    <div className={cn('flex justify-between', className)}>
+      {renderSigil(_acceptedPoints, ['#000000', '#FFFFFF'])}
+      {renderSigil(_pendingPoints, ['#ee892b', '#FFFFFF'])}
+      {renderSigil(empty, [], 'b1 b-black')}
+    </div>
+  );
+};
 
 export default function Point() {
   const { pop, push, names } = useLocalRouter();
@@ -38,7 +83,22 @@ export default function Point() {
   } = useCurrentPermissions();
 
   // fetch the invites for the current cursor
-  const { availableInvites } = useInvites(point);
+  const invites = useInvites(point);
+  const {
+    availableInvites,
+    sentInvites,
+    acceptedInvites,
+    pendingPoints,
+    acceptedPoints,
+  } = invites;
+
+  const showInvites = !(
+    acceptedInvites.getOrElse(0) === 0 && sentInvites.getOrElse(0) === 0
+  );
+
+  const hasInvites = showInvites || availableInvites.getOrElse(0) !== 0;
+  //&&
+  // availableInvites.getOrElse(0) === 0
 
   const goAdmin = useCallback(() => push(names.ADMIN), [push, names]);
 
@@ -53,6 +113,10 @@ export default function Point() {
     names.ISSUE_CHILD,
     push,
   ]);
+
+  const isPlanet = azimuth.getPointSize(point) === azimuth.PointSize.Planet;
+
+  const [showInviteForm, setShowInviteForm] = useState(false);
 
   const inviteButton = (() => {
     switch (azimuth.getPointSize(point)) {
@@ -103,6 +167,52 @@ export default function Point() {
         address={Just(address)}
         animationMode={'slide'}
       />
+      <Grid gap={3}>
+        {isPlanet && hasInvites && (
+          <>
+            <Grid.Item full>
+              Invite Group
+              <br />
+            </Grid.Item>
+            {showInvites && (
+              <>
+                <Grid.Item
+                  full
+                  as={BarGraph}
+                  available={availableInvites}
+                  sent={sentInvites}
+                  accepted={acceptedInvites}
+                />
+                <Grid.Item
+                  full
+                  as={InviteSigilList}
+                  pendingPoints={pendingPoints}
+                  acceptedPoints={acceptedPoints}
+                />
+              </>
+            )}
+            {!showInvites && (
+              <>
+                <Grid.Item full className="b-gray4 b-dotted b1 self-center">
+                  <div className="p4 pv8 t-center gray4">
+                    Start your invite group by adding members
+                  </div>
+                </Grid.Item>
+              </>
+            )}
+            {!showInviteForm && availableInvites.getOrElse(0) > 0 && (
+              <Grid.Item
+                full
+                solid
+                as={ForwardButton}
+                onClick={() => setShowInviteForm(true)}>
+                Add Members
+              </Grid.Item>
+            )}
+            {showInviteForm && <InviteCohort />}
+          </>
+        )}
+      </Grid>
       <Grid className="pt2">
         {inviteButton}
         <Grid.Item

@@ -102,3 +102,8 @@ export const validateNotNullAddress = validateNotAny([
   ETH_ZERO_ADDR,
   ETH_ZERO_ADDR_SHORT,
 ]);
+
+export const validateUnique = arr => {
+  const res = [...new Set(arr)].length !== arr.length && 'Must be unique';
+  return res;
+};

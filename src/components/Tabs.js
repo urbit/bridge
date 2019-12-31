@@ -8,6 +8,7 @@ export default function Tabs({
   currentTab,
   onTabChange,
   className,
+  tabClassName,
   ...rest
 }) {
   const Tab = views[currentTab];
@@ -15,7 +16,7 @@ export default function Tabs({
   return (
     <Grid className={className}>
       <Grid.Item full as={Flex} className="b-gray3 bb1 scroll-x hidden-y">
-        <Flex.Item as={Flex}>
+        <Flex.Item as={Flex} className="flex1">
           {options.map((option, i) => {
             const isActive = option.value === currentTab;
             const isFirst = i === 0;
@@ -25,6 +26,7 @@ export default function Tabs({
                 key={option.value}
                 onClick={() => onTabChange(option.value)}
                 className={cn(
+                  tabClassName,
                   'f5 pv3 pointer nowrap',
                   {
                     'black b-black bb1': isActive,
