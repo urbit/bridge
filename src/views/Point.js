@@ -1,10 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid } from 'indigo-react';
+import { Grid, Flex } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
-import cn from 'classnames';
-import { take } from 'lodash';
-import ob from 'urbit-ob';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useWallet } from 'store/wallet';
@@ -17,7 +14,9 @@ import CopyButton from 'components/CopyButton';
 import { matchBlinky } from 'components/Blinky';
 import DownloadSigilButton from 'components/DownloadSigilButton';
 import BarGraph from 'components/BarGraph';
+import Chip from 'components/Chip';
 import MaybeSigil from 'components/MaybeSigil';
+import InviteSigilList from 'components/InviteSigilList';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
@@ -27,44 +26,6 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 import InviteCohort from 'views/Invite/Cohort';
-
-const InviteSigilList = ({ className, pendingPoints, acceptedPoints }) => {
-  const _acceptedPoints = take(
-    acceptedPoints.getOrElse([]).map(x => Just(ob.patp(x))),
-    6
-  );
-
-  const _pendingPoints = take(
-    pendingPoints.getOrElse([]).map(x => Just(ob.patp(x))),
-    6 - _acceptedPoints.length
-  );
-
-  const empty = [
-    ...Array(
-      Math.max(6 - _acceptedPoints.length - _pendingPoints.length, 0)
-    ).keys(),
-  ].map(() => Nothing());
-
-  const renderSigil = (points, colors, klassName) => {
-    return (
-      <>
-        {points.map((point, idx) => (
-          <div className={cn(klassName, 'h9 w9')}>
-            <MaybeSigil patp={point} size={50} colors={colors} />
-          </div>
-        ))}
-      </>
-    );
-  };
-
-  return (
-    <div className={cn('flex justify-between', className)}>
-      {renderSigil(_acceptedPoints, ['#000000', '#FFFFFF'])}
-      {renderSigil(_pendingPoints, ['#ee892b', '#FFFFFF'])}
-      {renderSigil(empty, [], 'b1 b-black')}
-    </div>
-  );
-};
 
 export default function Point() {
   const { pop, push, names } = useLocalRouter();
@@ -97,12 +58,18 @@ export default function Point() {
   );
 
   const hasInvites = showInvites || availableInvites.getOrElse(0) !== 0;
-  //&&
+
+  const _totalInvites =
+    sentInvites.getOrElse(0) + availableInvites.getOrElse(0);
+  const _pendingInvites = pendingPoints.getOrElse([]).length;
+  //
   // availableInvites.getOrElse(0) === 0
 
   const goAdmin = useCallback(() => push(names.ADMIN), [push, names]);
 
   const goInvite = useCallback(() => push(names.INVITE), [push, names]);
+
+  const goParty = useCallback(() => push(names.PARTY), [push, names]);
 
   const goPartiesSetPoolSize = useCallback(
     () => push(names.PARTY_SET_POOL_SIZE),
@@ -170,10 +137,27 @@ export default function Point() {
       <Grid gap={3}>
         {isPlanet && hasInvites && (
           <>
-            <Grid.Item full>
+            <Grid.Item cols={[1, 11]}>
               Invite Group
               <br />
             </Grid.Item>
+
+            <Grid.Item className="t-right" onClick={goParty} cols={[11, 13]}>
+              View
+            </Grid.Item>
+            <Grid.Item full>
+              <Flex align="center">
+                <Flex.Item>
+                  {acceptedInvites.getOrElse(0)} / {_totalInvites}
+                </Flex.Item>
+                {_pendingInvites > 0 && (
+                  <Flex.Item as={Chip} color="yellow">
+                    {_pendingInvites.getOrElse([]).length} pending
+                  </Flex.Item>
+                )}
+              </Flex>
+            </Grid.Item>
+
             {showInvites && (
               <>
                 <Grid.Item

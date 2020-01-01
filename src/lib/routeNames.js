@@ -20,4 +20,5 @@ export const ROUTE_NAMES = {
   CREATE_GALAXY: Symbol('CREATE_GALAXY'),
   ISSUE_CHILD: Symbol('ISSUE_CHILD'),
   PARTY_SET_POOL_SIZE: Symbol('PARTY_SET_POOL_SIZE'),
+  PARTY: Symbol('PARTY'),
 };

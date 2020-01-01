@@ -10,6 +10,7 @@ import Invite from 'views/Invite';
 import Activate from 'views/Activate';
 
 import PartySetPoolSize from 'views/Party/PartySetPoolSize';
+import ShowParty from 'views/Party/ShowParty';
 import AcceptTransfer from 'views/AcceptTransfer';
 import CancelTransfer from 'views/CancelTransfer';
 
@@ -30,4 +31,5 @@ export const ROUTES = {
   [ROUTE_NAMES.ACCEPT_TRANSFER]: AcceptTransfer,
   // TODO: replace this with deep link to AdminCancelTransfer
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
+  [ROUTE_NAMES.PARTY]: ShowParty,
 };

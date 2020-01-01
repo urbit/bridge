@@ -1573,6 +1573,10 @@ caption,
 .justify-around {
   justify-content: space-around; }
 
+.justify-evenly {
+  justify-content: space-evenly;
+}
+
 .flex-center {
   display: flex;
   justify-content: center;
