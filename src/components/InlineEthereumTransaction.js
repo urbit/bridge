@@ -10,7 +10,7 @@ import {
   Text,
 } from 'indigo-react';
 
-import { useExploreTxUrl, useExploreTxUrls } from 'lib/explorer';
+import { useExploreTxUrls } from 'lib/explorer';
 import { hexify } from 'lib/txn';
 import pluralize from 'lib/pluralize';
 

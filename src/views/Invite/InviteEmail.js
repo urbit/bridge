@@ -66,7 +66,7 @@ import timeout from 'lib/timeout';
 const INITIAL_VALUES = { emails: [''] };
 
 const GAS_LIMIT = GAS_LIMITS.GIFT_PLANET;
-const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
+// const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
 
 const STATUS = {
   INPUT: 'INPUT',
@@ -110,7 +110,7 @@ export default function InviteEmail() {
   const { syncInvites, getInvites } = usePointCache();
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
-  const { getHasReceived, sendMail } = useMailer();
+  const { sendMail } = useMailer();
   const { gasPrice } = useGasPrice();
 
   const cachedEmails = useRef({});

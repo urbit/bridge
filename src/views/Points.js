@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, H5, H1, HelpText, LinkButton, Flex } from 'indigo-react';
+import { Grid, H5, HelpText, LinkButton, Flex } from 'indigo-react';
 import { get } from 'lodash';
 
 import { useHistory } from 'store/history';

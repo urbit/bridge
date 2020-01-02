@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useCallback, useState } from 'react';
-import { Grid, Flex, Input } from 'indigo-react';
+import { Grid, Flex } from 'indigo-react';
 import * as ob from 'urbit-ob';
 import { Just } from 'folktale/maybe';
 import cn from 'classnames';
@@ -53,10 +53,13 @@ function PartyList({ points, className }) {
     points.map(syncInvites);
   }, [points, syncInvites]);
 
-  const handleChange = useCallback(e => {
-    setQuery(e.target.value);
-    e.preventDefault();
-  });
+  const handleChange = useCallback(
+    e => {
+      setQuery(e.target.value);
+      e.preventDefault();
+    },
+    [setQuery]
+  );
 
   const visiblePoints = useMemo(
     () =>
@@ -92,7 +95,7 @@ function PartyList({ points, className }) {
 }
 
 export default function ShowParty() {
-  const { pop, push, names } = useLocalRouter();
+  const { pop } = useLocalRouter();
 
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);

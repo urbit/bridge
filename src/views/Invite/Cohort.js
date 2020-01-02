@@ -32,7 +32,6 @@ import {
 import { MIN_PLANET, GAS_LIMITS } from 'lib/constants';
 import pluralize from 'lib/pluralize';
 import useGasPrice from 'lib/useGasPrice';
-import useSetState from 'lib/useSetState';
 
 import EmailChipInput from 'form/EmailChipInput';
 import FormError from 'form/FormError';
@@ -43,7 +42,7 @@ import {
   composeValidator,
   hasErrors,
 } from 'form/validators';
-import { WARNING, onlyHasWarning } from 'form/helpers';
+import { WARNING } from 'form/helpers';
 
 const GAS_LIMIT = GAS_LIMITS.GIFT_PLANET;
 
@@ -53,8 +52,6 @@ const STATUS = {
   SUCCESS: 'SUCCESS',
   FAILURE: 'FAILURE',
 };
-
-const nameForEmailField = i => `emails[${i}]`;
 
 const useInviter = sendInvites => {
   const { contracts, web3, networkType } = useNetwork();
@@ -69,7 +66,7 @@ const useInviter = sendInvites => {
 
   const [progress, setProgress] = useState(0);
   const [txStatus, setTxStatus] = useState(STATUS.INPUT);
-  const [errors, addError] = useSetState();
+  // const [errors, addError] = useSetState();
 
   const isDone = txStatus === STATUS.SUCCESS;
   useEffect(() => {
@@ -119,13 +116,10 @@ const useInviter = sendInvites => {
         };
       }
 
-      console.log('b');
       // NB(shrugs) - must be processed in serial because main thread, etc
       let signedInvites = [];
       let errorCount = 0;
       for (let i = 0; i < numInvites; i++) {
-        console.log(`c: ${i}`);
-        const name = nameForEmailField(i);
         setProgress(x => x + 1);
         try {
           const planet = planets[i];
@@ -257,17 +251,13 @@ const InviteMail = () => {
   const [count, setCount] = useState(0);
   const canInput = status === STATUS.INPUT;
   const isSending = txStatus === STATUS.SENDING || status === STATUS.SENDING;
-  const isFailed = status === STATUS.FAILURE || txStatus === STATUS.FAILURE;
   const isDone = status === STATUS.SUCCESS;
   const onSubmit = useCallback(
     async values => {
-      console.log('GENERATING');
       const emailCount = values.emails.length;
-      console.log(values);
       setCount(emailCount);
       setStatus(STATUS.SENDING);
       const errors = await generateInvites(emailCount);
-      console.log(errors);
       if (errors) {
         setStatus(STATUS.FAILED);
         return errors;
@@ -279,8 +269,6 @@ const InviteMail = () => {
   useEffect(() => {
     async function processInvites() {
       if (invites.length !== 0 && txStatus === STATUS.SUCCESS) {
-        console.log(JSON.stringify(invites));
-        console.log('a');
         await timeout(500);
 
         resetInvites();
@@ -366,14 +354,7 @@ const InviteMail = () => {
 };
 
 const InviteUrl = () => {
-  const {
-    txStatus,
-    errors,
-    needFunds,
-    invites,
-    generateInvites,
-    resetInvites,
-  } = useInviter();
+  const { txStatus, needFunds, invites, generateInvites } = useInviter();
 
   const [error, setError] = useState();
 
@@ -417,9 +398,9 @@ const InviteUrl = () => {
             Generating Invite URL
           </Grid.Item>
         );
+      default:
+        return null;
     }
-
-    return null;
   };
 
   const url = `https://bridge.urbit.org/#${get(invites, '[0].ticket', '')}`;

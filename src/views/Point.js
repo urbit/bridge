@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Just, Nothing } from 'folktale/maybe';
+import { Just } from 'folktale/maybe';
 import { Grid, Flex } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
 
@@ -15,7 +15,6 @@ import { matchBlinky } from 'components/Blinky';
 import DownloadSigilButton from 'components/DownloadSigilButton';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
-import MaybeSigil from 'components/MaybeSigil';
 import InviteSigilList from 'components/InviteSigilList';
 
 import * as need from 'lib/need';

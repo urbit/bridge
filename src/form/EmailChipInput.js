@@ -35,13 +35,12 @@ const EmailChipInput = ({ className, name, label, disabled }) => {
 
   const {
     input,
-    meta: { active, error, dirtySinceLastSubmit },
+    meta: { active, error },
   } = useField(name, {
     subscription: {
       active: true,
       error: true,
       value: true,
-      dirtySinceLastSubmit: true,
     },
     isEqual,
   });
