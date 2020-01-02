@@ -159,7 +159,16 @@ textarea {
   line-height: 1.15;
   /* 1 */
   margin: 0;
-  /* 2 */ }
+/* 2 */ }
+
+/**
+ *
+ * Allow input to flex properly
+ *
+ */
+input {
+  min-width: 0;
+}
 
 /**
  * Show the overflow in IE.
@@ -3395,6 +3404,9 @@ caption,
 
 .h-auto {
   height: auto; }
+
+.h-full {
+  height: 100%; }
 
 @media only screen and (min-width: 550px) {
   .h-auto-ns {

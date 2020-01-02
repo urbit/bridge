@@ -22,7 +22,7 @@ export default function ReticketDownload({ newWallet }) {
   return (
     <Grid className="mt4">
       <Grid.Item full as={Text}>
-        Download the thing, and keep it somewhere safe!
+        Download the new passport, and keep it somewhere safe!
       </Grid.Item>
       <Grid.Item
         full

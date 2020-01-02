@@ -7,6 +7,7 @@ import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
 import { usePointCache } from 'store/pointCache';
 import { usePointCursor } from 'store/pointCursor';
+import { useStarReleaseCache } from 'store/starRelease';
 
 import * as need from 'lib/need';
 import { isZeroAddress, abbreviateAddress } from 'lib/wallet';
@@ -91,6 +92,7 @@ export default function Points() {
     rejectedPoints,
     addRejectedPoint,
   ] = useRejectedIncomingPointTransfers();
+  const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
 
   const maybeOutgoingPoints = useMemo(
     () =>
@@ -124,7 +126,10 @@ export default function Points() {
   // if there are any pending transfers, incoming or outgoing, stay on this
   // page, because those can only be completed/cancelled here.
   useEffect(() => {
-    if (Nothing.hasInstance(maybeOutgoingPoints)) {
+    if (
+      Nothing.hasInstance(maybeOutgoingPoints) ||
+      Nothing.hasInstance(starReleaseDetails)
+    ) {
       return;
     }
     controlledPoints.matchWith({
@@ -145,7 +150,8 @@ export default function Points() {
             if (
               all.length === 1 &&
               incoming.length === 0 &&
-              maybeOutgoingPoints.value.length === 0
+              maybeOutgoingPoints.value.length === 0 &&
+              starReleaseDetails.value.total === 0
             ) {
               setPointCursor(Just(all[0]));
               popAndPush(names.POINT);
@@ -161,6 +167,7 @@ export default function Points() {
     setPointCursor,
     popAndPush,
     names,
+    starReleaseDetails,
   ]);
 
   const address = need.addressFromWallet(wallet);
@@ -188,6 +195,13 @@ export default function Points() {
   const displayEmptyState =
     !loading && incomingPoints.length === 0 && allPoints.length === 0;
 
+  const starReleasing = starReleaseDetails
+    .map(s => s.total > 0)
+    .getOrElse(false);
+
+  useEffect(() => {
+    syncStarReleaseDetails();
+  }, [syncStarReleaseDetails]);
   // sync display details for known points
   useSyncKnownPoints([
     ...ownedPoints,
@@ -204,8 +218,8 @@ export default function Points() {
     push,
   ]);
 
-  const goViewPoint = useCallback(() => push(names.VIEW_POINT), [
-    names.VIEW_POINT,
+  const goStarRelease = useCallback(() => push(names.STAR_RELEASE), [
+    names.STAR_RELEASE,
     push,
   ]);
 
@@ -213,7 +227,8 @@ export default function Points() {
     loading ||
     (allPoints.length === 1 &&
       incomingPoints.length === 0 &&
-      outgoingPoints.length === 0)
+      outgoingPoints.length === 0 &&
+      !starReleasing)
   ) {
     return (
       <View inset pop={pop}>
@@ -336,13 +351,18 @@ export default function Points() {
                 <Grid.Divider />
               </>
             )}
-            <Grid.Item
-              full
-              as={ForwardButton}
-              detail="View an ID"
-              onClick={goViewPoint}>
-              View a point
-            </Grid.Item>
+            {starReleasing && (
+              <>
+                <Grid.Item
+                  full
+                  as={ForwardButton}
+                  detail="You have points being released"
+                  onClick={goStarRelease}>
+                  View Star Release
+                </Grid.Item>
+                <Grid.Divider />
+              </>
+            )}
           </Grid>
         </Footer>
       </Grid>

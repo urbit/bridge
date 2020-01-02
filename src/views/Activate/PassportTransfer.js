@@ -8,6 +8,7 @@ import { usePointCursor } from 'store/pointCursor';
 
 import * as need from 'lib/need';
 import useLifecycle from 'lib/useLifecycle';
+import useBlockWindowClose from 'lib/useBlockWindowClose';
 import {
   reticketPointBetweenWallets,
   TRANSACTION_PROGRESS,
@@ -59,6 +60,8 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
     () => replaceWith([{ key: names.LOGIN }, { key: names.POINT }]),
     [replaceWith, names]
   );
+
+  useBlockWindowClose();
 
   const goToRestart = useCallback(() => {
     // NOTE: because we're already on the ACTIVATE view in the history,

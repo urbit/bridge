@@ -13,6 +13,7 @@ import { GAS_LIMITS } from 'lib/constants';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import patp2dec from 'lib/patp2dec';
+import convertToInt from 'lib/convertToInt';
 
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
@@ -56,6 +57,15 @@ function useSetPoolSize() {
 export default function PartySetPoolSize() {
   const { pop } = useLocalRouter();
   const { contracts } = useNetwork();
+  const { pointCursor } = usePointCursor();
+  const { getDetails } = usePointCache();
+
+  const _point = need.point(pointCursor);
+  const _details = need.details(getDetails(_point));
+  const hasKeysSet =
+    0 !== convertToInt(_details.encryptionKey, 16) &&
+    0 !== convertToInt(_details.authenticationKey, 16) &&
+    0 !== _details.cryptoSuiteVersion;
 
   const _contracts = need.contracts(contracts);
 
@@ -104,7 +114,14 @@ export default function PartySetPoolSize() {
             <CopiableAddress>
               {_contracts.delegatedSending.address}
             </CopiableAddress>{' '}
-            for invitations to be available.
+            for invitations to be available for use.
+          </Grid.Item>
+        )}
+
+        {!hasKeysSet && (
+          <Grid.Item full as={WarningBox} className="mb4 f6">
+            Networking keys must be configured for invitations to be available
+            for use.
           </Grid.Item>
         )}
 

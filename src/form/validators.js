@@ -4,6 +4,7 @@ import {
   validateNotEmpty,
   validatePatq,
   validateMnemonic,
+  validateHdPath,
   validatePoint,
   validateMaximumPatpByteLength,
   validateOneOf,
@@ -11,6 +12,7 @@ import {
   validateHexLength,
   validateEthereumAddress,
   validateGreaterThan,
+  validateLessThan,
   validateEmail,
   validateNotNullAddress,
   validateHexPrefix,
@@ -60,6 +62,8 @@ export const hasErrors = iter =>
 
 export const buildPatqValidator = (validators = []) =>
   buildValidator([validateNotEmpty, validatePatq, ...validators]);
+export const buildAnyMnemonicValidator = () =>
+  buildValidator([validateNotEmpty]);
 export const buildMnemonicValidator = () =>
   buildValidator([validateNotEmpty, validateMnemonic]);
 export const buildCheckboxValidator = mustBe =>
@@ -68,7 +72,7 @@ export const buildCheckboxValidator = mustBe =>
   ]);
 export const buildPassphraseValidator = () => buildValidator([]);
 // TODO: validate hdpath format
-export const buildHdPathValidator = () => buildValidator([validateNotEmpty]);
+export const buildHdPathValidator = () => buildValidator([validateHdPath]);
 export const buildPointValidator = (size = 4, validators = []) =>
   buildValidator([
     validateNotEmpty,
@@ -101,8 +105,14 @@ export const buildAddressValidator = () =>
     validateNotNullAddress,
     validateEthereumAddress,
   ]);
-export const buildNumberValidator = (min = 0) =>
-  buildValidator([validateGreaterThan(min)]);
+export const buildNumberValidator = (min = 0, max = null) => {
+  let validators = [validateGreaterThan(min)];
+  if (max !== null) {
+    validators.push(validateLessThan(max));
+  }
+  return buildValidator(validators);
+};
+
 export const buildEmailValidator = validate =>
   buildValidator([validateNotEmpty, validateEmail], validate);
 

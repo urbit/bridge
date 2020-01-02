@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo, useEffect, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import saveAs from 'file-saver';
 import ob from 'urbit-ob';
@@ -79,8 +79,6 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
 
     const pair = deriveNetworkKeys(_networkSeed);
 
-    setCode(generateCode(pair));
-
     if (!keysMatchChain(pair, _details)) {
       setGenerating(false);
       setNotice('Derived networking keys do not match on-chain details.');
@@ -89,6 +87,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     }
 
     setNotice();
+    setCode(generateCode(pair));
     setKeyfile(compileNetworkingKey(pair, _point, networkRevision));
     setGenerating(false);
   }, [
@@ -103,16 +102,20 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     _point,
   ]);
 
+  const filename = useMemo(() => {
+    return `${ob.patp(_point).slice(1)}-${networkRevision}.key`;
+    // TODO: ^ unifiy "remove tilde" calls
+  }, [_point, networkRevision]);
+
   const download = useCallback(() => {
     saveAs(
       new Blob([keyfile], {
         type: 'text/plain;charset=utf-8',
       }),
-      `${ob.patp(_point).slice(1)}-${networkRevision}.key`
-      // TODO: ^ unifiy "remove tilde" calls
+      filename
     );
     setDownloaded(true);
-  }, [_point, keyfile, networkRevision]);
+  }, [filename, keyfile]);
 
   useEffect(() => {
     generate();
@@ -123,6 +126,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     available,
     downloaded,
     download,
+    filename,
     notice,
     code,
   };

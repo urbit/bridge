@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, Text, H5, Flex, ToggleInput, CheckboxInput } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
+import ob from 'urbit-ob';
 import { randomHex } from 'web3-utils';
 
 import { usePointCursor } from 'store/pointCursor';
@@ -73,6 +74,7 @@ function useSetKeys() {
 
   const {
     available: keyfileAvailable,
+    filename,
     bind: keyfileBind,
   } = useKeyfileGenerator(ndNetworkSeed);
 
@@ -136,6 +138,7 @@ function useSetKeys() {
   return {
     completed,
     ndNetworkSeed,
+    filename,
     keyfileBind,
     ...rest,
   };
@@ -156,6 +159,8 @@ export default function AdminNetworkingKeys() {
     // since NaN > 0 === false and that's a reasonable result
   });
 
+  const [usedDiscontinuity, setUsedDiscontinuity] = useState(false);
+
   const {
     isDefaultState,
     construct,
@@ -163,6 +168,7 @@ export default function AdminNetworkingKeys() {
     broadcasting,
     completed,
     inputsLocked,
+    filename,
     bind,
     keyfileBind,
   } = useSetKeys();
@@ -193,6 +199,7 @@ export default function AdminNetworkingKeys() {
           values.useNetworkSeed ? values.networkSeed : undefined,
           values.useDiscontinuity
         );
+        setUsedDiscontinuity(values.useDiscontinuity);
       } else {
         unconstruct();
       }
@@ -201,7 +208,7 @@ export default function AdminNetworkingKeys() {
         form.change('networkSeed', '');
       }
     },
-    [construct, unconstruct]
+    [construct, unconstruct, setUsedDiscontinuity]
   );
 
   const initialValues = useMemo(
@@ -213,6 +220,32 @@ export default function AdminNetworkingKeys() {
   );
 
   const goRelocate = useCallback(() => push(names.RELOCATE), [push, names]);
+
+  const usageMessage = useMemo(() => {
+    const need = 'You need this keyfile to authenticate with Arvo.';
+    const boot = (
+      <>
+        boot fresh with{' '}
+        <code>
+          urbit -w {ob.patp(point).slice(1)} -k {filename}
+        </code>
+      </>
+    );
+    if (usedDiscontinuity) {
+      return (
+        <>
+          {need} Since you broke continuity, (re)move your old files, and {boot}
+        </>
+      );
+    } else {
+      return (
+        <>
+          {need} If you have already booted Arvo, run{' '}
+          <code>|rekey '0wkeyfile.contents'</code>. Otherwise, {boot}
+        </>
+      );
+    }
+  }, [usedDiscontinuity, filename, point]);
 
   const renderTitle = () => {
     if (completed) {
@@ -323,8 +356,7 @@ export default function AdminNetworkingKeys() {
         {completed && (
           <>
             <Grid.Item full as={NoticeBox} className="mb3">
-              You need this keyfile to authenticate with Arvo. If you have
-              already booted Arvo, run <code>|rekey '0wkeyfile.contents'</code>
+              {usageMessage}
             </Grid.Item>
             <Grid.Item full as={DownloadKeyfileButton} solid {...keyfileBind} />
           </>

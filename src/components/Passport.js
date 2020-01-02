@@ -8,6 +8,7 @@ import * as need from 'lib/need';
 import { chunkStr, Matrix, walk, rand } from 'lib/card';
 import usePermissionsForPoint from 'lib/usePermissionsForPoint';
 import { useSyncOwnedPoints } from 'lib/useSyncPoints';
+import { buildKeyType } from 'lib/point';
 
 import { useWallet } from 'store/wallet';
 
@@ -49,20 +50,6 @@ function makeSigil(size, patp, colors) {
     });
   }
 }
-
-const buildKeyType = permissions => {
-  if (permissions.isOwner) {
-    return 'Ownership';
-  } else if (permissions.isManagementProxy) {
-    return 'Management';
-  } else if (permissions.isSpawnProxy) {
-    return 'Spawn';
-  } else if (permissions.isVotingProxy) {
-    return 'Voting';
-  } else if (permissions.isTransferProxy) {
-    return 'Transfer';
-  }
-};
 
 const symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 
