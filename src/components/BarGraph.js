@@ -11,7 +11,7 @@ const BarGraph = ({
   const _available = available.getOrElse(1);
   const _sent = sent.getOrElse(0);
   const _accepted = accepted.getOrElse(0);
-  const total = _available + _sent + _accepted;
+  const total = _available + _sent;
   return (
     <div className={cn('h7 p1 b1 b-black flex', className)}>
       <div

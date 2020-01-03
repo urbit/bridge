@@ -113,7 +113,7 @@ export default function ShowParty() {
   const _pendingInvites = _pendingPoints.length;
   const _acceptedInvites = _acceptedPoints.length;
   const _totalInvites = availableInvites
-    .map(a => sentInvites.getOrElse(0) + a + _acceptedInvites)
+    .map(a => sentInvites.getOrElse(0) + a)
     .getOrElse(0);
 
   return (
@@ -133,7 +133,7 @@ export default function ShowParty() {
         <Grid.Item full>
           <Flex align="center">
             <Flex.Item>
-              {_acceptedInvites} / {_totalInvites}
+              {_acceptedInvites + _pendingInvites} / {_totalInvites}
             </Flex.Item>
             {_pendingInvites && (
               <Flex.Item as={Chip} color="yellow">

@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import cn from 'classnames';
 import { Just } from 'folktale/maybe';
 import { Grid, Flex } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
@@ -162,17 +163,23 @@ export default function Point() {
               <br />
             </Grid.Item>
 
-            <Grid.Item className="t-right" onClick={goParty} cols={[11, 13]}>
+            <Grid.Item
+              className={cn('t-right underline', {
+                gray4: sentInvites.getOrElse(0) === 0,
+              })}
+              onClick={goParty}
+              cols={[11, 13]}>
               View
             </Grid.Item>
             <Grid.Item full>
               <Flex align="center">
                 <Flex.Item>
-                  {acceptedInvites.getOrElse(0)} / {_totalInvites}
+                  {acceptedInvites.getOrElse(0) + _pendingInvites} /{' '}
+                  {_totalInvites}
                 </Flex.Item>
                 {_pendingInvites > 0 && (
                   <Flex.Item as={Chip} color="yellow">
-                    {_pendingInvites.getOrElse([]).length} pending
+                    {_pendingInvites} pending
                   </Flex.Item>
                 )}
               </Flex>

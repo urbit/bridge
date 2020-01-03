@@ -198,6 +198,7 @@ const useInviter = sendInvites => {
       setTxStatus(STATUS.SUCCESS);
       setInvites(confirmedInvites);
       console.log(unsentInvites);
+      console.log(confirmedInvites);
 
       if (unsentInvites.length > 0) {
         return { [FORM_ERROR]: unsentInvites };
@@ -410,14 +411,19 @@ const InviteUrl = () => {
   return (
     <Grid.Item full as={Grid}>
       {invites.length > 0 && (
-        <Grid.Item full className="b-gray3 b1 mv4 p1 flex flex-center">
-          <div className="flex1 ml1">{url}</div>
-          <Grid.Item
-            className="pv3 ph4 bg-black white"
-            onClick={() => doCopy()}>
-            {didCopy ? 'Copied' : 'Copy'}
+        <>
+          <Grid.Item full className="b-gray3 b1 mv4 p1 flex flex-center">
+            <div className="flex1 ml1">{url}</div>
+            <Grid.Item
+              className="pv3 ph4 bg-black white"
+              onClick={() => doCopy()}>
+              {didCopy ? 'Copied' : 'Copy'}
+            </Grid.Item>
           </Grid.Item>
-        </Grid.Item>
+          <Grid.Item full>
+            Your invite link expires after consumption.
+          </Grid.Item>
+        </>
       )}
       {invites.length === 0 && renderGenerateButton()}
       {needFunds && <Grid.Item full as={NeedFundsNotice} {...needFunds} />}

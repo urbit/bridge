@@ -27,7 +27,7 @@ const InviteSigilList = ({ className, pendingPoints, acceptedPoints }) => {
     return (
       <>
         {points.map((point, idx) => (
-          <div className={cn(klassName, 'h9 w9')}>
+          <div key={idx} className={cn(klassName, 'h9 w9')}>
             <MaybeSigil patp={point} size={50} colors={colors} />
           </div>
         ))}
@@ -39,7 +39,7 @@ const InviteSigilList = ({ className, pendingPoints, acceptedPoints }) => {
     <div className={cn('flex justify-between', className)}>
       {renderSigil(_acceptedPoints, ['#000000', '#FFFFFF'])}
       {renderSigil(_pendingPoints, ['#ee892b', '#FFFFFF'])}
-      {renderSigil(empty, [], 'b1 b-black')}
+      {renderSigil(empty, [], 'b1 b-black b-dashed')}
     </div>
   );
 };
