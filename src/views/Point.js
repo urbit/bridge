@@ -25,7 +25,7 @@ import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
-import InviteCohort from 'views/Invite/Cohort';
+import Inviter from 'views/Invite/Inviter';
 
 export default function Point() {
   const { pop, push, names } = useLocalRouter();
@@ -220,7 +220,7 @@ export default function Point() {
                 Add Members
               </Grid.Item>
             )}
-            {showInviteForm && <InviteCohort />}
+            {showInviteForm && <Inviter />}
           </>
         )}
       </Grid>

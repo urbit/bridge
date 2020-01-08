@@ -30,7 +30,7 @@ const InviteUrl = () => {
     }
   }, [generateInvites]);
 
-  const renderGenerateButton = () => {
+  const renderGenerateButton = useCallback(() => {
     if (error) {
       return (
         <Grid.Item full className="mt4 p3 bg-red3 white f5">
@@ -66,7 +66,7 @@ const InviteUrl = () => {
       default:
         return null;
     }
-  };
+  }, [txStatus, error, generateInvite]);
 
   const url = `https://bridge.urbit.org/#${get(invites, '[0].ticket', '')}`;
 
