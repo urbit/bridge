@@ -90,6 +90,11 @@ function CohortList({ points, className }) {
           <Grid.Item key={p} half={(idx % 2) + 1} as={CohortMember} point={p} />
         ))}
       </>
+      {visiblePoints.length === 0 && (
+        <Grid.Item full className="p4 t-center">
+          No invites accepted yet.
+        </Grid.Item>
+      )}
     </Grid>
   );
 }

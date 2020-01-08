@@ -71,7 +71,6 @@ const useInviter = () => {
 
       const nonce = await _web3.eth.getTransactionCount(_wallet.address);
       const chainId = await _web3.eth.net.getId();
-      debugger;
       const planets = await azimuth.delegatedSending.getPlanetsToSend(
         _contracts,
         point,
@@ -179,8 +178,6 @@ const useInviter = () => {
 
       setTxStatus(STATUS.SUCCESS);
       setInvites(confirmedInvites);
-      console.log(unsentInvites);
-      console.log(confirmedInvites);
 
       if (unsentInvites.length > 0) {
         return { errors: { [FORM_ERROR]: unsentInvites } };

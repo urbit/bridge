@@ -12,7 +12,7 @@ import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
 import { ForwardButton, BootUrbitOSButton } from 'components/Buttons';
 import CopyButton from 'components/CopyButton';
-import { matchBlinky } from 'components/Blinky';
+import Blinky, { matchBlinky } from 'components/Blinky';
 import DownloadSigilButton from 'components/DownloadSigilButton';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
@@ -63,6 +63,8 @@ export default function Point() {
   const _totalInvites =
     sentInvites.getOrElse(0) + availableInvites.getOrElse(0);
   const _pendingInvites = pendingPoints.getOrElse([]).length;
+
+  const loadedInvites = Just.hasInstance(availableInvites);
   //
   // availableInvites.getOrElse(0) === 0
 
@@ -72,7 +74,7 @@ export default function Point() {
 
   const goInvite = useCallback(() => push(names.INVITE), [push, names]);
 
-  const goParty = useCallback(() => push(names.PARTY), [push, names]);
+  const goCohort = useCallback(() => push(names.INVITE_COHORT), [push, names]);
 
   const goPartiesSetPoolSize = useCallback(
     () => push(names.PARTY_SET_POOL_SIZE),
@@ -89,39 +91,22 @@ export default function Point() {
   const [showInviteForm, setShowInviteForm] = useState(false);
 
   const inviteButton = (() => {
-    switch (azimuth.getPointSize(point)) {
-      case azimuth.PointSize.Planet:
-        const availableInvitesText = matchBlinky(availableInvites);
-        return (
-          <>
-            <Grid.Item
-              full
-              as={ForwardButton}
-              disabled={!isActiveOwner}
-              onClick={goInvite}>
-              Invite <sup>{availableInvitesText}</sup>
-            </Grid.Item>
-            <Grid.Divider />
-          </>
-        );
-      //
-      case azimuth.PointSize.Star:
-        return (
-          <>
-            <Grid.Item
-              full
-              as={ForwardButton}
-              disabled={!isActiveOwner}
-              onClick={goPartiesSetPoolSize}>
-              Manage Invite Pools
-            </Grid.Item>
-            <Grid.Divider />
-          </>
-        );
-      //
-      default:
-        return null;
+    if (azimuth.getPointSize(point) === azimuth.PointSize.Star) {
+      return (
+        <>
+          <Grid.Item
+            full
+            as={ForwardButton}
+            disabled={!isActiveOwner}
+            onClick={goPartiesSetPoolSize}>
+            Manage Invite Pools
+          </Grid.Item>
+          <Grid.Divider />
+        </>
+      );
     }
+
+    return null;
   })();
 
   const senateButton = (() => {
@@ -167,7 +152,7 @@ export default function Point() {
               className={cn('t-right underline', {
                 gray4: sentInvites.getOrElse(0) === 0,
               })}
-              onClick={goParty}
+              onClick={goCohort}
               cols={[11, 13]}>
               View
             </Grid.Item>
@@ -222,6 +207,11 @@ export default function Point() {
             )}
             {showInviteForm && <Inviter />}
           </>
+        )}
+        {!loadedInvites && isPlanet && (
+          <Grid.Item className="mv2" full>
+            Invite Group <Blinky />
+          </Grid.Item>
         )}
       </Grid>
       <Grid className="pt2">

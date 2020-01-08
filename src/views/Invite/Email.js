@@ -193,7 +193,6 @@ const InviteMail = () => {
         onSubmit={onSubmit}>
         {({ handleSubmit, values }) => (
           <>
-            {console.log(values) && null}
             <Grid.Item full as={EmailChipInput} name="emails" className="mt4" />
             {renderButton(handleSubmit)}
 

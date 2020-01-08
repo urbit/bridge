@@ -45,8 +45,6 @@ export default function useInvitesStore() {
       const sentInvites = invitedPoints.length;
       const acceptedInvites = activity.filter(i => !!i).length;
 
-      console.log(invitedPoints);
-
       const [acceptedPoints, pendingPoints] = chain(invitedPoints)
         .zipWith(activity, (point, active) => ({
           point,
