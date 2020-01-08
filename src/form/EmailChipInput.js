@@ -1,19 +1,20 @@
 import React, { useState, useCallback } from 'react';
-import { isEqual } from 'lodash';
 import { Flex, ErrorText } from 'indigo-react';
 import cn from 'classnames';
 import { useField } from 'react-final-form';
+import { useFieldArray } from 'react-final-form-arrays';
 
 import { hasErrors } from 'form/validators';
 
-const Chip = ({ value, onDelete, disabled }) => {
+const Chip = ({ onDelete, disabled, name }) => {
+  const { input } = useField(name, { subscription: { value: true } });
   return (
     <Flex
       className={cn('r32 ph2 m1 flex-center h7', {
         'bg-gray2': !disabled,
         'bg-gray1 gray4': disabled,
       })}>
-      <Flex.Item>{value}</Flex.Item>
+      <Flex.Item>{input.value}</Flex.Item>
       <Flex.Item onClick={disabled ? onDelete : undefined} className="ml1 f6">
         ✗
       </Flex.Item>
@@ -22,42 +23,25 @@ const Chip = ({ value, onDelete, disabled }) => {
 };
 
 const EmailChipInput = ({ className, name, label, disabled }) => {
-  const [chips, _setChips] = useState([]);
+  const {
+    fields,
+    meta: { error, active },
+  } = useFieldArray(name, { subscription: { error: true, active: true } });
 
   const [value, setValue] = useState('');
 
   const handleChange = useCallback(
     event => {
+      event.preventDefault();
       setValue(event.target.value);
     },
     [setValue]
   );
 
-  const {
-    input,
-    meta: { active, error },
-  } = useField(name, {
-    subscription: {
-      active: true,
-      error: true,
-      value: true,
-    },
-    isEqual,
-  });
-
-  const setChips = useCallback(
-    chips => {
-      console.log(chips);
-      _setChips(chips);
-      input.onChange(chips);
-    },
-    [input, _setChips]
-  );
-
   const addToChips = useCallback(() => {
-    setChips([...chips, value]);
+    fields.push(value);
     setValue('');
-  }, [chips, value, setChips]);
+  }, [value, fields, setValue]);
 
   const handleKeyDown = useCallback(
     event => {
@@ -66,29 +50,29 @@ const EmailChipInput = ({ className, name, label, disabled }) => {
         addToChips();
       } else if ('Backspace' === event.key && value === '') {
         event.preventDefault();
-        setChips(chips.slice(0, -1));
+        fields.pop();
       } else if (disabled) {
         event.preventDefault();
       }
     },
-    [setChips, chips, value, addToChips, disabled]
+    [fields, value, disabled, addToChips]
   );
 
   const handleDelete = useCallback(
     idx => () => {
-      setChips([...chips.slice(0, idx), ...chips.slice(idx + 1)]);
+      fields.remove(idx);
     },
-    [setChips, chips]
+    [fields]
   );
 
   const handleBlur = useCallback(
     e => {
+      e.preventDefault();
       if (value !== '') {
         addToChips();
-        input.onBlur();
       }
     },
-    [addToChips, value, input]
+    [addToChips, value]
   );
 
   const hasError = hasErrors(error);
@@ -105,10 +89,10 @@ const EmailChipInput = ({ className, name, label, disabled }) => {
           'b-green2': active && !disabled && !hasError,
           'b-red3': active && !disabled && hasError,
         })}>
-        {chips.map((chip, idx) => (
+        {fields.map((name, idx) => (
           <Chip
             key={idx}
-            value={chip}
+            name={name}
             disabled={disabled}
             onDelete={handleDelete(idx)}
           />
@@ -119,7 +103,6 @@ const EmailChipInput = ({ className, name, label, disabled }) => {
           className="mv1 mh2 h7 b-none flex-grow"
           placeholder="Enter an email address"
           value={value}
-          name={name}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}

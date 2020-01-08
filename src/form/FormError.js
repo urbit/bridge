@@ -25,6 +25,7 @@ export default function FormError(props) {
 
   const warning = submitErrors && submitErrors[WARNING];
   const showWarning = !!warning && !dirtySinceLastSubmit;
+  console.log(dirtySinceLastSubmit);
 
   return showSubmitError || showValidationError || showWarning ? (
     <ErrorText {...props}>

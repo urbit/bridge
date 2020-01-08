@@ -25,6 +25,7 @@ export default function BridgeForm({
     async (...args) => {
       const errors = await onSubmit(...args);
       if (errors) {
+        console.log(errors);
         return errors;
       }
 

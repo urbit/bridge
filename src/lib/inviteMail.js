@@ -37,6 +37,8 @@ function sendMail(recipient, ticket, sender, message, tx) {
     sender,
     message,
     tx,
+  }).then(() => {
+    throw new Error('test');
   });
 }
 

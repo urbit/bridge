@@ -1,15 +1,14 @@
 import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import { Grid, ErrorText } from 'indigo-react';
-import { get } from 'lodash';
+import { get, uniq, zip, compact, isEqual } from 'lodash';
 import * as azimuth from 'azimuth-js';
 import { FORM_ERROR } from 'final-form';
 import { toWei, toBN } from 'web3-utils';
+import * as ob from 'urbit-ob';
 
 import * as need from 'lib/need';
 import * as wg from 'lib/walletgen';
 import * as tank from 'lib/tank';
-// import useMailer from 'lib/useMailer';
-import timeout from 'lib/timeout';
 import useCopiable from 'lib/useCopiable';
 
 import Tabs from 'components/Tabs';
@@ -22,7 +21,6 @@ import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 
-// import {  } from ''
 import {
   signTransaction,
   sendSignedTransaction,
@@ -38,11 +36,13 @@ import FormError from 'form/FormError';
 import SubmitButton from 'form/SubmitButton';
 import BridgeForm from 'form/BridgeForm';
 import {
-  buildEmailArrayValidator,
   composeValidator,
   hasErrors,
+  buildEmailValidator,
+  buildArrayValidator,
 } from 'form/validators';
 import { WARNING } from 'form/helpers';
+import useMailer from 'lib/useMailer';
 
 const GAS_LIMIT = GAS_LIMITS.GIFT_PLANET;
 
@@ -52,6 +52,8 @@ const STATUS = {
   SUCCESS: 'SUCCESS',
   FAILURE: 'FAILURE',
 };
+
+const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
 
 const useInviter = sendInvites => {
   const { contracts, web3, networkType } = useNetwork();
@@ -80,6 +82,7 @@ const useInviter = sendInvites => {
     setInvites([]);
     setTxStatus(STATUS.INPUT);
   }, [setProgress, setInvites, setTxStatus]);
+
   const generateInvites = useCallback(
     async numInvites => {
       const _contracts = contracts.getOrElse(null);
@@ -102,7 +105,6 @@ const useInviter = sendInvites => {
       setTxStatus(STATUS.SENDING);
       // account for the race condition where invites got used up while we were
       // composing our target list
-      console.log('a');
       if (planets.length < numInvites) {
         // resync invites to the cache, since they're out of date
         syncInvites(point);
@@ -110,9 +112,11 @@ const useInviter = sendInvites => {
         setTxStatus(STATUS.FAILURE);
 
         return {
-          [FORM_ERROR]:
-            `Can currently only send ${planets.length} invites. ` +
-            `Please remove invites until you are within the limit.`,
+          errors: {
+            [FORM_ERROR]:
+              `Can currently only send ${planets.length} invites. ` +
+              `Please remove invites until you are within the limit.`,
+          },
         };
       }
 
@@ -155,7 +159,9 @@ const useInviter = sendInvites => {
         } catch (error) {
           console.error(error);
           return {
-            [WARNING]: `There was an error while generating wallets.`,
+            errors: {
+              [WARNING]: `There was an error while generating wallets.`,
+            },
           };
         }
       }
@@ -201,17 +207,24 @@ const useInviter = sendInvites => {
       console.log(confirmedInvites);
 
       if (unsentInvites.length > 0) {
-        return { [FORM_ERROR]: unsentInvites };
+        return { errors: { [FORM_ERROR]: unsentInvites } };
       }
 
       if (errorCount > 0) {
         return {
-          [WARNING]: `There ${pluralize(errorCount, 'was', 'were')} ${pluralize(
-            errorCount,
-            'error'
-          )} while generating wallets. You can still send the invites that generated correctly.`,
+          errors: {
+            [WARNING]: `There ${pluralize(
+              errorCount,
+              'was',
+              'were'
+            )} ${pluralize(
+              errorCount,
+              'error'
+            )} while generating wallets. You can still send the invites that generated correctly.`,
+          },
         };
       }
+      return { invites: confirmedInvites };
     },
     [
       contracts,
@@ -238,14 +251,9 @@ const useInviter = sendInvites => {
 };
 
 const InviteMail = () => {
-  const {
-    progress,
-    txStatus,
-    needFunds,
-    invites,
-    generateInvites,
-    resetInvites,
-  } = useInviter();
+  const { progress, txStatus, needFunds, generateInvites } = useInviter();
+
+  const { sendMail, getHasReceived } = useMailer();
 
   const [status, setStatus] = useState(STATUS.INPUT);
 
@@ -253,31 +261,62 @@ const InviteMail = () => {
   const canInput = status === STATUS.INPUT;
   const isSending = txStatus === STATUS.SENDING || status === STATUS.SENDING;
   const isDone = status === STATUS.SUCCESS;
+  const isFailed = status === STATUS.FAILED;
+
+  const { pointCursor } = usePointCursor();
+  const point = need.point(pointCursor);
+
+  const sendInvites = useCallback(
+    async (emails, invites) => {
+      const mailingErrors = compact(
+        await Promise.all(
+          zip(emails, invites).map(([email, invite]) =>
+            sendMail(email, invite.ticket, ob.patp(point), '', invite.rawTx)
+              .then(() => null)
+              .catch(
+                () => `Sending ticket ${invite.ticket} to ${email} failed.`
+              )
+          )
+        )
+      ).join(', ');
+      if (mailingErrors.length) {
+        return { [FORM_ERROR]: mailingErrors };
+      }
+    },
+    [point, sendMail]
+  );
+
   const onSubmit = useCallback(
     async values => {
       const emailCount = values.emails.length;
       setCount(emailCount);
       setStatus(STATUS.SENDING);
-      const errors = await generateInvites(emailCount);
+      const { errors, invites } = await generateInvites(emailCount);
       if (errors) {
         setStatus(STATUS.FAILED);
         return errors;
       }
+      const mailErrors = await sendInvites(values.emails, invites);
+      console.log(mailErrors);
+      if (mailErrors) {
+        console.log(mailErrors);
+        setStatus(STATUS.FAILED);
+        return mailErrors;
+      }
+      setStatus(STATUS.SUCCESS);
     },
-    [generateInvites, setCount, setStatus]
+    [generateInvites, setCount, setStatus, sendInvites]
   );
 
-  useEffect(() => {
-    async function processInvites() {
-      if (invites.length !== 0 && txStatus === STATUS.SUCCESS) {
-        await timeout(500);
-
-        resetInvites();
-        setStatus(STATUS.SUCCESS);
+  const validateHasReceived = useCallback(
+    async email => {
+      const hasReceived = await getHasReceived(email);
+      if (hasReceived) {
+        return HAS_RECEIVED_TEXT;
       }
-    }
-    processInvites();
-  }, [invites, setStatus, status, txStatus, resetInvites]);
+    },
+    [getHasReceived]
+  );
 
   const buttonText = () => {
     switch (status) {
@@ -324,22 +363,51 @@ const InviteMail = () => {
         </Grid.Item>
       );
     }
+    if (isFailed) {
+      return (
+        <Grid.Item full className="mt4 p3 bg-red3 white f5">
+          {buttonText(count)}
+        </Grid.Item>
+      );
+    }
 
     return null;
   };
 
+  const validateForm = useCallback((values, errors) => {
+    if (hasErrors(errors)) {
+      return errors;
+    }
+
+    // check for email uniqenesss
+    const emails = values.emails.filter(d => !!d);
+    if (uniq(emails).length !== emails.length) {
+      return { [FORM_ERROR]: 'Duplicate email.' };
+    }
+  }, []);
+
   const validate = useMemo(
-    () => composeValidator({ emails: buildEmailArrayValidator() }),
-    []
+    () =>
+      composeValidator(
+        {
+          emails: buildArrayValidator(buildEmailValidator(validateHasReceived)),
+        },
+        validateForm
+      ),
+    [validateHasReceived, validateForm]
   );
+
+  const initialValues = { emails: [] };
   return (
     <Grid.Item full as={Grid}>
       <BridgeForm
         validate={validate}
-        initialValues={{ emails: [] }}
+        initialValues={initialValues}
+        initialValuesEqual={isEqual}
         onSubmit={onSubmit}>
         {({ handleSubmit, values }) => (
           <>
+            {console.log(values) && null}
             <Grid.Item full as={EmailChipInput} name="emails" className="mt4" />
             {renderButton(handleSubmit)}
 
