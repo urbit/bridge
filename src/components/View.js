@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import cn from 'classnames';
 import { Flex } from 'indigo-react-local';
 
-
 import Footer from './Footer';
 import useBreakpoints from 'lib/useBreakpoints';
 import MiniBackButton from './MiniBackButton';

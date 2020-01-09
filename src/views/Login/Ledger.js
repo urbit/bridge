@@ -1,7 +1,14 @@
 import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
 import { Just } from 'folktale/maybe';
-import { P, Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react-local';
+import {
+  P,
+  Text,
+  Grid,
+  H5,
+  CheckboxInput,
+  SelectInput,
+} from 'indigo-react-local';
 import { times } from 'lodash';
 import * as bip32 from 'bip32';
 import Transport from '@ledgerhq/hw-transport-u2f';

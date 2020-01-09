@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Grid } from 'indigo-react-local';
-import theme from 'indigo-tokens';
-import { P , H4, H5, Box } from 'indigo-react';
+import { P, H4, H5, Box } from 'indigo-react';
 
 import { version } from '../../package.json';
 
