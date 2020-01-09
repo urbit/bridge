@@ -66,7 +66,7 @@ import timeout from 'lib/timeout';
 const INITIAL_VALUES = { emails: [''] };
 
 const GAS_LIMIT = GAS_LIMITS.GIFT_PLANET;
-// const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
+const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
 
 const STATUS = {
   INPUT: 'INPUT',
@@ -110,7 +110,7 @@ export default function InviteEmail() {
   const { syncInvites, getInvites } = usePointCache();
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
-  const { sendMail } = useMailer();
+  const { getHasReceived, sendMail } = useMailer();
   const { gasPrice } = useGasPrice();
 
   const cachedEmails = useRef({});
@@ -142,12 +142,15 @@ export default function InviteEmail() {
   const isFailed = status === STATUS.FAILURE;
   const isDone = status === STATUS.SUCCESS;
 
-  const validateHasReceived = useCallback(async email => {
-    // const hasReceived = await getHasReceived(email);
-    // if (hasReceived) {
-    // return HAS_RECEIVED_TEXT;
-    // }
-  }, []);
+  const validateHasReceived = useCallback(
+    async email => {
+      const hasReceived = await getHasReceived(email);
+      if (hasReceived) {
+        return HAS_RECEIVED_TEXT;
+      }
+    },
+    [getHasReceived]
+  );
 
   const validateForm = useCallback((values, errors) => {
     if (hasErrors(errors)) {
@@ -381,13 +384,12 @@ export default function InviteEmail() {
   }, [
     web3,
     wallet,
-    gasPrice,
     point,
-    clearReceipts,
+    gasPrice,
     invites,
+    clearReceipts,
     addReceipt,
     sendMail,
-    message,
   ]);
 
   const onSubmit = useCallback(
