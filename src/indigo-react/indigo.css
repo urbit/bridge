@@ -3615,6 +3615,9 @@ caption,
   .h12-lg {
     height: 288px; } }
 
+.pointer-hover {
+  cursor: pointer; }
+
 .pointer:hover {
   cursor: pointer; }
 

@@ -15,7 +15,9 @@ const Chip = ({ onDelete, disabled, name }) => {
         'bg-gray1 gray4': disabled,
       })}>
       <Flex.Item>{input.value}</Flex.Item>
-      <Flex.Item onClick={disabled ? onDelete : undefined} className="ml1 f6">
+      <Flex.Item
+        onClick={disabled ? undefined : onDelete}
+        className="ml1 f6 pointer-hover">
         ✗
       </Flex.Item>
     </Flex>
