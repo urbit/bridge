@@ -13,7 +13,6 @@ import Passport from 'components/Passport';
 import { ForwardButton, BootUrbitOSButton } from 'components/Buttons';
 import CopyButton from 'components/CopyButton';
 import Blinky, { matchBlinky } from 'components/Blinky';
-import DownloadSigilButton from 'components/DownloadSigilButton';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
 import InviteSigilList from 'components/InviteSigilList';
@@ -216,7 +215,9 @@ export default function Point() {
       </Grid>
       <Grid className="pt2">
         {inviteButton}
-        <Grid.Item full as={ForwardButton} onClick={goSigil} />
+        <Grid.Item full as={ForwardButton} onClick={goSigil}>
+          Sigil
+        </Grid.Item>
         <Grid.Divider />
         <Grid.Item
           full
