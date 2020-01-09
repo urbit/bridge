@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Grid, ErrorText } from 'indigo-react';
 import { get } from 'lodash';
+import { FORM_ERROR } from 'final-form';
 
 import useCopiable from 'lib/useCopiable';
 import useInviter from 'lib/useInviter';
@@ -10,7 +11,7 @@ import { ForwardButton } from 'components/Buttons';
 import NeedFundsNotice from 'components/NeedFundsNotice';
 
 import { hasErrors } from 'form/validators';
-
+import { WARNING } from 'form/helpers';
 const STATUS = {
   INPUT: 'INPUT',
   SENDING: 'SENDING',
@@ -24,7 +25,7 @@ const InviteUrl = () => {
   const [error, setError] = useState();
 
   const generateInvite = useCallback(async () => {
-    const errors = await generateInvites(1);
+    const { errors } = await generateInvites(1);
     if (hasErrors(errors)) {
       setError(errors);
     }
@@ -91,7 +92,12 @@ const InviteUrl = () => {
       )}
       {invites.length === 0 && renderGenerateButton()}
       {needFunds && <Grid.Item full as={NeedFundsNotice} {...needFunds} />}
-      {error && <Grid.Item as={ErrorText}>{JSON.stringify(error)}</Grid.Item>}
+      {error[FORM_ERROR] ||
+        (error[WARNING] && (
+          <Grid.Item as={ErrorText}>
+            {error[FORM_ERROR] || error[WARNING]}
+          </Grid.Item>
+        ))}
     </Grid.Item>
   );
 };
