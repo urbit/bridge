@@ -72,7 +72,7 @@ export default function Point() {
 
   const goSenate = useCallback(() => push(names.SENATE), [push, names]);
 
-  const goInvite = useCallback(() => push(names.INVITE), [push, names]);
+  const goSigil = useCallback(() => push(names.SIGIL_GENERATOR), [push, names]);
 
   const goCohort = useCallback(() => push(names.INVITE_COHORT), [push, names]);
 
@@ -216,6 +216,8 @@ export default function Point() {
       </Grid>
       <Grid className="pt2">
         {inviteButton}
+        <Grid.Item full as={ForwardButton} onClick={goSigil} />
+        <Grid.Divider />
         <Grid.Item
           full
           as={ForwardButton}
@@ -249,8 +251,6 @@ export default function Point() {
           detailClassName="mono">
           Login Code
         </Grid.Item>
-        <Grid.Divider />
-        <Grid.Item full as={DownloadSigilButton} point={point} />
         <Grid.Divider />
       </Grid>
     </View>
