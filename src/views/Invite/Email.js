@@ -34,7 +34,7 @@ const STATUS = {
   FAILURE: 'FAILURE',
 };
 
-const InviteMail = () => {
+const InviteMail = ({ setSubmitting }) => {
   const { progress, txStatus, needFunds, generateInvites } = useInviter();
 
   const { sendMail, getHasReceived } = useMailer();
@@ -75,17 +75,21 @@ const InviteMail = () => {
       const emailCount = values.emails.length;
       setCount(emailCount);
       setStatus(STATUS.SENDING);
+      setSubmitting(true);
       const { errors, invites } = await generateInvites(emailCount);
       if (errors) {
         setStatus(STATUS.FAILED);
+        setSubmitting(false);
         return errors;
       }
       const mailErrors = await sendInvites(values.emails, invites);
       if (mailErrors) {
         console.log(mailErrors);
         setStatus(STATUS.FAILED);
+        setSubmitting(false);
         return mailErrors;
       }
+      setSubmitting(false);
       setStatus(STATUS.SUCCESS);
     },
     [generateInvites, setCount, setStatus, sendInvites]

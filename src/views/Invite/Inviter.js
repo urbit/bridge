@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Grid } from 'indigo-react';
+
+import { useConditionalBlockWindowClose } from 'lib/useBlockWindowClose';
 
 import Tabs from 'components/Tabs';
 
@@ -8,6 +10,17 @@ import InviteUrl from 'views/Invite/Url';
 
 const Inviter = () => {
   const [tab, setTab] = useState(NAMES.MAIL);
+  const [submitting, setSubmitting] = useState(false);
+
+  useConditionalBlockWindowClose(submitting);
+  const onTabChange = useCallback(
+    newTab => {
+      if (!submitting) {
+        setTab(newTab);
+      }
+    },
+    [submitting, setTab]
+  );
   return (
     <Grid.Item
       full
@@ -17,7 +30,8 @@ const Inviter = () => {
       views={VIEWS}
       options={OPTIONS}
       currentTab={tab}
-      onTabChange={setTab}
+      onTabChange={onTabChange}
+      setSubmitting={setSubmitting}
     />
   );
 };

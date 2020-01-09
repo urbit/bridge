@@ -19,12 +19,13 @@ const STATUS = {
   FAILURE: 'FAILURE',
 };
 
-const InviteUrl = () => {
+const InviteUrl = ({ setSubmitting }) => {
   const { txStatus, needFunds, invites, generateInvites } = useInviter();
 
   const [error, setError] = useState();
 
   const generateInvite = useCallback(async () => {
+    setSubmitting(true);
     const { errors } = await generateInvites(1);
     if (hasErrors(errors)) {
       setError(errors);
@@ -92,12 +93,11 @@ const InviteUrl = () => {
       )}
       {invites.length === 0 && renderGenerateButton()}
       {needFunds && <Grid.Item full as={NeedFundsNotice} {...needFunds} />}
-      {error[FORM_ERROR] ||
-        (error[WARNING] && (
-          <Grid.Item as={ErrorText}>
-            {error[FORM_ERROR] || error[WARNING]}
-          </Grid.Item>
-        ))}
+      {error && (
+        <Grid.Item as={ErrorText}>
+          {error[FORM_ERROR] || error[WARNING]}
+        </Grid.Item>
+      )}
     </Grid.Item>
   );
 };
