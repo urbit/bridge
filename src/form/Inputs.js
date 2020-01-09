@@ -221,9 +221,11 @@ export const ColorInput = ({
         htmlFor={name}>
         {label}
       </Flex.Item>
-      <div className="flex">
+      <div className="flex flex-wrap">
         {colors.map(c => (
           <button
+            type="button"
+            key={c}
             className={cn('m0 p0 h7 w7 p2 flex flex-center', {
               'b b-black': isWhite(c),
             })}

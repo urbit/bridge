@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef, useCallback } from 'react';
 import { Grid, Flex } from 'indigo-react';
 import * as ob from 'urbit-ob';
+import { FORM_ERROR } from 'final-form';
 
 import { usePointCursor } from 'store/pointCursor';
 
@@ -9,6 +10,7 @@ import Sigil from 'components/Sigil';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
+import useSigilDownloader from 'lib/useSigilDownloader';
 
 import { composeValidator, buildNumberValidator } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
@@ -18,6 +20,7 @@ import { NumberInput, ColorInput } from 'form/Inputs';
 
 const BG_COLORS = [
   '#000000',
+  '#FFFFFF',
   '#C80F34',
   '#EE5432',
   '#F8C134',
@@ -36,12 +39,26 @@ const BG_COLORS = [
 const FG_COLORS = ['#000000', '#FFFFFF'];
 
 export default function SigilGenerator() {
-  const { pop, push, names } = useLocalRouter();
+  const { pop } = useLocalRouter();
   const { pointCursor } = usePointCursor();
 
   const validate = composeValidator({ size: buildNumberValidator(16) });
   const point = need.point(pointCursor);
-  const onSubmit = () => {};
+
+  const canvasRef = useRef(null);
+
+  const { downloadSigil } = useSigilDownloader(canvasRef);
+  const onSubmit = useCallback(
+    async (values, form) => {
+      const error = await downloadSigil(point, values.colors, values.size);
+      if (error) {
+        return { [FORM_ERROR]: error };
+      }
+      // reset on next tick
+      setTimeout(() => form.reset(values));
+    },
+    [point, downloadSigil]
+  );
   return (
     <View pop={pop}>
       <BridgeForm
@@ -69,7 +86,12 @@ export default function SigilGenerator() {
               <Flex.Item className="mb1">Urbit ID</Flex.Item>
               <Flex.Item className="mono">{ob.patp(point)}</Flex.Item>
             </Grid.Item>
-            <Grid.Item full as={NumberInput} name="size" label="Size (px)" />
+            <Grid.Item
+              fourth={1}
+              as={NumberInput}
+              name="size"
+              label="Size (px)"
+            />
             <Grid.Item
               full
               as={ColorInput}
@@ -95,6 +117,8 @@ export default function SigilGenerator() {
           </Grid>
         )}
       </BridgeForm>
+
+      <canvas style={{ display: 'none' }} ref={canvasRef} />
     </View>
   );
 }

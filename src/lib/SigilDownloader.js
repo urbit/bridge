@@ -14,6 +14,11 @@ export const initCanvas = (canvas, size) => {
   return canvas;
 };
 
+export const cleanupCanvas = canvas => {
+  canvas.width = 0;
+  canvas.height = 0;
+};
+
 export const loadImg = src =>
   new Promise((resolve, reject) => {
     const img = new Image();

@@ -14,6 +14,7 @@ export default function SubmitButton({
   handleSubmit,
   ...rest
 }) {
+  const form = useFormState();
   const {
     valid,
     validating,
@@ -23,7 +24,8 @@ export default function SubmitButton({
     dirtySinceLastSubmit,
     submitErrors,
     submitSucceeded,
-  } = useFormState();
+  } = form;
+  console.log(form);
 
   const onlyWarningInSubmitErrors = onlyHasWarning(submitErrors);
 
