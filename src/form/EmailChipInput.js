@@ -45,7 +45,7 @@ const EmailChipInput = ({ className, name, label, disabled }) => {
 
   const handleKeyDown = useCallback(
     event => {
-      if (['Enter', 'Tab', ','].includes(event.key) && value !== '') {
+      if (['Enter', 'Tab', ',', ' '].includes(event.key) && value !== '') {
         event.preventDefault();
         addToChips();
       } else if ('Backspace' === event.key && value === '') {
