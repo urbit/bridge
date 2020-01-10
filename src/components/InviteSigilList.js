@@ -44,7 +44,7 @@ const InviteSigilList = ({ className, pendingPoints, acceptedPoints }) => {
     <div className={cn('flex justify-between', className)}>
       {renderSigil(_acceptedPoints, ['#000000', '#FFFFFF'])}
       {renderSigil(_pendingPoints, ['#ee892b', '#FFFFFF'])}
-      {renderSigil(empty, [], 'b1 b-black b-dashed')}
+      {renderSigil(empty, [], 'b1 b-gray3 b-dashed')}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useCallback, useState } from 'react';
-import { Grid, Flex } from 'indigo-react';
+import { Grid, Flex, Button } from 'indigo-react';
 import * as ob from 'urbit-ob';
 import { Just } from 'folktale/maybe';
 import cn from 'classnames';
@@ -9,15 +9,17 @@ import { usePointCache } from 'store/pointCache';
 
 import View from 'components/View';
 import BarGraph from 'components/BarGraph';
-import InviteSigilList from 'components/InviteSigilList';
 import MaybeSigil from 'components/MaybeSigil';
 import { matchBlinky } from 'components/Blinky';
+import { ForwardButton } from 'components/Buttons';
 import Chip from 'components/Chip';
 import Crumbs from 'components/Crumbs';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import useInvites from 'lib/useInvites';
 import * as need from 'lib/need';
+
+import Inviter from 'views/Invite/Inviter';
 
 import { ReactComponent as SearchIcon } from 'assets/search.svg';
 
@@ -73,8 +75,8 @@ function CohortList({ points, className }) {
   return (
     <Grid gap={3} className={cn('mt1', className)}>
       <Grid.Item align="center" full as={Flex} className="b b-gray2 b1">
-        <Flex.Item>
-          <SearchIcon className="p2" />
+        <Flex.Item className="p2">
+          <SearchIcon />
         </Flex.Item>
 
         <Flex.Item
@@ -82,7 +84,7 @@ function CohortList({ points, className }) {
           as={'input'}
           value={query}
           onChange={handleChange}
-          className="b-none"
+          className="b-none h7"
         />
       </Grid.Item>
       <>
@@ -113,6 +115,8 @@ export default function InviteCohort() {
     sentInvites,
   } = useInvites(point);
 
+  const [showInviteForm, setShowInviteForm] = useState(false);
+
   const _acceptedPoints = acceptedPoints.getOrElse([]);
   const _pendingPoints = pendingPoints.getOrElse([]);
   const _pendingInvites = _pendingPoints.length;
@@ -140,8 +144,8 @@ export default function InviteCohort() {
             <Flex.Item>
               {_acceptedInvites + _pendingInvites} / {_totalInvites}
             </Flex.Item>
-            {_pendingInvites && (
-              <Flex.Item as={Chip} color="yellow">
+            {_pendingInvites !== 0 && (
+              <Flex.Item as={Chip} className="bg-yellow4 white">
                 {_pendingInvites} pending
               </Flex.Item>
             )}
@@ -154,12 +158,18 @@ export default function InviteCohort() {
           sent={sentInvites}
           accepted={acceptedInvites}
         />
-        <Grid.Item
-          full
-          as={InviteSigilList}
-          pendingPoints={pendingPoints}
-          acceptedPoints={acceptedPoints}
-        />
+        {availableInvites.getOrElse(0) !== 0 && !showInviteForm && (
+          <Grid.Item
+            full
+            solid
+            center
+            as={Button}
+            onClick={() => setShowInviteForm(true)}>
+            Add Members
+          </Grid.Item>
+        )}
+        {showInviteForm && <Inviter />}
+
         <Grid.Item full as={CohortList} points={_acceptedPoints} />
       </Grid>
     </View>

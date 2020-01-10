@@ -92,7 +92,7 @@ const InviteMail = ({ setSubmitting }) => {
       setSubmitting(false);
       setStatus(STATUS.SUCCESS);
     },
-    [generateInvites, setCount, setStatus, sendInvites]
+    [generateInvites, setCount, setStatus, sendInvites, setSubmitting]
   );
 
   const validateHasReceived = useCallback(
