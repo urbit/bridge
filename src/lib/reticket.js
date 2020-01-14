@@ -189,6 +189,7 @@ export async function reticketPointBetweenWallets({
     web3,
     point,
     fromWallet.address,
+    fromWalletType,
     totalCost,
     txPairs.map(p => p.raw),
     askForFunding,

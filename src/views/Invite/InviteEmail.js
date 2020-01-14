@@ -316,6 +316,7 @@ export default function InviteEmail() {
       _web3,
       point,
       _wallet.address,
+      walletType,
       toWei(totalCost.toString(), 'gwei'),
       names.map(name => invites[name].rawTx),
       (address, minBalance, balance) =>
@@ -384,6 +385,7 @@ export default function InviteEmail() {
   }, [
     web3,
     wallet,
+    walletType,
     gasPrice,
     point,
     clearReceipts,
