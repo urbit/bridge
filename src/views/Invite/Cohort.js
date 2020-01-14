@@ -181,7 +181,7 @@ export default function InviteCohort() {
         <Grid.Item full>
           <Flex align="center">
             <Flex.Item>
-              {_acceptedInvites + _pendingInvites} / {_totalInvites}
+              {_acceptedInvites} / {_totalInvites}
             </Flex.Item>
             {_pendingInvites !== 0 && (
               <Flex.Item as={Chip} className="bg-yellow4 white">

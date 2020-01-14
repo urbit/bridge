@@ -159,8 +159,7 @@ export default function Point() {
             <Grid.Item full>
               <Flex align="center">
                 <Flex.Item>
-                  {acceptedInvites.getOrElse(0) + _pendingInvites} /{' '}
-                  {_totalInvites}
+                  {acceptedInvites.getOrElse(0)} / {_totalInvites}
                 </Flex.Item>
                 {_pendingInvites > 0 && (
                   <Flex.Item as={Chip} className="bg-yellow1 yellow4">
