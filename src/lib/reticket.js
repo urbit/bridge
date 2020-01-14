@@ -150,17 +150,12 @@ export async function reticketPointBetweenWallets({
   const suggestedGasPrice = await getSuggestedGasPrice(networkType);
   const chainId = await web3.eth.net.getId();
   const gasPrice = toWei(suggestedGasPrice.toFixed(), 'gwei');
-  console.log(suggestedGasPrice.toFixed());
   const gasPriceBN = toBN(gasPrice);
-  console.log(gasPrice);
   let inviteNonce = await web3.eth.getTransactionCount(fromWallet.address);
-  console.log(txs);
   const totalCost = txs.reduce(
     (acc, tx) => acc.add(gasPriceBN.mul(toBN(tx.gas))),
     toBN(0)
   );
-
-  console.log(txs);
 
   let txPairs = await Promise.all(
     txs.map(async (tx, idx) => {
@@ -175,9 +170,6 @@ export async function reticketPointBetweenWallets({
         gasPrice: suggestedGasPrice.toFixed(),
         gasLimit: tx.gas,
       });
-      if (!stx) {
-        debugger;
-      }
       return {
         raw: hexify(stx.serialize()),
         signed: stx,
@@ -209,7 +201,6 @@ export async function reticketPointBetweenWallets({
 
   progress(TRANSACTION_PROGRESS.TRANSFERRING);
 
-  console.log(txPairs);
   await sendAndAwaitAllSerial(web3, txPairs.map(p => p.signed), usedTank);
 
   //
