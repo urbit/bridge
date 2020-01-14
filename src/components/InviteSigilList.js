@@ -5,7 +5,6 @@ import * as ob from 'urbit-ob';
 import { take } from 'lodash';
 
 import MaybeSigil from 'components/MaybeSigil';
-import WithTooltip from 'components/WithTooltip';
 
 const InviteSigilList = ({ className, pendingPoints, acceptedPoints }) => {
   const _acceptedPoints = take(
@@ -24,16 +23,15 @@ const InviteSigilList = ({ className, pendingPoints, acceptedPoints }) => {
     ).keys(),
   ].map(() => Nothing());
 
-  const tooltip = point => point.getOrElse(null);
-
   const renderSigil = (points, colors, klassName) => {
     return (
       <>
         {points.map((point, idx) => (
-          <div key={idx} className={cn(klassName, 'h9 w9')}>
-            <WithTooltip content={tooltip(point)}>
-              <MaybeSigil patp={point} size={50} colors={colors} />
-            </WithTooltip>
+          <div
+            key={idx}
+            title={point.getOrElse(null)}
+            className={cn(klassName, 'h9 w9')}>
+            <MaybeSigil patp={point} size={50} colors={colors} />
           </div>
         ))}
       </>
