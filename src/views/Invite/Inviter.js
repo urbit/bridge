@@ -25,7 +25,7 @@ const Inviter = () => {
     <Grid.Item
       full
       as={Tabs}
-      tabClassName="t-center flex1"
+      center
       className="flex1"
       views={VIEWS}
       options={OPTIONS}
