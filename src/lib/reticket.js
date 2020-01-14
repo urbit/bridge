@@ -1,4 +1,3 @@
-import Tx from 'ethereumjs-tx';
 import * as azimuth from 'azimuth-js';
 import * as tank from './tank';
 
@@ -9,7 +8,11 @@ import {
   CRYPTO_SUITE_VERSION,
 } from './keys';
 import { addHexPrefix } from './wallet';
-import { sendAndAwaitAll } from './txn';
+import {
+  sendAndAwaitAllSerial,
+  signTransaction,
+  sendSignedTransaction,
+} from './txn';
 import getSuggestedGasPrice from './getSuggestedGasPrice';
 import { GAS_LIMITS } from './constants';
 import { toWei, toBN } from 'web3-utils';
@@ -28,6 +31,8 @@ export const TRANSACTION_PROGRESS = {
 
 export async function reticketPointBetweenWallets({
   fromWallet,
+  fromWalletType,
+  fromWalletHdPath,
   toWallet,
   point,
   web3,
@@ -143,26 +148,44 @@ export async function reticketPointBetweenWallets({
   progress(TRANSACTION_PROGRESS.SIGNING);
 
   const suggestedGasPrice = await getSuggestedGasPrice(networkType);
+  const chainId = await web3.eth.net.getId();
   const gasPrice = toWei(suggestedGasPrice.toFixed(), 'gwei');
+  console.log(suggestedGasPrice.toFixed());
   const gasPriceBN = toBN(gasPrice);
-  let totalCost = toBN(0);
+  console.log(gasPrice);
   let inviteNonce = await web3.eth.getTransactionCount(fromWallet.address);
-  txs = txs.map(tx => {
-    tx.from = fromWallet.address;
-    tx.nonce = inviteNonce++;
-    tx.gasPrice = gasPriceBN;
-    totalCost = totalCost.add(gasPriceBN.mul(toBN(tx.gas)));
-    return tx;
-  });
+  console.log(txs);
+  const totalCost = txs.reduce(
+    (acc, tx) => acc.add(gasPriceBN.mul(toBN(tx.gas))),
+    toBN(0)
+  );
 
-  let txPairs = txs.map(tx => {
-    let stx = new Tx(tx);
-    stx.sign(Buffer.from(fromWallet.privateKey, 'hex'));
-    return {
-      raw: hexify(stx.serialize()),
-      signed: stx,
-    };
-  });
+  console.log(txs);
+
+  let txPairs = await Promise.all(
+    txs.map(async (tx, idx) => {
+      const stx = await signTransaction({
+        wallet: fromWallet,
+        walletType: fromWalletType,
+        walletHdPath: fromWalletHdPath,
+        networkType,
+        txn: tx,
+        nonce: inviteNonce + idx,
+        chainId,
+        gasPrice: suggestedGasPrice.toFixed(),
+        gasLimit: tx.gas,
+      });
+      if (!stx) {
+        debugger;
+      }
+      return {
+        raw: hexify(stx.serialize()),
+        signed: stx,
+      };
+    })
+  );
+
+  inviteNonce = inviteNonce + txs.length;
 
   //
   // ensuring funding for transactions
@@ -186,7 +209,8 @@ export async function reticketPointBetweenWallets({
 
   progress(TRANSACTION_PROGRESS.TRANSFERRING);
 
-  await sendAndAwaitAll(web3, txPairs.map(p => p.signed), usedTank);
+  console.log(txPairs);
+  await sendAndAwaitAllSerial(web3, txPairs.map(p => p.signed), usedTank);
 
   //
   // move leftover eth
@@ -200,17 +224,24 @@ export async function reticketPointBetweenWallets({
   const sendEthCost = gasPriceBN.mul(toBN(gasLimit));
   if (transferEth && balance.gt(sendEthCost)) {
     const value = balance.sub(sendEthCost);
-    const tx = {
+    const txn = {
       to: toWallet.ownership.keys.address,
       value: value,
-      gasPrice: gasPriceBN,
-      gas: gasLimit,
-      nonce: inviteNonce++,
     };
-    let stx = new Tx(tx);
-    stx.sign(fromWallet.privateKey);
-    const rawTx = hexify(stx.serialize());
-    web3.eth.sendSignedTransaction(rawTx).catch(err => {
+    const stx = signTransaction({
+      wallet: fromWallet,
+      walletType: fromWalletType,
+      walletHdPath: fromWalletHdPath,
+      txn,
+      chainId,
+      networkType,
+      gasPrice: gasPriceBN,
+      gasLimit,
+      nonce: inviteNonce++,
+    });
+    // let stx = new Tx(tx);
+    // stx.sign(fromWallet.privateKey);
+    sendSignedTransaction(web3, stx).catch(err => {
       console.log('error sending value tx, who cares', err);
     });
   }
