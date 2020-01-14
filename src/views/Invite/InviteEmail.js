@@ -384,12 +384,13 @@ export default function InviteEmail() {
   }, [
     web3,
     wallet,
-    point,
     gasPrice,
-    invites,
+    point,
     clearReceipts,
+    invites,
     addReceipt,
     sendMail,
+    message,
   ]);
 
   const onSubmit = useCallback(

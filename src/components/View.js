@@ -53,7 +53,7 @@ function View({
         <Flex.Item className={insetPadding} as={NavHeader.Target} />
       );
     },
-    [insetPadding, showBackButton]
+    [goLogout, insetPadding, showBackButton]
   );
 
   return (
