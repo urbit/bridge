@@ -8,6 +8,7 @@ import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 
 import View from 'components/View';
+import Tabs from 'components/Tabs';
 import BarGraph from 'components/BarGraph';
 import MaybeSigil from 'components/MaybeSigil';
 import { matchBlinky } from 'components/Blinky';
@@ -23,10 +24,34 @@ import Inviter from 'views/Invite/Inviter';
 
 import { ReactComponent as SearchIcon } from 'assets/search.svg';
 
-function CohortMember({ point, className }) {
+function SearchInput({ className, value, onChange }) {
+  return (
+    <Flex align="center" full className={cn('b b-gray2 b1', className)}>
+      <Flex.Item className="p2">
+        <SearchIcon />
+      </Flex.Item>
+
+      <Flex.Item
+        flex={1}
+        as={'input'}
+        value={value}
+        onChange={onChange}
+        className="b-none h7"
+      />
+    </Flex>
+  );
+}
+
+function CohortMember({ point, pending = false, className }) {
   const { sentInvites } = useInvites(point);
   const patp = useMemo(() => ob.patp(point), [point]);
-  const colors = ['#000000', '#FFFFFF'];
+  const colors = pending ? ['#ee892b', '#FFFFFF'] : ['#000000', '#FFFFFF'];
+
+  const DetailText = useCallback(
+    () =>
+      pending ? 'Pending' : <> {matchBlinky(sentInvites)} points invited </>,
+    [sentInvites]
+  );
 
   return (
     <Flex justify="between" className={cn('b1 b-gray2', className)}>
@@ -41,19 +66,21 @@ function CohortMember({ point, className }) {
         col
         className="mono f6 ph4">
         <Flex.Item>{patp}</Flex.Item>
-        <Flex.Item>{matchBlinky(sentInvites)} points invited</Flex.Item>
+        <Flex.Item className="gray4">
+          <DetailText />
+        </Flex.Item>
       </Flex.Item>
     </Flex>
   );
 }
-function CohortList({ points, className }) {
+function CohortList({ acceptedPoints, pendingPoints, className, onlyPending }) {
   const { syncInvites } = usePointCache();
 
   const [query, setQuery] = useState('');
 
   useEffect(() => {
-    points.map(syncInvites);
-  }, [points, syncInvites]);
+    acceptedPoints.map(syncInvites);
+  }, [acceptedPoints, syncInvites]);
 
   const handleChange = useCallback(
     e => {
@@ -63,40 +90,51 @@ function CohortList({ points, className }) {
     [setQuery]
   );
 
-  const visiblePoints = useMemo(
-    () =>
+  const filterPoints = useCallback(
+    points =>
       points.filter(p => {
         const patp = ob.patp(p).slice(1);
         return patp.startsWith(query);
       }),
-    [query, points]
+    [query]
   );
 
-  return (
-    <Grid gap={3} className={cn('mt1', className)}>
-      <Grid.Item align="center" full as={Flex} className="b b-gray2 b1">
-        <Flex.Item className="p2">
-          <SearchIcon />
-        </Flex.Item>
+  const _pendingPoints = filterPoints(pendingPoints);
+  const _acceptedPoints = filterPoints(acceptedPoints);
 
-        <Flex.Item
-          flex={1}
-          as={'input'}
-          value={query}
-          onChange={handleChange}
-          className="b-none h7"
-        />
-      </Grid.Item>
+  const offset = onlyPending ? 0 : _acceptedPoints.length;
+
+  return (
+    <Grid gap={3} className={cn('mt4', className)}>
+      <Grid.Item full as={SearchInput} value={query} onChange={handleChange} />
       <>
-        {visiblePoints.map((p, idx) => (
-          <Grid.Item key={p} half={(idx % 2) + 1} as={CohortMember} point={p} />
+        {!onlyPending &&
+          _acceptedPoints.map((p, idx) => (
+            <Grid.Item
+              key={p}
+              half={(idx % 2) + 1}
+              as={CohortMember}
+              point={p}
+            />
+          ))}
+        {_pendingPoints.map((p, idx) => (
+          <Grid.Item
+            key={p}
+            half={((offset + idx) % 2) + 1}
+            as={CohortMember}
+            point={p}
+            pending
+          />
         ))}
       </>
-      {visiblePoints.length === 0 && (
-        <Grid.Item full className="p4 t-center">
-          No invites accepted yet.
-        </Grid.Item>
-      )}
+
+      {_pendingPoints.length === 0 &&
+        (_acceptedPoints.length === 0 || onlyPending) && (
+          <Grid.Item full className="p4 t-center">
+            {' '}
+            No invites accepted yet.
+          </Grid.Item>
+        )}
     </Grid>
   );
 }
@@ -116,6 +154,7 @@ export default function InviteCohort() {
   } = useInvites(point);
 
   const [showInviteForm, setShowInviteForm] = useState(false);
+  const [tab, setTab] = useState(NAMES.ALL);
 
   const _acceptedPoints = acceptedPoints.getOrElse([]);
   const _pendingPoints = pendingPoints.getOrElse([]);
@@ -170,8 +209,33 @@ export default function InviteCohort() {
         )}
         {showInviteForm && <Inviter />}
 
-        <Grid.Item full as={CohortList} points={_acceptedPoints} />
+        <Grid.Item
+          full
+          center
+          as={Tabs}
+          views={VIEWS}
+          options={OPTIONS}
+          currentTab={tab}
+          onTabChange={setTab}
+          acceptedPoints={_acceptedPoints}
+          pendingPoints={_pendingPoints}
+          onlyPending={tab === NAMES.PENDING}
+        />
       </Grid>
     </View>
   );
 }
+const NAMES = {
+  ALL: 'ALL',
+  PENDING: 'PENDING',
+};
+
+const VIEWS = {
+  [NAMES.PENDING]: CohortList,
+  [NAMES.ALL]: CohortList,
+};
+
+const OPTIONS = [
+  { text: 'All', value: NAMES.ALL },
+  { text: 'Pending', value: NAMES.PENDING },
+];
