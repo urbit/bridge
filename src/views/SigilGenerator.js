@@ -2,6 +2,7 @@ import React, { useRef, useCallback } from 'react';
 import { Grid, Flex } from 'indigo-react';
 import * as ob from 'urbit-ob';
 import { FORM_ERROR } from 'final-form';
+import { colors } from 'indigo-tokens';
 
 import { usePointCursor } from 'store/pointCursor';
 
@@ -19,24 +20,23 @@ import SubmitButton from 'form/SubmitButton';
 import { NumberInput, ColorInput } from 'form/Inputs';
 
 const BG_COLORS = [
-  '#000000',
-  '#FFFFFF',
-  '#C80F34',
-  '#EE5432',
-  '#F8C134',
-  '#286E55',
-  '#2AA779',
-  '#2ED196',
-  '#190D8D',
-  '#4330FC',
-  '#6184FF',
-  '#83C3FF',
-  '#903AE6',
-  '#EC6FF7',
-  '#FFB0D6',
+  colors.black,
+  colors.white,
+  colors.blue,
+  colors.blueLight,
+  colors.blueDark,
+  colors.redLight,
+  colors.red,
+  colors.redDark,
+  colors.greenLight,
+  colors.green,
+  colors.greenDark,
+  colors.yellowLight,
+  colors.yellow,
+  colors.yellowDark,
 ];
 
-const FG_COLORS = ['#000000', '#FFFFFF'];
+const FG_COLORS = [colors.black, colors.white];
 
 export default function SigilGenerator() {
   const { pop } = useLocalRouter();

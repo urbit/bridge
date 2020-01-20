@@ -33,6 +33,7 @@
     "final-form-arrays": "^3.0.1",
     "final-form-set-field-data": "^1.0.2",
     "folktale": "^2.3.1",
+    "indigo-tokens": "^1.2.3",
     "jszip": "^3.1.5",
     "keccak": "^1.4.0",
     "keythereum": "^1.0.4",
