@@ -1,5 +1,5 @@
 import React, { useRef, useCallback } from 'react';
-import { Grid, Flex } from 'indigo-react';
+import { Grid, Flex, ColorInput } from 'indigo-react';
 import * as ob from 'urbit-ob';
 import { FORM_ERROR } from 'final-form';
 import { colors } from 'indigo-tokens';
@@ -17,7 +17,7 @@ import { composeValidator, buildNumberValidator } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 import SubmitButton from 'form/SubmitButton';
-import { NumberInput, ColorInput } from 'form/Inputs';
+import { NumberInput } from 'form/Inputs';
 
 const BG_COLORS = [
   colors.black,
