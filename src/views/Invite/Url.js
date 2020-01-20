@@ -71,7 +71,9 @@ const InviteUrl = ({ setSubmitting }) => {
     }
   }, [txStatus, error, generateInvite]);
 
-  const url = `https://bridge.urbit.org/#${get(invites, '[0].ticket', '')}`;
+  const url = `https://bridge.urbit.org/#${get(invites, '[0].ticket', '').slice(
+    1
+  )}`;
 
   const [doCopy, didCopy] = useCopiable(url);
 
