@@ -15,3 +15,19 @@ export default function useBlockWindowClose() {
     };
   });
 }
+
+export function useConditionalBlockWindowClose(condition) {
+  return useEffect(() => {
+    if (condition) {
+      window.addEventListener('beforeunload', onBeforeUnload);
+    } else {
+      window.removeEventListener('beforeunload', onBeforeUnload);
+    }
+
+    return function cleanup() {
+      if (condition) {
+        window.removeEventListener('beforeunload', onBeforeUnload);
+      }
+    };
+  });
+}
