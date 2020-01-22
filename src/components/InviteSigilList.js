@@ -5,7 +5,6 @@ import * as ob from 'urbit-ob';
 import { take } from 'lodash';
 
 import MaybeSigil from 'components/MaybeSigil';
-import WithTooltip from 'components/WithTooltip';
 
 const InviteSigilList = ({ className, pendingPoints, acceptedPoints }) => {
   const _acceptedPoints = take(
@@ -24,16 +23,15 @@ const InviteSigilList = ({ className, pendingPoints, acceptedPoints }) => {
     ).keys(),
   ].map(() => Nothing());
 
-  const tooltip = point => point.getOrElse(null);
-
   const renderSigil = (points, colors, klassName) => {
     return (
       <>
         {points.map((point, idx) => (
-          <div key={idx} className={cn(klassName, 'h9 w9')}>
-            <WithTooltip content={tooltip(point)}>
-              <MaybeSigil patp={point} size={50} colors={colors} />
-            </WithTooltip>
+          <div
+            key={idx}
+            title={point.getOrElse(null)}
+            className={cn(klassName, 'h9 w9')}>
+            <MaybeSigil patp={point} size={50} colors={colors} />
           </div>
         ))}
       </>
@@ -44,7 +42,7 @@ const InviteSigilList = ({ className, pendingPoints, acceptedPoints }) => {
     <div className={cn('flex justify-between', className)}>
       {renderSigil(_acceptedPoints, ['#000000', '#FFFFFF'])}
       {renderSigil(_pendingPoints, ['#ee892b', '#FFFFFF'])}
-      {renderSigil(empty, [], 'b1 b-black b-dashed')}
+      {renderSigil(empty, [], 'b1 b-gray3 b-dashed')}
     </div>
   );
 };

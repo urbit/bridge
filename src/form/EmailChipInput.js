@@ -102,7 +102,7 @@ const EmailChipInput = ({ className, name, label, disabled }) => {
 
         <input
           type="textarea"
-          className="mv1 mh2 h7 b-none flex-grow"
+          className="mv1 mh2 h7 b-none flex1"
           placeholder="Enter an email address"
           value={value}
           onChange={handleChange}

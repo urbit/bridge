@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Grid, ErrorText } from 'indigo-react';
+import { Grid, ErrorText, Flex } from 'indigo-react';
 import { get } from 'lodash';
 import { FORM_ERROR } from 'final-form';
 
@@ -30,7 +30,8 @@ const InviteUrl = ({ setSubmitting }) => {
     if (hasErrors(errors)) {
       setError(errors);
     }
-  }, [generateInvites]);
+    setSubmitting(false);
+  }, [generateInvites, setSubmitting]);
 
   const renderGenerateButton = useCallback(() => {
     if (error) {
@@ -70,26 +71,28 @@ const InviteUrl = ({ setSubmitting }) => {
     }
   }, [txStatus, error, generateInvite]);
 
-  const url = `https://bridge.urbit.org/#${get(invites, '[0].ticket', '')}`;
+  const url = `https://bridge.urbit.org/#${get(invites, '[0].ticket', '').slice(
+    1
+  )}`;
 
   const [doCopy, didCopy] = useCopiable(url);
 
   return (
-    <Grid.Item full as={Grid}>
+    <Grid.Item full as={Grid} gap={3}>
       {invites.length > 0 && (
-        <>
-          <Grid.Item full className="b-gray3 b1 mv4 p1 flex flex-center">
-            <div className="flex1 ml1">{url}</div>
-            <Grid.Item
-              className="pv3 ph4 bg-black white"
+        <Grid.Item as={Flex} full col>
+          <Flex.Item full className="b-gray3 b1 mt4 mb1 p1 flex flex-center">
+            <div className="flex1 ml1 f6">{url}</div>
+            <Flex.Item
+              className="p2 bg-black white pointer-hover f6"
               onClick={() => doCopy()}>
               {didCopy ? 'Copied' : 'Copy'}
-            </Grid.Item>
-          </Grid.Item>
-          <Grid.Item full>
+            </Flex.Item>
+          </Flex.Item>
+          <Flex.Item full className="f6 mb4 gray5">
             Your invite link expires after consumption.
-          </Grid.Item>
-        </>
+          </Flex.Item>
+        </Grid.Item>
       )}
       {invites.length === 0 && renderGenerateButton()}
       {needFunds && <Grid.Item full as={NeedFundsNotice} {...needFunds} />}

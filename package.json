@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@hot-loader/react-dom": "^16.8.6",
-    "@ledgerhq/hw-app-eth": "^5.1.0",
-    "@ledgerhq/hw-transport-u2f": "^5.0.0",
+    "@ledgerhq/hw-app-eth": "^5.5.0",
+    "@ledgerhq/hw-transport-u2f": "^5.5.0",
     "@welldone-software/why-did-you-render": "^3.2.3",
     "async-retry": "^1.2.3",
     "azimuth-js": "^0.17.0",

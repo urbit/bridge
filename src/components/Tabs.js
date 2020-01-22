@@ -8,7 +8,7 @@ export default function Tabs({
   currentTab,
   onTabChange,
   className,
-  tabClassName,
+  center = false,
   ...rest
 }) {
   const Tab = views[currentTab];
@@ -26,17 +26,19 @@ export default function Tabs({
                 key={option.value}
                 onClick={() => onTabChange(option.value)}
                 className={cn(
-                  tabClassName,
                   'f5 pv3 pointer nowrap',
                   {
                     'black b-black bb1': isActive,
                     gray3: !isActive,
                   },
                   {
+                    't-center flex1': center,
+                  },
+                  {
                     // all items have right margin/padding
-                    'mr2 pr2': true,
+                    'mr2 pr2': !center,
                     // the first one is flush to the left
-                    'ml2 pl2': !isFirst,
+                    'ml2 pl2': !isFirst && !center,
                   }
                 )}>
                 {option.text}

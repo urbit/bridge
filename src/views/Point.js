@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import cn from 'classnames';
 import { Just } from 'folktale/maybe';
-import { Grid, Flex } from 'indigo-react';
+import { Grid, Flex, Button } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';
@@ -148,7 +148,7 @@ export default function Point() {
             </Grid.Item>
 
             <Grid.Item
-              className={cn('t-right underline', {
+              className={cn('t-right underline pointer-hover', {
                 gray4: sentInvites.getOrElse(0) === 0,
               })}
               onClick={goCohort}
@@ -158,11 +158,10 @@ export default function Point() {
             <Grid.Item full>
               <Flex align="center">
                 <Flex.Item>
-                  {acceptedInvites.getOrElse(0) + _pendingInvites} /{' '}
-                  {_totalInvites}
+                  {acceptedInvites.getOrElse(0)} / {_totalInvites}
                 </Flex.Item>
                 {_pendingInvites > 0 && (
-                  <Flex.Item as={Chip} color="yellow">
+                  <Flex.Item as={Chip} className="bg-yellow1 yellow4">
                     {_pendingInvites} pending
                   </Flex.Item>
                 )}
@@ -199,12 +198,14 @@ export default function Point() {
               <Grid.Item
                 full
                 solid
-                as={ForwardButton}
+                as={Button}
+                center
                 onClick={() => setShowInviteForm(true)}>
                 Add Members
               </Grid.Item>
             )}
             {showInviteForm && <Inviter />}
+            <Grid.Item full className="mb2" />
           </>
         )}
         {!loadedInvites && isPlanet && (
