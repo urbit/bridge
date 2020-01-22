@@ -157,25 +157,26 @@ export async function reticketPointBetweenWallets({
     toBN(0)
   );
 
-  let txPairs = await Promise.all(
-    txs.map(async (tx, idx) => {
-      const stx = await signTransaction({
-        wallet: fromWallet,
-        walletType: fromWalletType,
-        walletHdPath: fromWalletHdPath,
-        networkType,
-        txn: tx,
-        nonce: inviteNonce + idx,
-        chainId,
-        gasPrice: suggestedGasPrice.toFixed(),
-        gasLimit: tx.gas,
-      });
-      return {
-        raw: hexify(stx.serialize()),
-        signed: stx,
-      };
-    })
-  );
+  let txPairs = [];
+
+  // Must be done in serial else hardware will give nonce errors
+  for (let i = 0; i < txs.length; i++) {
+    const stx = await signTransaction({
+      wallet: fromWallet,
+      walletType: fromWalletType,
+      walletHdPath: fromWalletHdPath,
+      networkType,
+      txn: txs[i],
+      nonce: inviteNonce + i,
+      chainId,
+      gasPrice: suggestedGasPrice.toFixed(),
+      gasLimit: txs[i].gas,
+    });
+    txPairs.push({
+      raw: hexify(stx.serialize()),
+      signed: stx,
+    });
+  }
 
   inviteNonce = inviteNonce + txs.length;
 
