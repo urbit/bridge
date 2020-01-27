@@ -27,7 +27,7 @@ export default function Hosting() {
   const { wallet } = useWallet();
   const address = need.addressFromWallet(wallet);
 
-  const client = new SolarisClient('https://localhost:3030');
+  const client = new SolarisClient('https://localhost:4000');
   const ship = useHostedShip(client, patp);
 
   return (
