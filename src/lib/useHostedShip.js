@@ -83,7 +83,7 @@ export function useHostedShip(client, patp) {
     } catch (error) {
       setError(error);
     }
-  }, [client, patp, resetEvents, setError]);
+  }, [client, patp, resetEvents, setError, setState]);
 
   const getEvents = useCallback(() => {
     try {
@@ -139,7 +139,7 @@ export function useHostedShip(client, patp) {
     } catch (error) {
       setError(error);
     }
-  }, [setError, client, patp, getEvents]);
+  }, [setError, setState, client, patp, getEvents]);
 
   return {
     error,
