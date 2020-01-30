@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { toWei, toBN } from 'web3-utils';
+import { toBN } from 'web3-utils';
 import * as azimuth from 'azimuth-js';
 import { FORM_ERROR } from 'final-form';
 
@@ -16,6 +16,7 @@ import {
 } from 'lib/txn';
 import useGasPrice from 'lib/useGasPrice';
 import { MIN_PLANET } from 'lib/constants';
+import { safeToWei } from 'lib/lib';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
@@ -148,7 +149,7 @@ const useInviter = () => {
         _web3,
         point,
         _wallet.address,
-        toWei(totalCost.toString(), 'gwei'),
+        safeToWei(totalCost, 'gwei'),
         Object.keys(invites).map(name => invites[name].rawTx),
         (address, minBalance, balance) =>
           setNeedFunds({ address, minBalance, balance }),

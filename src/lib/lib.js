@@ -1,5 +1,30 @@
 import ob from 'urbit-ob';
 import patp2dec from './patp2dec';
+import { fromWei, toWei, toBN } from 'web3-utils';
+
+const safeFromWei = (num, target) => {
+  try {
+    return fromWei(toBN(num), target);
+  } catch (e) {
+    e.message =
+      `(safeFromWei got ${typeof num} (${num}), made ${typeof toBN(
+        num
+      )}. Please report this issue!) ` + e.message;
+    throw e;
+  }
+};
+
+const safeToWei = (num, source) => {
+  try {
+    return toWei(toBN(num), source);
+  } catch (e) {
+    e.message =
+      `(safeToWei got ${typeof num} (${num}), made ${typeof toBN(
+        num
+      )}. Please report this issue!) ` + e.message;
+    throw e;
+  }
+};
 
 const compose = (...fs) =>
   fs.reduceRight((pF, nF) => (...args) => nF(pF(...args)), v => v);
@@ -43,6 +68,8 @@ const patpStringLength = byteLength =>
   byteLength * 3 + Math.ceil(byteLength / 2);
 
 export {
+  safeFromWei,
+  safeToWei,
   compose,
   allFalse,
   isLast,

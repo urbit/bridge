@@ -1,5 +1,6 @@
 import Tx from 'ethereumjs-tx';
-import { toWei, fromWei, toHex, toBN } from 'web3-utils';
+import { toHex } from 'web3-utils';
+import { safeFromWei, safeToWei } from './lib';
 import retry from 'async-retry';
 
 import { NETWORK_TYPES } from './network';
@@ -31,7 +32,7 @@ const signTransaction = async ({
   // TODO: require these in txn object
   nonce = toHex(nonce);
   chainId = toHex(chainId);
-  gasPrice = toHex(toWei(gasPrice, 'gwei'));
+  gasPrice = toHex(safeToWei(gasPrice, 'gwei'));
   gasLimit = toHex(gasLimit);
 
   const txParams = { nonce, chainId, gasPrice, gasLimit };
@@ -193,7 +194,7 @@ const getTxnInfo = async (web3, addr) => {
   return {
     nonce: nonce,
     chainId: chainId,
-    gasPrice: fromWei(toBN(gasPrice), 'gwei'),
+    gasPrice: safeFromWei(gasPrice, 'gwei'),
   };
 };
 
