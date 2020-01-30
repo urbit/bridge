@@ -25,7 +25,7 @@ import BridgeForm from 'form/BridgeForm';
 import NeedFundsNotice from 'components/NeedFundsNotice';
 import ProgressButton from 'components/ProgressButton';
 
-const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
+const HAS_RECEIVED_TEXT = 'This email has already received an invite: ';
 
 const STATUS = {
   INPUT: 'INPUT',
@@ -99,7 +99,7 @@ const InviteMail = ({ setSubmitting }) => {
     async email => {
       const hasReceived = await getHasReceived(email);
       if (hasReceived) {
-        return HAS_RECEIVED_TEXT;
+        return HAS_RECEIVED_TEXT + email;
       }
     },
     [getHasReceived]
