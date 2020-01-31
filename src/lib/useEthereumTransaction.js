@@ -158,6 +158,7 @@ export default function useEthereumTransaction(
           _web3,
           pointCursor.value,
           _wallet.address,
+          walletType,
           cost,
           rawTxs,
           (address, minBalance, balance) =>

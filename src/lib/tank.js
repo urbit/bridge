@@ -3,6 +3,7 @@
 import retry from 'async-retry';
 import { toBN } from 'web3-utils';
 import { RETRY_OPTIONS, waitForTransactionConfirm } from './txn';
+import { WALLET_TYPES } from 'lib/wallet';
 
 //NOTE if accessing this in a localhost configuration fails with "CORS request
 //     did not succeed", you might need to visit localhost:3001 or whatever
@@ -49,6 +50,7 @@ const ensureFundsFor = async (
   web3,
   point,
   address,
+  walletType,
   cost,
   signedTxs,
   askForFunding,
@@ -66,6 +68,11 @@ const ensureFundsFor = async (
     return false;
   }
 
+  if (walletType === WALLET_TYPES.METAMASK) {
+    console.log('tank: disabling for metamask login');
+
+    return false;
+  }
   try {
     // TODO: if we can't always (easily) provide a point, and the
     // fundTransactions call is gonna fail anyway, should we maybe

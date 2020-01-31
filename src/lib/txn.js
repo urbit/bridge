@@ -173,6 +173,17 @@ const sendAndAwaitAll = (web3, stxs, doubtNonceError) => {
   );
 };
 
+const sendAndAwaitAllSerial = (web3, stxs, doubtNonceError) => {
+  return stxs.reduce(
+    (promise, stx) =>
+      promise.then(async () => {
+        const txHash = await sendSignedTransaction(web3, stx, doubtNonceError);
+        await waitForTransactionConfirm(web3, txHash);
+      }),
+    Promise.resolve()
+  );
+};
+
 const sendTransactionsAndAwaitConfirm = async (web3, signedTxs, usedTank) =>
   Promise.all(signedTxs.map(tx => sendSignedTransaction(web3, tx, usedTank)));
 
@@ -215,6 +226,7 @@ export {
   waitForTransactionConfirm,
   sendTransactionsAndAwaitConfirm,
   sendAndAwaitAll,
+  sendAndAwaitAllSerial,
   getTxnInfo,
   hexify,
   renderSignedTx,

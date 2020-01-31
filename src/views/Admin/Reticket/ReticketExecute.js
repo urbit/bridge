@@ -44,7 +44,14 @@ const labelForProgress = progress => {
 export default function ReticketExecute({ newWallet, setNewWallet }) {
   const { popTo, names, reset } = useHistory();
   const { web3, contracts, networkType } = useNetwork();
-  const { wallet, setWalletType, resetWallet, setUrbitWallet } = useWallet();
+  const {
+    wallet,
+    setWalletType,
+    resetWallet,
+    setUrbitWallet,
+    walletType,
+    walletHdPath,
+  } = useWallet();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
 
@@ -64,6 +71,8 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
       try {
         await reticketPointBetweenWallets({
           fromWallet: need.wallet(wallet),
+          fromWalletType: walletType,
+          fromWalletHdPath: walletHdPath,
           toWallet: newWallet.value.wallet,
           point: point,
           web3: need.web3(web3),
@@ -73,6 +82,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
           nextRevision: networkRevision + 1,
         });
       } catch (err) {
+        console.error(err);
         setGeneralError(err);
       }
     })();
