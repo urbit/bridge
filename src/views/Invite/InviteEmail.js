@@ -66,7 +66,7 @@ import timeout from 'lib/timeout';
 const INITIAL_VALUES = { emails: [''] };
 
 const GAS_LIMIT = GAS_LIMITS.GIFT_PLANET;
-const HAS_RECEIVED_TEXT = 'This email has already received an invite.';
+const HAS_RECEIVED_TEXT = 'This email has already received an invite: ';
 
 const STATUS = {
   INPUT: 'INPUT',
@@ -146,7 +146,7 @@ export default function InviteEmail() {
     async email => {
       const hasReceived = await getHasReceived(email);
       if (hasReceived) {
-        return HAS_RECEIVED_TEXT;
+        return HAS_RECEIVED_TEXT + email;
       }
     },
     [getHasReceived]

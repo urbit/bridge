@@ -806,18 +806,6 @@ caption,
 .r-full {
   border-radius: 9999px; }
 
-.b {
-  border-style: solid; }
-
-.b-hidden {
-  border-style: hidden; }
-
-.b-dotted {
-  border-style: dotted; }
-
-.b-none {
-  border-style: none;
-  border-width: 0; }
 
 .b1 {
   border-style: solid;
@@ -918,6 +906,22 @@ caption,
 .bl0 {
   border-left-style: none;
   border-left-width: 0px; }
+
+.b {
+  border-style: solid; }
+
+.b-hidden {
+  border-style: hidden; }
+
+.b-dotted {
+  border-style: dotted; }
+
+.b-dashed {
+  border-style: dashed; }
+
+.b-none {
+  border-style: none;
+  border-width: 0; }
 
 .b-blue4 {
   border-color: #190d7b; }
@@ -1577,6 +1581,10 @@ caption,
 
 .justify-around {
   justify-content: space-around; }
+
+.justify-evenly {
+  justify-content: space-evenly;
+}
 
 .flex-center {
   display: flex;
@@ -3606,6 +3614,9 @@ caption,
 @media only screen and (min-width: 960px) {
   .h12-lg {
     height: 288px; } }
+
+.pointer-hover {
+  cursor: pointer; }
 
 .pointer:hover {
   cursor: pointer; }

@@ -19,6 +19,7 @@ export default function Button({
   background,
   type,
   children,
+  center = false,
   ...rest
 }) {
   const handleKeyPress = e => {
@@ -60,10 +61,14 @@ export default function Button({
       onClick={!disabled && onClick ? onClick : undefined}
       {...rest}>
       {background}
-      <Grid.Item full as={Flex} justify="between" className="z2">
+      <Grid.Item
+        full
+        as={Flex}
+        justify="between"
+        className={cn('z2', { 'flex-center': center })}>
         <span>{children}</span>
         {type && <button type={type} style={{ display: 'none' }}></button>}
-        <div className={cn('pl4')}>{accessory}</div>
+        {!center && <div className={cn('pl4')}>{accessory}</div>}
       </Grid.Item>
       {detail && (
         <Grid.Item full as={HelpText} className={cn('z2', detailClassName)}>
