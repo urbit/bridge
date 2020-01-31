@@ -19,9 +19,10 @@ const ColorInput = ({ name, colors, disabled = false, label, className }) => {
         htmlFor={name}>
         {label}
       </Flex.Item>
-      <div className="flex flex-wrap">
+      <Flex.Item as={Flex} wrap>
         {colors.map(c => (
-          <button
+          <Flex.Item
+            as="button"
             type="button"
             key={c}
             className={cn('m0 p0 h7 w7 p2 flex flex-center', {
@@ -39,9 +40,9 @@ const ColorInput = ({ name, colors, disabled = false, label, className }) => {
             ) : (
               <div />
             )}
-          </button>
+          </Flex.Item>
         ))}
-      </div>
+      </Flex.Item>
     </Flex>
   );
 };
