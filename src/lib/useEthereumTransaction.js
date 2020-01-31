@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Just } from 'folktale/maybe';
-import { toWei, toBN } from 'web3-utils';
+import { toBN } from 'web3-utils';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
@@ -22,6 +22,7 @@ import { ensureFundsFor } from 'lib/tank';
 import useDeepEqualReference from 'lib/useDeepEqualReference';
 import useGasPrice from 'lib/useGasPrice';
 import timeout from 'lib/timeout';
+import { safeToWei } from 'lib/lib';
 
 const STATE = {
   NONE: 'NONE',
@@ -148,7 +149,7 @@ export default function useEthereumTransaction(
       const costGwei = toBN(gasLimit)
         .mul(toBN(gasPrice))
         .mul(toBN(rawTxs.length));
-      const cost = toWei(costGwei.toString(), 'gwei');
+      const cost = safeToWei(costGwei, 'gwei');
       let usedTank = false;
       // if this ethereum transaction is being executed by a specific point
       // see if we can use the tank

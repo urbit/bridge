@@ -12,7 +12,8 @@ import { addHexPrefix } from './wallet';
 import { sendAndAwaitAll } from './txn';
 import getSuggestedGasPrice from './getSuggestedGasPrice';
 import { GAS_LIMITS } from './constants';
-import { toWei, toBN } from 'web3-utils';
+import { toBN } from 'web3-utils';
+import { safeToWei } from './lib';
 
 // the initial network key revision is always 1
 const INITIAL_NETWORK_KEY_REVISION = 1;
@@ -143,7 +144,7 @@ export async function reticketPointBetweenWallets({
   progress(TRANSACTION_PROGRESS.SIGNING);
 
   const suggestedGasPrice = await getSuggestedGasPrice(networkType);
-  const gasPrice = toWei(suggestedGasPrice.toFixed(), 'gwei');
+  const gasPrice = safeToWei(suggestedGasPrice.toFixed(), 'gwei');
   const gasPriceBN = toBN(gasPrice);
   let totalCost = toBN(0);
   let inviteNonce = await web3.eth.getTransactionCount(fromWallet.address);
