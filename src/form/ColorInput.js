@@ -1,7 +1,7 @@
 import React from 'react';
 import { useField } from 'react-final-form';
 import cn from 'classnames';
-import Flex from './Flex';
+import { Flex } from 'indigo-react';
 
 const ColorInput = ({ name, colors, disabled = false, label, className }) => {
   const { input } = useField(name, { subscription: { value: true } });
