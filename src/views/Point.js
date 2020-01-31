@@ -13,7 +13,6 @@ import Passport from 'components/Passport';
 import { ForwardButton, BootUrbitOSButton } from 'components/Buttons';
 import CopyButton from 'components/CopyButton';
 import Blinky, { matchBlinky } from 'components/Blinky';
-import DownloadSigilButton from 'components/DownloadSigilButton';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
 import InviteSigilList from 'components/InviteSigilList';
@@ -72,7 +71,7 @@ export default function Point() {
 
   const goSenate = useCallback(() => push(names.SENATE), [push, names]);
 
-  const goInvite = useCallback(() => push(names.INVITE), [push, names]);
+  const goSigil = useCallback(() => push(names.SIGIL_GENERATOR), [push, names]);
 
   const goCohort = useCallback(() => push(names.INVITE_COHORT), [push, names]);
 
@@ -217,6 +216,10 @@ export default function Point() {
       </Grid>
       <Grid className="pt2">
         {inviteButton}
+        <Grid.Item full as={ForwardButton} onClick={goSigil}>
+          Sigil
+        </Grid.Item>
+        <Grid.Divider />
         <Grid.Item
           full
           as={ForwardButton}
@@ -250,8 +253,6 @@ export default function Point() {
           detailClassName="mono">
           Login Code
         </Grid.Item>
-        <Grid.Divider />
-        <Grid.Item full as={DownloadSigilButton} point={point} />
         <Grid.Divider />
       </Grid>
     </View>
