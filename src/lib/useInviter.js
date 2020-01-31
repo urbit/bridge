@@ -149,6 +149,7 @@ const useInviter = () => {
         _web3,
         point,
         _wallet.address,
+        walletType,
         safeToWei(totalCost, 'gwei'),
         Object.keys(invites).map(name => invites[name].rawTx),
         (address, minBalance, balance) =>
