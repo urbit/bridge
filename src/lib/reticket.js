@@ -221,7 +221,7 @@ export async function reticketPointBetweenWallets({
       to: toWallet.ownership.keys.address,
       value: value,
     };
-    const stx = signTransaction({
+    const stx = await signTransaction({
       wallet: fromWallet,
       walletType: fromWalletType,
       walletHdPath: fromWalletHdPath,
