@@ -230,7 +230,7 @@ export async function reticketPointBetweenWallets({
       networkType,
       gasPrice: gasPriceGwei,
       gasLimit,
-      nonce: inviteNonce++,
+      nonce: inviteNonce,
     });
     // let stx = new Tx(tx);
     // stx.sign(fromWallet.privateKey);
