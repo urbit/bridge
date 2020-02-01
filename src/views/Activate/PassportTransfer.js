@@ -144,6 +144,8 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
 
   const renderAdditionalInfo = () => {
     if (generalError) {
+      console.log(generalError);
+      generalError.message = generalError.message || 'Something went wrong!';
       return (
         <>
           <Grid.Item full className="mt8">
