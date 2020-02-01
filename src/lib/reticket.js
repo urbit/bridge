@@ -216,27 +216,28 @@ export async function reticketPointBetweenWallets({
   const gasLimit = GAS_LIMITS.SEND_ETH;
   const sendEthCost = gasPriceWeiBN.mul(toBN(gasLimit));
   if (transferEth && balance.gt(sendEthCost)) {
-    const value = balance.sub(sendEthCost);
-    const txn = {
-      to: toWallet.ownership.keys.address,
-      value: value,
-    };
-    const stx = await signTransaction({
-      wallet: fromWallet,
-      walletType: fromWalletType,
-      walletHdPath: fromWalletHdPath,
-      txn,
-      chainId,
-      networkType,
-      gasPrice: gasPriceGwei,
-      gasLimit,
-      nonce: inviteNonce,
-    });
-    // let stx = new Tx(tx);
-    // stx.sign(fromWallet.privateKey);
-    sendSignedTransaction(web3, stx).catch(err => {
-      console.log('error sending value tx, who cares', err);
-    });
+    try {
+      const value = balance.sub(sendEthCost);
+      const txn = {
+        to: toWallet.ownership.keys.address,
+        value: value,
+      };
+      const stx = await signTransaction({
+        wallet: fromWallet,
+        walletType: fromWalletType,
+        walletHdPath: fromWalletHdPath,
+        txn,
+        chainId,
+        networkType,
+        gasPrice: gasPriceGwei,
+        gasLimit,
+        nonce: inviteNonce,
+      });
+      sendSignedTransaction(web3, stx);
+    } catch (err) {
+      console.log('error sending value tx, safely ignored:');
+      console.log(err);
+    }
   }
 
   progress(TRANSACTION_PROGRESS.DONE);
