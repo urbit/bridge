@@ -151,7 +151,7 @@ const useInviter = () => {
         _wallet.address,
         walletType,
         safeToWei(totalCost, 'gwei'),
-        Object.keys(invites).map(name => invites[name].rawTx),
+        signedInvites.map(si => si.rawTx),
         (address, minBalance, balance) =>
           setNeedFunds({ address, minBalance, balance }),
         () => setNeedFunds(undefined)
@@ -204,7 +204,6 @@ const useInviter = () => {
     [
       contracts,
       gasPrice,
-      invites,
       networkType,
       point,
       syncInvites,

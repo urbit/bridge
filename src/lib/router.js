@@ -9,7 +9,6 @@ import SigilGenerator from 'views/SigilGenerator';
 
 import Point from 'views/Point';
 import Points from 'views/Points';
-import Invite from 'views/Invite';
 import Activate from 'views/Activate';
 
 import PartySetPoolSize from 'views/Party/PartySetPoolSize';
@@ -27,7 +26,6 @@ export const ROUTES = {
   [ROUTE_NAMES.POINT]: Point,
   [ROUTE_NAMES.CREATE_GALAXY]: CreateGalaxy,
   [ROUTE_NAMES.ISSUE_CHILD]: IssueChild,
-  [ROUTE_NAMES.INVITE]: Invite,
   [ROUTE_NAMES.ADMIN]: Admin,
   [ROUTE_NAMES.SENATE]: Senate,
   // TODO: nest this route under the Party.js router
