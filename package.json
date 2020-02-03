@@ -77,7 +77,7 @@
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
-    "eject": "react-app-rewired eject",
+    "eject": "react-scripts eject",
     "checksum": "cd build && find . -exec shasum -a256 {} ';' > ../checksums.txt && cd ..",
     "zip": "zip -ur bridge-$npm_package_version.zip README.md bridge-https.py checksums.txt && cd build && zip -ur ../bridge-$npm_package_version.zip ./* && cd ..",
     "release": "npm install && npm run build && npm run checksum && npm run zip",
