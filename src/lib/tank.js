@@ -56,6 +56,10 @@ const ensureFundsFor = async (
   askForFunding,
   gotFunding
 ) => {
+  if (typeof signedTxs !== 'object' || signedTxs.length === 0) {
+    throw new Error('tank: no transactions provided!');
+  }
+
   const balance = toBN(await web3.eth.getBalance(address));
   cost = toBN(cost);
 
