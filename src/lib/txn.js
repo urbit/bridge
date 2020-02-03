@@ -127,20 +127,20 @@ const sendSignedTransaction = (web3, stx, doubtNonceError) => {
         // if there's a nonce error, but we used the gas tank, it's likely
         // that it's because the tank already submitted our transaction.
         // we just wait for first confirmation here.
-        console.error(err);
-        const isKnownError = (err.message || '').includes(
-          'known transaction: '
-        );
-        const isNonceError = (err.message || '').includes(
-          "the tx doesn't have the correct nonce."
-        );
+        const message = err.message || '';
+        const isKnownError = message.includes('known transaction: ');
+        const isNonceError =
+          message.includes("the tx doesn't have the correct nonce.") ||
+          message.includes('nonce too low');
         if (isKnownError || (doubtNonceError && isNonceError)) {
           console.log(
-            'tx send error likely from gas tank submission, ignoring'
+            'tx send error likely from gas tank submission, ignoring:',
+            message
           );
           const txHash = web3.utils.keccak256(rawTx);
           resolve(txHash);
         } else {
+          console.error(err);
           reject(err.message || 'Transaction sending failed!');
         }
       });

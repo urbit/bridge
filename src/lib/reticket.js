@@ -148,13 +148,12 @@ export async function reticketPointBetweenWallets({
 
   progress(TRANSACTION_PROGRESS.SIGNING);
 
-  const suggestedGasPrice = await getSuggestedGasPrice(networkType);
+  const gasPriceGwei = (await getSuggestedGasPrice(networkType)).toFixed();
   const chainId = await web3.eth.net.getId();
-  const gasPrice = safeToWei(suggestedGasPrice.toFixed(), 'gwei');
-  const gasPriceBN = toBN(gasPrice);
+  const gasPriceWeiBN = toBN(safeToWei(gasPriceGwei, 'gwei'));
   let inviteNonce = await web3.eth.getTransactionCount(fromWallet.address);
   const totalCost = txs.reduce(
-    (acc, tx) => acc.add(gasPriceBN.mul(toBN(tx.gas))),
+    (acc, tx) => acc.add(gasPriceWeiBN.mul(toBN(tx.gas))),
     toBN(0)
   );
 
@@ -170,7 +169,7 @@ export async function reticketPointBetweenWallets({
       txn: txs[i],
       nonce: inviteNonce + i,
       chainId,
-      gasPrice: suggestedGasPrice.toFixed(),
+      gasPrice: gasPriceGwei,
       gasLimit: txs[i].gas,
     });
     txPairs.push({
@@ -215,29 +214,30 @@ export async function reticketPointBetweenWallets({
   // if non-trivial eth left in invite wallet, transfer to new ownership
   let balance = toBN(await web3.eth.getBalance(fromWallet.address));
   const gasLimit = GAS_LIMITS.SEND_ETH;
-  const sendEthCost = gasPriceBN.mul(toBN(gasLimit));
+  const sendEthCost = gasPriceWeiBN.mul(toBN(gasLimit));
   if (transferEth && balance.gt(sendEthCost)) {
-    const value = balance.sub(sendEthCost);
-    const txn = {
-      to: toWallet.ownership.keys.address,
-      value: value,
-    };
-    const stx = signTransaction({
-      wallet: fromWallet,
-      walletType: fromWalletType,
-      walletHdPath: fromWalletHdPath,
-      txn,
-      chainId,
-      networkType,
-      gasPrice: gasPriceBN,
-      gasLimit,
-      nonce: inviteNonce++,
-    });
-    // let stx = new Tx(tx);
-    // stx.sign(fromWallet.privateKey);
-    sendSignedTransaction(web3, stx).catch(err => {
-      console.log('error sending value tx, who cares', err);
-    });
+    try {
+      const value = balance.sub(sendEthCost);
+      const txn = {
+        to: toWallet.ownership.keys.address,
+        value: value,
+      };
+      const stx = await signTransaction({
+        wallet: fromWallet,
+        walletType: fromWalletType,
+        walletHdPath: fromWalletHdPath,
+        txn,
+        chainId,
+        networkType,
+        gasPrice: gasPriceGwei,
+        gasLimit,
+        nonce: inviteNonce,
+      });
+      sendSignedTransaction(web3, stx);
+    } catch (err) {
+      console.log('error sending value tx, safely ignored:');
+      console.log(err);
+    }
   }
 
   progress(TRANSACTION_PROGRESS.DONE);
