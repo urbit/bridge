@@ -35,7 +35,13 @@ const STATUS = {
 };
 
 const InviteMail = ({ setSubmitting }) => {
-  const { progress, txStatus, needFunds, generateInvites } = useInviter();
+  const {
+    progress,
+    txStatus,
+    needFunds,
+    generateInvites,
+    resetInvites,
+  } = useInviter();
 
   const { sendMail, getHasReceived } = useMailer();
 
@@ -71,7 +77,7 @@ const InviteMail = ({ setSubmitting }) => {
   );
 
   const onSubmit = useCallback(
-    async values => {
+    async (values, form) => {
       const emailCount = values.emails.length;
       setCount(emailCount);
       setStatus(STATUS.SENDING);
@@ -91,6 +97,11 @@ const InviteMail = ({ setSubmitting }) => {
       }
       setSubmitting(false);
       setStatus(STATUS.SUCCESS);
+      setTimeout(() => {
+        setStatus(STATUS.INPUT);
+        resetInvites();
+        form.reset();
+      }, 1500);
     },
     [generateInvites, setCount, setStatus, sendInvites, setSubmitting]
   );
