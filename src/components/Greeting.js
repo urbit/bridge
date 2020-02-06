@@ -22,7 +22,7 @@ export default function ActivateDisclaimer({ point }) {
     setWasGreeted(true);
   }, [setWasGreeted]);
 
-  const goInvite = useCallback(() => push(names.INVITE), [push, names]);
+  const goInvite = useCallback(() => push(names.INVITE_COHORT), [push, names]);
 
   return (
     !wasGreeted && (
