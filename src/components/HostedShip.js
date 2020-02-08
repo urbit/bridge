@@ -84,7 +84,7 @@ export default function HostedShip({
         </Grid.Item>
         <Grid.Item full>
           <ul className="hosting-events">
-            {events.length === 0 && (<li>&lt;Waiting&gt;</li>)}
+            {events.length === 0 && <li>&lt;Waiting&gt;</li>}
             {events.map(event => (
               <li>{event}</li>
             ))}
