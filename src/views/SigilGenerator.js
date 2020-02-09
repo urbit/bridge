@@ -51,7 +51,8 @@ export default function SigilGenerator() {
   const { downloadSigil } = useSigilDownloader(canvasRef);
   const onSubmit = useCallback(
     async (values, form) => {
-      const error = await downloadSigil(point, values.colors, values.size);
+      const colors = [values.bgColor, values.fgColor];
+      const error = await downloadSigil(point, colors, values.size);
       if (error) {
         return { [FORM_ERROR]: error };
       }
