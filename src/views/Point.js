@@ -75,6 +75,8 @@ export default function Point() {
 
   const goCohort = useCallback(() => push(names.INVITE_COHORT), [push, names]);
 
+  const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
+
   const goPartiesSetPoolSize = useCallback(
     () => push(names.PARTY_SET_POOL_SIZE),
     [push, names]
@@ -220,6 +222,9 @@ export default function Point() {
           Sigil
         </Grid.Item>
         <Grid.Divider />
+        <Grid.Item full as={ForwardButton} onClick={goUrbitOS}>
+          Urbit OS
+        </Grid.Item>
         <Grid.Item
           full
           as={ForwardButton}
