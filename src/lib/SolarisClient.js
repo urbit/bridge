@@ -95,7 +95,7 @@ export default class SolarisClient {
     return await fetch(this.postShipsUrl(), {
       method: 'POST',
       cache: 'no-cache',
-      body: JSON.stringify(data),
+      body: JSON.stringify({...data, debug: true}),
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',

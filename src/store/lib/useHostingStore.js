@@ -4,6 +4,7 @@ import * as ob from 'urbit-ob';
 
 import SolarisClient from 'lib/SolarisClient';
 import { usePointCursor } from 'store/pointCursor';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 const STATE = {
   // container states
   UNKNOWN: 'UNKNOWN',
@@ -17,6 +18,12 @@ const STATE = {
   // connection states
   CONNECTED: 'CONNECTED',
 };
+
+const mockFetch = status => ({
+  ok: true,
+
+  json: () => Promise.resolve({ status }),
+});
 
 function useHostingStore(url) {
   const client = new SolarisClient(url);
@@ -117,16 +124,19 @@ function useHostingStore(url) {
       // source.onmessage = console.log;
 
       source.addEventListener('sys', event => {
+        console.log(event);
         setSysEvents(previous => [...previous, JSON.parse(event.data)]);
       });
 
       source.addEventListener('new', event => {
+        console.log(event);
         if (event.data !== '') {
           setNewEvents(previous => [...previous, event.data]);
         }
       });
 
       source.addEventListener('run', event => {
+        console.log(event);
         if (event.data !== '') {
           setRunEvents(previous => [...previous, event.data]);
         }
@@ -136,30 +146,33 @@ function useHostingStore(url) {
     }
   }, [setError, resetEvents, client, pointCursor, setState]);
 
-  const create = useCallback(async () => {
-    try {
-      if (Nothing.hasInstance(pointCursor)) {
-        return;
+  const create = useCallback(
+    async keyfile => {
+      try {
+        if (Nothing.hasInstance(pointCursor)) {
+          return;
+        }
+        const patp = ob.patp(pointCursor.value);
+        setError(undefined);
+
+        setState(STATE.BOOTING);
+
+        const response = await client.postShips({
+          patp,
+          key: keyfile,
+        });
+
+        if (!response.ok) {
+          setError(response.statusText);
+        } else {
+          getEvents();
+        }
+      } catch (error) {
+        setError(error);
       }
-      const patp = ob.patp(pointCursor.value);
-      setError(undefined);
-
-      setState(STATE.BOOTING);
-
-      const response = await client.postShips({
-        patp,
-        key: '123',
-      });
-
-      if (!response.ok) {
-        setError(response.statusText);
-      } else {
-        getEvents();
-      }
-    } catch (error) {
-      setError(error);
-    }
-  }, [pointCursor, setError, setState, client, getEvents]);
+    },
+    [pointCursor, setError, setState, client, getEvents]
+  );
 
   return {
     error,

@@ -20,7 +20,7 @@ import WithErrorBoundary from 'components/WithErrorBoundary';
 import GlobalErrorBoundary from 'components/GlobalErrorBoundary';
 
 const INITIAL_NETWORK_TYPE = isDevelopment
-  ? NETWORK_TYPES.LOCAL
+  ? NETWORK_TYPES.ROPSTEN
   : NETWORK_TYPES.MAINNET;
 
 // NB(shrugs): modify these variables to change the default local state.

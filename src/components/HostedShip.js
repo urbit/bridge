@@ -1,21 +1,31 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { Grid, ErrorText } from 'indigo-react';
 
 import cn from 'classnames';
+
+import { useHosting } from 'store/hosting';
 
 import BridgeForm from 'form/BridgeForm';
 
 import { GenerateButton, ForwardButton } from './Buttons';
 
 import 'style/hosted-ship.scss';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 export default function HostedShip({
   // useHostedShip
-  ship,
 
   // additional from parent
   className,
 }) {
+  const ship = useHosting();
+  const { syncStatus } = ship;
+  console.log(ship);
+
+  const { keyfile } = useKeyfileGenerator();
+
+  const createShip = useCallback(() => ship.create(keyfile), [ship, keyfile]);
+
   const renderStatus = () => {
     if (ship.missing || ship.booting) {
       return (
@@ -26,7 +36,7 @@ export default function HostedShip({
           success
           disabled={ship.booting}
           loading={ship.booting}
-          onClick={ship.create}>
+          onClick={createShip}>
           Boot Urbit OS
         </Grid.Item>
       );
@@ -64,7 +74,7 @@ export default function HostedShip({
           success
           disabled={ship.querying}
           loading={ship.querying}
-          onClick={ship.getStatus}>
+          onClick={syncStatus}>
           Query
         </Grid.Item>
       );
