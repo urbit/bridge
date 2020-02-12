@@ -15,6 +15,7 @@ import PartySetPoolSize from 'views/Party/PartySetPoolSize';
 import InviteCohort from 'views/Invite/Cohort';
 import AcceptTransfer from 'views/AcceptTransfer';
 import CancelTransfer from 'views/CancelTransfer';
+import UrbitOS from 'views/UrbitOS';
 
 import { ROUTE_NAMES } from './routeNames';
 
@@ -36,4 +37,5 @@ export const ROUTES = {
   [ROUTE_NAMES.INVITE_COHORT]: InviteCohort,
   [ROUTE_NAMES.STAR_RELEASE]: StarRelease,
   [ROUTE_NAMES.SIGIL_GENERATOR]: SigilGenerator,
+  [ROUTE_NAMES.URBIT_OS]: UrbitOS,
 };
