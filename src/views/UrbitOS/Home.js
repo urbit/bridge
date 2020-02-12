@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Grid, Button, SelectInput } from 'indigo-react';
 import * as ob from 'urbit-ob';
 
@@ -12,15 +12,23 @@ import { OutButton, ForwardButton } from 'components/Buttons';
 import ViewHeader from 'components/ViewHeader';
 
 import BridgeForm from 'form/BridgeForm';
+import { useLocalRouter } from 'lib/LocalRouter';
 
 export default function UrbitOSHome() {
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
 
+  const { push, names } = useLocalRouter();
+
   const point = need.point(pointCursor);
   const details = need.details(getDetails(point));
 
   const sponsor = ob.patp(details.sponsor);
+
+  const goNetworkingKeys = useCallback(() => push(names.NETWORKING_KEYS), [
+    names,
+    push,
+  ]);
   return (
     <>
       <Hosting />
@@ -38,7 +46,7 @@ export default function UrbitOSHome() {
           <span className="f7 bg-black white p1 ml2 r4">SPONSOR</span>
         </Grid.Item>
         <Grid.Divider />
-        <Grid.Item full as={ForwardButton}>
+        <Grid.Item full as={ForwardButton} onClick={goNetworkingKeys}>
           Reset Networking Keys
         </Grid.Item>
         <Grid.Divider />
