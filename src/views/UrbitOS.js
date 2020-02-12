@@ -11,6 +11,7 @@ import View from 'components/View';
 import Crumbs from 'components/Crumbs';
 
 import UrbitOSHome from './UrbitOS/Home';
+import UrbitOSNetworkingKeys from './UrbitOS/NetworkingKeys';
 
 const NAMES = {
   HOME: 'HOME',
@@ -21,7 +22,7 @@ const NAMES = {
 const VIEWS = {
   [NAMES.HOME]: UrbitOSHome,
   [NAMES.CHANGE_SPONSOR]: UrbitOSHome,
-  [NAMES.NETWORKING_KEYS]: UrbitOSHome,
+  [NAMES.NETWORKING_KEYS]: UrbitOSNetworkingKeys,
 };
 
 export default function UrbitOS() {
