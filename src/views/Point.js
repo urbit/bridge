@@ -222,7 +222,11 @@ export default function Point() {
           Sigil
         </Grid.Item>
         <Grid.Divider />
-        <Grid.Item full as={ForwardButton} onClick={goUrbitOS}>
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!canManage}
+          onClick={goUrbitOS}>
           Urbit OS
         </Grid.Item>
         <Grid.Item
