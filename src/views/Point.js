@@ -10,8 +10,7 @@ import { useWallet } from 'store/wallet';
 import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
-import { ForwardButton, BootUrbitOSButton } from 'components/Buttons';
-import CopyButton from 'components/CopyButton';
+import { ForwardButton } from 'components/Buttons';
 import Blinky from 'components/Blinky';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
@@ -22,7 +21,6 @@ import useInvites from 'lib/useInvites';
 import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
-import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 import Inviter from 'views/Invite/Inviter';
 
@@ -32,8 +30,6 @@ export default function Point() {
 
   const { wallet } = useWallet();
   const point = need.point(pointCursor);
-
-  const { code, notice } = useKeyfileGenerator();
 
   const {
     isParent,
@@ -229,6 +225,7 @@ export default function Point() {
           onClick={goUrbitOS}>
           Urbit OS
         </Grid.Item>
+        <Grid.Divider />
         <Grid.Item
           full
           as={ForwardButton}
@@ -251,18 +248,6 @@ export default function Point() {
           </>
         )}
         {senateButton}
-        <Grid.Item full as={BootUrbitOSButton} />
-        <Grid.Divider />
-        <Grid.Item
-          full
-          as={ForwardButton}
-          accessory={code && <CopyButton text={code} />}
-          detail={code || notice}
-          disabled={!code}
-          detailClassName="mono">
-          Login Code
-        </Grid.Item>
-        <Grid.Divider />
       </Grid>
     </View>
   );

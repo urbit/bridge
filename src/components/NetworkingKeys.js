@@ -32,10 +32,6 @@ export default function NetworkingKeys({ point }) {
     // since NaN > 0 === false and that's a reasonable result
   });
 
-  const renderTitle = () => {
-    return 'Networking';
-  };
-
   const renderNetworkKeySection = (title, key) => (
     <>
       <Grid.Item full as={H5} className="mt3 gray4">
