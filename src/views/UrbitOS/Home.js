@@ -1,14 +1,20 @@
 import React, { useCallback, useState } from 'react';
-import { Grid, Button, SelectInput, Flex, H5, Text } from 'indigo-react';
+import { Grid, Button, SelectInput } from 'indigo-react';
 import * as ob from 'urbit-ob';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 
 import useCurrentPointName from 'lib/useCurrentPointName';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 import * as need from 'lib/need';
 
-import { OutButton, ForwardButton } from 'components/Buttons';
+import {
+  OutButton,
+  ForwardButton,
+  BootUrbitOSButton,
+} from 'components/Buttons';
+import CopyButton from 'components/CopyButton';
 import NetworkingKeys from 'components/NetworkingKeys';
 
 import BridgeForm from 'form/BridgeForm';
@@ -24,6 +30,8 @@ export default function UrbitOSHome() {
   const details = need.details(getDetails(point));
 
   const sponsor = ob.patp(details.sponsor);
+
+  const { code, notice } = useKeyfileGenerator();
 
   const [showKeys, setShowKeys] = useState(false);
   const toggleShowKeys = useCallback(() => setShowKeys(!showKeys), [
@@ -42,7 +50,14 @@ export default function UrbitOSHome() {
   ]);
   return (
     <>
-      <Hosting />
+      <Grid>
+        <Grid.Item full className="mv7">
+          Urbit OS
+        </Grid.Item>
+        <Grid.Divider />
+        <Grid.Item full as={BootUrbitOSButton} />
+      </Grid>
+
       <Grid>
         <Grid.Item full className="mv7 f5">
           Network
@@ -56,6 +71,16 @@ export default function UrbitOSHome() {
           onClick={goChangeSponsor}>
           <span className="mono">{sponsor}</span>
           <span className="f7 bg-black white p1 ml2 r4">SPONSOR</span>
+        </Grid.Item>
+        <Grid.Divider />
+        <Grid.Item
+          full
+          as={ForwardButton}
+          accessory={code && <CopyButton text={code} />}
+          detail={code || notice}
+          disabled={!code}
+          detailClassName="mono">
+          Login Code
         </Grid.Item>
         <Grid.Divider />
         <Grid.Item full as={ForwardButton} onClick={goNetworkingKeys}>
@@ -75,6 +100,7 @@ export default function UrbitOSHome() {
   );
 }
 
+// eslint-disable-next-line
 function Hosting() {
   const name = useCurrentPointName();
   const options = [{ text: 'Tlon', value: 'tlon' }];
