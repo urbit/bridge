@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Grid, Button, SelectInput } from 'indigo-react';
+import React, { useCallback, useState } from 'react';
+import { Grid, Button, SelectInput, Flex, H5, Text } from 'indigo-react';
 import * as ob from 'urbit-ob';
 
 import { usePointCursor } from 'store/pointCursor';
@@ -9,6 +9,7 @@ import useCurrentPointName from 'lib/useCurrentPointName';
 import * as need from 'lib/need';
 
 import { OutButton, ForwardButton } from 'components/Buttons';
+import NetworkingKeys from 'components/NetworkingKeys';
 
 import BridgeForm from 'form/BridgeForm';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -23,6 +24,12 @@ export default function UrbitOSHome() {
   const details = need.details(getDetails(point));
 
   const sponsor = ob.patp(details.sponsor);
+
+  const [showKeys, setShowKeys] = useState(false);
+  const toggleShowKeys = useCallback(() => setShowKeys(!showKeys), [
+    setShowKeys,
+    showKeys,
+  ]);
 
   const goNetworkingKeys = useCallback(() => push(names.NETWORKING_KEYS), [
     names,
@@ -55,13 +62,14 @@ export default function UrbitOSHome() {
           Reset Networking Keys
         </Grid.Item>
         <Grid.Divider />
-        <Grid.Item full as={ForwardButton}>
-          Unset
-        </Grid.Item>
-        <Grid.Divider />
-        <Grid.Item full as={ForwardButton}>
+        <Grid.Item
+          full
+          as={ForwardButton}
+          accessory={showKeys ? '▲' : '▼'}
+          onClick={toggleShowKeys}>
           View Networking Keys
         </Grid.Item>
+        {showKeys && <Grid.Item full as={NetworkingKeys} point={point} />}
       </Grid>
     </>
   );
