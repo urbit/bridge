@@ -29,6 +29,11 @@ export default function UrbitOSHome() {
     names,
     push,
   ]);
+
+  const goChangeSponsor = useCallback(() => push(names.CHANGE_SPONSOR), [
+    push,
+    names,
+  ]);
   return (
     <>
       <Hosting />
@@ -41,7 +46,8 @@ export default function UrbitOSHome() {
           full
           as={ForwardButton}
           detail="A sponsor finds new peers in your network"
-          accessory={<u>Change</u>}>
+          accessory={<u>Change</u>}
+          onClick={goChangeSponsor}>
           <span className="mono">{sponsor}</span>
           <span className="f7 bg-black white p1 ml2 r4">SPONSOR</span>
         </Grid.Item>
