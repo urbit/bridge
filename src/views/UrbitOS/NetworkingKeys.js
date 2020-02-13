@@ -126,7 +126,7 @@ function useSetKeys() {
 }
 
 export default function UrbitOSNetworkingKeys() {
-  const { push, names, pop } = useLocalRouter();
+  const { pop } = useLocalRouter();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
 
@@ -141,7 +141,6 @@ export default function UrbitOSNetworkingKeys() {
   });
 
   const {
-    isDefaultState,
     construct,
     unconstruct,
     broadcasting,
@@ -195,8 +194,6 @@ export default function UrbitOSNetworkingKeys() {
     }),
     []
   );
-
-  const goRelocate = useCallback(() => push(names.RELOCATE), [push, names]);
 
   const usageMessage = 'You need this to authenticate with arvo';
 

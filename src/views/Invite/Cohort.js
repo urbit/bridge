@@ -12,7 +12,6 @@ import Tabs from 'components/Tabs';
 import BarGraph from 'components/BarGraph';
 import MaybeSigil from 'components/MaybeSigil';
 import { matchBlinky } from 'components/Blinky';
-import { ForwardButton } from 'components/Buttons';
 import Chip from 'components/Chip';
 import Crumbs from 'components/Crumbs';
 

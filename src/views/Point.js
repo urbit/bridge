@@ -12,7 +12,7 @@ import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
 import { ForwardButton, BootUrbitOSButton } from 'components/Buttons';
 import CopyButton from 'components/CopyButton';
-import Blinky, { matchBlinky } from 'components/Blinky';
+import Blinky from 'components/Blinky';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
 import InviteSigilList from 'components/InviteSigilList';
