@@ -48,14 +48,10 @@ function ChangeSponsor({ onDone }) {
   const _contracts = need.contracts(contracts);
   const { construct, unconstruct, inputsLocked, bind } = useChangeSponsor();
 
-  const [newSponsor, setNewSponsor] = useState(false);
-
   const validateFormAsync = useCallback(
     async values => {
       const sponsor = ob.patp2dec(values.sponsor);
       const details = await azimuth.getPoint(_contracts, sponsor);
-      console.log(details);
-      console.log(details.keyRevisionNumber);
 
       if (details.keyRevisionNumber === 0) {
         return { sponsor: 'Sponsor is not online' };
@@ -89,7 +85,6 @@ function ChangeSponsor({ onDone }) {
     ({ valid, values }) => {
       if (valid) {
         construct(ob.patp2dec(values.sponsor));
-        setNewSponsor(values.sponsor);
       } else {
         unconstruct();
       }
@@ -167,7 +162,6 @@ function CurrentEscape({ onDone }) {
 }
 
 export default function UrbitOSChangeSponsor() {
-  const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
 
   const point = need.point(pointCursor);

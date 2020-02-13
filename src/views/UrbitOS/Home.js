@@ -9,7 +9,6 @@ import useCurrentPointName from 'lib/useCurrentPointName';
 import * as need from 'lib/need';
 
 import { OutButton, ForwardButton } from 'components/Buttons';
-import ViewHeader from 'components/ViewHeader';
 
 import BridgeForm from 'form/BridgeForm';
 import { useLocalRouter } from 'lib/LocalRouter';

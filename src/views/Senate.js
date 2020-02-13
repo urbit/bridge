@@ -10,8 +10,6 @@ import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import { useLocalRouter } from 'lib/LocalRouter';
 
-import { keccak256 } from 'lib/wallet';
-
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
@@ -83,6 +81,7 @@ export default function Senate() {
     return;
   }, [_contracts, _point]);
 
+  // eslint-disable-next-line
   const [open, closed] = useMemo(() => {
     let open = [];
     let closed = [];
