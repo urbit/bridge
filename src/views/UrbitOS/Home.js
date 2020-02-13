@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Grid, Button, SelectInput } from 'indigo-react';
 import * as ob from 'urbit-ob';
+import { azimuth } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
@@ -34,6 +35,8 @@ export default function UrbitOSHome() {
   const { code, notice } = useKeyfileGenerator();
 
   const [showKeys, setShowKeys] = useState(false);
+
+  const showSponsor = azimuth.getPointSize(point) !== azimuth.PointSize.Galaxy;
   const toggleShowKeys = useCallback(() => setShowKeys(!showKeys), [
     setShowKeys,
     showKeys,
@@ -63,16 +66,20 @@ export default function UrbitOSHome() {
           Network
         </Grid.Item>
         <Grid.Divider />
-        <Grid.Item
-          full
-          as={ForwardButton}
-          detail="A sponsor finds new peers in your network"
-          accessory={<u>Change</u>}
-          onClick={goChangeSponsor}>
-          <span className="mono">{sponsor}</span>
-          <span className="f7 bg-black white p1 ml2 r4">SPONSOR</span>
-        </Grid.Item>
-        <Grid.Divider />
+        {showSponsor && (
+          <>
+            <Grid.Item
+              full
+              as={ForwardButton}
+              detail="A sponsor finds new peers in your network"
+              accessory={<u>Change</u>}
+              onClick={goChangeSponsor}>
+              <span className="mono">{sponsor}</span>
+              <span className="f7 bg-black white p1 ml2 r4">SPONSOR</span>
+            </Grid.Item>
+            <Grid.Divider />
+          </>
+        )}
         <Grid.Item
           full
           as={ForwardButton}

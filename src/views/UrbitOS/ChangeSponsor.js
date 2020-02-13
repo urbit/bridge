@@ -44,8 +44,10 @@ function useChangeSponsor() {
 
 function ChangeSponsor({ onDone }) {
   const { contracts } = useNetwork();
+  const { pointCursor } = usePointCursor();
 
   const _contracts = need.contracts(contracts);
+  const point = need.point(pointCursor);
   const { construct, unconstruct, inputsLocked, bind } = useChangeSponsor();
 
   const validateFormAsync = useCallback(
@@ -70,16 +72,18 @@ function ChangeSponsor({ onDone }) {
     [validateFormAsync]
   );
 
-  const validate = useMemo(
-    () =>
-      composeValidator(
-        {
-          sponsor: buildPointValidator(2, [validateMinimumPatpByteLength(2)]),
-        },
-        validateForm
-      ),
-    [validateForm]
-  );
+  const validate = useMemo(() => {
+    const sponsorSize =
+      azimuth.getPointSize(point) === azimuth.PointSize.Star ? 1 : 2;
+    return composeValidator(
+      {
+        sponsor: buildPointValidator(sponsorSize, [
+          validateMinimumPatpByteLength(sponsorSize),
+        ]),
+      },
+      validateForm
+    );
+  }, [validateForm, point]);
 
   const onValues = useCallback(
     ({ valid, values }) => {
@@ -141,13 +145,24 @@ function useCancelEscape() {
 function CurrentEscape({ onDone }) {
   const { construct, bind } = useCancelEscape();
 
+  const { pointCursor } = usePointCursor();
+  const { getDetails } = usePointCache();
+
+  const point = need.point(pointCursor);
+
+  const details = need.details(getDetails(point));
+
+  const newSponsor = useMemo(() => ob.patp(details.escapeRequestedTo), [
+    details,
+  ]);
+
   useEffect(() => {
     construct();
   }, [construct]);
   return (
     <Grid>
       <Grid.Item full as={ViewHeader}>
-        Currently requesting <span className="mono">~dopzod</span> as a new
+        Currently requesting <span className="mono">{newSponsor}</span> as a new
         sponsor
       </Grid.Item>
       <Grid.Item
