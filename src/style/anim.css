@@ -1,0 +1,460 @@
+/* @for $i from 0 through 13 {
+  .anim-s#{$i} {
+  animation: s#{$i} #{$i*50}ms steps(#{$i}, end) forwards;
+}
+} */
+.step-h-0 {
+  animation: frame-h-0 0ms steps(0, end) forwards;
+}
+
+.step-h-1 {
+  animation: frame-h-1 50ms steps(1, end) forwards;
+}
+
+.step-h-2 {
+  animation: frame-h-2 100ms steps(2, end) forwards;
+}
+
+.step-h-3 {
+  animation: frame-h-3 150ms steps(3, end) forwards;
+}
+
+.step-h-4 {
+  animation: frame-h-4 200ms steps(4, end) forwards;
+}
+
+.step-h-5 {
+  animation: frame-h-5 250ms steps(5, end) forwards;
+}
+
+.step-h-6 {
+  animation: frame-h-6 300ms steps(6, end) forwards;
+}
+
+.step-h-7 {
+  animation: frame-h-7 350ms steps(7, end) forwards;
+}
+
+.step-h-8 {
+  animation: frame-h-8 400ms steps(8, end) forwards;
+}
+
+.step-h-9 {
+  animation: frame-h-9 450ms steps(9, end) forwards;
+}
+
+.step-h-10 {
+  animation: frame-h-10 500ms steps(10, end) forwards;
+}
+
+.step-h-11 {
+  animation: frame-h-11 550ms steps(11, end) forwards;
+}
+
+.step-h-12 {
+  animation: frame-h-12 600ms steps(12, end) forwards;
+}
+
+.step-h-13 {
+  animation: frame-h-13 650ms steps(13, end) forwards;
+}
+
+.step-h-14 {
+  animation: frame-h-14 700ms steps(14, end) forwards;
+}
+
+.step-v-0 {
+  animation: frame-v-0 0ms steps(0, end) forwards;
+}
+
+.step-v-1 {
+  animation: frame-v-1 50ms steps(1, end) forwards;
+}
+
+.step-v-2 {
+  animation: frame-v-2 100ms steps(2, end) forwards;
+}
+
+.step-v-3 {
+  animation: frame-v-3 150ms steps(3, end) forwards;
+}
+
+.step-v-4 {
+  animation: frame-v-4 200ms steps(4, end) forwards;
+}
+
+.step-v-5 {
+  animation: frame-v-5 250ms steps(5, end) forwards;
+}
+
+.step-v-6 {
+  animation: frame-v-6 300ms steps(6, end) forwards;
+}
+
+.step-v-7 {
+  animation: frame-v-7 350ms steps(7, end) forwards;
+}
+
+.step-v-8 {
+  animation: frame-v-8 400ms steps(8, end) forwards;
+}
+
+.step-v-9 {
+  animation: frame-v-9 450ms steps(9, end) forwards;
+}
+
+.step-v-10 {
+  animation: frame-v-10 500ms steps(10, end) forwards;
+}
+
+.step-v-11 {
+  animation: frame-v-11 550ms steps(11, end) forwards;
+}
+
+.step-v-12 {
+  animation: frame-v-12 600ms steps(12, end) forwards;
+}
+
+.step-v-13 {
+  animation: frame-v-13 650ms steps(13, end) forwards;
+}
+
+.step-v-14 {
+  animation: frame-v-14 700ms steps(14, end) forwards;
+}
+
+.slide-h-0 {
+  animation: frame-h-0 0ms forwards;
+}
+
+.slide-h-1 {
+  animation: frame-h-1 100ms forwards;
+}
+
+.slide-h-2 {
+  animation: frame-h-2 200ms forwards;
+}
+
+.slide-h-3 {
+  animation: frame-h-3 300ms forwards;
+}
+
+.slide-h-4 {
+  animation: frame-h-4 400ms forwards;
+}
+
+.slide-h-5 {
+  animation: frame-h-5 500ms forwards;
+}
+
+.slide-h-6 {
+  animation: frame-h-6 600ms forwards;
+}
+
+.slide-h-7 {
+  animation: frame-h-7 700ms forwards;
+}
+
+.slide-h-8 {
+  animation: frame-h-8 800ms forwards;
+}
+
+.slide-h-9 {
+  animation: frame-h-9 900ms forwards;
+}
+
+.slide-h-10 {
+  animation: frame-h-10 1000ms forwards;
+}
+
+.slide-h-11 {
+  animation: frame-h-11 1100ms forwards;
+}
+
+.slide-h-12 {
+  animation: frame-h-12 1200ms forwards;
+}
+
+.slide-h-13 {
+  animation: frame-h-13 1300ms forwards;
+}
+
+.slide-h-14 {
+  animation: frame-h-14 1400ms forwards;
+}
+
+.slide-v-0 {
+  animation: frame-v-0 0ms forwards;
+}
+
+.slide-v-1 {
+  animation: frame-v-1 200ms forwards;
+}
+
+.slide-v-2 {
+  animation: frame-v-2 400ms forwards;
+}
+
+.slide-v-3 {
+  animation: frame-v-3 600ms forwards;
+}
+
+.slide-v-4 {
+  animation: frame-v-4 800ms forwards;
+}
+
+.slide-v-5 {
+  animation: frame-v-5 1000ms forwards;
+}
+
+.slide-v-6 {
+  animation: frame-v-6 1200ms forwards;
+}
+
+.slide-v-7 {
+  animation: frame-v-7 1400ms forwards;
+}
+
+.slide-v-8 {
+  animation: frame-v-8 1600ms forwards;
+}
+
+.slide-v-9 {
+  animation: frame-v-9 1800ms forwards;
+}
+
+.slide-v-10 {
+  animation: frame-v-10 2000ms forwards;
+}
+
+.slide-v-11 {
+  animation: frame-v-11 2200ms forwards;
+}
+
+.slide-v-12 {
+  animation: frame-v-12 2400ms forwards;
+}
+
+.slide-v-13 {
+  animation: frame-v-13 2600ms forwards;
+}
+
+.slide-v-14 {
+  animation: frame-v-14 2800ms forwards;
+}
+
+@keyframes s0 {
+  to {
+    background-position: 0px 0px;
+  }
+}
+@keyframes frame-h-0 {
+  to {
+    background-position: -0px 0px;
+  }
+}
+@keyframes frame-h-1 {
+  to {
+    background-position: -12px 0px;
+  }
+}
+@keyframes frame-h-2 {
+  to {
+    background-position: -24px 0px;
+  }
+}
+@keyframes frame-h-3 {
+  to {
+    background-position: -36px 0px;
+  }
+}
+@keyframes frame-h-4 {
+  to {
+    background-position: -48px 0px;
+  }
+}
+@keyframes frame-h-5 {
+  to {
+    background-position: -60px 0px;
+  }
+}
+@keyframes frame-h-6 {
+  to {
+    background-position: -72px 0px;
+  }
+}
+@keyframes frame-h-7 {
+  to {
+    background-position: -84px 0px;
+  }
+}
+@keyframes frame-h-8 {
+  to {
+    background-position: -96px 0px;
+  }
+}
+@keyframes frame-h-9 {
+  to {
+    background-position: -108px 0px;
+  }
+}
+@keyframes frame-h-10 {
+  to {
+    background-position: -120px 0px;
+  }
+}
+@keyframes frame-h-11 {
+  to {
+    background-position: -132px 0px;
+  }
+}
+@keyframes frame-h-12 {
+  to {
+    background-position: -144px 0px;
+  }
+}
+@keyframes frame-h-13 {
+  to {
+    background-position: -156px 0px;
+  }
+}
+@keyframes frame-h-14 {
+  to {
+    background-position: -168px 0px;
+  }
+}
+@keyframes frame-v-14 {
+  to {
+    background-position: 0px 0px;
+  }
+}
+@keyframes frame-v-13 {
+  to {
+    background-position: 0px 12px;
+  }
+}
+@keyframes frame-v-12 {
+  to {
+    background-position: 0px 24px;
+  }
+}
+@keyframes frame-v-11 {
+  to {
+    background-position: 0px 36px;
+  }
+}
+@keyframes frame-v-10 {
+  to {
+    background-position: 0px 48px;
+  }
+}
+@keyframes frame-v-9 {
+  to {
+    background-position: 0px 60px;
+  }
+}
+@keyframes frame-v-8 {
+  to {
+    background-position: 0px 72px;
+  }
+}
+@keyframes frame-v-7 {
+  to {
+    background-position: 0px 84px;
+  }
+}
+@keyframes frame-v-6 {
+  to {
+    background-position: 0px 96px;
+  }
+}
+@keyframes frame-v-5 {
+  to {
+    background-position: 0px 108px;
+  }
+}
+@keyframes frame-v-4 {
+  to {
+    background-position: 0px 120px;
+  }
+}
+@keyframes frame-v-3 {
+  to {
+    background-position: 0px 132px;
+  }
+}
+@keyframes frame-v-2 {
+  to {
+    background-position: 0px 144px;
+  }
+}
+@keyframes frame-v-1 {
+  to {
+    background-position: 0px 156px;
+  }
+}
+@keyframes frame-v-0 {
+  to {
+    background-position: 0px 168px;
+  }
+}
+
+.blink {
+  animation: s0 1s steps(2, forwards) infinite;
+  -webkit-animation: s0 1s steps(2, forwards) infinite;
+}
+
+/* @keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+} */
+
+
+
+button {
+  border: 1px solid #A6A6A6;
+  padding: 5px 5px;
+  margin-bottom: 2px;
+  border-radius: 7px;
+  font-family: Inter;
+  outline: none;
+}
+
+button:hover {
+  cursor: pointer;
+  /* border: 2px solid #E6E6E6;
+  background-color:  #E6E6E6; */
+}
+
+/*
+button:active {
+  background-color:  #4330FC;
+  border: 1px solid  #4330FC;
+  color: white;
+} */
+
+button:active {
+  background-color:  #000;
+  border: 1px solid  #000;
+  color: white;
+}
+
+button:disabled{
+  cursor: default;
+  pointer-events: none;
+}
+
+p {
+  font-size: 12px;
+}
+
+*{
+  -moz-osx-font-smoothing: grayscale;
+  font-smoothing: grayscale;
+}

@@ -26,18 +26,21 @@ export default function useMailer() {
 
   // prefix to avoid clobbering sendMail import
   // also throws if return value is false
-  const _sendMail = useCallback(async (email, ticket, sender, rawTx) => {
-    if (STUB_MAILER) {
-      console.log(`${email} - ${ticket}`);
-      await timeout(Math.random() * 1000); // simulate request with randomness
-      return true;
-    }
+  const _sendMail = useCallback(
+    async (email, ticket, sender, message, rawTx) => {
+      if (STUB_MAILER) {
+        console.log(`${email} - ${ticket}`);
+        await timeout(Math.random() * 1000); // simulate request with randomness
+        return true;
+      }
 
-    const success = await sendMail(email, ticket, sender, rawTx);
-    if (!success) {
-      throw new Error('Failed to send mail');
-    }
-  }, []);
+      const success = await sendMail(email, ticket, sender, message, rawTx);
+      if (!success) {
+        throw new Error('Failed to send mail');
+      }
+    },
+    []
+  );
 
   return { getHasReceived, sendMail: _sendMail };
 }

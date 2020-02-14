@@ -21,7 +21,7 @@ const SEED_ENTROPY_BITS = 128;
 //TODO move into azimuth-js
 const GAS_LIMITS = {
   SPAWN: 250000,
-  TRANSFER: 560000,
+  TRANSFER: 560000, //NOTE biggest, also update gas tank's max
   CONFIGURE_KEYS: 100000,
   SET_PROXY: 140000,
   //
@@ -31,7 +31,7 @@ const GAS_LIMITS = {
   REJECT: 200000, //NOTE no samples
   DETACH: 200000, //NOTE no samples
   //
-  GIFT_PLANET: 400000, //NOTE low sample size
+  GIFT_PLANET: 420000, //NOTE low sample size, //NOTE also update in gas tank
   //
   SEND_ETH: 21000,
   //

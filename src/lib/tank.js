@@ -3,12 +3,13 @@
 import retry from 'async-retry';
 import { toBN } from 'web3-utils';
 import { RETRY_OPTIONS, waitForTransactionConfirm } from './txn';
+import { WALLET_TYPES } from 'lib/wallet';
 
 //NOTE if accessing this in a localhost configuration fails with "CORS request
 //     did not succeed", you might need to visit localhost:3001 or whatever
 //     explicitly and tell your browser that's safe to access.
 //     https://stackoverflow.com/a/53011185/1334324
-const baseUrl = 'https://localhost:3001';
+const baseUrl = 'https://gas-tank.urbit.org:3001';
 
 function sendRequest(where, what) {
   return new Promise((resolve, reject) => {
@@ -49,11 +50,16 @@ const ensureFundsFor = async (
   web3,
   point,
   address,
+  walletType,
   cost,
   signedTxs,
   askForFunding,
   gotFunding
 ) => {
+  if (typeof signedTxs !== 'object' || signedTxs.length === 0) {
+    throw new Error('tank: no transactions provided!');
+  }
+
   const balance = toBN(await web3.eth.getBalance(address));
   cost = toBN(cost);
 
@@ -66,6 +72,11 @@ const ensureFundsFor = async (
     return false;
   }
 
+  if (walletType === WALLET_TYPES.METAMASK) {
+    console.log('tank: disabling for metamask login');
+
+    return false;
+  }
   try {
     // TODO: if we can't always (easily) provide a point, and the
     // fundTransactions call is gonna fail anyway, should we maybe
@@ -86,7 +97,7 @@ const ensureFundsFor = async (
 
     await waitForTransactionConfirm(web3, res.txHash);
 
-    const newBalance = await web3.eth.getBalance(address);
+    const newBalance = toBN(await web3.eth.getBalance(address));
 
     // sanity check
     if (newBalance.lt(cost)) {
@@ -99,7 +110,7 @@ const ensureFundsFor = async (
 
     console.log(
       `tank: funds have confirmed: ${address} now has ` +
-        ` ${newBalance.toString()}wei, up from ${balance.toString()}wei`
+        `${newBalance.toString()}wei, up from ${balance.toString()}wei`
     );
     return true;
   } catch (error) {

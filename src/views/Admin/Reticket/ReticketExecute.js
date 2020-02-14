@@ -10,6 +10,7 @@ import * as need from 'lib/need';
 import useLifecycle from 'lib/useLifecycle';
 import { WALLET_TYPES } from 'lib/wallet';
 import convertToInt from 'lib/convertToInt';
+import useBlockWindowClose from 'lib/useBlockWindowClose';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
@@ -43,7 +44,14 @@ const labelForProgress = progress => {
 export default function ReticketExecute({ newWallet, setNewWallet }) {
   const { popTo, names, reset } = useHistory();
   const { web3, contracts, networkType } = useNetwork();
-  const { wallet, setWalletType, resetWallet, setUrbitWallet } = useWallet();
+  const {
+    wallet,
+    setWalletType,
+    resetWallet,
+    setUrbitWallet,
+    walletType,
+    walletHdPath,
+  } = useWallet();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
 
@@ -51,6 +59,8 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
   const [progress, setProgress] = useState(0);
   const [needFunds, setNeedFunds] = useState();
   const isDone = progress >= 1.0;
+
+  useBlockWindowClose();
 
   // start reticketing transactions on mount
   useLifecycle(() => {
@@ -61,6 +71,8 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
       try {
         await reticketPointBetweenWallets({
           fromWallet: need.wallet(wallet),
+          fromWalletType: walletType,
+          fromWalletHdPath: walletHdPath,
           toWallet: newWallet.value.wallet,
           point: point,
           web3: need.web3(web3),
@@ -70,6 +82,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
           nextRevision: networkRevision + 1,
         });
       } catch (err) {
+        console.error(err);
         setGeneralError(err);
       }
     })();
@@ -108,6 +121,8 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
 
   const renderAdditionalInfo = () => {
     if (generalError) {
+      console.log(generalError);
+      generalError.message = generalError.message || 'Something went wrong!';
       return (
         <>
           <Grid.Item full className="mt4">

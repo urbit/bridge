@@ -1,5 +1,6 @@
 import Tx from 'ethereumjs-tx';
-import { toWei, fromWei, toHex } from 'web3-utils';
+import { toHex } from 'web3-utils';
+import { safeFromWei, safeToWei } from './lib';
 import retry from 'async-retry';
 
 import { NETWORK_TYPES } from './network';
@@ -31,7 +32,7 @@ const signTransaction = async ({
   // TODO: require these in txn object
   nonce = toHex(nonce);
   chainId = toHex(chainId);
-  gasPrice = toHex(toWei(gasPrice, 'gwei'));
+  gasPrice = toHex(safeToWei(gasPrice, 'gwei'));
   gasLimit = toHex(gasLimit);
 
   const txParams = { nonce, chainId, gasPrice, gasLimit };
@@ -126,20 +127,20 @@ const sendSignedTransaction = (web3, stx, doubtNonceError) => {
         // if there's a nonce error, but we used the gas tank, it's likely
         // that it's because the tank already submitted our transaction.
         // we just wait for first confirmation here.
-        console.error(err);
-        const isKnownError = (err.message || '').includes(
-          'known transaction: '
-        );
-        const isNonceError = (err.message || '').includes(
-          "the tx doesn't have the correct nonce."
-        );
+        const message = err.message || '';
+        const isKnownError = message.includes('known transaction: ');
+        const isNonceError =
+          message.includes("the tx doesn't have the correct nonce.") ||
+          message.includes('nonce too low');
         if (isKnownError || (doubtNonceError && isNonceError)) {
           console.log(
-            'tx send error likely from gas tank submission, ignoring'
+            'tx send error likely from gas tank submission, ignoring:',
+            message
           );
           const txHash = web3.utils.keccak256(rawTx);
           resolve(txHash);
         } else {
+          console.error(err);
           reject(err.message || 'Transaction sending failed!');
         }
       });
@@ -172,6 +173,17 @@ const sendAndAwaitAll = (web3, stxs, doubtNonceError) => {
   );
 };
 
+const sendAndAwaitAllSerial = (web3, stxs, doubtNonceError) => {
+  return stxs.reduce(
+    (promise, stx) =>
+      promise.then(async () => {
+        const txHash = await sendSignedTransaction(web3, stx, doubtNonceError);
+        await waitForTransactionConfirm(web3, txHash);
+      }),
+    Promise.resolve()
+  );
+};
+
 const sendTransactionsAndAwaitConfirm = async (web3, signedTxs, usedTank) =>
   Promise.all(signedTxs.map(tx => sendSignedTransaction(web3, tx, usedTank)));
 
@@ -193,7 +205,7 @@ const getTxnInfo = async (web3, addr) => {
   return {
     nonce: nonce,
     chainId: chainId,
-    gasPrice: fromWei(gasPrice, 'gwei'),
+    gasPrice: safeFromWei(gasPrice, 'gwei'),
   };
 };
 
@@ -214,6 +226,7 @@ export {
   waitForTransactionConfirm,
   sendTransactionsAndAwaitConfirm,
   sendAndAwaitAll,
+  sendAndAwaitAllSerial,
   getTxnInfo,
   hexify,
   renderSignedTx,

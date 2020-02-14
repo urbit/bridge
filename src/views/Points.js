@@ -1,17 +1,18 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Grid, H5, H1, HelpText, LinkButton, Flex } from 'indigo-react';
+import { Grid, H5, HelpText, LinkButton, Flex } from 'indigo-react';
 import { get } from 'lodash';
 
 import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
 import { usePointCache } from 'store/pointCache';
 import { usePointCursor } from 'store/pointCursor';
+import { useStarReleaseCache } from 'store/starRelease';
 
 import * as need from 'lib/need';
 import { isZeroAddress, abbreviateAddress } from 'lib/wallet';
 import useIsEclipticOwner from 'lib/useIsEclipticOwner';
-import { useSyncKnownPoints } from 'lib/useSyncPoints';
+import { useSyncKnownPoints, useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
 import pluralize from 'lib/pluralize';
 
@@ -21,6 +22,7 @@ import Passport from 'components/Passport';
 import Footer from 'components/Footer';
 import { ForwardButton } from 'components/Buttons';
 import CopiableAddress from 'components/CopiableAddress';
+import NavHeader from 'components/NavHeader';
 
 const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -90,6 +92,7 @@ export default function Points() {
     rejectedPoints,
     addRejectedPoint,
   ] = useRejectedIncomingPointTransfers();
+  const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
 
   const maybeOutgoingPoints = useMemo(
     () =>
@@ -123,7 +126,10 @@ export default function Points() {
   // if there are any pending transfers, incoming or outgoing, stay on this
   // page, because those can only be completed/cancelled here.
   useEffect(() => {
-    if (Nothing.hasInstance(maybeOutgoingPoints)) {
+    if (
+      Nothing.hasInstance(maybeOutgoingPoints) ||
+      Nothing.hasInstance(starReleaseDetails)
+    ) {
       return;
     }
     controlledPoints.matchWith({
@@ -144,7 +150,8 @@ export default function Points() {
             if (
               all.length === 1 &&
               incoming.length === 0 &&
-              maybeOutgoingPoints.value.length === 0
+              maybeOutgoingPoints.value.length === 0 &&
+              starReleaseDetails.value.total === 0
             ) {
               setPointCursor(Just(all[0]));
               popAndPush(names.POINT);
@@ -160,6 +167,7 @@ export default function Points() {
     setPointCursor,
     popAndPush,
     names,
+    starReleaseDetails,
   ]);
 
   const address = need.addressFromWallet(wallet);
@@ -187,6 +195,13 @@ export default function Points() {
   const displayEmptyState =
     !loading && incomingPoints.length === 0 && allPoints.length === 0;
 
+  const starReleasing = starReleaseDetails
+    .map(s => s.total > 0)
+    .getOrElse(false);
+
+  useEffect(() => {
+    syncStarReleaseDetails();
+  }, [syncStarReleaseDetails]);
   // sync display details for known points
   useSyncKnownPoints([
     ...ownedPoints,
@@ -196,31 +211,46 @@ export default function Points() {
     ...spawningPoints,
   ]);
 
+  useSyncOwnedPoints(ownedPoints);
+
   const goCreateGalaxy = useCallback(() => push(names.CREATE_GALAXY), [
     names.CREATE_GALAXY,
     push,
   ]);
 
-  const goViewPoint = useCallback(() => push(names.VIEW_POINT), [
-    names.VIEW_POINT,
+  const goStarRelease = useCallback(() => push(names.STAR_RELEASE), [
+    names.STAR_RELEASE,
     push,
   ]);
 
-  return (
-    <View pop={pop} inset>
-      <Grid>
-        <Grid.Item full as={H1} className="f6 mono gray4 mb4 us-none pointer">
-          <CopiableAddress text={address}>
-            {abbreviateAddress(address)}
-          </CopiableAddress>
-        </Grid.Item>
-
-        {loading && (
+  if (
+    loading ||
+    (allPoints.length === 1 &&
+      incomingPoints.length === 0 &&
+      outgoingPoints.length === 0 &&
+      !starReleasing)
+  ) {
+    return (
+      <View inset pop={pop}>
+        <Grid>
           <Grid.Item full as={HelpText} className="mt8 t-center">
             <Blinky /> Loading...
           </Grid.Item>
-        )}
+        </Grid>
+      </View>
+    );
+  }
 
+  return (
+    <View pop={pop} inset>
+      <NavHeader>
+        <CopiableAddress
+          text={address}
+          className="f6 mono gray4 mb4 us-none pointer">
+          {abbreviateAddress(address)}
+        </CopiableAddress>
+      </NavHeader>
+      <Grid>
         {displayEmptyState && (
           <Grid.Item full as={HelpText} className="mt8 t-center">
             No points to display. This wallet is not the owner or proxy for any
@@ -300,7 +330,7 @@ export default function Points() {
         {allPoints.length > 0 && (
           <Grid.Item full as={Grid} gap={1}>
             <Grid.Item full as={H5}>
-              {pluralize(allPoints.length, 'Point')}
+              {pluralize(allPoints.length, 'ID')}
             </Grid.Item>
             <Grid.Item full as={PointList} points={allPoints} />
           </Grid.Item>
@@ -321,13 +351,18 @@ export default function Points() {
                 <Grid.Divider />
               </>
             )}
-            <Grid.Item
-              full
-              as={ForwardButton}
-              detail="View a point"
-              onClick={goViewPoint}>
-              View a point
-            </Grid.Item>
+            {starReleasing && (
+              <>
+                <Grid.Item
+                  full
+                  as={ForwardButton}
+                  detail="You have points being released"
+                  onClick={goStarRelease}>
+                  View Star Release
+                </Grid.Item>
+                <Grid.Divider />
+              </>
+            )}
           </Grid>
         </Footer>
       </Grid>

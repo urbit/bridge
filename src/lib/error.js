@@ -1,4 +1,4 @@
-import { fromWei } from 'web3-utils';
+import { safeFromWei } from './lib';
 
 const BRIDGE_ERROR = {
   MISSING_WEB3: 'no web3 object found',
@@ -18,13 +18,13 @@ const BRIDGE_ERROR = {
 const renderTxnError = (web3, msg) => {
   const txnCost = (web3, msg) => {
     const costWei = msg.match(/upfront cost is: ([0-9]+)/);
-    const costEth = fromWei(costWei[1], 'ether');
+    const costEth = safeFromWei(costWei[1], 'ether');
     return parseFloat(costEth).toFixed(4);
   };
 
   const acctBalance = (web3, msg) => {
     const balWei = msg.match(/sender's account only has: ([0-9]+)/);
-    const balEth = fromWei(balWei[1], 'ether');
+    const balEth = safeFromWei(balWei[1], 'ether');
     return parseFloat(balEth).toFixed(4);
   };
 

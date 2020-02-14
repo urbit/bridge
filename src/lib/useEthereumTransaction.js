@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Just } from 'folktale/maybe';
-import { toWei, toBN } from 'web3-utils';
+import { toBN } from 'web3-utils';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
@@ -22,6 +22,7 @@ import { ensureFundsFor } from 'lib/tank';
 import useDeepEqualReference from 'lib/useDeepEqualReference';
 import useGasPrice from 'lib/useGasPrice';
 import timeout from 'lib/timeout';
+import { safeToWei } from 'lib/lib';
 
 const STATE = {
   NONE: 'NONE',
@@ -66,14 +67,14 @@ export default function useEthereumTransaction(
   const [nonce, setNonce] = useState();
   const { gasPrice, setGasPrice, resetGasPrice } = useGasPrice(initialGasPrice);
   const [gasLimit] = useState(initialGasLimit);
-  const [unsignedTransaction, setUnsignedTransaction] = useState();
-  const [signedTransaction, setSignedTransaction] = useState();
-  const [txHash, setTxHash] = useState();
+  const [unsignedTransactions, setUnsignedTransactions] = useState();
+  const [signedTransactions, setSignedTransactions] = useState();
+  const [txHashes, setTxHashes] = useState();
   const [needFunds, setNeedFunds] = useState();
   const [confirmationProgress, setConfirmationProgress] = useState(0.0);
 
   const initializing = nonce === undefined || chainId === undefined;
-  const constructed = !!unsignedTransaction;
+  const constructed = !!unsignedTransactions;
   const isDefaultState = state === STATE.NONE;
   const signed = state === STATE.SIGNED;
   const broadcasted = state === STATE.BROADCASTED;
@@ -88,31 +89,39 @@ export default function useEthereumTransaction(
 
   const construct = useCallback(
     async (...args) =>
-      setUnsignedTransaction(await transactionBuilder(...args)),
+      setUnsignedTransactions(await transactionBuilder(...args)),
     [transactionBuilder]
   );
 
-  const unconstruct = useCallback(() => setUnsignedTransaction(undefined), [
-    setUnsignedTransaction,
+  const unconstruct = useCallback(() => setUnsignedTransactions(undefined), [
+    setUnsignedTransactions,
   ]);
 
   const generateAndSign = useCallback(async () => {
     try {
       setError(undefined);
 
-      const txn = await signTransaction({
-        wallet: _wallet,
-        walletType,
-        walletHdPath,
-        networkType,
-        txn: unsignedTransaction,
-        nonce,
-        chainId,
-        gasPrice: gasPrice.toFixed(0),
-        gasLimit,
-      });
+      const utxs = Array.isArray(unsignedTransactions)
+        ? unsignedTransactions
+        : [unsignedTransactions];
 
-      setSignedTransaction(txn);
+      const txns = await Promise.all(
+        utxs.map((utx, i) =>
+          signTransaction({
+            wallet: _wallet,
+            walletType,
+            walletHdPath,
+            networkType,
+            txn: utx,
+            nonce: nonce + i,
+            chainId,
+            gasPrice: gasPrice.toFixed(0),
+            gasLimit,
+          })
+        )
+      );
+
+      setSignedTransactions(txns);
       setState(STATE.SIGNED);
     } catch (error) {
       setError(error);
@@ -125,7 +134,7 @@ export default function useEthereumTransaction(
     networkType,
     nonce,
     setError,
-    unsignedTransaction,
+    unsignedTransactions,
     walletHdPath,
     walletType,
   ]);
@@ -135,10 +144,12 @@ export default function useEthereumTransaction(
       setConfirmationProgress(0.0);
       setError(undefined);
 
-      const rawTx = hexify(signedTransaction.serialize());
-      const costGwei = toBN(gasLimit).mul(toBN(gasPrice));
-      const cost = toWei(costGwei.toString(), 'gwei');
+      const rawTxs = signedTransactions.map(stx => hexify(stx.serialize()));
 
+      const costGwei = toBN(gasLimit)
+        .mul(toBN(gasPrice))
+        .mul(toBN(rawTxs.length));
+      const cost = safeToWei(costGwei, 'gwei');
       let usedTank = false;
       // if this ethereum transaction is being executed by a specific point
       // see if we can use the tank
@@ -147,28 +158,37 @@ export default function useEthereumTransaction(
           _web3,
           pointCursor.value,
           _wallet.address,
+          walletType,
           cost,
-          [rawTx],
+          rawTxs,
           (address, minBalance, balance) =>
             setNeedFunds({ address, minBalance, balance }),
           () => setNeedFunds(undefined)
         );
       }
 
-      const txHash = await sendSignedTransaction(
-        _web3,
-        signedTransaction,
-        /* doubtNonceError */ usedTank
+      const txHashes = await signedTransactions.reduce(
+        (acc, stx) =>
+          acc.then(hashes =>
+            sendSignedTransaction(
+              _web3,
+              stx,
+              /* doubtNonceError */ usedTank
+            ).then(hash => [...hashes, hash])
+          ),
+        Promise.resolve([])
       );
 
+      setTxHashes(txHashes);
       setState(STATE.BROADCASTED);
-      setTxHash(txHash);
 
       await timeout(PROGRESS_ANIMATION_DELAY_MS);
 
       setConfirmationProgress(0.2);
 
-      await waitForTransactionConfirm(_web3, txHash);
+      await Promise.all(
+        txHashes.map(txHash => waitForTransactionConfirm(_web3, txHash))
+      );
 
       setConfirmationProgress(0.9);
 
@@ -183,12 +203,12 @@ export default function useEthereumTransaction(
     gasPrice,
     pointCursor,
     setError,
-    signedTransaction,
+    signedTransactions,
   ]);
 
   const reset = useCallback(() => {
-    setTxHash(undefined);
-    setSignedTransaction(undefined);
+    setTxHashes(undefined);
+    setSignedTransactions(undefined);
     setNonce(undefined);
     setChainId(undefined);
     resetGasPrice();
@@ -283,8 +303,8 @@ export default function useEthereumTransaction(
     error,
     inputsLocked,
     confirmationProgress,
-    txHash,
-    signedTransaction,
+    txHashes,
+    signedTransactions,
     gasPrice,
     setGasPrice,
     resetGasPrice,

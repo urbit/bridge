@@ -24,6 +24,10 @@ const isHexPrefixed = /^0x/;
 export const validateMnemonic = v =>
   !bip39.validateMnemonic(v) && 'This is not a valid mnemonic.';
 
+const isHdPath = /^m(\/[0-9]+'?)*$/;
+export const validateHdPath = v =>
+  !isHdPath.test(v) && 'Invalid HD derivation path.';
+
 // Checks an empty field
 export const validateNotEmpty = v =>
   (v === undefined || v.length === 0) && 'This field is required.';
@@ -93,6 +97,8 @@ export const validateMaximumLength = l => v =>
 export const validateGreaterThan = l => v =>
   !(v > l) && `Must be at least ${l}.`;
 
+export const validateLessThan = l => v => !(v < l) && `Must be less than ${l}`;
+
 export const validateInSet = (set, error) => v => !set.has(v) && error;
 
 export const validateMaximumPatpByteLength = byteLength =>
@@ -102,3 +108,8 @@ export const validateNotNullAddress = validateNotAny([
   ETH_ZERO_ADDR,
   ETH_ZERO_ADDR_SHORT,
 ]);
+
+export const validateUnique = arr => {
+  const res = [...new Set(arr)].length !== arr.length && 'Must be unique';
+  return res;
+};

@@ -2,7 +2,7 @@
 //     did not succeed", you might need to visit localhost:3001 or whatever
 //     explicitly and tell your browser that's safe to access.
 //     https://stackoverflow.com/a/53011185/1334324
-const baseUrl = 'https://localhost:3002';
+const baseUrl = 'https://onboarding-emails.urbit.org:3002';
 
 function sendRequest(where, what) {
   return new Promise((resolve, reject) => {
@@ -30,8 +30,14 @@ async function hasReceived(recipient) {
   return res.hasReceived;
 }
 
-function sendMail(recipient, ticket, sender, tx) {
-  return sendRequest('/send-ticket', { recipient, ticket, sender, tx });
+function sendMail(recipient, ticket, sender, message, tx) {
+  return sendRequest('/send-ticket', {
+    recipient,
+    ticket,
+    sender,
+    message,
+    tx,
+  });
 }
 
 export { hasReceived, sendMail };
