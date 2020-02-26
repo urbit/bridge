@@ -104,6 +104,10 @@ function useHostingStore(url) {
     }
   }, [client, pointCursor, resetEvents, setError, setState]);
 
+  useEffect(() => {
+    syncStatus();
+  }, [pointCursor, syncStatus]);
+
   const getEvents = useCallback(() => {
     try {
       if (Nothing.hasInstance(pointCursor)) {
@@ -160,6 +164,8 @@ function useHostingStore(url) {
         const response = await client.postShips({
           patp,
           key: keyfile,
+          debug: true,
+          fake: false,
         });
 
         if (!response.ok) {

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Grid, Button, SelectInput } from 'indigo-react';
 import * as ob from 'urbit-ob';
 import { azimuth } from 'azimuth-js';
@@ -14,12 +14,15 @@ import {
   OutButton,
   ForwardButton,
   BootUrbitOSButton,
+  GenerateButton,
 } from 'components/Buttons';
 import CopyButton from 'components/CopyButton';
 import NetworkingKeys from 'components/NetworkingKeys';
 
 import BridgeForm from 'form/BridgeForm';
 import { useLocalRouter } from 'lib/LocalRouter';
+import { useHosting } from 'store/hosting';
+import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 
 export default function UrbitOSHome() {
   const { pointCursor } = usePointCursor();
@@ -31,8 +34,6 @@ export default function UrbitOSHome() {
   const details = need.details(getDetails(point));
 
   const sponsor = ob.patp(details.sponsor);
-
-  const { code, notice } = useKeyfileGenerator();
 
   const [showKeys, setShowKeys] = useState(false);
 
@@ -53,13 +54,7 @@ export default function UrbitOSHome() {
   ]);
   return (
     <>
-      <Grid>
-        <Grid.Item full className="mv7">
-          Urbit OS
-        </Grid.Item>
-        <Grid.Divider />
-        <Grid.Item full as={BootUrbitOSButton} />
-      </Grid>
+      <Hosting />
 
       <Grid>
         <Grid.Item full className="mv7 f5">
@@ -80,15 +75,7 @@ export default function UrbitOSHome() {
             <Grid.Divider />
           </>
         )}
-        <Grid.Item
-          full
-          as={ForwardButton}
-          accessory={code && <CopyButton text={code} />}
-          detail={code || notice}
-          disabled={!code}
-          detailClassName="mono">
-          Login Code
-        </Grid.Item>
+
         <Grid.Divider />
         <Grid.Item full as={ForwardButton} onClick={goNetworkingKeys}>
           Reset Networking Keys
@@ -109,52 +96,133 @@ export default function UrbitOSHome() {
 
 // eslint-disable-next-line
 function Hosting() {
+  const bind = useKeyfileGenerator();
+  const { keyfile, code, notice } = bind;
+  const ship = { connected: true }; //useHosting();
+
+  const { syncStatus } = ship;
+
+  const createShip = useCallback(() => ship.create(keyfile), [keyfile, ship]);
+
   const name = useCurrentPointName();
   const options = [{ text: 'Tlon', value: 'tlon' }];
 
-  const props = { name, options };
-  const connected = false;
+  const props = { name, options, ship };
 
-  return (
-    <Grid gap={4}>
-      <Grid.Item full className="f5">
-        Urbit OS
-      </Grid.Item>
-
-      {(connected && <HostingConnected {...props} />) || (
-        <HostingDisconnected {...props} />
-      )}
-    </Grid>
-  );
-}
-
-function HostingConnected({ name, options }) {
-  return (
-    <BridgeForm initialValues={{ provider: 'tlon' }}>
-      {() => (
+  const renderMain = useCallback(() => {
+    if (ship.connected) {
+      return (
         <>
-          <Grid.Item full>Status: Connected</Grid.Item>
-          <Grid.Item cols={[1, 9]} className="gray4">
-            <span className="mono">{name}</span> is connected to Tlon and has
-            the IP address 127.0.0.1
-          </Grid.Item>
           <Grid.Item cols={[1, 9]} as={OutButton} solid success>
             Open OS
           </Grid.Item>
           <Grid.Item cols={[9, 13]} as={Button} className="b-black b1" center>
             Disconnect
           </Grid.Item>
-          <Grid.Item
-            full
-            as={SelectInput}
-            name="provider"
-            label="Host Provider"
-            options={options}
-            disabled
-          />
         </>
-      )}
-    </BridgeForm>
+      );
+    }
+    if (ship.missing || ship.booting) {
+      return (
+        <Grid.Item
+          full
+          as={GenerateButton}
+          solid
+          success
+          disabled={ship.booting || !keyfile}
+          loading={ship.booting}
+          onClick={createShip}>
+          Boot Urbit OS
+        </Grid.Item>
+      );
+    }
+    if (ship.running || ship.connecting) {
+      return <HostingDisconnected {...props} />;
+    }
+  }, [
+    ship.connected,
+    ship.missing,
+    ship.booting,
+    ship.running,
+    ship.connecting,
+    keyfile,
+    createShip,
+    props,
+  ]);
+
+  const renderDetails = useCallback(() => {
+    if (ship.connected) {
+      return (
+        <>
+          <Grid.Item full>Status: Connected</Grid.Item>
+          <Grid.Item cols={[1, 9]} className="gray4">
+            <span className="mono">{name}</span> is connected to Tlon and has
+            the IP address 127.0.0.1
+          </Grid.Item>
+        </>
+      );
+    }
+    if (ship.running || ship.connected) {
+      return (
+        <>
+          <Grid.Item full className="gray4">
+            <span className="gray3">Status:</span> Disconnected
+            <br />
+            <span className="f6">Last connected: 4m ago</span>
+          </Grid.Item>
+
+          <Grid.Item full as={ForwardButton} solid>
+            Connect
+          </Grid.Item>
+        </>
+      );
+    }
+  }, [name, ship]);
+
+  return (
+    <>
+      <Grid gap={4}>
+        <Grid.Item full className="f5">
+          Urbit OS
+        </Grid.Item>
+        <BridgeForm initialValues={{ provider: 'tlon' }}>
+          {() => (
+            <>
+              {renderDetails()}
+              {renderMain()}
+              <Grid.Item
+                full
+                as={SelectInput}
+                name="provider"
+                label="Host Provider"
+                options={options}
+                disabled
+              />
+            </>
+          )}
+        </BridgeForm>
+      </Grid>
+      <Grid>
+        <Grid.Item
+          full
+          as={DownloadKeyfileButton}
+          {...bind}
+          className="mt2"
+          detail="A keyfile authenticates your Urbit ID to Urbit OS"
+        />
+        <Grid.Divider />
+        <Grid.Item
+          full
+          className="mt2"
+          as={ForwardButton}
+          accessory={code && <CopyButton text={code} />}
+          detail={code || notice}
+          disabled={!code}
+          detailClassName="mono">
+          Login Code
+        </Grid.Item>
+      </Grid>
+    </>
   );
 }
 

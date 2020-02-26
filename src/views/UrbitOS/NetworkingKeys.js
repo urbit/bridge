@@ -197,27 +197,14 @@ export default function UrbitOSNetworkingKeys() {
 
   const usageMessage = 'You need this to authenticate with arvo';
 
-  const renderTitle = () => {
-    if (completed) {
-      return 'Networking keys are now set.';
-    }
-
-    if (broadcasting) {
-      return 'Setting Network Keys...';
-    }
-
-    if (!hasKeys) {
-      return 'Networking keys have not yet been set.';
-    }
-
-    return 'Networking';
-  };
-
   return (
     <>
       <Grid>
         <Grid.Item full as={ViewHeader}>
-          {renderTitle()}
+          Set Networking Keys
+        </Grid.Item>
+        <Grid.Item className="gray4 f6" full>
+          Network Keys solidify the handshake between ID and OS
         </Grid.Item>
         {completed && (
           <>

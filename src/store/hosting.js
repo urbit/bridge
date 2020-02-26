@@ -5,7 +5,7 @@ import useHostingStore from './lib/useHostingStore';
 export const HostingContext = createContext(null);
 
 export function HostingProvider({ children }) {
-  const store = useHostingStore('http://localhost:8080');
+  const store = useHostingStore('http://localhost:4000');
   return (
     <HostingContext.Provider value={store}>{children}</HostingContext.Provider>
   );
