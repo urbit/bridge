@@ -65,21 +65,36 @@ function generateLinearWithdrawTxs(contracts, amount, to) {
 }
 
 export async function getConditional(contracts, address) {
-  const [commitment, batches] = await Promise.all([
+  const [commitment, batches, remaining] = await Promise.all([
     conditionalSR.getCommitment(contracts, address),
     conditionalSR.getBatches(contracts, address),
+    conditionalSR.getRemainingStars(contracts, address),
   ]);
 
   if (commitment === null || batches === null) {
     return { total: 0, available: 0, withdrawn: 0, batchLimits: [] };
   }
 
-  const { total } = commitment;
-  const withdrawLimits = await Promise.all(
-    batches.map((_, idx) =>
-      conditionalSR.getWithdrawLimit(contracts, address, idx)
-    )
-  );
+  const forfeited = await conditionalSR.getForfeited(contracts, address);
+  const total = remaining.length;
+  let balance = total;
+
+  const withdrawLimits = await batches.reduce(async (p, _, idx) => {
+    const acc = await p;
+    if (forfeited[idx] || balance === 0) {
+      return [...acc, 0];
+    }
+    const limit = await conditionalSR.getWithdrawLimit(contracts, address, idx);
+    if (limit <= balance) {
+      balance -= limit;
+      return [...acc, limit];
+    }
+    const remaining = balance;
+    balance = 0;
+
+    return [...acc, remaining];
+  }, Promise.resolve([]));
+
   const available = withdrawLimits.reduce((acc, val) => acc + val, 0);
 
   const withdrawnAmounts = await conditionalSR.getWithdrawn(contracts, address);
@@ -93,9 +108,18 @@ export async function getConditional(contracts, address) {
 }
 
 export async function getLinear(contracts, address) {
-  const { amount, withdrawn } = await linearSR.getBatch(contracts, address);
+  const remaining = (await linearSR.getRemainingStars(contracts, address))
+    .length;
+  const batch = await linearSR.getBatch(contracts, address);
+  const { amount, withdrawn } = batch;
 
-  const available = // Contract errors on withdrawing from a user that does not have any
-    amount > 0 ? await linearSR.getWithdrawLimit(contracts, address) : 0;
-  return { available, withdrawn, total: amount };
+  // Contract errors on withdrawing from a user that does not have any
+  const available =
+    amount > 0
+      ? Math.min(await linearSR.getWithdrawLimit(contracts, address), remaining)
+      : 0;
+
+  const total = Math.min(amount, remaining);
+
+  return { available, withdrawn, total };
 }
