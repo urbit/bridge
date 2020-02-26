@@ -22,8 +22,6 @@ export default function ActivateDisclaimer({ point }) {
     setWasGreeted(true);
   }, [setWasGreeted]);
 
-  const goInvite = useCallback(() => push(names.INVITE), [push, names]);
-
   return (
     !wasGreeted && (
       <Grid gap={4} className="mb10">
@@ -44,18 +42,6 @@ export default function ActivateDisclaimer({ point }) {
             Right now you can:
           </Text>
         </Grid.Item>
-
-        {isActiveOwner && (
-          <Grid.Item
-            full
-            as={LinkButton}
-            onClick={goInvite}
-            className={'yellow4'}>
-            <Text className={cn(TEXT_STYLE, 'block mb2')}>
-              Invite your friends
-            </Text>
-          </Grid.Item>
-        )}
 
         <Grid.Item
           full
