@@ -210,7 +210,7 @@ export default function UrbitOSNetworkingKeys() {
           <>
             <Grid.Item
               full
-              className="mb3"
+              className="mv3"
               as={DownloadKeyfileButton}
               solid
               {...keyfileBind}

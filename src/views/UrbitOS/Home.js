@@ -60,9 +60,9 @@ export default function UrbitOSHome() {
         <Grid.Item full className="mv7 f5">
           Network
         </Grid.Item>
-        <Grid.Divider />
         {showSponsor && (
           <>
+            <Grid.Divider />
             <Grid.Item
               full
               as={ForwardButton}
@@ -72,7 +72,6 @@ export default function UrbitOSHome() {
               <span className="mono">{sponsor}</span>
               <span className="f7 bg-black white p1 ml2 r4">SPONSOR</span>
             </Grid.Item>
-            <Grid.Divider />
           </>
         )}
 

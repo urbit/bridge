@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { Just } from 'folktale/maybe';
 import { toBN } from 'web3-utils';
 
@@ -22,7 +22,7 @@ import { ensureFundsFor } from 'lib/tank';
 import useDeepEqualReference from 'lib/useDeepEqualReference';
 import useGasPrice from 'lib/useGasPrice';
 import timeout from 'lib/timeout';
-import { safeToWei } from 'lib/lib';
+import { safeToWei, safeFromWei } from 'lib/lib';
 
 const STATE = {
   NONE: 'NONE',
@@ -312,6 +312,8 @@ export default function useEthereumTransaction(
     nonce,
     chainId,
     needFunds,
+    gasLimit,
+    unsignedTransactions,
   });
 
   return { ...values, bind: values };
