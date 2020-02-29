@@ -12,6 +12,7 @@ import View from 'components/View';
 import Tabs from 'components/Tabs';
 import Crumbs from 'components/Crumbs';
 import CopiableAddress from 'components/CopiableAddress';
+import NavHeader from 'components/NavHeader';
 
 import Active from 'views/Release/Active';
 import Locked from 'views/Release/Locked';
@@ -53,13 +54,15 @@ export default function ReleaseView() {
   const address = need.addressFromWallet(wallet);
 
   return (
-    <View pop={pop} inset>
+    <View pop={pop}>
+      <NavHeader>
+        <CopiableAddress
+          className="f6 mono gray4 mb4 us-none pointer"
+          text={address}>
+          {address}
+        </CopiableAddress>
+      </NavHeader>
       <Grid>
-        <Grid.Item full as={Crumbs} />
-        <Grid.Item full as={H1} className="f6 mono gray4 us-none pointer">
-          <CopiableAddress text={address}>{address}</CopiableAddress>
-        </Grid.Item>
-
         <Grid.Item
           full
           as={Tabs}

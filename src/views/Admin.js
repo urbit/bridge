@@ -9,6 +9,7 @@ import { LocalRouterProvider } from 'lib/LocalRouter';
 
 import View from 'components/View';
 import Crumbs from 'components/Crumbs';
+import NavHeader from 'components/NavHeader';
 
 import AdminHome from './Admin/AdminHome';
 import AdminEditPermissions from './Admin/AdminEditPermissions';
@@ -54,10 +55,8 @@ export default function Admin() {
   return (
     <View pop={router.pop} inset>
       <LocalRouterProvider value={router}>
-        <Grid className="mb4">
-          <Grid.Item
-            full
-            as={Crumbs}
+        <NavHeader>
+          <Crumbs
             routes={[
               {
                 text: name,
@@ -68,7 +67,7 @@ export default function Admin() {
               },
             ]}
           />
-        </Grid>
+        </NavHeader>
         <Route />
       </LocalRouterProvider>
     </View>
