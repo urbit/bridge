@@ -59,7 +59,7 @@ export default function Login() {
   }, [push, names]);
 
   return (
-    <View pop={pop} inset>
+    <View inset>
       <Grid>
         <Grid.Item full as={Crumbs} routes={[{ text: 'Bridge' }]} />
         <Grid.Item full as={H4} className="mt4">
