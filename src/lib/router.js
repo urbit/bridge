@@ -5,7 +5,6 @@ import Senate from 'views/Senate';
 import CreateGalaxy from 'views/CreateGalaxy';
 import IssueChild from 'views/IssueChild';
 import StarRelease from 'views/Release';
-import SigilGenerator from 'views/SigilGenerator';
 
 import Point from 'views/Point';
 import Points from 'views/Points';
@@ -16,8 +15,8 @@ import InviteCohort from 'views/Invite/Cohort';
 import AcceptTransfer from 'views/AcceptTransfer';
 import CancelTransfer from 'views/CancelTransfer';
 import UrbitOS from 'views/UrbitOS';
-
-import Hosting from 'views/Hosting';
+import UrbitID from 'views/UrbitID';
+import Residents from 'views/Residents';
 
 import { ROUTE_NAMES } from './routeNames';
 
@@ -38,8 +37,9 @@ export const ROUTES = {
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
   [ROUTE_NAMES.INVITE_COHORT]: InviteCohort,
   [ROUTE_NAMES.STAR_RELEASE]: StarRelease,
-  [ROUTE_NAMES.SIGIL_GENERATOR]: SigilGenerator,
   [ROUTE_NAMES.URBIT_OS]: UrbitOS,
   [ROUTE_NAMES.BOOT]: Boot,
   [ROUTE_NAMES.HOSTING]: Hosting,
+  [ROUTE_NAMES.URBIT_ID]: UrbitID,
+  [ROUTE_NAMES.RESIDENTS]: Residents,
 };

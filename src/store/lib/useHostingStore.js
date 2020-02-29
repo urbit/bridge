@@ -104,9 +104,9 @@ function useHostingStore(url) {
     }
   }, [client, pointCursor, resetEvents, setError, setState]);
 
-  useEffect(() => {
-    syncStatus();
-  }, [pointCursor, syncStatus]);
+  // useEffect(() => {
+  //   syncStatus();
+  // }, [pointCursor, syncStatus]);
 
   const getEvents = useCallback(() => {
     try {

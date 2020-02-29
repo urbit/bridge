@@ -62,7 +62,7 @@ export default function SigilGenerator() {
     [point, downloadSigil]
   );
   return (
-    <View pop={pop}>
+    <>
       <BridgeForm
         validate={validate}
         initialValues={{
@@ -73,7 +73,7 @@ export default function SigilGenerator() {
         onSubmit={onSubmit}>
         {({ handleSubmit, values }) => (
           <Grid gap={6}>
-            <Grid.Item full className="f7">
+            <Grid.Item full className="f5">
               Sigil
             </Grid.Item>
             <Grid.Item fourth={1}>
@@ -121,6 +121,6 @@ export default function SigilGenerator() {
       </BridgeForm>
 
       <canvas style={{ display: 'none' }} ref={canvasRef} />
-    </View>
+    </>
   );
 }
