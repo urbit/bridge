@@ -25,4 +25,5 @@ export const ROUTE_NAMES = {
   HOSTING: Symbol('HOSTING'),
   URBIT_ID: Symbol('URBIT_ID'),
   RESIDENTS: Symbol('RESIDENTS'),
+  ADOPT: Symbol('ADOPT'),
 };

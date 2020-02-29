@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Grid, H4 } from 'indigo-react';
+import { Grid, H4, HelpText } from 'indigo-react';
 import { Nothing } from 'folktale/maybe';
 import * as ob from 'urbit-ob';
 
@@ -7,6 +7,7 @@ import View from 'components/View';
 import Tabs from 'components/Tabs';
 import Crumbs from 'components/Crumbs';
 import Sigil from 'components/Sigil';
+import Blinky from 'components/Blinky';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import useCurrentPointName from 'lib/useCurrentPointName';
@@ -30,13 +31,13 @@ const VIEWS = {
   [NAMES.ALL]: AllResidents,
 };
 
-function Requests({ className, requests }) {
-  const onThing = () => {};
-
+function Requests({ className, requests, onAccept, onDecline }) {
   if (Nothing.hasInstance(requests)) {
     return (
       <Grid className={className}>
-        <Grid.Item full>Loading...</Grid.Item>
+        <Grid.Item full as={HelpText} className="mt8 t-center">
+          <Blinky /> Loading...
+        </Grid.Item>
       </Grid>
     );
   }
@@ -49,8 +50,8 @@ function Requests({ className, requests }) {
         <Resident
           key={point}
           point={point}
-          onAccept={onThing}
-          onDecline={onThing}
+          onAccept={onAccept}
+          onDecline={onDecline}
         />
       ))}
     </Grid>
@@ -81,13 +82,15 @@ function Resident({ point, onAccept, onDecline }) {
       {isRequest && (
         <>
           <Grid.Item
-            className="flex-row-r align-center underline green3"
-            cols={[7, 10]}>
+            className="flex-row-r align-center underline green3 pointer"
+            cols={[7, 10]}
+            onClick={() => onAccept(point)}>
             Accept
           </Grid.Item>
           <Grid.Item
-            className="flex-row-r align-center underline red4"
-            cols={[10, 13]}>
+            className="flex-row-r align-center underline red4 pointer"
+            cols={[10, 13]}
+            onClick={() => onDecline(point)}>
             Decline
           </Grid.Item>
         </>
@@ -118,7 +121,7 @@ function AllResidents({ className, residents }) {
 }
 
 export default function Residents() {
-  const { pop } = useLocalRouter();
+  const { pop, push, names } = useLocalRouter();
   const name = useCurrentPointName();
 
   const { pointCursor } = usePointCursor();
@@ -133,8 +136,22 @@ export default function Residents() {
 
   const [currentTab, setCurrentTab] = useState(NAMES.ALL);
 
+  const onAccept = useCallback(adoptee =>
+    push(names.ADOPT, {
+      adoptee,
+      denied: false,
+    })
+  );
+
+  const onDecline = useCallback(adoptee =>
+    push(names.ADOPT, {
+      adoptee,
+      denied: true,
+    })
+  );
+
   return (
-    <View pop={pop}>
+    <View pop={pop} inset>
       <Grid>
         <Grid.Item
           full
@@ -156,6 +173,8 @@ export default function Residents() {
           //  Props for tab
           residents={residents}
           requests={requests}
+          onAccept={onAccept}
+          onDecline={onDecline}
         />
       </Grid>
     </View>
