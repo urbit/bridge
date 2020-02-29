@@ -10,10 +10,10 @@ import Sigil from 'components/Sigil';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import useCurrentPointName from 'lib/useCurrentPointName';
-import { useResidents } from 'lib/useResidents';
 import * as need from 'lib/need';
 
 import { usePointCursor } from 'store/pointCursor';
+import { usePointCache } from 'store/pointCache';
 
 const NAMES = {
   REQUESTS: 'REQUESTS',
@@ -30,14 +30,8 @@ const VIEWS = {
   [NAMES.ALL]: AllResidents,
 };
 
-function Requests({ className }) {
+function Requests({ className, requests }) {
   const onThing = () => {};
-  const { pointCursor } = usePointCursor();
-  const point = need.point(pointCursor);
-  const { requests, syncRequests } = useResidents(point);
-  useEffect(() => {
-    syncRequests();
-  }, [syncRequests]);
 
   if (Nothing.hasInstance(requests)) {
     return (
@@ -86,11 +80,13 @@ function Resident({ point, onAccept, onDecline }) {
       </Grid.Item>
       {isRequest && (
         <>
-          <Grid.Item className="flex-row align-center underline" cols={[7, 10]}>
+          <Grid.Item
+            className="flex-row-r align-center underline green3"
+            cols={[7, 10]}>
             Accept
           </Grid.Item>
           <Grid.Item
-            className="flex-row align-center underline"
+            className="flex-row-r align-center underline red4"
             cols={[10, 13]}>
             Decline
           </Grid.Item>
@@ -101,14 +97,7 @@ function Resident({ point, onAccept, onDecline }) {
   );
 }
 
-function AllResidents({ className }) {
-  const { pointCursor } = usePointCursor();
-  const point = need.point(pointCursor);
-  const { syncResidents, residents } = useResidents(point);
-  useEffect(() => {
-    syncResidents();
-  }, [syncResidents]);
-
+function AllResidents({ className, residents }) {
   if (Nothing.hasInstance(residents)) {
     return (
       <Grid className={className}>
@@ -132,11 +121,17 @@ export default function Residents() {
   const { pop } = useLocalRouter();
   const name = useCurrentPointName();
 
-  // const { pointCursor } = usePointCursor();
+  const { pointCursor } = usePointCursor();
+  const point = need.point(pointCursor);
+  const { getResidents, syncResidents } = usePointCache();
+
+  useEffect(() => {
+    syncResidents(point);
+  }, [syncResidents, point]);
+
+  const { residents, requests } = getResidents(point);
 
   const [currentTab, setCurrentTab] = useState(NAMES.ALL);
-
-  const [req, selectRequest] = useState();
 
   return (
     <View pop={pop}>
@@ -153,10 +148,14 @@ export default function Residents() {
           full
           className="mt1"
           as={Tabs}
+          //  Tabs
           views={VIEWS}
           options={OPTIONS}
           currentTab={currentTab}
           onTabChange={setCurrentTab}
+          //  Props for tab
+          residents={residents}
+          requests={requests}
         />
       </Grid>
     </View>

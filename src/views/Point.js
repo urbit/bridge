@@ -25,9 +25,9 @@ import useInvites from 'lib/useInvites';
 import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
-import { useResidents } from 'lib/useResidents';
 
 import Inviter from 'views/Invite/Inviter';
+import { usePointCache } from 'store/pointCache';
 
 export default function Point() {
   const { pop, push, names } = useLocalRouter();
@@ -36,7 +36,9 @@ export default function Point() {
   const { wallet } = useWallet();
   const point = need.point(pointCursor);
 
-  const { residentCount } = useResidents(point);
+  const { getResidents } = usePointCache();
+
+  const { residentCount, requestCount } = getResidents(point);
 
   const {
     isParent,
@@ -214,7 +216,7 @@ export default function Point() {
     );
   });
 
-  console.log(residentCount);
+  const _requestCount = requestCount.getOrElse(0);
 
   return (
     <View pop={pop} inset>
@@ -226,12 +228,21 @@ export default function Point() {
       />
       <Grid gap={3}>
         {isParent && (
-          <Grid.Item full as={Flex} justify="between" onClick={goResidents}>
+          <Grid.Item
+            full
+            as={Flex}
+            justify="between"
+            onClick={goResidents}
+            className="mv1">
             <Flex.Item>
               Residents{' '}
               <span className="gray3">{matchBlinky(residentCount)}</span>
             </Flex.Item>
-            <Flex.Item>N/A</Flex.Item>
+            {_requestCount !== 0 && (
+              <Flex.Item className="f7 bg-gray2 h3 pv1 ph2 br-full r-full text-center">
+                {_requestCount} PENDING
+              </Flex.Item>
+            )}
           </Grid.Item>
         )}
         {isPlanet && hasInvites && <InviteForm />}
