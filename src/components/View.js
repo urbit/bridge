@@ -80,7 +80,7 @@ function View({
             hpadding={!isMobile}
             vpadding={isMobile}
             onClick={goBack}
-            className="mt2"
+            className="mt1"
           />
         )}
       </Flex.Item>
