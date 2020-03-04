@@ -35,6 +35,8 @@ export default function UrbitIDHome() {
     names,
   ]);
 
+  const goResetKeys = useCallback(() => push(names.RESET_KEYS), [push, names]);
+
   const isMasterTicket = Just.hasInstance(urbitWallet);
   const _contracts = need.contracts(contracts);
   const point = need.point(pointCursor);
@@ -96,7 +98,7 @@ export default function UrbitIDHome() {
       <Grid.Item
         full
         as={ForwardButton}
-        onClick={goDownloadKeys}
+        onClick={goResetKeys}
         detail="Reset Master Key and all other keys">
         Reset Keys
       </Grid.Item>
@@ -121,6 +123,8 @@ export default function UrbitIDHome() {
       <Grid.Divider />
 
       {isParent && renderProxyAction(PROXY_TYPE.SPAWN, details.spawnProxy)}
+
+      {isParent && networkRevision !== 0 && <Grid.Divider />}
 
       {isParent && networkRevision === 0 && (
         <>

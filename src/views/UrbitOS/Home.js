@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { Grid, Button, SelectInput } from 'indigo-react';
+import cn from 'classnames';
+import { Grid, Button, SelectInput, Flex } from 'indigo-react';
 import * as ob from 'urbit-ob';
 import { azimuth } from 'azimuth-js';
 
@@ -10,14 +11,10 @@ import useCurrentPointName from 'lib/useCurrentPointName';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 import * as need from 'lib/need';
 
-import {
-  OutButton,
-  ForwardButton,
-  BootUrbitOSButton,
-  GenerateButton,
-} from 'components/Buttons';
+import { OutButton, ForwardButton } from 'components/Buttons';
 import CopyButton from 'components/CopyButton';
 import NetworkingKeys from 'components/NetworkingKeys';
+import ProgressButton from 'components/ProgressButton';
 
 import BridgeForm from 'form/BridgeForm';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -97,9 +94,27 @@ export default function UrbitOSHome() {
 function Hosting() {
   const bind = useKeyfileGenerator();
   const { keyfile, code, notice } = bind;
-  const ship = { connected: true }; //useHosting();
+  const ship = useHosting();
 
-  const { syncStatus } = ship;
+  const {
+    syncStatus,
+    url,
+    unknown,
+    running,
+    sysEvents,
+    runEvents,
+    newEvents,
+    bootProgress,
+    bootMessage,
+  } = ship;
+
+  const [synced, setSynced] = useState(false);
+  useEffect(() => {
+    if (unknown && !synced) {
+      syncStatus();
+      setSynced(true);
+    }
+  }, [syncStatus, unknown, setSynced, synced]);
 
   const createShip = useCallback(() => ship.create(keyfile), [keyfile, ship]);
 
@@ -109,10 +124,10 @@ function Hosting() {
   const props = { name, options, ship };
 
   const renderMain = useCallback(() => {
-    if (ship.connected) {
+    if (ship.running) {
       return (
         <>
-          <Grid.Item cols={[1, 9]} as={OutButton} solid success>
+          <Grid.Item cols={[1, 9]} as={OutButton} solid success href={url}>
             Open OS
           </Grid.Item>
           <Grid.Item cols={[9, 13]} as={Button} className="b-black b1" center>
@@ -121,57 +136,58 @@ function Hosting() {
         </>
       );
     }
-    if (ship.missing || ship.booting) {
+    if (ship.missing) {
       return (
         <Grid.Item
           full
-          as={GenerateButton}
+          as={ForwardButton}
           solid
-          success
-          disabled={ship.booting || !keyfile}
-          loading={ship.booting}
+          disabled={!keyfile}
           onClick={createShip}>
-          Boot Urbit OS
+          Connect
         </Grid.Item>
       );
     }
-    if (ship.running || ship.connecting) {
-      return <HostingDisconnected {...props} />;
+    if (ship.pending) {
+      return (
+        <Grid.Item
+          full
+          as={ProgressButton}
+          success
+          disabled
+          progress={bootProgress}>
+          {bootMessage || 'Connecting'}
+        </Grid.Item>
+      );
     }
   }, [
-    ship.connected,
     ship.missing,
-    ship.booting,
     ship.running,
-    ship.connecting,
+    ship.pending,
+    bootProgress,
+    bootMessage,
     keyfile,
     createShip,
-    props,
+    url,
   ]);
 
   const renderDetails = useCallback(() => {
-    if (ship.connected) {
+    if (ship.running) {
       return (
         <>
-          <Grid.Item full>Status: Connected</Grid.Item>
           <Grid.Item cols={[1, 9]} className="gray4">
-            <span className="mono">{name}</span> is connected to Tlon and has
-            the IP address 127.0.0.1
+            <span className="mono">{name}</span> is connected to Tlon
           </Grid.Item>
         </>
       );
     }
-    if (ship.running || ship.connected) {
+    if (ship.missing) {
       return (
         <>
           <Grid.Item full className="gray4">
             <span className="gray3">Status:</span> Disconnected
             <br />
             <span className="f6">Last connected: 4m ago</span>
-          </Grid.Item>
-
-          <Grid.Item full as={ForwardButton} solid>
-            Connect
           </Grid.Item>
         </>
       );
@@ -181,8 +197,15 @@ function Hosting() {
   return (
     <>
       <Grid gap={4}>
-        <Grid.Item full className="f5">
-          Urbit OS
+        <Grid.Item full className="f5" as={Flex}>
+          <Flex.Item>Urbit OS </Flex.Item>
+          <Flex.Item
+            className={cn(
+              { green3: ship.running, grey4: !ship.running },
+              'ml3'
+            )}>
+            {ship.running ? 'Connected' : 'Disconnected'}
+          </Flex.Item>
         </Grid.Item>
         <BridgeForm initialValues={{ provider: 'tlon' }}>
           {() => (
@@ -222,34 +245,5 @@ function Hosting() {
         </Grid.Item>
       </Grid>
     </>
-  );
-}
-
-function HostingDisconnected({ options }) {
-  return (
-    <BridgeForm initialValues={{ provider: 'tlon' }}>
-      {() => (
-        <>
-          <Grid.Item full className="gray4">
-            <span className="gray3">Status:</span> Disconnected
-            <br />
-            <span className="f6">Last connected: 4m ago</span>
-          </Grid.Item>
-
-          <Grid.Item full as={ForwardButton} solid>
-            Connect
-          </Grid.Item>
-
-          <Grid.Item
-            full
-            as={SelectInput}
-            name="provider"
-            label="Host Provider"
-            options={options}
-            disabled
-          />
-        </>
-      )}
-    </BridgeForm>
   );
 }

@@ -13,6 +13,7 @@
   "engines": {
     "node": "11.0.0"
   },
+  "proxy": "http://localhost:4000",
   "dependencies": {
     "@hot-loader/react-dom": "^16.8.6",
     "@ledgerhq/hw-app-eth": "^5.5.0",

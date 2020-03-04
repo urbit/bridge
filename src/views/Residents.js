@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Grid, H4, HelpText } from 'indigo-react';
-import { Nothing } from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import * as ob from 'urbit-ob';
 
 import View from 'components/View';
@@ -8,6 +8,7 @@ import Tabs from 'components/Tabs';
 import Crumbs from 'components/Crumbs';
 import Sigil from 'components/Sigil';
 import Blinky from 'components/Blinky';
+import NavHeader from 'components/NavHeader';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import useCurrentPointName from 'lib/useCurrentPointName';
@@ -27,26 +28,32 @@ const OPTIONS = [
 ];
 
 const VIEWS = {
-  [NAMES.REQUESTS]: Requests,
-  [NAMES.ALL]: AllResidents,
+  [NAMES.REQUESTS]: Tab,
+  [NAMES.ALL]: Tab,
 };
 
-function Requests({ className, requests, onAccept, onDecline }) {
-  if (Nothing.hasInstance(requests)) {
-    return (
-      <Grid className={className}>
-        <Grid.Item full as={HelpText} className="mt8 t-center">
-          <Blinky /> Loading...
-        </Grid.Item>
-      </Grid>
-    );
+function Tab({ className, points, onAccept, onDecline }) {
+  if (Nothing.hasInstance(points)) {
+    return <Grid className={className}></Grid>;
   }
 
-  const _requests = requests.getOrElse([]);
+  const _points = points.getOrElse([]);
 
   return (
     <Grid className={className}>
-      {_requests.map(point => (
+      {_points.length === 0 && (
+        <Grid.Item full as={HelpText} className="mt8 t-center">
+          {Just.hasInstance(points) ? (
+            'No points to display'
+          ) : (
+            <>
+              <Blinky /> Loading...
+            </>
+          )}
+        </Grid.Item>
+      )}
+
+      {_points.map(point => (
         <Resident
           key={point}
           point={point}
@@ -100,26 +107,6 @@ function Resident({ point, onAccept, onDecline }) {
   );
 }
 
-function AllResidents({ className, residents }) {
-  if (Nothing.hasInstance(residents)) {
-    return (
-      <Grid className={className}>
-        <Grid.Item full>Loading...</Grid.Item>
-      </Grid>
-    );
-  }
-
-  const _residents = residents.getOrElse([]);
-
-  return (
-    <Grid className={className}>
-      {_residents.map(point => (
-        <Resident key={point} point={point} />
-      ))}
-    </Grid>
-  );
-}
-
 export default function Residents() {
   const { pop, push, names } = useLocalRouter();
   const name = useCurrentPointName();
@@ -136,28 +123,32 @@ export default function Residents() {
 
   const [currentTab, setCurrentTab] = useState(NAMES.ALL);
 
-  const onAccept = useCallback(adoptee =>
+  const isRequests = useMemo(() => currentTab === NAMES.REQUESTS, [currentTab]);
+
+  const _onAccept = useCallback(adoptee =>
     push(names.ADOPT, {
       adoptee,
       denied: false,
     })
   );
+  const onAccept = isRequests && _onAccept;
 
-  const onDecline = useCallback(adoptee =>
+  const _onDecline = useCallback(adoptee =>
     push(names.ADOPT, {
       adoptee,
       denied: true,
     })
   );
+  const onDecline = isRequests && _onDecline;
+
+  const points = isRequests ? requests : residents;
 
   return (
     <View pop={pop} inset>
+      <NavHeader>
+        <Crumbs routes={[{ text: name, action: pop }, { text: 'Residents' }]} />
+      </NavHeader>
       <Grid>
-        <Grid.Item
-          full
-          as={Crumbs}
-          routes={[{ text: name, action: pop }, { text: 'Residents' }]}
-        />
         <Grid.Item full as={H4} className="mt4">
           Residents
         </Grid.Item>
@@ -171,8 +162,7 @@ export default function Residents() {
           currentTab={currentTab}
           onTabChange={setCurrentTab}
           //  Props for tab
-          residents={residents}
-          requests={requests}
+          points={points}
           onAccept={onAccept}
           onDecline={onDecline}
         />

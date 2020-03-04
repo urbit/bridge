@@ -10,14 +10,12 @@ import { useWallet } from 'store/wallet';
 import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
-import { ForwardButton } from 'components/Buttons';
 import Blinky, { matchBlinky } from 'components/Blinky';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
 import InviteSigilList from 'components/InviteSigilList';
 import { ForwardButton, HostingButton } from 'components/Buttons';
 import CopyButton from 'components/CopyButton';
-import { matchBlinky } from 'components/Blinky';
 import DownloadSigilButton from 'components/DownloadSigilButton';
 
 import * as need from 'lib/need';
@@ -71,8 +69,6 @@ export default function Point() {
   const loadedInvites = Just.hasInstance(availableInvites);
   //
   // availableInvites.getOrElse(0) === 0
-
-  const goAdmin = useCallback(() => push(names.ADMIN), [push, names]);
 
   const goSenate = useCallback(() => push(names.SENATE), [push, names]);
 
@@ -288,29 +284,6 @@ export default function Point() {
           </>
         )}
         {senateButton}
-        <Grid.Item
-          full
-          as={ForwardButton}
-          detail="Boot your computer"
-          onClick={goBoot}>
-          Boot Urbit OS
-        </Grid.Item>
-
-        <Grid.Item full as={HostingButton} onClick={goHosting} />
-        <Grid.Divider />
-
-        <Grid.Item
-          full
-          as={ForwardButton}
-          accessory={code && <CopyButton text={code} />}
-          detail={code || notice}
-          disabled={!code}
-          detailClassName="mono">
-          Login Code
-        </Grid.Item>
-        <Grid.Divider />
-        <Grid.Item full as={DownloadSigilButton} point={point} />
-        <Grid.Divider />
       </Grid>
     </View>
   );

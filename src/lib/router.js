@@ -18,6 +18,8 @@ import UrbitOS from 'views/UrbitOS';
 import UrbitID from 'views/UrbitID';
 import Residents from 'views/Residents';
 import Adopt from 'views/Adopt';
+import Boot from 'views/Boot';
+import Hosting from 'views/Hosting';
 
 import { ROUTE_NAMES } from './routeNames';
 

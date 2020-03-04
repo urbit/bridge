@@ -103,7 +103,7 @@ const InviteMail = ({ setSubmitting }) => {
         form.reset();
       }, 1500);
     },
-    [generateInvites, setCount, setStatus, sendInvites, setSubmitting]
+    [setSubmitting, generateInvites, sendInvites, resetInvites]
   );
 
   const validateHasReceived = useCallback(

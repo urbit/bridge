@@ -5,6 +5,7 @@ export const ROUTE_NAMES = {
   ACTIVATE: Symbol('ACTIVATE'),
   INVITE_TRANSACTIONS: Symbol('INVITE_TRANSACTIONS'),
   INVITES_MANAGE: Symbol('INVITES_MANAGE'),
+  SENATE: Symbol('SENATE'),
   //
   LOGIN: Symbol('LOGIN'),
   ADMIN: Symbol('ADMIN'),

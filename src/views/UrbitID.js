@@ -9,23 +9,27 @@ import { LocalRouterProvider } from 'lib/LocalRouter';
 
 import View from 'components/View';
 import Crumbs from 'components/Crumbs';
+import NavHeader from 'components/NavHeader';
 
 import UrbitIDHome from './UrbitID/Home';
 import SigilGenerator from './UrbitID/SigilGenerator';
 import DownloadKeys from './UrbitID/DownloadKeys';
 import SetProxy from './UrbitID/SetProxy';
+import ResetKeys from './UrbitID/ResetKeys';
 
 const NAMES = {
   HOME: 'HOME',
   SIGIL_GENERATOR: 'SIGIL_GENERATOR',
   DOWNLOAD_KEYS: 'DOWNLOAD_KEYS',
   SET_PROXY: 'SET_PROXY',
+  RESET_KEYS: 'RESET_KEYS',
 };
 
 const VIEWS = {
   [NAMES.HOME]: UrbitIDHome,
   [NAMES.SIGIL_GENERATOR]: SigilGenerator,
   [NAMES.DOWNLOAD_KEYS]: DownloadKeys,
+  [NAMES.RESET_KEYS]: ResetKeys,
   [NAMES.SET_PROXY]: SetProxy,
 };
 
@@ -37,6 +41,8 @@ const humanizeName = name => {
       return 'Download Keys';
     case NAMES.SET_PROXY:
       return 'Set Key';
+    case NAMES.RESET_KEYS:
+      return 'Reset Keys';
     default:
       return undefined;
   }
@@ -58,18 +64,18 @@ export default function UrbitOS() {
 
   return (
     <View pop={router.pop} inset>
+      <NavHeader>
+        <Crumbs
+          routes={[
+            { text: name, action: () => history.pop() },
+            { text: 'Urbit ID', action: homeAction },
+            ...lastCrumb,
+          ]}
+        />
+      </NavHeader>
+
       <LocalRouterProvider value={router}>
-        <Grid className="mb4">
-          <Grid.Item
-            full
-            as={Crumbs}
-            routes={[
-              { text: name, action: () => history.pop() },
-              { text: 'Urbit ID', action: homeAction },
-              ...lastCrumb,
-            ]}
-          />
-        </Grid>
+        <Grid className="mb4"></Grid>
         <Route />
       </LocalRouterProvider>
     </View>
