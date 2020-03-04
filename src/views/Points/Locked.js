@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
 import { Grid, Flex } from 'indigo-react';
 import { Just } from 'folktale/maybe';
@@ -71,11 +71,7 @@ export default function Locked({ className }) {
     reset,
   } = useWithdrawStars();
 
-  const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
-
-  useEffect(() => {
-    syncStarReleaseDetails();
-  }, [address]);
+  const { starReleaseDetails } = useStarReleaseCache();
 
   const onValues = useCallback(
     ({ valid, values }) => {
@@ -89,7 +85,6 @@ export default function Locked({ className }) {
   );
 
   const canWithdraw = starReleaseDetails.map(b => b.available - b.withdrawn);
-  const total = starReleaseDetails.map(b => b.total);
 
   const validate = useMemo(
     () =>

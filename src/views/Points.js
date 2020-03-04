@@ -19,12 +19,12 @@ import pluralize from 'lib/pluralize';
 
 import View from 'components/View';
 import Blinky from 'components/Blinky';
-import Passport from 'components/Passport';
 import Footer from 'components/Footer';
 import { ForwardButton } from 'components/Buttons';
 import CopiableAddress from 'components/CopiableAddress';
 import NavHeader from 'components/NavHeader';
 import Tabs from 'components/Tabs';
+import PointList from 'components/PointList';
 
 import Locked from './Points/Locked';
 
@@ -32,10 +32,56 @@ function Pending({ incomingPoints, outgoingPoints }) {
   const { push, names } = useHistory();
   const { setPointCursor } = usePointCursor();
 
-  const [
-    rejectedPoints,
-    addRejectedPoint,
-  ] = useRejectedIncomingPointTransfers();
+  const onClick = useCallback(
+    point => {
+      setPointCursor(Just(point));
+      push(names.POINT);
+    },
+    [push, setPointCursor, names]
+  );
+
+  const [addRejectedPoint] = useRejectedIncomingPointTransfers();
+
+  const incomingActions = useCallback(
+    (point, i) => (
+      <ActionButtons
+        actions={[
+          {
+            text: 'Accept',
+            onClick: () => {
+              setPointCursor(Just(point));
+              push(names.ACCEPT_TRANSFER);
+            },
+          },
+          {
+            text: 'Reject',
+            onClick: () => {
+              addRejectedPoint(point);
+            },
+          },
+        ]}
+      />
+    ),
+    [setPointCursor, names, addRejectedPoint, push]
+  );
+
+  const outgoingActions = useCallback(
+    (point, i) => (
+      <ActionButtons
+        actions={[
+          {
+            text: 'Cancel',
+            onClick: () => {
+              setPointCursor(Just(point));
+              // TODO: deep linking to fix this duplicate route
+              push(names.CANCEL_TRANSFER);
+            },
+          },
+        ]}
+      />
+    ),
+    [push, setPointCursor, names]
+  );
 
   return (
     <>
@@ -52,25 +98,8 @@ function Pending({ incomingPoints, outgoingPoints }) {
             full
             as={PointList}
             points={incomingPoints}
-            actions={(point, i) => (
-              <ActionButtons
-                actions={[
-                  {
-                    text: 'Accept',
-                    onClick: () => {
-                      setPointCursor(Just(point));
-                      push(names.ACCEPT_TRANSFER);
-                    },
-                  },
-                  {
-                    text: 'Reject',
-                    onClick: () => {
-                      addRejectedPoint(point);
-                    },
-                  },
-                ]}
-              />
-            )}
+            onClick={onClick}
+            actions={incomingActions}
             inverted
           />
         </Grid.Item>
@@ -93,20 +122,8 @@ function Pending({ incomingPoints, outgoingPoints }) {
             full
             as={PointList}
             points={outgoingPoints}
-            actions={(point, i) => (
-              <ActionButtons
-                actions={[
-                  {
-                    text: 'Cancel',
-                    onClick: () => {
-                      setPointCursor(Just(point));
-                      // TODO: deep linking to fix this duplicate route
-                      push(names.CANCEL_TRANSFER);
-                    },
-                  },
-                ]}
-              />
-            )}
+            onClick={onClick}
+            actions={outgoingActions}
             inverted
           />
         </Grid.Item>
@@ -116,7 +133,25 @@ function Pending({ incomingPoints, outgoingPoints }) {
 }
 
 function Active({ allPoints }) {
-  return <Grid.Item full className="mt7" as={PointList} points={allPoints} />;
+  const { push, names } = useHistory();
+  const { setPointCursor } = usePointCursor();
+
+  const onClick = useCallback(
+    point => {
+      setPointCursor(Just(point));
+      push(names.POINT);
+    },
+    [push, setPointCursor, names]
+  );
+  return (
+    <Grid.Item
+      full
+      className="mt7"
+      as={PointList}
+      onClick={onClick}
+      points={allPoints}
+    />
+  );
 }
 
 const NAMES = {
@@ -166,36 +201,6 @@ const maybeGetResult = (obj, key, defaultValue) =>
 
 const hasTransferProxy = details => !isZeroAddress(details.transferProxy);
 
-const PointList = function({ points, className, actions, ...rest }) {
-  const { setPointCursor } = usePointCursor();
-  const { push, names } = useHistory();
-
-  return (
-    <Grid gap={3} className={className}>
-      {points.map((point, i) => (
-        <Grid.Item
-          key={point}
-          className={`full half-${(i % 2) + 1}-md half-${(i % 2) + 1}-lg`}>
-          <Flex col>
-            <Passport.Mini
-              point={point}
-              className="pointer"
-              onClick={() => {
-                setPointCursor(Just(point));
-                push(names.POINT);
-              }}
-              {...rest}
-            />
-            {actions && (
-              <Flex.Item className="mt2">{actions(point, i)}</Flex.Item>
-            )}
-          </Flex>
-        </Grid.Item>
-      ))}
-    </Grid>
-  );
-};
-
 function ActionButtons({ actions = [] }) {
   return (
     <Flex row>
@@ -218,10 +223,7 @@ export default function Points() {
   const { setPointCursor } = usePointCursor();
   const { controlledPoints, getDetails } = usePointCache();
   const isEclipticOwner = useIsEclipticOwner();
-  const [
-    rejectedPoints,
-    addRejectedPoint,
-  ] = useRejectedIncomingPointTransfers();
+  const [rejectedPoints] = useRejectedIncomingPointTransfers();
   const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
 
   const maybeOutgoingPoints = useMemo(
@@ -324,20 +326,17 @@ export default function Points() {
     ...spawningPoints,
   ];
 
-  const displayEmptyState =
-    !loading && incomingPoints.length === 0 && allPoints.length === 0;
-
-  const starReleasing = starReleaseDetails
-    .map(s => s.total > 0)
-    .getOrElse(false);
-
   const lockedCount = starReleaseDetails
     .map(b => b.available - b.withdrawn)
     .getOrElse(0);
 
+  const hasLocked = lockedCount !== 0;
+
   const pendingCount = outgoingPoints.length + incomingPoints.length;
 
   const showTabs = pendingCount + lockedCount !== 0;
+
+  const displayEmptyState = !loading && !showTabs && allPoints.length === 0;
 
   const OPTIONS = buildOptions(allPoints.length, lockedCount, pendingCount);
 
@@ -367,7 +366,7 @@ export default function Points() {
     (allPoints.length === 1 &&
       incomingPoints.length === 0 &&
       outgoingPoints.length === 0 &&
-      !starReleasing)
+      !hasLocked)
   ) {
     return (
       <View inset pop={pop}>
@@ -405,6 +404,13 @@ export default function Points() {
           />
         )}
         {!showTabs && <Grid.Item full as={Active} allPoints={allPoints} />}
+
+        {displayEmptyState && (
+          <Grid.Item full as={HelpText} className="mt8 t-center">
+            No points to display. This wallet is the not the owner or proxy of
+            any points
+          </Grid.Item>
+        )}
 
         <Footer>
           <Grid>
