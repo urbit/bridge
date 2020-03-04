@@ -125,19 +125,23 @@ export default function Residents() {
 
   const isRequests = useMemo(() => currentTab === NAMES.REQUESTS, [currentTab]);
 
-  const _onAccept = useCallback(adoptee =>
-    push(names.ADOPT, {
-      adoptee,
-      denied: false,
-    })
+  const _onAccept = useCallback(
+    adoptee =>
+      push(names.ADOPT, {
+        adoptee,
+        denied: false,
+      }),
+    [push, names]
   );
   const onAccept = isRequests && _onAccept;
 
-  const _onDecline = useCallback(adoptee =>
-    push(names.ADOPT, {
-      adoptee,
-      denied: true,
-    })
+  const _onDecline = useCallback(
+    adoptee =>
+      push(names.ADOPT, {
+        adoptee,
+        denied: true,
+      }),
+    [push, names]
   );
   const onDecline = isRequests && _onDecline;
 

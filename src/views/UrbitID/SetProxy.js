@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
-import { Grid, Text, Flex, ToggleInput } from 'indigo-react';
+import { Grid, Text, Flex } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from 'store/network';
@@ -18,7 +18,6 @@ import { ETH_ZERO_ADDR, eqAddr, isZeroAddress } from 'lib/wallet';
 import capitalize from 'lib/capitalize';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 
-import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import { AddressInput } from 'form/Inputs';
@@ -29,7 +28,6 @@ import {
 } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
-import CopiableAddress from 'components/CopiableAddress';
 
 const proxyFromDetails = (details, contracts, proxyType) => {
   switch (proxyType) {
@@ -153,10 +151,6 @@ export default function SetProxy() {
 
   const proxyAddress = proxyFromDetails(_details, _contracts, data.proxyType);
   const isProxySet = !isZeroAddress(proxyAddress);
-
-  const proxyAddressLabel = useMemo(() => `Current ${properProxyType} Key`, [
-    properProxyType,
-  ]);
 
   const header = useMemo(() => {
     const pfix = completed ? 'New' : 'Edit';

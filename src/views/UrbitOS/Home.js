@@ -21,7 +21,7 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import { useHosting } from 'store/hosting';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 
-export default function UrbitOSHome() {
+export default function UrbitOSHome({ manualNetworkSeed }) {
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
 
@@ -51,7 +51,7 @@ export default function UrbitOSHome() {
   ]);
   return (
     <>
-      <Hosting />
+      <Hosting manualNetworkSeed={manualNetworkSeed} />
 
       <Grid>
         <Grid.Item full className="mv7 f5">
@@ -91,22 +91,12 @@ export default function UrbitOSHome() {
 }
 
 // eslint-disable-next-line
-function Hosting() {
-  const bind = useKeyfileGenerator();
-  const { keyfile, code, notice } = bind;
+function Hosting({ manualNetworkSeed }) {
+  const bind = useKeyfileGenerator(manualNetworkSeed);
+  const { keyfile, code } = bind;
   const ship = useHosting();
 
-  const {
-    syncStatus,
-    url,
-    unknown,
-    running,
-    sysEvents,
-    runEvents,
-    newEvents,
-    bootProgress,
-    bootMessage,
-  } = ship;
+  const { syncStatus, url, unknown, bootProgress, bootMessage } = ship;
 
   const [synced, setSynced] = useState(false);
   useEffect(() => {
@@ -120,8 +110,6 @@ function Hosting() {
 
   const name = useCurrentPointName();
   const options = [{ text: 'Tlon', value: 'tlon' }];
-
-  const props = { name, options, ship };
 
   const renderMain = useCallback(() => {
     if (ship.running) {
@@ -181,18 +169,14 @@ function Hosting() {
         </>
       );
     }
-    if (ship.missing) {
+    if (!keyfile && ship.missing) {
       return (
-        <>
-          <Grid.Item full className="gray4">
-            <span className="gray3">Status:</span> Disconnected
-            <br />
-            <span className="f6">Last connected: 4m ago</span>
-          </Grid.Item>
-        </>
+        <Grid.Item full className="gray4">
+          Please reset your networking keys in order to use hosting
+        </Grid.Item>
       );
     }
-  }, [name, ship]);
+  }, [name, ship, keyfile]);
 
   return (
     <>
@@ -201,7 +185,7 @@ function Hosting() {
           <Flex.Item>Urbit OS </Flex.Item>
           <Flex.Item
             className={cn(
-              { green3: ship.running, grey4: !ship.running },
+              { green3: ship.running, gray4: !ship.running },
               'ml3'
             )}>
             {ship.running ? 'Connected' : 'Disconnected'}
@@ -233,16 +217,17 @@ function Hosting() {
           detail="A keyfile authenticates your Urbit ID to Urbit OS"
         />
         <Grid.Divider />
-        <Grid.Item
-          full
-          className="mt2"
-          as={ForwardButton}
-          accessory={code && <CopyButton text={code} />}
-          detail={code || notice}
-          disabled={!code}
-          detailClassName="mono">
-          Login Code
-        </Grid.Item>
+        {code && (
+          <Grid.Item
+            full
+            className="mt2"
+            as={ForwardButton}
+            accessory={<CopyButton text={code} />}
+            detail={code}
+            detailClassName="mono">
+            Login Code
+          </Grid.Item>
+        )}
       </Grid>
     </>
   );

@@ -7,17 +7,14 @@ import { ForwardButton } from 'components/Buttons';
 import CopyButton from 'components/CopyButton';
 
 import { useLocalRouter } from 'lib/LocalRouter';
-import { isZeroAddress } from 'lib/wallet';
 import { PROXY_TYPE, proxyTypeToHuman } from 'lib/proxy';
 import * as need from 'lib/need';
 import capitalize from 'lib/capitalize';
-import { eqAddr } from 'lib/wallet';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import convertToInt from 'lib/convertToInt';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
-import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 
 export default function UrbitIDHome() {
@@ -25,8 +22,6 @@ export default function UrbitIDHome() {
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
   const { urbitWallet } = useWallet();
-
-  const { contracts } = useNetwork();
 
   const goSigil = useCallback(() => push(names.SIGIL_GENERATOR), [push, names]);
 
@@ -38,10 +33,9 @@ export default function UrbitIDHome() {
   const goResetKeys = useCallback(() => push(names.RESET_KEYS), [push, names]);
 
   const isMasterTicket = Just.hasInstance(urbitWallet);
-  const _contracts = need.contracts(contracts);
   const point = need.point(pointCursor);
   const details = need.details(getDetails(point));
-  const { canManage, isOwner } = useCurrentPermissions();
+  const { isOwner } = useCurrentPermissions();
   const networkRevision = convertToInt(details.keyRevisionNumber, 10);
 
   const pointSize = azimuth.getPointSize(point);
@@ -52,6 +46,8 @@ export default function UrbitIDHome() {
     proxyType => push(names.SET_PROXY, { proxyType }),
     [push, names]
   );
+
+  const goTransfer = useCallback(() => push(names.TRANSFER), [names, push]);
 
   const renderProxyAction = useCallback(
     (proxyType, address) => {
@@ -74,7 +70,7 @@ export default function UrbitIDHome() {
   );
   return (
     <Grid>
-      <Grid.Item full className="mv7 f5">
+      <Grid.Item full className="mb7 f5">
         Urbit ID
       </Grid.Item>
       <Grid.Divider />
@@ -99,6 +95,10 @@ export default function UrbitIDHome() {
         full
         as={ForwardButton}
         onClick={goResetKeys}
+        disabled={!isOwner}
+        disabledDetail={
+          <B className="wrap ws-normal"> · Ownership key required</B>
+        }
         detail="Reset Master Key and all other keys">
         Reset Keys
       </Grid.Item>
@@ -145,6 +145,16 @@ export default function UrbitIDHome() {
           <Grid.Divider />
         </>
       )}
+      <Grid.Item
+        full
+        as={ForwardButton}
+        onClick={goTransfer}
+        disabled={!isOwner}
+        disabledDetail={
+          <B className="wrap ws-normal"> · Ownership key required</B>
+        }>
+        Transfer this point
+      </Grid.Item>
     </Grid>
   );
 }

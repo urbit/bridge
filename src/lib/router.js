@@ -18,8 +18,6 @@ import UrbitOS from 'views/UrbitOS';
 import UrbitID from 'views/UrbitID';
 import Residents from 'views/Residents';
 import Adopt from 'views/Adopt';
-import Boot from 'views/Boot';
-import Hosting from 'views/Hosting';
 
 import { ROUTE_NAMES } from './routeNames';
 
@@ -41,8 +39,6 @@ export const ROUTES = {
   [ROUTE_NAMES.INVITE_COHORT]: InviteCohort,
   [ROUTE_NAMES.STAR_RELEASE]: StarRelease,
   [ROUTE_NAMES.URBIT_OS]: UrbitOS,
-  [ROUTE_NAMES.BOOT]: Boot,
-  [ROUTE_NAMES.HOSTING]: Hosting,
   [ROUTE_NAMES.URBIT_ID]: UrbitID,
   [ROUTE_NAMES.RESIDENTS]: Residents,
   [ROUTE_NAMES.ADOPT]: Adopt,

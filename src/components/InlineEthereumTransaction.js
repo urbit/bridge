@@ -8,7 +8,6 @@ import {
   LinkButton,
   H5,
   Text,
-  IconButton,
 } from 'indigo-react';
 import { toBN } from 'web3-utils';
 
@@ -16,7 +15,6 @@ import { ReactComponent as InfoIcon } from 'assets/info.svg';
 
 import { useExploreTxUrls } from 'lib/explorer';
 import { hexify } from 'lib/txn';
-import pluralize from 'lib/pluralize';
 import { safeFromWei, safeToWei } from 'lib/lib';
 
 import { composeValidator, buildCheckboxValidator } from 'form/validators';
@@ -275,6 +273,7 @@ export default function InlineEthereumTransaction({
 
             {completed && (
               <>
+                <Grid.Divider />
                 <Grid.Item full as={RestartButton} onClick={onReturn}>
                   Return
                 </Grid.Item>

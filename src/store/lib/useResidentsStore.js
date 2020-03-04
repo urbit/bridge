@@ -1,11 +1,10 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 
 import { azimuth } from 'azimuth-js';
 
 import { useNetwork } from 'store/network';
 
-import useCurrentPermissions from 'lib/useCurrentPermissions';
 import * as need from 'lib/need';
 
 const emptyCacheEntry = {
@@ -29,7 +28,7 @@ export default function useResidents() {
     [residentCache]
   );
 
-  const { contracts, web3 } = useNetwork();
+  const { contracts } = useNetwork();
   const _contracts = need.contracts(contracts);
 
   const syncResidentCount = useCallback(

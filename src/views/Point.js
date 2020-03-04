@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import cn from 'classnames';
 import { Just } from 'folktale/maybe';
 import { Grid, Flex, Button } from 'indigo-react';
@@ -14,9 +14,7 @@ import Blinky, { matchBlinky } from 'components/Blinky';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
 import InviteSigilList from 'components/InviteSigilList';
-import { ForwardButton, HostingButton } from 'components/Buttons';
-import CopyButton from 'components/CopyButton';
-import DownloadSigilButton from 'components/DownloadSigilButton';
+import { ForwardButton } from 'components/Buttons';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
@@ -72,8 +70,6 @@ export default function Point() {
 
   const goSenate = useCallback(() => push(names.SENATE), [push, names]);
 
-  const goSigil = useCallback(() => push(names.SIGIL_GENERATOR), [push, names]);
-
   const goCohort = useCallback(() => push(names.INVITE_COHORT), [push, names]);
 
   const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
@@ -95,9 +91,6 @@ export default function Point() {
   const isPlanet = azimuth.getPointSize(point) === azimuth.PointSize.Planet;
 
   const [showInviteForm, setShowInviteForm] = useState(false);
-
-  const goBoot = useCallback(() => push(names.BOOT), [push, names]);
-  const goHosting = useCallback(() => push(names.HOSTING), [push, names]);
 
   const inviteButton = (() => {
     if (azimuth.getPointSize(point) === azimuth.PointSize.Star) {
@@ -210,7 +203,19 @@ export default function Point() {
         <Grid.Item full className="mb2" />
       </>
     );
-  });
+  }, [
+    showInviteForm,
+    setShowInviteForm,
+    _pendingInvites,
+    _totalInvites,
+    acceptedInvites,
+    acceptedPoints,
+    availableInvites,
+    goCohort,
+    pendingPoints,
+    sentInvites,
+    showInvites,
+  ]);
 
   const _requestCount = requestCount.getOrElse(0);
 

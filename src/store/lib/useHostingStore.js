@@ -1,13 +1,13 @@
 import { useState, useCallback, useMemo } from 'react';
-import { Just, Nothing } from 'folktale/maybe';
+import { Nothing } from 'folktale/maybe';
 import * as ob from 'urbit-ob';
 
 import { getVaneName, getVaneNumber } from 'lib/hosting';
 import SolarisClient from 'lib/SolarisClient';
-// import { usePointCursor } from 'store/pointCursor';
-import useKeyfileGenerator from 'lib/useKeyfileGenerator';
+
+import { usePointCursor } from 'store/pointCursor';
+
 const STATE = {
-  // container states
   UNKNOWN: 'UNKNOWN',
   MISSING: 'MISSING',
   RUNNING: 'RUNNING',
@@ -17,9 +17,7 @@ const STATE = {
 function useHostingStore(url) {
   const client = new SolarisClient(url);
 
-  // const { pointCursor } = usePointCursor();
-  //
-  const pointCursor = Just(ob.patp2dec('~wicdev-wisryt'));
+  const { pointCursor } = usePointCursor();
 
   const [bootProgress, setBootProgress] = useState(0);
   const [bootMessage, setBootMessage] = useState('Assembling Urbit');
@@ -182,8 +180,6 @@ function useHostingStore(url) {
         if (Nothing.hasInstance(pointCursor)) {
           return;
         }
-        keyfile =
-          '0wnE.Z56pm.i2HLZ.6Pf1R.tAVZH.65R~C.Zgy6y.caI5Z.bZ2vV.09M5A.QP5-p.29UfR.35h2U.2k8-D.QP~~p.6bL62.~x3Em.t9h0x.0y01N.w80c1';
         const patp = ob.patp(pointCursor.value).slice(1);
         setError(undefined);
 

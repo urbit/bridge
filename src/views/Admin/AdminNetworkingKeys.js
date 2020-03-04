@@ -26,7 +26,6 @@ import { addHexPrefix } from 'lib/wallet';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 import ViewHeader from 'components/ViewHeader';
-import { HostingButton } from 'components/Buttons';
 import FooterButton from 'components/FooterButton';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
@@ -417,7 +416,6 @@ export default function AdminNetworkingKeys() {
 
         {completed && (
           <>
-            <Grid.Item full as={HostingButton} onReturn={() => pop()} />
             <Grid.Divider />
           </>
         )}

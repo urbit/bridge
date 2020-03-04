@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Grid } from 'indigo-react';
 
 import { useHistory } from 'store/history';
@@ -37,6 +37,8 @@ export default function UrbitOS() {
     initialRoutes: [{ key: NAMES.HOME }],
   });
 
+  const [manualNetworkSeed, setManualNetworkSeed] = useState();
+
   return (
     <View pop={router.pop} inset>
       <NavHeader>
@@ -49,7 +51,10 @@ export default function UrbitOS() {
       </NavHeader>
       <LocalRouterProvider value={router}>
         <Grid className="mb4"></Grid>
-        <Route />
+        <Route
+          manualNetworkSeed={manualNetworkSeed}
+          setManualNetworkSeed={setManualNetworkSeed}
+        />
       </LocalRouterProvider>
     </View>
   );

@@ -16,6 +16,7 @@ import SigilGenerator from './UrbitID/SigilGenerator';
 import DownloadKeys from './UrbitID/DownloadKeys';
 import SetProxy from './UrbitID/SetProxy';
 import ResetKeys from './UrbitID/ResetKeys';
+import Transfer from './UrbitID/Transfer';
 
 const NAMES = {
   HOME: 'HOME',
@@ -23,6 +24,7 @@ const NAMES = {
   DOWNLOAD_KEYS: 'DOWNLOAD_KEYS',
   SET_PROXY: 'SET_PROXY',
   RESET_KEYS: 'RESET_KEYS',
+  TRANSFER: 'TRANSFER',
 };
 
 const VIEWS = {
@@ -31,6 +33,7 @@ const VIEWS = {
   [NAMES.DOWNLOAD_KEYS]: DownloadKeys,
   [NAMES.RESET_KEYS]: ResetKeys,
   [NAMES.SET_PROXY]: SetProxy,
+  [NAMES.TRANSFER]: Transfer,
 };
 
 const humanizeName = name => {
@@ -43,6 +46,8 @@ const humanizeName = name => {
       return 'Set Key';
     case NAMES.RESET_KEYS:
       return 'Reset Keys';
+    case NAMES.TRANSFER:
+      return 'Transfer';
     default:
       return undefined;
   }

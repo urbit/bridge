@@ -7,8 +7,6 @@ import useRouter from 'lib/useRouter';
 
 import Steps from 'components/Steps';
 
-import { usePointCursor } from 'store/pointCursor';
-
 import ResetConfirm from './ResetKeys/ResetConfirm';
 import ResetDownload from './ResetKeys/ResetDownload';
 import ResetVerify from './ResetKeys/ResetVerify';

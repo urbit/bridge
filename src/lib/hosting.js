@@ -18,6 +18,8 @@ export const getVaneName = code => {
       return 'Iris';
     case 'j':
       return 'Jael';
+    default:
+      return '';
   }
 };
 

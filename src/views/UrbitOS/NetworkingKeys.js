@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { Just } from 'folktale/maybe';
 import { Grid, ToggleInput, CheckboxInput } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
@@ -37,7 +37,7 @@ import Condition from 'form/Condition';
 import FormError from 'form/FormError';
 import convertToInt from 'lib/convertToInt';
 
-function useSetKeys() {
+function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
   const { urbitWallet, wallet, authMnemonic } = useWallet();
   const { pointCursor } = usePointCursor();
   const { syncDetails, syncRekeyDate, getDetails } = usePointCache();
@@ -50,19 +50,16 @@ function useSetKeys() {
   const networkRevision = convertToInt(_details.keyRevisionNumber, 10);
   const randomSeed = useRef();
 
-  // NOTE: nd = 'nondeterministic' (can also be a 'manual' seed)
-  const [ndNetworkSeed, setNdNetworkSeed] = useState();
-
   const {
     available: keyfileAvailable,
     filename,
     bind: keyfileBind,
-  } = useKeyfileGenerator(ndNetworkSeed);
+  } = useKeyfileGenerator(manualNetworkSeed);
 
   const buildNetworkSeed = useCallback(
     async manualSeed => {
       if (manualSeed !== undefined) {
-        setNdNetworkSeed(manualSeed);
+        setManualNetworkSeed(manualSeed);
         return manualSeed;
       } else {
         const newNetworkRevision = networkRevision + 1;
@@ -81,12 +78,19 @@ function useSetKeys() {
         }
 
         randomSeed.current = randomSeed.current || randomHex(32); // 32 bytes
-        setNdNetworkSeed(randomSeed.current);
+        setManualNetworkSeed(randomSeed.current);
 
         return randomSeed.current;
       }
     },
-    [_details, authMnemonic, networkRevision, urbitWallet, wallet]
+    [
+      _details,
+      authMnemonic,
+      networkRevision,
+      setManualNetworkSeed,
+      urbitWallet,
+      wallet,
+    ]
   );
 
   const { completed: _completed, ...rest } = useEthereumTransaction(
@@ -118,14 +122,16 @@ function useSetKeys() {
 
   return {
     completed,
-    ndNetworkSeed,
     filename,
     keyfileBind,
     ...rest,
   };
 }
 
-export default function UrbitOSNetworkingKeys() {
+export default function UrbitOSNetworkingKeys({
+  manualNetworkSeed,
+  setManualNetworkSeed,
+}) {
   const { pop } = useLocalRouter();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
@@ -143,12 +149,11 @@ export default function UrbitOSNetworkingKeys() {
   const {
     construct,
     unconstruct,
-    broadcasting,
     completed,
     inputsLocked,
     bind,
     keyfileBind,
-  } = useSetKeys();
+  } = useSetKeys(manualNetworkSeed, setManualNetworkSeed);
 
   const validateForm = useCallback((values, errors) => {
     if (values.useNetworkSeed && errors.networkSeed) {
@@ -195,7 +200,8 @@ export default function UrbitOSNetworkingKeys() {
     []
   );
 
-  const usageMessage = 'You need this to authenticate with arvo';
+  const usageMessage =
+    'You need this to authenticate with Arvo. Please download';
 
   return (
     <>

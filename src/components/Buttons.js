@@ -23,9 +23,3 @@ export const OfflineButton = props => (
     Offline
   </OutButton>
 );
-
-export const HostingButton = props => (
-  <ForwardButton detail="Boot your Urbit OS" {...props}>
-    Boot your Urbit OS
-  </ForwardButton>
-);
