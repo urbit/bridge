@@ -11,6 +11,7 @@ export default function Input({
   label,
   className,
   accessory,
+  accessoryWidth = 'calc(1.5em + 24px)',
   disabled = false,
   mono = false,
   obscure,
@@ -109,8 +110,8 @@ export default function Input({
             style={{
               top: 0,
               right: 0,
+              width: accessoryWidth,
               height: '100%',
-              width: 'calc(1.5em + 24px)',
               overflow: 'hidden',
             }}>
             {accessory}

@@ -75,7 +75,7 @@ export default function Locked({ className }) {
 
   useEffect(() => {
     syncStarReleaseDetails();
-  }, [syncStarReleaseDetails]);
+  }, [address]);
 
   const onValues = useCallback(
     ({ valid, values }) => {
@@ -105,7 +105,7 @@ export default function Locked({ className }) {
   const initialValues = { address };
 
   return (
-    <Grid gap={completed ? 0 : 6} className={cn('mt4', className)} full>
+    <Grid gap={completed ? 0 : 7} className={cn('mt7', className)} full>
       <BridgeForm
         initialValues={initialValues}
         onValues={onValues}
@@ -114,25 +114,43 @@ export default function Locked({ className }) {
           <>
             {!completed && (
               <>
-                <Grid.Item full className="f5">
-                  You have <MatchPluralizeStars quantity={canWithdraw} />
-                  available to withdraw
-                  <br />
-                  You have
-                  <MatchPluralizeStars quantity={total} />
-                  total
+                <Grid.Item full as={Flex} col>
+                  <Flex.Item full className="mb2 gray4">
+                    Locked
+                  </Flex.Item>
+                  <Flex.Item full>
+                    <MatchPluralizeStars quantity={canWithdraw} />
+                  </Flex.Item>
                 </Grid.Item>
+
+                {/* <Grid.Item full className="f5"> */}
+                {/*   You have <MatchPluralizeStars quantity={canWithdraw} /> */}
+                {/*   available to withdraw */}
+                {/*   <br /> */}
+                {/*   You have */}
+                {/*   <MatchPluralizeStars quantity={total} /> */}
+                {/*   total */}
+                {/* </Grid.Item> */}
                 <Grid.Item
-                  cols={[1, 4]}
+                  full
                   label="Stars"
                   as={NumberInput}
-                  placeholder="#"
+                  placeholder="Enter star amount"
                   name="numStars"
                   disabled={inputsLocked}
+                  accessoryWidth="162px"
                   accessory={
-                    <div className="flex-center h-full">
-                      / &nbsp;{matchBlinky(canWithdraw)}
-                    </div>
+                    <Flex
+                      align="center"
+                      justify="center"
+                      style={{
+                        'box-sizing': 'border-box',
+                        height: '46px',
+                        'margin-top': '1px',
+                      }}
+                      className="w11 bl1 b-gray2 bg-gray1">
+                      stars
+                    </Flex>
                   }
                 />
                 <Grid.Item full className="f5" cols={[1, 13]} as={Flex} col>

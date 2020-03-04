@@ -23,7 +23,6 @@ export default function useStarRelease() {
     if (!(_contracts && _wallet)) {
       return;
     }
-    _setDetails(Nothing());
 
     const address = _wallet.address;
 
