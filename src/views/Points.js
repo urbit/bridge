@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H5, HelpText, LinkButton, Flex } from 'indigo-react';
 import { get } from 'lodash';
+import cn from 'classnames';
 
 import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
@@ -23,6 +24,118 @@ import Footer from 'components/Footer';
 import { ForwardButton } from 'components/Buttons';
 import CopiableAddress from 'components/CopiableAddress';
 import NavHeader from 'components/NavHeader';
+import Tabs from 'components/Tabs';
+
+import Locked from './Points/Locked';
+
+function Pending({ incomingPoints, outgoingPoints }) {
+  const { push, names } = useHistory();
+  const { setPointCursor } = usePointCursor();
+
+  const [
+    rejectedPoints,
+    addRejectedPoint,
+  ] = useRejectedIncomingPointTransfers();
+
+  return (
+    <>
+      {incomingPoints.length > 0 && (
+        <Grid.Item full as={Grid} gap={1} className="mv6">
+          <Grid.Item full as={H5} className="mb3">
+            {pluralize(
+              incomingPoints.length,
+              'Incoming Transfer',
+              'Incoming Transfers'
+            )}
+          </Grid.Item>
+          <Grid.Item
+            full
+            as={PointList}
+            points={incomingPoints}
+            actions={(point, i) => (
+              <ActionButtons
+                actions={[
+                  {
+                    text: 'Accept',
+                    onClick: () => {
+                      setPointCursor(Just(point));
+                      push(names.ACCEPT_TRANSFER);
+                    },
+                  },
+                  {
+                    text: 'Reject',
+                    onClick: () => {
+                      addRejectedPoint(point);
+                    },
+                  },
+                ]}
+              />
+            )}
+            inverted
+          />
+        </Grid.Item>
+      )}
+
+      {outgoingPoints.length > 0 && (
+        <Grid.Item
+          full
+          as={Grid}
+          gap={1}
+          className={cn({ mt6: incomingPoints.length === 0 }, 'mb6')}>
+          <Grid.Item full as={H5} className="mb3">
+            {pluralize(
+              outgoingPoints.length,
+              'Outgoing Transfer',
+              'Outgoing Transfers'
+            )}
+          </Grid.Item>
+          <Grid.Item
+            full
+            as={PointList}
+            points={outgoingPoints}
+            actions={(point, i) => (
+              <ActionButtons
+                actions={[
+                  {
+                    text: 'Cancel',
+                    onClick: () => {
+                      setPointCursor(Just(point));
+                      // TODO: deep linking to fix this duplicate route
+                      push(names.CANCEL_TRANSFER);
+                    },
+                  },
+                ]}
+              />
+            )}
+            inverted
+          />
+        </Grid.Item>
+      )}
+    </>
+  );
+}
+
+function Active({ allPoints }) {
+  return <Grid.Item full className="mt7" as={PointList} points={allPoints} />;
+}
+
+const NAMES = {
+  ACTIVE: 'ACTIVE',
+  LOCKED: 'LOCKED',
+  PENDING: 'PENDING',
+};
+
+const VIEWS = {
+  [NAMES.ACTIVE]: Active,
+  [NAMES.LOCKED]: Locked,
+  [NAMES.PENDING]: Pending,
+};
+
+const OPTIONS = [
+  { text: 'Active', value: NAMES.ACTIVE },
+  { text: 'Locked', value: NAMES.LOCKED },
+  { text: 'Pending', value: NAMES.PENDING },
+];
 
 const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -199,6 +312,8 @@ export default function Points() {
     .map(s => s.total > 0)
     .getOrElse(false);
 
+  const [currentTab, setCurrentTab] = useState(NAMES.ACTIVE);
+
   useEffect(() => {
     syncStarReleaseDetails();
   }, [syncStarReleaseDetails]);
@@ -215,11 +330,6 @@ export default function Points() {
 
   const goCreateGalaxy = useCallback(() => push(names.CREATE_GALAXY), [
     names.CREATE_GALAXY,
-    push,
-  ]);
-
-  const goStarRelease = useCallback(() => push(names.STAR_RELEASE), [
-    names.STAR_RELEASE,
     push,
   ]);
 
@@ -251,116 +361,34 @@ export default function Points() {
         </CopiableAddress>
       </NavHeader>
       <Grid>
-        {displayEmptyState && (
-          <Grid.Item full as={HelpText} className="mt8 t-center">
-            No points to display. This wallet is not the owner or proxy for any
-            points.
-          </Grid.Item>
-        )}
-
-        {incomingPoints.length > 0 && (
-          <Grid.Item full as={Grid} gap={1} className="mb6">
-            <Grid.Item full as={H5}>
-              {pluralize(
-                incomingPoints.length,
-                'Incoming Transfer',
-                'Incoming Transfers'
-              )}
-            </Grid.Item>
-            <Grid.Item
-              full
-              as={PointList}
-              points={incomingPoints}
-              actions={(point, i) => (
-                <ActionButtons
-                  actions={[
-                    {
-                      text: 'Accept',
-                      onClick: () => {
-                        setPointCursor(Just(point));
-                        push(names.ACCEPT_TRANSFER);
-                      },
-                    },
-                    {
-                      text: 'Reject',
-                      onClick: () => {
-                        addRejectedPoint(point);
-                      },
-                    },
-                  ]}
-                />
-              )}
-              inverted
-            />
-          </Grid.Item>
-        )}
-
-        {outgoingPoints.length > 0 && (
-          <Grid.Item full as={Grid} gap={1} className="mb6">
-            <Grid.Item full as={H5}>
-              {pluralize(
-                outgoingPoints.length,
-                'Outgoing Transfer',
-                'Outgoing Transfers'
-              )}
-            </Grid.Item>
-            <Grid.Item
-              full
-              as={PointList}
-              points={outgoingPoints}
-              actions={(point, i) => (
-                <ActionButtons
-                  actions={[
-                    {
-                      text: 'Cancel',
-                      onClick: () => {
-                        setPointCursor(Just(point));
-                        // TODO: deep linking to fix this duplicate route
-                        push(names.CANCEL_TRANSFER);
-                      },
-                    },
-                  ]}
-                />
-              )}
-              inverted
-            />
-          </Grid.Item>
-        )}
-
-        {allPoints.length > 0 && (
-          <Grid.Item full as={Grid} gap={1}>
-            <Grid.Item full as={H5}>
-              {pluralize(allPoints.length, 'ID')}
-            </Grid.Item>
-            <Grid.Item full as={PointList} points={allPoints} />
-          </Grid.Item>
-        )}
+        <Grid.Item
+          full
+          as={Tabs}
+          center
+          views={VIEWS}
+          options={OPTIONS}
+          currentTab={currentTab}
+          onTabChange={setCurrentTab}
+          allPoints={allPoints}
+          incomingPoints={incomingPoints}
+          outgoingPoints={outgoingPoints}
+        />
 
         <Footer>
           <Grid>
             <Grid.Divider />
             {isEclipticOwner && (
               <>
+                {' '}
                 <Grid.Item
                   full
                   as={ForwardButton}
                   detail="You have the authority to create a new Galaxy."
                   onClick={goCreateGalaxy}>
-                  Create a galaxy
-                </Grid.Item>
-                <Grid.Divider />
-              </>
-            )}
-            {starReleasing && (
-              <>
-                <Grid.Item
-                  full
-                  as={ForwardButton}
-                  detail="You have points being released"
-                  onClick={goStarRelease}>
-                  View Star Release
-                </Grid.Item>
-                <Grid.Divider />
+                  {' '}
+                  Create a galaxy{' '}
+                </Grid.Item>{' '}
+                <Grid.Divider />{' '}
               </>
             )}
           </Grid>
