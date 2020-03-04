@@ -40,8 +40,8 @@ function Pending({ incomingPoints, outgoingPoints }) {
   return (
     <>
       {incomingPoints.length > 0 && (
-        <Grid.Item full as={Grid} gap={1} className="mv6">
-          <Grid.Item full as={H5} className="mb3">
+        <Grid.Item full as={Grid} className="mv6">
+          <Grid.Item full as={H5} className="mb6">
             {pluralize(
               incomingPoints.length,
               'Incoming Transfer',
@@ -82,7 +82,7 @@ function Pending({ incomingPoints, outgoingPoints }) {
           as={Grid}
           gap={1}
           className={cn({ mt6: incomingPoints.length === 0 }, 'mb6')}>
-          <Grid.Item full as={H5} className="mb3">
+          <Grid.Item full as={H5} className="mb6">
             {pluralize(
               outgoingPoints.length,
               'Outgoing Transfer',
@@ -131,11 +131,28 @@ const VIEWS = {
   [NAMES.PENDING]: Pending,
 };
 
-const OPTIONS = [
-  { text: 'Active', value: NAMES.ACTIVE },
-  { text: 'Locked', value: NAMES.LOCKED },
-  { text: 'Pending', value: NAMES.PENDING },
-];
+const tabHeader = (name, count) => (
+  <>
+    {name} <span className="gray3">{count}</span>
+  </>
+);
+
+const buildOptions = (active, locked, pending) => {
+  const lockedOption =
+    locked !== 0
+      ? [{ text: tabHeader('Locked', locked), value: NAMES.LOCKED }]
+      : [];
+  const pendingOption =
+    pending !== 0
+      ? [{ text: tabHeader('Pending', pending), value: NAMES.PENDING }]
+      : [];
+
+  return [
+    { text: tabHeader('Active', active), value: NAMES.ACTIVE },
+    ...lockedOption,
+    ...pendingOption,
+  ];
+};
 
 const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -285,7 +302,9 @@ export default function Points() {
 
   const address = need.addressFromWallet(wallet);
 
-  const loading = Nothing.hasInstance(controlledPoints);
+  const loading =
+    Nothing.hasInstance(controlledPoints) ||
+    Nothing.hasInstance(maybeOutgoingPoints);
 
   const ownedPoints = maybeGetResult(controlledPoints, 'ownedPoints', []);
   const incomingPoints = maybeGetResult(
@@ -312,11 +331,21 @@ export default function Points() {
     .map(s => s.total > 0)
     .getOrElse(false);
 
+  const lockedCount = starReleaseDetails
+    .map(b => b.available - b.withdrawn)
+    .getOrElse(0);
+
+  const pendingCount = outgoingPoints.length + incomingPoints.length;
+
+  const showTabs = pendingCount + lockedCount !== 0;
+
+  const OPTIONS = buildOptions(allPoints.length, lockedCount, pendingCount);
+
   const [currentTab, setCurrentTab] = useState(NAMES.ACTIVE);
 
   useEffect(() => {
     syncStarReleaseDetails();
-  }, [syncStarReleaseDetails]);
+  }, []);
   // sync display details for known points
   useSyncKnownPoints([
     ...ownedPoints,
@@ -361,18 +390,21 @@ export default function Points() {
         </CopiableAddress>
       </NavHeader>
       <Grid>
-        <Grid.Item
-          full
-          as={Tabs}
-          center
-          views={VIEWS}
-          options={OPTIONS}
-          currentTab={currentTab}
-          onTabChange={setCurrentTab}
-          allPoints={allPoints}
-          incomingPoints={incomingPoints}
-          outgoingPoints={outgoingPoints}
-        />
+        {showTabs && (
+          <Grid.Item
+            full
+            as={Tabs}
+            center
+            views={VIEWS}
+            options={OPTIONS}
+            currentTab={currentTab}
+            onTabChange={setCurrentTab}
+            allPoints={allPoints}
+            incomingPoints={incomingPoints}
+            outgoingPoints={outgoingPoints}
+          />
+        )}
+        {!showTabs && <Grid.Item full as={Active} allPoints={allPoints} />}
 
         <Footer>
           <Grid>
