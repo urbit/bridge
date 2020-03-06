@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { P, H4, Grid } from 'indigo-react';
+import { P, H4, H5, Grid, Text } from 'indigo-react';
 
 import { version } from '../../package.json';
 
@@ -62,8 +62,9 @@ export default function Login() {
     <View pop={pop} inset>
       <Grid>
         <Grid.Item full as={Crumbs} routes={[{ text: 'Bridge' }]} />
-        <Grid.Item full as={H4} className="mt4">
-          Login
+        <Grid.Item full as={Text} className="flex justify-center mt4">
+          <Grid.Item as={Text} className="gray3">Urbit ID /&nbsp;</Grid.Item>
+          <Grid.Item as={Text}>Login</Grid.Item>
         </Grid.Item>
 
         <Grid.Item
