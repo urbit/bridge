@@ -34,16 +34,28 @@ export default function useResidents() {
   const syncResidentCount = useCallback(
     async point => {
       // Do nothing if we've already fetched in full
+      // or we aren't a sponsor
+      const pointSize = azimuth.getPointSize(point);
       if (Just.hasInstance(getResidents(point).residents)) {
         return;
       }
+      if (pointSize === azimuth.PointSize.Planet) {
+        addToResidentCache(point, {
+          residentCount: Just(0),
+          requestsCount: Just(0),
+          requests: Just([]),
+          residents: Just([]),
+        });
+        return;
+      }
 
-      const isGalaxy = azimuth.getPointSize(point) === azimuth.PointSize.Galaxy;
+      const isGalaxy = pointSize === azimuth.PointSize.Galaxy;
       const [residentCount, requestCount] = await Promise.all([
         azimuth.getSponsoringCount(_contracts, point),
         azimuth.getEscapeRequestsCount(_contracts, point),
       ]);
 
+      // Galaxies sponsor themselves
       const _residentCount = isGalaxy
         ? residentCount.toNumber() - 1
         : residentCount.toNumber();
@@ -60,12 +72,22 @@ export default function useResidents() {
 
   const syncResidents = useCallback(
     async point => {
-      // Galaxies sponsor themselves
+      if (azimuth.getPointSize(point) === azimuth.PointSize.Planet) {
+        addToResidentCache(point, {
+          residentCount: Just(0),
+          requestsCount: Just(0),
+          requests: Just([]),
+          residents: Just([]),
+        });
+
+        return;
+      }
       const [residents, requests] = await Promise.all([
         azimuth.getSponsoring(_contracts, point),
         azimuth.getEscapeRequests(_contracts, point),
       ]);
 
+      // Galaxies sponsor themselves
       const _residents = residents.filter(r => r !== point);
 
       addToResidentCache(point, {

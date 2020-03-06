@@ -85,7 +85,7 @@ export default function UrbitIDHome() {
         disabled={!isMasterTicket}
         disabledDetail={
           <B className="wrap ws-normal">
-            · Master Ticket Authentication required.
+            · Master Key Authentication required.
           </B>
         }>
         Download Keys
