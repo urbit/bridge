@@ -63,7 +63,9 @@ export default function Login() {
       <Grid>
         <Grid.Item full as={Crumbs} routes={[{ text: 'Bridge' }]} />
         <Grid.Item full as={Text} className="flex justify-center mt4">
-          <Grid.Item as={Text} className="gray3">Urbit ID /&nbsp;</Grid.Item>
+          <Grid.Item as={Text} className="gray5">
+            Urbit ID /&nbsp;
+          </Grid.Item>
           <Grid.Item as={Text}>Login</Grid.Item>
         </Grid.Item>
 
