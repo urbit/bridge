@@ -50,6 +50,7 @@ export default function InlineEthereumTransaction({
   confirmationProgress,
   gasLimit,
   unsignedTransactions,
+  finalCost,
 
   // additional from parent
   label = 'Generate & Sign Transaction',
@@ -113,7 +114,7 @@ export default function InlineEthereumTransaction({
           {showReceipt && (
             <TransactionReceipt
               txHashes={txHashes}
-              maxCost={maxCost}
+              finalCost={finalCost}
               onClose={toggleShowReceipt}
             />
           )}
@@ -184,7 +185,7 @@ export default function InlineEthereumTransaction({
             .mul(toBN(numTxs)),
           'gwei'
         ),
-        'eth'
+        'ether'
       ),
     [gasLimit, gasPrice, numTxs]
   );
@@ -328,7 +329,7 @@ function SignedTransactionList({ serializedTxsHex, nonce, maxCost }) {
   ));
 }
 
-function TransactionReceipt({ txHashes, maxCost, onClose }) {
+function TransactionReceipt({ txHashes, finalCost, onClose }) {
   const txUrls = useExploreTxUrls(txHashes);
   return (
     <>
@@ -340,7 +341,7 @@ function TransactionReceipt({ txHashes, maxCost, onClose }) {
       </Grid.Item>
       <Grid.Item full as={Flex} justify="between" className="pv2 black f5">
         <Flex.Item>Transaction Cost</Flex.Item>
-        <Flex.Item className="mono">{maxCost} ETH</Flex.Item>
+        <Flex.Item className="mono">{finalCost} ETH</Flex.Item>
       </Grid.Item>
       <Grid.Divider />
       <Grid.Item full as={Flex} col className="pv4">

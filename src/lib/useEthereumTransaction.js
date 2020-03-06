@@ -22,7 +22,7 @@ import { ensureFundsFor } from 'lib/tank';
 import useDeepEqualReference from 'lib/useDeepEqualReference';
 import useGasPrice from 'lib/useGasPrice';
 import timeout from 'lib/timeout';
-import { safeToWei } from 'lib/lib';
+import { safeToWei, safeFromWei } from 'lib/lib';
 
 const STATE = {
   NONE: 'NONE',
@@ -72,6 +72,8 @@ export default function useEthereumTransaction(
   const [txHashes, setTxHashes] = useState();
   const [needFunds, setNeedFunds] = useState();
   const [confirmationProgress, setConfirmationProgress] = useState(0.0);
+
+  const [finalCost, setFinalCost] = useState();
 
   const initializing = nonce === undefined || chainId === undefined;
   const constructed = !!unsignedTransactions;
@@ -186,8 +188,24 @@ export default function useEthereumTransaction(
 
       setConfirmationProgress(0.2);
 
-      await Promise.all(
+      const receipts = await Promise.all(
         txHashes.map(txHash => waitForTransactionConfirm(_web3, txHash))
+      );
+
+      setFinalCost(
+        safeFromWei(
+          safeToWei(
+            receipts.reduce(
+              (acc, receipt) =>
+                toBN(receipt.gasUsed)
+                  .mul(toBN(gasPrice))
+                  .add(acc),
+              toBN(0)
+            ),
+            'gwei'
+          ),
+          'ether'
+        )
       );
 
       setConfirmationProgress(0.9);
@@ -217,6 +235,7 @@ export default function useEthereumTransaction(
     setError(undefined);
     setNeedFunds(undefined);
     setConfirmationProgress(0.0);
+    setFinalCost(undefined);
   }, [resetGasPrice, setError]);
 
   useEffect(() => {
@@ -314,6 +333,7 @@ export default function useEthereumTransaction(
     needFunds,
     gasLimit,
     unsignedTransactions,
+    finalCost,
   });
 
   return { ...values, bind: values };

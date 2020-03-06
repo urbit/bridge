@@ -160,6 +160,7 @@ const waitForTransactionConfirm = (web3, txHash) => {
     if (!success) {
       return bail(new Error('Transaction failed.'));
     }
+    return receipt;
   }, RETRY_OPTIONS);
 };
 
