@@ -53,7 +53,7 @@ const humanizeName = name => {
   }
 };
 
-export default function UrbitOS() {
+export default function UrbitID() {
   const history = useHistory();
   const name = useCurrentPointName();
 

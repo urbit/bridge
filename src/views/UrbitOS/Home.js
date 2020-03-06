@@ -12,7 +12,7 @@ import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 import * as need from 'lib/need';
 
 import { OutButton, ForwardButton } from 'components/Buttons';
-import CopyButton from 'components/CopyButton';
+import { CopyButtonWide } from 'components/CopyButton';
 import NetworkingKeys from 'components/NetworkingKeys';
 import ProgressButton from 'components/ProgressButton';
 
@@ -221,8 +221,7 @@ function Hosting({ manualNetworkSeed }) {
           <Grid.Item
             full
             className="mt2"
-            as={ForwardButton}
-            accessory={<CopyButton text={code} />}
+            as={CopyButtonWide}
             detail={code}
             detailClassName="mono">
             Login Code

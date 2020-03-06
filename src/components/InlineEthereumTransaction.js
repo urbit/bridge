@@ -103,7 +103,31 @@ export default function InlineEthereumTransaction({
         </Grid.Item>
       );
     } else if (completed) {
-      return undefined;
+      return (
+        <>
+          <Grid.Divider />
+          <Grid.Item full as={RestartButton} onClick={onReturn}>
+            Return
+          </Grid.Item>
+          <Grid.Divider />
+          {showReceipt && (
+            <TransactionReceipt
+              txHashes={txHashes}
+              maxCost={maxCost}
+              onClose={toggleShowReceipt}
+            />
+          )}
+
+          {!showReceipt && (
+            <Grid.Item
+              className="underline mv2 pointer"
+              full
+              onClick={toggleShowReceipt}>
+              View Receipt
+            </Grid.Item>
+          )}
+        </>
+      );
     } else if (showBroadcastButton) {
       return (
         <Grid.Item
@@ -159,7 +183,8 @@ export default function InlineEthereumTransaction({
             .mul(toBN(gasPrice))
             .mul(toBN(numTxs)),
           'gwei'
-        )
+        ),
+        'eth'
       ),
     [gasLimit, gasPrice, numTxs]
   );
@@ -214,7 +239,7 @@ export default function InlineEthereumTransaction({
                     row
                     justify="between"
                     className="mt2">
-                    <Flex.Item as={H5}>Gas Price</Flex.Item>
+                    <Flex.Item as={H5}>Transaction Fee</Flex.Item>
 
                     <Flex.Item as={H5}>
                       {gasInfo}{' '}
@@ -264,36 +289,10 @@ export default function InlineEthereumTransaction({
                 <Condition when="viewSigned" is={true}>
                   <SignedTransactionList
                     serializedTxsHex={serializedTxsHex}
-                    gasPrice={gasPrice}
+                    maxCost={maxCost}
                     nonce={nonce}
                   />
                 </Condition>
-              </>
-            )}
-
-            {completed && (
-              <>
-                <Grid.Divider />
-                <Grid.Item full as={RestartButton} onClick={onReturn}>
-                  Return
-                </Grid.Item>
-                <Grid.Divider />
-                {showReceipt && (
-                  <TransactionReceipt
-                    txHashes={txHashes}
-                    maxCost={maxCost}
-                    onClose={toggleShowReceipt}
-                  />
-                )}
-
-                {!showReceipt && (
-                  <Grid.Item
-                    className="underline mv2 pointer"
-                    full
-                    onClick={toggleShowReceipt}>
-                    View Receipt
-                  </Grid.Item>
-                )}
               </>
             )}
           </>
@@ -303,9 +302,9 @@ export default function InlineEthereumTransaction({
   );
 }
 
-function SignedTransactionList({ serializedTxsHex, nonce, gasPrice }) {
+function SignedTransactionList({ serializedTxsHex, nonce, maxCost }) {
   return serializedTxsHex.map((serializedTxHex, i) => (
-    <React.Fragment key="i">
+    <React.Fragment key={i}>
       <Grid.Divider />
       <Grid.Item full as={Flex} justify="between" className="pv4 black f5">
         <Flex.Item>Nonce</Flex.Item>
@@ -313,8 +312,8 @@ function SignedTransactionList({ serializedTxsHex, nonce, gasPrice }) {
       </Grid.Item>
       <Grid.Divider />
       <Grid.Item full as={Flex} justify="between" className="pv4 black f5">
-        <Flex.Item>Gas Price</Flex.Item>
-        <Flex.Item>{gasPrice.toFixed()} Gwei</Flex.Item>
+        <Flex.Item>Transaction Cost</Flex.Item>
+        <Flex.Item>{maxCost} ETH</Flex.Item>
       </Grid.Item>
       <Grid.Divider />
       <Grid.Item full as={Flex} justify="between" className="mt3 mb2">
@@ -340,7 +339,7 @@ function TransactionReceipt({ txHashes, maxCost, onClose }) {
         </Flex.Item>
       </Grid.Item>
       <Grid.Item full as={Flex} justify="between" className="pv2 black f5">
-        <Flex.Item>Gas Price</Flex.Item>
+        <Flex.Item>Transaction Cost</Flex.Item>
         <Flex.Item className="mono">{maxCost} ETH</Flex.Item>
       </Grid.Item>
       <Grid.Divider />
