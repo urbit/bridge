@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import useRouter from 'lib/useRouter';
 import { LocalRouterProvider } from 'lib/LocalRouter';
@@ -29,6 +29,13 @@ export default function Activate() {
     views: VIEWS,
     initialRoutes: [{ key: NAMES.CODE }],
   });
+
+  useEffect(() => {
+    // remove potential /activate path on unmount
+    return () => {
+      window.history.replaceState(null, null, '');
+    };
+  }, []);
 
   // when we know the derived point, ensure we have the data to display it
   useSyncKnownPoints(
