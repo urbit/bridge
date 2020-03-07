@@ -231,7 +231,7 @@ export default function Points() {
       !starReleasing)
   ) {
     return (
-      <View inset pop={pop}>
+      <View inset>
         <Grid>
           <Grid.Item full as={HelpText} className="mt8 t-center">
             <Blinky /> Loading...
@@ -242,7 +242,7 @@ export default function Points() {
   }
 
   return (
-    <View pop={pop} inset>
+    <View inset pop={pop} hideBack>
       <NavHeader>
         <CopiableAddress
           text={address}
