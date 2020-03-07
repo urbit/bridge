@@ -67,7 +67,7 @@ export default function AdminTransfer() {
   );
 
   return (
-    <Grid>
+    <Grid gap={1}>
       <Grid.Item full as={ViewHeader}>
         Transfer Point
       </Grid.Item>
@@ -75,16 +75,25 @@ export default function AdminTransfer() {
       <BridgeForm validate={validate} onValues={onValues}>
         {({ handleSubmit, values }) => (
           <>
-            <Grid.Item
-              full
-              as={Text}
-              className={cn('f5 wrap', {
-                green3: completed,
-              })}>
-              {completed
-                ? `${values.address} is now the Transfer Proxy for ${name} and can accept the transfer by logging into Bridge themselves. Until they accept your transfer, you will still have ownership over ${name}.`
-                : `Transfer ${name} to a new owner.`}
-            </Grid.Item>
+            {!completed && (
+              <Grid.Item full as={Text} className={cn('f5 wrap')}>
+                Transfer {name} to a new owner.
+              </Grid.Item>
+            )}
+            {completed && (
+              <>
+                <Grid.Item full as={Text} className="wrap">
+                  Started transferring <span className="mono">{name}</span> to{' '}
+                </Grid.Item>
+                <Grid.Item full as={Text}>
+                  <span className="mono gray4">{values.address}</span>
+                </Grid.Item>
+                <Grid.Item full as={Text} className="mt6">
+                  Until they accept the transfer, you still own{' '}
+                  <span className="mono">{name}</span>
+                </Grid.Item>
+              </>
+            )}
 
             {!completed && (
               <Grid.Item
