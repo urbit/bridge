@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 
 import useBreakpoints from 'lib/useBreakpoints';
 
+import View from 'components/View';
 import Accordion from 'components/Accordion';
 
 import PrivateKey from './PrivateKey';

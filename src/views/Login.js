@@ -45,9 +45,7 @@ export default function Login() {
   const { walletType } = useWallet();
 
   // inputs
-  const [currentTab, setCurrentTab] = useState(
-    walletTypeToViewName(walletType)
-  );
+  const [isOther, setisOther] = useState(false);
 
   const goToActivate = useCallback(() => push(names.ACTIVATE), [
     push,
@@ -68,19 +66,20 @@ export default function Login() {
           </Grid.Item>
           <Grid.Item as={Text}>Login</Grid.Item>
         </Grid.Item>
-
-        <Grid.Item
-          full
-          as={Tabs}
-          className="mt1"
-          // Tabs
-          views={VIEWS}
-          options={OPTIONS}
-          currentTab={currentTab}
-          onTabChange={setCurrentTab}
-          // Tab extra
-          goHome={goHome}
-        />
+        {isOther && <Grid.Item full as={Other} />}
+        {!isOther && <Grid.Item full as={Ticket} />}
+        {!isOther && (
+          <Grid.Item full as={ForwardButton} onClick={() => setisOther(true)}>
+            Metamask ledger, etc.
+          </Grid.Item>
+        )}
+        {isOther && (
+          <Grid.Item
+            onClick={() => setisOther(false)}
+            className="underline gray4">
+            Back
+          </Grid.Item>
+        )}
         <Grid.Item full as={P} className="f6">
           Version {version}
         </Grid.Item>
