@@ -80,8 +80,8 @@ function TicketInputAccessory({ name }) {
       <ToggleInput
         name={name}
         className="mt1"
-        inverseLabel={<SecretHideIcon />}
-        label={<SecretShowIcon />}
+        inverseLabel={<SecretShowIcon />}
+        label={<SecretHideIcon />}
       />
     </AccessoryIcon>
   );
@@ -193,7 +193,7 @@ export default function Ticket({ className, goHome }) {
       point: impliedPoint || '',
       usePasshrase: false,
       useShards: false,
-      ticketHidden: false,
+      ticketHidden: true,
       useAdvanced: false,
     }),
     [impliedPoint]

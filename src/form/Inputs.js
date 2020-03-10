@@ -45,7 +45,7 @@ export function TicketInput({ name, hidden, ...rest }) {
       type={hidden ? 'password' : 'text'}
       name={name}
       obscure={value => value.replace(/[^~-]+/g, '••••••')}
-      placeholder={PLACEHOLDER_PASSWORD}
+      placeholder={hidden ? PLACEHOLDER_PASSWORD : PLACEHOLDER_TICKET}
       autoCapitalize="none"
       autoCorrect="off"
       accessory={
