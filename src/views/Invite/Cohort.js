@@ -50,7 +50,7 @@ function CohortMember({ point, pending = false, className }) {
   const DetailText = useCallback(
     () =>
       pending ? 'Pending' : <> {matchBlinky(sentInvites)} points invited </>,
-    [sentInvites]
+    [pending, sentInvites]
   );
 
   return (

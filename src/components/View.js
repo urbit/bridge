@@ -70,11 +70,7 @@ function View({
         className
       )}
       {...rest}>
-      <Flex.Item
-        as={Flex}
-        col
-        style={{ width: '48px' }}
-        className={cn(insetPadding)}>
+      <Flex.Item as={Flex} col className={cn(insetPadding)}>
         {showBackButton && !backIsLogout && (
           <MiniBackButton
             hpadding={!isMobile}

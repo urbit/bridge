@@ -18,6 +18,7 @@ const PLACEHOLDER_HD_PATH = DEFAULT_HD_PATH;
 const PLACEHOLDER_MNEMONIC =
   'example crew supreme gesture quantum web media hazard theory mercy wing kitten';
 const PLACEHOLDER_TICKET = '~sampel-ticlyt-migfun-falmel';
+const PLACEHOLDER_PASSWORD = '••••••-••••••-••••••-••••••';
 const PLACEHOLDER_ADDRESS = '0x';
 const PLACEHOLDER_HEX = '0x';
 const PLACEHOLDER_PRIVATE_KEY =
@@ -26,7 +27,7 @@ const PLACEHOLDER_EMAIL = 'email@example.com';
 
 const formatPat = buildFormatter([downcase, ensurePatFormat]);
 
-export function TicketInput({ name, ...rest }) {
+export function TicketInput({ name, hidden, ...rest }) {
   const {
     meta: { valid, error, validating, touched, active },
   } = useField(name, {
@@ -41,10 +42,10 @@ export function TicketInput({ name, ...rest }) {
 
   return (
     <Input
-      type="text"
+      type={hidden ? 'password' : 'text'}
       name={name}
       obscure={value => value.replace(/[^~-]+/g, '••••••')}
-      placeholder={PLACEHOLDER_TICKET}
+      placeholder={hidden ? PLACEHOLDER_PASSWORD : PLACEHOLDER_TICKET}
       autoCapitalize="none"
       autoCorrect="off"
       accessory={

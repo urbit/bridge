@@ -204,6 +204,7 @@ export default function useEthereumTransaction(
     pointCursor,
     setError,
     signedTransactions,
+    walletType,
   ]);
 
   const reset = useCallback(() => {

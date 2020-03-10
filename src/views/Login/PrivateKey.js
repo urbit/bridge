@@ -53,7 +53,7 @@ export default function PrivateKey({ className, goHome }) {
             />
             <Grid.Item full as={FormError} />
             <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
-              Continue
+              Login
             </Grid.Item>
           </>
         )}
