@@ -78,7 +78,7 @@ export default function Login() {
               className="b-solid b1 b-black"
               center
               onClick={() => setisOther(true)}>
-              Metamask, Mnemonic, Hardware Wallet, etc...
+              Metamask, Mnemonic, Hardware Wallet, etc
             </Grid.Item>
             <Grid.Item full onClick={goToActivate} className="mv10 t-center f6">
               <span className="gray4">New Urbit ID? </span>
