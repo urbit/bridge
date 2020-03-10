@@ -3,7 +3,13 @@ import { Just } from 'folktale/maybe';
 import cn from 'classnames';
 import * as azimuth from 'azimuth-js';
 import * as kg from 'urbit-key-generation';
-import { Grid, CheckboxInput, Flex, ToggleInput } from 'indigo-react';
+import {
+  Grid,
+  CheckboxInput,
+  Flex,
+  ToggleInput,
+  AccessoryIcon,
+} from 'indigo-react';
 import { FORM_ERROR } from 'final-form';
 
 import { useNetwork } from 'store/network';
@@ -30,6 +36,56 @@ import {
 import FormError from 'form/FormError';
 import SubmitButton from 'form/SubmitButton';
 import { WARNING } from 'form/helpers';
+
+import { ReactComponent as SecretShowIcon } from 'assets/secret-show.svg';
+import { ReactComponent as SecretHideIcon } from 'assets/secret-hidden.svg';
+
+function AdvancedOptions() {
+  return (
+    <Flex.Item as={Flex}>
+      <Condition when="useAdvanced" is={true}>
+        <Flex.Item
+          as={CheckboxInput}
+          inline
+          white
+          className="mr4"
+          name="usePassphrase"
+          label="Passphrase"
+          style={{ boxSizing: 'border-box' }}
+        />
+        <Flex.Item
+          as={CheckboxInput}
+          inline
+          white
+          className="mr4"
+          name="useShards"
+          label="Shards"
+          style={{ boxSizing: 'border-box' }}
+        />
+      </Condition>
+      <Flex.Item
+        as={ToggleInput}
+        name="useAdvanced"
+        label="Settings"
+        small
+        inverseLabel="Close"
+      />
+    </Flex.Item>
+  );
+}
+
+function TicketInputAccessory({ name }) {
+  return (
+    <AccessoryIcon>
+      <ToggleInput
+        name={name}
+        className="mt1"
+        inverseLabel={<SecretHideIcon />}
+        label={<SecretShowIcon />}
+      />
+    </AccessoryIcon>
+  );
+}
 
 export default function Ticket({ className, goHome }) {
   useLoginView(WALLET_TYPES.TICKET);
@@ -124,7 +180,7 @@ export default function Ticket({ className, goHome }) {
           shard1: buildPatqValidator(),
           shard2: buildPatqValidator(),
           shard3: buildPatqValidator(),
-          showTicket: buildCheckboxValidator(),
+          ticketHidden: buildCheckboxValidator(),
           passphrase: buildPassphraseValidator(),
         },
         validateForm
@@ -137,14 +193,14 @@ export default function Ticket({ className, goHome }) {
       point: impliedPoint || '',
       usePasshrase: false,
       useShards: false,
-      showTicket: true,
+      ticketHidden: false,
       useAdvanced: false,
     }),
     [impliedPoint]
   );
 
   return (
-    <Grid className={cn('mt4', className)}>
+    <Grid className={className}>
       <BridgeForm
         validate={validate}
         onSubmit={onSubmit}
@@ -158,7 +214,10 @@ export default function Ticket({ className, goHome }) {
               <Grid.Item
                 full
                 as={TicketInput}
-                type={values.showTicket ? 'text' : 'password'}
+                hidden={values.ticketHidden}
+                labelAccessory={<AdvancedOptions />}
+                accessory={<TicketInputAccessory name="ticketHidden" />}
+                className="mt3"
                 name="ticket"
                 label="Master Ticket"
               />
@@ -168,32 +227,38 @@ export default function Ticket({ className, goHome }) {
               <Grid.Item
                 full
                 as={TicketInput}
-                type={values.showTicket ? 'text' : 'password'}
+                accessory={<TicketInputAccessory name="ticketHidden" />}
+                hidden={values.ticketHidden}
+                labelAccessory={<AdvancedOptions />}
+                className="mt3"
                 name="shard1"
                 label="Shard 1"
               />
               <Grid.Item
                 full
                 as={TicketInput}
-                type={values.showTicket ? 'text' : 'password'}
+                accessory={<TicketInputAccessory name="ticketHidden" />}
+                hidden={values.ticketHidden}
+                className="mt3"
                 name="shard2"
                 label="Shard 2"
               />
               <Grid.Item
                 full
                 as={TicketInput}
-                type={values.showTicket ? 'text' : 'password'}
+                className="mt3"
+                accessory={<TicketInputAccessory name="ticketHidden" />}
+                hidden={values.ticketHidden}
                 name="shard3"
                 label="Shard 3"
               />
             </Condition>
 
-            <Grid.Item full as={CheckboxInput} name="showTicket" label="Show" />
-
             <Condition when="usePassphrase" is={true}>
               <Grid.Item
                 full
                 as={PassphraseInput}
+                className="mt3"
                 name="passphrase"
                 label="Wallet Passphrase"
               />
@@ -201,7 +266,11 @@ export default function Ticket({ className, goHome }) {
 
             <Grid.Item full as={FormError} />
 
-            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+            <Grid.Item
+              full
+              as={SubmitButton}
+              center
+              handleSubmit={handleSubmit}>
               {isWarning =>
                 submitting
                   ? 'Logging in...'
@@ -209,29 +278,6 @@ export default function Ticket({ className, goHome }) {
                   ? 'Login Anyway'
                   : 'Continue'
               }
-            </Grid.Item>
-
-            <Grid.Item full as={Flex} justify="between">
-              <Flex.Item
-                as={ToggleInput}
-                name="useAdvanced"
-                label="Advanced"
-                inverseLabel="Hide"
-              />
-              <Condition when="useAdvanced" is={true}>
-                <Flex.Item as={Flex}>
-                  <Flex.Item
-                    as={CheckboxInput}
-                    name="usePassphrase"
-                    label="Passphrase"
-                  />
-                  <Flex.Item
-                    as={CheckboxInput}
-                    name="useShards"
-                    label="Shards"
-                  />
-                </Flex.Item>
-              </Condition>
             </Grid.Item>
           </>
         )}

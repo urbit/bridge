@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Grid } from 'indigo-react';
 
 import useBreakpoints from 'lib/useBreakpoints';
 
@@ -55,14 +56,17 @@ export default function Other({ className, ...rest }) {
     [hardwareAllowed]
   );
   return (
-    <Accordion
-      className={className}
-      views={VIEWS}
-      options={options}
-      currentTab={currentTab}
-      onTabChange={setCurrentTab}
-      //
-      {...rest}
-    />
+    <>
+      <Grid.Divider />
+      <Accordion
+        className={className}
+        views={VIEWS}
+        options={options}
+        currentTab={currentTab}
+        onTabChange={setCurrentTab}
+        //
+        {...rest}
+      />
+    </>
   );
 }

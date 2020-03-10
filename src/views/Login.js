@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { P, H4, H5, Grid, Text } from 'indigo-react';
+import { P, H4, H5, Grid, Text, Button, Flex, LinkButton } from 'indigo-react';
 
 import { version } from '../../package.json';
 
@@ -59,41 +59,53 @@ export default function Login() {
   return (
     <View pop={pop} inset>
       <Grid>
-        <Grid.Item full as={Crumbs} routes={[{ text: 'Bridge' }]} />
-        <Grid.Item full as={Text} className="flex justify-center mt4">
-          <Grid.Item as={Text} className="gray5">
+        <Grid.Item full as={Text} className="flex justify-center mt9 mb7">
+          <Grid.Item as={Text} className="gray4">
             Urbit ID /&nbsp;
           </Grid.Item>
           <Grid.Item as={Text}>Login</Grid.Item>
         </Grid.Item>
-        {isOther && <Grid.Item full as={Other} />}
-        {!isOther && <Grid.Item full as={Ticket} />}
+        {isOther && <Grid.Item full as={Other} goHome={goHome} />}
+        {!isOther && <Grid.Item full as={Ticket} goHome={goHome} />}
         {!isOther && (
-          <Grid.Item full as={ForwardButton} onClick={() => setisOther(true)}>
-            Metamask ledger, etc.
-          </Grid.Item>
+          <>
+            <Grid.Item full className="t-center mv4 gray4">
+              or
+            </Grid.Item>
+            <Grid.Item
+              full
+              as={Button}
+              className="b-solid b1 b-black"
+              center
+              onClick={() => setisOther(true)}>
+              Metamask, Mnemonic, Hardware Wallet, etc...
+            </Grid.Item>
+            <Grid.Item full onClick={goToActivate} className="mv10 t-center f6">
+              <span className="gray4">New Urbit ID? </span>
+              <LinkButton>Activate</LinkButton>
+            </Grid.Item>
+          </>
         )}
         {isOther && (
           <Grid.Item
             onClick={() => setisOther(false)}
-            className="underline gray4">
+            full
+            className="t-center underline mt8">
             Back
           </Grid.Item>
         )}
-        <Grid.Item full as={P} className="f6">
-          Version {version}
-        </Grid.Item>
       </Grid>
 
       <Footer>
-        <Grid>
-          <Grid.Divider />
-          <Grid.Item full as={ForwardButton} onClick={goToActivate}>
-            Activate
-          </Grid.Item>
-          <Grid.Divider />
-          <Grid.Item full as={OfflineButton} />
-        </Grid>
+        <Flex className="mb8 f6" justify="between">
+          <Flex.Item
+            as="a"
+            href="https://github.com/urbit/bridge/releases"
+            className="us-none pointer">
+            <span className="underline">Offline </span>↗
+          </Flex.Item>
+          <Flex.Item className="gray4">Version {version}</Flex.Item>
+        </Flex>
       </Footer>
     </View>
   );
