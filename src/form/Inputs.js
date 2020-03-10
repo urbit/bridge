@@ -18,7 +18,7 @@ const PLACEHOLDER_HD_PATH = DEFAULT_HD_PATH;
 const PLACEHOLDER_MNEMONIC =
   'example crew supreme gesture quantum web media hazard theory mercy wing kitten';
 const PLACEHOLDER_TICKET = '~sampel-ticlyt-migfun-falmel';
-const PLACEHOLDER_PASSWORD = '****-****-****-****';
+const PLACEHOLDER_PASSWORD = '••••••-••••••-••••••-••••••';
 const PLACEHOLDER_ADDRESS = '0x';
 const PLACEHOLDER_HEX = '0x';
 const PLACEHOLDER_PRIVATE_KEY =
