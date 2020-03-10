@@ -276,7 +276,7 @@ export default function Ticket({ className, goHome }) {
                   ? 'Logging in...'
                   : isWarning
                   ? 'Login Anyway'
-                  : 'Continue'
+                  : 'Login'
               }
             </Grid.Item>
           </>

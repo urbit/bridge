@@ -94,11 +94,7 @@ export default function Trezor({ className, goHome }) {
 
   return (
     <Grid className={className}>
-      <Grid.Item full as={H5}>
-        Authenticate With Your Trezor
-      </Grid.Item>
-
-      <Grid.Item full as={Text} className="f6 mb3">
+      <Grid.Item full as={Text} className="f6 gray4 mb3">
         Connect and authenticate to your Trezor. If you'd like to use a custom
         derivation path, you may enter it below.
       </Grid.Item>

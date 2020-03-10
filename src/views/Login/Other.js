@@ -32,10 +32,10 @@ const VIEWS = {
 };
 
 const OPTIONS = [
+  { text: 'Metamask', value: NAMES.METAMASK },
   { text: 'Mnemonic (BIP 39)', value: NAMES.MNEMONIC },
   { text: 'Ledger', value: NAMES.LEDGER },
   { text: 'Trezor', value: NAMES.TREZOR },
-  { text: 'Metamask', value: NAMES.METAMASK },
   { text: 'Ethereum Private Key', value: NAMES.PRIVATE_KEY },
   { text: 'Ethereum Keystore', value: NAMES.KEYSTORE },
 ];

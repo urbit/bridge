@@ -150,10 +150,7 @@ export default function Ledger({ className, goHome }) {
 
   const renderHTTPS = () => (
     <>
-      <Grid.Item full as={H5}>
-        Authenticate With Your Ledger
-      </Grid.Item>
-      <Grid.Item full as={Text} className="f6 mb3">
+      <Grid.Item full as={Text} className="f6 gray4 mb3">
         Connect and authenticate to your Ledger, and then open the "Ethereum"
         application. If you're running on older firmware, make sure the "browser
         support" option is turned on. To sign transactions, you'll also need to

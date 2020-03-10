@@ -60,7 +60,7 @@ export default function Login() {
     <View pop={pop} inset>
       <Grid>
         <Grid.Item full as={Text} className="flex justify-center mt9 mb7">
-          <Grid.Item as={Text} className="gray4">
+          <Grid.Item as={Text} className="gray3">
             Urbit ID /&nbsp;
           </Grid.Item>
           <Grid.Item as={Text}>Login</Grid.Item>
@@ -88,9 +88,10 @@ export default function Login() {
         )}
         {isOther && (
           <Grid.Item
+            as={LinkButton}
             onClick={() => setisOther(false)}
             full
-            className="t-center underline mt8">
+            className="t-center underline f6 mt8">
             Back
           </Grid.Item>
         )}
@@ -102,9 +103,9 @@ export default function Login() {
             as="a"
             href="https://github.com/urbit/bridge/releases"
             className="us-none pointer">
-            <span className="underline">Offline </span>↗
+            <span className="underline">Offline</span> ↗
           </Flex.Item>
-          <Flex.Item className="gray4">Version {version}</Flex.Item>
+          <Flex.Item className="gray4">v{version}</Flex.Item>
         </Flex>
       </Footer>
     </View>
