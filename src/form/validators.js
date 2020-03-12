@@ -18,6 +18,7 @@ import {
   validateHexPrefix,
   validateLength,
   validateUnique,
+  validateColorString,
 } from 'lib/validators';
 import isPromise from 'lib/isPromise';
 
@@ -82,6 +83,9 @@ export const buildPointValidator = (size = 4, validators = []) =>
   ]);
 export const buildSelectValidator = options =>
   buildValidator([validateOneOf(options.map(option => option.value))]);
+
+export const buildColorValidator = () =>
+  buildValidator([validateNotEmpty, validateColorString]);
 export const buildHexValidator = length =>
   buildValidator([
     validateNotEmpty,

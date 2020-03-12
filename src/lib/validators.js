@@ -17,6 +17,9 @@ const emailRegExp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))
 // validate only strings that use hex characters
 const isHexString = /[0-9A-Fa-f]/;
 
+// validate color string
+const isColorString = /^#[0-9A-Fa-f]{6}$/;
+
 // validate only strings that are prefixed with 0x
 const isHexPrefixed = /^0x/;
 
@@ -67,6 +70,9 @@ export const validatePatq = v => {
 
 export const validateOneOf = (options = []) => v =>
   !includes(options, v) && 'Is not a valid option.';
+
+export const validateColorString = v =>
+  !isColorString.test(v) && 'This is not a valid color';
 
 export const validateHexString = v =>
   !isHexString.test(v) && 'This is not a valid hex string.';

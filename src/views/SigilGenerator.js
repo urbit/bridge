@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { Grid, Flex } from 'indigo-react';
 import * as ob from 'urbit-ob';
 import { FORM_ERROR } from 'final-form';
@@ -13,7 +13,11 @@ import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useSigilDownloader from 'lib/useSigilDownloader';
 
-import { composeValidator, buildNumberValidator } from 'form/validators';
+import {
+  composeValidator,
+  buildNumberValidator,
+  buildColorValidator,
+} from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 import SubmitButton from 'form/SubmitButton';
@@ -43,12 +47,31 @@ export default function SigilGenerator() {
   const { pop } = useLocalRouter();
   const { pointCursor } = usePointCursor();
 
-  const validate = composeValidator({ size: buildNumberValidator(16) });
+  const [preview, setPreview] = useState({
+    fgColor: '#FFFFFF',
+    bgColor: '#000000',
+  });
+
+  const validate = composeValidator({
+    size: buildNumberValidator(16),
+    bgColor: buildColorValidator(),
+    fgColor: buildColorValidator(),
+  });
   const point = need.point(pointCursor);
 
   const canvasRef = useRef(null);
 
   const { downloadSigil } = useSigilDownloader(canvasRef);
+
+  const updatePreview = useCallback(
+    ({ values, valid, form }) => {
+      if (valid) {
+        setPreview(values);
+      }
+    },
+    [setPreview]
+  );
+
   const onSubmit = useCallback(
     async (values, form) => {
       const colors = [values.bgColor, values.fgColor];
@@ -65,6 +88,7 @@ export default function SigilGenerator() {
     <View pop={pop}>
       <BridgeForm
         validate={validate}
+        onValues={updatePreview}
         initialValues={{
           size: 256,
           fgColor: '#FFFFFF',
@@ -80,7 +104,7 @@ export default function SigilGenerator() {
               <Sigil
                 size={50}
                 patp={ob.patp(point)}
-                colors={[values.bgColor, values.fgColor]}
+                colors={[preview.bgColor, preview.fgColor]}
               />
             </Grid.Item>
 
