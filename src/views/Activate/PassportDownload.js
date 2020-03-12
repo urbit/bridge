@@ -8,6 +8,7 @@ import { useLocalRouter } from 'lib/LocalRouter';
 
 import { DownloadButton, ForwardButton } from 'components/Buttons';
 import PaperBuilder from 'components/PaperBuilder';
+import CanvasSupportWarning from 'components/CanvasSupportWarning';
 
 import { useActivateFlow } from './ActivateFlow';
 import PassportView from './PassportView';
@@ -25,6 +26,9 @@ export default function PassportDownload({ className }) {
 
   const [paper, setPaper] = useState(Nothing());
   const [downloaded, setDownloaded] = useState(false);
+  const [supported, setSupported] = useState(Nothing());
+
+  const isReady = supported.getOrElse(false);
 
   const pointAsString = derivedPoint.matchWith({
     Nothing: () => '',
@@ -69,9 +73,17 @@ export default function PassportDownload({ className }) {
             </P>
           </Grid.Item>
           <Grid.Item
+            as={CanvasSupportWarning}
+            full
+            supported={supported}
+            setSupported={setSupported}
+            className="mb4"
+          />
+
+          <Grid.Item
             full
             as={!downloaded ? DownloadButton : ForwardButton}
-            disabled={!generated}
+            disabled={!generated || !isReady}
             onClick={!downloaded ? download : goToVerify}
             success={downloaded}
             solid>

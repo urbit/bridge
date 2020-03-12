@@ -6,6 +6,7 @@ import { usePointCursor } from 'store/pointCursor';
 
 import { DownloadButton, RestartButton } from 'components/Buttons';
 import PaperBuilder from 'components/PaperBuilder';
+import CanvasSupportWarning from 'components/CanvasSupportWarning';
 
 import { downloadWallet } from 'lib/invite';
 
@@ -24,6 +25,7 @@ export default function AdminRedownload() {
 
   const [paper, setPaper] = useState(Nothing());
   const [downloaded, setDownloaded] = useState(false);
+  const [supported, setSupported] = useState(Nothing());
 
   const doDownload = useCallback(() => {
     downloadWallet(paper.value);
@@ -31,6 +33,8 @@ export default function AdminRedownload() {
   }, [paper, setDownloaded]);
 
   const goBack = useCallback(() => pop(), [pop]);
+
+  const isReady = supported.getOrElse(false);
 
   return (
     <>
@@ -42,6 +46,13 @@ export default function AdminRedownload() {
           After you’ve downloaded your passport, back up the ticket manually or
           store on a trusted device.
         </Grid.Item>
+        <Grid.Item
+          as={CanvasSupportWarning}
+          full
+          supported={supported}
+          setSupported={setSupported}
+          className="mb4"
+        />
         {downloaded ? (
           <Grid.Item full as={RestartButton} solid onClick={goBack}>
             Done
@@ -51,7 +62,7 @@ export default function AdminRedownload() {
             full
             as={DownloadButton}
             solid
-            disabled={Nothing.hasInstance(paper)}
+            disabled={Nothing.hasInstance(paper) || !isReady}
             onClick={doDownload}>
             {paper.matchWith({
               Nothing: () => 'Printing and folding...',
