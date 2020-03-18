@@ -75,36 +75,43 @@ export async function getConditional(contracts, address) {
     return { total: 0, available: 0, withdrawn: 0, batchLimits: [] };
   }
 
-  const forfeited = await conditionalSR.getForfeited(contracts, address);
   const total = remaining.length;
   let balance = total;
 
-  const withdrawLimits = await batches.reduce(async (p, _, idx) => {
-    const acc = await p;
-    if (forfeited[idx] || balance === 0) {
-      return [...acc, 0];
-    }
-    const limit = await conditionalSR.getWithdrawLimit(contracts, address, idx);
-    if (limit <= balance) {
-      balance -= limit;
-      return [...acc, limit];
-    }
-    const remaining = balance;
-    balance = 0;
-
-    return [...acc, remaining];
-  }, Promise.resolve([]));
-
-  const available = withdrawLimits.reduce((acc, val) => acc + val, 0);
-
-  const withdrawnAmounts = await conditionalSR.getWithdrawn(contracts, address);
-
-  const withdrawn = withdrawnAmounts.reduce((acc, val) => acc + val, 0);
-  const batchLimits = withdrawLimits.map(
-    (limit, idx) => limit - withdrawnAmounts[idx]
+  // does not account for forfeiting or withdrawl
+  const limits = await Promise.all(
+    batches.map((_, idx) =>
+      conditionalSR.getWithdrawLimit(contracts, address, idx)
+    )
   );
 
-  return { total, available, withdrawn, batchLimits };
+  const withdrawn = await conditionalSR.getWithdrawn(contracts, address);
+
+  const forfeited = await conditionalSR.getForfeited(contracts, address);
+
+  const batchLimits = [];
+
+  for (let i = 0; i < limits.length; i++) {
+    // skip batch if forfeited or no stars left
+    if (forfeited[i] || balance === 0) {
+      batchLimits.push(0);
+      continue;
+    }
+    const availableInBatch = limits[i] - withdrawn[i];
+    if (balance < availableInBatch) {
+      batchLimits.push(balance);
+      balance = 0;
+      continue;
+    }
+    batchLimits.push(availableInBatch);
+    balance = balance - availableInBatch;
+  }
+
+  const withdrawnTotal = withdrawn.reduce((acc, val) => acc + val, 0);
+  const available =
+    batchLimits.reduce((acc, val) => acc + val, 0) + withdrawnTotal;
+
+  return { total, available, withdrawn: withdrawnTotal, batchLimits };
 }
 
 export async function getLinear(contracts, address) {

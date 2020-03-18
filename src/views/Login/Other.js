@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react';
+import { Grid } from 'indigo-react';
 
 import useBreakpoints from 'lib/useBreakpoints';
 
+import View from 'components/View';
 import Accordion from 'components/Accordion';
 
 import PrivateKey from './PrivateKey';
@@ -30,10 +32,10 @@ const VIEWS = {
 };
 
 const OPTIONS = [
+  { text: 'Metamask', value: NAMES.METAMASK },
   { text: 'Mnemonic (BIP 39)', value: NAMES.MNEMONIC },
   { text: 'Ledger', value: NAMES.LEDGER },
   { text: 'Trezor', value: NAMES.TREZOR },
-  { text: 'Metamask', value: NAMES.METAMASK },
   { text: 'Ethereum Private Key', value: NAMES.PRIVATE_KEY },
   { text: 'Ethereum Keystore', value: NAMES.KEYSTORE },
 ];
@@ -54,14 +56,17 @@ export default function Other({ className, ...rest }) {
     [hardwareAllowed]
   );
   return (
-    <Accordion
-      className={className}
-      views={VIEWS}
-      options={options}
-      currentTab={currentTab}
-      onTabChange={setCurrentTab}
-      //
-      {...rest}
-    />
+    <>
+      <Grid.Divider />
+      <Accordion
+        className={className}
+        views={VIEWS}
+        options={options}
+        currentTab={currentTab}
+        onTabChange={setCurrentTab}
+        //
+        {...rest}
+      />
+    </>
   );
 }

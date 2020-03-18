@@ -9,6 +9,9 @@ export default function CheckboxInput({
   name,
   label,
   className,
+  style,
+  inline = false,
+  white = false,
 
   disabled,
 }) {
@@ -23,7 +26,8 @@ export default function CheckboxInput({
     <Flex
       row
       align="center"
-      className={cn(className, 'mv2', {
+      className={cn(className, {
+        mv2: !inline,
         black: !disabled,
         gray4: disabled,
       })}
@@ -39,19 +43,25 @@ export default function CheckboxInput({
       <Flex.Item
         flex
         as="label"
-        className="f6 mr3 lh-tall us-none pointer flex-row align-center"
+        className={cn(
+          { mr3: !inline },
+          'f6 lh-tall us-none pointer flex-row align-center'
+        )}
         htmlFor={name}>
         <Flex
           justify="center"
           align="center"
-          className={cn('b1 p1 mr3', {
+          className={cn('b1 p1', {
+            mr3: !inline,
+            mr1: inline,
             'bg-gray1': disabled,
-            'bg-black white b-black': !disabled && input.value,
+            'bg-black white b-black': !disabled && (input.value || white),
             'bg-white black b-black': !disabled && !input.value,
           })}
           style={{
             height: '14px',
             width: '14px',
+            ...style,
           }}>
           {input.value && '✓'}
         </Flex>

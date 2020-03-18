@@ -11,6 +11,7 @@ export default function Input({
   label,
   className,
   accessory,
+  labelAccessory,
   disabled = false,
   mono = false,
   obscure,
@@ -65,13 +66,17 @@ export default function Input({
         }),
       }}>
       <Flex.Item
-        as="label"
+        as={Flex}
+        justify="between"
+        align="center"
         className={cn('f6 lh-tall', {
           black: !disabled,
           gray4: disabled,
-        })}
-        htmlFor={name}>
-        {label}
+        })}>
+        <Flex.Item as="label" justify htmlFor={name}>
+          {label}
+        </Flex.Item>
+        {labelAccessory && <Flex.Item>{labelAccessory}</Flex.Item>}
       </Flex.Item>
       <Flex.Item as={Flex} row className="rel">
         <Flex.Item

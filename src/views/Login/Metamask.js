@@ -47,10 +47,7 @@ function Unsupported() {
 function Login({ onSubmit, goHome }) {
   return (
     <>
-      <Grid.Item full as={H5}>
-        Authenticate with Metamask
-      </Grid.Item>
-      <Grid.Item full as={Text} className="f6 mb3">
+      <Grid.Item full as={Text} className="f6 gray4 mb3">
         If you wish to login with a different wallet, please change it in the
         Metamask extension
       </Grid.Item>

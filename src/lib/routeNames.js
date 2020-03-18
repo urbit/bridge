@@ -8,6 +8,7 @@ export const ROUTE_NAMES = {
   SENATE: Symbol('SENATE'),
   //
   LOGIN: Symbol('LOGIN'),
+  LOGIN_OTHER: Symbol('OTHER'),
   REDOWNLOAD: Symbol('REDOWNLOAD'),
   RETICKET: Symbol('RETICKET'),
   PERMISSIONS: Symbol('PERMISSIONS'),
