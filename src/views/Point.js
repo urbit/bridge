@@ -261,7 +261,7 @@ export default function Point() {
           as={ForwardButton}
           disabled={!canManage}
           onClick={goUrbitID}
-          className="mt2"
+          className="mt1"
           detail="Identity and security settings">
           ID
         </Grid.Item>
@@ -270,7 +270,7 @@ export default function Point() {
           full
           as={ForwardButton}
           disabled={!canManage}
-          className="mt2"
+          className="mt1"
           detail="Urbit OS Settings"
           onClick={goUrbitOS}>
           OS
