@@ -170,9 +170,8 @@ function useHostingStore(url, domain, disabled) {
   ]);
 
   const hostedShipUrl = useMemo(
-    () =>
-      `http://${ob.patp(pointCursor.getOrElse('')).slice(1)}.liam.tlon.network`,
-    [pointCursor]
+    () => `http://${ob.patp(pointCursor.getOrElse('')).slice(1)}.${domain}`,
+    [pointCursor, domain]
   );
 
   const create = useCallback(
