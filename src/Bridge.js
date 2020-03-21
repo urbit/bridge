@@ -20,7 +20,7 @@ import WithErrorBoundary from 'components/WithErrorBoundary';
 import GlobalErrorBoundary from 'components/GlobalErrorBoundary';
 
 const INITIAL_NETWORK_TYPE = isDevelopment
-  ? NETWORK_TYPES.ROPSTEN
+  ? NETWORK_TYPES.LOCAL
   : NETWORK_TYPES.MAINNET;
 
 // NB(shrugs): modify these variables to change the default local state.
@@ -42,6 +42,8 @@ function useInitialRoutes() {
   const [hasDisclaimed] = useHasDisclaimed();
   const hasImpliedTicket = !!useImpliedTicket();
 
+  const isActivateUrl = window.location.pathname === '/activate';
+
   if (IS_STUBBED) {
     return [
       { key: ROUTE_NAMES.LOGIN },
@@ -50,7 +52,7 @@ function useInitialRoutes() {
     ];
   }
 
-  if (hasImpliedTicket) {
+  if (hasImpliedTicket || isActivateUrl) {
     return [{ key: ROUTE_NAMES.ACTIVATE }];
   }
 

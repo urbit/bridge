@@ -344,7 +344,7 @@ export default function Points() {
 
   useEffect(() => {
     syncStarReleaseDetails();
-  }, []);
+  }, [syncStarReleaseDetails]);
   // sync display details for known points
   useSyncKnownPoints([
     ...ownedPoints,
@@ -369,7 +369,7 @@ export default function Points() {
       !hasLocked)
   ) {
     return (
-      <View inset pop={pop}>
+      <View inset>
         <Grid>
           <Grid.Item full as={HelpText} className="mt8 t-center">
             <Blinky /> Loading...
@@ -380,7 +380,7 @@ export default function Points() {
   }
 
   return (
-    <View pop={pop} inset>
+    <View inset pop={pop} hideBack>
       <NavHeader>
         <CopiableAddress
           text={address}

@@ -14,7 +14,7 @@ const STATE = {
   PENDING: 'PENDING',
 };
 
-function useHostingStore(url) {
+function useHostingStore(url, domain, disabled) {
   const client = new SolarisClient(url);
 
   const { pointCursor } = usePointCursor();
@@ -26,7 +26,6 @@ function useHostingStore(url) {
   const [status, _setStatus] = useState(STATE.UNKNOWN);
   const setStatus = useCallback(
     s => {
-      console.log(s);
       _setStatus(s);
     },
     [_setStatus]
@@ -63,7 +62,7 @@ function useHostingStore(url) {
 
   const getEvents = useCallback(() => {
     try {
-      if (Nothing.hasInstance(pointCursor)) {
+      if (Nothing.hasInstance(pointCursor) || disabled) {
         return;
       }
       const patp = ob.patp(pointCursor.value);
@@ -74,21 +73,15 @@ function useHostingStore(url) {
       const url = client.getShipsByPatpUrl(patp) + '/events';
       const source = new EventSource(url);
 
-      // source.onerror = () => setStatus(STATE.UNKNOWN);
-      // source.onmessage = console.log;
-
       source.addEventListener('sys', event => {
-        // console.log(event);
         const sysEvent = JSON.parse(event.data);
         const time = new Date(sysEvent.object.firstTimestamp).getTime();
         if (time > startTime) {
-          console.log(sysEvent);
           setSysEvents(previous => [...previous, sysEvent]);
         }
       });
 
       source.addEventListener('new', event => {
-        // console.log(event);
         const elapsed = (Date.now() - startTime) / 1000;
         if (event.data !== '') {
           setNewEvents(previous => [...previous, event.data]);
@@ -96,7 +89,6 @@ function useHostingStore(url) {
         if (event.data === '1-b') {
           setBootMessage('Compiling Hoon');
           setBootProgress(0.2);
-          console.log(`${elapsed}: compiling Hoon`);
         } else if (event.data === '1-c') {
           setBootProgress(0.25);
         } else if (event.data === '%arvo-assembly') {
@@ -127,6 +119,7 @@ function useHostingStore(url) {
     }
   }, [
     setError,
+    disabled,
     resetEvents,
     client,
     pointCursor,
@@ -137,7 +130,7 @@ function useHostingStore(url) {
 
   syncStatus = useCallback(async () => {
     try {
-      if (Nothing.hasInstance(pointCursor)) {
+      if (Nothing.hasInstance(pointCursor) || disabled) {
         return;
       }
       const patp = ob.patp(pointCursor.value);
@@ -166,25 +159,31 @@ function useHostingStore(url) {
     } catch (error) {
       setError(error);
     }
-  }, [client, getEvents, pointCursor, resetEvents, setError, setStatus]);
+  }, [
+    client,
+    getEvents,
+    pointCursor,
+    resetEvents,
+    setError,
+    setStatus,
+    disabled,
+  ]);
 
   const hostedShipUrl = useMemo(
-    () =>
-      `http://${ob.patp(pointCursor.getOrElse('')).slice(1)}.liam.tlon.network`,
-    [pointCursor]
+    () => `http://${ob.patp(pointCursor.getOrElse('')).slice(1)}.${domain}`,
+    [pointCursor, domain]
   );
 
   const create = useCallback(
     async keyfile => {
       try {
-        if (Nothing.hasInstance(pointCursor)) {
+        if (Nothing.hasInstance(pointCursor) || disabled) {
           return;
         }
         const patp = ob.patp(pointCursor.value).slice(1);
         setError(undefined);
 
         const start = Date.now();
-        console.log(start);
         setStatus(STATE.PENDING);
         setBootProgress(0.1);
 
@@ -204,7 +203,7 @@ function useHostingStore(url) {
         setError(error);
       }
     },
-    [pointCursor, setError, setStatus, client, getEvents]
+    [pointCursor, setError, setStatus, client, getEvents, disabled]
   );
 
   return {
@@ -226,6 +225,7 @@ function useHostingStore(url) {
     bootProgress,
     bootMessage,
 
+    disabled,
     // debugging
     status,
   };

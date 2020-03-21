@@ -14,6 +14,7 @@ function View({
   children,
   inset = false,
   full = false,
+  hideBack = false,
   pop,
   ...rest
 }) {
@@ -75,12 +76,12 @@ function View({
         col
         style={{ width: '48px' }}
         className={cn(insetPadding)}>
-        {showBackButton && (
+        {showBackButton && !hideBack && (
           <MiniBackButton
             hpadding={!isMobile}
             vpadding={isMobile}
             onClick={goBack}
-            className="mt2"
+            className="mt1"
           />
         )}
       </Flex.Item>

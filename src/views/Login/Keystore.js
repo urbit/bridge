@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { Just } from 'folktale/maybe';
-import { P, Grid } from 'indigo-react';
+import { Text, Grid } from 'indigo-react';
 import * as keythereum from 'keythereum';
 
 import { useWallet } from 'store/wallet';
@@ -56,7 +56,7 @@ export default function Keystore({ className, goHome }) {
 
   return (
     <Grid className={className}>
-      <Grid.Item full as={P}>
+      <Grid.Item full as={Text} className="f6 gray4 mb3">
         Please upload your Ethereum keystore file. If your keystore file is
         encrypted with a password, you'll also need to enter that below.
       </Grid.Item>

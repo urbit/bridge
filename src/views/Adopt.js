@@ -45,7 +45,6 @@ export default function Adopt() {
 
   const patp = useMemo(() => ob.patp(adoptee), [adoptee]);
 
-  // const header = //useMemo(() => denied ? 'A Request' : 'Accept Request', [denied]);
   const { construct, bind, completed } = useAdopt();
 
   const body = useMemo(

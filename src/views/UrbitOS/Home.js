@@ -96,7 +96,14 @@ function Hosting({ manualNetworkSeed }) {
   const { keyfile, code } = bind;
   const ship = useHosting();
 
-  const { syncStatus, url, unknown, bootProgress, bootMessage } = ship;
+  const {
+    syncStatus,
+    url,
+    unknown,
+    bootProgress,
+    bootMessage,
+    disabled,
+  } = ship;
 
   const [synced, setSynced] = useState(false);
   useEffect(() => {
@@ -180,34 +187,44 @@ function Hosting({ manualNetworkSeed }) {
 
   return (
     <>
-      <Grid gap={4}>
-        <Grid.Item full className="f5" as={Flex}>
-          <Flex.Item>Urbit OS </Flex.Item>
-          <Flex.Item
-            className={cn(
-              { green3: ship.running, gray4: !ship.running },
-              'ml3'
-            )}>
-            {ship.running ? 'Connected' : 'Disconnected'}
-          </Flex.Item>
-        </Grid.Item>
-        <BridgeForm initialValues={{ provider: 'tlon' }}>
-          {() => (
-            <>
-              {renderDetails()}
-              {renderMain()}
-              <Grid.Item
-                full
-                as={SelectInput}
-                name="provider"
-                label="Host Provider"
-                options={options}
-                disabled
-              />
-            </>
-          )}
-        </BridgeForm>
-      </Grid>
+      {disabled && (
+        <Grid gap={4}>
+          <Grid.Item full className="f5">
+            Urbit OS
+          </Grid.Item>
+          <Grid.Divider />
+        </Grid>
+      )}
+      {!disabled && (
+        <Grid gap={4}>
+          <Grid.Item full className="f5" as={Flex}>
+            <Flex.Item>Urbit OS </Flex.Item>
+            <Flex.Item
+              className={cn(
+                { green3: ship.running, gray4: !ship.running },
+                'ml3'
+              )}>
+              {ship.running ? 'Connected' : 'Disconnected'}
+            </Flex.Item>
+          </Grid.Item>
+          <BridgeForm initialValues={{ provider: 'tlon' }}>
+            {() => (
+              <>
+                {renderDetails()}
+                {renderMain()}
+                <Grid.Item
+                  full
+                  as={SelectInput}
+                  name="provider"
+                  label="Host Provider"
+                  options={options}
+                  disabled
+                />
+              </>
+            )}
+          </BridgeForm>
+        </Grid>
+      )}
       <Grid>
         <Grid.Item
           full

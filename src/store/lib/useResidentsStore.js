@@ -42,7 +42,7 @@ export default function useResidents() {
       if (pointSize === azimuth.PointSize.Planet) {
         addToResidentCache(point, {
           residentCount: Just(0),
-          requestsCount: Just(0),
+          requestCount: Just(0),
           requests: Just([]),
           residents: Just([]),
         });
@@ -75,7 +75,7 @@ export default function useResidents() {
       if (azimuth.getPointSize(point) === azimuth.PointSize.Planet) {
         addToResidentCache(point, {
           residentCount: Just(0),
-          requestsCount: Just(0),
+          requestCount: Just(0),
           requests: Just([]),
           residents: Just([]),
         });
