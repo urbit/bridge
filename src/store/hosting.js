@@ -9,7 +9,7 @@ import { useNetwork } from 'store/network';
 export const HostingContext = createContext(null);
 
 const HOSTING_DETAILS = {
-  DEV: { url: '', domain: 'liam.tlon.network', disabled: false },
+  DEV: { url: '', domain: 'liam.tlon.network', disabled: true },
   MAINNET: { url: '', domain: '', disabled: true },
 };
 

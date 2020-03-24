@@ -35,10 +35,7 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
   const [showKeys, setShowKeys] = useState(false);
 
   const showSponsor = azimuth.getPointSize(point) !== azimuth.PointSize.Galaxy;
-  const toggleShowKeys = useCallback(() => setShowKeys(!showKeys), [
-    setShowKeys,
-    showKeys,
-  ]);
+  const toggleShowKeys = useCallback(() => setShowKeys(s => !s), [setShowKeys]);
 
   const goNetworkingKeys = useCallback(() => push(names.NETWORKING_KEYS), [
     names,
@@ -80,7 +77,7 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
         <Grid.Item
           full
           as={ForwardButton}
-          accessory={showKeys ? '▲' : '▼'}
+          accessory={showKeys ? '▼' : '▲'}
           onClick={toggleShowKeys}>
           View Networking Keys
         </Grid.Item>
