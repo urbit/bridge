@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Grid, H4, HelpText } from 'indigo-react';
+import cn from 'classnames';
+import { Grid, H4, HelpText, Flex } from 'indigo-react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as ob from 'urbit-ob';
 
@@ -32,15 +33,31 @@ const VIEWS = {
   [NAMES.ALL]: Tab,
 };
 
-function Tab({ className, points, onAccept, onDecline }) {
+const PAGE_SIZE = 10;
+
+function Tab({ className, points, onAccept, onDecline, page, setPage }) {
+  const start = page * PAGE_SIZE;
+  const end = page * PAGE_SIZE + PAGE_SIZE;
+  const pointsCount = points.map(ps => ps.length).getOrElse(0);
+  const maxPage = Math.ceil(pointsCount / PAGE_SIZE) - 1;
+  const hasNext = page < maxPage;
+  const hasPrev = page > 0;
+  const _points = points.map(ps => ps.slice(start, end)).getOrElse([]);
+
+  const onNext = useCallback(() => {
+    setPage(p => p + 1);
+  }, [setPage]);
+
+  const onPrev = useCallback(() => {
+    setPage(p => p - 1);
+  }, [setPage]);
+
   if (Nothing.hasInstance(points)) {
     return <Grid className={className}></Grid>;
   }
 
-  const _points = points.getOrElse([]);
-
   return (
-    <Grid className={className}>
+    <Grid className={cn('mt2', className)}>
       {_points.length === 0 && (
         <Grid.Item full as={HelpText} className="mt8 t-center">
           {Just.hasInstance(points) ? (
@@ -61,6 +78,28 @@ function Tab({ className, points, onAccept, onDecline }) {
           onDecline={onDecline}
         />
       ))}
+
+      {hasPrev && (
+        <Grid.Item
+          className="pointer underline mt4"
+          fourth={1}
+          onClick={onPrev}>
+          {'<-'} Previous
+        </Grid.Item>
+      )}
+      {maxPage !== 0 && (
+        <Grid.Item className="mt6 ml7 t-center gray3" cols={[4, 10]}>
+          <span className="black">Page {page + 1}</span> of {maxPage + 1}
+        </Grid.Item>
+      )}
+      {hasNext && (
+        <Grid.Item
+          className="pointer underline t-right mt4"
+          fourth={4}
+          onClick={onNext}>
+          Next {'->'}
+        </Grid.Item>
+      )}
     </Grid>
   );
 }
@@ -83,7 +122,7 @@ function Resident({ point, onAccept, onDecline }) {
           <Sigil patp={patp} size={25} colors={['#FFFFFF', '#000000']} />
         </div>
       </Grid.Item>
-      <Grid.Item className="flex-row align-center" cols={[3, 6]}>
+      <Grid.Item className="flex-row align-center" cols={[3, 7]}>
         {patp}{' '}
       </Grid.Item>
       {isRequest && (
@@ -121,7 +160,16 @@ export default function Residents() {
 
   const { residents, requests } = getResidents(point);
 
-  const [currentTab, setCurrentTab] = useState(NAMES.ALL);
+  const [currentTab, _setCurrentTab] = useState(NAMES.ALL);
+  const [page, setPage] = useState(0);
+
+  const setCurrentTab = useCallback(
+    tab => {
+      setPage(0);
+      _setCurrentTab(tab);
+    },
+    [setPage, _setCurrentTab]
+  );
 
   const isRequests = useMemo(() => currentTab === NAMES.REQUESTS, [currentTab]);
 
@@ -169,6 +217,8 @@ export default function Residents() {
           points={points}
           onAccept={onAccept}
           onDecline={onDecline}
+          page={page}
+          setPage={setPage}
         />
       </Grid>
     </View>
