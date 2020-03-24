@@ -25,6 +25,91 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import Inviter from 'views/Invite/Inviter';
 import { usePointCache } from 'store/pointCache';
 
+function InviteForm({
+  acceptedPoints,
+  availableInvites,
+  goCohort,
+  pendingPoints,
+  sentInvites,
+  showInvites,
+}) {
+  const _acceptedPoints = acceptedPoints.getOrElse([]);
+  const _pendingPoints = pendingPoints.getOrElse([]);
+  const accepted = _acceptedPoints.length;
+  const pending = _pendingPoints.length;
+  const total = accepted + pending + availableInvites.getOrElse(0);
+
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  return (
+    <>
+      <Grid.Item cols={[1, 11]}>
+        Invite Group
+        <br />
+      </Grid.Item>
+
+      <Grid.Item
+        className={cn('t-right underline pointer-hover', {
+          gray4: sentInvites.getOrElse(0) === 0,
+        })}
+        onClick={goCohort}
+        cols={[11, 13]}>
+        View
+      </Grid.Item>
+      <Grid.Item full>
+        <Flex align="center">
+          <Flex.Item>
+            {accepted} / {total}
+          </Flex.Item>
+          {pending > 0 && (
+            <Flex.Item as={Chip} className="bg-yellow1 yellow4">
+              {pending} pending
+            </Flex.Item>
+          )}
+        </Flex>
+      </Grid.Item>
+
+      {showInvites && (
+        <>
+          <Grid.Item
+            full
+            as={BarGraph}
+            available={availableInvites}
+            sent={sentInvites}
+            accepted={Just(accepted)}
+          />
+          <Grid.Item
+            full
+            as={InviteSigilList}
+            pendingPoints={pendingPoints}
+            acceptedPoints={acceptedPoints}
+          />
+        </>
+      )}
+      {!showInvites && (
+        <>
+          <Grid.Item full className="b-gray4 b-dotted b1 self-center">
+            <div className="p4 pv8 t-center gray4">
+              Start your invite group by adding members
+            </div>
+          </Grid.Item>
+        </>
+      )}
+      {!showInviteForm && availableInvites.getOrElse(0) > 0 && (
+        <Grid.Item
+          full
+          solid
+          as={Button}
+          center
+          onClick={() => setShowInviteForm(true)}>
+          Add Members
+        </Grid.Item>
+      )}
+      {showInviteForm && <Inviter />}
+      <Grid.Item full className="mb2" />
+    </>
+  );
+}
+
 export default function Point() {
   const { pop, push, names } = useLocalRouter();
   const { pointCursor } = usePointCursor();
@@ -90,8 +175,6 @@ export default function Point() {
 
   const isPlanet = azimuth.getPointSize(point) === azimuth.PointSize.Planet;
 
-  const [showInviteForm, setShowInviteForm] = useState(false);
-
   const inviteButton = (() => {
     if (azimuth.getPointSize(point) === azimuth.PointSize.Star) {
       return (
@@ -134,89 +217,6 @@ export default function Point() {
 
   const address = need.addressFromWallet(wallet);
 
-  const InviteForm = useCallback(() => {
-    return (
-      <>
-        <Grid.Item cols={[1, 11]}>
-          Invite Group
-          <br />
-        </Grid.Item>
-
-        <Grid.Item
-          className={cn('t-right underline pointer-hover', {
-            gray4: sentInvites.getOrElse(0) === 0,
-          })}
-          onClick={goCohort}
-          cols={[11, 13]}>
-          View
-        </Grid.Item>
-        <Grid.Item full>
-          <Flex align="center">
-            <Flex.Item>
-              {acceptedInvites.getOrElse(0)} / {_totalInvites}
-            </Flex.Item>
-            {_pendingInvites > 0 && (
-              <Flex.Item as={Chip} className="bg-yellow1 yellow4">
-                {_pendingInvites} pending
-              </Flex.Item>
-            )}
-          </Flex>
-        </Grid.Item>
-
-        {showInvites && (
-          <>
-            <Grid.Item
-              full
-              as={BarGraph}
-              available={availableInvites}
-              sent={sentInvites}
-              accepted={acceptedInvites}
-            />
-            <Grid.Item
-              full
-              as={InviteSigilList}
-              pendingPoints={pendingPoints}
-              acceptedPoints={acceptedPoints}
-            />
-          </>
-        )}
-        {!showInvites && (
-          <>
-            <Grid.Item full className="b-gray4 b-dotted b1 self-center">
-              <div className="p4 pv8 t-center gray4">
-                Start your invite group by adding members
-              </div>
-            </Grid.Item>
-          </>
-        )}
-        {!showInviteForm && availableInvites.getOrElse(0) > 0 && (
-          <Grid.Item
-            full
-            solid
-            as={Button}
-            center
-            onClick={() => setShowInviteForm(true)}>
-            Add Members
-          </Grid.Item>
-        )}
-        {showInviteForm && <Inviter />}
-        <Grid.Item full className="mb2" />
-      </>
-    );
-  }, [
-    showInviteForm,
-    setShowInviteForm,
-    _pendingInvites,
-    _totalInvites,
-    acceptedInvites,
-    acceptedPoints,
-    availableInvites,
-    goCohort,
-    pendingPoints,
-    sentInvites,
-    showInvites,
-  ]);
-
   const _requestCount = requestCount.getOrElse(0);
 
   return (
@@ -246,7 +246,16 @@ export default function Point() {
             )}
           </Grid.Item>
         )}
-        {isPlanet && hasInvites && <InviteForm />}
+        {isPlanet && hasInvites && (
+          <InviteForm
+            acceptedPoints={acceptedPoints}
+            availableInvites={availableInvites}
+            goCohort={goCohort}
+            pendingPoints={pendingPoints}
+            sentInvites={sentInvites}
+            showInvites={showInvites}
+          />
+        )}
         {!loadedInvites && isPlanet && (
           <Grid.Item className="mv2" full>
             Invite Group <Blinky />
