@@ -119,6 +119,17 @@ module.exports = async function(deployer) {
         await lsr.deposit(user1, offset);
         await csr.deposit(user1, offset + 1);
       }
+    case 'INVITES':
+      await ecliptic.createGalaxy(0, own);
+      await ecliptic.configureKeys(0, '0x123', '0x456', 1, false);
+      await ecliptic.spawn(256, own);
+      await ecliptic.configureKeys(256, '0x456', '0x789', 1, false);
+      // set transfer proxy to delegated sending, very brittle
+      await ecliptic.setSpawnProxy(256, sending.address);
+      await ecliptic.spawn(65792, own);
+      await ecliptic.spawn(131328, own);
+      await ecliptic.spawn(512, own);
+      await sending.setPoolSize(256, 65792, 1000);
     default:
       return;
   }
