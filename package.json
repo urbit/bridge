@@ -84,6 +84,8 @@
     "pilot:ganache": "ganache-cli --blockTime 1 --networkId 1 --host '0.0.0.0' -m 'benefit crew supreme gesture quantum web media hazard theory mercy wing kitten' > /dev/null &",
     "pilot:setup": "npm run pilot:ganache && truffle deploy",
     "pilot": "HTTPS=true npm-run-all pilot:setup start pilot:cleanup --continue-on-error",
+    "pilot-invites": "WITH_TEST_STATE=INVITES npm run pilot",
+    "pilot-release": "WITH_TEST_STATE=STAR_RELEASE npm run pilot",
     "pilot:cleanup": "pkill -f ganache-cli",
     "lint:check": "eslint 'src/**/*.js'",
     "lint:fix": "eslint --fix 'src/**/*.js'",
