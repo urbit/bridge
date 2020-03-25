@@ -17,6 +17,7 @@ import * as need from 'lib/need';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
+import Footer from 'components/Footer';
 
 const NAMES = {
   REQUESTS: 'REQUESTS',
@@ -78,28 +79,31 @@ function Tab({ className, points, onAccept, onDecline, page, setPage }) {
           onDecline={onDecline}
         />
       ))}
-
-      {hasPrev && (
-        <Grid.Item
-          className="pointer underline mt4"
-          fourth={1}
-          onClick={onPrev}>
-          {'<-'} Previous
-        </Grid.Item>
-      )}
-      {maxPage !== 0 && (
-        <Grid.Item className="mt6 ml7 t-center gray3" cols={[4, 10]}>
-          <span className="black">Page {page + 1}</span> of {maxPage + 1}
-        </Grid.Item>
-      )}
-      {hasNext && (
-        <Grid.Item
-          className="pointer underline t-right mt4"
-          fourth={4}
-          onClick={onNext}>
-          Next {'->'}
-        </Grid.Item>
-      )}
+      <Grid.Item as={Footer}>
+        <Grid className="pb9">
+          {hasPrev && (
+            <Grid.Item
+              className="pointer underline mt4"
+              fourth={1}
+              onClick={onPrev}>
+              {'<-'}
+            </Grid.Item>
+          )}
+          {maxPage > 0 && (
+            <Grid.Item className="mt4 t-center gray3" cols={[4, 10]}>
+              <span className="black">Page {page + 1}</span> of {maxPage + 1}
+            </Grid.Item>
+          )}
+          {hasNext && (
+            <Grid.Item
+              className="pointer underline t-right mt4"
+              fourth={4}
+              onClick={onNext}>
+              {'->'}
+            </Grid.Item>
+          )}
+        </Grid>
+      </Grid.Item>
     </Grid>
   );
 }
@@ -122,7 +126,7 @@ function Resident({ point, onAccept, onDecline }) {
           <Sigil patp={patp} size={25} colors={['#FFFFFF', '#000000']} />
         </div>
       </Grid.Item>
-      <Grid.Item className="flex-row align-center" cols={[3, 7]}>
+      <Grid.Item className="flex-row align-center mono" cols={[3, 7]}>
         {patp}{' '}
       </Grid.Item>
       {isRequest && (
