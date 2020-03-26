@@ -20,6 +20,7 @@ import BridgeForm from 'form/BridgeForm';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { useHosting } from 'store/hosting';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
+import useLifecycle from 'lib/useLifecycle';
 
 export default function UrbitOSHome({ manualNetworkSeed }) {
   const { pointCursor } = usePointCursor();
@@ -102,13 +103,9 @@ function Hosting({ manualNetworkSeed }) {
     disabled,
   } = ship;
 
-  const [synced, setSynced] = useState(false);
-  useEffect(() => {
-    if (unknown && !synced) {
-      syncStatus();
-      setSynced(true);
-    }
-  }, [syncStatus, unknown, setSynced, synced]);
+  useLifecycle(() => {
+    syncStatus();
+  });
 
   const createShip = useCallback(() => ship.create(keyfile), [keyfile, ship]);
 
