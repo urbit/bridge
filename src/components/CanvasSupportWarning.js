@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { Flex } from 'indigo-react';
+import { Flex, LinkButton, P } from 'indigo-react';
+import cn from 'classnames';
 
 import WarningBox from 'components/WarningBox';
 import { RestartButton } from './Buttons';
@@ -31,6 +32,7 @@ const cleanupCanvas = canvas => {
 };
 export default function CanvasSupportWarning({
   className,
+  warningClassName,
   supported,
   setSupported,
   ...rest
@@ -43,28 +45,24 @@ export default function CanvasSupportWarning({
     return () => {
       cleanupCanvas(ref.current);
     };
-  }, []);
+  }, [setSupported]);
 
   return (
     <Flex col className={className}>
       <canvas ref={ref} style={{ display: 'none ' }} />
       {!supported.getOrElse(true) && (
         <>
-          <Flex.Item as={WarningBox} className="mb4">
+          <Flex.Item as={WarningBox} className={cn(warningClassName, 'f6 mb4')}>
             Something is blocking your web browser from rendering your wallets.
-            Please turn off any anti-fingerprinting extensions and try again.
             <br />
-            <br />
-            Brave users: Please set the device recognition setting in the brave
-            shield menu to "Cross-site device recognition blocked"
-            <br />
-            <br />
-            Firefox users: Please click on the icon of an image in your URL bar
-            and allow bridge.urbit.org to use your HTML5 canvas image data
+            <LinkButton href="https://urbit.org/using/bridge-troubleshooting">
+              Learn More
+            </LinkButton>{' '}
           </Flex.Item>
           <Flex.Item
             as={RestartButton}
             solid
+            className="mb4"
             onClick={() => {
               setSupported(Just(hasCanvasSupport(ref.current)));
             }}>

@@ -14,6 +14,8 @@ import { ForwardButton } from 'components/Buttons';
 import PaperBuilder from 'components/PaperBuilder';
 import WarningBox from 'components/WarningBox';
 import { blinkIf } from 'components/Blinky';
+import CanvasSupportWarning from 'components/CanvasSupportWarning';
+
 import useCurrentPointName from 'lib/useCurrentPointName';
 
 export default function ReticketConfirm({ newWallet, setNewWallet }) {
@@ -24,6 +26,9 @@ export default function ReticketConfirm({ newWallet, setNewWallet }) {
 
   const [generatedWallet, setGeneratedWallet] = useState(Nothing());
 
+  const [supported, setSupported] = useState(Nothing());
+
+  const isReady = supported.getOrElse(false);
   // generating new wallet on mount, conveniently using it to 'force' users
   // to read the disclaimer text
   //TODO also check we can pay for the transactions?
@@ -53,28 +58,42 @@ export default function ReticketConfirm({ newWallet, setNewWallet }) {
 
   const paperRenderer = generatedWallet.matchWith({
     Nothing: () => null,
-    Just: ({ value: wallet }) => (
-      <PaperBuilder
-        point={point}
-        wallets={[wallet]}
-        callback={paper => {
-          setNewWallet(wallet, paper);
-        }}
-      />
-    ),
+    Just: ({ value: wallet }) =>
+      isReady && (
+        <PaperBuilder
+          point={point}
+          wallets={[wallet]}
+          callback={paper => {
+            setNewWallet(wallet, paper);
+          }}
+        />
+      ),
   });
 
   return (
     <Grid className="mt4">
-      <Grid.Item full as={Text}>
-        Reticketing is the process of generating a completely fresh wallet and
-        transferring ownership of your point to that wallet.
-      </Grid.Item>
-      <Grid.Item full as={WarningBox} className="mt4">
-        Beware, this resets your proxy addresses; if you're using smart
-        contracts, this might break them! It will also change your networking
-        keys!
-      </Grid.Item>
+      {isReady && (
+        <>
+          <Grid.Item full as={Text}>
+            Reticketing is the process of generating a completely fresh wallet
+            and transferring ownership of your point to that wallet.
+          </Grid.Item>
+
+          <Grid.Item full as={WarningBox} className="mv4">
+            Beware, this resets your proxy addresses; if you're using smart
+            contracts, this might break them! It will also change your
+            networking keys!
+          </Grid.Item>
+        </>
+      )}
+
+      <Grid.Item
+        full
+        as={CanvasSupportWarning}
+        warningClassName="mv4"
+        supported={supported}
+        setSupported={setSupported}
+      />
       <Grid.Item
         full
         as={ForwardButton}

@@ -71,13 +71,15 @@ export default function AdminRedownload() {
           </Grid.Item>
         )}
       </Grid>
-      <PaperBuilder
-        point={point}
-        wallets={[_urbitWallet]}
-        callback={paper => {
-          setPaper(Just(paper));
-        }}
-      />
+      {isReady && (
+        <PaperBuilder
+          point={point}
+          wallets={[_urbitWallet]}
+          callback={paper => {
+            setPaper(Just(paper));
+          }}
+        />
+      )}
     </>
   );
 }

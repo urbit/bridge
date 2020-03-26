@@ -91,13 +91,15 @@ export default function PassportDownload({ className }) {
           </Grid.Item>
         </Grid>
       </PassportView>
-      <PaperBuilder
-        point={pointAsString}
-        wallets={[wallet]}
-        callback={data => {
-          setPaper(Just(data));
-        }}
-      />
+      {isReady && (
+        <PaperBuilder
+          point={pointAsString}
+          wallets={[wallet]}
+          callback={data => {
+            setPaper(Just(data));
+          }}
+        />
+      )}
     </>
   );
 }
