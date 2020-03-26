@@ -114,6 +114,16 @@ function useHostingStore(url, domain, disabled) {
           setRunEvents(previous => [...previous, event.data]);
         }
       });
+
+      source.addEventListender(
+        'error',
+        error => {
+          if (source.readyState === EventSource.CLOSED) {
+            setError(error);
+          }
+        },
+        false
+      );
     } catch (error) {
       setError(error);
     }
