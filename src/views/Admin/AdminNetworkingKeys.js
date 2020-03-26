@@ -74,6 +74,7 @@ function useSetKeys() {
 
   const {
     available: keyfileAvailable,
+    generating: keyfileGenerating,
     filename,
     bind: keyfileBind,
   } = useKeyfileGenerator(ndNetworkSeed);
@@ -133,7 +134,7 @@ function useSetKeys() {
   );
 
   // only treat the transaction as completed once we also have keys to download
-  const completed = _completed && keyfileAvailable;
+  const completed = _completed && keyfileAvailable && !keyfileGenerating;
 
   return {
     completed,

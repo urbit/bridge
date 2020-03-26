@@ -74,6 +74,10 @@ of having to re-authenticate whenever you make a change or refresh the page):
   your initial state. You can provide a specific wallet,
   network type, and so on.
 
+- `npm run pilot` will check the `WITH_TEST_STATE` environment variable to setup
+  the initial chain state. Possible values are `STAR_RELEASE` or `INVITES`.
+  The state setup can be found in `migrations/1_migration.js`
+
 ## HTTPS
 
 For development, you can enable HTTPS on localhost without a certificate for

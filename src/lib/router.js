@@ -1,5 +1,6 @@
 import Disclaimer from 'views/Disclaimer';
 import Login from 'views/Login.js';
+import Other from 'views/Login/Other.js';
 import Admin from 'views/Admin';
 import Senate from 'views/Senate';
 import CreateGalaxy from 'views/CreateGalaxy';
@@ -22,6 +23,7 @@ export const ROUTES = {
   [ROUTE_NAMES.DISCLAIMER]: Disclaimer,
   [ROUTE_NAMES.ACTIVATE]: Activate,
   [ROUTE_NAMES.LOGIN]: Login,
+  [ROUTE_NAMES.LOGIN_OTHER]: Other,
   [ROUTE_NAMES.POINTS]: Points,
   [ROUTE_NAMES.POINT]: Point,
   [ROUTE_NAMES.CREATE_GALAXY]: CreateGalaxy,
