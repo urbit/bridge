@@ -22,6 +22,7 @@ import * as need from 'lib/need';
 import Inviter from 'views/Invite/Inviter';
 
 import { ReactComponent as SearchIcon } from 'assets/search.svg';
+import NavHeader from 'components/NavHeader';
 
 function SearchInput({ className, value, onChange }) {
   return (
@@ -165,17 +166,16 @@ export default function InviteCohort() {
 
   return (
     <View pop={pop} inset>
-      <Grid gap={3}>
-        <Grid.Item
-          full
-          as={Crumbs}
+      <NavHeader>
+        <Crumbs
           className="mb1"
           routes={[
             { text: ob.patp(point), action: () => pop() },
             { text: 'Invite Group' },
           ]}
         />
-
+      </NavHeader>
+      <Grid gap={3}>
         <Grid.Item full>Invite Group</Grid.Item>
         <Grid.Item full>
           <Flex align="center">
