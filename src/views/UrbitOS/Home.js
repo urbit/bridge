@@ -119,9 +119,10 @@ function Hosting({ manualNetworkSeed }) {
           <Grid.Item cols={[1, 9]} as={OutButton} solid success href={url}>
             Open OS
           </Grid.Item>
-          <Grid.Item cols={[9, 13]} as={Button} className="b-black b1" center>
-            Disconnect
-          </Grid.Item>
+          {/* Unsupported for now */}
+          {/* <Grid.Item cols={[9, 13]} as={Button} className="b-black b1" center> */}
+          {/*   Disconnect */}
+          {/* </Grid.Item> */}
         </>
       );
     }
