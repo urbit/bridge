@@ -4,6 +4,7 @@ import React, {
   useContext,
   useMemo,
   useState,
+  useEffect,
 } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
@@ -11,25 +12,36 @@ import Web3 from 'web3';
 import { includes } from 'lodash';
 
 import { CONTRACT_ADDRESSES } from '../lib/contracts';
-import { NETWORK_TYPES } from '../lib/network';
+import { NETWORK_TYPES, chainIdToNetworkType } from '../lib/network';
 import { isDevelopment } from '../lib/flags';
 import { BRIDGE_ERROR } from '../lib/error';
 
 function _useNetwork(initialNetworkType = null) {
-  const [networkType, _setNetworkType] = useState(initialNetworkType);
+  const [networkType, setNetworkType] = useState(initialNetworkType);
 
-  const setNetworkType = networkType => {
-    if (!includes(NETWORK_TYPES, networkType)) {
-      throw new Error(BRIDGE_ERROR.INVALID_NETWORK_TYPE);
-    }
-    _setNetworkType(networkType);
-  };
+  const [metamask, setMetamask] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      if (window.ethereum) {
+        try {
+          await window.ethereum.enable();
+          setMetamask(true);
+          setNetworkType(chainIdToNetworkType(window.ethereum.chainId));
+        } catch (e) {
+          console.log('Metamask denied');
+        }
+      }
+    })();
+  }, []);
 
   const { web3, contracts } = useMemo(() => {
     // given a web3 provider and contract addresses,
     // build the web3 and contracts objects
     const initWeb3 = (provider, contractAddresses) => {
-      const web3 = new Web3(provider);
+      // use an in-window eth provider if possible
+      const _provider = metamask ? window.ethereum : provider;
+      const web3 = new Web3(_provider);
       const contracts = azimuth.initContracts(web3, contractAddresses);
 
       return {
@@ -88,7 +100,7 @@ function _useNetwork(initialNetworkType = null) {
         };
       }
     }
-  }, [networkType]);
+  }, [networkType, metamask]);
 
   return { networkType, setNetworkType, web3, contracts };
 }
