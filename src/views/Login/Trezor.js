@@ -8,9 +8,10 @@ import { Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
-import { TREZOR_PATH } from 'lib/trezor';
+import { TREZOR_PATH, trezorSignMessage } from 'lib/trezor';
 import { WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
+import { getAuthToken } from 'lib/authToken';
 
 import {
   composeValidator,
@@ -35,7 +36,7 @@ const ACCOUNT_OPTIONS = times(20, i => ({
 export default function Trezor({ className, goHome }) {
   useLoginView(WALLET_TYPES.TREZOR);
 
-  const { setWallet, setWalletHdPath } = useWallet();
+  const { setWallet, setWalletHdPath, setAuthToken } = useWallet();
 
   const validate = useMemo(
     () =>
@@ -67,10 +68,17 @@ export default function Trezor({ className, goHome }) {
       const pub = secp256k1.publicKeyConvert(publicKey, true);
       const hd = bip32.fromPublicKey(pub, chainCode);
 
+      const authToken = await getAuthToken({
+        wallet: hd,
+        walletType: WALLET_TYPES.TREZOR,
+        walletHdPath: values.hdPath,
+      });
+
+      setAuthToken(authToken);
       setWallet(Just(hd));
       setWalletHdPath(values.hdPath);
     },
-    [setWallet, setWalletHdPath]
+    [setAuthToken, setWallet, setWalletHdPath]
   );
 
   const onValues = useCallback(({ valid, values, form }) => {

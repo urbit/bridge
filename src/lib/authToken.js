@@ -2,6 +2,7 @@ import * as secp256k1 from 'secp256k1';
 
 import { keccak256, WALLET_TYPES } from './wallet';
 import { ledgerSignMessage } from './ledger';
+import { trezorSignMessage } from './trezor';
 
 const MESSAGE = 'Bridge Authentication Token';
 
@@ -40,6 +41,9 @@ export const getAuthToken = async ({
   if (walletType === WALLET_TYPES.LEDGER) {
     const { v, r, s } = await ledgerSignMessage(MESSAGE, walletHdPath);
     return signatureToHex(v, r, s);
+  }
+  if (walletType === WALLET_TYPES.TREZOR) {
+    return trezorSignMessage(MESSAGE, walletHdPath);
   }
 
   const signature = signMessage(wallet.privateKey);
