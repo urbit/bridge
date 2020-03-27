@@ -55,19 +55,21 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
   const { web3 } = useNetwork();
 
   useEffect(() => {
-    if (!Just.hasInstance(wallet) || !Just.hasInstance(web3)) {
-      return;
-    }
-    const _wallet = wallet.value;
-    const _web3 = web3.value;
-    const token = getAuthToken({
-      wallet: _wallet,
-      walletType,
-      walletHdPath,
-      web3: _web3,
-    });
+    (async () => {
+      if (!Just.hasInstance(wallet) || !Just.hasInstance(web3)) {
+        return;
+      }
+      const _wallet = wallet.value;
+      const _web3 = web3.value;
+      const token = await getAuthToken({
+        wallet: _wallet,
+        walletType,
+        walletHdPath,
+        web3: _web3,
+      });
 
-    setAuthToken(token);
+      setAuthToken(token);
+    })();
   }, [wallet, walletType, walletHdPath, web3]);
 
   const setWalletType = useCallback(
