@@ -22,3 +22,11 @@ export const ledgerSignTransaction = async (txn, hdpath) => {
 
   return txn;
 };
+
+export const ledgerSignMessage = async (message, hdPath) => {
+  const transport = await Transport.create();
+  const eth = new Eth(transport);
+
+  const path = chopHdPrefix(hdPath);
+  return eth.signPersonalMessage(path, Buffer.from(message).toString('hex'));
+};

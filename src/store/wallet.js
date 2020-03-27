@@ -14,6 +14,7 @@ import {
   DEFAULT_HD_PATH,
   addressFromSecp256k1Public,
   walletFromMnemonic,
+  NONCUSTODIAL_WALLETS,
 } from 'lib/wallet';
 import { getAuthToken } from 'lib/authToken';
 import { BRIDGE_ERROR } from 'lib/error';
@@ -56,7 +57,11 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
 
   useEffect(() => {
     (async () => {
-      if (!Just.hasInstance(wallet) || !Just.hasInstance(web3)) {
+      if (
+        !Just.hasInstance(wallet) ||
+        !Just.hasInstance(web3) ||
+        NONCUSTODIAL_WALLETS.has(walletType)
+      ) {
         return;
       }
       const _wallet = wallet.value;
@@ -158,6 +163,9 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
     setNetworkRevision,
     //
     resetWallet,
+    //
+    authToken,
+    setAuthToken,
   };
 }
 
