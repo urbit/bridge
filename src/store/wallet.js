@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useContext,
   useState,
+  useEffect,
 } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { includes } from 'lodash';
@@ -14,7 +15,10 @@ import {
   addressFromSecp256k1Public,
   walletFromMnemonic,
 } from 'lib/wallet';
+import { getAuthToken } from 'lib/authToken';
 import { BRIDGE_ERROR } from 'lib/error';
+
+import { useNetwork } from 'store/network';
 
 export const WalletContext = createContext(null);
 
@@ -45,6 +49,26 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
   const [authMnemonic, setAuthMnemonic] = useState(initialMnemonic);
   const [networkSeed, setNetworkSeed] = useState(Nothing());
   const [networkRevision, setNetworkRevision] = useState(Nothing());
+
+  const [authToken, setAuthToken] = useState(Nothing());
+
+  const { web3 } = useNetwork();
+
+  useEffect(() => {
+    if (!Just.hasInstance(wallet) || !Just.hasInstance(web3)) {
+      return;
+    }
+    const _wallet = wallet.value;
+    const _web3 = web3.value;
+    const token = getAuthToken({
+      wallet: _wallet,
+      walletType,
+      walletHdPath,
+      web3: _web3,
+    });
+
+    setAuthToken(token);
+  }, [wallet, walletType, walletHdPath, web3]);
 
   const setWalletType = useCallback(
     walletType => {
