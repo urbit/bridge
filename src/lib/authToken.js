@@ -20,15 +20,6 @@ function signMessage(privateKey) {
   return ethSignature;
 }
 
-function signatureToHex(v, r, s) {
-  const ethSignature = new Uint8Array(65);
-  ethSignature.set(Buffer.from(r, 'hex'));
-  ethSignature.set(Buffer.from(s, 'hex'), 32);
-  ethSignature[64] = v;
-
-  return `0x${Buffer.from(ethSignature).toString('hex')}`;
-}
-
 export const getAuthToken = async ({
   wallet,
   walletType,
@@ -39,8 +30,7 @@ export const getAuthToken = async ({
     return web3.eth.personal.sign(MESSAGE, wallet.address, '');
   }
   if (walletType === WALLET_TYPES.LEDGER) {
-    const { v, r, s } = await ledgerSignMessage(MESSAGE, walletHdPath);
-    return signatureToHex(v, r, s);
+    return ledgerSignMessage(MESSAGE, walletHdPath);
   }
   if (walletType === WALLET_TYPES.TREZOR) {
     return trezorSignMessage(MESSAGE, walletHdPath);
