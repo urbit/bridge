@@ -8,7 +8,7 @@ import { Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
-import { TREZOR_PATH, trezorSignMessage } from 'lib/trezor';
+import { TREZOR_PATH } from 'lib/trezor';
 import { WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
 import { getAuthToken } from 'lib/authToken';
@@ -113,7 +113,7 @@ export default function Trezor({ className, goHome }) {
         onSubmit={onSubmit}
         afterSubmit={goHome}
         initialValues={initialValues}>
-        {({ handleSubmit }) => (
+        {({ handleSubmit, submitting }) => (
           <>
             <Condition when="useCustomPath" is={true}>
               <Grid.Item full as={HdPathInput} name="hdPath" label="HD Path" />
@@ -141,7 +141,8 @@ export default function Trezor({ className, goHome }) {
             <Grid.Item full as={FormError} />
 
             <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
-              Authenticate
+              {!submitting && 'Authenticate'}
+              {submitting && 'Please check your device'}
             </Grid.Item>
           </>
         )}

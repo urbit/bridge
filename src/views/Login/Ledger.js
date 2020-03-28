@@ -173,7 +173,7 @@ export default function Ledger({ className, goHome }) {
         onSubmit={onSubmit}
         afterSubmit={goHome}
         initialValues={initialValues}>
-        {({ handleSubmit }) => (
+        {({ handleSubmit, submitting }) => (
           <>
             <Condition when="useCustomPath" is={true}>
               <Grid.Item full as={HdPathInput} name="hdpath" label="HD Path" />
@@ -214,7 +214,8 @@ export default function Ledger({ className, goHome }) {
             <Grid.Item full as={FormError} />
 
             <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
-              Authenticate
+              {!submitting && 'Authenticate'}
+              {submitting && 'Please check your device'}
             </Grid.Item>
           </>
         )}

@@ -6,7 +6,7 @@ import { FORM_ERROR } from 'final-form';
 import { useWallet } from 'store/wallet';
 import { useNetwork } from 'store/network';
 
-import { WALLET_TYPES } from 'lib/wallet';
+import { WALLET_TYPES, abbreviateAddress } from 'lib/wallet';
 import { MetamaskWallet } from 'lib/metamask';
 import { getAuthToken } from 'lib/authToken';
 import useLoginView from 'lib/useLoginView';
@@ -76,7 +76,7 @@ function Login({ onSubmit, goHome }) {
           <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
             Login
             {window.ethereum.selectedAddress &&
-              ' as ' + window.ethereum.selectedAddress}
+              ' as ' + abbreviateAddress(window.ethereum.selectedAddress)}
           </Grid.Item>
         )}
       </BridgeForm>
