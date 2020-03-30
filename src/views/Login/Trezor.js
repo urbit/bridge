@@ -104,7 +104,9 @@ export default function Trezor({ className, goHome }) {
     <Grid className={className}>
       <Grid.Item full as={Text} className="f6 gray4 mb3">
         Connect and authenticate to your Trezor. If you'd like to use a custom
-        derivation path, you may enter it below.
+        derivation path, you may enter it below. Upon login, you will prompted
+        to sign the message "Bridge Authentication Token". This allows Bridge to
+        operate correctly. Never sign this message outside of Bridge.
       </Grid.Item>
 
       <BridgeForm

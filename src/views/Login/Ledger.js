@@ -164,7 +164,8 @@ export default function Ledger({ className, goHome }) {
         application. If you're running on older firmware, make sure the "browser
         support" option is turned on. To sign transactions, you'll also need to
         enable the "contract data" option. You will be prompted to sign a
-        message. This allows Bridge to operate correctly.
+        message. This allows Bridge to operate correctly. Never sign this hash
+        outside of Bridge.
       </Grid.Item>
 
       <BridgeForm
