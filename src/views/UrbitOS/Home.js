@@ -20,6 +20,7 @@ import BridgeForm from 'form/BridgeForm';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { useHosting } from 'store/hosting';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
+import useLifecycle from 'lib/useLifecycle';
 
 export default function UrbitOSHome({ manualNetworkSeed }) {
   const { pointCursor } = usePointCursor();
@@ -35,10 +36,7 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
   const [showKeys, setShowKeys] = useState(false);
 
   const showSponsor = azimuth.getPointSize(point) !== azimuth.PointSize.Galaxy;
-  const toggleShowKeys = useCallback(() => setShowKeys(!showKeys), [
-    setShowKeys,
-    showKeys,
-  ]);
+  const toggleShowKeys = useCallback(() => setShowKeys(s => !s), [setShowKeys]);
 
   const goNetworkingKeys = useCallback(() => push(names.NETWORKING_KEYS), [
     names,
@@ -80,7 +78,7 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
         <Grid.Item
           full
           as={ForwardButton}
-          accessory={showKeys ? '▲' : '▼'}
+          accessory={showKeys ? '▼' : '▲'}
           onClick={toggleShowKeys}>
           View Networking Keys
         </Grid.Item>
@@ -105,13 +103,9 @@ function Hosting({ manualNetworkSeed }) {
     disabled,
   } = ship;
 
-  const [synced, setSynced] = useState(false);
-  useEffect(() => {
-    if (unknown && !synced) {
-      syncStatus();
-      setSynced(true);
-    }
-  }, [syncStatus, unknown, setSynced, synced]);
+  useLifecycle(() => {
+    syncStatus();
+  });
 
   const createShip = useCallback(() => ship.create(keyfile), [keyfile, ship]);
 
@@ -125,9 +119,10 @@ function Hosting({ manualNetworkSeed }) {
           <Grid.Item cols={[1, 9]} as={OutButton} solid success href={url}>
             Open OS
           </Grid.Item>
-          <Grid.Item cols={[9, 13]} as={Button} className="b-black b1" center>
-            Disconnect
-          </Grid.Item>
+          {/* Unsupported for now */}
+          {/* <Grid.Item cols={[9, 13]} as={Button} className="b-black b1" center> */}
+          {/*   Disconnect */}
+          {/* </Grid.Item> */}
         </>
       );
     }

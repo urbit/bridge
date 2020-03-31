@@ -234,7 +234,7 @@ export default function Point() {
             as={Flex}
             justify="between"
             onClick={goResidents}
-            className="mv1">
+            className="mv1 pointer">
             <Flex.Item>
               Residents{' '}
               <span className="gray3">{matchBlinky(residentCount)}</span>

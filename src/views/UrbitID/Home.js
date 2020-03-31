@@ -99,8 +99,12 @@ export default function UrbitIDHome() {
         disabledDetail={
           <B className="wrap ws-normal"> · Ownership key required</B>
         }
-        detail="Reset Master Key and all other keys">
-        Reset Keys
+        detail={
+          isMasterTicket
+            ? 'Reset Master Key and all other keys'
+            : 'Transfer to Master Ticket, resetting all keys'
+        }>
+        {isMasterTicket ? 'Reset Keys' : 'Transfer to Master Ticket'}
       </Grid.Item>
 
       <Grid.Divider />

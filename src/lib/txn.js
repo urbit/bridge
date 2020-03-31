@@ -127,7 +127,7 @@ const sendSignedTransaction = (web3, stx, doubtNonceError) => {
         // if there's a nonce error, but we used the gas tank, it's likely
         // that it's because the tank already submitted our transaction.
         // we just wait for first confirmation here.
-        const message = err.message || '';
+        const message = typeof err === 'string' ? err : err.message || '';
         const isKnownError = message.includes('known transaction: ');
         const isNonceError =
           message.includes("the tx doesn't have the correct nonce.") ||

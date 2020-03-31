@@ -191,7 +191,7 @@ export default function InlineEthereumTransaction({
   );
 
   const gasInfo = useMemo(() => {
-    const extra = numTxs === 1 ? '' : `*  ${numTxs} TXN`;
+    const extra = numTxs === 1 ? '' : `*  ${numTxs} txs`;
     return showGasDetails
       ? `${gasPrice} Gwei * ${gasLimit} ${extra} = ${maxCost} ETH`
       : `${maxCost} ETH`;

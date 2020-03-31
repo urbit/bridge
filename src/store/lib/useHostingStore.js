@@ -60,18 +60,9 @@ function useHostingStore(url, domain, disabled) {
     setRunEvents([]);
   }, [setSysEvents, setNewEvents, setRunEvents]);
 
-  const getEvents = useCallback(() => {
-    try {
-      if (Nothing.hasInstance(pointCursor) || disabled) {
-        return;
-      }
-      const patp = ob.patp(pointCursor.value);
-      setError(undefined);
-
-      resetEvents();
-
-      const url = client.getShipsByPatpUrl(patp) + '/events';
-      const source = new EventSource(url);
+  const newSource = useCallback(
+    (url, retry = 0) => {
+      let source = new EventSource(url);
 
       source.addEventListener('sys', event => {
         const sysEvent = JSON.parse(event.data);
@@ -82,7 +73,6 @@ function useHostingStore(url, domain, disabled) {
       });
 
       source.addEventListener('new', event => {
-        const elapsed = (Date.now() - startTime) / 1000;
         if (event.data !== '') {
           setNewEvents(previous => [...previous, event.data]);
         }
@@ -114,19 +104,40 @@ function useHostingStore(url, domain, disabled) {
           setRunEvents(previous => [...previous, event.data]);
         }
       });
+
+      source.addEventListener(
+        'error',
+        error => {
+          if (source.readyState === EventSource.CLOSED) {
+            if (retry < 5) {
+              newSource(url, retry + 1);
+              return;
+            }
+            setError(error);
+          }
+        },
+        false
+      );
+    },
+    [setError, startTime, syncStatus]
+  );
+
+  const getEvents = useCallback(() => {
+    try {
+      if (Nothing.hasInstance(pointCursor) || disabled) {
+        return;
+      }
+      const patp = ob.patp(pointCursor.value);
+      setError(undefined);
+
+      resetEvents();
+
+      const url = client.getShipsByPatpUrl(patp) + '/events';
+      newSource(url);
     } catch (error) {
       setError(error);
     }
-  }, [
-    setError,
-    disabled,
-    resetEvents,
-    client,
-    pointCursor,
-    setBootMessage,
-    startTime,
-    syncStatus,
-  ]);
+  }, [setError, disabled, resetEvents, client, pointCursor, newSource]);
 
   syncStatus = useCallback(async () => {
     try {
@@ -183,7 +194,6 @@ function useHostingStore(url, domain, disabled) {
         const patp = ob.patp(pointCursor.value).slice(1);
         setError(undefined);
 
-        const start = Date.now();
         setStatus(STATE.PENDING);
         setBootProgress(0.1);
 

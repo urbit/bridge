@@ -52,6 +52,7 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
 
   const {
     available: keyfileAvailable,
+    generating: keyfileGenerating,
     filename,
     bind: keyfileBind,
   } = useKeyfileGenerator(manualNetworkSeed);
@@ -118,7 +119,7 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
   );
 
   // only treat the transaction as completed once we also have keys to download
-  const completed = _completed && keyfileAvailable;
+  const completed = _completed && keyfileAvailable && !keyfileGenerating;
 
   return {
     completed,

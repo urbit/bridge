@@ -4,7 +4,7 @@ const CONTRACT_ADDRESSES = {
     azimuth: '0x863d9c2e5c4c133596cfac29d55255f0d0f86381',
     polls: '0x935452c45eda2958976a429c9733c40302995efd',
     delegatedSending: '0xb71c0b6cee1bcae56dfe95cd9d3e41ddd7eafc43',
-    linearSR: '0xa32c3019b256880A8c5458379188eea6F3934e2F',
+    linearSR: '0x03C3dC12BE658158D1d7F9e66E08ec4099c568e4',
     conditionalSR: '0x35EB3B102d9C1B69Ac1469C1B1FE1799850CD3EB',
   },
   ROPSTEN: {
