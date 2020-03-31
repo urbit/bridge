@@ -1,21 +1,14 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Nothing } from 'folktale/maybe';
 import * as ob from 'urbit-ob';
 
-import { getVaneName, getVaneNumber } from 'lib/hosting';
+import { getVaneName, getVaneNumber, HOSTING_STATUS } from 'lib/hosting';
 import SolarisClient from 'lib/SolarisClient';
 
 import { usePointCursor } from 'store/pointCursor';
 
-const STATE = {
-  UNKNOWN: 'UNKNOWN',
-  MISSING: 'MISSING',
-  RUNNING: 'RUNNING',
-  PENDING: 'PENDING',
-};
-
-function useHostingStore(url, domain, disabled) {
-  const client = new SolarisClient(url);
+export function useTlonHostingStore(url, domain, disabled) {
+  const client = useMemo(() => new SolarisClient(url), [url]);
 
   const { pointCursor } = usePointCursor();
 
@@ -23,7 +16,7 @@ function useHostingStore(url, domain, disabled) {
   const [bootMessage, setBootMessage] = useState('Assembling Urbit');
   const [startTime] = useState(Date.now());
 
-  const [status, _setStatus] = useState(STATE.UNKNOWN);
+  const [status, _setStatus] = useState(HOSTING_STATUS.UNKNOWN);
   const setStatus = useCallback(
     s => {
       _setStatus(s);
@@ -40,17 +33,12 @@ function useHostingStore(url, domain, disabled) {
     error => {
       _setError(error);
       if (error) {
-        setStatus(STATE.UNKNOWN);
+        setStatus(HOSTING_STATUS.UNKNOWN);
         console.error(error);
       }
     },
     [_setError, setStatus]
   );
-
-  const unknown = status === STATE.UNKNOWN;
-  const missing = status === STATE.MISSING;
-  const running = status === STATE.RUNNING;
-  const pending = status === STATE.PENDING;
 
   let syncStatus;
 
@@ -58,10 +46,10 @@ function useHostingStore(url, domain, disabled) {
     setSysEvents([]);
     setNewEvents([]);
     setRunEvents([]);
-  }, [setSysEvents, setNewEvents, setRunEvents]);
+  }, []);
 
   const newSource = useCallback(
-    (url, retry = 0) => {
+    (url, point, retry = 0) => {
       let source = new EventSource(url);
 
       source.addEventListener('sys', event => {
@@ -98,7 +86,7 @@ function useHostingStore(url, domain, disabled) {
         if (event.data === 'goad: recompiling all apps') {
           setBootProgress(1.0);
           setBootMessage('Ship Launched');
-          syncStatus();
+          syncStatus(point);
         }
         if (event.data !== '') {
           setRunEvents(previous => [...previous, event.data]);
@@ -119,66 +107,64 @@ function useHostingStore(url, domain, disabled) {
         false
       );
     },
-    [setError, startTime, syncStatus]
+    [syncStatus]
   );
 
-  const getEvents = useCallback(() => {
-    try {
-      if (Nothing.hasInstance(pointCursor) || disabled) {
-        return;
-      }
-      const patp = ob.patp(pointCursor.value);
-      setError(undefined);
-
-      resetEvents();
-
-      const url = client.getShipsByPatpUrl(patp) + '/events';
-      newSource(url);
-    } catch (error) {
-      setError(error);
-    }
-  }, [setError, disabled, resetEvents, client, pointCursor, newSource]);
-
-  syncStatus = useCallback(async () => {
-    try {
-      if (Nothing.hasInstance(pointCursor) || disabled) {
-        return;
-      }
-      const patp = ob.patp(pointCursor.value);
-      setError(undefined);
-
-      resetEvents();
-
-      const response = await client.getShipsByPatp(patp);
-
-      if (response.status === 404) {
-        setStatus(STATE.MISSING);
-      } else if (!response.ok) {
-        setError(response.statusText);
-      } else {
-        const ship = await response.json();
-
-        if (ship.status === 'Pending') {
-          setStatus(STATE.PENDING);
-          getEvents();
-        } else if (ship.status === 'Running') {
-          setStatus(STATE.RUNNING);
-        } else {
-          setError(ship);
+  const getEvents = useCallback(
+    point => {
+      try {
+        if (disabled) {
+          return;
         }
+        const patp = ob.patp(point).slice(1);
+        setError(undefined);
+
+        resetEvents();
+
+        const url = client.getShipsByPatpUrl(patp) + '/events';
+        newSource(url, point);
+      } catch (error) {
+        setError(error);
       }
-    } catch (error) {
-      setError(error);
-    }
-  }, [
-    client,
-    getEvents,
-    pointCursor,
-    resetEvents,
-    setError,
-    setStatus,
-    disabled,
-  ]);
+    },
+    [disabled, resetEvents, client, newSource]
+  );
+
+  syncStatus = useCallback(
+    async point => {
+      try {
+        if (disabled) {
+          return;
+        }
+        const patp = ob.patp(point).slice(1);
+        setError(undefined);
+
+        resetEvents();
+
+        const response = await client.getShipsByPatp(patp);
+
+        if (response.status === 404) {
+          setStatus(HOSTING_STATUS.MISSING);
+        } else if (!response.ok) {
+          setError(response.statusText);
+        } else {
+          const ship = await response.json();
+
+          if (ship.status === 'Pending') {
+            setStatus(HOSTING_STATUS.PENDING);
+            getEvents(point);
+          } else if (ship.status === 'Running') {
+            setStatus(HOSTING_STATUS.RUNNING);
+          } else {
+            setError(ship);
+          }
+        }
+      } catch (error) {
+        setError(error);
+      }
+    },
+    [client, getEvents, pointCursor, resetEvents, setError, setStatus, disabled]
+  );
 
   const hostedShipUrl = useMemo(
     () => `http://${ob.patp(pointCursor.getOrElse('')).slice(1)}.${domain}`,
@@ -194,7 +180,7 @@ function useHostingStore(url, domain, disabled) {
         const patp = ob.patp(pointCursor.value).slice(1);
         setError(undefined);
 
-        setStatus(STATE.PENDING);
+        setStatus(HOSTING_STATUS.PENDING);
         setBootProgress(0.1);
 
         const response = await client.postShips({
@@ -207,7 +193,7 @@ function useHostingStore(url, domain, disabled) {
         if (!response.ok) {
           setError(response.statusText);
         } else {
-          getEvents();
+          getEvents(pointCursor.value);
         }
       } catch (error) {
         setError(error);
@@ -216,12 +202,17 @@ function useHostingStore(url, domain, disabled) {
     [pointCursor, setError, setStatus, client, getEvents, disabled]
   );
 
+  useEffect(() => {
+    if (Nothing.hasInstance(pointCursor)) {
+      setStatus(HOSTING_STATUS.MISSING);
+      return;
+    }
+    syncStatus(pointCursor.value);
+  }, [syncStatus, pointCursor]);
+
   return {
     error,
-    unknown,
-    missing,
-    running,
-    pending,
+    status,
     url: hostedShipUrl,
 
     sysEvents,
@@ -238,7 +229,6 @@ function useHostingStore(url, domain, disabled) {
     disabled,
     // debugging
     status,
+    hostName: 'Tlon',
   };
 }
-
-export default useHostingStore;

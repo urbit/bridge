@@ -24,3 +24,10 @@ export const getVaneName = code => {
 };
 
 export const getVaneNumber = code => 1 + 'abcdefgij'.indexOf(code);
+
+export const HOSTING_STATUS = {
+  UNKNOWN: 'UNKNOWN',
+  MISSING: 'MISSING',
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+};
