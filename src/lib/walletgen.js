@@ -16,7 +16,7 @@ import {
 
 const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8;
 
-const getEntropyBits = point =>
+const getTicketBitSize = point =>
   point < MIN_STAR
     ? GALAXY_ENTROPY_BITS
     : point < MIN_PLANET
@@ -25,7 +25,7 @@ const getEntropyBits = point =>
 
 // returns a promise for a ticket string
 export const makeTicket = point => {
-  const bits = getEntropyBits(point);
+  const bits = getTicketBitSize(point);
 
   const bytes = bits / 8;
   const some = new Uint8Array(bytes);
@@ -48,7 +48,7 @@ export const makeTicket = point => {
 };
 
 export const makeDeterministicTicket = (point, seed) => {
-  const bits = getEntropyBits(point);
+  const bits = getTicketBitSize(point);
 
   const bytes = bits / 8;
 
