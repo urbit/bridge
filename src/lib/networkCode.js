@@ -18,7 +18,7 @@ function buf2hex(buf) {
     .toString('hex');
 }
 
-function shas(buf, salt) {
+export function shas(buf, salt) {
   return shax(xor(salt, shax(buf)));
 }
 

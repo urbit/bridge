@@ -2,6 +2,7 @@ import ob from 'urbit-ob';
 import kg from 'urbit-key-generation';
 import * as more from 'more-entropy';
 import { chunk, flatMap, zipWith } from 'lodash';
+import { shax, shas } from 'lib/networkCode';
 
 import {
   MIN_STAR,
@@ -42,6 +43,27 @@ export const makeTicket = point => {
       reject('Entropy generation failed');
     });
   });
+};
+
+export const makeDeterministicTicket = (point, seed) => {
+  const bits =
+    point < MIN_STAR
+      ? GALAXY_ENTROPY_BITS
+      : point < MIN_PLANET
+      ? STAR_ENTROPY_BITS
+      : PLANET_ENTROPY_BITS;
+
+  const bytes = bits / 8;
+
+  const pointSalt = Buffer.concat([
+    Buffer.from(point.toString()),
+    Buffer.from('invites'),
+  ]);
+  const entropy = shas(seed, pointSalt);
+
+  const buf = entropy.slice(0, bytes);
+  const patq = ob.hex2patq(buf.toString('hex'));
+  return patq;
 };
 
 // return a wallet object
