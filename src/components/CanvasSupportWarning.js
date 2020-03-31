@@ -55,7 +55,7 @@ export default function CanvasSupportWarning({
           <Flex.Item as={WarningBox} className={cn(warningClassName, 'f6 mb4')}>
             Something is blocking your web browser from rendering your wallets.
             <br />
-            <LinkButton href="https://urbit.org/using/bridge-troubleshooting">
+            <LinkButton href="https://urbit.org/using/operations/bridge-troubleshooting/">
               Learn More
             </LinkButton>{' '}
           </Flex.Item>
