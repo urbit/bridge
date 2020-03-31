@@ -41,6 +41,7 @@ export default function Point() {
     canManage,
     canSpawn,
     canVote,
+    isOwner,
   } = useCurrentPermissions();
 
   // fetch the invites for the current cursor
@@ -194,7 +195,7 @@ export default function Point() {
                 </Grid.Item>
               </>
             )}
-            {!showInviteForm && availableInvites.getOrElse(0) > 0 && (
+            {!showInviteForm && availableInvites.getOrElse(0) > 0 && isOwner && (
               <Grid.Item
                 full
                 solid
