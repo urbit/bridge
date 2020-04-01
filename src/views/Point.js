@@ -42,6 +42,7 @@ export default function Point() {
     canManage,
     canSpawn,
     canVote,
+    isOwner,
   } = useCurrentPermissions();
 
   // fetch the invites for the current cursor
