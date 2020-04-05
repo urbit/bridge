@@ -89,7 +89,9 @@ function View({
         <Flex.Item as={Footer.Target} />
       </Flex.Item>
 
-      <Flex.Item style={{ width: '48px' }} />
+      <Flex.Item style={{ visibility: 'hidden' }}>
+        {showBackButton && !backIsLogout && <MiniBackButton />}
+      </Flex.Item>
     </Flex>
   );
 }
