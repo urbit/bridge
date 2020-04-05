@@ -90,7 +90,13 @@ function View({
       </Flex.Item>
 
       <Flex.Item style={{ visibility: 'hidden' }}>
-        {showBackButton && !backIsLogout && <MiniBackButton />}
+        {showBackButton && !backIsLogout && (
+          <MiniBackButton
+            hpadding={!isMobile}
+            vpadding={isMobile}
+            isExit={backIsLogout}
+          />
+        )}
       </Flex.Item>
     </Flex>
   );
