@@ -15,6 +15,7 @@ import { OutButton, ForwardButton } from 'components/Buttons';
 import { CopyButtonWide } from 'components/CopyButton';
 import NetworkingKeys from 'components/NetworkingKeys';
 import ProgressButton from 'components/ProgressButton';
+import LoginButton from 'components/LoginButton';
 
 import BridgeForm from 'form/BridgeForm';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -116,7 +117,13 @@ function Hosting({ manualNetworkSeed }) {
     if (ship.running) {
       return (
         <>
-          <Grid.Item cols={[1, 9]} as={OutButton} solid success href={url}>
+          <Grid.Item
+            cols={[1, 9]}
+            as={LoginButton}
+            solid
+            success
+            url={url}
+            code={code}>
             Open OS
           </Grid.Item>
           {/* Unsupported for now */}
