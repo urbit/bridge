@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import cn from 'classnames';
 import { Grid, Button, SelectInput, Flex } from 'indigo-react';
 import * as ob from 'urbit-ob';
@@ -22,6 +22,7 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import { useHosting } from 'store/hosting';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import useLifecycle from 'lib/useLifecycle';
+import useLocalHosting from 'lib/useLocaHosting';
 
 export default function UrbitOSHome({ manualNetworkSeed }) {
   const { pointCursor } = usePointCursor();
@@ -104,6 +105,13 @@ function Hosting({ manualNetworkSeed }) {
     disabled,
   } = ship;
 
+  const { running: localRunning, url: localUrl } = useLocalHosting();
+
+  let running = useMemo(() => localRunning || ship.running, [
+    ship,
+    localRunning,
+  ]);
+
   useLifecycle(() => {
     syncStatus();
   });
@@ -114,6 +122,19 @@ function Hosting({ manualNetworkSeed }) {
   const options = [{ text: 'Tlon', value: 'tlon' }];
 
   const renderMain = useCallback(() => {
+    if (localRunning) {
+      return (
+        <Grid.Item
+          full
+          as={LoginButton}
+          solid
+          success
+          url={localUrl}
+          code={code}>
+          Open OS
+        </Grid.Item>
+      );
+    }
     if (ship.running) {
       return (
         <>
@@ -158,6 +179,7 @@ function Hosting({ manualNetworkSeed }) {
       );
     }
   }, [
+    localRunning,
     ship.missing,
     ship.running,
     ship.pending,
@@ -202,11 +224,8 @@ function Hosting({ manualNetworkSeed }) {
           <Grid.Item full className="f5" as={Flex}>
             <Flex.Item>Urbit OS </Flex.Item>
             <Flex.Item
-              className={cn(
-                { green3: ship.running, gray4: !ship.running },
-                'ml3'
-              )}>
-              {ship.running ? 'Connected' : 'Disconnected'}
+              className={cn({ green3: running, gray4: !running }, 'ml3')}>
+              {running ? 'Connected' : 'Disconnected'}
             </Flex.Item>
           </Grid.Item>
           <BridgeForm initialValues={{ provider: 'tlon' }}>
@@ -214,14 +233,16 @@ function Hosting({ manualNetworkSeed }) {
               <>
                 {renderDetails()}
                 {renderMain()}
-                <Grid.Item
-                  full
-                  as={SelectInput}
-                  name="provider"
-                  label="Host Provider"
-                  options={options}
-                  disabled
-                />
+                {!localRunning && (
+                  <Grid.Item
+                    full
+                    as={SelectInput}
+                    name="provider"
+                    label="Host Provider"
+                    options={options}
+                    disabled
+                  />
+                )}
               </>
             )}
           </BridgeForm>
