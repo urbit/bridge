@@ -3,6 +3,7 @@ import { Grid, Flex, Button } from 'indigo-react';
 import * as ob from 'urbit-ob';
 import { Just, Nothing } from 'folktale/maybe';
 import cn from 'classnames';
+import { delegatedSending } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
@@ -27,6 +28,7 @@ import Inviter from 'views/Invite/Inviter';
 import { ReactComponent as SearchIcon } from 'assets/search.svg';
 import CopyButton from 'components/CopyButton';
 import { useSyncForeignPoints } from 'lib/useSyncPoints';
+import { useNetwork } from 'store/network';
 
 function SearchInput({ className, value, onChange }) {
   return (
@@ -164,10 +166,14 @@ function CohortMemberExpanded({ point, className, ...rest }) {
   const { sentInvites, acceptedInvites } = useInvites(point);
   const { getDetails } = usePointCache();
   const { authToken } = useWallet();
-  const details = getDetails(point).getOrElse({});
-  const { active } = details;
+  const { contracts } = useNetwork();
+  const details = getDetails(point);
+  const { active } = details.getOrElse({});
   const patp = useMemo(() => ob.patp(point), [point]);
-  const colors = !active ? ['#ee892b', '#FFFFFF'] : ['#000000', '#FFFFFF'];
+  const colors = useMemo(
+    () => (!active ? ['#ee892b', '#FFFFFF'] : ['#000000', '#FFFFFF']),
+    [active]
+  );
 
   const [code, setCode] = useState(Nothing());
   const [codeVisible, setCodeVisible] = useState(false);
@@ -175,20 +181,35 @@ function CohortMemberExpanded({ point, className, ...rest }) {
   useEffect(() => {
     const fetchWallet = async () => {
       const _authToken = authToken.getOrElse(null);
-      if (!_authToken || active) {
+      const _details = details.getOrElse(null);
+      const _contracts = contracts.getOrElse(null);
+      if (
+        !_authToken ||
+        !_details ||
+        _details.active ||
+        !_contracts ||
+        !codeVisible
+      ) {
+        setCode(Nothing());
         return;
       }
-      const ticket = await wg.makeDeterministicTicket(point, _authToken);
-      setCode(Just(ticket));
+      const { ticket, owner } = await wg.generateTemporaryDeterministicWallet(
+        point,
+        _authToken
+      );
+
+      if (owner.keys.address !== _details.transferProxy) {
+        setCode(Just(null));
+      } else {
+        setCode(Just(ticket));
+      }
     };
     fetchWallet();
-  }, [authToken, point, active]);
+  }, [codeVisible]);
 
-  const DetailText = useCallback(
-    () =>
-      !active ? 'Pending' : <> {matchBlinky(sentInvites)} points invited </>,
-    [active, sentInvites]
-  );
+  useEffect(() => {
+    setCodeVisible(false);
+  }, [point]);
 
   return (
     <Grid justify="between" className={cn('b1 b-gray2', className)} {...rest}>
@@ -209,20 +230,27 @@ function CohortMemberExpanded({ point, className, ...rest }) {
             col>
             Invite Code
           </Grid.Item>
-          <Grid.Item
-            cols={[4, 10]}
-            className="mb-auto mt1 f6 gray4"
-            as={Flex}
-            col
-            onClick={() => setCodeVisible(r => !r)}>
-            {hideIf(!codeVisible, matchBlinky(code))}
+          <Grid.Item cols={[4, 10]} className="mb-auto mt1 f6 gray4">
+            {(code.getOrElse(true) === null &&
+              'This invite code cannot be recovered') ||
+              hideIf(!codeVisible, matchBlinky(code))}
           </Grid.Item>
-          <Grid.Item
-            className="mh-auto f6"
-            cols={[10, 13]}
-            as={CopyButton}
-            text={code.getOrElse('')}
-          />
+          {!codeVisible && (
+            <Grid.Item
+              cols={[10, 13]}
+              className="mh-auto f6 underline pointer"
+              onClick={() => setCodeVisible(true)}>
+              Show
+            </Grid.Item>
+          )}
+          {codeVisible && code.getOrElse('') !== null && (
+            <Grid.Item
+              className="mh-auto f6 t-right"
+              cols={[10, 13]}
+              as={CopyButton}
+              text={code.getOrElse('')}
+            />
+          )}
         </>
       )}
 
@@ -244,22 +272,6 @@ function CohortMemberExpanded({ point, className, ...rest }) {
           </Grid.Item>
         </>
       )}
-
-      {/*   <Flex.Item>Invite Code</Flex.Item> */}
-      {/*   <Flex.Item>{matchBlinky(code)}</Flex.Item> */}
-      {/*   <span className="pointer underline">Get Invite code </span> */}
-      {/*   <br /> */}
-      {/*   {resend && <span>{matchBlinky(code)}</span>} */}
-      {/* </Grid.Item> */}
-      {/* {resend && ( */}
-      {/*   <Grid.Item cols={[5, 13]} rows={[2, 3]} className="mv-auto"></Grid.Item> */}
-      {/* )} */}
-      {/* <Grid.Item justify="evenly" as={Flex} col className="mono f6 ph4"> */}
-      {/*   <Flex.Item>{patp}</Flex.Item> */}
-      {/*   <Flex.Item className="gray4"> */}
-      {/*     <DetailText /> */}
-      {/*   </Flex.Item> */}
-      {/* </Grid.Item> */}
     </Grid>
   );
 }
@@ -293,9 +305,7 @@ export default function InviteCohort() {
 
   const [selectedInvite, _setSelectedInvite] = useState();
 
-  useEffect(() => {
-    Promise.all(_acceptedPoints.map(i => syncDetails(i)));
-  }, [_acceptedPoints, syncDetails]);
+  useSyncForeignPoints([..._acceptedPoints, ..._pendingPoints]);
 
   const setSelectedInvite = useCallback(
     p => _setSelectedInvite(old => (old === p ? null : p)),
