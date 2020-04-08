@@ -73,7 +73,7 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
         web3: _web3,
       });
 
-      setAuthToken(token);
+      setAuthToken(Just(token));
     })();
   }, [wallet, walletType, walletHdPath, web3]);
 

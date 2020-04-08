@@ -56,7 +56,7 @@ export const makeDeterministicTicket = (point, seed) => {
     Buffer.from(point.toString()),
     Buffer.from('invites'),
   ]);
-  const entropy = shas(seed, pointSalt);
+  const entropy = shas(Buffer.from(seed, 'hex'), pointSalt);
 
   const buf = entropy.slice(0, bytes);
   const patq = ob.hex2patq(buf.toString('hex'));
@@ -93,6 +93,13 @@ export const generateTemporaryOwnershipWallet = ticket =>
 
 export const generateTemporaryTicketAndWallet = async point => {
   const ticket = await makeTicket(point);
+  const owner = await generateOwnershipWallet(ZOD, ticket);
+
+  return { ticket, owner };
+};
+
+export const generateTemporaryDeterministicWallet = async (point, seed) => {
+  const ticket = makeDeterministicTicket(point, seed);
   const owner = await generateOwnershipWallet(ZOD, ticket);
 
   return { ticket, owner };

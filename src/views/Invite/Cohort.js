@@ -1,11 +1,12 @@
 import React, { useMemo, useEffect, useCallback, useState } from 'react';
 import { Grid, Flex, Button } from 'indigo-react';
 import * as ob from 'urbit-ob';
-import { Just } from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import cn from 'classnames';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
+import { useWallet } from 'store/wallet';
 
 import View from 'components/View';
 import Tabs from 'components/Tabs';
@@ -19,10 +20,13 @@ import Crumbs from 'components/Crumbs';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useInvites from 'lib/useInvites';
 import * as need from 'lib/need';
+import * as wg from 'lib/walletgen';
 
 import Inviter from 'views/Invite/Inviter';
 
 import { ReactComponent as SearchIcon } from 'assets/search.svg';
+import CopyButton from 'components/CopyButton';
+import { useSyncForeignPoints } from 'lib/useSyncPoints';
 
 function SearchInput({ className, value, onChange }) {
   return (
@@ -42,7 +46,7 @@ function SearchInput({ className, value, onChange }) {
   );
 }
 
-function CohortMember({ point, pending = false, className }) {
+function CohortMember({ point, pending = false, className, ...rest }) {
   const { sentInvites } = useInvites(point);
   const patp = useMemo(() => ob.patp(point), [point]);
   const colors = pending ? ['#ee892b', '#FFFFFF'] : ['#000000', '#FFFFFF'];
@@ -54,7 +58,7 @@ function CohortMember({ point, pending = false, className }) {
   );
 
   return (
-    <Flex justify="between" className={cn('b1 b-gray2', className)}>
+    <Flex justify="between" className={cn('b1 b-gray2', className)} {...rest}>
       <Flex.Item className="w9 h9">
         <MaybeSigil patp={Just(patp)} size={64} colors={colors} />
       </Flex.Item>
@@ -73,7 +77,13 @@ function CohortMember({ point, pending = false, className }) {
     </Flex>
   );
 }
-function CohortList({ acceptedPoints, pendingPoints, className, onlyPending }) {
+function CohortList({
+  acceptedPoints,
+  pendingPoints,
+  className,
+  onlyPending,
+  onSelectInvite,
+}) {
   const { syncInvites } = usePointCache();
 
   const [query, setQuery] = useState('');
@@ -98,7 +108,12 @@ function CohortList({ acceptedPoints, pendingPoints, className, onlyPending }) {
       }),
     [query]
   );
-
+  const selectInvite = useCallback(
+    point => () => {
+      onSelectInvite(point);
+    },
+    [onSelectInvite]
+  );
   const _pendingPoints = filterPoints(pendingPoints);
   const _acceptedPoints = filterPoints(acceptedPoints);
 
@@ -115,6 +130,7 @@ function CohortList({ acceptedPoints, pendingPoints, className, onlyPending }) {
               half={(idx % 2) + 1}
               as={CohortMember}
               point={p}
+              onClick={selectInvite(p)}
             />
           ))}
         {_pendingPoints.map((p, idx) => (
@@ -124,6 +140,7 @@ function CohortList({ acceptedPoints, pendingPoints, className, onlyPending }) {
             as={CohortMember}
             point={p}
             pending
+            onClick={selectInvite(p)}
           />
         ))}
       </>
@@ -139,11 +156,121 @@ function CohortList({ acceptedPoints, pendingPoints, className, onlyPending }) {
   );
 }
 
+function hideIf(hider, hidden) {
+  return hider ? '●●●●●●●' : hidden;
+}
+
+function CohortMemberExpanded({ point, className, ...rest }) {
+  const { sentInvites, acceptedInvites } = useInvites(point);
+  const { getDetails } = usePointCache();
+  const { authToken } = useWallet();
+  const details = getDetails(point).getOrElse({});
+  const { active } = details;
+  const patp = useMemo(() => ob.patp(point), [point]);
+  const colors = !active ? ['#ee892b', '#FFFFFF'] : ['#000000', '#FFFFFF'];
+
+  const [code, setCode] = useState(Nothing());
+  const [codeVisible, setCodeVisible] = useState(false);
+
+  useEffect(() => {
+    const fetchWallet = async () => {
+      const _authToken = authToken.getOrElse(null);
+      if (!_authToken || active) {
+        return;
+      }
+      const ticket = await wg.makeDeterministicTicket(point, _authToken);
+      setCode(Just(ticket));
+    };
+    fetchWallet();
+  }, [authToken, point, active]);
+
+  const DetailText = useCallback(
+    () =>
+      !active ? 'Pending' : <> {matchBlinky(sentInvites)} points invited </>,
+    [active, sentInvites]
+  );
+
+  return (
+    <Grid justify="between" className={cn('b1 b-gray2', className)} {...rest}>
+      <Grid.Item rows={[1, 4]} cols={[1, 4]} className="h10 w10">
+        <MaybeSigil patp={Just(patp)} size={64} colors={colors} />
+      </Grid.Item>
+
+      <Grid.Item cols={[4, 13]} className="mono mt-auto ">
+        {patp}
+      </Grid.Item>
+
+      {!active && (
+        <>
+          <Grid.Item
+            cols={[4, 13]}
+            className="mt-auto mb1 f6 gray4"
+            as={Flex}
+            col>
+            Invite Code
+          </Grid.Item>
+          <Grid.Item
+            cols={[4, 10]}
+            className="mb-auto mt1 f6 gray4"
+            as={Flex}
+            col
+            onClick={() => setCodeVisible(r => !r)}>
+            {hideIf(!codeVisible, matchBlinky(code))}
+          </Grid.Item>
+          <Grid.Item
+            className="mh-auto f6"
+            cols={[10, 13]}
+            as={CopyButton}
+            text={code.getOrElse('')}
+          />
+        </>
+      )}
+
+      {active && (
+        <>
+          <Grid.Item
+            cols={[4, 13]}
+            className="mt-auto mb1 f6 gray4"
+            as={Flex}
+            col>
+            {matchBlinky(sentInvites)} invites sent
+          </Grid.Item>
+          <Grid.Item
+            cols={[4, 13]}
+            className="mb-auto mt1 f6 gray4"
+            as={Flex}
+            col>
+            {matchBlinky(acceptedInvites)} invites accepted
+          </Grid.Item>
+        </>
+      )}
+
+      {/*   <Flex.Item>Invite Code</Flex.Item> */}
+      {/*   <Flex.Item>{matchBlinky(code)}</Flex.Item> */}
+      {/*   <span className="pointer underline">Get Invite code </span> */}
+      {/*   <br /> */}
+      {/*   {resend && <span>{matchBlinky(code)}</span>} */}
+      {/* </Grid.Item> */}
+      {/* {resend && ( */}
+      {/*   <Grid.Item cols={[5, 13]} rows={[2, 3]} className="mv-auto"></Grid.Item> */}
+      {/* )} */}
+      {/* <Grid.Item justify="evenly" as={Flex} col className="mono f6 ph4"> */}
+      {/*   <Flex.Item>{patp}</Flex.Item> */}
+      {/*   <Flex.Item className="gray4"> */}
+      {/*     <DetailText /> */}
+      {/*   </Flex.Item> */}
+      {/* </Grid.Item> */}
+    </Grid>
+  );
+}
+
 export default function InviteCohort() {
   const { pop } = useLocalRouter();
 
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
+
+  const { syncDetails } = usePointCache();
 
   const {
     acceptedInvites,
@@ -163,6 +290,17 @@ export default function InviteCohort() {
   const _totalInvites = availableInvites
     .map(a => sentInvites.getOrElse(0) + a)
     .getOrElse(0);
+
+  const [selectedInvite, _setSelectedInvite] = useState();
+
+  useEffect(() => {
+    Promise.all(_acceptedPoints.map(i => syncDetails(i)));
+  }, [_acceptedPoints, syncDetails]);
+
+  const setSelectedInvite = useCallback(
+    p => _setSelectedInvite(old => (old === p ? null : p)),
+    []
+  );
 
   return (
     <View pop={pop} inset>
@@ -209,18 +347,31 @@ export default function InviteCohort() {
         )}
         {showInviteForm && <Inviter />}
 
-        <Grid.Item
-          full
-          center
-          as={Tabs}
-          views={VIEWS}
-          options={OPTIONS}
-          currentTab={tab}
-          onTabChange={setTab}
-          acceptedPoints={_acceptedPoints}
-          pendingPoints={_pendingPoints}
-          onlyPending={tab === NAMES.PENDING}
-        />
+        {true && (
+          <Grid.Item
+            full
+            center
+            as={Tabs}
+            views={VIEWS}
+            options={OPTIONS}
+            currentTab={tab}
+            onTabChange={setTab}
+            acceptedPoints={_acceptedPoints}
+            pendingPoints={_pendingPoints}
+            onlyPending={tab === NAMES.PENDING}
+            onSelectInvite={setSelectedInvite}
+          />
+        )}
+        {selectedInvite && (
+          <Grid.Item
+            full
+            center
+            as={CohortMemberExpanded}
+            pending
+            point={selectedInvite}
+            onBack={() => setSelectedInvite(null)}
+          />
+        )}
       </Grid>
     </View>
   );
