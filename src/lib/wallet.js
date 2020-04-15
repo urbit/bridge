@@ -22,6 +22,12 @@ export const WALLET_TYPES = {
   METAMASK: Symbol('METAMASK'),
 };
 
+export const NONCUSTODIAL_WALLETS = new Set([
+  WALLET_TYPES.METAMASK,
+  WALLET_TYPES.TREZOR,
+  WALLET_TYPES.LEDGER,
+]);
+
 export function EthereumWallet(privateKey) {
   this.privateKey = privateKey;
   this.publicKey = secp256k1.publicKeyCreate(this.privateKey);

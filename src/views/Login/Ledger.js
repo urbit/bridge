@@ -19,6 +19,7 @@ import {
 import { WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
 import useBreakpoints from 'lib/useBreakpoints';
+
 import {
   composeValidator,
   buildCheckboxValidator,
@@ -31,6 +32,7 @@ import SubmitButton from 'form/SubmitButton';
 import Condition from 'form/Condition';
 import { FORM_ERROR } from 'final-form';
 import { HdPathInput } from 'form/Inputs';
+import { getAuthToken } from 'lib/authToken';
 
 const PATH_OPTIONS = [
   { text: 'Ledger Live', value: LEDGER_LIVE_PATH },
@@ -45,7 +47,7 @@ const ACCOUNT_OPTIONS = times(20, i => ({
 export default function Ledger({ className, goHome }) {
   useLoginView(WALLET_TYPES.LEDGER);
 
-  const { setWallet, setWalletHdPath } = useWallet();
+  const { setWallet, setWalletHdPath, setAuthToken } = useWallet();
 
   const validate = useMemo(
     () =>
@@ -70,14 +72,21 @@ export default function Ledger({ className, goHome }) {
         const chainCode = Buffer.from(info.chainCode, 'hex');
         const pub = secp256k1.publicKeyConvert(publicKey, true);
         const hd = bip32.fromPublicKey(pub, chainCode);
+        const authToken = await getAuthToken({
+          wallet: hd,
+          walletType: WALLET_TYPES.LEDGER,
+          walletHdPath: addHdPrefix(values.hdpath),
+        });
 
+        setAuthToken(authToken);
         setWallet(Just(hd));
         setWalletHdPath(addHdPrefix(values.hdpath));
       } catch (error) {
+        console.error(error);
         return { [FORM_ERROR]: error.message };
       }
     },
-    [setWallet, setWalletHdPath]
+    [setAuthToken, setWallet, setWalletHdPath]
   );
 
   const onValues = useCallback(({ valid, values, form }) => {
@@ -154,7 +163,9 @@ export default function Ledger({ className, goHome }) {
         Connect and authenticate to your Ledger, and then open the "Ethereum"
         application. If you're running on older firmware, make sure the "browser
         support" option is turned on. To sign transactions, you'll also need to
-        enable the "contract data" option.
+        enable the "contract data" option. You will be prompted to sign a
+        message. This allows Bridge to operate correctly. Never sign this
+        message outside of Bridge.
       </Grid.Item>
 
       <BridgeForm
@@ -163,7 +174,7 @@ export default function Ledger({ className, goHome }) {
         onSubmit={onSubmit}
         afterSubmit={goHome}
         initialValues={initialValues}>
-        {({ handleSubmit }) => (
+        {({ handleSubmit, submitting }) => (
           <>
             <Condition when="useCustomPath" is={true}>
               <Grid.Item full as={HdPathInput} name="hdpath" label="HD Path" />
@@ -204,7 +215,8 @@ export default function Ledger({ className, goHome }) {
             <Grid.Item full as={FormError} />
 
             <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
-              Authenticate
+              {!submitting && 'Authenticate'}
+              {submitting && 'Please check your device'}
             </Grid.Item>
           </>
         )}
