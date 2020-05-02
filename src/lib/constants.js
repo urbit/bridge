@@ -1,6 +1,6 @@
 import { isDevelopment } from './flags';
 
-const CHECK_BLOCK_EVERY_MS = isDevelopment ? 1000 : 5000;
+const CHECK_BLOCK_EVERY_MS = isDevelopment ? 1000 : 10000;
 const DEFAULT_GAS_PRICE_GWEI = 20;
 
 const MIN_GALAXY = 0;
