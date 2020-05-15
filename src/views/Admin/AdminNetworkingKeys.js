@@ -381,7 +381,7 @@ export default function AdminNetworkingKeys() {
                 <Condition when="useNetworkSeed" is={true}>
                   <Grid.Item full as={NoticeBox} className="mb2">
                     When using a custom network seed, you'll need to download
-                    your Arvo keyfile immediately after this transaction is
+                    your Arvo keyfile immediately after this transaction as
                     Bridge does not store your seed.
                   </Grid.Item>
                   <Grid.Item
