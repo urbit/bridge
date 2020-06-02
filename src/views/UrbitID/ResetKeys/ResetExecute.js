@@ -41,7 +41,7 @@ const labelForProgress = progress => {
   }
 };
 
-export default function ReticketExecute({ newWallet, setNewWallet }) {
+export default function ResetExecute({ newWallet, setNewWallet }) {
   const { popTo, names, reset } = useHistory();
   const { web3, contracts, networkType } = useNetwork();
   const {
@@ -148,7 +148,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
 
     return (
       <Grid.Item full as={WarningBox} className="mt4">
-        Never give your Master Ticket to anyone
+        Never give your Master Key to anyone
       </Grid.Item>
     );
   };
@@ -172,7 +172,7 @@ export default function ReticketExecute({ newWallet, setNewWallet }) {
             className="mt4"
             accessory="↺"
             onClick={loginAndGoHome}>
-            Login with New Master Ticket
+            Login with New Master Key
           </Grid.Item>
         </>
       ) : (

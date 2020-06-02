@@ -13,7 +13,7 @@ import FormError from 'form/FormError';
 
 const STUB_VERIFY_TICKET = isDevelopment;
 
-export default function ReticketVerify({ newWallet }) {
+export default function ResetVerify({ newWallet }) {
   const { push, names } = useLocalRouter();
 
   const ticket = newWallet.value.wallet.ticket;

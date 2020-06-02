@@ -128,6 +128,7 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     download,
     filename,
     notice,
+    keyfile,
     code,
   };
 

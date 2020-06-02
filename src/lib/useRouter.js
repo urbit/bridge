@@ -88,7 +88,9 @@ export default function useRouter({
   const includes = useCallback(key => _includes(routes.map(r => r.key), key), [
     routes,
   ]);
-  const data = useMemo(() => last(routes).data || NULL_DATA, [routes]);
+  const data = useMemo(() => {
+    return last(routes).data || NULL_DATA;
+  }, [routes]);
   const Route = useMemo(() => views[peek().key], [views, peek]);
 
   // Scroll to top of page with each route transition

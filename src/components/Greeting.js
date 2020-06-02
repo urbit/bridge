@@ -3,18 +3,12 @@ import cn from 'classnames';
 import ob from 'urbit-ob';
 import { Grid, Text, LinkButton } from 'indigo-react';
 
-import { useLocalRouter } from 'lib/LocalRouter';
-
 import useWasGreeted from 'lib/useWasGreeted';
-import useCurrentPermissions from 'lib/useCurrentPermissions';
 
 const TEXT_STYLE = 'f5';
 
 export default function ActivateDisclaimer({ point }) {
-  const { push, names } = useLocalRouter();
-
   const [wasGreeted, setWasGreeted] = useWasGreeted();
-  const { isActiveOwner } = useCurrentPermissions();
 
   const pointName = ob.patp(point);
 
