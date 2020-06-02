@@ -157,7 +157,7 @@ export default function ActivateCode() {
         </Grid.Item>
         <Grid.Item full as={P} className="mb2">
           Someone has invited you to claim your Urbit identity and join the
-          network. Enter your activation code to continue.
+          network. {!impliedTicket && 'Enter your activation code to continue.'}
         </Grid.Item>
         <BridgeForm
           validate={validate}
@@ -166,21 +166,25 @@ export default function ActivateCode() {
           initialValues={initialValues}>
           {({ validating, values, submitting, handleSubmit }) => (
             <>
-              <Grid.Item
-                full
-                as={TicketInput}
-                type={values.showTicket ? 'text' : 'password'}
-                name="ticket"
-                label="Activation Code"
-                disabled={!activationAllowed}
-              />
+              {!impliedTicket && (
+                <>
+                  <Grid.Item
+                    full
+                    as={TicketInput}
+                    type={values.showTicket ? 'text' : 'password'}
+                    name="ticket"
+                    label="Activation Code"
+                    disabled={!activationAllowed}
+                  />
 
-              <Grid.Item
-                full
-                as={CheckboxInput}
-                name="showTicket"
-                label="Show"
-              />
+                  <Grid.Item
+                    full
+                    as={CheckboxInput}
+                    name="showTicket"
+                    label="Show"
+                  />
+                </>
+              )}
 
               <Grid.Item full as={FormError} />
 

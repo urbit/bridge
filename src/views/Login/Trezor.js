@@ -11,6 +11,7 @@ import { useWallet } from 'store/wallet';
 import { TREZOR_PATH } from 'lib/trezor';
 import { WALLET_TYPES } from 'lib/wallet';
 import useLoginView from 'lib/useLoginView';
+import { getAuthToken } from 'lib/authToken';
 
 import {
   composeValidator,
@@ -35,7 +36,7 @@ const ACCOUNT_OPTIONS = times(20, i => ({
 export default function Trezor({ className, goHome }) {
   useLoginView(WALLET_TYPES.TREZOR);
 
-  const { setWallet, setWalletHdPath } = useWallet();
+  const { setWallet, setWalletHdPath, setAuthToken } = useWallet();
 
   const validate = useMemo(
     () =>
@@ -67,10 +68,17 @@ export default function Trezor({ className, goHome }) {
       const pub = secp256k1.publicKeyConvert(publicKey, true);
       const hd = bip32.fromPublicKey(pub, chainCode);
 
+      const authToken = await getAuthToken({
+        wallet: hd,
+        walletType: WALLET_TYPES.TREZOR,
+        walletHdPath: values.hdPath,
+      });
+
+      setAuthToken(authToken);
       setWallet(Just(hd));
       setWalletHdPath(values.hdPath);
     },
-    [setWallet, setWalletHdPath]
+    [setAuthToken, setWallet, setWalletHdPath]
   );
 
   const onValues = useCallback(({ valid, values, form }) => {
@@ -96,7 +104,9 @@ export default function Trezor({ className, goHome }) {
     <Grid className={className}>
       <Grid.Item full as={Text} className="f6 gray4 mb3">
         Connect and authenticate to your Trezor. If you'd like to use a custom
-        derivation path, you may enter it below.
+        derivation path, you may enter it below. Upon login, you will prompted
+        to sign the message "Bridge Authentication Token". This allows Bridge to
+        operate correctly. Never sign this message outside of Bridge.
       </Grid.Item>
 
       <BridgeForm
@@ -105,7 +115,7 @@ export default function Trezor({ className, goHome }) {
         onSubmit={onSubmit}
         afterSubmit={goHome}
         initialValues={initialValues}>
-        {({ handleSubmit }) => (
+        {({ handleSubmit, submitting }) => (
           <>
             <Condition when="useCustomPath" is={true}>
               <Grid.Item full as={HdPathInput} name="hdPath" label="HD Path" />
@@ -133,7 +143,8 @@ export default function Trezor({ className, goHome }) {
             <Grid.Item full as={FormError} />
 
             <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
-              Authenticate
+              {!submitting && 'Authenticate'}
+              {submitting && 'Please check your device'}
             </Grid.Item>
           </>
         )}
