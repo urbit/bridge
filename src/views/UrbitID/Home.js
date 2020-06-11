@@ -88,7 +88,7 @@ export default function UrbitIDHome() {
             · Master Key Authentication required.
           </B>
         }>
-        Download Keys
+        Re-download Passport
       </Grid.Item>
       <Grid.Divider />
       <Grid.Item
@@ -136,7 +136,7 @@ export default function UrbitIDHome() {
             full
             as={ForwardButton}
             className="f6"
-            accessory={<span className="underline pointer">Set Keys</span>}>
+            accessory={<span className="underline pointer">Set Networking Keys</span>}>
             Network Keys Required
           </Grid.Item>
           <Grid.Divider />
