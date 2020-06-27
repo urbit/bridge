@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
-import { last, includes as _includes, findIndex } from 'lodash';
+import { last, includes as _includes, findIndex, get } from 'lodash';
 
 const NULL_DATA = {};
 
@@ -89,7 +89,8 @@ export default function useRouter({
     routes,
   ]);
   const data = useMemo(() => {
-    return last(routes).data || NULL_DATA;
+    return get(last(routes), 'data', {});
+    // return last(routes).data || NULL_DATA;
   }, [routes]);
   const Route = useMemo(() => views[peek().key], [views, peek]);
 

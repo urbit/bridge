@@ -158,6 +158,7 @@ export default function Residents() {
   const point = need.point(pointCursor);
   const { getResidents, syncResidents } = usePointCache();
 
+  const goBack = useCallback(() => pop(), [pop]);
   useEffect(() => {
     syncResidents(point);
   }, [syncResidents, point]);
@@ -202,7 +203,9 @@ export default function Residents() {
   return (
     <View pop={pop} inset>
       <NavHeader>
-        <Crumbs routes={[{ text: name, action: pop }, { text: 'Residents' }]} />
+        <Crumbs
+          routes={[{ text: name, action: goBack }, { text: 'Residents' }]}
+        />
       </NavHeader>
       <Grid>
         <Grid.Item full as={H4} className="mt4">
