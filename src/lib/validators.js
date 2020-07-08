@@ -119,3 +119,6 @@ export const validateUnique = arr => {
   const res = [...new Set(arr)].length !== arr.length && 'Must be unique';
   return res;
 };
+
+export const validateChild = ourShip => ship =>
+  ourShip !== ob.sein(ship) && `This point is not a child of ${ourShip}.`;
