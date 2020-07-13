@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import cn from 'classnames';
 import {
   Grid,
@@ -9,10 +9,13 @@ import {
   H5,
   Text,
 } from 'indigo-react';
+import { toBN } from 'web3-utils';
+
+import { ReactComponent as InfoIcon } from 'assets/info.svg';
 
 import { useExploreTxUrls } from 'lib/explorer';
 import { hexify } from 'lib/txn';
-import pluralize from 'lib/pluralize';
+import { safeFromWei, safeToWei } from 'lib/lib';
 
 import { composeValidator, buildCheckboxValidator } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
@@ -45,6 +48,9 @@ export default function InlineEthereumTransaction({
   needFunds,
   signedTransactions,
   confirmationProgress,
+  gasLimit,
+  unsignedTransactions,
+  finalCost,
 
   // additional from parent
   label = 'Generate & Sign Transaction',
@@ -52,7 +58,11 @@ export default function InlineEthereumTransaction({
   onReturn,
 }) {
   // show receipt after successful broadcast
-  const showReceipt = broadcasted || confirmed || completed;
+  const [showReceipt, setShowReceipt] = useState(false);
+  const toggleShowReceipt = useCallback(() => setShowReceipt(!showReceipt), [
+    setShowReceipt,
+    showReceipt,
+  ]);
   // show configure controls pre-broadcast
   const showConfigureInput = !(signed || broadcasted || confirmed || completed);
   // show the send/loading button while signed, broadcasting, or confirme
@@ -61,6 +71,12 @@ export default function InlineEthereumTransaction({
   const canBroadcast = signed && !needFunds;
   // show signed tx only when signing (for offline usage)
   const showSignedTx = signed;
+
+  const [showGasDetails, _setShowGasDetails] = useState(false);
+  const toggleGasDetails = useCallback(
+    () => _setShowGasDetails(!showGasDetails),
+    [_setShowGasDetails, showGasDetails]
+  );
 
   const validate = useMemo(
     () =>
@@ -89,9 +105,29 @@ export default function InlineEthereumTransaction({
       );
     } else if (completed) {
       return (
-        <Grid.Item full className="pv4 black f5">
-          Transaction Complete
-        </Grid.Item>
+        <>
+          <Grid.Divider />
+          <Grid.Item full as={RestartButton} onClick={onReturn}>
+            Return
+          </Grid.Item>
+          <Grid.Divider />
+          {showReceipt && (
+            <TransactionReceipt
+              txHashes={txHashes}
+              finalCost={finalCost}
+              onClose={toggleShowReceipt}
+            />
+          )}
+
+          {!showReceipt && (
+            <Grid.Item
+              className="underline mv2 pointer"
+              full
+              onClick={toggleShowReceipt}>
+              View Receipt
+            </Grid.Item>
+          )}
+        </>
       );
     } else if (showBroadcastButton) {
       return (
@@ -137,6 +173,30 @@ export default function InlineEthereumTransaction({
     [signedTransactions]
   );
 
+  const numTxs = useMemo(() => (unsignedTransactions || []).length || 1, [
+    unsignedTransactions,
+  ]);
+  const maxCost = useMemo(
+    () =>
+      safeFromWei(
+        safeToWei(
+          toBN(gasLimit)
+            .mul(toBN(gasPrice))
+            .mul(toBN(numTxs)),
+          'gwei'
+        ),
+        'ether'
+      ),
+    [gasLimit, gasPrice, numTxs]
+  );
+
+  const gasInfo = useMemo(() => {
+    const extra = numTxs === 1 ? '' : `*  ${numTxs} txs`;
+    return showGasDetails
+      ? `${gasPrice} Gwei * ${gasLimit} ${extra} = ${maxCost} ETH`
+      : `${maxCost} ETH`;
+  }, [showGasDetails, maxCost, gasPrice, gasLimit, numTxs]);
+
   return (
     <Grid className={cn(className, 'mt1')}>
       <BridgeForm validate={validate} onValues={onValues}>
@@ -172,6 +232,7 @@ export default function InlineEthereumTransaction({
                 />
 
                 <Condition when="useAdvanced" is={true}>
+                  <Grid.Item full className="mb2"></Grid.Item>
                   <Grid.Divider />
                   <Grid.Item
                     full
@@ -179,9 +240,17 @@ export default function InlineEthereumTransaction({
                     row
                     justify="between"
                     className="mt2">
-                    <Flex.Item as={H5}>Gas Price</Flex.Item>
-                    <Flex.Item as={H5}>{gasPrice} Gwei</Flex.Item>
+                    <Flex.Item as={H5}>Transaction Fee</Flex.Item>
+
+                    <Flex.Item as={H5}>
+                      {gasInfo}{' '}
+                      <InfoIcon
+                        className="pointer"
+                        onClick={toggleGasDetails}
+                      />
+                    </Flex.Item>
                   </Grid.Item>
+
                   {/* TODO(shrugs): move to indigo/RangeInput */}
                   <Grid.Item
                     full
@@ -221,28 +290,10 @@ export default function InlineEthereumTransaction({
                 <Condition when="viewSigned" is={true}>
                   <SignedTransactionList
                     serializedTxsHex={serializedTxsHex}
-                    gasPrice={gasPrice}
+                    maxCost={maxCost}
                     nonce={nonce}
                   />
                 </Condition>
-              </>
-            )}
-
-            {showReceipt && (
-              <>
-                <Grid.Divider />
-                <HashReceiptList txHashes={txHashes} />
-
-                <Grid.Divider />
-              </>
-            )}
-
-            {completed && (
-              <>
-                <Grid.Item full as={RestartButton} onClick={onReturn}>
-                  Return
-                </Grid.Item>
-                <Grid.Divider />
               </>
             )}
           </>
@@ -252,9 +303,9 @@ export default function InlineEthereumTransaction({
   );
 }
 
-function SignedTransactionList({ serializedTxsHex, nonce, gasPrice }) {
+function SignedTransactionList({ serializedTxsHex, nonce, maxCost }) {
   return serializedTxsHex.map((serializedTxHex, i) => (
-    <React.Fragment key="i">
+    <React.Fragment key={i}>
       <Grid.Divider />
       <Grid.Item full as={Flex} justify="between" className="pv4 black f5">
         <Flex.Item>Nonce</Flex.Item>
@@ -262,8 +313,8 @@ function SignedTransactionList({ serializedTxsHex, nonce, gasPrice }) {
       </Grid.Item>
       <Grid.Divider />
       <Grid.Item full as={Flex} justify="between" className="pv4 black f5">
-        <Flex.Item>Gas Price</Flex.Item>
-        <Flex.Item>{gasPrice.toFixed()} Gwei</Flex.Item>
+        <Flex.Item>Transaction Cost</Flex.Item>
+        <Flex.Item>{maxCost} ETH</Flex.Item>
       </Grid.Item>
       <Grid.Divider />
       <Grid.Item full as={Flex} justify="between" className="mt3 mb2">
@@ -278,34 +329,42 @@ function SignedTransactionList({ serializedTxsHex, nonce, gasPrice }) {
   ));
 }
 
-function HashReceiptList({ txHashes }) {
+function TransactionReceipt({ txHashes, finalCost, onClose }) {
   const txUrls = useExploreTxUrls(txHashes);
-  const header = pluralize(txHashes.length, 'Hash', 'Hashes');
   return (
     <>
+      <Grid.Item full as={Flex} justify="between" className="pv2 black f5">
+        <Flex.Item>Receipt</Flex.Item>
+        <Flex.Item onClick={onClose} className="underline pointer">
+          Close
+        </Flex.Item>
+      </Grid.Item>
+      <Grid.Item full as={Flex} justify="between" className="pv2 black f5">
+        <Flex.Item>Transaction Cost</Flex.Item>
+        <Flex.Item className="mono">{finalCost} ETH</Flex.Item>
+      </Grid.Item>
       <Grid.Divider />
       <Grid.Item full as={Flex} col className="pv4">
-        <Flex.Item as={H5}>Transaction {header}</Flex.Item>
+        <Flex.Item as={H5}>Receipt</Flex.Item>
 
         {txHashes &&
           txHashes.map((txHash, i) => (
-            <Flex.Item as={Flex}>
+            <Flex.Item as={Flex} className="mv3">
               <>
                 <Flex.Item
                   key={i}
                   flex
                   as="code"
-                  className="f6 mono gray4 wrap">
+                  className="f6 mono gray4 wrap ">
                   {txHash}
                 </Flex.Item>
-                <Flex.Item as={LinkButton} href={txUrls[i]}>
+                <Flex.Item className="ml8" as={LinkButton} href={txUrls[i]}>
                   Etherscan↗
                 </Flex.Item>
               </>
             </Flex.Item>
           ))}
       </Grid.Item>
-      <Grid.Divider />
     </>
   );
 }

@@ -15,6 +15,7 @@ import CopiableAddress from 'components/CopiableAddress';
 
 import Active from 'views/Release/Active';
 import Locked from 'views/Release/Locked';
+import NavHeader from 'components/NavHeader';
 
 const NAMES = {
   ACTIVE: 'ACTIVE',
@@ -54,11 +55,15 @@ export default function ReleaseView() {
 
   return (
     <View pop={pop} inset>
+      <NavHeader>
+        <CopiableAddress
+          className="f6 mono gray4 us-none pointer"
+          text={address}>
+          {address}
+        </CopiableAddress>
+      </NavHeader>
       <Grid>
-        <Grid.Item full as={Crumbs} />
-        <Grid.Item full as={H1} className="f6 mono gray4 us-none pointer">
-          <CopiableAddress text={address}>{address}</CopiableAddress>
-        </Grid.Item>
+        <Grid.Item full as={H1}></Grid.Item>
 
         <Grid.Item
           full

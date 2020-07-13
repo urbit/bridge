@@ -23,12 +23,3 @@ export const OfflineButton = props => (
     Offline
   </OutButton>
 );
-
-export const BootUrbitOSButton = props => (
-  <OutButton
-    href="https://urbit.org/docs/getting-started"
-    detail="Boot your computer"
-    {...props}>
-    Boot Urbit OS
-  </OutButton>
-);

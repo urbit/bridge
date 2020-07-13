@@ -57,7 +57,7 @@ export default function Login() {
   }, [push, names]);
 
   return (
-    <View pop={pop} inset>
+    <View inset>
       <Grid>
         <Grid.Item full as={Text} className="flex justify-center mt9 mb7">
           <Grid.Item as={Text} className="gray3">

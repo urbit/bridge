@@ -1,7 +1,7 @@
 import { isDevelopment } from './flags';
 
-const CHECK_BLOCK_EVERY_MS = isDevelopment ? 1000 : 5000;
-const DEFAULT_GAS_PRICE_GWEI = 20;
+const CHECK_BLOCK_EVERY_MS = isDevelopment ? 1000 : 10000;
+const DEFAULT_GAS_PRICE_GWEI = 40;
 
 const MIN_GALAXY = 0;
 const MAX_GALAXY = 255;
@@ -31,7 +31,7 @@ const GAS_LIMITS = {
   REJECT: 200000, //NOTE no samples
   DETACH: 200000, //NOTE no samples
   //
-  GIFT_PLANET: 420000, //NOTE low sample size, //NOTE also update in gas tank
+  GIFT_PLANET: 450000, //NOTE low sample size, //NOTE also update in gas tank
   //
   SEND_ETH: 21000,
   //

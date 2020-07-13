@@ -387,6 +387,11 @@ caption,
   line-height: 1.33333;
   font-weight: 400; }
 
+.f7 {
+  font-size: 0.5rem;
+  line-height: 1.33333;
+  font-weight: 400; }
+
 @media only screen and (min-width: 550px) {
   .f1-ns {
     font-size: 3rem;

@@ -23,13 +23,13 @@ export const proxyTypeToHuman = proxyType => {
 export const proxyTypeToHumanDescription = proxyType => {
   switch (proxyType) {
     case PROXY_TYPE.MANAGEMENT:
-      return 'The management proxy is allowed to manage networking keys.';
+      return 'Your management key can configure networking settings (network keys and sponsorship)';
     case PROXY_TYPE.SPAWN:
-      return 'The spawn proxy is allowed to spawn points.';
+      return 'Your spawn key can spawn points.';
     case PROXY_TYPE.TRANSFER:
-      return 'The transfer proxy is allowed to transfer this point.';
+      return 'Your transfer key can transfer this point.';
     case PROXY_TYPE.VOTING:
-      return "The voting proxy is allowed to vote on this point's behalf.";
+      return "Your voting key can vote on this point's behalf.";
     default:
       throw new Error(`Unknown proxyType: ${proxyType}`);
   }

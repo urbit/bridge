@@ -7,10 +7,10 @@ import useRouter from 'lib/useRouter';
 
 import Steps from 'components/Steps';
 
-import ReticketConfirm from './Reticket/ReticketConfirm';
-import ReticketDownload from './Reticket/ReticketDownload';
-import ReticketVerify from './Reticket/ReticketVerify';
-import ReticketExecute from './Reticket/ReticketExecute';
+import ResetConfirm from './ResetKeys/ResetConfirm';
+import ResetDownload from './ResetKeys/ResetDownload';
+import ResetVerify from './ResetKeys/ResetVerify';
+import ResetExecute from './ResetKeys/ResetExecute';
 
 const NAMES = {
   CONFIRM: 'CONFIRM',
@@ -20,15 +20,15 @@ const NAMES = {
 };
 
 const VIEWS = {
-  CONFIRM: ReticketConfirm,
-  DOWNLOAD: ReticketDownload,
-  VERIFY: ReticketVerify,
-  EXECUTE: ReticketExecute,
+  CONFIRM: ResetConfirm,
+  DOWNLOAD: ResetDownload,
+  VERIFY: ResetVerify,
+  EXECUTE: ResetExecute,
 };
 
-const STEPS = [NAMES.CONFIRM, NAMES.DOWNLOAD, NAMES.VERIFY, NAMES.RETICKET];
+const STEPS = [NAMES.CONFIRM, NAMES.DOWNLOAD, NAMES.VERIFY, NAMES.EXECUTE];
 
-export default function AdminReticket() {
+export default function ResetKeys() {
   const { Route, ...router } = useRouter({
     names: NAMES,
     views: VIEWS,
