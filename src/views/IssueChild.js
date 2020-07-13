@@ -15,6 +15,7 @@ import patp2dec from 'lib/patp2dec';
 import { getSpawnCandidate } from 'lib/child';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useConstant from 'lib/useConstant';
+import { validateChild } from 'lib/validators';
 
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
@@ -111,7 +112,7 @@ export default function IssueChild() {
     () =>
       composeValidator(
         {
-          point: buildPointValidator(4),
+          point: buildPointValidator(4, [validateChild(ob.patp(_point))]),
           owner: buildAddressValidator(),
         },
         validateForm
