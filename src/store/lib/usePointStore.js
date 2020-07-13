@@ -25,7 +25,12 @@ export default function usePointStore() {
   );
 
   // sync all of the on-chain info required to display a foreign point
-  const syncForeignPoint = useCallback(async point => {}, []);
+  const syncForeignPoint = useCallback(
+    async point => {
+      syncDetails(point);
+    },
+    [syncDetails]
+  );
 
   // sync all of the on-chain info required for a point that the user owns
   const syncOwnedPoint = useCallback(

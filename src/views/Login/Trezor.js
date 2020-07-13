@@ -74,7 +74,7 @@ export default function Trezor({ className, goHome }) {
         walletHdPath: values.hdPath,
       });
 
-      setAuthToken(authToken);
+      setAuthToken(Just(authToken));
       setWallet(Just(hd));
       setWalletHdPath(values.hdPath);
     },
