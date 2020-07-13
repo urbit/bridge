@@ -78,7 +78,7 @@ export default function Ledger({ className, goHome }) {
           walletHdPath: addHdPrefix(values.hdpath),
         });
 
-        setAuthToken(authToken);
+        setAuthToken(Just(authToken));
         setWallet(Just(hd));
         setWalletHdPath(addHdPrefix(values.hdpath));
       } catch (error) {

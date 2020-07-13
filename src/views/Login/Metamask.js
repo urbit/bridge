@@ -33,7 +33,7 @@ export default function Metamask({ className, goHome }) {
         web3: _web3,
       });
 
-      setAuthToken(authToken);
+      setAuthToken(Just(authToken));
       setWallet(Just(wallet));
       setWalletType(WALLET_TYPES.METAMASK);
     } catch (e) {

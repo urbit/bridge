@@ -35,10 +35,11 @@ const STATUS = {
 
 const useInviter = () => {
   const { contracts, web3, networkType } = useNetwork();
-  const { wallet, walletType, walletHdPath } = useWallet();
+  const { wallet, walletType, walletHdPath, authToken } = useWallet();
   const { pointCursor } = usePointCursor();
   const { syncInvites } = usePointCache();
   const { gasPrice } = useGasPrice();
+
   const point = need.point(pointCursor);
 
   const [needFunds, setNeedFunds] = useState(null);
@@ -65,7 +66,8 @@ const useInviter = () => {
       const _contracts = contracts.getOrElse(null);
       const _web3 = web3.getOrElse(null);
       const _wallet = wallet.getOrElse(null);
-      if (!_contracts || !_web3 || !_wallet) {
+      const _authToken = authToken.getOrElse(null);
+      if (!_contracts || !_web3 || !_wallet || !_authToken) {
         // not using need because we want a custom error
         throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
       }
@@ -104,10 +106,10 @@ const useInviter = () => {
         try {
           const planet = planets[i];
 
-          const { ticket, owner } = await wg.generateTemporaryTicketAndWallet(
-            MIN_PLANET
-            // we're always giving planets, so generate a ticket of the correct size
-          );
+          const {
+            ticket,
+            owner,
+          } = await wg.generateTemporaryDeterministicWallet(planet, _authToken);
 
           const inviteTx = azimuth.delegatedSending.sendPoint(
             _contracts,

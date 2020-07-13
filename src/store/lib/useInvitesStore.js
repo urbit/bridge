@@ -51,7 +51,8 @@ export default function useInvitesStore() {
           active: !!active,
         }))
         .partition('active')
-        .map(arr => arr.map(x => x.point));
+        .map(arr => arr.map(x => x.point))
+        .value();
 
       addToInvitesCache({
         [point]: {
