@@ -89,8 +89,7 @@ export default function useRouter({
     routes,
   ]);
   const data = useMemo(() => {
-    return get(last(routes), 'data', {});
-    // return last(routes).data || NULL_DATA;
+    return get(last(routes), 'data', NULL_DATA);
   }, [routes]);
   const Route = useMemo(() => views[peek().key], [views, peek]);
 
