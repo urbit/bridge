@@ -11,7 +11,7 @@ export default function MaybeSigil({ className, patp, size, ...rest }) {
   const validPatp = patp.matchWith({
     Nothing: () => null,
     Just: p =>
-      (ob.isValidPatp(p.value) && p.value.length) < 15 ? p.value : null,
+      ob.isValidPatp(p.value) && p.value.length < 15 ? p.value : null,
   });
 
   return validPatp ? (
