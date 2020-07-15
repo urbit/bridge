@@ -180,14 +180,16 @@ function Hosting({ manualNetworkSeed }) {
     }
   }, [
     localRunning,
-    ship.missing,
     ship.running,
+    ship.missing,
     ship.pending,
-    bootProgress,
-    bootMessage,
+    localUrl,
+    code,
+    url,
     keyfile,
     createShip,
-    url,
+    bootProgress,
+    bootMessage,
   ]);
 
   const renderDetails = useCallback(() => {

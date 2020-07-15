@@ -1,3 +1,5 @@
+import { toHex } from 'web3-utils';
+
 export function MetamaskWallet(address) {
   this.address = address;
 }
@@ -14,13 +16,12 @@ export function FakeMetamaskTransaction(txnData) {
 // Sign it actually when sending
 export const metamaskSignTransaction = async (txn, from) => {
   const metamaskFormattedTxn = {
-    to: txn.to.toString('hex'),
-    value: txn.value.toString('hex'),
-    data: txn.data.toString('hex'),
-    gasLimit: txn.gasLimit.toString('hex'),
-    gasPrice: txn.gasPrice.toString('hex'),
-    nonce: txn.nonce.length === 0 ? '00' : txn.nonce.toString('hex'),
-    from: from,
+    data: txn.data,
+    gasLimit: txn.gasLimit,
+    gasPrice: txn.gasPrice,
+    nonce: txn.nonce,
+    to: toHex(txn.to),
+    from: toHex(from),
   };
 
   return new FakeMetamaskTransaction(metamaskFormattedTxn);
