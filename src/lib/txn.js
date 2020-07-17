@@ -107,8 +107,8 @@ const sendSignedTransaction = (web3, stx, doubtNonceError) => {
   if (stx instanceof FakeMetamaskTransaction) {
     eventEmitter = web3.eth.sendTransaction(stx.txnData);
   } else {
-    eventEmitter = web3.eth.sendSignedTransaction(rawTx);
     rawTx = hexify(stx.serialize());
+    eventEmitter = web3.eth.sendSignedTransaction(rawTx);
   }
   return new Promise(async (resolve, reject) => {
     eventEmitter
