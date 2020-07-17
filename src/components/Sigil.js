@@ -1,4 +1,4 @@
-import { sigil, reactRenderer } from 'urbit-sigil-js';
+import { sigil, reactRenderer } from '@tlon/sigil-js';
 
 export default function Sigil({ patp, size, colors, ...rest }) {
   return sigil({
@@ -6,7 +6,7 @@ export default function Sigil({ patp, size, colors, ...rest }) {
     renderer: reactRenderer,
     style: { width: '100%', height: '100%' }, // NOTE: scale to container
     size,
-    margin: size / 8,
+    margin: true,
     colors,
     ...rest,
   });
