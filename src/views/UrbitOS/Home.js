@@ -22,7 +22,7 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import { useHosting } from 'store/hosting';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import useLifecycle from 'lib/useLifecycle';
-import useLocalHosting from 'lib/useLocaHosting';
+import useLocalHosting from 'lib/useLocalHosting';
 
 export default function UrbitOSHome({ manualNetworkSeed }) {
   const { pointCursor } = usePointCursor();

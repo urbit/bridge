@@ -203,7 +203,11 @@ export async function reticketPointBetweenWallets({
 
   progress(TRANSACTION_PROGRESS.TRANSFERRING);
 
-  await sendAndAwaitAllSerial(web3, txPairs.map(p => p.signed), usedTank);
+  await sendAndAwaitAllSerial(
+    web3,
+    txPairs.map(p => p.signed),
+    usedTank
+  );
 
   //
   // move leftover eth

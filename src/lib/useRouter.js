@@ -85,9 +85,14 @@ export default function useRouter({
     setRoutes,
     initialRoutes,
   ]);
-  const includes = useCallback(key => _includes(routes.map(r => r.key), key), [
-    routes,
-  ]);
+  const includes = useCallback(
+    key =>
+      _includes(
+        routes.map(r => r.key),
+        key
+      ),
+    [routes]
+  );
   const data = useMemo(() => {
     return get(last(routes), 'data', NULL_DATA);
   }, [routes]);
