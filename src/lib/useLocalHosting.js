@@ -21,9 +21,9 @@ export default function useLocalHosting() {
     const updateStatus = async point => {
       const patp = ob.patp(point).slice(1);
       try {
-        const { who } = await fetch(`https://${patp}.${DOMAIN}/who.json`).then(
-          r => r.json()
-        );
+        const { who } = await fetch(
+          `https://${patp}.${DOMAIN}/who.json`
+        ).then(r => r.json());
         if (who === patp) {
           setStatus(STATE.RUNNING);
         } else {

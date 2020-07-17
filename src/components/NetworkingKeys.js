@@ -84,8 +84,14 @@ export default function NetworkingKeys({ point }) {
         details.chain(chainKeyProp('encryptionKey'))
       )}
       <Grid.Item full as={Flex} row justify="between" className="mt3">
-        {renderDetail('Revision', details.map(d => d.keyRevisionNumber))}
-        {renderDetail('Continuity Era', details.map(d => d.continuityNumber))}
+        {renderDetail(
+          'Revision',
+          details.map(d => d.keyRevisionNumber)
+        )}
+        {renderDetail(
+          'Continuity Era',
+          details.map(d => d.continuityNumber)
+        )}
         {renderDetail(
           'Crypto Suite Ver.',
           details.map(d => d.cryptoSuiteVersion)
