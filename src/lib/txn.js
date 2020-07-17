@@ -120,7 +120,9 @@ const sendSignedTransaction = (web3, stx, doubtNonceError) => {
         // that it's because the tank already submitted our transaction.
         // we just wait for first confirmation here.
         const message = typeof err === 'string' ? err : err.message || '';
-        const isKnownError = message.includes('known transaction: ');
+        const isKnownError =
+          message.includes('known transaction') ||
+          message.includes('already known');
         const isNonceError =
           message.includes("the tx doesn't have the correct nonce.") ||
           message.includes('nonce too low');
