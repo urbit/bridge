@@ -2,6 +2,7 @@ import { isDevelopment } from './flags';
 
 const CHECK_BLOCK_EVERY_MS = isDevelopment ? 1000 : 10000;
 const DEFAULT_GAS_PRICE_GWEI = 40;
+const MAX_GAS_PRICE_GWEI = 80;
 
 const MIN_GALAXY = 0;
 const MAX_GALAXY = 255;
@@ -74,6 +75,7 @@ const PROGRESS_ANIMATION_DELAY_MS = 500; // .animated-width
 export {
   CHECK_BLOCK_EVERY_MS,
   DEFAULT_GAS_PRICE_GWEI,
+  MAX_GAS_PRICE_GWEI,
   GAS_LIMITS,
   GEN_STATES,
   BUTTON_STATES,
