@@ -100,7 +100,6 @@ const useInviter = () => {
 
       // NB(shrugs) - must be processed in serial because main thread, etc
       let signedInvites = [];
-      let errorCount = 0;
       for (let i = 0; i < numInvites; i++) {
         setProgress(x => x + 1);
         try {
@@ -195,20 +194,6 @@ const useInviter = () => {
         };
       }
 
-      if (errorCount > 0) {
-        return {
-          errors: {
-            [WARNING]: `There ${pluralize(
-              errorCount,
-              'was',
-              'were'
-            )} ${pluralize(
-              errorCount,
-              'error'
-            )} while generating wallets. You can still send the invites that generated correctly.`,
-          },
-        };
-      }
       return { invites: confirmedInvites };
     },
     [
