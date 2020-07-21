@@ -55,15 +55,15 @@ export default function CheckboxInput({
             mr3: !inline,
             mr1: inline,
             'bg-gray1': disabled,
-            'bg-black white b-black': !disabled && (input.value || white),
-            'bg-white black b-black': !disabled && !input.value,
+            'bg-black white b-black': !disabled && (input.checked || white),
+            'bg-white black b-black': !disabled && !input.checked,
           })}
           style={{
             height: '14px',
             width: '14px',
             ...style,
           }}>
-          {input.value && '✓'}
+          {input.checked && '✓'}
         </Flex>
         {label}
       </Flex.Item>
