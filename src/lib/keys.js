@@ -6,6 +6,7 @@ import * as serial from '../nockjs/serial';
 import * as kg from 'urbit-key-generation';
 
 import { eqAddr, addHexPrefix } from './wallet';
+import { shas } from './networkCode';
 
 // the curve param for the network keys
 export const NETWORK_KEY_CURVE_PARAMETER = '42';
@@ -142,26 +143,32 @@ const deriveNetworkSeedFromMnemonic = async (
 };
 
 /**
+ * @param {string} authToken
+ * @param {number} number
+ * @return {Maybe<string>}
+ */
+export const deriveNetworkSeedFromAuthToken = (authToken, revision, point) => {
+  const networkSeed = shas(authToken, `revision-${point}-${revision}`)
+    .toString('hex')
+    .slice(0, 32);
+  return Just(networkSeed);
+};
+
+/**
  * @return {Promise<Maybe<string>>}
  */
 export const attemptNetworkSeedDerivation = async ({
   urbitWallet,
-  wallet,
-  authMnemonic,
-  details,
+  point,
+  authToken,
   revision,
 }) => {
   if (Just.hasInstance(urbitWallet)) {
     return await deriveNetworkSeedFromUrbitWallet(urbitWallet.value, revision);
   }
 
-  if (Just.hasInstance(wallet) && Just.hasInstance(authMnemonic)) {
-    return await deriveNetworkSeedFromManagementMnemonic(
-      wallet.value,
-      authMnemonic.value,
-      details,
-      revision
-    );
+  if (Just.hasInstance(authToken)) {
+    return deriveNetworkSeedFromAuthToken(authToken.value, point, revision);
   }
 
   return Nothing();

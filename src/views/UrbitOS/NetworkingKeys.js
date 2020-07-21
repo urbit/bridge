@@ -38,7 +38,7 @@ import FormError from 'form/FormError';
 import convertToInt from 'lib/convertToInt';
 
 function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
-  const { urbitWallet, wallet, authMnemonic } = useWallet();
+  const { urbitWallet, wallet, authMnemonic, authToken } = useWallet();
   const { pointCursor } = usePointCursor();
   const { syncDetails, syncRekeyDate, getDetails } = usePointCache();
   const { contracts } = useNetwork();
@@ -68,9 +68,8 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
 
         const networkSeed = await attemptNetworkSeedDerivation({
           urbitWallet,
-          wallet,
-          authMnemonic,
-          details: _details,
+          point: _point,
+          authToken,
           revision: newNetworkRevision,
         });
 
@@ -84,14 +83,7 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
         return randomSeed.current;
       }
     },
-    [
-      _details,
-      authMnemonic,
-      networkRevision,
-      setManualNetworkSeed,
-      urbitWallet,
-      wallet,
-    ]
+    [setManualNetworkSeed, networkRevision, urbitWallet, _point, authToken]
   );
 
   const { completed: _completed, ...rest } = useEthereumTransaction(

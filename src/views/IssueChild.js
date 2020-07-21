@@ -117,7 +117,7 @@ export default function IssueChild() {
         },
         validateForm
       ),
-    [validateForm]
+    [_point, validateForm]
   );
 
   const onValues = useCallback(

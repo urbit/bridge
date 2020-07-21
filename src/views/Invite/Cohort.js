@@ -205,7 +205,7 @@ function CohortMemberExpanded({ point, className, ...rest }) {
       }
     };
     fetchWallet();
-  }, [codeVisible]);
+  }, [authToken, codeVisible, contracts, details, point]);
 
   useEffect(() => {
     setCodeVisible(false);

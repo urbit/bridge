@@ -204,6 +204,7 @@ const useInviter = () => {
       return { invites: confirmedInvites };
     },
     [
+      authToken,
       contracts,
       gasPrice,
       networkType,
