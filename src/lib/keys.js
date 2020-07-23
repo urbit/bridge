@@ -148,7 +148,10 @@ const deriveNetworkSeedFromMnemonic = async (
  * @return {Maybe<string>}
  */
 export const deriveNetworkSeedFromAuthToken = (authToken, revision, point) => {
-  const salt = Buffer.from(`revision-${point}-${revision}`);
+  //NOTE revision is the point's on-chain revision number.
+  //     since deriveNetworkSeedFromMnemonic does this too, we decrement the
+  //     revision number by one before deriving from it.
+  const salt = Buffer.from(`revision-${point}-${revision - 1}`);
   const networkSeed = shas(authToken, salt)
     .toString('hex')
     .slice(0, 32);
