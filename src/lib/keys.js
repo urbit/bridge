@@ -143,11 +143,12 @@ const deriveNetworkSeedFromMnemonic = async (
 };
 
 /**
+ * @param {number} point
  * @param {string} authToken
- * @param {number} number
+ * @param {number} revision
  * @return {Maybe<string>}
  */
-export const deriveNetworkSeedFromAuthToken = (authToken, revision, point) => {
+export const deriveNetworkSeedFromAuthToken = (point, authToken, revision) => {
   //NOTE revision is the point's on-chain revision number.
   //     since deriveNetworkSeedFromMnemonic does this too, we decrement the
   //     revision number by one before deriving from it.
@@ -172,7 +173,7 @@ export const attemptNetworkSeedDerivation = async ({
   }
 
   if (Just.hasInstance(authToken)) {
-    return deriveNetworkSeedFromAuthToken(authToken.value, point, revision);
+    return deriveNetworkSeedFromAuthToken(point, authToken.value, revision);
   }
 
   return Nothing();
