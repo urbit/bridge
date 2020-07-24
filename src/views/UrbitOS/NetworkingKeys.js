@@ -38,7 +38,7 @@ import FormError from 'form/FormError';
 import convertToInt from 'lib/convertToInt';
 
 function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
-  const { urbitWallet, wallet, authMnemonic } = useWallet();
+  const { urbitWallet, wallet, authMnemonic, authToken } = useWallet();
   const { pointCursor } = usePointCursor();
   const { syncDetails, syncRekeyDate, getDetails } = usePointCache();
   const { contracts } = useNetwork();
@@ -71,6 +71,8 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
           wallet,
           authMnemonic,
           details: _details,
+          point: _point,
+          authToken,
           revision: newNetworkRevision,
         });
 
@@ -87,10 +89,12 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
     [
       _details,
       authMnemonic,
-      networkRevision,
       setManualNetworkSeed,
+      networkRevision,
       urbitWallet,
       wallet,
+      _point,
+      authToken,
     ]
   );
 

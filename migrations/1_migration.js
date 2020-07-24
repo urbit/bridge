@@ -119,6 +119,7 @@ module.exports = async function(deployer) {
         await lsr.deposit(user1, offset);
         await csr.deposit(user1, offset + 1);
       }
+      break;
     case 'INVITES':
       await ecliptic.createGalaxy(0, own);
       await ecliptic.configureKeys(0, '0x123', '0x456', 1, false);
@@ -130,6 +131,7 @@ module.exports = async function(deployer) {
       await ecliptic.spawn(131328, own);
       await ecliptic.spawn(512, own);
       await sending.setPoolSize(256, 65792, 1000);
+      break;
     case 'RESIDENTS':
       await ecliptic.createGalaxy(0, own);
       await ecliptic.configureKeys(0, '0x123', '0x456', 1, false);
@@ -141,6 +143,7 @@ module.exports = async function(deployer) {
         await ecliptic.spawn(offset + 256, own);
         await ecliptic.transferPoint(offset + 256, user1, false);
       }
+      break;
 
     default:
       return;

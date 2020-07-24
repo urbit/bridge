@@ -6,6 +6,7 @@ import * as serial from '../nockjs/serial';
 import * as kg from 'urbit-key-generation';
 
 import { eqAddr, addHexPrefix } from './wallet';
+import { shas } from './networkCode';
 
 // the curve param for the network keys
 export const NETWORK_KEY_CURVE_PARAMETER = '42';
@@ -142,6 +143,25 @@ const deriveNetworkSeedFromMnemonic = async (
 };
 
 /**
+ * @param {number} point
+ * @param {string} authToken
+ * @param {number} revision
+ * @return {Maybe<string>}
+ */
+export const deriveNetworkSeedFromAuthToken = (point, authToken, revision) => {
+  //NOTE revision is the point's on-chain revision number.
+  //     since deriveNetworkSeedFromMnemonic does this too, we decrement the
+  //     revision number by one before deriving from it.
+  const salt = Buffer.from(`revision-${point}-${revision - 1}`);
+  const networkSeed = shas(authToken, salt)
+    .toString('hex')
+    .slice(0, 32);
+  return Just(networkSeed);
+};
+
+/**
+ * Derives from either a full Urbit Wallet, a current management mnemonic,
+ * or an auth token, in that order of preference.
  * @return {Promise<Maybe<string>>}
  */
 export const attemptNetworkSeedDerivation = async ({
@@ -149,6 +169,8 @@ export const attemptNetworkSeedDerivation = async ({
   wallet,
   authMnemonic,
   details,
+  point,
+  authToken,
   revision,
 }) => {
   if (Just.hasInstance(urbitWallet)) {
@@ -156,12 +178,19 @@ export const attemptNetworkSeedDerivation = async ({
   }
 
   if (Just.hasInstance(wallet) && Just.hasInstance(authMnemonic)) {
-    return await deriveNetworkSeedFromManagementMnemonic(
+    const managementSeed = await deriveNetworkSeedFromManagementMnemonic(
       wallet.value,
       authMnemonic.value,
       details,
       revision
     );
+    if (Just.hasInstance(managementSeed)) {
+      return managementSeed;
+    }
+  }
+
+  if (Just.hasInstance(authToken)) {
+    return deriveNetworkSeedFromAuthToken(point, authToken.value, revision);
   }
 
   return Nothing();
