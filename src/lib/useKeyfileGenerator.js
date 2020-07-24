@@ -60,6 +60,9 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
       ? Just(manualNetworkSeed)
       : await attemptNetworkSeedDerivation({
           urbitWallet,
+          wallet,
+          authMnemonic,
+          details: _details,
           authToken,
           point: _point,
           revision: networkRevision,
@@ -94,6 +97,8 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
     hasNetworkingKeys,
     manualNetworkSeed,
     urbitWallet,
+    wallet,
+    authMnemonic,
     setCode,
     details,
     _point,

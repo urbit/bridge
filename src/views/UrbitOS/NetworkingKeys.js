@@ -68,6 +68,9 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
 
         const networkSeed = await attemptNetworkSeedDerivation({
           urbitWallet,
+          wallet,
+          authMnemonic,
+          details: _details,
           point: _point,
           authToken,
           revision: newNetworkRevision,
@@ -83,7 +86,16 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
         return randomSeed.current;
       }
     },
-    [setManualNetworkSeed, networkRevision, urbitWallet, _point, authToken]
+    [
+      _details,
+      authMnemonic,
+      setManualNetworkSeed,
+      networkRevision,
+      urbitWallet,
+      wallet,
+      _point,
+      authToken,
+    ]
   );
 
   const { completed: _completed, ...rest } = useEthereumTransaction(

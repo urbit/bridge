@@ -160,16 +160,33 @@ export const deriveNetworkSeedFromAuthToken = (point, authToken, revision) => {
 };
 
 /**
+ * Derives from either a full Urbit Wallet, a current management mnemonic,
+ * or an auth token, in that order of preference.
  * @return {Promise<Maybe<string>>}
  */
 export const attemptNetworkSeedDerivation = async ({
   urbitWallet,
+  wallet,
+  authMnemonic,
+  details,
   point,
   authToken,
   revision,
 }) => {
   if (Just.hasInstance(urbitWallet)) {
     return await deriveNetworkSeedFromUrbitWallet(urbitWallet.value, revision);
+  }
+
+  if (Just.hasInstance(wallet) && Just.hasInstance(authMnemonic)) {
+    const managementSeed = await deriveNetworkSeedFromManagementMnemonic(
+      wallet.value,
+      authMnemonic.value,
+      details,
+      revision
+    );
+    if (Just.hasInstance(managementSeed)) {
+      return managementSeed;
+    }
   }
 
   if (Just.hasInstance(authToken)) {
