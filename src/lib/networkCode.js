@@ -23,6 +23,11 @@ export function shas(buf, salt) {
 }
 
 function xor(a, b) {
+  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
+    console.log('a', a);
+    console.log('b', b);
+    throw new Error('only xor buffers!');
+  }
   const length = Math.max(a.byteLength, b.byteLength);
   const result = new Uint8Array(length);
   for (let i = 0; i < length; i++) {
