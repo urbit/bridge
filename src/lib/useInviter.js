@@ -100,7 +100,6 @@ const useInviter = () => {
 
       // NB(shrugs) - must be processed in serial because main thread, etc
       let signedInvites = [];
-      let errorCount = 0;
       for (let i = 0; i < numInvites; i++) {
         setProgress(x => x + 1);
         try {
@@ -159,7 +158,7 @@ const useInviter = () => {
         () => setNeedFunds(undefined)
       );
 
-      let unsentInvites = [];
+      let inviteErrors = [];
       let confirmedInvites = [];
       const txAndMailings = signedInvites.map(async invite => {
         try {
@@ -172,8 +171,12 @@ const useInviter = () => {
           await waitForTransactionConfirm(_web3, txHash);
           confirmedInvites.push(invite);
         } catch (error) {
-          console.error(error);
-          unsentInvites.push(invite);
+          console.error('Error sending invite tx:', error);
+          if (typeof error === 'string') {
+            inviteErrors.push(error);
+          } else if (typeof error === 'object' && error.message) {
+            inviteErrors.push(error.message);
+          }
           return;
         }
       });
@@ -183,24 +186,14 @@ const useInviter = () => {
       setTxStatus(STATUS.SUCCESS);
       setInvites(confirmedInvites);
 
-      if (unsentInvites.length > 0) {
-        return { errors: { [FORM_ERROR]: unsentInvites } };
-      }
-
-      if (errorCount > 0) {
+      if (inviteErrors.length > 0) {
         return {
           errors: {
-            [WARNING]: `There ${pluralize(
-              errorCount,
-              'was',
-              'were'
-            )} ${pluralize(
-              errorCount,
-              'error'
-            )} while generating wallets. You can still send the invites that generated correctly.`,
+            [FORM_ERROR]: ['Error sending invites: ', ...inviteErrors],
           },
         };
       }
+
       return { invites: confirmedInvites };
     },
     [
