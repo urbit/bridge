@@ -260,12 +260,7 @@ function Hosting({ manualNetworkSeed }) {
         />
         <Grid.Divider />
         {code && (
-          <Grid.Item
-            full
-            className="mt2"
-            as={CopyButtonWide}
-            detail={code}
-            detailClassName="mono">
+          <Grid.Item full className="mt2" as={CopyButtonWide} text={code}>
             Login Code
           </Grid.Item>
         )}
