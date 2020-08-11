@@ -1,17 +1,11 @@
-var Azimuth = artifacts.require('azimuth-solidity/contracts/Azimuth.sol');
-var Polls = artifacts.require('azimuth-solidity/contracts/Polls.sol');
-var Claims = artifacts.require('azimuth-solidity/contracts/Claims.sol');
-var Censures = artifacts.require('azimuth-solidity/contracts/Censures.sol');
-var Ecliptic = artifacts.require('azimuth-solidity/contracts/Ecliptic.sol');
-var DelegatedSending = artifacts.require(
-  'azimuth-solidity/contracts/DelegatedSending.sol'
-);
-var LinearStarRelease = artifacts.require(
-  'azimuth-solidity/contracts/LinearStarRelease.sol'
-);
-var CSR = artifacts.require(
-  'azimuth-solidity/contracts/ConditionalStarRelease.sol'
-);
+var Azimuth = artifacts.require('azimuth-solidity/Azimuth');
+var Polls = artifacts.require('azimuth-solidity/Polls');
+var Claims = artifacts.require('azimuth-solidity/Claims');
+var Censures = artifacts.require('azimuth-solidity/Censures');
+var Ecliptic = artifacts.require('azimuth-solidity/Ecliptic');
+var DelegatedSending = artifacts.require('azimuth-solidity/DelegatedSending');
+var LSR = artifacts.require('azimuth-solidity/LinearStarRelease');
+var CSR = artifacts.require('azimuth-solidity/ConditionalStarRelease');
 
 const user1 = '0xD53208cf45fC9bd7938B200BFf8814A26146688f';
 const rateUnit = 50;
@@ -91,7 +85,7 @@ module.exports = async function(deployer) {
     escapeHatchDate
   );
 
-  const lsr = await deployer.deploy(LinearStarRelease, azimuth.address);
+  const lsr = await deployer.deploy(LSR, azimuth.address);
 
   const own = await ecliptic.owner();
   switch (process.env.WITH_TEST_STATE) {
