@@ -65,6 +65,16 @@ export const validatePatq = v => {
   }
 };
 
+export const validateShard = v => {
+  try {
+    if (v !== undefined && v !== '' && !ob.isValidPatq(v)) {
+      throw new Error();
+    }
+  } catch {
+    return 'This is not a valid shard.';
+  }
+};
+
 export const validateOneOf = (options = []) => v =>
   !includes(options, v) && 'Is not a valid option.';
 
