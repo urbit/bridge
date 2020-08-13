@@ -2,11 +2,11 @@
 //     did not succeed", you might need to visit localhost:3001 or whatever
 //     explicitly and tell your browser that's safe to access.
 //     https://stackoverflow.com/a/53011185/1334324
-const baseUrl = 'https://onboarding-emails.urbit.org:3002';
+import { MAIL_BASE_URL } from './constants';
 
 function sendRequest(where, what) {
   return new Promise((resolve, reject) => {
-    fetch(baseUrl + where, {
+    fetch(MAIL_BASE_URL + where, {
       method: 'POST',
       cache: 'no-cache',
       headers: {

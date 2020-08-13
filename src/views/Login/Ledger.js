@@ -15,8 +15,8 @@ import {
   LEDGER_LEGACY_PATH,
   chopHdPrefix,
   addHdPrefix,
-} from 'lib/ledger';
-import { WALLET_TYPES } from 'lib/wallet';
+} from 'bridge-libs/ledger';
+import { WALLET_TYPES } from 'bridge-libs/wallet';
 import useLoginView from 'lib/useLoginView';
 import useBreakpoints from 'lib/useBreakpoints';
 
@@ -32,7 +32,7 @@ import SubmitButton from 'form/SubmitButton';
 import Condition from 'form/Condition';
 import { FORM_ERROR } from 'final-form';
 import { HdPathInput } from 'form/Inputs';
-import { getAuthToken } from 'lib/authToken';
+import { getAuthToken } from 'bridge-libs/authToken';
 
 const PATH_OPTIONS = [
   { text: 'Ledger Live', value: LEDGER_LIVE_PATH },

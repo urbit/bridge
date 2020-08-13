@@ -6,7 +6,7 @@ import * as need from 'lib/need';
 import { usePointCursor } from 'store/pointCursor';
 
 import useLifecycle from 'lib/useLifecycle';
-import { generateWallet } from 'lib/invite';
+import { generateWallet } from 'bridge-libs/invite';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { isDevelopment } from 'lib/flags';
 

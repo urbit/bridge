@@ -15,9 +15,9 @@ import { useHistory } from 'store/history';
 
 import * as need from 'lib/need';
 import { ROUTE_NAMES } from 'lib/routeNames';
-import { DEFAULT_HD_PATH, walletFromMnemonic } from 'lib/wallet';
-import { generateWallet } from 'lib/invite';
-import { generateTemporaryOwnershipWallet } from 'lib/walletgen';
+import { DEFAULT_HD_PATH, walletFromMnemonic } from 'bridge-libs/wallet';
+import { generateWallet } from 'bridge-libs/invite';
+import { generateTemporaryOwnershipWallet } from 'bridge-libs/walletgen';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import timeout from 'lib/timeout';

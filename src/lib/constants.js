@@ -1,5 +1,8 @@
 import { isDevelopment } from './flags';
 
+const TANK_BASE_URL = 'https://gas-tank.urbit.org:3001';
+const MAIL_BASE_URL = 'https://onboarding-emails.urbit.org:3002';
+
 const CHECK_BLOCK_EVERY_MS = isDevelopment ? 1000 : 10000;
 const DEFAULT_GAS_PRICE_GWEI = 40;
 const MAX_GAS_PRICE_GWEI = 80;
@@ -73,6 +76,8 @@ const PROFILE_STATES = {
 const PROGRESS_ANIMATION_DELAY_MS = 500; // .animated-width
 
 export {
+  TANK_BASE_URL,
+  MAIL_BASE_URL,
   CHECK_BLOCK_EVERY_MS,
   DEFAULT_GAS_PRICE_GWEI,
   MAX_GAS_PRICE_GWEI,

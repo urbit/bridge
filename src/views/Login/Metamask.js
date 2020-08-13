@@ -6,9 +6,9 @@ import { FORM_ERROR } from 'final-form';
 import { useWallet } from 'store/wallet';
 import { useNetwork } from 'store/network';
 
-import { WALLET_TYPES, abbreviateAddress } from 'lib/wallet';
-import { MetamaskWallet } from 'lib/metamask';
-import { getAuthToken } from 'lib/authToken';
+import { WALLET_TYPES, abbreviateAddress } from 'bridge-libs/wallet';
+import { MetamaskWallet } from 'bridge-libs/metamask';
+import { getAuthToken } from 'bridge-libs/authToken';
 import useLoginView from 'lib/useLoginView';
 import * as need from 'lib/need';
 

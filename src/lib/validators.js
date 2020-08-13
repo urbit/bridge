@@ -2,7 +2,11 @@ import * as bip39 from 'bip39';
 import ob from 'urbit-ob';
 import { includes } from 'lodash';
 
-import { isValidAddress, ETH_ZERO_ADDR, ETH_ZERO_ADDR_SHORT } from './wallet';
+import {
+  isValidAddress,
+  ETH_ZERO_ADDR,
+  ETH_ZERO_ADDR_SHORT,
+} from 'bridge-libs/wallet';
 import patp2dec from './patp2dec';
 import { patpStringLength } from './lib';
 import { MIN_GALAXY, MAX_GALAXY } from './constants';

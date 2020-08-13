@@ -20,7 +20,7 @@ import Crumbs from 'components/Crumbs';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useInvites from 'lib/useInvites';
 import * as need from 'lib/need';
-import * as wg from 'lib/walletgen';
+import * as wg from 'bridge-libs/walletgen';
 
 import Inviter from 'views/Invite/Inviter';
 

@@ -2,13 +2,14 @@ import React, { useState, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H4, Text, ErrorText } from 'indigo-react';
 
+import { TANK_BASE_URL } from 'lib/constants';
 import {
   reticketPointBetweenWallets,
   TRANSACTION_PROGRESS,
-} from 'lib/reticket';
+} from 'bridge-libs/reticket';
 import * as need from 'lib/need';
 import useLifecycle from 'lib/useLifecycle';
-import { WALLET_TYPES } from 'lib/wallet';
+import { WALLET_TYPES } from 'bridge-libs/wallet';
 import convertToInt from 'lib/convertToInt';
 import useBlockWindowClose from 'lib/useBlockWindowClose';
 
@@ -77,7 +78,8 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
           point: point,
           web3: need.web3(web3),
           contracts: need.contracts(contracts),
-          networkType,
+          networkType: networkType.description, //TODO  proper
+          tankBaseUrl: TANK_BASE_URL,
           onUpdate: handleUpdate,
           nextRevision: networkRevision + 1,
         });

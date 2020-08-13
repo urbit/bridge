@@ -10,7 +10,7 @@ import Provider from 'store/Provider';
 import { ROUTE_NAMES } from 'lib/routeNames';
 import { ROUTES } from 'lib/router';
 import { NETWORK_TYPES } from 'lib/network';
-import { walletFromMnemonic } from 'lib/wallet';
+import { walletFromMnemonic } from 'bridge-libs/wallet';
 import { isDevelopment } from 'lib/flags';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import useHasDisclaimed from 'lib/useHasDisclaimed';

@@ -4,7 +4,11 @@ import { Grid } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
-import { EthereumWallet, WALLET_TYPES, stripHexPrefix } from 'lib/wallet';
+import {
+  EthereumWallet,
+  WALLET_TYPES,
+  stripHexPrefix,
+} from 'bridge-libs/wallet';
 import useLoginView from 'lib/useLoginView';
 
 import FormError from 'form/FormError';

@@ -14,7 +14,7 @@ import {
 } from 'lib/proxy';
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
-import { ETH_ZERO_ADDR, eqAddr, isZeroAddress } from 'lib/wallet';
+import { ETH_ZERO_ADDR, eqAddr, isZeroAddress } from 'bridge-libs/wallet';
 import capitalize from 'lib/capitalize';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 

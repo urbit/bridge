@@ -5,7 +5,7 @@ import { useNetwork } from 'store/network';
 
 import * as need from 'lib/need';
 
-import { eqAddr, isZeroAddress } from './wallet';
+import { eqAddr, isZeroAddress } from 'bridge-libs/wallet';
 
 const NULL_PERMISSIONS = {
   isActive: false,

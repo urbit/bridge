@@ -8,10 +8,10 @@ import { Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
-import { TREZOR_PATH } from 'lib/trezor';
-import { WALLET_TYPES } from 'lib/wallet';
+import { TREZOR_PATH } from 'bridge-libs/trezor';
+import { WALLET_TYPES } from 'bridge-libs/wallet';
 import useLoginView from 'lib/useLoginView';
-import { getAuthToken } from 'lib/authToken';
+import { getAuthToken } from 'bridge-libs/authToken';
 
 import {
   composeValidator,

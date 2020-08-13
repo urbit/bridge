@@ -3,7 +3,7 @@ import { Nothing } from 'folktale/maybe';
 import { Grid, Text } from 'indigo-react';
 
 import { useLocalRouter } from 'lib/LocalRouter';
-import { downloadWallet } from 'lib/invite';
+import { downloadWallet } from 'bridge-libs/invite';
 
 import { ForwardButton, DownloadButton } from 'components/Buttons';
 

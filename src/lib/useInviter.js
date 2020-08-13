@@ -3,8 +3,8 @@ import { toBN } from 'web3-utils';
 import * as azimuth from 'azimuth-js';
 import { FORM_ERROR } from 'final-form';
 
-import * as wg from 'lib/walletgen';
-import * as tank from 'lib/tank';
+import * as wg from 'bridge-libs/walletgen';
+import * as tank from 'bridge-libs/tank';
 import * as need from 'lib/need';
 import pluralize from 'lib/pluralize';
 import { GAS_LIMITS } from 'lib/constants';
@@ -13,9 +13,9 @@ import {
   sendSignedTransaction,
   waitForTransactionConfirm,
   hexify,
-} from 'lib/txn';
+} from 'bridge-libs/txn';
 import useGasPrice from 'lib/useGasPrice';
-import { MIN_PLANET } from 'lib/constants';
+import { TANK_BASE_URL, MIN_PLANET } from 'lib/constants';
 import { safeToWei } from 'lib/lib';
 
 import { useNetwork } from 'store/network';
@@ -153,6 +153,7 @@ const useInviter = () => {
         walletType,
         safeToWei(totalCost, 'gwei'),
         signedInvites.map(si => si.rawTx),
+        TANK_BASE_URL,
         (address, minBalance, balance) =>
           setNeedFunds({ address, minBalance, balance }),
         () => setNeedFunds(undefined)

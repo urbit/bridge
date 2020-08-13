@@ -8,14 +8,14 @@ import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 
 import * as need from 'lib/need';
-import { generateCode } from 'lib/networkCode';
+import { generateCode } from 'bridge-libs/networkCode';
 
 import {
   attemptNetworkSeedDerivation,
   keysMatchChain,
   deriveNetworkKeys,
   compileNetworkingKey,
-} from './keys';
+} from 'bridge-libs/keys';
 import useCurrentPermissions from './useCurrentPermissions';
 import convertToInt from './convertToInt';
 

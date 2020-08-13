@@ -5,7 +5,7 @@ import * as keythereum from 'keythereum';
 
 import { useWallet } from 'store/wallet';
 
-import { EthereumWallet, WALLET_TYPES } from 'lib/wallet';
+import { EthereumWallet, WALLET_TYPES } from 'bridge-libs/wallet';
 import useLoginView from 'lib/useLoginView';
 
 import { PassphraseInput } from 'form/Inputs';

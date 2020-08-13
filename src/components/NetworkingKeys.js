@@ -3,7 +3,7 @@ import { Grid, Flex, H5, Text } from 'indigo-react';
 import { Just, Nothing } from 'folktale/maybe';
 
 import { formatDotsWithTime } from 'lib/dateFormat';
-import { segmentNetworkKey, CURVE_ZERO_ADDR } from 'lib/keys';
+import { segmentNetworkKey, CURVE_ZERO_ADDR } from 'bridge-libs/keys';
 
 import { usePointCache } from 'store/pointCache';
 

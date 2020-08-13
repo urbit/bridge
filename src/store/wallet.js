@@ -15,8 +15,8 @@ import {
   addressFromSecp256k1Public,
   walletFromMnemonic,
   NONCUSTODIAL_WALLETS,
-} from 'lib/wallet';
-import { getAuthToken } from 'lib/authToken';
+} from 'bridge-libs/wallet';
+import { getAuthToken } from 'bridge-libs/authToken';
 import { BRIDGE_ERROR } from 'lib/error';
 
 import { useNetwork } from 'store/network';

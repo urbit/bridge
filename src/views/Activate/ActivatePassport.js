@@ -18,7 +18,7 @@ import {
   walletFromMnemonic,
   DEFAULT_HD_PATH,
   addressFromSecp256k1Public,
-} from 'lib/wallet';
+} from 'bridge-libs/wallet';
 
 const NAMES = {
   DOWNLOAD: 'DOWNLOAD',

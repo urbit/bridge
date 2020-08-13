@@ -12,8 +12,9 @@ import useBlockWindowClose from 'lib/useBlockWindowClose';
 import {
   reticketPointBetweenWallets,
   TRANSACTION_PROGRESS,
-} from 'lib/reticket';
+} from 'bridge-libs/reticket';
 import timeout from 'lib/timeout';
+import { TANK_BASE_URL } from 'lib/constants';
 
 import WarningBox from 'components/WarningBox';
 import LoadingBar from 'components/LoadingBar';
@@ -109,7 +110,8 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
         point: _point,
         web3: _web3,
         contracts: _contracts,
-        networkType,
+        networkType: networkType.description, //TODO  proper
+        tankBaseUrl: TANK_BASE_URL,
         onUpdate: handleUpdate,
         transferEth: true,
       });

@@ -14,7 +14,7 @@ import { toBN } from 'web3-utils';
 import { ReactComponent as InfoIcon } from 'assets/info.svg';
 
 import { useExploreTxUrls } from 'lib/explorer';
-import { hexify } from 'lib/txn';
+import { hexify } from 'bridge-libs/txn';
 import { safeFromWei, safeToWei } from 'lib/lib';
 
 import { composeValidator, buildCheckboxValidator } from 'form/validators';

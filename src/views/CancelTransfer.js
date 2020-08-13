@@ -12,7 +12,7 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import useCurrentPointName from 'lib/useCurrentPointName';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
-import { ETH_ZERO_ADDR } from 'lib/wallet';
+import { ETH_ZERO_ADDR } from 'bridge-libs/wallet';
 import useLifecycle from 'lib/useLifecycle';
 
 import ViewHeader from 'components/ViewHeader';

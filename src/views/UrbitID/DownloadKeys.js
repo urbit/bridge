@@ -7,7 +7,7 @@ import { usePointCursor } from 'store/pointCursor';
 import { DownloadButton, RestartButton } from 'components/Buttons';
 import PaperBuilder from 'components/PaperBuilder';
 
-import { downloadWallet } from 'lib/invite';
+import { downloadWallet } from 'bridge-libs/invite';
 
 import { useWallet } from 'store/wallet';
 import { Grid, P } from 'indigo-react';

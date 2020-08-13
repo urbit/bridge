@@ -6,7 +6,7 @@ import { version } from '../../package.json';
 import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
 
-import { WALLET_TYPES } from 'lib/wallet';
+import { WALLET_TYPES } from 'bridge-libs/wallet';
 
 import View from 'components/View';
 import Tabs from 'components/Tabs';

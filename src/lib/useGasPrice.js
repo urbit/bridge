@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useNetwork } from 'store/network';
 
-import getSuggestedGasPrice from 'lib/getSuggestedGasPrice';
-import { DEFAULT_GAS_PRICE_GWEI } from './constants';
+import getSuggestedGasPrice from 'bridge-libs/getSuggestedGasPrice';
+import { DEFAULT_GAS_PRICE_GWEI, MAX_GAS_PRICE_GWEI } from './constants';
 
 /**
  * handles all of the state of components that manage gas prices
@@ -21,7 +21,12 @@ export default function useGasPrice(initialGasPrice = DEFAULT_GAS_PRICE_GWEI) {
     let mounted = true;
 
     (async () => {
-      const suggestedGasPrice = await getSuggestedGasPrice(networkType);
+      //TODO  get libs to accept network types properly, or similar
+      const suggestedGasPrice = await getSuggestedGasPrice(
+        networkType.description,
+        DEFAULT_GAS_PRICE_GWEI,
+        MAX_GAS_PRICE_GWEI
+      );
 
       if (!mounted) {
         return;

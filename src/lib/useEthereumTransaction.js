@@ -7,6 +7,7 @@ import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 
 import {
+  TANK_BASE_URL,
   GAS_LIMITS,
   DEFAULT_GAS_PRICE_GWEI,
   PROGRESS_ANIMATION_DELAY_MS,
@@ -16,9 +17,9 @@ import {
   sendSignedTransaction,
   waitForTransactionConfirm,
   hexify,
-} from './txn';
+} from 'bridge-libs/txn';
 import * as need from 'lib/need';
-import { ensureFundsFor } from 'lib/tank';
+import { ensureFundsFor } from 'bridge-libs/tank';
 import useDeepEqualReference from 'lib/useDeepEqualReference';
 import useGasPrice from 'lib/useGasPrice';
 import timeout from 'lib/timeout';
@@ -163,6 +164,7 @@ export default function useEthereumTransaction(
           walletType,
           cost,
           rawTxs,
+          TANK_BASE_URL,
           (address, minBalance, balance) =>
             setNeedFunds({ address, minBalance, balance }),
           () => setNeedFunds(undefined)
