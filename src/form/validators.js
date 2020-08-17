@@ -3,6 +3,7 @@ import { some } from 'lodash';
 import {
   validateNotEmpty,
   validatePatq,
+  validateShard,
   validateMnemonic,
   validateHdPath,
   validatePoint,
@@ -62,6 +63,8 @@ export const hasErrors = iter =>
 
 export const buildPatqValidator = (validators = []) =>
   buildValidator([validateNotEmpty, validatePatq, ...validators]);
+export const buildShardValidator = (validators = []) =>
+  buildValidator([validateShard, ...validators]);
 export const buildAnyMnemonicValidator = () =>
   buildValidator([validateNotEmpty]);
 export const buildMnemonicValidator = () =>

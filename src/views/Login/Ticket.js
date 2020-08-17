@@ -30,6 +30,7 @@ import {
   composeValidator,
   buildCheckboxValidator,
   buildPatqValidator,
+  buildShardValidator,
   buildPassphraseValidator,
   buildPointValidator,
 } from 'form/validators';
@@ -107,6 +108,14 @@ export default function Ticket({ className, goHome }) {
       if (errors.shard1 || errors.shard2 || errors.shard3) {
         return errors;
       }
+      const empty = ['shard1', 'shard2', 'shard3'].filter(s => !values[s]);
+      if (empty.length > 1) {
+        let errors = {};
+        empty.map(s => {
+          errors[s] = 'Please provide at least two out of three shards.';
+        });
+        return errors;
+      }
     } else {
       if (errors.ticket) {
         return errors;
@@ -117,7 +126,11 @@ export default function Ticket({ className, goHome }) {
   const onSubmit = useCallback(
     async values => {
       const ticket = values.useShards
-        ? kg.combine([values.shard1, values.shard2, values.shard3])
+        ? kg.combine(
+            [values.shard1, values.shard2, values.shard3].map(v =>
+              v === '' ? undefined : v
+            )
+          )
         : values.ticket;
 
       try {
@@ -177,9 +190,9 @@ export default function Ticket({ className, goHome }) {
           useShards: buildCheckboxValidator(),
           point: buildPointValidator(4),
           ticket: buildPatqValidator(),
-          shard1: buildPatqValidator(),
-          shard2: buildPatqValidator(),
-          shard3: buildPatqValidator(),
+          shard1: buildShardValidator(),
+          shard2: buildShardValidator(),
+          shard3: buildShardValidator(),
           ticketHidden: buildCheckboxValidator(),
           passphrase: buildPassphraseValidator(),
         },
