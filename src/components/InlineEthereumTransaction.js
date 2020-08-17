@@ -257,7 +257,7 @@ export default function InlineEthereumTransaction({
                     as="input"
                     type="range"
                     min="1"
-                    max="100"
+                    max="400"
                     value={gasPrice}
                     onChange={e =>
                       setGasPrice(convertToInt(e.target.value, 10))
