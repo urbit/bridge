@@ -1,12 +1,16 @@
 import React, { useCallback, useState } from 'react';
 import { P, H4, H5, Grid, Text, Button, Flex, LinkButton } from 'indigo-react';
+import { Just } from 'folktale/maybe';
+import ob from 'urbit-ob';
 
 import { version } from '../../package.json';
 
 import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
+import { usePointCursor } from 'store/pointCursor';
 
 import { WALLET_TYPES } from 'lib/wallet';
+import { COMMANDS, useFlowCommand } from 'lib/flowCommand';
 
 import View from 'components/View';
 import Tabs from 'components/Tabs';
@@ -43,6 +47,8 @@ export default function Login() {
   // globals
   const { pop, push, names } = useHistory();
   const { walletType } = useWallet();
+  const { setPointCursor } = usePointCursor();
+  const flow = useFlowCommand();
 
   // inputs
   const [isOther, setisOther] = useState(false);
@@ -53,8 +59,33 @@ export default function Login() {
   ]);
 
   const goHome = useCallback(() => {
-    push(names.POINTS);
-  }, [push, names]);
+    if (!flow) {
+      push(names.POINTS);
+    } else {
+      switch (flow.kind) {
+        case COMMANDS.INVITE:
+          setPointCursor(Just(ob.patp2dec(flow.as)));
+          push(names.JUST_INVITE);
+          break;
+        //
+        default:
+          throw new Error('unimplemented flow ' + flow.kind);
+          break;
+      }
+    }
+  }, [flow, push, names]);
+
+  const flowDescription = command => {
+    switch (command.kind) {
+      case COMMANDS.INVITE:
+        return (
+          <>
+            To send an invite, please sign in as <b>{command.as}</b>.
+          </>
+        );
+        break;
+    }
+  };
 
   return (
     <View inset>
@@ -65,8 +96,12 @@ export default function Login() {
           </Grid.Item>
           <Grid.Item as={Text}>Login</Grid.Item>
         </Grid.Item>
-        {isOther && <Grid.Item full as={Other} goHome={goHome} />}
-        {!isOther && <Grid.Item full as={Ticket} goHome={goHome} />}
+        {flow && (
+          <Grid.Item full as={Text} className="t-center mb4">
+            {flowDescription(flow)}
+          </Grid.Item>
+        )}
+        <Grid.Item full as={isOther ? Other : Ticket} goHome={goHome} />
         {!isOther && (
           <>
             <Grid.Item full className="t-center mv4 gray4">
@@ -80,10 +115,15 @@ export default function Login() {
               onClick={() => setisOther(true)}>
               Metamask, Mnemonic, Hardware Wallet...
             </Grid.Item>
-            <Grid.Item full onClick={goToActivate} className="mv10 t-center f6">
-              <span className="gray4">New Urbit ID? </span>
-              <LinkButton>Activate</LinkButton>
-            </Grid.Item>
+            {!flow && (
+              <Grid.Item
+                full
+                onClick={goToActivate}
+                className="mv10 t-center f6">
+                <span className="gray4">New Urbit ID? </span>
+                <LinkButton>Activate</LinkButton>
+              </Grid.Item>
+            )}
           </>
         )}
         {isOther && (
