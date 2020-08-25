@@ -87,6 +87,22 @@ export default function Login() {
     }
   };
 
+  const test = () => {
+    const ext = window.open('https://localhost:3000/');
+    ext.flow = {
+      kind: 'invite',
+      as: '~bicdeg-micsug',
+      ship: '~socdep-worlus',
+      email: 'mark+unusedddddd@tlon.io',
+      success: () => {
+        console.log('xx graet success');
+      },
+      failure: r => {
+        console.log('xx failure', r);
+      },
+    };
+  };
+
   return (
     <View inset>
       <Grid>
@@ -116,13 +132,18 @@ export default function Login() {
               Metamask, Mnemonic, Hardware Wallet...
             </Grid.Item>
             {!flow && (
-              <Grid.Item
-                full
-                onClick={goToActivate}
-                className="mv10 t-center f6">
-                <span className="gray4">New Urbit ID? </span>
-                <LinkButton>Activate</LinkButton>
-              </Grid.Item>
+              <>
+                <Grid.Item
+                  full
+                  onClick={goToActivate}
+                  className="mv10 t-center f6">
+                  <span className="gray4">New Urbit ID? </span>
+                  <LinkButton>Activate</LinkButton>
+                </Grid.Item>
+                <Grid.Item full as={LinkButton} onClick={test}>
+                  testing
+                </Grid.Item>
+              </>
             )}
           </>
         )}
