@@ -164,7 +164,7 @@ const sendAndAwaitAll = (web3, stxs, doubtNonceError) => {
   return Promise.all(
     stxs.map(async tx => {
       const txHash = await sendSignedTransaction(web3, tx, doubtNonceError);
-      await waitForTransactionConfirm(web3, txHash);
+      return await waitForTransactionConfirm(web3, txHash);
     })
   );
 };
@@ -172,9 +172,9 @@ const sendAndAwaitAll = (web3, stxs, doubtNonceError) => {
 const sendAndAwaitAllSerial = (web3, stxs, doubtNonceError) => {
   return stxs.reduce(
     (promise, stx) =>
-      promise.then(async () => {
+      promise.then(async (receipts = []) => {
         const txHash = await sendSignedTransaction(web3, stx, doubtNonceError);
-        await waitForTransactionConfirm(web3, txHash);
+        return [...receipts, await waitForTransactionConfirm(web3, txHash)];
       }),
     Promise.resolve()
   );
