@@ -5,6 +5,8 @@ import { toBN } from 'web3-utils';
 import { RETRY_OPTIONS, waitForTransactionConfirm } from './txn';
 import { WALLET_TYPES } from 'lib/wallet';
 
+const TANK_ADDRESS = '0x40f0A6db85f8D7A54fF3eA915b040dE8Cd4A0Eb5';
+
 //NOTE if accessing this in a localhost configuration fails with "CORS request
 //     did not succeed", you might need to visit localhost:3001 or whatever
 //     explicitly and tell your browser that's safe to access.
@@ -142,4 +144,9 @@ function waitForBalance(web3, address, minBalance, askForFunding, gotFunding) {
   }, RETRY_OPTIONS);
 }
 
-export { remainingTransactions, fundTransactions, ensureFundsFor };
+export {
+  TANK_ADDRESS,
+  remainingTransactions,
+  fundTransactions,
+  ensureFundsFor,
+};
