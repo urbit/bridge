@@ -24,7 +24,7 @@ const GAS_LIMITS = {
   SPAWN: 250000,
   TRANSFER: 560000, //NOTE biggest, also update gas tank's max
   CONFIGURE_KEYS: 100000,
-  SET_PROXY: 140000,
+  SET_PROXY: 150000,
   //
   ESCAPE: 115000, //NOTE low sample size
   ADOPT: 100000, //NOTE low sample size
