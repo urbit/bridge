@@ -16,7 +16,7 @@ import WarningBox from 'components/WarningBox';
 import { blinkIf } from 'components/Blinky';
 import useCurrentPointName from 'lib/useCurrentPointName';
 
-export default function ReticketConfirm({ newWallet, setNewWallet }) {
+export default function ResetConfirm({ newWallet, setNewWallet }) {
   const { push, names } = useLocalRouter();
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);

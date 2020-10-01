@@ -42,6 +42,8 @@ function useInitialRoutes() {
   const [hasDisclaimed] = useHasDisclaimed();
   const hasImpliedTicket = !!useImpliedTicket();
 
+  const isActivateUrl = window.location.pathname === '/activate';
+
   if (IS_STUBBED) {
     return [
       { key: ROUTE_NAMES.LOGIN },
@@ -50,7 +52,7 @@ function useInitialRoutes() {
     ];
   }
 
-  if (hasImpliedTicket) {
+  if (hasImpliedTicket || isActivateUrl) {
     return [{ key: ROUTE_NAMES.ACTIVATE }];
   }
 

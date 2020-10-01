@@ -203,7 +203,17 @@ export async function reticketPointBetweenWallets({
 
   progress(TRANSACTION_PROGRESS.TRANSFERRING);
 
-  await sendAndAwaitAllSerial(web3, txPairs.map(p => p.signed), usedTank);
+  const receipts = await sendAndAwaitAllSerial(
+    web3,
+    txPairs.map(p => p.signed),
+    usedTank
+  );
+
+  const realCost = gasPriceWeiBN.mul(
+    receipts.reduce((sum, receipt) => {
+      return sum.add(toBN(receipt.gasUsed));
+    }, toBN(0))
+  );
 
   //
   // move leftover eth
@@ -211,10 +221,39 @@ export async function reticketPointBetweenWallets({
 
   progress(TRANSACTION_PROGRESS.CLEANING);
 
-  // if non-trivial eth left in invite wallet, transfer to new ownership
   let balance = toBN(await web3.eth.getBalance(fromWallet.address));
   const gasLimit = GAS_LIMITS.SEND_ETH;
   const sendEthCost = gasPriceWeiBN.mul(toBN(gasLimit));
+
+  // if we have funds left over from what the gas tank gave us, send those back
+  if (usedTank && realCost.add(sendEthCost).lt(totalCost)) {
+    try {
+      const remainder = totalCost.sub(realCost).sub(sendEthCost);
+      console.log('returning to gas tank', remainder.toString());
+      const txn = { to: tank.TANK_ADDRESS, value: remainder };
+      const stx = await signTransaction({
+        wallet: fromWallet,
+        walletType: fromWalletType,
+        walletHdPath: fromWalletHdPath,
+        txn,
+        chainId,
+        networkType,
+        gasPrice: gasPriceGwei,
+        gasLimit,
+        nonce: inviteNonce,
+      });
+      sendSignedTransaction(web3, stx);
+
+      // only update these after the above succeeded
+      inviteNonce++;
+      balance = balance.sub(remainder).sub(sendEthCost);
+    } catch (err) {
+      console.log('error returning gas, safely ignored:');
+      console.log(err);
+    }
+  }
+
+  // if non-trivial eth left in invite wallet, transfer to new ownership
   if (transferEth && balance.gt(sendEthCost)) {
     try {
       const value = balance.sub(sendEthCost);

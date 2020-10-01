@@ -27,7 +27,10 @@ const safeToWei = (num, source) => {
 };
 
 const compose = (...fs) =>
-  fs.reduceRight((pF, nF) => (...args) => nF(pF(...args)), v => v);
+  fs.reduceRight(
+    (pF, nF) => (...args) => nF(pF(...args)),
+    v => v
+  );
 
 const allFalse = (...args) => args.every(a => a === false);
 

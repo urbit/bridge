@@ -17,7 +17,9 @@ export default function NeedFundsNotice({
       <Highlighted warning>
         Your ownership address <CopiableAddress>{address}</CopiableAddress>{' '}
         needs at least {safeFromWei(minBalance)} ETH and currently has{' '}
-        {safeFromWei(balance)} ETH. The transaction will automatically resume
+        {safeFromWei(balance)} ETH. Transaction costs may be high due to{' '}
+        Ethereum network activity. You can come back later to try again, or{' '}
+        transfer the required ETH now. The transaction will automatically resume{' '}
         once enough ETH is available. Waiting... <Blinky />
       </Highlighted>
     </WarningBox>

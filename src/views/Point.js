@@ -10,21 +10,105 @@ import { useWallet } from 'store/wallet';
 import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
-import { ForwardButton, BootUrbitOSButton } from 'components/Buttons';
-import CopyButton from 'components/CopyButton';
 import Blinky, { matchBlinky } from 'components/Blinky';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
 import InviteSigilList from 'components/InviteSigilList';
+import { ForwardButton } from 'components/Buttons';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
 import { useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
-import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 import Inviter from 'views/Invite/Inviter';
+import { usePointCache } from 'store/pointCache';
+
+function InviteForm({
+  showInviteForm,
+  setShowInviteForm,
+  acceptedInvites,
+  acceptedPoints,
+  availableInvites,
+  goCohort,
+  pendingPoints,
+  sentInvites,
+  showInvites,
+}) {
+  const _totalInvites =
+    sentInvites.getOrElse(0) + availableInvites.getOrElse(0);
+  const _pendingInvites = pendingPoints.getOrElse([]).length;
+
+  return (
+    <>
+      <Grid.Item cols={[1, 11]}>
+        Invite Group
+        <br />
+      </Grid.Item>
+
+      <Grid.Item
+        className={cn('t-right underline pointer-hover', {
+          gray4: sentInvites.getOrElse(0) === 0,
+        })}
+        onClick={goCohort}
+        cols={[11, 13]}>
+        View
+      </Grid.Item>
+      <Grid.Item full>
+        <Flex align="center">
+          <Flex.Item>
+            {acceptedInvites.getOrElse(0)} / {_totalInvites}
+          </Flex.Item>
+          {_pendingInvites > 0 && (
+            <Flex.Item as={Chip} className="bg-yellow1 yellow4">
+              {_pendingInvites} pending
+            </Flex.Item>
+          )}
+        </Flex>
+      </Grid.Item>
+
+      {showInvites && (
+        <>
+          <Grid.Item
+            full
+            as={BarGraph}
+            available={availableInvites}
+            sent={sentInvites}
+            accepted={acceptedInvites}
+          />
+          <Grid.Item
+            full
+            as={InviteSigilList}
+            pendingPoints={pendingPoints}
+            acceptedPoints={acceptedPoints}
+          />
+        </>
+      )}
+      {!showInvites && (
+        <>
+          <Grid.Item full className="b-gray4 b-dotted b1 self-center">
+            <div className="p4 pv8 t-center gray4">
+              Start your invite group by adding members
+            </div>
+          </Grid.Item>
+        </>
+      )}
+      {!showInviteForm && availableInvites.getOrElse(0) > 0 && (
+        <Grid.Item
+          full
+          solid
+          as={Button}
+          center
+          onClick={() => setShowInviteForm(true)}>
+          Add Members
+        </Grid.Item>
+      )}
+      {showInviteForm && <Inviter />}
+      <Grid.Item full className="mb2" />
+    </>
+  );
+}
 
 export default function Point() {
   const { pop, push, names } = useLocalRouter();
@@ -33,7 +117,9 @@ export default function Point() {
   const { wallet } = useWallet();
   const point = need.point(pointCursor);
 
-  const { code, notice } = useKeyfileGenerator();
+  const { getResidents } = usePointCache();
+
+  const { residentCount, requestCount } = getResidents(point);
 
   const {
     isParent,
@@ -41,6 +127,7 @@ export default function Point() {
     canManage,
     canSpawn,
     canVote,
+    isOwner,
   } = useCurrentPermissions();
 
   // fetch the invites for the current cursor
@@ -59,21 +146,19 @@ export default function Point() {
 
   const hasInvites = showInvites || availableInvites.getOrElse(0) !== 0;
 
-  const _totalInvites =
-    sentInvites.getOrElse(0) + availableInvites.getOrElse(0);
-  const _pendingInvites = pendingPoints.getOrElse([]).length;
-
   const loadedInvites = Just.hasInstance(availableInvites);
   //
   // availableInvites.getOrElse(0) === 0
 
-  const goAdmin = useCallback(() => push(names.ADMIN), [push, names]);
-
   const goSenate = useCallback(() => push(names.SENATE), [push, names]);
 
-  const goSigil = useCallback(() => push(names.SIGIL_GENERATOR), [push, names]);
-
   const goCohort = useCallback(() => push(names.INVITE_COHORT), [push, names]);
+
+  const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
+
+  const goUrbitID = useCallback(() => push(names.URBIT_ID), [push, names]);
+
+  const goResidents = useCallback(() => push(names.RESIDENTS), [push, names]);
 
   const goPartiesSetPoolSize = useCallback(
     () => push(names.PARTY_SET_POOL_SIZE),
@@ -131,6 +216,8 @@ export default function Point() {
 
   const address = need.addressFromWallet(wallet);
 
+  const _requestCount = requestCount.getOrElse(0);
+
   return (
     <View pop={pop} inset>
       <Greeting point={point} />
@@ -140,73 +227,36 @@ export default function Point() {
         animationMode={'slide'}
       />
       <Grid gap={3}>
+        {isParent && (
+          <Grid.Item
+            full
+            as={Flex}
+            justify="between"
+            onClick={goResidents}
+            className="mv1 pointer">
+            <Flex.Item>
+              Residents{' '}
+              <span className="gray3">{matchBlinky(residentCount)}</span>
+            </Flex.Item>
+            {_requestCount !== 0 && (
+              <Flex.Item className="f7 bg-gray2 h3 pv1 ph2 br-full r-full text-center">
+                {_requestCount} PENDING
+              </Flex.Item>
+            )}
+          </Grid.Item>
+        )}
         {isPlanet && hasInvites && (
-          <>
-            <Grid.Item cols={[1, 11]}>
-              Invite Group
-              <br />
-            </Grid.Item>
-
-            <Grid.Item
-              className={cn('t-right underline pointer-hover', {
-                gray4: sentInvites.getOrElse(0) === 0,
-              })}
-              onClick={goCohort}
-              cols={[11, 13]}>
-              View
-            </Grid.Item>
-            <Grid.Item full>
-              <Flex align="center">
-                <Flex.Item>
-                  {acceptedInvites.getOrElse(0)} / {_totalInvites}
-                </Flex.Item>
-                {_pendingInvites > 0 && (
-                  <Flex.Item as={Chip} className="bg-yellow1 yellow4">
-                    {_pendingInvites} pending
-                  </Flex.Item>
-                )}
-              </Flex>
-            </Grid.Item>
-
-            {showInvites && (
-              <>
-                <Grid.Item
-                  full
-                  as={BarGraph}
-                  available={availableInvites}
-                  sent={sentInvites}
-                  accepted={acceptedInvites}
-                />
-                <Grid.Item
-                  full
-                  as={InviteSigilList}
-                  pendingPoints={pendingPoints}
-                  acceptedPoints={acceptedPoints}
-                />
-              </>
-            )}
-            {!showInvites && (
-              <>
-                <Grid.Item full className="b-gray4 b-dotted b1 self-center">
-                  <div className="p4 pv8 t-center gray4">
-                    Start your invite group by adding members
-                  </div>
-                </Grid.Item>
-              </>
-            )}
-            {!showInviteForm && availableInvites.getOrElse(0) > 0 && (
-              <Grid.Item
-                full
-                solid
-                as={Button}
-                center
-                onClick={() => setShowInviteForm(true)}>
-                Add Members
-              </Grid.Item>
-            )}
-            {showInviteForm && <Inviter />}
-            <Grid.Item full className="mb2" />
-          </>
+          <InviteForm
+            showInviteForm={showInviteForm}
+            setShowInviteForm={setShowInviteForm}
+            acceptedInvites={acceptedInvites}
+            acceptedPoints={acceptedPoints}
+            availableInvites={availableInvites}
+            goCohort={goCohort}
+            pendingPoints={pendingPoints}
+            sentInvites={sentInvites}
+            showInvites={showInvites}
+          />
         )}
         {!loadedInvites && isPlanet && (
           <Grid.Item className="mv2" full>
@@ -215,20 +265,28 @@ export default function Point() {
         )}
       </Grid>
       <Grid className="pt2">
+        <Grid.Divider />
         {inviteButton}
-        <Grid.Item full as={ForwardButton} onClick={goSigil}>
-          Sigil
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!canManage}
+          onClick={goUrbitID}
+          className="mt1"
+          detail="Identity and security settings">
+          ID
         </Grid.Item>
         <Grid.Divider />
         <Grid.Item
           full
           as={ForwardButton}
           disabled={!canManage}
-          onClick={goAdmin}>
-          Admin
+          className="mt1"
+          detail="Urbit OS Settings"
+          onClick={goUrbitOS}>
+          OS
         </Grid.Item>
         <Grid.Divider />
-
         {isParent && (
           <>
             <Grid.Item
@@ -242,18 +300,6 @@ export default function Point() {
           </>
         )}
         {senateButton}
-        <Grid.Item full as={BootUrbitOSButton} />
-        <Grid.Divider />
-        <Grid.Item
-          full
-          as={ForwardButton}
-          accessory={code && <CopyButton text={code} />}
-          detail={code || notice}
-          disabled={!code}
-          detailClassName="mono">
-          Login Code
-        </Grid.Item>
-        <Grid.Divider />
       </Grid>
     </View>
   );

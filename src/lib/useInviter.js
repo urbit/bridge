@@ -35,10 +35,11 @@ const STATUS = {
 
 const useInviter = () => {
   const { contracts, web3, networkType } = useNetwork();
-  const { wallet, walletType, walletHdPath } = useWallet();
+  const { wallet, walletType, walletHdPath, authToken } = useWallet();
   const { pointCursor } = usePointCursor();
   const { syncInvites } = usePointCache();
   const { gasPrice } = useGasPrice();
+
   const point = need.point(pointCursor);
 
   const [needFunds, setNeedFunds] = useState(null);
@@ -65,7 +66,8 @@ const useInviter = () => {
       const _contracts = contracts.getOrElse(null);
       const _web3 = web3.getOrElse(null);
       const _wallet = wallet.getOrElse(null);
-      if (!_contracts || !_web3 || !_wallet) {
+      const _authToken = authToken.getOrElse(null);
+      if (!_contracts || !_web3 || !_wallet || !_authToken) {
         // not using need because we want a custom error
         throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
       }
@@ -98,16 +100,15 @@ const useInviter = () => {
 
       // NB(shrugs) - must be processed in serial because main thread, etc
       let signedInvites = [];
-      let errorCount = 0;
       for (let i = 0; i < numInvites; i++) {
         setProgress(x => x + 1);
         try {
           const planet = planets[i];
 
-          const { ticket, owner } = await wg.generateTemporaryTicketAndWallet(
-            MIN_PLANET
-            // we're always giving planets, so generate a ticket of the correct size
-          );
+          const {
+            ticket,
+            owner,
+          } = await wg.generateTemporaryDeterministicWallet(planet, _authToken);
 
           const inviteTx = azimuth.delegatedSending.sendPoint(
             _contracts,
@@ -157,7 +158,7 @@ const useInviter = () => {
         () => setNeedFunds(undefined)
       );
 
-      let unsentInvites = [];
+      let inviteErrors = [];
       let confirmedInvites = [];
       const txAndMailings = signedInvites.map(async invite => {
         try {
@@ -170,8 +171,12 @@ const useInviter = () => {
           await waitForTransactionConfirm(_web3, txHash);
           confirmedInvites.push(invite);
         } catch (error) {
-          console.error(error);
-          unsentInvites.push(invite);
+          console.error('Error sending invite tx:', error);
+          if (typeof error === 'string') {
+            inviteErrors.push(error);
+          } else if (typeof error === 'object' && error.message) {
+            inviteErrors.push(error.message);
+          }
           return;
         }
       });
@@ -181,27 +186,18 @@ const useInviter = () => {
       setTxStatus(STATUS.SUCCESS);
       setInvites(confirmedInvites);
 
-      if (unsentInvites.length > 0) {
-        return { errors: { [FORM_ERROR]: unsentInvites } };
-      }
-
-      if (errorCount > 0) {
+      if (inviteErrors.length > 0) {
         return {
           errors: {
-            [WARNING]: `There ${pluralize(
-              errorCount,
-              'was',
-              'were'
-            )} ${pluralize(
-              errorCount,
-              'error'
-            )} while generating wallets. You can still send the invites that generated correctly.`,
+            [FORM_ERROR]: ['Error sending invites: ', ...inviteErrors],
           },
         };
       }
+
       return { invites: confirmedInvites };
     },
     [
+      authToken,
       contracts,
       gasPrice,
       networkType,

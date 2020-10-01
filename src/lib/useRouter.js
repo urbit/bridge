@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
-import { last, includes as _includes, findIndex } from 'lodash';
+import { last, includes as _includes, findIndex, get } from 'lodash';
 
 const NULL_DATA = {};
 
@@ -85,10 +85,17 @@ export default function useRouter({
     setRoutes,
     initialRoutes,
   ]);
-  const includes = useCallback(key => _includes(routes.map(r => r.key), key), [
-    routes,
-  ]);
-  const data = useMemo(() => last(routes).data || NULL_DATA, [routes]);
+  const includes = useCallback(
+    key =>
+      _includes(
+        routes.map(r => r.key),
+        key
+      ),
+    [routes]
+  );
+  const data = useMemo(() => {
+    return get(last(routes), 'data', NULL_DATA);
+  }, [routes]);
   const Route = useMemo(() => views[peek().key], [views, peek]);
 
   // Scroll to top of page with each route transition

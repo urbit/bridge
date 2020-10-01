@@ -92,7 +92,7 @@ const signTransaction = async ({
   } else if (walletType === WALLET_TYPES.TREZOR) {
     await trezorSignTransaction(stx, walletHdPath);
   } else if (walletType === WALLET_TYPES.METAMASK) {
-    return metamaskSignTransaction(stx, wallet.address);
+    return metamaskSignTransaction(utx, wallet.address);
   } else {
     stx.sign(wallet.privateKey);
   }
@@ -102,24 +102,16 @@ const signTransaction = async ({
 
 const sendSignedTransaction = (web3, stx, doubtNonceError) => {
   // Handle fake metamask transaction
+  let eventEmitter;
+  let rawTx;
   if (stx instanceof FakeMetamaskTransaction) {
-    const { ethereum } = window;
-    const sendTxs = {
-      method: 'eth_sendTransaction',
-      params: [stx.txnData],
-      from: stx.txnData.from,
-    };
-    return new Promise((resolve, reject) =>
-      ethereum.sendAsync(sendTxs, (err, data) =>
-        err ? reject(err) : resolve(data.result)
-      )
-    );
+    eventEmitter = web3.eth.sendTransaction(stx.txnData);
+  } else {
+    rawTx = hexify(stx.serialize());
+    eventEmitter = web3.eth.sendSignedTransaction(rawTx);
   }
-  const rawTx = hexify(stx.serialize());
-
   return new Promise(async (resolve, reject) => {
-    web3.eth
-      .sendSignedTransaction(rawTx)
+    eventEmitter
       .on('transactionHash', hash => {
         resolve(hash);
       })
@@ -127,12 +119,14 @@ const sendSignedTransaction = (web3, stx, doubtNonceError) => {
         // if there's a nonce error, but we used the gas tank, it's likely
         // that it's because the tank already submitted our transaction.
         // we just wait for first confirmation here.
-        const message = err.message || '';
-        const isKnownError = message.includes('known transaction: ');
+        const message = typeof err === 'string' ? err : err.message || '';
+        const isKnownError =
+          message.includes('known transaction') ||
+          message.includes('already known');
         const isNonceError =
           message.includes("the tx doesn't have the correct nonce.") ||
           message.includes('nonce too low');
-        if (isKnownError || (doubtNonceError && isNonceError)) {
+        if (rawTx && (isKnownError || (doubtNonceError && isNonceError))) {
           console.log(
             'tx send error likely from gas tank submission, ignoring:',
             message
@@ -141,7 +135,8 @@ const sendSignedTransaction = (web3, stx, doubtNonceError) => {
           resolve(txHash);
         } else {
           console.error(err);
-          reject(err.message || 'Transaction sending failed!');
+          const wrappedErr = err instanceof Error ? err : new Error(message);
+          reject(wrappedErr);
         }
       });
   });
@@ -160,6 +155,7 @@ const waitForTransactionConfirm = (web3, txHash) => {
     if (!success) {
       return bail(new Error('Transaction failed.'));
     }
+    return receipt;
   }, RETRY_OPTIONS);
 };
 
@@ -168,7 +164,7 @@ const sendAndAwaitAll = (web3, stxs, doubtNonceError) => {
   return Promise.all(
     stxs.map(async tx => {
       const txHash = await sendSignedTransaction(web3, tx, doubtNonceError);
-      await waitForTransactionConfirm(web3, txHash);
+      return await waitForTransactionConfirm(web3, txHash);
     })
   );
 };
@@ -176,9 +172,9 @@ const sendAndAwaitAll = (web3, stxs, doubtNonceError) => {
 const sendAndAwaitAllSerial = (web3, stxs, doubtNonceError) => {
   return stxs.reduce(
     (promise, stx) =>
-      promise.then(async () => {
+      promise.then(async (receipts = []) => {
         const txHash = await sendSignedTransaction(web3, stx, doubtNonceError);
-        await waitForTransactionConfirm(web3, txHash);
+        return [...receipts, await waitForTransactionConfirm(web3, txHash)];
       }),
     Promise.resolve()
   );

@@ -41,7 +41,7 @@ const EmailChipInput = ({ className, name, label, disabled }) => {
   );
 
   const addToChips = useCallback(() => {
-    fields.push(value);
+    fields.concat(value.split(/[\n\t, ]+/));
     setValue('');
   }, [value, fields, setValue]);
 

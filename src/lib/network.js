@@ -16,4 +16,15 @@ const renderNetworkType = network =>
     ? 'Local Node'
     : 'Offline';
 
-export { NETWORK_TYPES, renderNetworkType };
+const chainIdToNetworkType = chainId => {
+  switch (chainId) {
+    case '0x1':
+      return NETWORK_TYPES.MAINNET;
+    case '0x3':
+      return NETWORK_TYPES.ROPSTEN;
+    default:
+      return NETWORK_TYPES.LOCAL;
+  }
+};
+
+export { NETWORK_TYPES, renderNetworkType, chainIdToNetworkType };

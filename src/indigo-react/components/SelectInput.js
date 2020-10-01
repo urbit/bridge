@@ -31,7 +31,10 @@ export default function SelectInput({
   const ref = useRef();
 
   // close select on outside clicks
-  useOnClickOutside(ref, useCallback(() => setIsOpen(false), [setIsOpen]));
+  useOnClickOutside(
+    ref,
+    useCallback(() => setIsOpen(false), [setIsOpen])
+  );
 
   const toggleOpen = useCallback(() => {
     input.onFocus();

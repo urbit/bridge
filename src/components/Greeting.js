@@ -3,26 +3,18 @@ import cn from 'classnames';
 import ob from 'urbit-ob';
 import { Grid, Text, LinkButton } from 'indigo-react';
 
-import { useLocalRouter } from 'lib/LocalRouter';
-
 import useWasGreeted from 'lib/useWasGreeted';
-import useCurrentPermissions from 'lib/useCurrentPermissions';
 
 const TEXT_STYLE = 'f5';
 
 export default function ActivateDisclaimer({ point }) {
-  const { push, names } = useLocalRouter();
-
   const [wasGreeted, setWasGreeted] = useWasGreeted();
-  const { isActiveOwner } = useCurrentPermissions();
 
   const pointName = ob.patp(point);
 
   const dismiss = useCallback(async () => {
     setWasGreeted(true);
   }, [setWasGreeted]);
-
-  const goInvite = useCallback(() => push(names.INVITE), [push, names]);
 
   return (
     !wasGreeted && (
@@ -44,18 +36,6 @@ export default function ActivateDisclaimer({ point }) {
             Right now you can:
           </Text>
         </Grid.Item>
-
-        {isActiveOwner && (
-          <Grid.Item
-            full
-            as={LinkButton}
-            onClick={goInvite}
-            className={'yellow4'}>
-            <Text className={cn(TEXT_STYLE, 'block mb2')}>
-              Invite your friends
-            </Text>
-          </Grid.Item>
-        )}
 
         <Grid.Item
           full

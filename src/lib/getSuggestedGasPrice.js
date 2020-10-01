@@ -1,5 +1,5 @@
 import { NETWORK_TYPES } from './network';
-import { DEFAULT_GAS_PRICE_GWEI } from './constants';
+import { DEFAULT_GAS_PRICE_GWEI, MAX_GAS_PRICE_GWEI } from './constants';
 
 export default async function getSuggestedGasPrice(networkType) {
   switch (networkType) {
@@ -24,8 +24,8 @@ export default async function getSuggestedGasPrice(networkType) {
         // more than gwei. see: https://docs.ethgasstation.info
         const suggestedGasPrice = Math.ceil(json.fast / 10); // to gwei
 
-        // we don't want to charge users more than our default 20 gwei
-        return Math.min(suggestedGasPrice, DEFAULT_GAS_PRICE_GWEI);
+        // we don't want to charge users more than the gas tank funds
+        return Math.min(suggestedGasPrice, MAX_GAS_PRICE_GWEI);
       } catch (e) {
         return DEFAULT_GAS_PRICE_GWEI;
       }

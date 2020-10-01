@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import cn from 'classnames';
-import { Grid, Text, Flex, ToggleInput } from 'indigo-react';
+import { Grid, Text, Flex } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from 'store/network';
@@ -18,7 +18,6 @@ import { ETH_ZERO_ADDR, eqAddr, isZeroAddress } from 'lib/wallet';
 import capitalize from 'lib/capitalize';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 
-import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import { AddressInput } from 'form/Inputs';
@@ -29,7 +28,6 @@ import {
 } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
-import CopiableAddress from 'components/CopiableAddress';
 
 const proxyFromDetails = (details, contracts, proxyType) => {
   switch (proxyType) {
@@ -94,7 +92,7 @@ function useSetProxy(proxyType) {
   };
 }
 
-export default function AdminSetProxy() {
+export default function SetProxy() {
   const { data, pop } = useLocalRouter();
   const { getDetails } = usePointCache();
   const { pointCursor } = usePointCursor();
@@ -154,28 +152,32 @@ export default function AdminSetProxy() {
   const proxyAddress = proxyFromDetails(_details, _contracts, data.proxyType);
   const isProxySet = !isZeroAddress(proxyAddress);
 
-  const proxyAddressLabel = `${
-    completed ? 'New' : 'Current'
-  } ${properProxyType} Address`;
+  const header = useMemo(() => {
+    const pfix = completed ? 'New' : 'Edit';
+    return `${pfix} ${properProxyType} Key`;
+  }, [completed, properProxyType]);
 
   return (
     <Grid>
-      <Grid.Item full as={ViewHeader}>
-        {properProxyType} Address
+      <Grid.Item full className="f5 mb2">
+        {header}
       </Grid.Item>
 
-      <Grid.Item full as={Text} className="mb4 f5">
-        {proxyTypeToHumanDescription(data.proxyType)}
-      </Grid.Item>
-
-      <Grid.Item
-        full
-        as={Text}
-        className={cn('f6 mb1', {
-          green3: completed,
-        })}>
-        {proxyAddressLabel}
-      </Grid.Item>
+      {!completed && (
+        <>
+          <Grid.Item full as={Text} className="mb4 f5 gray4">
+            {proxyTypeToHumanDescription(data.proxyType)}
+          </Grid.Item>
+          <Grid.Item
+            full
+            as={Text}
+            className={cn('f6', {
+              green3: completed,
+            })}>
+            Current
+          </Grid.Item>
+        </>
+      )}
 
       <BridgeForm
         validate={validate}
@@ -187,26 +189,13 @@ export default function AdminSetProxy() {
               <Flex.Item
                 flex
                 as={Text}
-                className={cn('mono', {
+                className={cn('mono mv3 gray4', {
                   black: !completed && isProxySet,
                   gray4: !completed && !isProxySet,
                   green3: completed,
                 })}>
-                {isProxySet ? (
-                  <CopiableAddress>{proxyAddress}</CopiableAddress>
-                ) : (
-                  'Unset'
-                )}
+                {isProxySet ? proxyAddress : 'Unset'}
               </Flex.Item>
-              {!completed && isProxySet && (
-                <Flex.Item
-                  as={ToggleInput}
-                  name="unset"
-                  label="Unset"
-                  inverseLabel="Specify"
-                  disabled={inputsLocked}
-                />
-              )}
             </Grid.Item>
 
             {completed ? (

@@ -6,11 +6,9 @@ import { colors } from 'indigo-tokens';
 
 import { usePointCursor } from 'store/pointCursor';
 
-import View from 'components/View';
 import Sigil from 'components/Sigil';
 
 import * as need from 'lib/need';
-import { useLocalRouter } from 'lib/LocalRouter';
 import useSigilDownloader from 'lib/useSigilDownloader';
 
 import { composeValidator, buildNumberValidator } from 'form/validators';
@@ -40,7 +38,6 @@ const BG_COLORS = [
 const FG_COLORS = [colors.black, colors.white];
 
 export default function SigilGenerator() {
-  const { pop } = useLocalRouter();
   const { pointCursor } = usePointCursor();
 
   const validate = composeValidator({ size: buildNumberValidator(16) });
@@ -62,7 +59,7 @@ export default function SigilGenerator() {
     [point, downloadSigil]
   );
   return (
-    <View pop={pop}>
+    <>
       <BridgeForm
         validate={validate}
         initialValues={{
@@ -73,7 +70,7 @@ export default function SigilGenerator() {
         onSubmit={onSubmit}>
         {({ handleSubmit, values }) => (
           <Grid gap={6}>
-            <Grid.Item full className="f7">
+            <Grid.Item full className="f5">
               Sigil
             </Grid.Item>
             <Grid.Item fourth={1}>
@@ -121,6 +118,6 @@ export default function SigilGenerator() {
       </BridgeForm>
 
       <canvas style={{ display: 'none' }} ref={canvasRef} />
-    </View>
+    </>
   );
 }

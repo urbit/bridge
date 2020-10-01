@@ -65,6 +65,16 @@ export const validatePatq = v => {
   }
 };
 
+export const validateShard = v => {
+  try {
+    if (v !== undefined && v !== '' && !ob.isValidPatq(v)) {
+      throw new Error();
+    }
+  } catch {
+    return 'This is not a valid shard.';
+  }
+};
+
 export const validateOneOf = (options = []) => v =>
   !includes(options, v) && 'Is not a valid option.';
 
@@ -94,6 +104,9 @@ export const validateHexLength = l => v =>
 export const validateMaximumLength = l => v =>
   v.length > l && `Must be ${l} characters or fewer.`;
 
+export const validateMinimumLength = l => v =>
+  v.length < l && `Must be ${l} characters or more.`;
+
 export const validateGreaterThan = l => v =>
   !(v > l) && `Must be at least ${l}.`;
 
@@ -104,6 +117,9 @@ export const validateInSet = (set, error) => v => !set.has(v) && error;
 export const validateMaximumPatpByteLength = byteLength =>
   validateMaximumLength(patpStringLength(byteLength));
 
+export const validateMinimumPatpByteLength = byteLength =>
+  validateMinimumLength(patpStringLength(byteLength));
+
 export const validateNotNullAddress = validateNotAny([
   ETH_ZERO_ADDR,
   ETH_ZERO_ADDR_SHORT,
@@ -113,3 +129,6 @@ export const validateUnique = arr => {
   const res = [...new Set(arr)].length !== arr.length && 'Must be unique';
   return res;
 };
+
+export const validateChild = ourShip => ship =>
+  ourShip !== ob.sein(ship) && `This point is not a child of ${ourShip}.`;

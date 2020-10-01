@@ -1,7 +1,8 @@
 import { isDevelopment } from './flags';
 
-const CHECK_BLOCK_EVERY_MS = isDevelopment ? 1000 : 5000;
-const DEFAULT_GAS_PRICE_GWEI = 20;
+const CHECK_BLOCK_EVERY_MS = isDevelopment ? 1000 : 10000;
+const DEFAULT_GAS_PRICE_GWEI = 40;
+const MAX_GAS_PRICE_GWEI = 400;
 
 const MIN_GALAXY = 0;
 const MAX_GALAXY = 255;
@@ -23,7 +24,7 @@ const GAS_LIMITS = {
   SPAWN: 250000,
   TRANSFER: 560000, //NOTE biggest, also update gas tank's max
   CONFIGURE_KEYS: 100000,
-  SET_PROXY: 140000,
+  SET_PROXY: 150000,
   //
   ESCAPE: 115000, //NOTE low sample size
   ADOPT: 100000, //NOTE low sample size
@@ -31,7 +32,7 @@ const GAS_LIMITS = {
   REJECT: 200000, //NOTE no samples
   DETACH: 200000, //NOTE no samples
   //
-  GIFT_PLANET: 420000, //NOTE low sample size, //NOTE also update in gas tank
+  GIFT_PLANET: 450000, //NOTE low sample size, //NOTE also update in gas tank
   //
   SEND_ETH: 21000,
   //
@@ -74,6 +75,7 @@ const PROGRESS_ANIMATION_DELAY_MS = 500; // .animated-width
 export {
   CHECK_BLOCK_EVERY_MS,
   DEFAULT_GAS_PRICE_GWEI,
+  MAX_GAS_PRICE_GWEI,
   GAS_LIMITS,
   GEN_STATES,
   BUTTON_STATES,

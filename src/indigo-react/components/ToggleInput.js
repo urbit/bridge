@@ -11,6 +11,7 @@ export default function ToggleInput({
   label,
   inverseLabel,
   inverseColor = 'black',
+  small = false,
   className,
 
   //
@@ -55,7 +56,9 @@ export default function ToggleInput({
         htmlFor={name}>
         <LinkButton
           disabled={disabled}
-          className={cn('f5', {
+          className={cn({
+            f5: !small,
+            f6: small,
             black: !input.checked,
             [inverseColor]: input.checked,
           })}>
