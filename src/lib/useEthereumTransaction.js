@@ -145,6 +145,7 @@ export default function useEthereumTransaction(
     try {
       setConfirmationProgress(0.0);
       setError(undefined);
+      setState(STATE.BROADCASTED);
 
       const rawTxs = signedTransactions.map(stx => hexify(stx.serialize()));
 
@@ -182,7 +183,6 @@ export default function useEthereumTransaction(
       );
 
       setTxHashes(txHashes);
-      setState(STATE.BROADCASTED);
 
       await timeout(PROGRESS_ANIMATION_DELAY_MS);
 
