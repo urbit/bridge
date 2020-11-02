@@ -16,39 +16,15 @@ import { sigil, reactRenderer } from 'urbit-sigil-js';
 
 function makeSigil(size, patp, colors) {
   const config = {
-    patp: patp,
-    colors: colors,
     margin: 0,
     renderer: reactRenderer,
+    full: true,
+    patp,
+    colors,
+    size
   };
 
-  // Planet
-  if (patp.length === 14) {
-    return sigil({
-      patp: patp,
-      size: size,
-      ...config,
-    });
-  }
-  // Star
-  if (patp.length === 7) {
-    return sigil({
-      patp: patp,
-      width: size * 2,
-      height: size,
-      full: true,
-      ...config,
-    });
-  }
-  // Galaxy
-  if (patp.length === 4) {
-    return sigil({
-      patp: patp,
-      size: size,
-      full: true,
-      ...config,
-    });
-  }
+  return sigil(config);
 }
 
 const symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
