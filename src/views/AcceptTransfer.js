@@ -98,7 +98,7 @@ export default function AcceptTransfer() {
               full
               as={CheckboxInput}
               name="noReset"
-              label="I transferred this to myself"
+              label="Retain proxies and key configuration, in case of transferring to self"
               disabled={inputsLocked}
             />
           )}
