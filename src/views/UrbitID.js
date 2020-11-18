@@ -17,6 +17,9 @@ import DownloadKeys from './UrbitID/DownloadKeys';
 import SetProxy from './UrbitID/SetProxy';
 import ResetKeys from './UrbitID/ResetKeys';
 import Transfer from './UrbitID/Transfer';
+import Claims from './UrbitID/Claims';
+import MakeClaim from './UrbitID/Claims/MakeClaim';
+import MakeAltId from './UrbitID/Claims/MakeAltId';
 
 const NAMES = {
   HOME: 'HOME',
@@ -25,6 +28,9 @@ const NAMES = {
   SET_PROXY: 'SET_PROXY',
   RESET_KEYS: 'RESET_KEYS',
   TRANSFER: 'TRANSFER',
+  CLAIMS: 'CLAIMS',
+  MAKE_CLAIM: 'MAKE_CLAIM',
+  MAKE_ALTID: 'MAKE_ALTID',
 };
 
 const VIEWS = {
@@ -34,6 +40,9 @@ const VIEWS = {
   [NAMES.RESET_KEYS]: ResetKeys,
   [NAMES.SET_PROXY]: SetProxy,
   [NAMES.TRANSFER]: Transfer,
+  [NAMES.CLAIMS]: Claims,
+  [NAMES.MAKE_CLAIM]: MakeClaim,
+  [NAMES.MAKE_ALTID]: MakeAltId,
 };
 
 const humanizeName = name => {
@@ -48,6 +57,13 @@ const humanizeName = name => {
       return 'Reset Keys';
     case NAMES.TRANSFER:
       return 'Transfer';
+    case NAMES.CLAIMS:
+      return 'Claims';
+    case NAMES.MAKE_CLAIM:
+      return 'Create Claim';
+    case NAMES.MAKE_ALTID:
+      return 'Create alt id';
+
     default:
       return undefined;
   }
@@ -65,7 +81,10 @@ export default function UrbitID() {
 
   const last = router.peek().key;
   const homeAction = last === NAMES.HOME ? undefined : () => history.pop();
-  const lastCrumb = homeAction ? [{ text: humanizeName(last) }] : [];
+  const tail = router.routes
+    .slice(1)
+    .map(route => ({ text: humanizeName(route.key) }));
+  const lastCrumb = homeAction ? tail : [];
 
   return (
     <View pop={router.pop} inset>

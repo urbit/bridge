@@ -92,6 +92,8 @@ export const buildHexValidator = length =>
     validateHexString,
     validateHexLength(length),
   ]);
+export const buildBytesValidator = () =>
+  buildValidator([validateHexPrefix, validateHexString]);
 export const buildPrivateKeyValidator = () =>
   buildValidator([
     validateNotEmpty,

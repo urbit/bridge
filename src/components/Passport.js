@@ -21,7 +21,7 @@ function makeSigil(size, patp, colors) {
     full: true,
     patp,
     colors,
-    size
+    size,
   };
 
   return sigil(config);

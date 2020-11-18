@@ -76,6 +76,13 @@ function _useNetwork(initialNetworkType = null) {
           CONTRACT_ADDRESSES.MAINNET
         );
       }
+      case NETWORK_TYPES.RINKEBY: {
+        const endpoint = `https://rinkeby.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
+        return initWeb3(
+          new Web3.providers.HttpProvider(endpoint),
+          CONTRACT_ADDRESSES.RINKEBY
+        );
+      }
       case NETWORK_TYPES.OFFLINE:
       default: {
         // NB (jtobin):

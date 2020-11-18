@@ -49,6 +49,8 @@ export default function UrbitIDHome() {
 
   const goTransfer = useCallback(() => push(names.TRANSFER), [names, push]);
 
+  const goClaims = useCallback(() => push(names.CLAIMS), [names, push]);
+
   const renderProxyAction = useCallback(
     (proxyType, address) => {
       const disabled =
@@ -158,6 +160,17 @@ export default function UrbitIDHome() {
           <B className="wrap ws-normal"> · Ownership key required</B>
         }>
         Transfer this point
+      </Grid.Item>
+      <Grid.Divider />
+      <Grid.Item
+        full
+        as={ForwardButton}
+        onClick={goClaims}
+        disabled={!isOwner}
+        disabledDetail={
+          <B className="wrap ws-normal"> · Ownership key required</B>
+        }>
+        Claims and alt id
       </Grid.Item>
     </Grid>
   );

@@ -197,3 +197,7 @@ export function EmailInput({ ...rest }) {
     />
   );
 }
+
+export function TextInput({ ...rest }) {
+  return <Input type="text" placeholder="" autoCapitalize="none" {...rest} />;
+}

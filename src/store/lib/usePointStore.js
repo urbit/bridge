@@ -4,6 +4,7 @@ import useDetailsStore from './useDetailsStore';
 import useBirthdaysStore from './useBirthdaysStore';
 import useRekeyDateStore from './useRekeyDateStore';
 import useInvitesStore from './useInvitesStore';
+import useClaimsStore from './useClaimsStore';
 import useControlledPointsStore from './useControlledPointsStore';
 import useEclipticOwnerStore from './useEclipticOwnerStore';
 import useResidents from './useResidentsStore';
@@ -13,6 +14,7 @@ export default function usePointStore() {
   const { syncBirthday, ...birthdays } = useBirthdaysStore();
   const { syncRekeyDate, ...rekeyDates } = useRekeyDateStore();
   const { syncInvites, ...invites } = useInvitesStore();
+  const { syncClaims, ...claims } = useClaimsStore();
   const {
     syncControlledPoints,
     ...controlledPoints
@@ -44,12 +46,14 @@ export default function usePointStore() {
         syncResidentCount(point),
         syncDetails(point),
         syncInvites(point),
+        syncClaims(point),
       ]),
     [
       syncForeignPoint,
       syncKnownPoint,
       syncDetails,
       syncInvites,
+      syncClaims,
       syncResidentCount,
     ]
   );
@@ -59,12 +63,14 @@ export default function usePointStore() {
     ...birthdays,
     ...rekeyDates,
     ...invites,
+    ...claims,
     ...controlledPoints,
     ...ecliptic,
     ...residents,
     syncDetails,
     syncRekeyDate,
     syncInvites,
+    syncClaims,
     syncControlledPoints,
     syncKnownPoint,
     syncOwnedPoint,

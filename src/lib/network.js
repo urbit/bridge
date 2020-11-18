@@ -3,6 +3,7 @@ const NETWORK_TYPES = {
   LOCAL: Symbol('LOCAL'),
   ROPSTEN: Symbol('ROPSTEN'),
   MAINNET: Symbol('MAINNET'),
+  RINKEBY: Symbol('RINKEBY'),
 };
 
 const renderNetworkType = network =>
@@ -13,7 +14,9 @@ const renderNetworkType = network =>
     : network === NETWORK_TYPES.MAINNET
     ? 'Main Network'
     : network === NETWORK_TYPES.LOCAL
-    ? 'Local Node'
+    ? 'Main Network'
+    : network === NETWORK_TYPES.RINKEBY
+    ? 'Rinkeby'
     : 'Offline';
 
 const chainIdToNetworkType = chainId => {
@@ -22,6 +25,8 @@ const chainIdToNetworkType = chainId => {
       return NETWORK_TYPES.MAINNET;
     case '0x3':
       return NETWORK_TYPES.ROPSTEN;
+    case '0x4':
+      return NETWORK_TYPES.RINKEBY;
     default:
       return NETWORK_TYPES.LOCAL;
   }

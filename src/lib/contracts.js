@@ -23,6 +23,15 @@ const CONTRACT_ADDRESSES = {
     linearSR: '0x86cd9cd0992f04231751e3761de45cecea5d1801',
     conditionalSR: '0x8c241098c3d3498fe1261421633fd57986d74aea',
   },
+  RINKEBY: {
+    ecliptic: '0x396bf44923a23E1b95407932D9F4FE95085e3c83',
+    azimuth: '0x2BAfc1419F41fB850941b8412eC94723489ff41D',
+    polls: '0x33bca2d1bb7af8cc0bf853f252e02e93ea6778fe',
+    claims: '0x4e75404f7cdaacc581389913a22034e9e3114dd4',
+    delegatedSending: '0x95Dc8ca5c3bB32432F720D8F9Ac3DAcB4D835b23',
+    conditionalSR: '0xE2F3CAde6f8b823a0c620eF220D14153C28A5277',
+    linearSR: '0x836311818178300cC3D1E6b82a793Ab95E85f6A4',
+  },
 };
 
 export { CONTRACT_ADDRESSES };
