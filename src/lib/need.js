@@ -33,6 +33,10 @@ export const wallet = needBuilder(() => {
   throw new Error(BRIDGE_ERROR.MISSING_WALLET);
 });
 
+export const urbitWallet = needBuilder(() => {
+  throw new Error(BRIDGE_ERROR.MISSING_URBIT_WALLET);
+});
+
 export const addressFromWallet = obj => wallet(obj).address;
 
 export const point = needBuilder(() => {

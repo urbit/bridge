@@ -1,4 +1,5 @@
 import * as bip39 from 'bip39';
+import * as bitcoin from 'bitcoinjs-lib';
 import ob from 'urbit-ob';
 import { includes } from 'lodash';
 
@@ -132,3 +133,19 @@ export const validateUnique = arr => {
 
 export const validateChild = ourShip => ship =>
   ourShip !== ob.sein(ship) && `This point is not a child of ${ourShip}.`;
+
+export const validatePsbt = hex => {
+  try {
+    bitcoin.Psbt.fromHex(hex);
+  } catch (e) {
+    return 'Invalid Partially Signed Bitcoin Transaction';
+  }
+};
+
+export const validateSignablePsbt = hd => hex => {
+  try {
+    bitcoin.Psbt.fromHex(hex).signAllInputsHD(hd);
+  } catch (e) {
+    return 'No inputs were signed';
+  }
+};
