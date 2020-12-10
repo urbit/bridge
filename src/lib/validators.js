@@ -134,17 +134,17 @@ export const validateUnique = arr => {
 export const validateChild = ourShip => ship =>
   ourShip !== ob.sein(ship) && `This point is not a child of ${ourShip}.`;
 
-export const validatePsbt = hex => {
+export const validatePsbt = base64 => {
   try {
-    bitcoin.Psbt.fromHex(hex);
+    bitcoin.Psbt.fromBase64(base64);
   } catch (e) {
     return 'Invalid Partially Signed Bitcoin Transaction';
   }
 };
 
-export const validateSignablePsbt = hd => hex => {
+export const validateSignablePsbt = hd => base64 => {
   try {
-    bitcoin.Psbt.fromHex(hex).signAllInputsHD(hd);
+    bitcoin.Psbt.fromBase64(base64).signAllInputsHD(hd);
   } catch (e) {
     return 'No inputs were signed';
   }
