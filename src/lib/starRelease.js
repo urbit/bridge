@@ -108,8 +108,7 @@ export async function getConditional(contracts, address) {
   }
 
   const withdrawnTotal = withdrawn.reduce((acc, val) => acc + val, 0);
-  const available =
-    batchLimits.reduce((acc, val) => acc + val, 0) + withdrawnTotal;
+  const available = batchLimits.reduce((acc, val) => acc + val, 0);
 
   return { total, available, withdrawn: withdrawnTotal, batchLimits };
 }

@@ -88,7 +88,7 @@ export default function Locked({ className, goActive }) {
     [construct, unconstruct]
   );
 
-  const canWithdraw = starReleaseDetails.map(b => b.available - b.withdrawn);
+  const canWithdraw = starReleaseDetails.map(b => b.available);
   const total = starReleaseDetails.map(b => b.total);
 
   const validate = useMemo(
