@@ -40,6 +40,10 @@ function useCastDocumentVote() {
   );
 }
 
+function renderDocumentHash(doc) {
+  return doc.slice(0, 34) + '\n  ' + doc.slice(34);
+}
+
 export default function Senate() {
   const { pop } = useLocalRouter();
   const { contracts } = useNetwork();
@@ -113,12 +117,13 @@ export default function Senate() {
   const majorityList = useMemo(() => {
     return majorities.map(doc => {
       return (
-        <Grid.Item full as={Text}>
+        <Grid.Item full className="mv2" as={P}>
           <a
             target="_blank"
             rel="noopener noreferrer"
-            href={`https://raw.githubusercontent.com/urbit/azimuth/master/proposals/${doc}.txt`}>
-            <code>{doc}</code>↗
+            href={`https://raw.githubusercontent.com/urbit/azimuth/master/proposals/${doc}.txt`}
+            class="mb4 mono wrap pre">
+            {renderDocumentHash(doc)}↗
           </a>
         </Grid.Item>
       );
@@ -130,11 +135,9 @@ export default function Senate() {
       const hasVoted = polls[doc].hasVoted;
       return (
         <>
-          <Grid.Item full as={Text}>
-            <P>
-              <code>{doc}</code>
-            </P>
-            <P>
+          <Grid.Item full className="mv2" as={Text}>
+            <P className="m0 mono wrap pre">{renderDocumentHash(doc)}</P>
+            <P className="mt0">
               {hasVoted ? (
                 'Your vote has been cast.'
               ) : (
@@ -187,7 +190,7 @@ export default function Senate() {
           {majorityList}
         </Grid.Item>
 
-        <Grid.Divider />
+        <Grid.Divider className="mv4" />
 
         <Grid.Item full as={Grid}>
           <Grid.Item full as={P}>
