@@ -53,6 +53,7 @@
     "react-scripts": "3.0.1",
     "react-teleporter": "^1.1.0",
     "secp256k1": "^3.5.2",
+    "bs58check": "^2.1.2",
     "trezor-connect": "^8.1.14",
     "urbit-key-generation": "^0.18.0",
     "urbit-ob": "^4.1.4",

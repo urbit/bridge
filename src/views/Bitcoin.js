@@ -17,9 +17,17 @@ import BridgeForm from 'form/BridgeForm';
 
 import * as need from 'lib/need';
 import * as bitcoin from 'bitcoinjs-lib';
+import * as bs58check from 'bs58check';
 import ob from 'urbit-ob';
 import { Buffer } from 'buffer';
 import { composeValidator, buildPsbtValidator } from 'form/validators';
+
+function xpubToYpub(xpub) {
+  var data = bs58check.decode(xpub);
+  data = data.slice(4);
+  data = Buffer.concat([Buffer.from('04b24746', 'hex'), data]);
+  return bs58check.encode(data);
+}
 
 export default function Bitcoin() {
   const { pop } = useLocalRouter();
@@ -45,13 +53,15 @@ export default function Bitcoin() {
     bitcoin.networks.bitcoin
   );
 
-  const xPub = bitcoin.bip32
-    .fromPublicKey(
-      Buffer.from(pubKey, 'hex'),
-      Buffer.from(chain, 'hex'),
-      bitcoin.networks.bitcoin
-    )
-    .toBase58();
+  const zPub = xpubToYpub(
+    bitcoin.bip32
+      .fromPublicKey(
+        Buffer.from(pubKey, 'hex'),
+        Buffer.from(chain, 'hex'),
+        bitcoin.networks.bitcoin
+      )
+      .toBase58()
+  );
 
   const validate = composeValidator({
     unsignedTransaction: buildPsbtValidator(hd),
@@ -97,7 +107,7 @@ export default function Bitcoin() {
         </Grid.Item>
         <Grid.Item full className="mt4" as={Text}>
           <Highlighted>
-            <CopiableAddressWrap>{xPub}</CopiableAddressWrap>
+            <CopiableAddressWrap>{zPub}</CopiableAddressWrap>
           </Highlighted>
         </Grid.Item>
         <Grid.Item full className="mt4" as={Text}>
