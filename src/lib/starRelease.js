@@ -119,11 +119,8 @@ export async function getLinear(contracts, address) {
   const batch = await linearSR.getBatch(contracts, address);
   const { amount, withdrawn } = batch;
 
-  // Contract errors on withdrawing from a user that does not have any
-  const available =
-    amount > 0
-      ? Math.min(await linearSR.getWithdrawLimit(contracts, address), remaining)
-      : 0;
+  const limit = await linearSR.getWithdrawLimit(contracts, address);
+  const available = Math.min(limit - withdrawn, remaining);
 
   const total = Math.min(amount, remaining);
 
