@@ -108,7 +108,7 @@ export const validateMinimumLength = l => v =>
   v.length < l && `Must be ${l} characters or more.`;
 
 export const validateGreaterThan = l => v =>
-  !(v > l) && `Must be at least ${l}.`;
+  !(v > l) && `Must be greater than ${l}.`;
 
 export const validateLessThan = l => v => !(v < l) && `Must be less than ${l}`;
 
