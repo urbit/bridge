@@ -95,7 +95,7 @@ export default function Locked({ className, goActive }) {
     () =>
       composeValidator(
         {
-          numStars: buildNumberValidator(0, canWithdraw + 1),
+          numStars: buildNumberValidator(0, canWithdraw.getOrElse(0) + 1),
         },
         (values, errors) => (inputsLocked ? false : errors)
       ),
