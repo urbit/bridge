@@ -37,7 +37,7 @@ const trezorSignTransaction = async (txn, hdpath) => {
 };
 
 export const trezorSignMessage = async (message, hdPath) => {
-  const sig = await TrezorConnect.signMessage({
+  const sig = await TrezorConnect.ethereumSignMessage({
     path: hdPath,
     message,
   });
