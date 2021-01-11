@@ -114,9 +114,13 @@ export async function getConditional(contracts, address) {
 }
 
 export async function getLinear(contracts, address) {
+  const batch = await linearSR.getBatch(contracts, address);
+  if (batch.amount === 0) {
+    return { available: 0, withdrawn: 0, total: 0 };
+  }
+
   const remaining = (await linearSR.getRemainingStars(contracts, address))
     .length;
-  const batch = await linearSR.getBatch(contracts, address);
   const { amount, withdrawn } = batch;
 
   const limit = await linearSR.getWithdrawLimit(contracts, address);
