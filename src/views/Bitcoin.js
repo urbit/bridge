@@ -137,7 +137,7 @@ export default function Bitcoin() {
         )}
         {signedTx &&
           psbt.txOutputs.map(e => (
-            <Grid.Item full className="mt4">
+            <Grid.Item full className="mt4" key={e.address}>
               <span>{e.address}</span>
               <div className="mt1 mono black f6">{e.value} Satoshis</div>
             </Grid.Item>
