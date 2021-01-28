@@ -143,9 +143,16 @@ export const validatePsbt = base64 => {
 };
 
 export const validateSignablePsbt = hd => base64 => {
-  try {
-    bitcoin.Psbt.fromBase64(base64).signAllInputsHD(hd);
-  } catch (e) {
-    return 'No inputs were signed';
-  }
-};
+    const psbt = bitcoin.Psbt.fromBase64(base64);
+    return !psbt.data.inputs.some((input, idx) => {
+      try {
+        //  removing already derived part, eg 'm/84'/0'/0'/0/0' becomes '0/0'
+        const path = input.bip32Derivation[0].path.substring(12);
+        const prv = hd.derivePath(path).privateKey;
+        psbt.signInput(idx, bitcoin.ECPair.fromPrivateKey(prv));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }) && 'No inputs were signed';
+  };
