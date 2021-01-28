@@ -34,7 +34,6 @@ export default function Bitcoin() {
   const { urbitWallet } = useWallet();
   const { pointCursor } = usePointCursor();
 
-  window.bitcoin = bitcoin;
 
   const empty = new bitcoin.Psbt();
 
@@ -68,11 +67,6 @@ export default function Bitcoin() {
   });
 
   const onValues = ({ valid, values, form }) => {
-    try {
-      window.psbt = bitcoin.Psbt.fromBase64(values.unsignedTransaction);
-    } catch (e) {
-      // nop
-    }
     if (valid) {
       const newPsbt = bitcoin.Psbt.fromBase64(values.unsignedTransaction);
       const hex = newPsbt.data.inputs
