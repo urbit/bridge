@@ -74,7 +74,11 @@ export default function Bitcoin() {
           //  removing already derived part, eg m/84'/0'/0'/0/0 becomes 0/0
           const path = input.bip32Derivation[0].path.substring(12);
           const prv = hd.derivePath(path).privateKey;
-          return psbt.signInput(idx, bitcoin.ECPair.fromPrivateKey(prv));
+          try {
+            return psbt.signInput(idx, bitcoin.ECPair.fromPrivateKey(prv));
+          } catch (e) {
+            return psbt;
+          }
         }, newPsbt)
         .finalizeAllInputs()
         .extractTransaction()
