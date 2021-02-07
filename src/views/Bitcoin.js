@@ -46,7 +46,7 @@ export default function Bitcoin() {
   const pubKey = need.urbitWallet(urbitWallet).bitcoin.keys.public;
   const chain = need.urbitWallet(urbitWallet).bitcoin.keys.chain;
 
-  const hd = bitcoin.bip32.fromPrivateKey(
+  const btcWallet = bitcoin.bip32.fromPrivateKey(
     Buffer.from(privKey, 'hex'),
     Buffer.from(chain, 'hex'),
     bitcoin.networks.bitcoin
@@ -63,7 +63,7 @@ export default function Bitcoin() {
   );
 
   const validate = composeValidator({
-    unsignedTransaction: buildPsbtValidator(hd),
+    unsignedTransaction: buildPsbtValidator(btcWallet),
   });
 
   const onValues = ({ valid, values, form }) => {
@@ -73,7 +73,7 @@ export default function Bitcoin() {
         .reduce((psbt, input, idx) => {
           //  removing already derived part, eg m/84'/0'/0'/0/0 becomes 0/0
           const path = input.bip32Derivation[0].path.substring(12);
-          const prv = hd.derivePath(path).privateKey;
+          const prv = btcWallet.derivePath(path).privateKey;
           try {
             return psbt.signInput(idx, bitcoin.ECPair.fromPrivateKey(prv));
           } catch (e) {

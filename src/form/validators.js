@@ -124,8 +124,8 @@ export const buildEmailValidator = validate =>
 export const buildEmailArrayValidator = () =>
   buildValidator([validateUnique, buildArrayValidator(buildEmailValidator())]);
 
-export const buildPsbtValidator = hd =>
-  buildValidator([validatePsbt, validateSignablePsbt(hd)]);
+export const buildPsbtValidator = btcWallet =>
+  buildValidator([validatePsbt, validateSignablePsbt(btcWallet)]);
 
 // the form validator is the composition of all of the field validators
 // plus an additional form validator function
