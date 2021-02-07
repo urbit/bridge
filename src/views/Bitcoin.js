@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Grid, Text } from 'indigo-react';
 import { useWallet } from 'store/wallet';
-import { usePointCursor } from 'store/pointCursor';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 
@@ -18,7 +17,6 @@ import BridgeForm from 'form/BridgeForm';
 import * as need from 'lib/need';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as bs58check from 'bs58check';
-import ob from 'urbit-ob';
 import { Buffer } from 'buffer';
 import { composeValidator, buildPsbtValidator } from 'form/validators';
 
@@ -32,15 +30,12 @@ function xpubToZpub(xpub) {
 export default function Bitcoin() {
   const { pop } = useLocalRouter();
   const { urbitWallet } = useWallet();
-  const { pointCursor } = usePointCursor();
 
 
   const empty = new bitcoin.Psbt();
 
   const [signedTx, setSignedTx] = useState('');
   const [psbt, setPsbt] = useState(empty);
-
-  const pointName = ob.patp(need.point(pointCursor));
 
   const privKey = need.urbitWallet(urbitWallet).bitcoin.keys.private;
   const pubKey = need.urbitWallet(urbitWallet).bitcoin.keys.public;
@@ -104,9 +99,9 @@ export default function Bitcoin() {
           money, since your private keys are exposed to the browser.
         </Grid.Item>
         <Grid.Item full className="mt4" as={Text}>
-          Below is the bitcoin extended public key derived from your point
-          {' ' + pointName}. You can paste it to Landscape to generate an
-          unsigned transaction.
+          Below is the bitcoin extended public key derived from your master
+          ticket. You can paste it to Landscape to generate an unsigned
+          transaction.
         </Grid.Item>
         <Grid.Item full className="mt4" as={Text}>
           <Highlighted>
