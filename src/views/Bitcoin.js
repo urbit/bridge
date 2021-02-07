@@ -22,7 +22,7 @@ import ob from 'urbit-ob';
 import { Buffer } from 'buffer';
 import { composeValidator, buildPsbtValidator } from 'form/validators';
 
-function xpubToYpub(xpub) {
+function xpubToZpub(xpub) {
   var data = bs58check.decode(xpub);
   data = data.slice(4);
   data = Buffer.concat([Buffer.from('04b24746', 'hex'), data]);
@@ -52,7 +52,7 @@ export default function Bitcoin() {
     bitcoin.networks.bitcoin
   );
 
-  const zPub = xpubToYpub(
+  const zPub = xpubToZpub(
     bitcoin.bip32
       .fromPublicKey(
         Buffer.from(pubKey, 'hex'),
