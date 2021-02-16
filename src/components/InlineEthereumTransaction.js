@@ -51,6 +51,7 @@ export default function InlineEthereumTransaction({
   gasLimit,
   unsignedTransactions,
   finalCost,
+  waitTime,
 
   // additional from parent
   label = 'Generate & Sign Transaction',
@@ -204,6 +205,11 @@ export default function InlineEthereumTransaction({
           <>
             {renderPrimarySection()}
 
+            {waitTime && (
+              <Grid.Item full className="mv3">
+                Expected wait {Math.ceil(waitTime)} minutes
+              </Grid.Item>
+            )}
             {error && (
               <Grid.Item full as={ErrorText} className="mv1">
                 {error.message}

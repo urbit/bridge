@@ -65,7 +65,9 @@ export default function useEthereumTransaction(
   const [state, setState] = useState(STATE.NONE);
   const [chainId, setChainId] = useState();
   const [nonce, setNonce] = useState();
-  const { gasPrice, setGasPrice, resetGasPrice } = useGasPrice(initialGasPrice);
+  const { gasPrice, setGasPrice, resetGasPrice, waitTime } = useGasPrice(
+    initialGasPrice
+  );
   const [gasLimit] = useState(initialGasLimit);
   const [unsignedTransactions, setUnsignedTransactions] = useState();
   const [signedTransactions, setSignedTransactions] = useState();
@@ -334,6 +336,7 @@ export default function useEthereumTransaction(
     gasLimit,
     unsignedTransactions,
     finalCost,
+    waitTime,
   });
 
   return { ...values, bind: values };

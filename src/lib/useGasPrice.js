@@ -15,13 +15,22 @@ import { DEFAULT_GAS_PRICE_GWEI } from './constants';
 export default function useGasPrice(initialGasPrice = DEFAULT_GAS_PRICE_GWEI) {
   const { networkType } = useNetwork();
   const [suggestedGasPrice, setSuggestedGasPrice] = useState(initialGasPrice); // gwei
-  const [gasPrice, setGasPrice] = useState(initialGasPrice); // gwei
+  const [gasPrice, _setGasPrice] = useState(initialGasPrice); // gwei
+  const [suggestedWaitTime, setSuggestedWaitTime] = useState(undefined); // minutes;
+  const [waitTime, setWaitTime] = useState(undefined); // minutes
+
+  const setGasPrice = useCallback(newGasPrice => {
+    _setGasPrice(newGasPrice);
+    setWaitTime(undefined);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
 
     (async () => {
-      const suggestedGasPrice = await getSuggestedGasPrice(networkType);
+      const [suggestedGasPrice, _waitTime] = await getSuggestedGasPrice(
+        networkType
+      );
 
       if (!mounted) {
         return;
@@ -29,20 +38,24 @@ export default function useGasPrice(initialGasPrice = DEFAULT_GAS_PRICE_GWEI) {
 
       // TODO: BN
       setSuggestedGasPrice(suggestedGasPrice);
-      setGasPrice(suggestedGasPrice);
+      _setGasPrice(suggestedGasPrice);
+      setSuggestedWaitTime(_waitTime);
+      setWaitTime(_waitTime);
     })();
 
     return () => (mounted = true);
   }, [networkType]);
 
-  const resetGasPrice = useCallback(() => setGasPrice(suggestedGasPrice), [
-    suggestedGasPrice,
-  ]);
+  const resetGasPrice = useCallback(() => {
+    _setGasPrice(suggestedGasPrice);
+    setWaitTime(suggestedWaitTime);
+  }, [suggestedGasPrice, suggestedWaitTime]);
 
   return {
     suggestedGasPrice,
     gasPrice,
     setGasPrice,
     resetGasPrice,
+    waitTime,
   };
 }
