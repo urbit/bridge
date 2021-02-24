@@ -1,7 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import { P, H4, H5, Grid, Text, Button, Flex, LinkButton } from 'indigo-react';
-import { Just } from 'folktale/maybe';
-import ob from 'urbit-ob';
 
 import { version } from '../../package.json';
 
@@ -63,27 +61,16 @@ export default function Login() {
       push(names.POINTS);
     } else {
       switch (flow.kind) {
-        case COMMANDS.INVITE:
-          setPointCursor(Just(ob.patp2dec(flow.as)));
-          push(names.JUST_INVITE);
-          break;
-        //
         default:
           throw new Error('unimplemented flow ' + flow.kind);
-          break;
       }
     }
   }, [flow, push, names]);
 
   const flowDescription = command => {
     switch (command.kind) {
-      case COMMANDS.INVITE:
-        return (
-          <>
-            To send an invite, please sign in as <b>{command.as}</b>.
-          </>
-        );
-        break;
+      default:
+        return <>Flow: {command.kind}</>;
     }
   };
 
