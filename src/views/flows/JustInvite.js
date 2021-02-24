@@ -168,12 +168,9 @@ export default function JustInvite({ className, resetActivateRouter }) {
       //NOTE we could chuck a "pls join group-name" message in here
       await sendMail(_email, ticket, flow.as, '', rawTx);
       setProgress(1);
-
-      flow.success();
     } catch (error) {
       // some generic error
       setGeneralError(error);
-      flow.failure(error);
     }
   }, [
     wallet,
