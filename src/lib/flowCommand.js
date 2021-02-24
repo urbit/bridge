@@ -13,7 +13,7 @@ import { ensurePatFormat } from 'form/formatters';
 //
 
 const COMMANDS = {
-  INVITE: 'invite',
+  //
 };
 
 const useFlowCommand = () => {
@@ -29,15 +29,6 @@ const useFlowCommand = () => {
 
   if (typeof flow === 'object') {
     switch (flow.kind) {
-      case COMMANDS.INVITE:
-        flow.as = ensurePatFormat(flow.as);
-        flow.ship = ensurePatFormat(flow.ship);
-        if (!ob.isValidPatp(flow.as) || !ob.isValidPatp(flow.ship)) {
-          console.log('invalid inviting flow arguments', flow.as, flow.ship);
-          flow = null;
-        }
-        break;
-      //
       default:
         console.log('unrecognized kind of flow:', flow.kind);
       // eslint-disable-next-line no-fallthrough

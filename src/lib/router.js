@@ -19,8 +19,6 @@ import UrbitID from 'views/UrbitID';
 import Residents from 'views/Residents';
 import Adopt from 'views/Adopt';
 
-import JustInvite from 'views/flows/JustInvite';
-
 import { ROUTE_NAMES } from './routeNames';
 
 export const ROUTES = {
@@ -44,6 +42,4 @@ export const ROUTES = {
   [ROUTE_NAMES.URBIT_ID]: UrbitID,
   [ROUTE_NAMES.RESIDENTS]: Residents,
   [ROUTE_NAMES.ADOPT]: Adopt,
-  //
-  [ROUTE_NAMES.JUST_INVITE]: JustInvite,
 };
