@@ -67,7 +67,9 @@ export default function Bitcoin() {
       const hex = newPsbt.data.inputs
         .reduce((psbt, input, idx) => {
           //  removing already derived part, eg m/84'/0'/0'/0/0 becomes 0/0
-          const path = input.bip32Derivation[0].path.substring(12);
+          const path = input.bip32Derivation[0].path
+            .split("m/84'/0'/0'/")
+            .join('');
           const prv = btcWallet.derivePath(path).privateKey;
           try {
             return psbt.signInput(idx, bitcoin.ECPair.fromPrivateKey(prv));
