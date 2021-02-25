@@ -143,8 +143,9 @@ export const validatePsbt = base64 => {
 };
 
 export const validateSignablePsbt = btcWallet => base64 => {
-    const psbt = bitcoin.Psbt.fromBase64(base64);
-    return !psbt.data.inputs.some((input, idx) => {
+  const psbt = bitcoin.Psbt.fromBase64(base64);
+  return (
+    !psbt.data.inputs.some((input, idx) => {
       try {
         //  removing already derived part, eg m/84'/0'/0'/0/0 becomes 0/0
         const path = input.bip32Derivation[0].path.substring(12);
@@ -154,5 +155,6 @@ export const validateSignablePsbt = btcWallet => base64 => {
       } catch (e) {
         return false;
       }
-    }) && 'No inputs were signed';
-  };
+    }) && 'No inputs were signed'
+  );
+};

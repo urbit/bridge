@@ -31,7 +31,6 @@ export default function Bitcoin() {
   const { pop } = useLocalRouter();
   const { urbitWallet } = useWallet();
 
-
   const empty = new bitcoin.Psbt();
 
   const [signedTx, setSignedTx] = useState('');
