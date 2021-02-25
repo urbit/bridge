@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Grid, Text } from 'indigo-react';
 
 import { useLocalRouter } from 'lib/LocalRouter';
+import { COMMANDS, useFlowCommand } from 'lib/flowCommand';
 
 import View from 'components/View';
 import Highlighted from 'components/Highlighted';
@@ -23,6 +24,7 @@ import { composeValidator, buildPsbtValidator } from 'form/validators';
 export default function SignTransaction() {
   const { pop } = useLocalRouter();
   const { urbitWallet } = useWallet();
+  const flow = useFlowCommand();
 
   const [signedTx, setSignedTx] = useState('');
   const [psbt, setPsbt] = useState({});
@@ -64,13 +66,21 @@ export default function SignTransaction() {
     setSignedTx(hex);
   };
 
+  const initialValues = {};
+  if (COMMANDS.BITCOIN === flow.kind) {
+    initialValues.unsignedTransaction = flow.utx;
+  }
+
   return (
     <View pop={pop} inset>
       <Grid className="mt4">
         <Grid.Item full className="mt4" as={Text}>
           Paste unsigned transactions from Landscape here
         </Grid.Item>
-        <BridgeForm validate={validate} onSubmit={onSubmit}>
+        <BridgeForm
+          validate={validate}
+          initialValues={initialValues}
+          onSubmit={onSubmit}>
           {({ handleSubmit }) => (
             <>
               <Grid.Item

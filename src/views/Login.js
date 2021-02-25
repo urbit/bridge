@@ -61,6 +61,10 @@ export default function Login() {
       push(names.POINTS);
     } else {
       switch (flow.kind) {
+        case COMMANDS.BITCOIN:
+          push(names.BITCOIN_SIGN_TRANSACTION);
+          break;
+        //
         default:
           throw new Error('unimplemented flow ' + flow.kind);
       }
@@ -69,6 +73,9 @@ export default function Login() {
 
   const flowDescription = command => {
     switch (command.kind) {
+      case COMMANDS.BITCOIN:
+        return <>To sign a Bitcoin transaction, please sign in.</>;
+      //
       default:
         return <>Flow: {command.kind}</>;
     }
