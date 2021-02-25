@@ -3,6 +3,7 @@ import { Grid, Text } from 'indigo-react';
 import { useWallet } from 'store/wallet';
 
 import { useLocalRouter } from 'lib/LocalRouter';
+import { COMMANDS, useFlowCommand } from 'lib/flowCommand';
 
 import ViewHeader from 'components/ViewHeader';
 import View from 'components/View';
@@ -30,6 +31,7 @@ function xpubToZpub(xpub) {
 export default function Bitcoin() {
   const { pop } = useLocalRouter();
   const { urbitWallet } = useWallet();
+  const flow = useFlowCommand();
 
   const empty = new bitcoin.Psbt();
 
@@ -87,6 +89,12 @@ export default function Bitcoin() {
     }
   };
 
+  const initialValues = {};
+  if (COMMANDS.BITCOIN === flow.kind) {
+    initialValues.unsignedTransaction = flow.utx;
+    //TODO  kick the form somehow?
+  }
+
   return (
     <View pop={pop} inset>
       <Grid className="mt4">
@@ -111,7 +119,10 @@ export default function Bitcoin() {
           Next, paste the unsigned transaction below to sign it with your
           private key.
         </Grid.Item>
-        <BridgeForm validate={validate} onValues={onValues}>
+        <BridgeForm
+          validate={validate}
+          initialValues={initialValues}
+          onValues={onValues}>
           {() => (
             <Grid.Item
               full

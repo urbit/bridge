@@ -1,19 +1,13 @@
-import ob from 'urbit-ob';
-
-import { ensurePatFormat } from 'form/formatters';
-
 // looks into the GET parameters and attempts to construct a "flow" object,
 // which would indicate bridge is to be used for one specific flow.
 // expects to find any of the following sets of parameters, varying by kind.
 //
-// ? kind  = invite
-// & as    = ~ship      // who to send the invite as
-// & ship  = ~ship      // what planet to send as the invite
-// & email = ex@amp.le  // email to send the invite code to
+// ? kind = btc
+// & utx  = somebase64string
 //
 
 const COMMANDS = {
-  //
+  BITCOIN: 'btc',
 };
 
 const useFlowCommand = () => {
@@ -29,6 +23,14 @@ const useFlowCommand = () => {
 
   if (typeof flow === 'object') {
     switch (flow.kind) {
+      case COMMANDS.BITCOIN:
+        try {
+          atob(flow.utx);
+        } catch (e) {
+          flow = null;
+        }
+        break;
+      //
       default:
         console.log('unrecognized kind of flow:', flow.kind);
       // eslint-disable-next-line no-fallthrough
