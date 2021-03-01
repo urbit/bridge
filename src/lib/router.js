@@ -18,7 +18,9 @@ import UrbitOS from 'views/UrbitOS';
 import UrbitID from 'views/UrbitID';
 import Residents from 'views/Residents';
 import Adopt from 'views/Adopt';
-import Bitcoin from 'views/Bitcoin';
+import Bitcoin from 'views/Bitcoin/Bitcoin';
+import Xpub from 'views/Bitcoin/Xpub';
+import SignTransaction from 'views/Bitcoin/SignTransaction';
 
 import { ROUTE_NAMES } from './routeNames';
 
@@ -44,4 +46,6 @@ export const ROUTES = {
   [ROUTE_NAMES.RESIDENTS]: Residents,
   [ROUTE_NAMES.ADOPT]: Adopt,
   [ROUTE_NAMES.BITCOIN]: Bitcoin,
+  [ROUTE_NAMES.BITCOIN_XPUB]: Xpub,
+  [ROUTE_NAMES.BITCOIN_SIGN_TRANSACTION]: SignTransaction,
 };
