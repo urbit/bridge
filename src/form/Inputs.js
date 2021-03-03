@@ -163,6 +163,17 @@ export function PrivateKeyInput({ ...rest }) {
   );
 }
 
+export function PsbtInput({ ...rest }) {
+  return (
+    <HexInput
+      type="text"
+      placeholder=""
+      config={{ parse: stripHexPrefix }}
+      {...rest}
+    />
+  );
+}
+
 export function AddressInput({ ...rest }) {
   return (
     <Input

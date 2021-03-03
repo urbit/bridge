@@ -4,5 +4,10 @@ import cn from 'classnames';
 import CopiableWithTooltip from './CopiableWithTooltip';
 
 export default function CopiableAddress({ className, ...rest }) {
-  return <CopiableWithTooltip className={cn(className, 'mono')} {...rest} />;
+  return (
+    <CopiableWithTooltip
+      className={cn(className, 'mono', 'nowrap')}
+      {...rest}
+    />
+  );
 }
