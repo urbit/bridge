@@ -37,17 +37,29 @@ export default function useControlledPointsStore() {
         azimuth.azimuth.getSpawningFor(_contracts, address),
       ]);
 
-      _setControlledPoints(
-        Just(
-          Result.Ok({
-            ownedPoints,
-            incomingPoints,
-            managingPoints,
-            votingPoints,
-            spawningPoints,
-          })
-        )
-      );
+      if (
+        ownedPoints === null &&
+        incomingPoints === null &&
+        managingPoints === null &&
+        votingPoints === null &&
+        spawningPoints === null
+      ) {
+        _setControlledPoints(
+          Just(Result.Error('Failed to read the blockchain.'))
+        );
+      } else {
+        _setControlledPoints(
+          Just(
+            Result.Ok({
+              ownedPoints,
+              incomingPoints,
+              managingPoints,
+              votingPoints,
+              spawningPoints,
+            })
+          )
+        );
+      }
     } catch (error) {
       _setControlledPoints(Just(Result.Error(error)));
     }
