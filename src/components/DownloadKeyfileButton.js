@@ -20,7 +20,7 @@ export default function DownloadKeyfileButton({
     <DownloadButton
       as="span"
       className={className}
-      disabled={downloaded || !available}
+      disabled={!available}
       disabledDetail={
         !available && <B className="wrap ws-normal">· {notice}</B>
       }
