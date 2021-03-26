@@ -61,6 +61,10 @@ export default function Login() {
       push(names.POINTS);
     } else {
       switch (flow.kind) {
+        case COMMANDS.TAKE_LOCKUP:
+          push(names.ACCEPT_LOCKUP);
+          break;
+        //
         default:
           throw new Error('unimplemented flow ' + flow.kind);
       }
@@ -69,6 +73,9 @@ export default function Login() {
 
   const flowDescription = command => {
     switch (command.kind) {
+      case COMMANDS.TAKE_LOCKUP:
+        //TODO  kind of want "sign in as 0xabc.." here...
+        return <>To accept a star lockup batch, please sign in.</>;
       default:
         return <>Flow: {command.kind}</>;
     }
