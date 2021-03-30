@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Just, Nothing } from 'folktale/maybe';
+import { Just, Nothing, Result } from 'folktale/maybe';
 import { Grid, H5, HelpText, LinkButton, Flex } from 'indigo-react';
 import { get } from 'lodash';
 
@@ -15,6 +15,7 @@ import useIsEclipticOwner from 'lib/useIsEclipticOwner';
 import { useSyncKnownPoints, useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
 import pluralize from 'lib/pluralize';
+import newGithubIssueUrl from 'new-github-issue-url';
 
 import View from 'components/View';
 import Blinky from 'components/Blinky';
@@ -222,6 +223,36 @@ export default function Points() {
     names.STAR_RELEASE,
     push,
   ]);
+
+  //  if we got an error result, we should display it, instead of showing
+  //  a potentially inaccurately empty point list.
+  //
+  if (
+    Just.hasInstance(controlledPoints) &&
+    controlledPoints.value.matchWith({
+      Error: e => true,
+      Ok: v => false,
+    })
+  ) {
+    const url = newGithubIssueUrl({
+      user: 'urbit',
+      repo: 'bridge',
+      title: controlledPoints.value.value,
+      body: `<!-- Please provide some context. Do you have Metamask installed? What login method did you use? -->`,
+    });
+    return (
+      <View inset>
+        <Grid>
+          <Grid.Item full as={HelpText} className="mt8 t-center">
+            {controlledPoints.value.value}
+            <br />
+            Try reloading the page. If this problem persists, please{' '}
+            <a href={url}>file an issue on GitHub</a>.
+          </Grid.Item>
+        </Grid>
+      </View>
+    );
+  }
 
   if (
     loading ||

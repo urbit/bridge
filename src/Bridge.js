@@ -1,4 +1,5 @@
 import React from 'react';
+import { useEffect } from 'react';
 import { hot } from 'react-hot-loader/root';
 import { Just, Nothing } from 'folktale/maybe';
 import { IndigoApp } from 'indigo-react';
@@ -65,6 +66,14 @@ function useInitialRoutes() {
 
 function Bridge() {
   const initialRoutes = useInitialRoutes();
+
+  //  full reload if the user changes their selected network in Metamask
+  //
+  useEffect(() => {
+    window.ethereum.on('chainChanged', () => {
+      document.location.reload();
+    });
+  }, []);
 
   return (
     <WithErrorBoundary render={error => <GlobalErrorBoundary error={error} />}>
