@@ -22,7 +22,6 @@ import { convertToNumber } from 'form/formatters';
 
 function MatchPluralizeStars({ quantity }) {
   const _quantity = quantity.getOrElse(0);
-  console.log(quantity);
   return (
     <>
       {' '}

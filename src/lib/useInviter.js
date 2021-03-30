@@ -61,6 +61,7 @@ const useInviter = () => {
     setTxStatus(STATUS.INPUT);
   }, [setProgress, setInvites, setTxStatus]);
 
+  //TODO  split this out into smaller callbacks within useInviter
   const generateInvites = useCallback(
     async numInvites => {
       const _contracts = contracts.getOrElse(null);

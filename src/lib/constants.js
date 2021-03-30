@@ -34,6 +34,8 @@ const GAS_LIMITS = {
   //
   GIFT_PLANET: 450000, //NOTE low sample size, //NOTE also update in gas tank
   //
+  TRANSFER_LOCKUP: 200000, //NOTE no samples
+  //
   SEND_ETH: 21000,
   //
   DEFAULT: 550000,

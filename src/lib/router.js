@@ -5,6 +5,7 @@ import Senate from 'views/Senate';
 import CreateGalaxy from 'views/CreateGalaxy';
 import IssueChild from 'views/IssueChild';
 import StarRelease from 'views/Release';
+import AcceptLockup from 'views/AcceptLockup';
 
 import Point from 'views/Point';
 import Points from 'views/Points';
@@ -38,6 +39,7 @@ export const ROUTES = {
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
   [ROUTE_NAMES.INVITE_COHORT]: InviteCohort,
   [ROUTE_NAMES.STAR_RELEASE]: StarRelease,
+  [ROUTE_NAMES.ACCEPT_LOCKUP]: AcceptLockup,
   [ROUTE_NAMES.URBIT_OS]: UrbitOS,
   [ROUTE_NAMES.URBIT_ID]: UrbitID,
   [ROUTE_NAMES.RESIDENTS]: Residents,

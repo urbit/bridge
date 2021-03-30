@@ -5,8 +5,10 @@ import { version } from '../../package.json';
 
 import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
+import { usePointCursor } from 'store/pointCursor';
 
 import { WALLET_TYPES } from 'lib/wallet';
+import { COMMANDS, useFlowCommand } from 'lib/flowCommand';
 
 import View from 'components/View';
 import Tabs from 'components/Tabs';
@@ -43,6 +45,8 @@ export default function Login() {
   // globals
   const { pop, push, names } = useHistory();
   const { walletType } = useWallet();
+  const { setPointCursor } = usePointCursor();
+  const flow = useFlowCommand();
 
   // inputs
   const [isOther, setisOther] = useState(false);
@@ -53,8 +57,29 @@ export default function Login() {
   ]);
 
   const goHome = useCallback(() => {
-    push(names.POINTS);
-  }, [push, names]);
+    if (!flow) {
+      push(names.POINTS);
+    } else {
+      switch (flow.kind) {
+        case COMMANDS.TAKE_LOCKUP:
+          push(names.ACCEPT_LOCKUP);
+          break;
+        //
+        default:
+          throw new Error('unimplemented flow ' + flow.kind);
+      }
+    }
+  }, [flow, push, names]);
+
+  const flowDescription = command => {
+    switch (command.kind) {
+      case COMMANDS.TAKE_LOCKUP:
+        //TODO  kind of want "sign in as 0xabc.." here...
+        return <>To accept a star lockup batch, please sign in.</>;
+      default:
+        return <>Flow: {command.kind}</>;
+    }
+  };
 
   return (
     <View inset>
@@ -65,8 +90,12 @@ export default function Login() {
           </Grid.Item>
           <Grid.Item as={Text}>Login</Grid.Item>
         </Grid.Item>
-        {isOther && <Grid.Item full as={Other} goHome={goHome} />}
-        {!isOther && <Grid.Item full as={Ticket} goHome={goHome} />}
+        {flow && (
+          <Grid.Item full as={Text} className="t-center mb4">
+            {flowDescription(flow)}
+          </Grid.Item>
+        )}
+        <Grid.Item full as={isOther ? Other : Ticket} goHome={goHome} />
         {!isOther && (
           <>
             <Grid.Item full className="t-center mv4 gray4">
@@ -80,10 +109,15 @@ export default function Login() {
               onClick={() => setisOther(true)}>
               Metamask, Mnemonic, Hardware Wallet...
             </Grid.Item>
-            <Grid.Item full onClick={goToActivate} className="mv10 t-center f6">
-              <span className="gray4">New Urbit ID? </span>
-              <LinkButton>Activate</LinkButton>
-            </Grid.Item>
+            {!flow && (
+              <Grid.Item
+                full
+                onClick={goToActivate}
+                className="mv10 t-center f6">
+                <span className="gray4">New Urbit ID? </span>
+                <LinkButton>Activate</LinkButton>
+              </Grid.Item>
+            )}
           </>
         )}
         {isOther && (

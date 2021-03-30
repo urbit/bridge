@@ -64,6 +64,17 @@ function generateLinearWithdrawTxs(contracts, amount, to) {
   return mapRange(amount, () => linearSR.withdrawTo(contracts, to));
 }
 
+export async function getLockupKind(contracts, address) {
+  const conditional = await conditionalSR.getCommitment(contracts, address);
+  const linear = await linearSR.getBatch(contracts, address);
+  const haveConditional = conditional.total > 0;
+  const haveLinear = linear.amount > 0;
+  if (haveConditional && !haveLinear) return 'conditional';
+  if (!haveConditional && haveLinear) return 'linear';
+  if (haveConditional && haveLinear) return 'both';
+  return 'none';
+}
+
 export async function getConditional(contracts, address) {
   const [commitment, batches, remaining] = await Promise.all([
     conditionalSR.getCommitment(contracts, address),
@@ -110,7 +121,13 @@ export async function getConditional(contracts, address) {
   const withdrawnTotal = withdrawn.reduce((acc, val) => acc + val, 0);
   const available = batchLimits.reduce((acc, val) => acc + val, 0);
 
-  return { total, available, withdrawn: withdrawnTotal, batchLimits };
+  return {
+    total,
+    available,
+    withdrawn: withdrawnTotal,
+    batchLimits,
+    approvedTransferTo: commitment.approvedTransferTo,
+  };
 }
 
 export async function getLinear(contracts, address) {
@@ -128,5 +145,10 @@ export async function getLinear(contracts, address) {
 
   const total = Math.min(amount, remaining);
 
-  return { available, withdrawn, total };
+  return {
+    available,
+    withdrawn,
+    total,
+    approvedTransferTo: batch.approvedTransferTo,
+  };
 }

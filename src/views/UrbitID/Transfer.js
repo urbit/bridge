@@ -6,6 +6,7 @@ import * as azimuth from 'azimuth-js';
 import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
+import { useStarReleaseCache } from 'store/starRelease';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -14,6 +15,7 @@ import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 
 import ViewHeader from 'components/ViewHeader';
+import NoticeBox from 'components/NoticeBox';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import { AddressInput } from 'form/Inputs';
 import { composeValidator, buildAddressValidator } from 'form/validators';
@@ -41,6 +43,8 @@ function useTransfer() {
 export default function AdminTransfer() {
   const { pop } = useLocalRouter();
   const name = useCurrentPointName();
+  const { pointCursor } = usePointCursor();
+  const { starReleaseDetails } = useStarReleaseCache();
 
   const {
     construct,
@@ -49,6 +53,15 @@ export default function AdminTransfer() {
     inputsLocked,
     bind,
   } = useTransfer();
+
+  const needLockupWarning = useMemo(() => {
+    const point = need.point(pointCursor);
+    const az = azimuth.azimuth;
+    return (
+      az.getPointSize(point) === az.PointSize.Galaxy &&
+      starReleaseDetails.map(a => a.kind).getOrElse('none') !== 'none'
+    );
+  }, [pointCursor, starReleaseDetails]);
 
   const validate = useMemo(
     () => composeValidator({ address: buildAddressValidator() }),
@@ -78,6 +91,12 @@ export default function AdminTransfer() {
             {!completed && (
               <Grid.Item full as={Text} className={cn('f5 wrap')}>
                 Transfer {name} to a new owner.
+              </Grid.Item>
+            )}
+            {!completed && needLockupWarning && (
+              <Grid.Item full as={NoticeBox}>
+                You have stars in lockup. These will not transfer with the{' '}
+                galaxy. If you wish, you must transfer the lockup separately.
               </Grid.Item>
             )}
             {completed && (

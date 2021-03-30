@@ -7,6 +7,7 @@ import {
   generateWithdrawTxs,
   getLinear,
   getConditional,
+  getLockupKind,
 } from 'lib/starRelease';
 
 export default function useStarRelease() {
@@ -28,9 +29,10 @@ export default function useStarRelease() {
     const address = _wallet.address;
 
     try {
-      const [linear, conditional] = await Promise.all([
+      const [linear, conditional, kind] = await Promise.all([
         getLinear(_contracts, address),
         getConditional(_contracts, address),
+        getLockupKind(_contracts, address),
       ]);
 
       const keys = Object.keys(linear);
@@ -38,6 +40,11 @@ export default function useStarRelease() {
         (acc, key) => ({ ...acc, [key]: linear[key] + conditional[key] }),
         {}
       );
+      result.kind = kind;
+      result.linear = { approvedTransferTo: linear.approvedTransferTo };
+      result.conditional = {
+        approvedTransferTo: conditional.approvedTransferTo,
+      };
       setBatchLimits(conditional.batchLimits);
 
       _setDetails(Just(result));

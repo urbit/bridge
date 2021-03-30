@@ -15,20 +15,24 @@ import CopiableAddress from 'components/CopiableAddress';
 
 import Active from 'views/Release/Active';
 import Locked from 'views/Release/Locked';
+import Transfer from 'views/Release/Transfer';
 import NavHeader from 'components/NavHeader';
 
 const NAMES = {
   ACTIVE: 'ACTIVE',
   LOCKED: 'LOCKED',
+  TRANSFER: 'TRANSFER',
 };
 
 const VIEWS = {
   [NAMES.ACTIVE]: Active,
   [NAMES.LOCKED]: Locked,
+  [NAMES.TRANSFER]: Transfer,
 };
 const OPTIONS = [
   { text: 'Active', value: NAMES.ACTIVE },
   { text: 'Locked', value: NAMES.LOCKED },
+  { text: 'Transfer', value: NAMES.TRANSFER },
 ];
 export default function ReleaseView() {
   const { pop, push, names } = useHistory();
