@@ -70,9 +70,11 @@ function Bridge() {
   //  full reload if the user changes their selected network in Metamask
   //
   useEffect(() => {
-    window.ethereum.on('chainChanged', () => {
-      document.location.reload();
-    });
+    if (window.ethereum) {
+      window.ethereum.on('chainChanged', () => {
+        document.location.reload();
+      });
+    }
   }, []);
 
   return (
