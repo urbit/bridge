@@ -114,7 +114,7 @@ export default function Point() {
   const { pop, push, names } = useLocalRouter();
   const { pointCursor } = usePointCursor();
 
-  const { wallet } = useWallet();
+  const { wallet, urbitWallet } = useWallet();
   const point = need.point(pointCursor);
 
   const { getResidents } = usePointCache();
@@ -129,6 +129,8 @@ export default function Point() {
     canVote,
     isOwner,
   } = useCurrentPermissions();
+
+  const canBitcoin = Just.hasInstance(urbitWallet);
 
   // fetch the invites for the current cursor
   const invites = useInvites(point);
@@ -155,6 +157,8 @@ export default function Point() {
   const goCohort = useCallback(() => push(names.INVITE_COHORT), [push, names]);
 
   const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
+
+  const goBitcoin = useCallback(() => push(names.BITCOIN), [push, names]);
 
   const goUrbitID = useCallback(() => push(names.URBIT_ID), [push, names]);
 
@@ -285,6 +289,16 @@ export default function Point() {
           detail="Urbit OS Settings"
           onClick={goUrbitOS}>
           OS
+        </Grid.Item>
+        <Grid.Divider />
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!canBitcoin}
+          className="mt1"
+          detail="Bitcoin management"
+          onClick={goBitcoin}>
+          Bitcoin
         </Grid.Item>
         <Grid.Divider />
         {isParent && (

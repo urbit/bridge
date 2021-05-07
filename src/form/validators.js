@@ -19,6 +19,8 @@ import {
   validateHexPrefix,
   validateLength,
   validateUnique,
+  validatePsbt,
+  validateSignablePsbt,
 } from 'lib/validators';
 import isPromise from 'lib/isPromise';
 
@@ -121,6 +123,10 @@ export const buildEmailValidator = validate =>
 
 export const buildEmailArrayValidator = () =>
   buildValidator([validateUnique, buildArrayValidator(buildEmailValidator())]);
+
+export const buildPsbtValidator = btcWallet =>
+  buildValidator([validatePsbt, validateSignablePsbt(btcWallet)]);
+
 // the form validator is the composition of all of the field validators
 // plus an additional form validator function
 export const composeValidator = (

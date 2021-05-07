@@ -5,18 +5,17 @@ import { isValidAddress } from './wallet';
 // which would indicate bridge is to be used for one specific flow.
 // expects to find any of the following sets of parameters, varying by kind.
 //
-// ? kind  = invite
-// & as    = ~ship      // who to send the invite as
-// & ship  = ~ship      // what planet to send as the invite
-// & email = ex@amp.le  // email to send the invite code to
-//
 // ? kind = takeLockup
 // & lock = linear | conditional  // which lockup contract, defaults to linear
 // & from = 0x1234abcd            // ethereum address to accept transfer from
 //
+// ? kind = btc
+// & utx  = somebase64string
+//
 
 const COMMANDS = {
   TAKE_LOCKUP: 'takeLockup',
+  BITCOIN: 'btc',
 };
 
 const useFlowCommand = () => {
@@ -40,6 +39,14 @@ const useFlowCommand = () => {
             (flow.lock !== 'linear' && flow.lock !== 'conditional') ||
             !isValidAddress(flow.from)
           ) {
+            flow = null;
+          }
+          break;
+        //
+        case COMMANDS.BITCOIN:
+          try {
+            atob(flow.utx);
+          } catch (e) {
             flow = null;
           }
           break;

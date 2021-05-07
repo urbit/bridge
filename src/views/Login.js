@@ -63,6 +63,9 @@ export default function Login() {
       switch (flow.kind) {
         case COMMANDS.TAKE_LOCKUP:
           push(names.ACCEPT_LOCKUP);
+        //
+        case COMMANDS.BITCOIN:
+          push(names.BITCOIN_SIGN_TRANSACTION);
           break;
         //
         default:
@@ -76,6 +79,10 @@ export default function Login() {
       case COMMANDS.TAKE_LOCKUP:
         //TODO  kind of want "sign in as 0xabc.." here...
         return <>To accept a star lockup batch, please sign in.</>;
+      //
+      case COMMANDS.BITCOIN:
+        return <>To sign a Bitcoin transaction, please sign in.</>;
+      //
       default:
         return <>Flow: {command.kind}</>;
     }

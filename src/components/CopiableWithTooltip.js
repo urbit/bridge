@@ -1,5 +1,4 @@
 import React from 'react';
-import cn from 'classnames';
 import { ReactComponent as Copy } from 'assets/copy.svg';
 
 import useCopiable from 'lib/useCopiable';
@@ -15,7 +14,7 @@ export default function CopiableWithTooltip({
   const [doCopy, didCopy] = useCopiable(text || children);
 
   return (
-    <As className={cn(className, 'nowrap')} {...rest}>
+    <As className={className} {...rest}>
       {children}
       <WithTooltip content={didCopy ? 'Copied!' : 'Copy'}>
         <Copy
