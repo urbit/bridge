@@ -190,42 +190,30 @@ export default function Senate() {
           {majorityList}
         </Grid.Item>
 
-        <Grid.Divider className="mv4" />
+        {openList.length > 0 && (
+          <>
+            <Grid.Divider className="mv4" />
 
-        <Grid.Item full as={Grid}>
-          <Grid.Item full as={P}>
-            Open document polls:
-          </Grid.Item>
-          {openList}
-        </Grid.Item>
+            <Grid.Item full as={Grid}>
+              <Grid.Item full as={P}>
+                Open document polls:
+              </Grid.Item>
+              {openList}
+            </Grid.Item>
 
-        <BridgeForm onValues={onDocumentChange}>
-          {({ onSubmit, values }) => (
-            // <>
-            <Grid.Item
-              full
-              as={InlineEthereumTransaction}
-              {...bind}
-              onReturn={didVote}
-            />
-
-            // <Grid.Divider />
-            //
-            // <Grid.Item
-            //   full
-            //   as={Input}
-            //   type="textarea"
-            //   placeholder="Input some text to find its hash..."
-            //   name="document"
-            //   className="mt4"
-            // />
-            //
-            // <Grid.Item full as={CopiableAddress}>
-            //   {documentHash}
-            // </Grid.Item>
-            // </>
-          )}
-        </BridgeForm>
+            <BridgeForm onValues={onDocumentChange}>
+              {({ onSubmit, values }) => (
+                // <>
+                <Grid.Item
+                  full
+                  as={InlineEthereumTransaction}
+                  {...bind}
+                  onReturn={didVote}
+                />
+              )}
+            </BridgeForm>
+          </>
+        )}
       </Grid>
     </View>
   );
