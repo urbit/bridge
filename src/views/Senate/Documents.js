@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useEffect, useState } from 'react';
 import { Grid, Text, P, LinkButton } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 
@@ -64,25 +64,26 @@ export default function Documents() {
   //TODO update every second?
   const now = Math.round(new Date().getTime() / 1000);
 
-  useMemo(async () => {
-    let proposals = await azimuth.polls.getDocumentProposals(_contracts);
-    let majorities = await azimuth.polls.getDocumentMajorities(_contracts);
-    let polls = {};
-    for (let doc of proposals) {
-      let poll = await azimuth.polls.getDocumentPoll(_contracts, doc);
-      poll.endTime = convertToInt(poll.start) + convertToInt(poll.duration);
-      poll.hasVoted = await azimuth.polls.hasVotedOnDocumentPoll(
-        _contracts,
-        _point,
-        doc
-      );
-      polls[doc] = poll;
-    }
-    setMajorities(majorities);
-    setProposals(proposals);
-    setPolls(polls);
-    setLoading(false);
-    return;
+  useEffect(() => {
+    (async () => {
+      let proposals = await azimuth.polls.getDocumentProposals(_contracts);
+      let majorities = await azimuth.polls.getDocumentMajorities(_contracts);
+      let polls = {};
+      for (let doc of proposals) {
+        let poll = await azimuth.polls.getDocumentPoll(_contracts, doc);
+        poll.endTime = convertToInt(poll.start) + convertToInt(poll.duration);
+        poll.hasVoted = await azimuth.polls.hasVotedOnDocumentPoll(
+          _contracts,
+          _point,
+          doc
+        );
+        polls[doc] = poll;
+      }
+      setMajorities(majorities);
+      setProposals(proposals);
+      setPolls(polls);
+      setLoading(false);
+    })();
   }, [_contracts, _point]);
 
   // eslint-disable-next-line
@@ -105,7 +106,7 @@ export default function Documents() {
       construct(hash, accept);
       setVotingOn({ hash, accept });
     },
-    [construct, setVotingOn]
+    [construct]
   );
 
   const didVote = useCallback(() => {
@@ -171,15 +172,6 @@ export default function Documents() {
     });
   }, [open, polls, votingOn, doVote]);
 
-  const onDocumentChange = useCallback(({ valid, values }) => {
-    // if (values.document) {
-    //   const hash = '0x' + keccak256(values.document.trim()).toString('hex');
-    //   setDocumentHash(hash);
-    // } else {
-    //   setDocumentHash('0x...');
-    // }
-  }, []);
-
   return (
     <View pop={pop} inset>
       <Grid>
@@ -205,9 +197,8 @@ export default function Documents() {
               {openList}
             </Grid.Item>
 
-            <BridgeForm onValues={onDocumentChange}>
+            <BridgeForm>
               {({ onSubmit, values }) => (
-                // <>
                 <Grid.Item
                   full
                   as={InlineEthereumTransaction}

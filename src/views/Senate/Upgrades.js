@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useEffect, useState } from 'react';
 import { Grid, Text, P, LinkButton } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 
@@ -58,23 +58,24 @@ export default function Upgrades() {
   //TODO update every second?
   const now = Math.round(new Date().getTime() / 1000);
 
-  useMemo(async () => {
-    let proposals = await azimuth.polls.getUpgradeProposals(_contracts);
-    let polls = {};
-    for (let address of proposals) {
-      let poll = await azimuth.polls.getUpgradePoll(_contracts, address);
-      poll.endTime = convertToInt(poll.start) + convertToInt(poll.duration);
-      poll.hasVoted = await azimuth.polls.hasVotedOnUpgradePoll(
-        _contracts,
-        _point,
-        address
-      );
-      polls[address] = poll;
-    }
-    setProposals(proposals);
-    setPolls(polls);
-    setLoading(false);
-    return;
+  useEffect(() => {
+    (async () => {
+      let proposals = await azimuth.polls.getUpgradeProposals(_contracts);
+      let polls = {};
+      for (let address of proposals) {
+        let poll = await azimuth.polls.getUpgradePoll(_contracts, address);
+        poll.endTime = convertToInt(poll.start) + convertToInt(poll.duration);
+        poll.hasVoted = await azimuth.polls.hasVotedOnUpgradePoll(
+          _contracts,
+          _point,
+          address
+        );
+        polls[address] = poll;
+      }
+      setProposals(proposals);
+      setPolls(polls);
+      setLoading(false);
+    })();
   }, [_contracts, _point]);
 
   // eslint-disable-next-line
@@ -97,7 +98,7 @@ export default function Upgrades() {
       construct(address, accept);
       setVotingOn({ address, accept });
     },
-    [construct, setVotingOn]
+    [construct]
   );
 
   const didVote = useCallback(() => {
@@ -182,7 +183,6 @@ export default function Upgrades() {
 
             <BridgeForm>
               {({ onSubmit, values }) => (
-                // <>
                 <Grid.Item
                   full
                   as={InlineEthereumTransaction}
