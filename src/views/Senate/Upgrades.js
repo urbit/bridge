@@ -48,7 +48,7 @@ export default function Upgrades() {
   const _contracts = need.contracts(contracts);
   const _point = convertToInt(need.point(pointCursor), 10);
 
-  const { construct, bind } = useCastUpgradeVote();
+  const { construct, reset, unconstruct, bind } = useCastUpgradeVote();
 
   const [proposals, setProposals] = useState([]);
   const [polls, setPolls] = useState({});
@@ -101,10 +101,14 @@ export default function Upgrades() {
   );
 
   const didVote = useCallback(() => {
-    polls[votingOn].hasVoted = true;
-    setPolls(polls);
+    reset();
+    unconstruct();
+    setPolls(polls => {
+      polls[votingOn.address].hasVoted = true;
+      return polls;
+    });
     setVotingOn({});
-  }, [polls, setPolls, votingOn]);
+  }, [votingOn, reset, unconstruct]);
 
   const openList = useMemo(() => {
     return open.map(address => {

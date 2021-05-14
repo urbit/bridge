@@ -52,7 +52,7 @@ export default function Documents() {
   const _contracts = need.contracts(contracts);
   const _point = convertToInt(need.point(pointCursor), 10);
 
-  const { construct, bind } = useCastDocumentVote();
+  const { construct, reset, unconstruct, bind } = useCastDocumentVote();
 
   // const [documentHash, setDocumentHash] = useState('0x...');
   const [majorities, setMajorities] = useState([]);
@@ -109,10 +109,14 @@ export default function Documents() {
   );
 
   const didVote = useCallback(() => {
-    polls[votingOn].hasVoted = true;
-    setPolls(polls);
+    reset();
+    unconstruct();
+    setPolls(polls => {
+      polls[votingOn.hash].hasVoted = true;
+      return polls;
+    });
     setVotingOn({});
-  }, [polls, setPolls, votingOn]);
+  }, [votingOn, reset, unconstruct]);
 
   const majorityList = useMemo(() => {
     return majorities.map(doc => {
