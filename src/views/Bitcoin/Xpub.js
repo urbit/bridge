@@ -1,7 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
 import { Grid, Text } from 'indigo-react';
-import { ToggleSwitch } from '@tlon/indigo-react';
 import { useWallet } from 'store/wallet';
 
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -22,8 +20,8 @@ export default function Xpub() {
   const { xpub: zpub } = need.urbitWallet(urbitWallet).bitcoinMainnet.keys;
   const { xpub: vpub } = need.urbitWallet(urbitWallet).bitcoinTestnet.keys;
 
-  const [xpub, setXpub] = useState(zpub);
-  const [btcMainnet, setBtcMainnet] = useState(true);
+  // set to false for BTC testnet
+  const isMainnet = true;
 
   return (
     <View pop={pop} inset>
@@ -41,25 +39,9 @@ export default function Xpub() {
         <Grid.Item full className="mt4" as={Text}>
           Paste it into landscape while setting up your wallet.
         </Grid.Item>
-        <Grid.Item
-          full
-          className="mt4"
-          as={Text}
-          style={{ fontSize: '14px', color: 'gray' }}>
-          {btcMainnet ? 'BTC Mainnet' : 'BTC Testnet'}
-        </Grid.Item>
-        <Grid.Item full className="mt1">
-          <ToggleSwitch
-            selected={btcMainnet}
-            onClick={() => {
-              btcMainnet ? setXpub(vpub) : setXpub(zpub);
-              setBtcMainnet(!btcMainnet);
-            }}
-          />
-        </Grid.Item>
         <Grid.Item full className="mt4" as={Text}>
           <Highlighted>
-            <CopiableAddressWrap>{xpub}</CopiableAddressWrap>
+            <CopiableAddressWrap>{isMainnet ? zpub : vpub}</CopiableAddressWrap>
           </Highlighted>
         </Grid.Item>
       </Grid>

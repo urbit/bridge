@@ -59,7 +59,7 @@ export default function SignTransaction() {
     unsignedTransaction: buildPsbtValidator(),
   });
 
-  const onSubmit = (values, form) => {
+  const onSubmit = values => {
     const newPsbt = bitcoin.Psbt.fromBase64(values.unsignedTransaction);
 
     const isTestnet = newPsbt.data.inputs[0].bip32Derivation[0].path.startsWith(
