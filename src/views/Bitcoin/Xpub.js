@@ -1,5 +1,7 @@
 import React from 'react';
+import { useState } from 'react';
 import { Grid, Text } from 'indigo-react';
+import { ToggleSwitch } from '@tlon/indigo-react';
 import { useWallet } from 'store/wallet';
 
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -12,32 +14,16 @@ import CopiableAddressWrap from 'components/CopiableAddressWrap';
 import Highlighted from 'components/Highlighted';
 
 import * as need from 'lib/need';
-import * as bitcoin from 'bitcoinjs-lib';
-import * as bs58check from 'bs58check';
-import { Buffer } from 'buffer';
-
-function xpubToZpub(xpub) {
-  var data = bs58check.decode(xpub);
-  data = data.slice(4);
-  data = Buffer.concat([Buffer.from('04b24746', 'hex'), data]);
-  return bs58check.encode(data);
-}
 
 export default function Xpub() {
   const { pop } = useLocalRouter();
   const { urbitWallet } = useWallet();
 
-  const { public: pubKey, chain } = need.urbitWallet(urbitWallet).bitcoin.keys;
+  const { xpub: zpub } = need.urbitWallet(urbitWallet).bitcoinMainnet.keys;
+  const { xpub: vpub } = need.urbitWallet(urbitWallet).bitcoinTestnet.keys;
 
-  const zPub = xpubToZpub(
-    bitcoin.bip32
-      .fromPublicKey(
-        Buffer.from(pubKey, 'hex'),
-        Buffer.from(chain, 'hex'),
-        bitcoin.networks.bitcoin
-      )
-      .toBase58()
-  );
+  const [xpub, setXpub] = useState(zpub);
+  const [btcMainnet, setBtcMainnet] = useState(true);
 
   return (
     <View pop={pop} inset>
@@ -55,9 +41,25 @@ export default function Xpub() {
         <Grid.Item full className="mt4" as={Text}>
           Paste it into landscape while setting up your wallet.
         </Grid.Item>
+        <Grid.Item
+          full
+          className="mt4"
+          as={Text}
+          style={{ fontSize: '14px', color: 'gray' }}>
+          {btcMainnet ? 'BTC Mainnet' : 'BTC Testnet'}
+        </Grid.Item>
+        <Grid.Item full className="mt1">
+          <ToggleSwitch
+            selected={btcMainnet}
+            onClick={() => {
+              btcMainnet ? setXpub(vpub) : setXpub(zpub);
+              setBtcMainnet(!btcMainnet);
+            }}
+          />
+        </Grid.Item>
         <Grid.Item full className="mt4" as={Text}>
           <Highlighted>
-            <CopiableAddressWrap>{zPub}</CopiableAddressWrap>
+            <CopiableAddressWrap>{xpub}</CopiableAddressWrap>
           </Highlighted>
         </Grid.Item>
       </Grid>

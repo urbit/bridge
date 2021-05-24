@@ -141,22 +141,3 @@ export const validatePsbt = base64 => {
     return 'Invalid Partially Signed Bitcoin Transaction';
   }
 };
-
-export const validateSignablePsbt = btcWallet => base64 => {
-  const psbt = bitcoin.Psbt.fromBase64(base64);
-  return !(
-    psbt.data.inputs.some((input, idx) => {
-      try {
-        //  removing already derived part, eg m/84'/0'/0'/0/0 becomes 0/0
-        const path = input.bip32Derivation[0].path
-          .split("m/84'/0'/0'/")
-          .join('');
-        const prv = btcWallet.derivePath(path).privateKey;
-        psbt.signInput(idx, bitcoin.ECPair.fromPrivateKey(prv));
-        return true;
-      } catch (e) {
-        return false;
-      }
-    }) && 'No inputs were signed'
-  );
-};
