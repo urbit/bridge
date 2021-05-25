@@ -54,15 +54,18 @@ function _useNetwork(initialNetworkType = null) {
           web3,
           contractAddresses.azimuth
         );
-        contracts.linearSR = azimuth.contracts.newLinearStarRelease(
+        contracts = azimuth.contracts.newLinearStarRelease(
+          contracts,
           web3,
           contractAddresses.linearSR
         );
-        contracts.conditionalSR = azimuth.contracts.newConditionalStarRelease(
+        contracts = azimuth.contracts.newConditionalStarRelease(
+          contracts,
           web3,
           contractAddresses.conditionalSR
         );
-        contracts.delegatedSending = azimuth.contracts.newDelegatedSending(
+        contracts = azimuth.contracts.newDelegatedSending(
+          contracts,
           web3,
           contractAddresses.delegatedSending
         );
