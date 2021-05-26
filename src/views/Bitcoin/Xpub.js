@@ -12,32 +12,16 @@ import CopiableAddressWrap from 'components/CopiableAddressWrap';
 import Highlighted from 'components/Highlighted';
 
 import * as need from 'lib/need';
-import * as bitcoin from 'bitcoinjs-lib';
-import * as bs58check from 'bs58check';
-import { Buffer } from 'buffer';
-
-function xpubToZpub(xpub) {
-  var data = bs58check.decode(xpub);
-  data = data.slice(4);
-  data = Buffer.concat([Buffer.from('04b24746', 'hex'), data]);
-  return bs58check.encode(data);
-}
 
 export default function Xpub() {
   const { pop } = useLocalRouter();
   const { urbitWallet } = useWallet();
 
-  const { public: pubKey, chain } = need.urbitWallet(urbitWallet).bitcoin.keys;
+  const { xpub: zpub } = need.urbitWallet(urbitWallet).bitcoinMainnet.keys;
+  const { xpub: vpub } = need.urbitWallet(urbitWallet).bitcoinTestnet.keys;
 
-  const zPub = xpubToZpub(
-    bitcoin.bip32
-      .fromPublicKey(
-        Buffer.from(pubKey, 'hex'),
-        Buffer.from(chain, 'hex'),
-        bitcoin.networks.bitcoin
-      )
-      .toBase58()
-  );
+  // set to false for BTC testnet
+  const isMainnet = true;
 
   return (
     <View pop={pop} inset>
@@ -57,7 +41,7 @@ export default function Xpub() {
         </Grid.Item>
         <Grid.Item full className="mt4" as={Text}>
           <Highlighted>
-            <CopiableAddressWrap>{zPub}</CopiableAddressWrap>
+            <CopiableAddressWrap>{isMainnet ? zpub : vpub}</CopiableAddressWrap>
           </Highlighted>
         </Grid.Item>
       </Grid>

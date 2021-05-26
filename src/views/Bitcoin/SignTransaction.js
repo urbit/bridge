@@ -18,8 +18,31 @@ import * as bitcoin from 'bitcoinjs-lib';
 import BridgeForm from 'form/BridgeForm';
 import { PsbtInput } from 'form/Inputs';
 
-import { Buffer } from 'buffer';
 import { composeValidator, buildPsbtValidator } from 'form/validators';
+
+const BITCOIN_MAINNET_INFO = {
+  messagePrefix: '\x18Bitcoin Signed Message:\n',
+  bech32: 'bc',
+  bip32: {
+    public: 0x04b24746,
+    private: 0x04b2430c,
+  },
+  pubKeyHash: 0x00,
+  scriptHash: 0x05,
+  wif: 0x80,
+};
+
+const BITCOIN_TESTNET_INFO = {
+  messagePrefix: '\x18Bitcoin Signed Message:\n',
+  bech32: 'tb',
+  bip32: {
+    public: 0x045f1cf6,
+    private: 0x045f18bc,
+  },
+  pubKeyHash: 0x6f,
+  scriptHash: 0xc4,
+  wif: 0xef,
+};
 
 export default function SignTransaction() {
   const { pop } = useLocalRouter();
@@ -29,41 +52,44 @@ export default function SignTransaction() {
   const [signedTx, setSignedTx] = useState('');
   const [psbt, setPsbt] = useState({});
 
-  const { private: privKey, chain } = need.urbitWallet(
-    urbitWallet
-  ).bitcoin.keys;
-
-  const btcWallet = bitcoin.bip32.fromPrivateKey(
-    Buffer.from(privKey, 'hex'),
-    Buffer.from(chain, 'hex'),
-    bitcoin.networks.bitcoin
-  );
+  const { xprv: zprv } = need.urbitWallet(urbitWallet).bitcoinMainnet.keys;
+  const { xprv: vprv } = need.urbitWallet(urbitWallet).bitcoinTestnet.keys;
 
   const validate = composeValidator({
-    unsignedTransaction: buildPsbtValidator(btcWallet),
+    unsignedTransaction: buildPsbtValidator(),
   });
 
   const onSubmit = values => {
     const newPsbt = bitcoin.Psbt.fromBase64(values.unsignedTransaction);
-    const hex = newPsbt.data.inputs
-      .reduce((psbt, input, idx) => {
-        //  removing already derived part, eg m/84'/0'/0'/0/0 becomes 0/0
-        const path = input.bip32Derivation[0].path
-          .split("m/84'/0'/0'/")
-          .join('');
-        const prv = btcWallet.derivePath(path).privateKey;
-        try {
-          return psbt.signInput(idx, bitcoin.ECPair.fromPrivateKey(prv));
-        } catch (e) {
-          return psbt;
-        }
-      }, newPsbt)
-      .finalizeAllInputs()
-      .extractTransaction()
-      .toHex();
 
-    setPsbt(newPsbt);
-    setSignedTx(hex);
+    const isTestnet = newPsbt.data.inputs[0].bip32Derivation[0].path.startsWith(
+      "m/84'/1'/0'/"
+    );
+
+    const derivationPrefix = isTestnet ? "m/84'/1'/0'/" : "m/84'/0'/0'/";
+
+    const btcWallet = isTestnet
+      ? bitcoin.bip32.fromBase58(vprv, BITCOIN_TESTNET_INFO)
+      : bitcoin.bip32.fromBase58(zprv, BITCOIN_MAINNET_INFO);
+
+    try {
+      const hex = newPsbt.data.inputs
+        .reduce((psbt, input, idx) => {
+          //  removing already derived part, eg m/84'/0'/0'/0/0 becomes 0/0
+          const path = input.bip32Derivation[0].path
+            .split(derivationPrefix)
+            .join('');
+          const prv = btcWallet.derivePath(path).privateKey;
+          return psbt.signInput(idx, bitcoin.ECPair.fromPrivateKey(prv));
+        }, newPsbt)
+        .finalizeAllInputs()
+        .extractTransaction()
+        .toHex();
+      setPsbt(newPsbt);
+      setSignedTx(hex);
+    } catch (error) {
+      return { unsignedTransaction: 'Cannot sign transaction, mismatching keys.' };
+    }
   };
 
   const initialValues = {};
