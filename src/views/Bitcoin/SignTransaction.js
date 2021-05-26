@@ -88,7 +88,9 @@ export default function SignTransaction() {
       setPsbt(newPsbt);
       setSignedTx(hex);
     } catch (error) {
-      return { unsignedTransaction: 'Cannot sign transaction, mismatching keys.' };
+      return {
+        unsignedTransaction: 'Cannot sign transaction, mismatching keys.',
+      };
     }
   };
 
