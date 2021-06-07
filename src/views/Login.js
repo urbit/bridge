@@ -63,9 +63,14 @@ export default function Login() {
       switch (flow.kind) {
         case COMMANDS.TAKE_LOCKUP:
           push(names.ACCEPT_LOCKUP);
+          break;
         //
         case COMMANDS.BITCOIN:
           push(names.BITCOIN_SIGN_TRANSACTION);
+          break;
+        //
+        case COMMANDS.XPUB:
+          push(names.BITCOIN_XPUB);
           break;
         //
         default:
@@ -82,6 +87,9 @@ export default function Login() {
       //
       case COMMANDS.BITCOIN:
         return <>To sign a Bitcoin transaction, please sign in.</>;
+      //
+      case COMMANDS.XPUB:
+        return <>To view your Bitcoin extended public key, please sign in</>;
       //
       default:
         return <>Flow: {command.kind}</>;

@@ -12,10 +12,13 @@ import { isValidAddress } from './wallet';
 // ? kind = btc
 // & utx  = somebase64string
 //
+// ? kind = xpub
+//
 
 const COMMANDS = {
   TAKE_LOCKUP: 'takeLockup',
   BITCOIN: 'btc',
+  XPUB: 'xpub',
 };
 
 const useFlowCommand = () => {
@@ -49,6 +52,9 @@ const useFlowCommand = () => {
           } catch (e) {
             flow = null;
           }
+          break;
+        //
+        case COMMANDS.XPUB:
           break;
         //
         default:
