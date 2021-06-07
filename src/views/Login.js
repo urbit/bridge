@@ -59,7 +59,7 @@ export default function Login() {
         return <>To sign a Bitcoin transaction, please sign in.</>;
       //
       case COMMANDS.XPUB:
-        return <>To view your Bitcoin extended public key, please sign in</>;
+        return <>To view your Bitcoin extended public key, please sign in.</>;
       //
       default:
         return <>Flow: {command.kind}</>;
