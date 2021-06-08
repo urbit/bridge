@@ -3,10 +3,15 @@ import * as bitcoin from 'bitcoinjs-lib';
 import ob from 'urbit-ob';
 import { includes } from 'lodash';
 
-import { isValidAddress, ETH_ZERO_ADDR, ETH_ZERO_ADDR_SHORT } from './wallet';
+import { isValidAddress } from './utils/address';
 import patp2dec from './patp2dec';
 import { patpStringLength } from './lib';
-import { MIN_GALAXY, MAX_GALAXY } from './constants';
+import {
+  ETH_ZERO_ADDR,
+  ETH_ZERO_ADDR_SHORT,
+  MIN_GALAXY,
+  MAX_GALAXY,
+} from './constants';
 
 // NOTE: do not use the /g modifier for these regexes
 // https://stackoverflow.com/a/21373261

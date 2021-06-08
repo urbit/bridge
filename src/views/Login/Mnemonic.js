@@ -5,7 +5,8 @@ import { Grid, CheckboxInput } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
-import { walletFromMnemonic, WALLET_TYPES, DEFAULT_HD_PATH } from 'lib/wallet';
+import { walletFromMnemonic } from 'lib/wallet';
+import { DEFAULT_HD_PATH, WALLET_TYPES } from 'lib/constants';
 import useLoginView from 'lib/useLoginView';
 import { MnemonicInput, HdPathInput, PassphraseInput } from 'form/Inputs';
 import {

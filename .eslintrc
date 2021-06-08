@@ -9,6 +9,6 @@
     "react-hooks"
   ],
   "rules": {
-    "prettier/prettier": "error"
+    "prettier/prettier": "warn"
   }
 }

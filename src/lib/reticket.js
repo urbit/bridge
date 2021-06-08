@@ -7,7 +7,7 @@ import {
   deriveNetworkKeys,
   CRYPTO_SUITE_VERSION,
 } from './keys';
-import { addHexPrefix } from './wallet';
+import { addHexPrefix } from './utils/address';
 import {
   sendAndAwaitAllSerial,
   signTransaction,

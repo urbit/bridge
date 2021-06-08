@@ -13,7 +13,7 @@ import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { useFlowCommand } from 'lib/flowCommand';
-import { isValidAddress, eqAddr } from 'lib/wallet';
+import { isValidAddress, eqAddr } from 'lib/utils/address';
 
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';

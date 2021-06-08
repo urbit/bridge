@@ -15,7 +15,8 @@ import { useHistory } from 'store/history';
 
 import * as need from 'lib/need';
 import { ROUTE_NAMES } from 'lib/routeNames';
-import { DEFAULT_HD_PATH, walletFromMnemonic } from 'lib/wallet';
+import { walletFromMnemonic } from 'lib/wallet';
+import { DEFAULT_HD_PATH } from 'lib/constants';
 import { generateWallet } from 'lib/invite';
 import { generateTemporaryOwnershipWallet } from 'lib/walletgen';
 import { useLocalRouter } from 'lib/LocalRouter';

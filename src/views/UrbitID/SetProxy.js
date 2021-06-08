@@ -14,12 +14,12 @@ import {
 } from 'lib/proxy';
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
-import { ETH_ZERO_ADDR, eqAddr, isZeroAddress } from 'lib/wallet';
+import { eqAddr, isZeroAddress } from 'lib/utils/address';
 import capitalize from 'lib/capitalize';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
-import { GAS_LIMITS } from 'lib/constants';
+import { ETH_ZERO_ADDR, GAS_LIMITS } from 'lib/constants';
 import { AddressInput } from 'form/Inputs';
 import {
   composeValidator,

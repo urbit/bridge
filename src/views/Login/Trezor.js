@@ -9,7 +9,7 @@ import { Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react';
 import { useWallet } from 'store/wallet';
 
 import { TREZOR_PATH } from 'lib/trezor';
-import { WALLET_TYPES } from 'lib/wallet';
+import { WALLET_TYPES } from 'lib/constants';
 import useLoginView from 'lib/useLoginView';
 import { getAuthToken } from 'lib/authToken';
 

@@ -1,5 +1,5 @@
 import Disclaimer from 'views/Disclaimer';
-import Login from 'views/Login.js';
+import Login from 'views/Login';
 import Other from 'views/Login/Other.js';
 import Senate from 'views/Senate';
 import Documents from 'views/Senate/Documents';
