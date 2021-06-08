@@ -11,7 +11,7 @@
   "author": "Tlon",
   "license": "MIT",
   "engines": {
-    "node": "11.0.0"
+    "node": "14.17.0"
   },
   "proxy": "http://localhost:4000",
   "dependencies": {
