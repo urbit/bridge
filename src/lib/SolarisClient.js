@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-
 //
 // Warning: this file is auto-generated.
 //
