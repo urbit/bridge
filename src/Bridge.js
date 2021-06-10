@@ -1,6 +1,5 @@
 import React from 'react';
 import { useEffect } from 'react';
-import { hot } from 'react-hot-loader/root';
 import { Just, Nothing } from 'folktale/maybe';
 import { IndigoApp } from 'indigo-react';
 
@@ -95,4 +94,4 @@ function Bridge() {
   );
 }
 
-export default process.env.NODE_ENV === 'development' ? hot(Bridge) : Bridge;
+export default Bridge;
