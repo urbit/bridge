@@ -17,8 +17,8 @@ on node 11.1.0, so make sure you're using some other node version.
 You can use [nvm](https://github.com/creationix/nvm), for example, and do:
 
 ```
-$ nvm install 11.0.0
-$ nvm use v11.0.0
+$ nvm install 14.17.0
+$ nvm use v14.17.0
 ```
 
 before running `npm run pilot`.
