@@ -36,7 +36,7 @@
     "azimuth-js": "^0.22.1",
     "azimuth-solidity": "^1.2.3",
     "bip32": "^1.0.2",
-    "bip39": "^2.5.0",
+    "bip39": "^3.0.4",
     "bitcoinjs-lib": "^5.2.0",
     "bn.js": "^4.11.8",
     "bs58check": "^2.1.2",
@@ -78,6 +78,8 @@
     "web3-utils": "^1.3.6"
   },
   "devDependencies": {
+    "@types/keccak": "^3.0.1",
+    "@types/lodash": "^4.14.170",
     "eslint-config-prettier": "^5.0.0",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react-hooks": "^1.6.0",
