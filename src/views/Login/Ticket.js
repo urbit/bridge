@@ -17,7 +17,8 @@ import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 
 import * as need from 'lib/need';
-import { WALLET_TYPES, urbitWalletFromTicket } from 'lib/wallet';
+import { urbitWalletFromTicket } from 'lib/wallet';
+import { WALLET_TYPES } from 'lib/constants';
 import useImpliedPoint from 'lib/useImpliedPoint';
 import useLoginView from 'lib/useLoginView';
 import patp2dec from 'lib/patp2dec';

@@ -10,7 +10,7 @@ import {
   stripHexPrefix,
   ensureHexPrefix,
 } from 'form/formatters';
-import { DEFAULT_HD_PATH } from 'lib/wallet';
+import { DEFAULT_HD_PATH } from 'lib/constants';
 import InputSigil from 'components/InputSigil';
 
 const PLACEHOLDER_POINT = '~sampel-ponnym';

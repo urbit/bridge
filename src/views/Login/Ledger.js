@@ -16,7 +16,7 @@ import {
   chopHdPrefix,
   addHdPrefix,
 } from 'lib/ledger';
-import { WALLET_TYPES } from 'lib/wallet';
+import { WALLET_TYPES } from 'lib/constants';
 import useLoginView from 'lib/useLoginView';
 import useBreakpoints from 'lib/useBreakpoints';
 

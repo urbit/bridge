@@ -27,6 +27,7 @@ export default function useRouter({
           )}`
         );
       }
+      debugger;
       setRoutes(routes => [...routes, { key, data }]);
     },
     [setRoutes, views]

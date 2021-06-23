@@ -1,16 +1,18 @@
-import * as secp256k1 from 'secp256k1';
+// import { ecdsaSign } from 'secp256k1';
+import { ecdsaSign } from 'secp256k1';
+import { keccak256 } from 'web3-utils';
 
-import { keccak256, WALLET_TYPES } from './wallet';
+import { WALLET_TYPES } from './constants';
 import { ledgerSignMessage } from './ledger';
 import { trezorSignMessage } from './trezor';
 
 const MESSAGE = 'Bridge Authentication Token';
 
-function signMessage(privateKey) {
-  const { signature } = secp256k1.sign(
-    keccak256('\x19Ethereum Signed Message:\n' + MESSAGE.length + MESSAGE),
-    privateKey
-  );
+function signMessage(privateKey: Buffer) {
+  const msg = '\x19Ethereum Signed Message:\n' + MESSAGE.length + MESSAGE;
+  const msgHash = Buffer.from(keccak256(msg)).slice(0, 32); // Signing function expects 32 length
+  const { signature } = ecdsaSign(msgHash, privateKey);
+
   // add key recovery parameter
   const ethSignature = new Uint8Array(65);
   ethSignature.set(signature);

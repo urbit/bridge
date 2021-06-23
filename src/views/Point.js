@@ -218,6 +218,8 @@ export default function Point() {
   // sync the current cursor
   useSyncOwnedPoints([point]);
 
+  debugger;
+
   const address = need.addressFromWallet(wallet);
 
   const _requestCount = requestCount.getOrElse(0);

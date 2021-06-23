@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { isValidAddress } from './wallet';
+import { isValidAddress } from './utils/crypto';
 
 // looks into the GET parameters and attempts to construct a "flow" object,
 // which would indicate bridge is to be used for one specific flow.
@@ -21,9 +21,16 @@ const COMMANDS = {
   XPUB: 'xpub',
 };
 
+type FlowType = {
+  kind?: 'takeLockup' | 'btc' | 'xpub';
+  lock?: 'linear' | 'conditional';
+  from?: string;
+  utx?: string;
+} | null;
+
 const useFlowCommand = () => {
   const flow = useMemo(() => {
-    let flow = {};
+    let flow: FlowType = {};
 
     window.location.search
       .substr(1)

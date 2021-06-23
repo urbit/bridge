@@ -10,7 +10,7 @@ import { usePointCursor } from 'store/pointCursor';
 import { useStarReleaseCache } from 'store/starRelease';
 
 import * as need from 'lib/need';
-import { isZeroAddress, abbreviateAddress } from 'lib/wallet';
+import { isZeroAddress, abbreviateAddress } from 'lib/utils/crypto';
 import useIsEclipticOwner from 'lib/useIsEclipticOwner';
 import { useSyncKnownPoints, useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
