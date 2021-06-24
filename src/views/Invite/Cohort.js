@@ -26,7 +26,7 @@ import Inviter from 'views/Invite/Inviter';
 
 import { ReactComponent as SearchIcon } from 'assets/search.svg';
 import CopyButton from 'components/CopyButton';
-import { useSyncForeignPoints } from 'lib/useSyncPoints';
+import { useSyncDetails } from 'lib/useSyncPoints';
 import { useNetwork } from 'store/network';
 import NavHeader from 'components/NavHeader';
 
@@ -305,7 +305,7 @@ export default function InviteCohort() {
 
   const [selectedInvite, _setSelectedInvite] = useState();
 
-  useSyncForeignPoints([..._acceptedPoints, ..._pendingPoints]);
+  useSyncDetails([..._acceptedPoints, ..._pendingPoints]);
 
   const setSelectedInvite = useCallback(
     p => _setSelectedInvite(old => (old === p ? null : p)),

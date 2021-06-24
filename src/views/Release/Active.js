@@ -10,13 +10,13 @@ import { useWallet } from 'store/wallet';
 
 import * as need from 'lib/need';
 import usePermissionsForPoint from 'lib/usePermissionsForPoint';
-import { useSyncOwnedPoints } from 'lib/useSyncPoints';
+import { useSyncDetails } from 'lib/useSyncPoints';
 import { buildKeyType } from 'lib/point';
 
 function ActiveViewRow({ point, goPoint }) {
   const { wallet } = useWallet();
   const address = need.addressFromWallet(wallet);
-  useSyncOwnedPoints([point]);
+  useSyncDetails([point]);
   const permissions = usePermissionsForPoint(address, point);
 
   const keyType = buildKeyType(permissions);

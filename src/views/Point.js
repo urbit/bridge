@@ -18,7 +18,7 @@ import { ForwardButton } from 'components/Buttons';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
-import { useSyncOwnedPoints } from 'lib/useSyncPoints';
+import { useSyncExtras } from 'lib/useSyncPoints';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
 
@@ -216,7 +216,7 @@ export default function Point() {
   })();
 
   // sync the current cursor
-  useSyncOwnedPoints([point]);
+  useSyncExtras([point]);
 
   const address = need.addressFromWallet(wallet);
 

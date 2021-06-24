@@ -21,12 +21,12 @@ export const useSyncKnownPoints = buildSyncHook(function() {
   return syncKnownPoint;
 });
 
-export const useSyncForeignPoints = buildSyncHook(function() {
-  const { syncForeignPoint } = usePointCache();
-  return syncForeignPoint;
+export const useSyncDetails = buildSyncHook(function() {
+  const { syncDetails } = usePointCache();
+  return syncDetails;
 });
 
-export const useSyncOwnedPoints = buildSyncHook(function() {
-  const { syncOwnedPoint } = usePointCache();
-  return syncOwnedPoint;
+export const useSyncExtras = buildSyncHook(function() {
+  const { syncExtras } = usePointCache();
+  return syncExtras;
 });
