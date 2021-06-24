@@ -16,9 +16,9 @@ const buildSyncHook = getFn =>
     }, [fn, prevPoints, points]);
   };
 
-export const useSyncKnownPoints = buildSyncHook(function() {
-  const { syncKnownPoint } = usePointCache();
-  return syncKnownPoint;
+export const useSyncDates = buildSyncHook(function() {
+  const { syncDates } = usePointCache();
+  return syncDates;
 });
 
 export const useSyncDetails = buildSyncHook(function() {

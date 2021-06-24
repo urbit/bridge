@@ -20,8 +20,7 @@ export default function usePointStore() {
   const { syncResidents, syncResidentCount, ...residents } = useResidents();
   const ecliptic = useEclipticOwnerStore();
 
-  //TODO  more appropriately named "syncDates" or similar
-  const syncKnownPoint = useCallback(
+  const syncDates = useCallback(
     async point => Promise.all([syncBirthday(point), syncRekeyDate(point)]),
     [syncBirthday, syncRekeyDate]
   );
@@ -29,13 +28,13 @@ export default function usePointStore() {
   const syncExtras = useCallback(
     async point =>
       Promise.all([
-        syncKnownPoint(point),
-        //
-        syncResidentCount(point),
         syncDetails(point),
+        //
+        syncDates(point),
+        syncResidentCount(point),
         syncInvites(point),
       ]),
-    [syncKnownPoint, syncDetails, syncInvites, syncResidentCount]
+    [syncDates, syncDetails, syncInvites, syncResidentCount]
   );
 
   return {
@@ -50,7 +49,7 @@ export default function usePointStore() {
     syncRekeyDate,
     syncInvites,
     syncControlledPoints,
-    syncKnownPoint,
+    syncDates,
     syncResidents,
     syncExtras,
   };

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import useRouter from 'lib/useRouter';
 import { LocalRouterProvider } from 'lib/LocalRouter';
-import { useSyncKnownPoints } from 'lib/useSyncPoints';
+import { useSyncDates } from 'lib/useSyncPoints';
 
 import { ActivateFlowProvider } from './Activate/ActivateFlow';
 import useActivateFlowState from './Activate/useActivateFlowState';
@@ -38,9 +38,7 @@ export default function Activate() {
   }, []);
 
   // when we know the derived point, ensure we have the data to display it
-  useSyncKnownPoints(
-    [state.derivedPoint.getOrElse(null)].filter(p => p !== null)
-  );
+  useSyncDates([state.derivedPoint.getOrElse(null)].filter(p => p !== null));
 
   return (
     <LocalRouterProvider value={router}>

@@ -29,7 +29,7 @@ import CopiableAddress from 'components/CopiableAddress';
 
 function useCreateGalaxy() {
   const { contracts } = useNetwork();
-  const { syncKnownPoint } = usePointCache();
+  const { syncDates } = usePointCache();
 
   const _contracts = need.contracts(contracts);
 
@@ -43,7 +43,7 @@ function useCreateGalaxy() {
       },
       [_contracts]
     ),
-    useCallback(() => syncKnownPoint(galaxy), [galaxy, syncKnownPoint]),
+    useCallback(() => syncDates(galaxy), [galaxy, syncDates]),
     GAS_LIMITS.DEFAULT
   );
 }
