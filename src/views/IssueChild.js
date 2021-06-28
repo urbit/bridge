@@ -34,7 +34,7 @@ import convertToInt from 'lib/convertToInt';
 
 function useIssueChild() {
   const { contracts } = useNetwork();
-  const { syncKnownPoint } = usePointCache();
+  const { syncDates } = usePointCache();
 
   const _contracts = need.contracts(contracts);
 
@@ -48,10 +48,7 @@ function useIssueChild() {
       },
       [_contracts]
     ),
-    useCallback(() => syncKnownPoint(spawnedPoint), [
-      spawnedPoint,
-      syncKnownPoint,
-    ]),
+    useCallback(() => syncDates(spawnedPoint), [spawnedPoint, syncDates]),
     GAS_LIMITS.DEFAULT
   );
 }

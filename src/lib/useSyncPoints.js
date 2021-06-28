@@ -16,17 +16,17 @@ const buildSyncHook = getFn =>
     }, [fn, prevPoints, points]);
   };
 
-export const useSyncKnownPoints = buildSyncHook(function() {
-  const { syncKnownPoint } = usePointCache();
-  return syncKnownPoint;
+export const useSyncDates = buildSyncHook(function() {
+  const { syncDates } = usePointCache();
+  return syncDates;
 });
 
-export const useSyncForeignPoints = buildSyncHook(function() {
-  const { syncForeignPoint } = usePointCache();
-  return syncForeignPoint;
+export const useSyncDetails = buildSyncHook(function() {
+  const { syncDetails } = usePointCache();
+  return syncDetails;
 });
 
-export const useSyncOwnedPoints = buildSyncHook(function() {
-  const { syncOwnedPoint } = usePointCache();
-  return syncOwnedPoint;
+export const useSyncExtras = buildSyncHook(function() {
+  const { syncExtras } = usePointCache();
+  return syncExtras;
 });

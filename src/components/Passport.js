@@ -7,7 +7,7 @@ import 'style/anim.css';
 import * as need from 'lib/need';
 import { chunkStr, Matrix, walk, rand } from 'lib/card';
 import usePermissionsForPoint from 'lib/usePermissionsForPoint';
-import { useSyncOwnedPoints } from 'lib/useSyncPoints';
+import { useSyncDetails } from 'lib/useSyncPoints';
 import { buildKeyType } from 'lib/point';
 
 import { useWallet } from 'store/wallet';
@@ -212,7 +212,7 @@ const Cell = props => {
  *
  */
 function MiniPassport({ point, inverted, ...rest }) {
-  useSyncOwnedPoints([point]);
+  useSyncDetails([point]);
   const { wallet } = useWallet();
   const address = need.addressFromWallet(wallet);
 

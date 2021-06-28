@@ -12,7 +12,6 @@ import { useStarReleaseCache } from 'store/starRelease';
 import * as need from 'lib/need';
 import { isZeroAddress, abbreviateAddress } from 'lib/wallet';
 import useIsEclipticOwner from 'lib/useIsEclipticOwner';
-import { useSyncKnownPoints, useSyncOwnedPoints } from 'lib/useSyncPoints';
 import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
 import pluralize from 'lib/pluralize';
 import newGithubIssueUrl from 'new-github-issue-url';
@@ -203,16 +202,6 @@ export default function Points() {
   useEffect(() => {
     syncStarReleaseDetails();
   }, [syncStarReleaseDetails]);
-  // sync display details for known points
-  useSyncKnownPoints([
-    ...ownedPoints,
-    ...incomingPoints,
-    ...managingPoints,
-    ...votingPoints,
-    ...spawningPoints,
-  ]);
-
-  useSyncOwnedPoints(ownedPoints);
 
   const goCreateGalaxy = useCallback(() => push(names.CREATE_GALAXY), [
     names.CREATE_GALAXY,
