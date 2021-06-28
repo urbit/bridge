@@ -94,6 +94,71 @@ websocket. Do this by going to `about:config` and setting the
 Additionally you need to run with the `HTTPS` environment variable set to
 `true`. Note that `npm run pilot` will handle this automatically.
 
+## Testing
+
+Automated tests for critical user journeys are coming Soon™️. Until then, here are several manual test cases to consider when making changes.
+### Mnemonic Login
+
+"As a user, I can log into Bridge using a BIP39 mnemonic phrase"
+
+1. Click the 'Mnemonic, Metamask, Hardware Wallet ...' Button, then click 'Mnemonic (BIP 39)'
+2. Paste the mnemonic above (in 'Useful Accounts') into the text area, then click 'Login'
+3. Confirm that you are able to view the Points list view. Since no points have been created yet, you should see the following message:
+> No points to display. This wallet is not the owner or proxy for any points.
+
+### Galaxy Creation
+
+"As a user, I can create a new galaxy"
+
+1. Once logged, in, click the "Create a Galaxy" button
+2. Enter a test galaxy name, e.g. `~wep`, sign and send the transaction
+3. Log out and back into Bridge, confirm that the newly created galaxy is rendered in the points list
+
+### Star Creation
+
+"As a user, I can create a new star"
+
+1. Once a galaxy has been created, click it in the points list
+2. Click "Issue Point", enter one of the suggested star names, and sign and send the transaction
+3. Log out and back into Bridge, confirm that the newly created star is rendered in the points list
+
+### Planet Creation
+
+"As a user, I can create a new planet"
+
+1. Once a star has been created, click it in the points list
+2. Click "Issue Point", enter one of the suggested planet names, and sign and send the transaction
+3. Log out and back into Bridge, confirm that the newly created planet is rendered in the points list
+
+### Invite Issuance
+
+"As a user, I can create a new invite"
+
+First, in `Bridge.js`, set the `INITIAL_NETWORK_TYPE` to Ropsten:
+```js
+const INITIAL_NETWORK_TYPE = NETWORK_TYPES.ROPSTEN;
+```
+
+Then, in `tank.js`, set the port to `3011`:
+```js
+const baseUrl = 'https://gas-tank.urbit.org:3011';
+```
+
+1. Ask one of the Collaborators of this project for an Invite code :)
+
+(If you're generating a code, don't forget to set `inviteMail.js` port to `:3012` for testnet)
+
+### Invite Acceptance
+
+"As a new Urbit user, I can set up a new ID with an activation code"
+
+1. On the Bridge landing page, click the small "Activate" link
+2. Paste the Invite code from the previous test case, and click "Go"
+3. Download the Passport file, then use the enclosed Master Ticket and ID to login to Bridge again
+### Known Issues
+
+When testing the invite acceptance and login flow on Ropsten, some of the Azimuth API calls will fail (e.g., `getConditional`). 
+
 ## Releases
 
 To generate a release `bridge-$VERSION.zip` file, use a simple `npm run release`.
