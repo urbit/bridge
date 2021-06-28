@@ -11,8 +11,7 @@ import { bufferedPublicKeyToAddress } from './utils/crypto';
 export function EthereumWallet(privateKey) {
   this.privateKey = privateKey;
   this.publicKey = secp256k1.publicKeyCreate(this.privateKey);
-  const pub = this.publicKey.toString('hex');
-  this.address = publicToAddress(pub).toString('hex');
+  this.address = bufferedPublicKeyToAddress(this.publicKey);
 }
 
 export const urbitWalletFromTicket = async (ticket, point, passphrase) => {

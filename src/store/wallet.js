@@ -15,11 +15,11 @@ import {
   NONCUSTODIAL_WALLETS,
   WALLET_TYPES,
 } from 'lib/constants';
-import { publicToAddress } from 'ethereumjs-util';
 import { getAuthToken } from 'lib/authToken';
 import { BRIDGE_ERROR } from 'lib/error';
 
 import { useNetwork } from 'store/network';
+import { bufferedPublicKeyToAddress } from 'lib/utils/crypto';
 
 export const WalletContext = createContext(null);
 
@@ -94,7 +94,7 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
       // force that public addresses are derived for each wallet
       // NOTE wallet is Maybe<> and .map is Maybe#map
       wallet.map(wal => {
-        wal.address = wal.address || publicToAddress(wal.publicKey).toString('hex');
+        wal.address = wal.address || bufferedPublicKeyToAddress(wal.publicKey);
         return wal;
       });
 
