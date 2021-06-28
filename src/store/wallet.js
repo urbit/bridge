@@ -9,13 +9,13 @@ import React, {
 import { Just, Nothing } from 'folktale/maybe';
 import { includes } from 'lodash';
 
+import { walletFromMnemonic } from 'lib/wallet';
 import {
-  WALLET_TYPES,
   DEFAULT_HD_PATH,
-  addressFromSecp256k1Public,
-  walletFromMnemonic,
   NONCUSTODIAL_WALLETS,
-} from 'lib/wallet';
+  WALLET_TYPES,
+} from 'lib/constants';
+import { publicToAddress } from 'ethereumjs-util';
 import { getAuthToken } from 'lib/authToken';
 import { BRIDGE_ERROR } from 'lib/error';
 
@@ -64,6 +64,7 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
       ) {
         return;
       }
+
       const _wallet = wallet.value;
       const _web3 = web3.value;
       const token = await getAuthToken({
@@ -93,7 +94,7 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
       // force that public addresses are derived for each wallet
       // NOTE wallet is Maybe<> and .map is Maybe#map
       wallet.map(wal => {
-        wal.address = wal.address || addressFromSecp256k1Public(wal.publicKey);
+        wal.address = wal.address || publicToAddress(wal.publicKey).toString('hex');
         return wal;
       });
 

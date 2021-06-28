@@ -56,13 +56,12 @@ export default function useResidents() {
       ]);
 
       // Galaxies sponsor themselves
-      const _residentCount = isGalaxy
-        ? residentCount.toNumber() - 1
-        : residentCount.toNumber();
+      const parsedCount = Number(residentCount);
+      const _residentCount = isGalaxy ? parsedCount - 1 : parsedCount;
 
       addToResidentCache(point, {
         residentCount: Just(_residentCount),
-        requestCount: Just(requestCount.toNumber()),
+        requestCount: Just(Number(requestCount)),
         residents: Nothing(),
         requests: Nothing(),
       });

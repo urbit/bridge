@@ -61,6 +61,7 @@ export default function useControlledPointsStore() {
         );
       }
     } catch (error) {
+      console.error(error);
       _setControlledPoints(Just(Result.Error(error)));
     }
   }, [contracts, wallet]);

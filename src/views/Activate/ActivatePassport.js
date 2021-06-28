@@ -14,11 +14,9 @@ import useRouter from 'lib/useRouter';
 import PassportDownload from './PassportDownload';
 import PassportVerify from './PassportVerify';
 import PassportTransfer from './PassportTransfer';
-import {
-  walletFromMnemonic,
-  DEFAULT_HD_PATH,
-  addressFromSecp256k1Public,
-} from 'lib/wallet';
+import { walletFromMnemonic } from 'lib/wallet';
+import { DEFAULT_HD_PATH } from 'lib/constants';
+import { publicToAddress } from 'ethereumjs-util';
 
 const NAMES = {
   DOWNLOAD: 'DOWNLOAD',
@@ -56,7 +54,7 @@ export default function ActivatePassport() {
             wallet.meta.passphrase
           )
         )
-        .map(wallet => addressFromSecp256k1Public(wallet.publicKey)),
+        .map(wallet => publicToAddress(wallet.publicKey).toString('hex')),
     [derivedWallet]
   );
   //~hobbyn-mismur-fonrux-datber

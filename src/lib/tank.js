@@ -3,7 +3,7 @@
 import retry from 'async-retry';
 import { toBN } from 'web3-utils';
 import { RETRY_OPTIONS, waitForTransactionConfirm } from './txn';
-import { WALLET_TYPES } from 'lib/wallet';
+import { WALLET_TYPES } from 'lib/constants';
 
 const TANK_ADDRESS = '0x40f0A6db85f8D7A54fF3eA915b040dE8Cd4A0Eb5';
 

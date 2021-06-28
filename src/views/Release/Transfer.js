@@ -6,7 +6,7 @@ import { conditionalSR, linearSR } from 'azimuth-js';
 import * as need from 'lib/need';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { getLockupKind } from 'lib/starRelease';
-import { eqAddr, isZeroAddress } from 'lib/wallet';
+import { eqAddr, isZeroAddress } from 'lib/utils/crypto';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';

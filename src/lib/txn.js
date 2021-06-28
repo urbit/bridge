@@ -7,8 +7,8 @@ import { NETWORK_TYPES } from './network';
 import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
 import { metamaskSignTransaction, FakeMetamaskTransaction } from './metamask';
-import { WALLET_TYPES, addHexPrefix } from './wallet';
-import { CHECK_BLOCK_EVERY_MS } from './constants';
+import { addHexPrefix } from './utils/crypto';
+import { CHECK_BLOCK_EVERY_MS, WALLET_TYPES } from './constants';
 import patp2dec from './patp2dec';
 
 const RETRY_OPTIONS = {
