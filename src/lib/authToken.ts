@@ -1,5 +1,5 @@
+import { crypto } from 'bitcoinjs-lib';
 import { ecdsaSign } from 'secp256k1';
-import { keccak256 } from 'web3-utils';
 
 import { WALLET_TYPES } from './constants';
 import { ledgerSignMessage } from './ledger';
@@ -9,13 +9,9 @@ const MESSAGE = 'Bridge Authentication Token';
 
 function signMessage(privateKey: Buffer) {
   const msg = '\x19Ethereum Signed Message:\n' + MESSAGE.length + MESSAGE;
-  // TODO: Signing function expects 32 length Buffer,
-  // confirm if it is okay / expected to slice it like this?
-  // Based on reading docs and comment threads, it seems that
-  // this limit is sometimes enforced, and varies depending on
-  // the implementation
-  const msgHash = Buffer.from(keccak256(msg)).slice(0, 32);
-  const { signature } = ecdsaSign(msgHash, privateKey);
+  // #ecdsaSign requires a 32-byte buffer, hence sha256
+  const hashed = crypto.sha256(Buffer.from(msg));
+  const { signature } = ecdsaSign(Buffer.from(hashed), privateKey);
 
   // add key recovery parameter
   const ethSignature = new Uint8Array(65);
