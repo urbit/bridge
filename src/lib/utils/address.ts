@@ -1,6 +1,6 @@
 import { reduce } from 'lodash';
 import { isAddress, keccak256, toHex } from 'web3-utils';
-import { publicToAddress } from 'ethereumjs-util';
+import { pubToAddress } from 'ethereumjs-util';
 import { ETH_ZERO_ADDR, ETH_ZERO_ADDR_SHORT } from 'lib/constants';
 
 export const stripHexPrefix = (hex: string) => {
@@ -34,6 +34,6 @@ export const toChecksumAddress = address => {
 export const eqAddr = (addr0, addr1) =>
   toChecksumAddress(addr0) === toChecksumAddress(addr1);
 
-export const bufferedPublicKeyToAddress = (publicKey: Buffer): string => {
-  return toHex(publicToAddress(publicKey, true).toString('hex'));
+export const publicToAddress = (publicKey: Buffer): string => {
+  return toHex(pubToAddress(publicKey, true).toString('hex'));
 };

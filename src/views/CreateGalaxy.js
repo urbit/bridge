@@ -10,7 +10,7 @@ import * as need from 'lib/need';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import patp2dec from 'lib/patp2dec';
-import { isZeroAddress } from 'lib/utils/crypto';
+import { isZeroAddress } from 'lib/utils/address';
 import { useLocalRouter } from 'lib/LocalRouter';
 
 import ViewHeader from 'components/ViewHeader';

@@ -14,7 +14,7 @@ import {
 } from 'lib/proxy';
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
-import { eqAddr, isZeroAddress } from 'lib/utils/crypto';
+import { eqAddr, isZeroAddress } from 'lib/utils/address';
 import capitalize from 'lib/capitalize';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 

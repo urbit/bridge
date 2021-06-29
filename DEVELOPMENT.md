@@ -106,22 +106,6 @@ Automated tests for critical user journeys are coming Soon™️. Until then, he
 3. Confirm that you are able to view the Points list view. Since no points have been created yet, you should see the following message:
 > No points to display. This wallet is not the owner or proxy for any points.
 
-### Galaxy Creation
-
-"As a user, I can create a new galaxy"
-
-1. Once logged, in, click the "Create a Galaxy" button
-2. Enter a test galaxy name, e.g. `~wep`, sign and send the transaction
-3. Log out and back into Bridge, confirm that the newly created galaxy is rendered in the points list
-
-### Star Creation
-
-"As a user, I can create a new star"
-
-1. Once a galaxy has been created, click it in the points list
-2. Click "Issue Point", enter one of the suggested star names, and sign and send the transaction
-3. Log out and back into Bridge, confirm that the newly created star is rendered in the points list
-
 ### Planet Creation
 
 "As a user, I can create a new planet"

@@ -5,7 +5,7 @@ import * as noun from '../nockjs/noun';
 import * as serial from '../nockjs/serial';
 import * as kg from 'urbit-key-generation';
 
-import { addHexPrefix, eqAddr } from './utils/crypto';
+import { addHexPrefix, eqAddr } from './utils/address';
 import { shas } from './networkCode';
 
 // the curve param for the network keys

@@ -1,7 +1,7 @@
 import { useWallet } from 'store/wallet';
 import { usePointCache } from 'store/pointCache';
 
-import { eqAddr } from 'lib/utils/crypto';
+import { eqAddr } from 'lib/utils/address';
 import useLifecycle from './useLifecycle';
 
 export default function useIsEclipticOwner() {

@@ -6,7 +6,7 @@ import { FORM_ERROR } from 'final-form';
 import { useWallet } from 'store/wallet';
 import { useNetwork } from 'store/network';
 
-import { abbreviateAddress } from 'lib/utils/crypto';
+import { abbreviateAddress } from 'lib/utils/address';
 import { WALLET_TYPES } from 'lib/constants';
 import { MetamaskWallet } from 'lib/metamask';
 import { getAuthToken } from 'lib/authToken';

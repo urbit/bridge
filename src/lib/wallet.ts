@@ -4,14 +4,12 @@ import { bip32 } from 'bitcoinjs-lib';
 import { Just, Nothing } from 'folktale/maybe';
 import * as secp256k1 from 'secp256k1';
 import * as kg from 'urbit-key-generation';
-import { publicToAddress } from 'ethereumjs-util';
-import { toHex } from 'web3-utils';
-import { bufferedPublicKeyToAddress } from './utils/crypto';
+import { publicToAddress } from './utils/address';
 
 export function EthereumWallet(privateKey) {
   this.privateKey = privateKey;
   this.publicKey = secp256k1.publicKeyCreate(this.privateKey);
-  this.address = bufferedPublicKeyToAddress(this.publicKey);
+  this.address = publicToAddress(this.publicKey);
 }
 
 export const urbitWalletFromTicket = async (ticket, point, passphrase) => {
@@ -37,7 +35,7 @@ export const walletFromMnemonic = (
     let wal;
     const hd = bip32.fromSeed(sd);
     wal = hd.derivePath(path);
-    wal.address = bufferedPublicKeyToAddress(wal.publicKey);
+    wal.address = publicToAddress(wal.publicKey);
     wal.passphrase = passphrase || '';
     wal = Just(wal);
     return wal;

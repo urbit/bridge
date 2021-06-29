@@ -5,7 +5,7 @@ import { Grid } from 'indigo-react';
 import { useWallet } from 'store/wallet';
 
 import { EthereumWallet } from 'lib/wallet';
-import { stripHexPrefix } from 'lib/utils/crypto';
+import { stripHexPrefix } from 'lib/utils/address';
 import { WALLET_TYPES } from 'lib/constants';
 import useLoginView from 'lib/useLoginView';
 

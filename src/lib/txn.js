@@ -7,7 +7,7 @@ import { NETWORK_TYPES } from './network';
 import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
 import { metamaskSignTransaction, FakeMetamaskTransaction } from './metamask';
-import { addHexPrefix } from './utils/crypto';
+import { addHexPrefix } from './utils/address';
 import { CHECK_BLOCK_EVERY_MS, WALLET_TYPES } from './constants';
 import patp2dec from './patp2dec';
 

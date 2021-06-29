@@ -3,7 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import ob from 'urbit-ob';
 import { includes } from 'lodash';
 
-import { isValidAddress } from './utils/crypto';
+import { isValidAddress } from './utils/address';
 import patp2dec from './patp2dec';
 import { patpStringLength } from './lib';
 import {

@@ -1,6 +1,6 @@
 import { mnemonicToSeedSync } from 'bip39';
 import { bip32 } from 'bitcoinjs-lib';
-import { bufferedPublicKeyToAddress } from './crypto';
+import { publicToAddress } from './address';
 
 describe('#bufferedPublicKeyToAddress', () => {
   // TODO: why does this seemingly work in the Mnemonic login flow, but not in a test?
@@ -14,6 +14,6 @@ describe('#bufferedPublicKeyToAddress', () => {
 
     const expected = 'foo';
 
-    expect(bufferedPublicKeyToAddress(wallet.publicKey)).toEqual(expected);
+    expect(publicToAddress(wallet.publicKey)).toEqual(expected);
   });
 });

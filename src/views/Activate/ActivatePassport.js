@@ -16,7 +16,7 @@ import PassportVerify from './PassportVerify';
 import PassportTransfer from './PassportTransfer';
 import { walletFromMnemonic } from 'lib/wallet';
 import { DEFAULT_HD_PATH } from 'lib/constants';
-import { bufferedPublicKeyToAddress } from 'lib/utils/crypto';
+import { publicToAddress } from 'lib/utils/address';
 
 const NAMES = {
   DOWNLOAD: 'DOWNLOAD',
@@ -54,7 +54,7 @@ export default function ActivatePassport() {
             wallet.meta.passphrase
           )
         )
-        .map(wallet => bufferedPublicKeyToAddress(wallet.publicKey)),
+        .map(wallet => publicToAddress(wallet.publicKey)),
     [derivedWallet]
   );
   //~hobbyn-mismur-fonrux-datber

@@ -5,7 +5,7 @@ import { useNetwork } from 'store/network';
 
 import * as need from 'lib/need';
 
-import { eqAddr, isZeroAddress } from './utils/crypto';
+import { eqAddr, isZeroAddress } from './utils/address';
 
 const NULL_PERMISSIONS = {
   isActive: false,
