@@ -70,7 +70,7 @@
     "secp256k1": "^4.0.2",
     "styled-components": "^5.3.0",
     "styled-system": "^5.1.5",
-    "trezor-connect": "^8.1.14",
+    "trezor-connect": "^8.1.27",
     "typescript": "^4.3.2",
     "urbit-key-generation": "^0.19.0",
     "urbit-ob": "^4.1.4",
