@@ -96,7 +96,8 @@ Additionally you need to run with the `HTTPS` environment variable set to
 
 ## Testing
 
-Automated tests for critical user journeys are coming Soon™️. Until then, here are several manual test cases to consider when making changes.
+Automated tests for critical user journeys are coming Soon™️. Until then, here are several manual test cases to consider when making changes. It's worth noting that what to test depends on what the changes are. These test cases have limited utility when you are making a small change on a single screen; however, they are certainly a good idea when touching critical pieces such as transaction sending or secrets derivation.
+
 ### Mnemonic Login
 
 "As a user, I can log into Bridge using a BIP39 mnemonic phrase"
