@@ -3,10 +3,10 @@ import cn from 'classnames';
 import { Just } from 'folktale/maybe';
 import { P, Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react';
 import { times } from 'lodash';
-import * as bip32 from 'bip32';
+import { bip32 } from 'bitcoinjs-lib';
 import Transport from '@ledgerhq/hw-transport-u2f';
 import Eth from '@ledgerhq/hw-app-eth';
-import * as secp256k1 from 'secp256k1';
+import { publicKeyConvert } from 'secp256k1';
 
 import { useWallet } from 'store/wallet';
 
@@ -16,7 +16,7 @@ import {
   chopHdPrefix,
   addHdPrefix,
 } from 'lib/ledger';
-import { WALLET_TYPES } from 'lib/wallet';
+import { WALLET_TYPES } from 'lib/constants';
 import useLoginView from 'lib/useLoginView';
 import useBreakpoints from 'lib/useBreakpoints';
 
@@ -69,8 +69,8 @@ export default function Ledger({ className, goHome }) {
       try {
         const info = await eth.getAddress(path, false, true);
         const publicKey = Buffer.from(info.publicKey, 'hex');
-        const chainCode = Buffer.from(info.chainCode, 'hex');
-        const pub = secp256k1.publicKeyConvert(publicKey, true);
+        const chainCode = Buffer.from(info.chainCode!.toString(), 'hex');
+        const pub = Buffer.from(publicKeyConvert(publicKey, true));
         const hd = bip32.fromPublicKey(pub, chainCode);
         const authToken = await getAuthToken({
           wallet: hd,

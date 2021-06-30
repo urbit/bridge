@@ -73,7 +73,7 @@ export default function Input({
           black: !disabled,
           gray4: disabled,
         })}>
-        <Flex.Item as="label" justify htmlFor={name}>
+        <Flex.Item as="label" justify="center" htmlFor={name}>
           {label}
         </Flex.Item>
         {labelAccessory && <Flex.Item>{labelAccessory}</Flex.Item>}

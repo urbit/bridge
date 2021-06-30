@@ -1,15 +1,15 @@
 import React, { useCallback, useMemo } from 'react';
 import { Just } from 'folktale/maybe';
-import * as bip32 from 'bip32';
+import { bip32 } from 'bitcoinjs-lib';
+import { publicKeyConvert } from 'secp256k1';
 import { times } from 'lodash';
-import TrezorConnect from 'trezor-connect';
-import * as secp256k1 from 'secp256k1';
+import TrezorConnect, { HDNodeResponse } from 'trezor-connect';
 import { Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 
 import { TREZOR_PATH } from 'lib/trezor';
-import { WALLET_TYPES } from 'lib/wallet';
+import { WALLET_TYPES } from 'lib/constants';
 import useLoginView from 'lib/useLoginView';
 import { getAuthToken } from 'lib/authToken';
 
@@ -63,9 +63,18 @@ export default function Trezor({ className, goHome }) {
         return { [FORM_ERROR]: 'Failed to authenticate with your Trezor.' };
       }
 
-      const publicKey = Buffer.from(payload.publicKey, 'hex');
-      const chainCode = Buffer.from(payload.chainCode, 'hex');
-      const pub = secp256k1.publicKeyConvert(publicKey, true);
+      // At this point, request is succesful, so payload will be
+      // type HDNodeResponse (seems Trezor lib's TS types are slightly off)
+      const publicKey = Buffer.from(
+        (payload as HDNodeResponse).publicKey,
+        'hex'
+      );
+      const chainCode = Buffer.from(
+        (payload as HDNodeResponse).chainCode,
+        'hex'
+      );
+
+      const pub = Buffer.from(publicKeyConvert(publicKey, true));
       const hd = bip32.fromPublicKey(pub, chainCode);
 
       const authToken = await getAuthToken({

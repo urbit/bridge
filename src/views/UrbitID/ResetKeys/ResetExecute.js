@@ -8,7 +8,7 @@ import {
 } from 'lib/reticket';
 import * as need from 'lib/need';
 import useLifecycle from 'lib/useLifecycle';
-import { WALLET_TYPES } from 'lib/wallet';
+import { WALLET_TYPES } from 'lib/constants';
 import convertToInt from 'lib/convertToInt';
 import useBlockWindowClose from 'lib/useBlockWindowClose';
 

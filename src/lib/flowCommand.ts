@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { isValidAddress } from './wallet';
+import { isValidAddress } from './utils/address';
 
 // looks into the GET parameters and attempts to construct a "flow" object,
 // which would indicate bridge is to be used for one specific flow.
