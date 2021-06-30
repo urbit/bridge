@@ -33,7 +33,7 @@ import CopiableAddress from 'components/CopiableAddress';
 function useSetPoolSize() {
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
-  const { syncOwnedPoint } = usePointCache();
+  const { syncExtras } = usePointCache();
 
   const _contracts = need.contracts(contracts);
   const _point = need.point(pointCursor);
@@ -49,7 +49,7 @@ function useSetPoolSize() {
         ),
       [_contracts, _point]
     ),
-    useCallback(() => syncOwnedPoint(_point), [_point, syncOwnedPoint]),
+    useCallback(() => syncExtras(_point), [_point, syncExtras]),
     GAS_LIMITS.DEFAULT // TODO: GAS_LIMITS.SET_POOL_SIZE
   );
 }

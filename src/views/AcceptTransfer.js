@@ -25,7 +25,7 @@ import { composeValidator, buildCheckboxValidator } from 'form/validators';
 function useAcceptTransfer() {
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
-  const { syncOwnedPoint, syncControlledPoints } = usePointCache();
+  const { syncExtras, syncControlledPoints } = usePointCache();
   const { wallet } = useWallet();
 
   const _contracts = need.contracts(contracts);
@@ -39,8 +39,8 @@ function useAcceptTransfer() {
       [_contracts, _point, _address]
     ),
     useCallback(
-      () => Promise.all([syncOwnedPoint(_point), syncControlledPoints()]),
-      [_point, syncControlledPoints, syncOwnedPoint]
+      () => Promise.all([syncExtras(_point), syncControlledPoints()]),
+      [_point, syncControlledPoints, syncExtras]
     ),
     GAS_LIMITS.TRANSFER
   );
