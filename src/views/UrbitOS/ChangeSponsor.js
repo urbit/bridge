@@ -26,7 +26,7 @@ import useEthereumTransaction from 'lib/useEthereumTransaction';
 function useChangeSponsor() {
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
-  const { syncOwnedPoint } = usePointCache();
+  const { syncExtras } = usePointCache();
 
   const _contracts = need.contracts(contracts);
   const point = need.point(pointCursor);
@@ -37,8 +37,8 @@ function useChangeSponsor() {
       _contracts,
     ]),
     useCallback(() => {
-      syncOwnedPoint(point);
-    }, [syncOwnedPoint, point])
+      syncExtras(point);
+    }, [syncExtras, point])
   );
 }
 
@@ -128,7 +128,7 @@ function ChangeSponsor({ onDone }) {
 function useCancelEscape() {
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
-  const { syncOwnedPoint } = usePointCache();
+  const { syncExtras } = usePointCache();
 
   const _contracts = need.contracts(contracts);
   const point = need.point(pointCursor);
@@ -138,7 +138,7 @@ function useCancelEscape() {
       point,
       _contracts,
     ]),
-    useCallback(() => syncOwnedPoint(point), [point, syncOwnedPoint])
+    useCallback(() => syncExtras(point), [point, syncExtras])
   );
 }
 
