@@ -127,7 +127,7 @@ export default function ActivateCode() {
 
         setDerivedPoint(Just(point));
         setInviteWallet(inviteWallet);
-        setDerivedWallet(Just(await generateWallet(point)));
+        setDerivedWallet(Just(await generateWallet(point, true)));
       } else {
         return {
           [FORM_ERROR]:

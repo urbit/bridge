@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, P } from 'indigo-react';
+import ob from 'urbit-ob';
 
 import * as need from 'lib/need';
 import { downloadWallet } from 'lib/invite';
 import { useLocalRouter } from 'lib/LocalRouter';
+import { compileNetworkingKey } from 'lib/keys';
 
 import { DownloadButton, ForwardButton } from 'components/Buttons';
 import PaperBuilder from 'components/PaperBuilder';
@@ -20,7 +22,7 @@ export default function PassportDownload({ className }) {
     setGenerated,
   } = useActivateFlow();
   const { push, names } = useLocalRouter();
-  // const point = need.point(derivedPoint);
+  const point = need.point(derivedPoint);
   const wallet = need.wallet(derivedWallet);
 
   const [paper, setPaper] = useState(Nothing());
@@ -32,9 +34,12 @@ export default function PassportDownload({ className }) {
   });
 
   const download = useCallback(() => {
-    downloadWallet(paper.getOrElse([]));
+    const netkey = compileNetworkingKey(wallet.network.keys, point, 1);
+    //TODO  could be deduplicated with useKeyfileGenerator's logic
+    const filename = ob.patp(point).slice(1) + '-1.key';
+    downloadWallet(paper.getOrElse([]), netkey, filename);
     setDownloaded(true);
-  }, [paper, setDownloaded]);
+  }, [paper, wallet, point, setDownloaded]);
 
   // sync paper value to activation state
   useEffect(
