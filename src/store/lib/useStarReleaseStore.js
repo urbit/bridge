@@ -49,8 +49,8 @@ export default function useStarRelease() {
 
       _setDetails(Just(result));
     } catch (e) {
-      _setDetails(Nothing());
-      console.error(e);
+      _setDetails(Just(null));
+      console.error('error fetching star release details', e);
     }
   }, [contracts, wallet]);
 
