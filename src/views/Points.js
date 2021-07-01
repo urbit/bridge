@@ -151,7 +151,8 @@ export default function Points() {
               all.length === 1 &&
               incoming.length === 0 &&
               maybeOutgoingPoints.value.length === 0 &&
-              starReleaseDetails.value.total === 0
+              (starReleaseDetails.value === null ||
+                starReleaseDetails.value.total === 0)
             ) {
               setPointCursor(Just(all[0]));
               popAndPush(names.POINT);
@@ -196,7 +197,7 @@ export default function Points() {
     !loading && incomingPoints.length === 0 && allPoints.length === 0;
 
   const starReleasing = starReleaseDetails
-    .map(s => s.total > 0)
+    .map(s => (s ? s.total > 0 : false))
     .getOrElse(false);
 
   useEffect(() => {
