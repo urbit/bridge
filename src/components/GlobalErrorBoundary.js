@@ -12,7 +12,7 @@ const buildBody = error => `\n
 \n
 <!-- 1) What were you doing when you encountered this error? -->
 \n
-<!-- 2) Only if relevant (don't self-dox!), what point were you interacting with? -->
+<!-- 2) If you're comfortable sharing (don't self-dox!), what Ethereum address were you logged in with? -->
 \n
 ## Error\n\n
 \`\`\`
