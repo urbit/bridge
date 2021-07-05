@@ -12,6 +12,8 @@ import { ForwardButton } from 'components/Buttons';
 import NetworkingKeys from 'components/NetworkingKeys';
 
 import { useLocalRouter } from 'lib/LocalRouter';
+import { PointDetails } from 'types/pointDetailsType';
+import WarningBox from 'components/WarningBox';
 
 export default function UrbitOSHome({ manualNetworkSeed }) {
   const { pointCursor } = usePointCursor();
@@ -20,7 +22,7 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
   const { push, names } = useLocalRouter();
 
   const point = need.point(pointCursor);
-  const details = need.details(getDetails(point));
+  const details: PointDetails = need.details(getDetails(point));
 
   const sponsor = ob.patp(details.sponsor);
 
@@ -28,6 +30,10 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
 
   const showSponsor = azimuth.getPointSize(point) !== azimuth.PointSize.Galaxy;
   const toggleShowKeys = useCallback(() => setShowKeys(s => !s), [setShowKeys]);
+
+  // The initial key revision number is 0, and increments when set
+  const hasSetNetworkingKeys = details.keyRevisionNumber !== '0';
+  const networkKeysAction = hasSetNetworkingKeys ? 'Reset' : 'Initiate';
 
   const goNetworkingKeys = useCallback(() => push(names.NETWORKING_KEYS), [
     names,
@@ -61,17 +67,26 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
 
         <Grid.Divider />
         <Grid.Item full as={ForwardButton} onClick={goNetworkingKeys}>
-          Reset Networking Keys
+          {networkKeysAction} Networking Keys
         </Grid.Item>
-        <Grid.Divider />
-        <Grid.Item
-          full
-          as={ForwardButton}
-          accessory={showKeys ? '▼' : '▲'}
-          onClick={toggleShowKeys}>
-          View Networking Keys
-        </Grid.Item>
-        {showKeys && <Grid.Item full as={NetworkingKeys} point={point} />}
+        {hasSetNetworkingKeys && (
+          <>
+            <Grid.Divider />
+            <Grid.Item
+              full
+              as={ForwardButton}
+              accessory={showKeys ? '▼' : '▲'}
+              onClick={toggleShowKeys}>
+              View Networking Keys
+            </Grid.Item>
+            {showKeys && <Grid.Item full as={NetworkingKeys} point={point} />}
+          </>
+        )}
+        {!hasSetNetworkingKeys && (
+          <Grid.Item full as={WarningBox} className="mt4">
+            Networking Keys are required to generate a keyfile
+          </Grid.Item>
+        )}
       </Grid>
     </>
   );
