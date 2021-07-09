@@ -512,6 +512,10 @@ caption,
 .fw-bold {
   font-weight: 600; }
 
+.fw-bolder {
+  font-weight: 700; 
+}
+
 @media only screen and (min-width: 550px) {
   .fw-thin-ns {
     font-weight: 200; }
@@ -1015,6 +1019,14 @@ caption,
 .bg-blue1 {
   background-color: #ecf6ff; }
 
+.bg-red6 {
+  background-color: #FF4136;
+}
+
+.bg-red5 {
+  background-color: #FFC6C3;
+}
+
 .bg-red4 {
   background-color: #c10d30; }
 
@@ -1089,6 +1101,10 @@ caption,
 
 .blue1 {
   color: #ecf6ff; }
+
+.red5 {
+  color: #FF4136;
+}
 
 .red4 {
   color: #c10d30; }

@@ -13,7 +13,7 @@ import NetworkingKeys from 'components/NetworkingKeys';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import { PointDetails } from 'types/pointDetailsType';
-import WarningBox from 'components/WarningBox';
+import AlertBox from 'components/AlertBox';
 
 export default function UrbitOSHome({ manualNetworkSeed }) {
   const { pointCursor } = usePointCursor();
@@ -83,9 +83,11 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
           </>
         )}
         {!hasSetNetworkingKeys && (
-          <Grid.Item full as={WarningBox} className="mt4">
-            Networking Keys are required to generate a keyfile
-          </Grid.Item>
+          <>
+            <Grid.Item full as={AlertBox} className="mt4">
+              Networking Keys are required to generate a keyfile
+            </Grid.Item>
+          </>
         )}
       </Grid>
     </>
