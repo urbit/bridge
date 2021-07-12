@@ -25,6 +25,7 @@ import ViewHeader from 'components/ViewHeader';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import NoticeBox from 'components/NoticeBox';
+import AlertBox from 'components/AlertBox';
 
 import { HexInput } from 'form/Inputs';
 import {
@@ -205,28 +206,34 @@ export default function UrbitOSNetworkingKeys({
     []
   );
 
+  const viewTitle = completed
+    ? 'Network Keys are now set'
+    : 'Set Networking Keys';
+
   const usageMessage =
-    'You need this to authenticate with Arvo. Please download';
+    'You need this keyfile to authenticate with your OS. Please Download.';
 
   return (
     <>
       <Grid>
         <Grid.Item full as={ViewHeader}>
-          Set Networking Keys
+          {viewTitle}
         </Grid.Item>
-        <Grid.Item className="gray4 f5" full>
-          Network Keys authenticate Urbit ID with Urbit OS.
-        </Grid.Item>
+        {!completed && (
+          <Grid.Item className="gray4 f5" full>
+            Network Keys authenticate Urbit ID with Urbit OS.
+          </Grid.Item>
+        )}
         {completed && (
           <>
             <Grid.Item
               full
-              className="mv3"
+              className="mb3"
               as={DownloadKeyfileButton}
               solid
               {...keyfileBind}
             />
-            <Grid.Item full className="mb3 bg-red3 white t-center p3">
+            <Grid.Item full as={AlertBox} className="mb8">
               {usageMessage}
             </Grid.Item>
           </>
