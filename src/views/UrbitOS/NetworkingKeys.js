@@ -214,8 +214,8 @@ export default function UrbitOSNetworkingKeys({
         <Grid.Item full as={ViewHeader}>
           Set Networking Keys
         </Grid.Item>
-        <Grid.Item className="gray4 f6" full>
-          Network Keys solidify the handshake between ID and OS
+        <Grid.Item className="gray4 f5" full>
+          Network Keys authenticate Urbit ID with Urbit OS.
         </Grid.Item>
         {completed && (
           <>
