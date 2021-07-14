@@ -4,6 +4,7 @@ import retry from 'async-retry';
 import { toBN } from 'web3-utils';
 import { RETRY_OPTIONS, waitForTransactionConfirm } from './txn';
 import { WALLET_TYPES } from 'lib/constants';
+import { isRopsten } from './flags';
 
 const TANK_ADDRESS = '0x40f0A6db85f8D7A54fF3eA915b040dE8Cd4A0Eb5';
 
@@ -11,7 +12,8 @@ const TANK_ADDRESS = '0x40f0A6db85f8D7A54fF3eA915b040dE8Cd4A0Eb5';
 //     did not succeed", you might need to visit localhost:3001 or whatever
 //     explicitly and tell your browser that's safe to access.
 //     https://stackoverflow.com/a/53011185/1334324
-const baseUrl = 'https://gas-tank.urbit.org:3001';
+const port = isRopsten ? '3011' : '3001';
+const baseUrl = `https://gas-tank.urbit.org:${port}`;
 
 function sendRequest(where, what) {
   return new Promise((resolve, reject) => {

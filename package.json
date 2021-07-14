@@ -107,6 +107,7 @@
     "pilot-invites": "WITH_TEST_STATE=INVITES npm run pilot",
     "pilot-release": "WITH_TEST_STATE=STAR_RELEASE npm run pilot",
     "pilot-residents": "WITH_TEST_STATE=RESIDENTS npm run pilot",
+    "pilot-ropsten": "REACT_APP_ROPSTEN=true npm run pilot",
     "pilot:cleanup": "pkill -f ganache-cli",
     "lint:check": "eslint 'src/**/*.js'",
     "lint:fix": "eslint --fix 'src/**/*.js'",

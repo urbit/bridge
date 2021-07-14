@@ -2,7 +2,10 @@
 //     did not succeed", you might need to visit localhost:3001 or whatever
 //     explicitly and tell your browser that's safe to access.
 //     https://stackoverflow.com/a/53011185/1334324
-const baseUrl = 'https://onboarding-emails.urbit.org:3002';
+import { isRopsten } from './flags';
+
+const port = isRopsten ? '3012' : '3002';
+const baseUrl = `https://onboarding-emails.urbit.org:${port}`;
 
 function sendRequest(where, what) {
   return new Promise((resolve, reject) => {

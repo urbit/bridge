@@ -11,7 +11,7 @@ import { ROUTE_NAMES } from 'lib/routeNames';
 import { ROUTES } from 'lib/router';
 import { NETWORK_TYPES } from 'lib/network';
 import { walletFromMnemonic } from 'lib/wallet';
-import { isDevelopment } from 'lib/flags';
+import { isDevelopment, isRopsten } from 'lib/flags';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
 
@@ -20,7 +20,9 @@ import WithErrorBoundary from 'components/WithErrorBoundary';
 import GlobalErrorBoundary from 'components/GlobalErrorBoundary';
 
 const INITIAL_NETWORK_TYPE = isDevelopment
-  ? NETWORK_TYPES.LOCAL
+  ? isRopsten
+    ? NETWORK_TYPES.ROPSTEN
+    : NETWORK_TYPES.LOCAL
   : NETWORK_TYPES.MAINNET;
 
 // NB(shrugs): modify these variables to change the default local state.
