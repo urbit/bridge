@@ -14,6 +14,8 @@ import NetworkingKeys from 'components/NetworkingKeys';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { PointDetails } from 'types/pointDetailsType';
 import AlertBox from 'components/AlertBox';
+import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 export default function UrbitOSHome({ manualNetworkSeed }) {
   const { pointCursor } = usePointCursor();
@@ -44,6 +46,9 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
     push,
     names,
   ]);
+
+  const { bind: keyBind } = useKeyfileGenerator();
+
   return (
     <>
       <Grid>
@@ -64,7 +69,17 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
             </Grid.Item>
           </>
         )}
-
+        {hasSetNetworkingKeys && (
+          <>
+            <Grid.Divider />
+            <Grid.Item
+              full
+              detail="A keyfile is used to boot your Urbit OS"
+              as={DownloadKeyfileButton}
+              {...keyBind}
+            />
+          </>
+        )}
         <Grid.Divider />
         <Grid.Item full as={ForwardButton} onClick={goNetworkingKeys}>
           {networkKeysAction} Networking Keys
@@ -75,7 +90,7 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
             <Grid.Item
               full
               as={ForwardButton}
-              accessory={showKeys ? '▼' : '▲'}
+              accessory={showKeys ? '▲' : '▼'}
               onClick={toggleShowKeys}>
               View Networking Keys
             </Grid.Item>
