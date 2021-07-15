@@ -53,7 +53,7 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
     <>
       <Grid>
         <Grid.Item full className="mv7 f5">
-          Network
+          Urbit OS
         </Grid.Item>
         {showSponsor && (
           <>
@@ -62,10 +62,10 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
               full
               as={ForwardButton}
               detail="A sponsor finds new peers in your network"
-              accessory={<u>Change</u>}
+              accessory="Change"
               onClick={goChangeSponsor}>
               <span className="mono">{sponsor}</span>
-              <span className="f7 bg-black white p1 ml2 r4">SPONSOR</span>
+              <span className="f7 bg-black white p1 mb2 ml2 r4">SPONSOR</span>
             </Grid.Item>
           </>
         )}
