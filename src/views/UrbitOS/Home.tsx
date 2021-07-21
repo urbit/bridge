@@ -12,7 +12,7 @@ import { ForwardButton } from 'components/Buttons';
 import NetworkingKeys from 'components/NetworkingKeys';
 
 import { useLocalRouter } from 'lib/LocalRouter';
-import { PointDetails } from 'types/pointDetailsType';
+import { L1Point } from 'types/L1Point';
 import AlertBox from 'components/AlertBox';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
@@ -24,7 +24,7 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
   const { push, names } = useLocalRouter();
 
   const point = need.point(pointCursor);
-  const details: PointDetails = need.details(getDetails(point));
+  const details: L1Point = need.details(getDetails(point));
 
   const sponsor = ob.patp(details.sponsor);
 
