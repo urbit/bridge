@@ -68,7 +68,7 @@ export default function UrbitID() {
   const lastCrumb = homeAction ? [{ text: humanizeName(last) }] : [];
 
   return (
-    <View pop={router.pop} inset>
+    <View pop={() => router.peek().key === NAMES.HOME ? history.pop() : router.pop()} inset>
       <NavHeader>
         <Crumbs
           routes={[
