@@ -35,7 +35,7 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
 
   // The initial key revision number is 0, and increments when set
   const hasSetNetworkingKeys = details.keyRevisionNumber !== '0';
-  const networkKeysAction = hasSetNetworkingKeys ? 'Reset' : 'Initiate';
+  const networkKeysAction = hasSetNetworkingKeys ? 'Reset' : 'Initialize';
 
   const goNetworkingKeys = useCallback(() => push(names.NETWORKING_KEYS), [
     names,
