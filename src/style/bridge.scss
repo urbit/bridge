@@ -14,3 +14,11 @@ body {
 .animated-width {
   transition: width 500ms ease-out;
 }
+
+// Wrap a @tlon/indigo-react Icon with a circular background
+span.circular-icon-bg {
+  height: 18px;
+  width: 18px;
+  margin-right: 8px;
+  border-radius: 50%;
+}
