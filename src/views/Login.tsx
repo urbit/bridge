@@ -124,7 +124,7 @@ export default function Login() {
             className="us-none pointer">
             <span className="underline">Offline</span> ↗
           </Flex.Item>
-          <Flex.Item className="gray4">{versionLabel}</Flex.Item>
+          <Flex.Item className="gray4">v{versionLabel}</Flex.Item>
         </Flex>
       </Footer>
     </View>
