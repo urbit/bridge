@@ -8,7 +8,7 @@ import { usePointCursor } from 'store/pointCursor';
 
 import * as need from 'lib/need';
 import useMailer from 'lib/useMailer';
-import pluralize from 'lib/pluralize';
+import { pluralize } from 'lib/pluralize';
 import useInviter from 'lib/useInviter';
 
 import {

@@ -4,7 +4,7 @@ import { Flex } from 'indigo-react';
 
 import Footer from './Footer';
 import useBreakpoints from 'lib/useBreakpoints';
-import MiniBackButton from './MiniBackButton';
+import { MiniBackButton } from './MiniBackButton';
 import { useHistory } from 'store/history';
 import NavHeader from './NavHeader';
 

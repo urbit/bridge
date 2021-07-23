@@ -9,7 +9,7 @@ import {
 import * as need from 'lib/need';
 import useLifecycle from 'lib/useLifecycle';
 import { WALLET_TYPES } from 'lib/constants';
-import convertToInt from 'lib/convertToInt';
+import { convertToInt } from 'lib/convertToInt';
 import useBlockWindowClose from 'lib/useBlockWindowClose';
 
 import { useNetwork } from 'store/network';

@@ -12,7 +12,6 @@ import * as need from 'lib/need';
 import useCurrentPointName from 'lib/useCurrentPointName';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
-import useLifecycle from 'lib/useLifecycle';
 import { useLocalRouter } from 'lib/LocalRouter';
 
 import ViewHeader from 'components/ViewHeader';

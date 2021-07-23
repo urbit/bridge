@@ -21,7 +21,7 @@ import {
   validateUnique,
   validatePsbt,
 } from 'lib/validators';
-import isPromise from 'lib/isPromise';
+import { isPromise } from 'lib/isPromise';
 
 const PRIVATE_KEY_CHAR_LENGTH = 64; // 64 hex characters
 const ADDRESS_CHAR_LENGTH = 40; // 40 hex characters

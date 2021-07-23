@@ -1,6 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { Grid } from 'indigo-react';
-import { azimuth } from 'azimuth-js';
 
 import View from 'components/View';
 import ViewHeader from 'components/ViewHeader';

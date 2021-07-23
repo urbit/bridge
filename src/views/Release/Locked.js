@@ -5,7 +5,7 @@ import { Just } from 'folktale/maybe';
 
 import * as need from 'lib/need';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
-import pluralize from 'lib/pluralize';
+import { pluralize } from 'lib/pluralize';
 
 import { useWallet } from 'store/wallet';
 import { usePointCache } from 'store/pointCache';

@@ -40,7 +40,11 @@ export default function UrbitOS() {
   const [manualNetworkSeed, setManualNetworkSeed] = useState();
 
   return (
-    <View pop={() => router.peek().key === NAMES.HOME ? history.pop() : router.pop()} inset>
+    <View
+      pop={() =>
+        router.peek().key === NAMES.HOME ? history.pop() : router.pop()
+      }
+      inset>
       <NavHeader>
         <Crumbs
           routes={[

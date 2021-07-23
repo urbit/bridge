@@ -3,7 +3,6 @@ import { Grid, Flex, Button } from 'indigo-react';
 import * as ob from 'urbit-ob';
 import { Just, Nothing } from 'folktale/maybe';
 import cn from 'classnames';
-import { delegatedSending } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
@@ -281,8 +280,6 @@ export default function InviteCohort() {
 
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
-
-  const { syncDetails } = usePointCache();
 
   const {
     acceptedInvites,

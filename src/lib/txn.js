@@ -9,7 +9,7 @@ import { trezorSignTransaction } from './trezor';
 import { metamaskSignTransaction, FakeMetamaskTransaction } from './metamask';
 import { addHexPrefix } from './utils/address';
 import { CHECK_BLOCK_EVERY_MS, WALLET_TYPES } from './constants';
-import patp2dec from './patp2dec';
+import { patp2dec } from './patp2dec';
 
 const RETRY_OPTIONS = {
   retries: 99999,

@@ -111,8 +111,8 @@
     "pilot-residents": "WITH_TEST_STATE=RESIDENTS npm run pilot",
     "pilot-ropsten": "REACT_APP_ROPSTEN=true HTTPS=true npm-run-all start --continue-on-error",
     "pilot:cleanup": "pkill -f ganache-cli",
-    "lint:check": "eslint 'src/**/*.js'",
-    "lint:fix": "eslint --fix 'src/**/*.js'",
+    "lint:check": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+    "lint:fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx}'",
     "analyze": "source-map-explorer 'build/static/js/*.js'"
   },
   "browserslist": {

@@ -14,7 +14,7 @@ import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
 import BridgeForm from 'form/BridgeForm';
-import convertToInt from 'lib/convertToInt';
+import { convertToInt } from 'lib/convertToInt';
 
 function useCastUpgradeVote() {
   const { contracts } = useNetwork();

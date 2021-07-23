@@ -21,7 +21,7 @@ import * as need from 'lib/need';
 import { ensureFundsFor } from 'lib/tank';
 import useDeepEqualReference from 'lib/useDeepEqualReference';
 import useGasPrice from 'lib/useGasPrice';
-import timeout from 'lib/timeout';
+import { timeout } from 'lib/timeout';
 import { safeToWei, safeFromWei } from 'lib/lib';
 
 const STATE = {

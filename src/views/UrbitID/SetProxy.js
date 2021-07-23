@@ -15,7 +15,7 @@ import {
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { eqAddr, isZeroAddress } from 'lib/utils/address';
-import capitalize from 'lib/capitalize';
+import { capitalize } from 'lib/capitalize';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';

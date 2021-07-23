@@ -127,7 +127,6 @@ export default function Point() {
     canManage,
     canSpawn,
     canVote,
-    isOwner,
   } = useCurrentPermissions();
 
   const canBitcoin = Just.hasInstance(urbitWallet);

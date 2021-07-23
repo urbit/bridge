@@ -10,7 +10,6 @@ import { usePointCursor } from 'store/pointCursor';
 
 import View from 'components/View';
 import Tabs from 'components/Tabs';
-import Crumbs from 'components/Crumbs';
 import CopiableAddress from 'components/CopiableAddress';
 
 import Active from 'views/Release/Active';

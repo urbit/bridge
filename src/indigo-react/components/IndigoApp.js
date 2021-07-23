@@ -1,7 +1,7 @@
 import React from 'react';
 import cn from 'classnames';
 
-export default function({ debug = false, ...rest }) {
+export const IndigoApp = function({ debug = false, ...rest }) {
   return (
     <main
       className={cn('minh-100', { debug })}
@@ -9,4 +9,4 @@ export default function({ debug = false, ...rest }) {
       {...rest}
     />
   );
-}
+};

@@ -2,7 +2,7 @@ import ob from 'urbit-ob';
 import kg from 'urbit-key-generation';
 import * as more from 'more-entropy';
 import { chunk, flatMap, zipWith } from 'lodash';
-import { shax, shas } from 'lib/networkCode';
+import { shas } from 'lib/networkCode';
 
 import {
   MIN_STAR,

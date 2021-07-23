@@ -4,7 +4,7 @@ import { bip32 } from 'bitcoinjs-lib';
 import { publicKeyConvert } from 'secp256k1';
 import { times } from 'lodash';
 import TrezorConnect, { HDNodeResponse } from 'trezor-connect';
-import { Text, Grid, H5, CheckboxInput, SelectInput } from 'indigo-react';
+import { Text, Grid, CheckboxInput, SelectInput } from 'indigo-react';
 
 import { useWallet } from 'store/wallet';
 

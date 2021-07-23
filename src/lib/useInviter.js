@@ -6,7 +6,6 @@ import { FORM_ERROR } from 'final-form';
 import * as wg from 'lib/walletgen';
 import * as tank from 'lib/tank';
 import * as need from 'lib/need';
-import pluralize from 'lib/pluralize';
 import { GAS_LIMITS } from 'lib/constants';
 import {
   signTransaction,
@@ -15,7 +14,6 @@ import {
   hexify,
 } from 'lib/txn';
 import useGasPrice from 'lib/useGasPrice';
-import { MIN_PLANET } from 'lib/constants';
 import { safeToWei } from 'lib/lib';
 
 import { useNetwork } from 'store/network';

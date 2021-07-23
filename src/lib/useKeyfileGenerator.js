@@ -17,7 +17,7 @@ import {
   compileNetworkingKey,
 } from './keys';
 import useCurrentPermissions from './useCurrentPermissions';
-import convertToInt from './convertToInt';
+import { convertToInt } from './convertToInt';
 
 export default function useKeyfileGenerator(manualNetworkSeed) {
   const { urbitWallet, wallet, authMnemonic, authToken } = useWallet();

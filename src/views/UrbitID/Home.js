@@ -9,9 +9,9 @@ import CopyButton from 'components/CopyButton';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { PROXY_TYPE, proxyTypeToHuman } from 'lib/proxy';
 import * as need from 'lib/need';
-import capitalize from 'lib/capitalize';
+import { capitalize } from 'lib/capitalize';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
-import convertToInt from 'lib/convertToInt';
+import { convertToInt } from 'lib/convertToInt';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';

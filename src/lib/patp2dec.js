@@ -1,6 +1,6 @@
 import ob from 'urbit-ob';
 
-import convertToInt from './convertToInt';
+import { convertToInt } from './convertToInt';
 
 /**
  * Convert a patp string into a number, or throw.
@@ -8,4 +8,4 @@ import convertToInt from './convertToInt';
  * @throws
  * @return number
  */
-export default patp => convertToInt(ob.patp2dec(patp), 10);
+export const patp2dec = patp => convertToInt(ob.patp2dec(patp), 10);

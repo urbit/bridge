@@ -14,14 +14,13 @@ import { useHistory } from 'store/history';
 import { useStarReleaseCache } from 'store/starRelease';
 
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
-import CopiableWithTooltip from 'components/CopiableWithTooltip';
 import CopiableAddress from 'components/CopiableAddress';
 import NoticeBox from 'components/NoticeBox';
 
 import { AddressInput } from 'form/Inputs';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
-import { composeValidator, buildAddressValidator } from 'form/validators';
+import { composeValidator } from 'form/validators';
 import { isValidAddress } from 'ethereumjs-util';
 
 function useTransferLockup(kind) {

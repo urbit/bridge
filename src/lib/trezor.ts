@@ -1,5 +1,5 @@
 import TrezorConnect from 'trezor-connect';
-import convertToInt from './convertToInt';
+import { convertToInt } from './convertToInt';
 
 const TREZOR_PATH = "m/44'/60'/0'/0/x";
 
