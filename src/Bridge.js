@@ -19,10 +19,10 @@ import 'style/index.scss';
 import WithErrorBoundary from 'components/WithErrorBoundary';
 import GlobalErrorBoundary from 'components/GlobalErrorBoundary';
 
-const INITIAL_NETWORK_TYPE = isDevelopment
-  ? isRopsten
-    ? NETWORK_TYPES.ROPSTEN
-    : NETWORK_TYPES.LOCAL
+const INITIAL_NETWORK_TYPE = isRopsten
+  ? NETWORK_TYPES.ROPSTEN
+  : isDevelopment
+  ? NETWORK_TYPES.LOCAL
   : NETWORK_TYPES.MAINNET;
 
 // NB(shrugs): modify these variables to change the default local state.
