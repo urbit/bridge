@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import newGithubIssueUrl from 'new-github-issue-url';
 import { OutButton, RestartButton } from './Buttons';
-import { version } from '../../package.json';
+import { versionLabel } from 'lib/flags';
 
 const buildTitle = error => `Error Report: ${error.message}`;
 
@@ -19,7 +19,7 @@ const buildBody = error => `\n
 ${error.stack}
 \`\`\`
 \n
-In Bridge version ${version}.\n
+In Bridge version ${versionLabel}.\n
 `;
 
 /**

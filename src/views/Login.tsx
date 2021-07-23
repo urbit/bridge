@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Grid, Text, Button, Flex, LinkButton } from 'indigo-react';
 
-import { version } from '../../package.json';
+import { versionLabel } from 'lib/flags';
 
 import { useHistory } from 'store/history';
 
@@ -124,7 +124,7 @@ export default function Login() {
             className="us-none pointer">
             <span className="underline">Offline</span> ↗
           </Flex.Item>
-          <Flex.Item className="gray4">v{version}</Flex.Item>
+          <Flex.Item className="gray4">v{versionLabel}</Flex.Item>
         </Flex>
       </Footer>
     </View>
