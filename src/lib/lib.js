@@ -1,5 +1,5 @@
 import ob from 'urbit-ob';
-import patp2dec from './patp2dec';
+import { patp2dec } from './patp2dec';
 import { fromWei, toWei, toBN } from 'web3-utils';
 
 const safeFromWei = (num, target) => {

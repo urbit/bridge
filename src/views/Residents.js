@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import cn from 'classnames';
-import { Grid, H4, HelpText, Flex } from 'indigo-react';
+import { Grid, H4, HelpText } from 'indigo-react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as ob from 'urbit-ob';
 

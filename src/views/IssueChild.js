@@ -11,7 +11,7 @@ import { usePointCursor } from 'store/pointCursor';
 import * as need from 'lib/need';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
-import patp2dec from 'lib/patp2dec';
+import { patp2dec } from 'lib/patp2dec';
 import { getSpawnCandidate } from 'lib/child';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useConstant from 'lib/useConstant';
@@ -30,7 +30,7 @@ import {
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 import CopiableAddress from 'components/CopiableAddress';
-import convertToInt from 'lib/convertToInt';
+import { convertToInt } from 'lib/convertToInt';
 
 function useIssueChild() {
   const { contracts } = useNetwork();

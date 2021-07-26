@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import { Just } from 'folktale/maybe';
-import cn from 'classnames';
 import * as azimuth from 'azimuth-js';
 import * as kg from 'urbit-key-generation';
 import {
@@ -21,8 +20,8 @@ import { urbitWalletFromTicket } from 'lib/wallet';
 import { WALLET_TYPES } from 'lib/constants';
 import useImpliedPoint from 'lib/useImpliedPoint';
 import useLoginView from 'lib/useLoginView';
-import patp2dec from 'lib/patp2dec';
-import timeout from 'lib/timeout';
+import { patp2dec } from 'lib/patp2dec';
+import { timeout } from 'lib/timeout';
 
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
@@ -112,7 +111,7 @@ export default function Ticket({ className, goHome }) {
       const empty = ['shard1', 'shard2', 'shard3'].filter(s => !values[s]);
       if (empty.length > 1) {
         let errors = {};
-        empty.map(s => {
+        empty.forEach(s => {
           errors[s] = 'Please provide at least two out of three shards.';
         });
         return errors;

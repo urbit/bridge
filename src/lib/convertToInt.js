@@ -8,7 +8,7 @@ import { isNaN } from 'lodash';
  * @throws
  * @returns {number}
  */
-export default (num, radix) => {
+export const convertToInt = (num, radix) => {
   const res = parseInt(num, radix);
   if (isNaN(res)) {
     throw new Error('NaN');

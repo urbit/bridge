@@ -1,4 +1,4 @@
-import nest from 'lib/nest';
+import { nest } from 'lib/nest';
 
 import { HistoryProvider } from './history';
 import { OnlineProvider } from './online';

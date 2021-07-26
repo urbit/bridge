@@ -2,19 +2,16 @@ import React, {
   createContext,
   forwardRef,
   useContext,
-  useMemo,
   useState,
   useEffect,
 } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import Web3 from 'web3';
-import { includes } from 'lodash';
 
 import { CONTRACT_ADDRESSES } from '../lib/contracts';
 import { NETWORK_TYPES, chainIdToNetworkType } from '../lib/network';
 import { isDevelopment } from '../lib/flags';
-import { BRIDGE_ERROR } from '../lib/error';
 
 import { Grid } from 'indigo-react';
 import View from 'components/View';

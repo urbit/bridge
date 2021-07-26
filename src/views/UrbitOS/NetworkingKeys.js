@@ -36,7 +36,7 @@ import {
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
 import FormError from 'form/FormError';
-import convertToInt from 'lib/convertToInt';
+import { convertToInt } from 'lib/convertToInt';
 
 function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
   const { urbitWallet, wallet, authMnemonic, authToken } = useWallet();

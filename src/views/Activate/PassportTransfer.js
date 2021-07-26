@@ -13,7 +13,7 @@ import {
   reticketPointBetweenWallets,
   TRANSACTION_PROGRESS,
 } from 'lib/reticket';
-import timeout from 'lib/timeout';
+import { timeout } from 'lib/timeout';
 
 import WarningBox from 'components/WarningBox';
 import LoadingBar from 'components/LoadingBar';

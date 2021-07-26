@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Just, Nothing, Result } from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H5, HelpText, LinkButton, Flex } from 'indigo-react';
 import { get } from 'lodash';
 
@@ -14,7 +14,7 @@ import { isZeroAddress, abbreviateAddress } from 'lib/utils/address';
 import useIsEclipticOwner from 'lib/useIsEclipticOwner';
 import { useSyncDetails } from 'lib/useSyncPoints';
 import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
-import pluralize from 'lib/pluralize';
+import { pluralize } from 'lib/pluralize';
 import newGithubIssueUrl from 'new-github-issue-url';
 
 import View from 'components/View';

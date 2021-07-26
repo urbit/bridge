@@ -1,5 +1,5 @@
 import { compose, strSplice } from 'lib/lib';
-import convertToInt from 'lib/convertToInt';
+import { convertToInt } from 'lib/convertToInt';
 
 const HEX_PREFIX = '0x';
 const TICKET_MAX_BYTE_LEN = 32; // tickets can be as large as 32 bytes

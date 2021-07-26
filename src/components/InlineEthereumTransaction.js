@@ -24,7 +24,7 @@ import Condition from 'form/Condition';
 import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
 import CopyButton from './CopyButton';
 import ProgressButton from './ProgressButton';
-import convertToInt from 'lib/convertToInt';
+import { convertToInt } from 'lib/convertToInt';
 import NeedFundsNotice from './NeedFundsNotice';
 
 export default function InlineEthereumTransaction({

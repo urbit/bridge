@@ -12,8 +12,8 @@ import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
-import patp2dec from 'lib/patp2dec';
-import convertToInt from 'lib/convertToInt';
+import { patp2dec } from 'lib/patp2dec';
+import { convertToInt } from 'lib/convertToInt';
 
 import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';

@@ -4,7 +4,7 @@ import ob from 'urbit-ob';
 import { includes } from 'lodash';
 
 import { isValidAddress } from './utils/address';
-import patp2dec from './patp2dec';
+import { patp2dec } from './patp2dec';
 import { patpStringLength } from './lib';
 import {
   ETH_ZERO_ADDR,

@@ -21,7 +21,7 @@ import { generateWallet } from 'lib/invite';
 import { generateTemporaryOwnershipWallet } from 'lib/walletgen';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useImpliedTicket from 'lib/useImpliedTicket';
-import timeout from 'lib/timeout';
+import { timeout } from 'lib/timeout';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
 import useBreakpoints from 'lib/useBreakpoints';
 
@@ -38,7 +38,7 @@ import FormError from 'form/FormError';
 
 import { useActivateFlow } from './ActivateFlow';
 import { WARNING } from 'form/helpers';
-import convertToInt from 'lib/convertToInt';
+import { convertToInt } from 'lib/convertToInt';
 
 export default function ActivateCode() {
   const history = useHistory();
