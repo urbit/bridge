@@ -16,6 +16,7 @@ import { L1Point } from 'types/L1Point';
 import AlertBox from 'components/AlertBox';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
+import AccessCode from './AccessCode';
 
 export default function UrbitOSHome({ manualNetworkSeed }) {
   const { pointCursor } = usePointCursor();
@@ -47,7 +48,7 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
     names,
   ]);
 
-  const { bind: keyBind } = useKeyfileGenerator();
+  const { bind: keyBind, code } = useKeyfileGenerator();
 
   return (
     <>
@@ -80,6 +81,7 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
             />
           </>
         )}
+        <AccessCode code={code} />
         <Grid.Divider />
         <Grid.Item full as={ForwardButton} onClick={goNetworkingKeys}>
           {networkKeysAction} Networking Keys

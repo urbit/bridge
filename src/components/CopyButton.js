@@ -2,7 +2,7 @@ import React from 'react';
 import cn from 'classnames';
 import { LinkButton } from 'indigo-react';
 
-import { ForwardButton } from 'components/Buttons';
+import { CopyButton as BaseCopyButton } from 'components/Buttons';
 
 import useCopiable from 'lib/useCopiable';
 
@@ -30,28 +30,19 @@ export default function CopyButton({
   );
 }
 
-export function CopyButtonWide({
-  as: As = ForwardButton,
-  text,
-  children,
-  accessory = renderDefaultCopyText,
-  ...rest
-}) {
+export function CopyButtonWide({ text, children, ...rest }) {
   const [doCopy, didCopy] = useCopiable(text);
   return (
-    <As
+    <BaseCopyButton
+      as="span"
       onClick={doCopy}
-      accessory={
-        <LinkButton
-          className={{
-            black: !didCopy,
-            green3: didCopy,
-          }}>
-          {accessory(didCopy)}
-        </LinkButton>
-      }
+      text={text}
+      className={cn({
+        black: !didCopy,
+        green3: didCopy,
+      })}
       {...rest}>
       {children}
-    </As>
+    </BaseCopyButton>
   );
 }
