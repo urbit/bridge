@@ -9,7 +9,7 @@ describe('AccessCode', () => {
 
     it('does not render the component', () => {
       render(<AccessCode code={testCode} />);
-      const element = screen.queryByTestId('custom-element');
+      const element = screen.queryByTestId('access-code');
       expect(element).not.toBeInTheDocument();
     });
   });
