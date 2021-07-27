@@ -1,4 +1,4 @@
-import { CopyButtonWide } from 'components/CopyButton';
+import { CopyButtonWide } from 'components/CopyButtonWide';
 import { Grid } from 'indigo-react';
 
 type AccessCodeArgs = {
@@ -13,7 +13,10 @@ const AccessCode = ({ code }: AccessCodeArgs) => {
         full
         detail="This is your code to access Urbit OS"
         as={CopyButtonWide}
-        text={code}>
+        text={code}
+        data-testid="access-code"
+        // Allow the Copy Button Tooltip to flow over the Grid border
+        style={{ overflow: 'unset' }}>
         Access Key
       </Grid.Item>
     </>

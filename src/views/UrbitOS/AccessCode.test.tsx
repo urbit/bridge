@@ -9,10 +9,8 @@ describe('AccessCode', () => {
 
     it('does not render the component', () => {
       render(<AccessCode code={testCode} />);
-      const accessCode = screen.queryByText(
-        'This is your code to access Urbit OS'
-      );
-      expect(accessCode).not.toBeInTheDocument()
+      const element = screen.queryByTestId('custom-element');
+      expect(element).not.toBeInTheDocument();
     });
   });
 
