@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from 'indigo-react';
+import { Icon } from '@tlon/indigo-react';
 
 import { blinkIf } from './Blinky';
 
@@ -22,4 +23,11 @@ export const OfflineButton = props => (
   <OutButton {...props} href="https://github.com/urbit/bridge/releases">
     Offline
   </OutButton>
+);
+
+export const CopyButton = props => (
+  <Button
+    accessory={<Icon icon="Copy" size="18px" color={'black'} />}
+    {...props}
+  />
 );
