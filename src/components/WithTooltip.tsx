@@ -43,7 +43,7 @@ export default function WithTooltip({
       {children}
       {isHovered && (
         <div
-          className="abs mb1 bg-black white ph4 pv2 r4"
+          className="abs mb1 bg-black white ph4 pv2 r4 open-tooltip"
           style={positionStyle}>
           {content}
         </div>

@@ -8,7 +8,7 @@ export function CopyButtonWide({ text, children, ...rest }) {
   return (
     <WithTooltip
       content={didCopy ? 'Copied!' : 'Copy'}
-      className={'rel full nowrap'}
+      className={'rel full nowrap copy-button-wide'}
       position={TooltipPosition.TopRight}>
       <BaseCopyButton as="span" onClick={doCopy} text={text} {...rest}>
         {children}
