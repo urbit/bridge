@@ -3,7 +3,6 @@ import { Button } from 'indigo-react';
 import { Icon } from '@tlon/indigo-react';
 
 import { blinkIf } from './Blinky';
-import WithTooltip from './WithTooltip';
 
 // NOTE: the -> is correct because inter recognizes the pair
 export const ForwardButton = ({ loading, ...props }) => (
@@ -26,13 +25,9 @@ export const OfflineButton = props => (
   </OutButton>
 );
 
-export const CopyButton = ({ didCopy = false, ...props }) => (
+export const CopyButton = props => (
   <Button
-    accessory={
-      <WithTooltip content={didCopy ? 'Copied!' : 'Copy'}>
-        <Icon icon="Copy" size="18px" color={'black'} />
-      </WithTooltip>
-    }
+    accessory={<Icon icon="Copy" size="18px" color={'black'} />}
     {...props}
   />
 );
