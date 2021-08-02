@@ -31,6 +31,8 @@
     "@types/styled-components": "^5.1.10",
     "@types/styled-system": "^5.1.11",
     "@types/styled-system__css": "^5.0.15",
+    "@walletconnect/client": "^1.5.1",
+    "@walletconnect/qrcode-modal": "^1.5.1",
     "@welldone-software/why-did-you-render": "^3.2.3",
     "async-retry": "^1.2.3",
     "azimuth-js": "^0.22.1",

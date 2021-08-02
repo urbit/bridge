@@ -1,9 +1,12 @@
 import { crypto } from 'bitcoinjs-lib';
 import { ecdsaSign } from 'secp256k1';
+import Web3 from 'web3';
+import WalletConnect from '@walletconnect/client';
 
 import { WALLET_TYPES } from './constants';
 import { ledgerSignMessage } from './ledger';
 import { trezorSignMessage } from './trezor';
+import BridgeWallet from './types/BridgeWallet';
 
 const MESSAGE = 'Bridge Authentication Token';
 
@@ -22,25 +25,78 @@ function signMessage(privateKey: Buffer) {
   return ethSignature;
 }
 
-export const getAuthToken = async ({
-  wallet,
-  walletType,
-  walletHdPath,
-  web3,
-}) => {
-  if (walletType === WALLET_TYPES.METAMASK) {
-    return web3.eth.personal.sign(MESSAGE, wallet.address, '');
-  }
-  if (walletType === WALLET_TYPES.LEDGER) {
-    return ledgerSignMessage(MESSAGE, walletHdPath);
-  }
-  if (walletType === WALLET_TYPES.TREZOR) {
-    return trezorSignMessage(MESSAGE, walletHdPath);
-  }
+type MetamaskAuthTokenArgs = {
+  address: string;
+  web3: Web3;
+  walletType: symbol;
+};
 
+type LedgerAuthTokenArgs = {
+  walletHdPath: string;
+  walletType: symbol;
+};
+
+type TrezorAuthTokenArgs = LedgerAuthTokenArgs;
+
+type WalletConnectAuthTokenArgs = {
+  address: string;
+  connector: WalletConnect;
+  walletType: symbol;
+};
+
+type DefaultAuthTokenArgs = {
+  wallet: BridgeWallet;
+  walletType?: symbol;
+};
+
+type GetAuthTokenArgs =
+  | MetamaskAuthTokenArgs
+  | LedgerAuthTokenArgs
+  | TrezorAuthTokenArgs
+  | WalletConnectAuthTokenArgs
+  | DefaultAuthTokenArgs;
+
+const getMetamaskAuthToken = ({ address, web3 }: MetamaskAuthTokenArgs) => {
+  return web3.eth.personal.sign(MESSAGE, address, '');
+};
+
+const getLedgerAuthToken = ({ walletHdPath }: LedgerAuthTokenArgs) => {
+  return ledgerSignMessage(MESSAGE, walletHdPath);
+};
+
+const getTrezorAuthToken = ({ walletHdPath }: TrezorAuthTokenArgs) => {
+  return trezorSignMessage(MESSAGE, walletHdPath);
+};
+
+const getWalletConnectAuthToken = ({
+  address,
+  connector,
+}: WalletConnectAuthTokenArgs) => {
+  return connector.signPersonalMessage([MESSAGE, address]);
+};
+
+const getDefaultAuthToken = ({ wallet }: DefaultAuthTokenArgs) => {
   const signature = signMessage(wallet.privateKey);
 
   const token = `0x${Buffer.from(signature).toString('hex')}`;
 
   return token;
+};
+
+export const getAuthToken = async ({
+  walletType,
+  ...args
+}: GetAuthTokenArgs) => {
+  switch (walletType) {
+    case WALLET_TYPES.METAMASK:
+      return getMetamaskAuthToken(args);
+    case WALLET_TYPES.LEDGER:
+      return getLedgerAuthToken(args);
+    case WALLET_TYPES.TREZOR:
+      return getTrezorAuthToken(args);
+    case WALLET_TYPES.WALLET_CONNECT:
+      return getWalletConnectAuthToken(args);
+    default:
+      return getDefaultAuthToken(args);
+  }
 };
