@@ -33,8 +33,7 @@ export const useWalletConnect = () => {
   const [address, setAddress] = useState<string | null>(null);
   const [peerMeta, setPeerMeta] = useState<PeerMeta | null>(null);
 
-  // Init connector
-  useEffect(() => {
+  const resetConnector = () => {
     const newConnector = new WalletConnect({
       bridge: 'https://bridge.walletconnect.org',
       qrcodeModal: QRCodeModal,
@@ -50,6 +49,11 @@ export const useWalletConnect = () => {
     if (newConnector.peerMeta) {
       setPeerMeta(newConnector.peerMeta);
     }
+  };
+
+  // Init connector
+  useEffect(() => {
+    resetConnector();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -62,13 +66,12 @@ export const useWalletConnect = () => {
     connector.createSession();
   };
 
-  const disconnect = () => {
+  const disconnect = async () => {
     if (!connector) {
-      console.warn('Nothing to disconnect');
       return;
     }
 
-    connector.killSession();
+    await connector.killSession();
   };
 
   type AuthenticateArgs = {
@@ -155,6 +158,17 @@ export const useWalletConnect = () => {
     });
   };
 
+  const initModalClosedHandler = () => {
+    if (!connector) {
+      return;
+    }
+
+    connector.on('modal_closed', () => {
+      resetWallet();
+      resetConnector();
+    });
+  };
+
   // Init and clean up
   useEffect(() => {
     if (!connector) {
@@ -164,6 +178,7 @@ export const useWalletConnect = () => {
     initConnectHandler();
     initDisconnectHandler();
     initSessionUpdateHandler();
+    initModalClosedHandler();
 
     return () => {
       // Clean up listeners
@@ -182,5 +197,6 @@ export const useWalletConnect = () => {
     disconnect,
     isConnected,
     peerMeta,
+    resetConnector,
   };
 };

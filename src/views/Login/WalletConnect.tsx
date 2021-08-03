@@ -30,14 +30,6 @@ const WalletConnectLogin = ({ className, goHome }) => {
     peerMeta,
   } = useWalletConnect();
 
-  const handleConnectButtonClick = () => {
-    if (isConnected()) {
-      disconnect();
-    } else {
-      connect();
-    }
-  };
-
   const initialValues = useMemo(
     () => ({
       useCustomPath: false,
@@ -100,7 +92,7 @@ const WalletConnectLogin = ({ className, goHome }) => {
                   <RestartButton
                     as="a"
                     className={'gray3'}
-                    onClick={handleConnectButtonClick}>
+                    onClick={disconnect}>
                     disconnect
                   </RestartButton>
                 </Grid.Item>
@@ -148,10 +140,7 @@ const WalletConnectLogin = ({ className, goHome }) => {
                   </>
                 ) : (
                   <>
-                    <Grid.Item
-                      full
-                      as={ForwardButton}
-                      onClick={handleConnectButtonClick}>
+                    <Grid.Item full as={ForwardButton} solid onClick={connect}>
                       {'Connect'}
                     </Grid.Item>
                   </>
