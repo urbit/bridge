@@ -68,7 +68,7 @@ const WalletConnectLogin = ({ className, goHome }) => {
         <Grid className={className}>
           {!isConnected() && (
             <Grid.Item full as={LegacyText} className="f6 gray4 mb3">
-              Connect a peer that supports WalletConnect
+              Connect a wallet that supports WalletConnect
             </Grid.Item>
           )}
 
@@ -134,7 +134,7 @@ const WalletConnectLogin = ({ className, goHome }) => {
                       as={SubmitButton}
                       handleSubmit={handleSubmit}>
                       {submitting
-                        ? 'Please check your WalletConnect peer'
+                        ? 'Please check your WalletConnect wallet'
                         : 'Authenticate'}
                     </Grid.Item>
                   </>
