@@ -1,5 +1,7 @@
 import WalletConnect from '@walletconnect/client';
 import QRCodeModal from '@walletconnect/qrcode-modal';
+import { ITxData } from '@walletconnect/types';
+
 import { useEffect, useState } from 'react';
 import { Just } from 'folktale/maybe';
 
@@ -58,12 +60,12 @@ export const useWalletConnect = () => {
   }, []);
 
   // Behavior
-  const connect = () => {
+  const connect = async () => {
     if (!connector || connector.connected) {
       return;
     }
 
-    connector.createSession();
+    await connector.createSession();
   };
 
   const disconnect = async () => {
@@ -91,8 +93,6 @@ export const useWalletConnect = () => {
       walletType: WALLET_TYPES.WALLET_CONNECT,
     });
 
-    // Inspired by the MetamaskWallet implementation :)
-    // TODO: We should refactor / unify how we handle wallets
     const wallet: WalletConnectWallet = {
       address,
     };
@@ -110,6 +110,37 @@ export const useWalletConnect = () => {
     return connector.connected;
   };
 
+  const signTransaction = async ({
+    from,
+    to,
+    gas,
+    gasPrice,
+    value,
+    data,
+    nonce,
+  }: ITxData): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (!connector || !isConnected()) {
+        reject(new Error('No connected wallet available for signing'));
+        return;
+      }
+
+      return connector
+        .signTransaction({
+          from,
+          to,
+          gas,
+          gasPrice,
+          value,
+          data,
+          nonce,
+        })
+        .then((txHash: string) => resolve(txHash))
+        .catch((error: Error) => reject(error));
+    });
+  };
+
+  // Event Handlers
   const initConnectHandler = () => {
     if (!connector) {
       return;
@@ -152,8 +183,6 @@ export const useWalletConnect = () => {
         throw error;
       }
 
-      // TODO: Confirm what should happen on update?
-      // For now, disconnect and logout
       disconnect();
     });
   };
@@ -185,6 +214,7 @@ export const useWalletConnect = () => {
       connector.off('connect');
       connector.off('disconnect');
       connector.off('session_update');
+      connector.off('modal_closed');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connector]);
@@ -198,5 +228,6 @@ export const useWalletConnect = () => {
     isConnected,
     peerMeta,
     resetConnector,
+    signTransaction,
   };
 };

@@ -10,6 +10,7 @@ import {
   GAS_LIMITS,
   DEFAULT_GAS_PRICE_GWEI,
   PROGRESS_ANIMATION_DELAY_MS,
+  WALLET_TYPES,
 } from './constants';
 import {
   signTransaction,
@@ -23,6 +24,7 @@ import useDeepEqualReference from 'lib/useDeepEqualReference';
 import useGasPrice from 'lib/useGasPrice';
 import { timeout } from 'lib/timeout';
 import { safeToWei, safeFromWei } from 'lib/lib';
+import { useWalletConnect } from './useWalletConnect';
 
 const STATE = {
   NONE: 'NONE',
@@ -48,6 +50,7 @@ export default function useEthereumTransaction(
   const { wallet, walletType, walletHdPath } = useWallet();
   const { web3, networkType } = useNetwork();
   const { pointCursor } = usePointCursor();
+  const { signTransaction: wcSign } = useWalletConnect();
 
   const _web3 = need.web3(web3);
   const _wallet = need.wallet(wallet);
@@ -107,6 +110,12 @@ export default function useEthereumTransaction(
         ? unsignedTransactions
         : [unsignedTransactions];
 
+      // Due to React's Rules of Hooks, optionally inject the
+      // WC transaction signing function
+      // https://reactjs.org/docs/hooks-rules.html
+      const txnSigner =
+        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSign : undefined;
+
       const txns = await Promise.all(
         utxs.map((utx, i) =>
           signTransaction({
@@ -119,6 +128,7 @@ export default function useEthereumTransaction(
             chainId,
             gasPrice: gasPrice.toFixed(0),
             gasLimit,
+            txnSigner,
           })
         )
       );
@@ -126,6 +136,7 @@ export default function useEthereumTransaction(
       setSignedTransactions(txns);
       setState(STATE.SIGNED);
     } catch (error) {
+      console.error(error);
       setError(error);
     }
   }, [
@@ -139,6 +150,7 @@ export default function useEthereumTransaction(
     unsignedTransactions,
     walletHdPath,
     walletType,
+    wcSign,
   ]);
 
   const broadcast = useCallback(async () => {

@@ -37,3 +37,12 @@ export const eqAddr = (addr0, addr1) =>
 export const publicToAddress = (publicKey: Buffer): string => {
   return toHex(pubToAddress(publicKey, true).toString('hex'));
 };
+
+export function sanitizeHex(hex: string): string {
+  hex = hex.substring(0, 2) === '0x' ? hex.substring(2) : hex;
+  if (hex === '') {
+    return '';
+  }
+  hex = hex.length % 2 !== 0 ? '0' + hex : hex;
+  return '0x' + hex;
+}

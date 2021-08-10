@@ -6,6 +6,7 @@ import retry from 'async-retry';
 import { NETWORK_TYPES } from './network';
 import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
+import { walletConnectSignTransaction } from './WalletConnect';
 import { metamaskSignTransaction, FakeMetamaskTransaction } from './metamask';
 import { addHexPrefix } from './utils/address';
 import { CHECK_BLOCK_EVERY_MS, WALLET_TYPES } from './constants';
@@ -28,6 +29,7 @@ const signTransaction = async ({
   chainId, // number
   gasPrice, // string, in gwei
   gasLimit, // string | number
+  txnSigner, // optionally inject a transaction signing function
 }) => {
   // TODO: require these in txn object
   nonce = toHex(nonce);
@@ -93,6 +95,12 @@ const signTransaction = async ({
     await trezorSignTransaction(stx, walletHdPath);
   } else if (walletType === WALLET_TYPES.METAMASK) {
     return metamaskSignTransaction(utx, wallet.address);
+  } else if (walletType === WALLET_TYPES.WALLET_CONNECT) {
+    await walletConnectSignTransaction({
+      txn: stx,
+      from: wallet.address,
+      txnSigner,
+    });
   } else {
     stx.sign(wallet.privateKey);
   }
