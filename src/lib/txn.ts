@@ -110,7 +110,7 @@ const signTransaction = async ({
       txnSigner,
     });
   } else {
-    stx.sign(wallet.privateKey);
+    stx = stx.sign(wallet.privateKey);
   }
 
   return stx;
