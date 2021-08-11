@@ -7,7 +7,7 @@ import { Just } from 'folktale/maybe';
 
 import { useWallet } from 'store/wallet';
 import { getAuthToken } from './authToken';
-import { DEFAULT_HD_PATH, WALLET_TYPES } from './constants';
+import { WALLET_TYPES } from './constants';
 import WalletConnectWallet from './types/WalletConnectWallet';
 
 type PeerMeta = {
@@ -30,7 +30,7 @@ type ConnectEvent = {
 };
 
 export const useWalletConnect = () => {
-  const { setWallet, setWalletHdPath, setAuthToken, resetWallet } = useWallet();
+  const { setWallet, setAuthToken, resetWallet } = useWallet();
   const [connector, setConnector] = useState<WalletConnect | null>(null);
   const [address, setAddress] = useState<string | null>(null);
   const [peerMeta, setPeerMeta] = useState<PeerMeta | null>(null);
@@ -76,7 +76,7 @@ export const useWalletConnect = () => {
     await connector.killSession();
   };
 
-  const authenticate = async ({ hdPath = DEFAULT_HD_PATH }) => {
+  const authenticate = async () => {
     if (!(address && connector)) {
       return;
     }
@@ -93,7 +93,6 @@ export const useWalletConnect = () => {
 
     setAuthToken(Just(authToken));
     setWallet(Just(wallet));
-    setWalletHdPath(hdPath);
   };
 
   const isConnected = () => {

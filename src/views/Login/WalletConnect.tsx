@@ -1,17 +1,9 @@
-import { useCallback, useMemo } from 'react';
 import { Image } from '@tlon/indigo-react';
 import BridgeForm from 'form/BridgeForm';
-import Condition from 'form/Condition';
 import FormError from 'form/FormError';
-import { HdPathInput } from 'form/Inputs';
 import SubmitButton from 'form/SubmitButton';
-import {
-  buildCheckboxValidator,
-  buildHdPathValidator,
-  composeValidator,
-} from 'form/validators';
-import { CheckboxInput, Grid, Text as LegacyText } from 'indigo-react';
-import { DEFAULT_HD_PATH, WALLET_TYPES } from 'lib/constants';
+import { Grid, Text as LegacyText } from 'indigo-react';
+import { WALLET_TYPES } from 'lib/constants';
 import useLoginView from 'lib/useLoginView';
 import { useWalletConnect } from 'lib/useWalletConnect';
 import { abbreviateAddress } from 'lib/utils/address';
@@ -30,35 +22,8 @@ const WalletConnectLogin = ({ className, goHome }) => {
     peerMeta,
   } = useWalletConnect();
 
-  const initialValues = useMemo(
-    () => ({
-      useCustomPath: false,
-      hdPath: DEFAULT_HD_PATH,
-    }),
-    []
-  );
-
-  const validate = useMemo(
-    () =>
-      composeValidator({
-        useCustomPath: buildCheckboxValidator(),
-        hdPath: buildHdPathValidator(),
-      }),
-    []
-  );
-
-  const onValues = useCallback(({ valid, values, form }) => {
-    if (!valid) {
-      return;
-    }
-
-    if (!values.useCustomPath) {
-      form.change('hdPath', DEFAULT_HD_PATH);
-    }
-  }, []);
-
-  const onSubmit = async (values: typeof initialValues) => {
-    await authenticate({ hdPath: values.hdPath });
+  const onSubmit = async () => {
+    await authenticate();
     return;
   };
 
@@ -100,33 +65,11 @@ const WalletConnectLogin = ({ className, goHome }) => {
             </Grid.Item>
           )}
 
-          <BridgeForm
-            validate={validate}
-            onSubmit={onSubmit}
-            onValues={onValues}
-            afterSubmit={goHome}
-            initialValues={initialValues}>
+          <BridgeForm onSubmit={onSubmit} afterSubmit={goHome}>
             {({ handleSubmit, submitting }) => (
               <>
                 {isConnected() ? (
                   <>
-                    <Grid.Item
-                      full
-                      as={CheckboxInput}
-                      className="mv3"
-                      name="useCustomPath"
-                      label="Custom HD Path"
-                    />
-
-                    <Condition when="useCustomPath" is={true}>
-                      <Grid.Item
-                        full
-                        as={HdPathInput}
-                        name="hdPath"
-                        label="HD Path"
-                      />
-                    </Condition>
-
                     <Grid.Item full as={FormError} />
 
                     <Grid.Item
