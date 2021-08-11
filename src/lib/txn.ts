@@ -1,4 +1,5 @@
-import Tx from 'ethereumjs-tx';
+import Common, { Chain, Hardfork } from '@ethereumjs/common';
+import { Transaction } from '@ethereumjs/tx';
 import { toHex } from 'web3-utils';
 import { safeFromWei, safeToWei } from './lib';
 import retry from 'async-retry';
@@ -36,8 +37,9 @@ const signTransaction = async ({
   chainId = toHex(chainId);
   gasPrice = toHex(safeToWei(gasPrice, 'gwei'));
   gasLimit = toHex(gasLimit);
+  const from = wallet.address;
 
-  const txParams = { nonce, chainId, gasPrice, gasLimit };
+  const txParams = { nonce, chainId, gasPrice, gasLimit, from };
 
   // NB (jtobin)
   //
@@ -84,7 +86,13 @@ const signTransaction = async ({
 
   const utx = Object.assign(txn, signingParams);
 
-  const stx = new Tx(utx);
+  const chain =
+    networkType === NETWORK_TYPES.ROPSTEN ? Chain.Ropsten : Chain.Mainnet;
+  const common = new Common({
+    chain: chain,
+    hardfork: Hardfork.MuirGlacier,
+  });
+  let stx = Transaction.fromTxData(utx, { common, freeze: false });
 
   //TODO should try-catch and display error message to user,
   //     ie ledger's "pls enable contract data"
@@ -96,9 +104,9 @@ const signTransaction = async ({
   } else if (walletType === WALLET_TYPES.METAMASK) {
     return metamaskSignTransaction(utx, wallet.address);
   } else if (walletType === WALLET_TYPES.WALLET_CONNECT) {
-    await walletConnectSignTransaction({
+    stx = await walletConnectSignTransaction({
+      from,
       txn: stx,
-      from: wallet.address,
       txnSigner,
     });
   } else {

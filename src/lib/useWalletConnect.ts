@@ -76,13 +76,7 @@ export const useWalletConnect = () => {
     await connector.killSession();
   };
 
-  type AuthenticateArgs = {
-    hdPath?: string;
-  };
-
-  const authenticate = async ({
-    hdPath = DEFAULT_HD_PATH,
-  }: AuthenticateArgs) => {
+  const authenticate = async ({ hdPath = DEFAULT_HD_PATH }) => {
     if (!(address && connector)) {
       return;
     }
