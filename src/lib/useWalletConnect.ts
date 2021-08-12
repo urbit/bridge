@@ -12,7 +12,7 @@ import WalletConnectWallet from './types/WalletConnectWallet';
 
 type PeerMeta = {
   description: string;
-  icons: string[];
+  icons?: string[];
   name: string;
   url: string;
 };
