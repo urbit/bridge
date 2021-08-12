@@ -82,21 +82,28 @@ export async function getConditional(contracts, address) {
     conditionalSR.getRemainingStars(contracts, address),
   ]);
 
-  if (commitment === null || batches === null) {
+  if (batches === [] || commitment.total === '0') {
     return { total: 0, available: 0, withdrawn: 0, batchLimits: [] };
   }
 
   const total = remaining.length;
   let balance = total;
 
-  // does not account for forfeiting or withdrawl
-  const limits = await Promise.all(
-    batches.map((_, idx) =>
-      conditionalSR.getWithdrawLimit(contracts, address, idx)
-    )
-  );
+  //NOTE  we don't strictly need to convert the received number-strings to
+  //      integers, but it helps keep the shenanigans at bay.
 
-  const withdrawn = await conditionalSR.getWithdrawn(contracts, address);
+  // does not account for forfeiting or withdrawl
+  const limits = (
+    await Promise.all(
+      batches.map((_, idx) =>
+        conditionalSR.getWithdrawLimit(contracts, address, idx)
+      )
+    )
+  ).map(n => parseInt(n));
+
+  const withdrawn = (
+    await conditionalSR.getWithdrawn(contracts, address)
+  ).map(n => parseInt(n));
 
   const forfeited = await conditionalSR.getForfeited(contracts, address);
 
@@ -132,17 +139,22 @@ export async function getConditional(contracts, address) {
 
 export async function getLinear(contracts, address) {
   const batch = await linearSR.getBatch(contracts, address);
-  if (batch.amount === 0) {
+
+  //NOTE  careful, we get the batch data as strings!
+  const amount = parseInt(batch.amount);
+  const withdrawn = parseInt(batch.withdrawn);
+
+  if (amount === 0) {
     return { available: 0, withdrawn: 0, total: 0 };
   }
 
+  //NOTE  be careful, getting the withdraw limit for an address that doesn't
+  //      have a lockup throws an exception!
+  const limit = await linearSR.getWithdrawLimit(contracts, address);
   const remaining = (await linearSR.getRemainingStars(contracts, address))
     .length;
-  const { amount, withdrawn } = batch;
 
-  const limit = await linearSR.getWithdrawLimit(contracts, address);
   const available = Math.min(limit - withdrawn, remaining);
-
   const total = Math.min(amount, remaining);
 
   return {
