@@ -2,7 +2,7 @@ import WalletConnect from '@walletconnect/client';
 import QRCodeModal from '@walletconnect/qrcode-modal';
 import { ITxData } from '@walletconnect/types';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Just } from 'folktale/maybe';
 
 import { useWallet } from 'store/wallet';
@@ -102,6 +102,17 @@ export const useWalletConnect = () => {
 
     return connector.connected;
   };
+
+  const peerIcon = useMemo(() => {
+    if (!peerMeta?.icons) {
+      return null;
+    }
+
+    // Some peers return a list of empty string(s) :)
+    const iconCandidates = peerMeta.icons.filter(pm => pm !== '');
+
+    return iconCandidates.length > 0 ? iconCandidates[0] : null;
+  }, [peerMeta]);
 
   const signTransaction = async ({
     from,
@@ -219,6 +230,7 @@ export const useWalletConnect = () => {
     connector,
     disconnect,
     isConnected,
+    peerIcon,
     peerMeta,
     resetConnector,
     signTransaction,

@@ -19,6 +19,7 @@ const WalletConnectLogin = ({ className, goHome }) => {
     connector,
     disconnect,
     isConnected,
+    peerIcon,
     peerMeta,
   } = useWalletConnect();
 
@@ -41,8 +42,8 @@ const WalletConnectLogin = ({ className, goHome }) => {
             <Grid.Item full className="f6 gray5 mt3 mb3">
               <Grid>
                 <Grid.Item style={{ gridArea: 'auto / 3 / auto / 5' }}>
-                  {peerMeta.icons && peerMeta.icons.length > 0 ? (
-                    <Image src={peerMeta.icons[0]} />
+                  {peerIcon ? (
+                    <Image src={peerIcon} />
                   ) : (
                     <LegacyText>Icon Unavailable</LegacyText>
                   )}
