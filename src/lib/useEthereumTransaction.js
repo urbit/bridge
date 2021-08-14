@@ -136,7 +136,7 @@ export default function useEthereumTransaction(
       setSignedTransactions(txns);
       setState(STATE.SIGNED);
     } catch (error) {
-      console.error(error);
+      console.error('error signing txs', error);
       setError(error);
     }
   }, [
