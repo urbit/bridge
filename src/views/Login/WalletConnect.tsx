@@ -34,7 +34,8 @@ const WalletConnectLogin = ({ className, goHome }) => {
         <Grid className={className}>
           {!isConnected() && (
             <Grid.Item full as={LegacyText} className="f6 gray4 mb3">
-              Connect a wallet that supports WalletConnect
+              Note that WalletConnect is a young protocol, not all wallets may
+              work fully
             </Grid.Item>
           )}
 
