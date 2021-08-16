@@ -111,6 +111,7 @@
     "pilot:setup": "npm run pilot:ganache && truffle deploy",
     "pilot": "HTTPS=true npm-run-all pilot:setup start pilot:cleanup --continue-on-error",
     "pilot-invites": "WITH_TEST_STATE=INVITES npm run pilot",
+    "pilot-mainnet": "REACT_APP_MAINNET=true HTTPS=true npm-run-all start --continue-on-error",
     "pilot-release": "WITH_TEST_STATE=STAR_RELEASE npm run pilot",
     "pilot-residents": "WITH_TEST_STATE=RESIDENTS npm run pilot",
     "pilot-ropsten": "REACT_APP_ROPSTEN=true HTTPS=true npm-run-all start --continue-on-error",

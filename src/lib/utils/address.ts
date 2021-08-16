@@ -1,5 +1,5 @@
 import { reduce } from 'lodash';
-import { isAddress, keccak256, toHex } from 'web3-utils';
+import { isAddress, keccak256 } from 'web3-utils';
 import { pubToAddress } from 'ethereumjs-util';
 import { ETH_ZERO_ADDR, ETH_ZERO_ADDR_SHORT } from 'lib/constants';
 
