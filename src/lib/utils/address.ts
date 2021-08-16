@@ -35,5 +35,5 @@ export const eqAddr = (addr0, addr1) =>
   toChecksumAddress(addr0) === toChecksumAddress(addr1);
 
 export const publicToAddress = (publicKey: Buffer): string => {
-  return toHex(pubToAddress(publicKey, true).toString('hex'));
+  return '0x' + pubToAddress(Buffer.from(publicKey), true).toString('hex');
 };
