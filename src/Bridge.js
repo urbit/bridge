@@ -21,7 +21,7 @@ import GlobalErrorBoundary from 'components/GlobalErrorBoundary';
 
 const INITIAL_NETWORK_TYPE = isRopsten
   ? NETWORK_TYPES.ROPSTEN
-  : (isDevelopment && !isMainnet)
+  : isDevelopment && !isMainnet
   ? NETWORK_TYPES.LOCAL
   : NETWORK_TYPES.MAINNET;
 
