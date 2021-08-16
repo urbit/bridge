@@ -94,6 +94,16 @@ websocket. Do this by going to `about:config` and setting the
 Additionally you need to run with the `HTTPS` environment variable set to
 `true`. Note that `npm run pilot` will handle this automatically.
 
+### Alternative method using self-signed certificate and python
+
+1. Install [mkcert](https://github.com/FiloSottile/mkcert)
+2. Install a local certificate authority via `mkcert -install`
+3. npm ci && npm run build (if you haven't already)
+4. cd build
+5. run `mkcert localhost` to generate a certificate valid for localhost. This will produce two files: `localhost.pem`, the local certificate, and `localhost-key.pem`, its corresponding private key
+6. Run `python ../bridge-https.py`
+7. Navigate to https://localhost:4443 in a web browser to access Bridge
+
 ## Testing
 
 Automated tests for critical user journeys are coming Soon™️. Until then, here are several manual test cases to consider when making changes. It's worth noting that what to test depends on what the changes are. These test cases have limited utility when you are making a small change on a single screen; however, they are certainly a good idea when touching critical pieces such as transaction sending or secrets derivation.
