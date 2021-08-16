@@ -1,4 +1,5 @@
-import Tx from 'ethereumjs-tx';
+import Common, { Chain, Hardfork } from '@ethereumjs/common';
+import { Transaction } from '@ethereumjs/tx';
 import { toHex } from 'web3-utils';
 import { safeFromWei, safeToWei } from './lib';
 import retry from 'async-retry';
@@ -6,6 +7,7 @@ import retry from 'async-retry';
 import { NETWORK_TYPES } from './network';
 import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
+import { walletConnectSignTransaction } from './WalletConnect';
 import { metamaskSignTransaction, FakeMetamaskTransaction } from './metamask';
 import { addHexPrefix } from './utils/address';
 import { CHECK_BLOCK_EVERY_MS, WALLET_TYPES } from './constants';
@@ -28,14 +30,16 @@ const signTransaction = async ({
   chainId, // number
   gasPrice, // string, in gwei
   gasLimit, // string | number
+  txnSigner, // optionally inject a transaction signing function
 }) => {
   // TODO: require these in txn object
   nonce = toHex(nonce);
   chainId = toHex(chainId);
   gasPrice = toHex(safeToWei(gasPrice, 'gwei'));
   gasLimit = toHex(gasLimit);
+  const from = wallet.address;
 
-  const txParams = { nonce, chainId, gasPrice, gasLimit };
+  const txParams = { nonce, chainId, gasPrice, gasLimit, from };
 
   // NB (jtobin)
   //
@@ -82,7 +86,13 @@ const signTransaction = async ({
 
   const utx = Object.assign(txn, signingParams);
 
-  const stx = new Tx(utx);
+  const chain =
+    networkType === NETWORK_TYPES.ROPSTEN ? Chain.Ropsten : Chain.Mainnet;
+  const common = new Common({
+    chain: chain,
+    hardfork: Hardfork.MuirGlacier,
+  });
+  let stx = Transaction.fromTxData(utx, { common, freeze: false });
 
   //TODO should try-catch and display error message to user,
   //     ie ledger's "pls enable contract data"
@@ -93,8 +103,14 @@ const signTransaction = async ({
     await trezorSignTransaction(stx, walletHdPath);
   } else if (walletType === WALLET_TYPES.METAMASK) {
     return metamaskSignTransaction(utx, wallet.address);
+  } else if (walletType === WALLET_TYPES.WALLET_CONNECT) {
+    stx = await walletConnectSignTransaction({
+      from,
+      txn: stx,
+      txnSigner,
+    });
   } else {
-    stx.sign(wallet.privateKey);
+    stx = stx.sign(wallet.privateKey);
   }
 
   return stx;

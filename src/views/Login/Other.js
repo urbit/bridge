@@ -11,6 +11,7 @@ import Ledger from './Ledger';
 import Metamask from './Metamask';
 import Trezor from './Trezor';
 import Mnemonic from './Mnemonic';
+import WalletConnect from './WalletConnect';
 
 const NAMES = {
   PRIVATE_KEY: 'PRIVATE_KEY',
@@ -19,6 +20,7 @@ const NAMES = {
   TREZOR: 'TREZOR',
   METAMASK: 'METAMASK',
   MNEMONIC: 'MNEMONIC',
+  WALLET_CONNECT: 'WALLET_CONNECT',
 };
 
 const VIEWS = {
@@ -28,6 +30,7 @@ const VIEWS = {
   [NAMES.TREZOR]: Trezor,
   [NAMES.METAMASK]: Metamask,
   [NAMES.MNEMONIC]: Mnemonic,
+  [NAMES.WALLET_CONNECT]: WalletConnect,
 };
 
 const OPTIONS = [
@@ -37,6 +40,7 @@ const OPTIONS = [
   { text: 'Trezor', value: NAMES.TREZOR },
   { text: 'Ethereum Private Key', value: NAMES.PRIVATE_KEY },
   { text: 'Ethereum Keystore', value: NAMES.KEYSTORE },
+  { text: 'WalletConnect', value: NAMES.WALLET_CONNECT },
 ];
 
 const isHardware = name => !![NAMES.TREZOR, NAMES.LEDGER].find(n => n === name);
