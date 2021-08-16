@@ -21,9 +21,9 @@ import GlobalErrorBoundary from 'components/GlobalErrorBoundary';
 
 const INITIAL_NETWORK_TYPE = isRopsten
   ? NETWORK_TYPES.ROPSTEN
-  : isMainnet
-  ? NETWORK_TYPES.MAINNET
-  : NETWORK_TYPES.LOCAL;
+  : (isDevelopment && !isMainnet)
+  ? NETWORK_TYPES.LOCAL
+  : NETWORK_TYPES.MAINNET;
 
 // NB(shrugs): modify these variables to change the default local state.
 const SHOULD_STUB_LOCAL = process.env.REACT_APP_STUB_LOCAL === 'true';
