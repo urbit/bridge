@@ -3,7 +3,7 @@ import QRCodeModal from '@walletconnect/qrcode-modal';
 import { ITxData } from '@walletconnect/types';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Just } from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 
 import { useWallet } from 'store/wallet';
 import { getAuthToken } from './authToken';
@@ -81,11 +81,24 @@ export const useWalletConnect = () => {
       return;
     }
 
-    const authToken = await getAuthToken({
-      address,
-      connector,
-      walletType: WALLET_TYPES.WALLET_CONNECT,
-    });
+    let authToken = Nothing();
+    try {
+      const token = await getAuthToken({
+        address,
+        connector,
+        walletType: WALLET_TYPES.WALLET_CONNECT,
+      });
+      authToken = Just(token);
+    } catch (e) {
+      //TODO  only catch METHOD_NOT_SUPPORTED, others are actually unexpected
+      if (e.message === 'METHOD_NOT_SUPPORTED') {
+        console.warn(
+          'wallet does not support message signing. proceeding without auth token.'
+        );
+      } else {
+        throw e;
+      }
+    }
 
     const wallet: WalletConnectWallet = {
       address,
@@ -131,6 +144,36 @@ export const useWalletConnect = () => {
 
       return connector
         .signTransaction({
+          from,
+          to,
+          gas,
+          gasPrice,
+          value,
+          data,
+          nonce,
+        })
+        .then((txHash: string) => resolve(txHash))
+        .catch((error: Error) => reject(error));
+    });
+  };
+
+  const sendTransaction = async ({
+    from,
+    to,
+    gas,
+    gasPrice,
+    value,
+    data,
+    nonce,
+  }: ITxData): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (!connector || !isConnected()) {
+        reject(new Error('No connected wallet available for signing'));
+        return;
+      }
+
+      return connector
+        .sendTransaction({
           from,
           to,
           gas,

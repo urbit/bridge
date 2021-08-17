@@ -76,6 +76,7 @@ const ensureFundsFor = async (
     return false;
   }
 
+  //TODO  deduce from signedTxs
   if (walletType === WALLET_TYPES.METAMASK) {
     console.log('tank: disabling for metamask login');
 

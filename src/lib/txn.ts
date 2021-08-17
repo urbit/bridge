@@ -8,7 +8,7 @@ import { NETWORK_TYPES } from './network';
 import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
 import { walletConnectSignTransaction } from './WalletConnect';
-import { metamaskSignTransaction, FakeMetamaskTransaction } from './metamask';
+import { metamaskSignTransaction } from './metamask';
 import { addHexPrefix } from './utils/address';
 import { CHECK_BLOCK_EVERY_MS, WALLET_TYPES } from './constants';
 import { patp2dec } from './patp2dec';
@@ -20,6 +20,16 @@ const RETRY_OPTIONS = {
   randomize: false,
 };
 
+//NOTE  send of format (web3, txn) => web3-style event emitter
+//TODO  should we pass .send explicit txhash/error callbacks instead?
+function FakeSignResult(txn, send) {
+  this.txn = txn;
+  this.serialize = function() {
+    return '[tbd]'; //TODO 'will be signed later' ?
+  }
+  this.send = send;
+}
+
 const signTransaction = async ({
   wallet,
   walletType,
@@ -30,7 +40,8 @@ const signTransaction = async ({
   chainId, // number
   gasPrice, // string, in gwei
   gasLimit, // string | number
-  txnSigner, // optionally inject a transaction signing function
+  txnSigner, // optionally inject a transaction signing function, for wc
+  txnSender, // ^^                              sending
 }) => {
   // TODO: require these in txn object
   nonce = toHex(nonce);
@@ -115,6 +126,7 @@ const signTransaction = async ({
       from,
       txn: stx,
       txnSigner,
+      txnSender,
     });
   } else {
     stx = stx.sign(wallet.privateKey);
@@ -124,15 +136,17 @@ const signTransaction = async ({
 };
 
 const sendSignedTransaction = (web3, stx, doubtNonceError) => {
-  // Handle fake metamask transaction
   let eventEmitter;
   let rawTx;
-  if (stx instanceof FakeMetamaskTransaction) {
-    eventEmitter = web3.eth.sendTransaction(stx.txnData);
+  //  if we couldn't sign it, we depend on the sender function
+  if (stx instanceof FakeSignResult) {
+    eventEmitter = stx.send(web3, stx.txn);
   } else {
     rawTx = hexify(stx.serialize());
     eventEmitter = web3.eth.sendSignedTransaction(rawTx);
   }
+  //TODO  consider working with Promise<txhash> instead of event
+  //      emitter, considering we only use the hash & error cases.
   return new Promise(async (resolve, reject) => {
     eventEmitter
       .on('transactionHash', hash => {
@@ -240,6 +254,7 @@ const canDecodePatp = p => {
 
 export {
   RETRY_OPTIONS,
+  FakeSignResult,
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,
