@@ -1,5 +1,6 @@
 import TrezorConnect from 'trezor-connect';
 import { convertToInt } from './convertToInt';
+import BN from 'bn.js';
 
 const TREZOR_PATH = "m/44'/60'/0'/0/x";
 
@@ -15,7 +16,7 @@ const trezorSignTransaction = async (txn, hdpath) => {
     gasLimit: txn.gasLimit.toString('hex'),
     gasPrice: txn.gasPrice.toString('hex'),
     nonce: txn.nonce.length === 0 ? '00' : txn.nonce.toString('hex'),
-    chainId: formatChainId(txn.getChainId()),
+    chainId: formatChainId(txn.common.chainId()),
   };
 
   const sig = await TrezorConnect.ethereumSignTransaction({
@@ -29,9 +30,9 @@ const trezorSignTransaction = async (txn, hdpath) => {
 
   const payload = sig.payload;
 
-  txn.v = Buffer.from(payload.v.slice(2), 'hex');
-  txn.r = Buffer.from(payload.r.slice(2), 'hex');
-  txn.s = Buffer.from(payload.s.slice(2), 'hex');
+  txn.v = new BN(payload.v.slice(2), 'hex');
+  txn.r = new BN(payload.r.slice(2), 'hex');
+  txn.s = new BN(payload.s.slice(2), 'hex');
 
   return txn;
 };
