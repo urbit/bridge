@@ -28,7 +28,6 @@ function _useNetwork(initialNetworkType = null) {
     (async () => {
       if (window.ethereum) {
         try {
-          await window.ethereum.enable();
           setMetamask(true);
           setNetworkType(chainIdToNetworkType(window.ethereum.chainId));
         } catch (e) {
