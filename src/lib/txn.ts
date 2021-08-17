@@ -86,13 +86,20 @@ const signTransaction = async ({
 
   const utx = Object.assign(txn, signingParams);
 
-  const chain =
-    networkType === NETWORK_TYPES.ROPSTEN ? Chain.Ropsten : Chain.Mainnet;
-  const common = new Common({
-    chain: chain,
-    hardfork: Hardfork.MuirGlacier,
-  });
-  let stx = Transaction.fromTxData(utx, { common, freeze: false });
+  const txConfig: any = { freeze: false };
+  //  we must specify the chain *either* in the Common object,
+  //  *or* eip155 style, but never both!
+  //
+  if (!needEip155Params) {
+    const chain =
+      networkType === NETWORK_TYPES.ROPSTEN ? Chain.Ropsten : Chain.Mainnet;
+    txConfig.common = new Common({
+      chain: chain,
+      hardfork: Hardfork.MuirGlacier,
+    });
+  }
+
+  let stx = Transaction.fromTxData(utx, txConfig);
 
   //TODO should try-catch and display error message to user,
   //     ie ledger's "pls enable contract data"
