@@ -3,7 +3,7 @@ import QRCodeModal from '@walletconnect/qrcode-modal';
 import { ITxData } from '@walletconnect/types';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Just } from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 
 import { useWallet } from 'store/wallet';
 import { getAuthToken } from './authToken';
@@ -81,17 +81,30 @@ export const useWalletConnect = () => {
       return;
     }
 
-    const authToken = await getAuthToken({
-      address,
-      connector,
-      walletType: WALLET_TYPES.WALLET_CONNECT,
-    });
+    let authToken = Nothing();
+    try {
+      const token = await getAuthToken({
+        address,
+        connector,
+        walletType: WALLET_TYPES.WALLET_CONNECT,
+      });
+      authToken = Just(token);
+    } catch (e) {
+      if (e.message === 'METHOD_NOT_SUPPORTED') {
+        console.warn(
+          'wallet does not support message signing. proceeding without auth token.'
+        );
+      } else {
+        throw e;
+        //TODO  should errors with this *really* prevent login?
+      }
+    }
 
     const wallet: WalletConnectWallet = {
       address,
     };
 
-    setAuthToken(Just(authToken));
+    setAuthToken(authToken);
     setWallet(Just(wallet));
   };
 
