@@ -152,6 +152,37 @@ export const useWalletConnect = () => {
           data,
           nonce,
         })
+        .then((signature: string) => resolve(signature))
+        .catch((error: Error) => reject(error));
+    });
+  };
+
+  const sendTransaction = async ({
+    from,
+    to,
+    gas,
+    gasPrice,
+    value,
+    data,
+    nonce,
+  }: ITxData): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (!connector || !isConnected()) {
+        reject(new Error('No connected wallet available for signing'));
+        return;
+      }
+
+      //REVIEW  .then path untested
+      return connector
+        .sendTransaction({
+          from,
+          to,
+          gas,
+          gasPrice,
+          value,
+          data,
+          nonce,
+        })
         .then((txHash: string) => resolve(txHash))
         .catch((error: Error) => reject(error));
     });
@@ -247,5 +278,6 @@ export const useWalletConnect = () => {
     peerMeta,
     resetConnector,
     signTransaction,
+    sendTransaction,
   };
 };

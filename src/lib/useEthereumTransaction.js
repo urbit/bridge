@@ -17,6 +17,7 @@ import {
   sendSignedTransaction,
   waitForTransactionConfirm,
   hexify,
+  FakeSignResult,
 } from './txn';
 import * as need from 'lib/need';
 import { ensureFundsFor } from 'lib/tank';
@@ -29,6 +30,7 @@ import { useWalletConnect } from './useWalletConnect';
 const STATE = {
   NONE: 'NONE',
   SIGNED: 'SIGNED',
+  FAKE_SIGNED: 'FAKE_SIGNED',
   BROADCASTED: 'BROADCASTED',
   CONFIRMED: 'CONFIRMED',
   COMPLETED: 'COMPLETED',
@@ -50,7 +52,10 @@ export default function useEthereumTransaction(
   const { wallet, walletType, walletHdPath } = useWallet();
   const { web3, networkType } = useNetwork();
   const { pointCursor } = usePointCursor();
-  const { signTransaction: wcSign } = useWalletConnect();
+  const {
+    signTransaction: wcSign,
+    sendTransaction: wcSend,
+  } = useWalletConnect();
 
   const _web3 = need.web3(web3);
   const _wallet = need.wallet(wallet);
@@ -81,7 +86,8 @@ export default function useEthereumTransaction(
   const initializing = nonce === undefined || chainId === undefined;
   const constructed = !!unsignedTransactions;
   const isDefaultState = state === STATE.NONE;
-  const signed = state === STATE.SIGNED;
+  const signed = state === STATE.SIGNED || state === STATE.FAKE_SIGNED;
+  const fakeSigned = state === STATE.FAKE_SIGNED;
   const broadcasted = state === STATE.BROADCASTED;
   const confirmed = state === STATE.CONFIRMED;
   const completed = state === STATE.COMPLETED;
@@ -115,6 +121,8 @@ export default function useEthereumTransaction(
       // https://reactjs.org/docs/hooks-rules.html
       const txnSigner =
         walletType === WALLET_TYPES.WALLET_CONNECT ? wcSign : undefined;
+      const txnSender =
+        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSend : undefined;
 
       const txns = await Promise.all(
         utxs.map((utx, i) =>
@@ -129,12 +137,18 @@ export default function useEthereumTransaction(
             gasPrice: gasPrice.toFixed(0),
             gasLimit,
             txnSigner,
+            txnSender,
           })
         )
       );
 
       setSignedTransactions(txns);
-      setState(STATE.SIGNED);
+
+      if (txns.some(tx => tx instanceof FakeSignResult)) {
+        setState(STATE.FAKE_SIGNED);
+      } else {
+        setState(STATE.SIGNED);
+      }
     } catch (error) {
       console.error('error signing txs', error);
       setError(error);
@@ -151,6 +165,7 @@ export default function useEthereumTransaction(
     walletHdPath,
     walletType,
     wcSign,
+    wcSend,
   ]);
 
   const broadcast = useCallback(async () => {
@@ -327,6 +342,7 @@ export default function useEthereumTransaction(
     canSign,
     generateAndSign,
     signed,
+    fakeSigned,
     broadcast,
     broadcasted,
     confirmed,

@@ -64,6 +64,12 @@ const ensureFundsFor = async (
     throw new Error('tank: no transactions provided!');
   }
 
+  //TODO  this depends on FakeSignResult serialization in a somewhat ugly way
+  if (signedTxs.some(tx => tx === '0x???')) {
+    console.log('tank: disabling for unsigned sender wallet');
+    return false;
+  }
+
   const balance = toBN(await web3.eth.getBalance(address));
   cost = toBN(cost);
 
@@ -76,11 +82,6 @@ const ensureFundsFor = async (
     return false;
   }
 
-  if (walletType === WALLET_TYPES.METAMASK) {
-    console.log('tank: disabling for metamask login');
-
-    return false;
-  }
   try {
     // TODO: if we can't always (easily) provide a point, and the
     // fundTransactions call is gonna fail anyway, should we maybe
