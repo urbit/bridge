@@ -23,6 +23,7 @@ import Passport from 'components/Passport';
 import Footer from 'components/Footer';
 import { ForwardButton } from 'components/Buttons';
 import CopiableAddress from 'components/CopiableAddress';
+import L2Header from 'components/L2Header';
 import NavHeader from 'components/NavHeader';
 
 const maybeGetResult = (obj, key, defaultValue) =>
@@ -274,6 +275,7 @@ export default function Points() {
           className="f6 mono gray4 mb4 us-none pointer">
           {abbreviateAddress(address)}
         </CopiableAddress>
+        <L2Header />
       </NavHeader>
       <Grid>
         {displayEmptyState && (
