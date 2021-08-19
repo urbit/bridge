@@ -151,3 +151,21 @@ To generate a release `bridge-$VERSION.zip` file, use a simple `npm run release`
 This will pack the build directory together with the README, `bridge-https.py`
 script, and also generate a set of checksums for the build directory. You can
 verify the checksums on e.g. MacOS via `shasum -c checksums.txt`.
+
+## L2 Local Environment
+
+To work with the L2 aggregator locally, set up the local environment like so:
+
+```sh
+# Start ganache and apply the yu/naive-fallback branch from urbit/azimuth
+ganache-cli --host '0.0.0.0' -m 'benefit crew supreme gesture quantum web media hazard theory mercy wing kitten'
+truffle migrate with-state --reset --compile-all
+
+# Build urbit at naive/fake-txs branch, start a local fake ship, then run these in the dojo:
+:azimuth|watch 'http://0.0.0.0:8545'
+|start %aggregator
+|start %aggregator-rpc
+
+# If having CORS issues with API requests, try this:
+> |cors-approve ~~https~3a.~2f.~2f.localhost~3a.3000
+```
