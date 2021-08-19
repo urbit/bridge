@@ -1,5 +1,6 @@
 import Common, { Chain, Hardfork } from '@ethereumjs/common';
-import { Transaction } from '@ethereumjs/tx';
+import { JsonTx, Transaction } from '@ethereumjs/tx';
+import { ITxData } from '@walletconnect/types';
 import { toHex } from 'web3-utils';
 import { safeFromWei, safeToWei } from './lib';
 import retry from 'async-retry';
@@ -12,6 +13,7 @@ import { metamaskSignTransaction } from './metamask';
 import { addHexPrefix } from './utils/address';
 import { CHECK_BLOCK_EVERY_MS, WALLET_TYPES } from './constants';
 import { patp2dec } from './patp2dec';
+import Web3 from 'web3';
 
 const RETRY_OPTIONS = {
   retries: 99999,
@@ -20,21 +22,31 @@ const RETRY_OPTIONS = {
   randomize: false,
 };
 
+// catch-all type: Metamask passes an obj shaped like ITxData, WC passes JsonTx + from
+export type FakeSignableTx =
+  | ITxData
+  | (JsonTx & { from: string; to: string; gas: string });
+
+type TxSender = (txn: FakeSignableTx, web3: Web3) => Promise<string>; // Metamask requires Web3 (txhash)
+
 type SignedTx = {
   serialize: () => string;
 };
 
-//TODO  merge with FakeSignResult, get it type-checking properly
 type FakeSignedTx = SignedTx & {
-  txn: any;
-  send: (web3: any, txn: any) => Promise<string>; // txhash
+  txn: FakeSignableTx;
+  send: TxSender;
 };
 
-function FakeSignResult(txn, send) {
-  this.txn = txn;
-  this.serialize = () => '???'; //NOTE  update tank.js when changing this!
-  this.send = send;
-}
+const FakeSignResult = (txn: FakeSignableTx, send: TxSender): FakeSignedTx => {
+  return {
+    txn,
+    serialize: () => {
+      return '???'; //NOTE  update tank.js when changing this!
+    },
+    send,
+  };
+};
 
 const signTransaction = async ({
   wallet,
@@ -142,19 +154,19 @@ const signTransaction = async ({
 };
 
 const sendSignedTransaction = (
-  web3,
-  stx: SignedTx,
+  web3: Web3,
+  stx: Transaction | FakeSignedTx,
   doubtNonceError: boolean
 ): Promise<string> => {
   //  if we couldn't sign it, we depend on the given sender function
-  if (stx instanceof FakeSignResult) { //TODO set up for proper typecheck
+  if (!(stx instanceof Transaction)) {
     if (doubtNonceError) {
       console.log('why doubting nonce error? tank unavailable without rawtx.');
     }
     if (!stx.send) {
       throw new Error('no sign+sending function available');
     }
-    return stx.send(web3, stx.txn);
+    return stx.send(stx.txn, web3);
   }
 
   let rawTx: string = hexify(stx.serialize());

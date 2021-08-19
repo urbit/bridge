@@ -17,7 +17,6 @@ import {
   sendSignedTransaction,
   waitForTransactionConfirm,
   hexify,
-  FakeSignResult,
 } from './txn';
 import * as need from 'lib/need';
 import { ensureFundsFor } from 'lib/tank';
@@ -26,6 +25,7 @@ import useGasPrice from 'lib/useGasPrice';
 import { timeout } from 'lib/timeout';
 import { safeToWei, safeFromWei } from 'lib/lib';
 import { useWalletConnect } from './useWalletConnect';
+import { Transaction } from '@ethereumjs/tx';
 
 const STATE = {
   NONE: 'NONE',
@@ -144,7 +144,10 @@ export default function useEthereumTransaction(
 
       setSignedTransactions(txns);
 
-      if (txns.some(tx => tx instanceof FakeSignResult)) {
+      // Per return type of `signTransaction`, tx is either a Transaction or FakeSignedTx.
+      // We check the negation in this case, since TS cannot perform run-time check of type
+      // FakeSignedTx, but it can check for an instance of the ethereumjs/tx class.
+      if (txns.some(tx => !(tx instanceof Transaction))) {
         setState(STATE.FAKE_SIGNED);
       } else {
         setState(STATE.SIGNED);

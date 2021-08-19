@@ -1,13 +1,14 @@
 import { ITxData } from '@walletconnect/types';
 import { Transaction } from '@ethereumjs/tx';
 import { stripHexPrefix } from './utils/address';
-import { FakeSignResult } from './txn';
+import { FakeSignableTx, FakeSignResult } from './txn';
+import Web3 from 'web3';
 
 type SignWalletConnectTransactionArgs = {
   from: string;
   txn: Transaction;
-  txnSigner: (args: ITxData) => Promise<string>;
-  txnSender: (args: ITxData) => Promise<string>;
+  txnSigner: (txn: ITxData) => Promise<string>;
+  txnSender: (txn: FakeSignableTx) => Promise<string>;
 };
 
 const walletConnectSignTransaction = async ({
@@ -16,7 +17,8 @@ const walletConnectSignTransaction = async ({
   txnSigner,
   txnSender,
 }: SignWalletConnectTransactionArgs) => {
-  let wcFormattedTx = txn.toJSON();
+  // TS compiler complains next line about missing from and gas, which we set on the following lines
+  let wcFormattedTx: FakeSignableTx = txn.toJSON();
   wcFormattedTx.from = from;
   wcFormattedTx.gas = wcFormattedTx.gasLimit;
 
@@ -26,7 +28,7 @@ const walletConnectSignTransaction = async ({
   } catch (e) {
     if (e.message === 'METHOD_NOT_SUPPORTED') {
       console.log('connected wc wallet does not support tx signing.');
-      return new FakeSignResult(
+      return FakeSignResult(
         wcFormattedTx,
         walletConnectSendTransaction(txnSender)
       );
@@ -41,7 +43,7 @@ const walletConnectSignTransaction = async ({
 };
 
 const walletConnectSendTransaction = (
-  txnSender: (tx: any) => Promise<string>
-) => (_web3, txn): Promise<string> => txnSender(txn);
+  txnSender: (tx: FakeSignableTx) => Promise<string>
+) => (txn: FakeSignableTx, _web3: Web3): Promise<string> => txnSender(txn);
 
 export { walletConnectSignTransaction };

@@ -1,5 +1,6 @@
+import Web3 from 'web3';
 import { toHex } from 'web3-utils';
-import { FakeSignResult } from './txn';
+import { FakeSignableTx, FakeSignResult } from './txn';
 
 export function MetamaskWallet(address) {
   this.address = address;
@@ -7,12 +8,15 @@ export function MetamaskWallet(address) {
 
 // Cheat a bit and pretend to sign transaction
 // Sign it actually when sending
-export const metamaskSignTransaction = async (txn, from) => {
+export const metamaskSignTransaction = async (
+  txn: FakeSignableTx,
+  from: string
+) => {
   txn.from = from;
-  return new FakeSignResult(txn, metamaskSendTransaction);
+  return FakeSignResult(txn, metamaskSendTransaction);
 };
 
-const metamaskSendTransaction = async (web3, txn) => {
+const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
   const metamaskFormattedTxn = {
     data: txn.data,
     gasLimit: txn.gasLimit,
@@ -29,4 +33,4 @@ const metamaskSendTransaction = async (web3, txn) => {
   //TODO  can we do better?
   const receipt = await web3.eth.sendTransaction(metamaskFormattedTxn);
   return receipt.transactionHash;
-}
+};
