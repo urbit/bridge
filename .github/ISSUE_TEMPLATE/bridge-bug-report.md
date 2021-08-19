@@ -2,7 +2,7 @@
 name: Bridge Bug report
 about: 'Use this template to file a bug for Bridge'
 title: ''
-labels: landscape
+labels: bridge
 assignees: ''
 
 ---
