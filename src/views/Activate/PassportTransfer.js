@@ -9,6 +9,9 @@ import { usePointCursor } from 'store/pointCursor';
 import * as need from 'lib/need';
 import useLifecycle from 'lib/useLifecycle';
 import useBlockWindowClose from 'lib/useBlockWindowClose';
+import { useWalletConnect } from 'lib/useWalletConnect';
+
+import { WALLET_TYPES } from 'lib/constants';
 import {
   reticketPointBetweenWallets,
   TRANSACTION_PROGRESS,
@@ -43,15 +46,20 @@ const labelForProgress = progress => {
 
 export default function PassportTransfer({ className, resetActivateRouter }) {
   const { replaceWith, names } = useHistory();
-  const { setUrbitWallet } = useWallet();
+  const { setUrbitWallet, walletType } = useWallet();
   const { setPointCursor } = usePointCursor();
   const { web3, contracts, networkType } = useNetwork();
+  const {
+    signTransaction: wcSign,
+    sendTransaction: wcSend,
+  } = useWalletConnect();
   const {
     derivedWallet,
     derivedPoint,
     inviteWallet,
     reset: resetActivateFlow,
   } = useActivateFlow();
+
   const [generalError, setGeneralError] = useState();
   const [progress, setProcesss] = useState(0);
   const [needFunds, setNeedFunds] = useState();
@@ -103,6 +111,12 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
       const _web3 = need.web3(web3);
       const _contracts = need.contracts(contracts);
 
+      //  see also comment in useEthereumTransaction
+      const txnSigner =
+        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSign : undefined;
+      const txnSender =
+        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSend : undefined;
+
       await reticketPointBetweenWallets({
         fromWallet: _inviteWallet,
         toWallet: _wallet,
@@ -112,6 +126,8 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
         networkType,
         onUpdate: handleUpdate,
         transferEth: true,
+        txnSigner,
+        txnSender,
       });
 
       // set the global wallet
@@ -132,10 +148,13 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
     web3,
     contracts,
     networkType,
+    walletType,
     setUrbitWallet,
     setPointCursor,
     handleUpdate,
     goToLogin,
+    wcSign,
+    wcSend,
   ]);
 
   useLifecycle(() => {

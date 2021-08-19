@@ -18,6 +18,8 @@ import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useHistory } from 'store/history';
 
+import { useWalletConnect } from 'lib/useWalletConnect';
+
 import { RestartButton, ForwardButton } from 'components/Buttons';
 import WarningBox from 'components/WarningBox';
 import LoadingBar from 'components/LoadingBar';
@@ -54,6 +56,10 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
   } = useWallet();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
+  const {
+    signTransaction: wcSign,
+    sendTransaction: wcSend,
+  } = useWalletConnect();
 
   const [generalError, setGeneralError] = useState();
   const [progress, setProgress] = useState(0);
@@ -68,6 +74,13 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
       const point = need.point(pointCursor);
       const details = need.details(getDetails(point));
       const networkRevision = convertToInt(details.keyRevisionNumber, 10);
+
+      //  see also comment in useEthereumTransaction
+      const txnSigner =
+        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSign : undefined;
+      const txnSender =
+        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSend : undefined;
+
       try {
         await reticketPointBetweenWallets({
           fromWallet: need.wallet(wallet),
@@ -80,6 +93,8 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
           networkType,
           onUpdate: handleUpdate,
           nextRevision: networkRevision + 1,
+          txnSigner,  //TODO  connector is null?
+          txnSender,
         });
       } catch (err) {
         console.error(err);

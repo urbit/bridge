@@ -42,6 +42,8 @@ export async function reticketPointBetweenWallets({
   onUpdate,
   transferEth = false,
   nextRevision = INITIAL_NETWORK_KEY_REVISION,
+  txnSigner,
+  txnSender,
 }) {
   const askForFunding = (address, minBalance, balance) =>
     onUpdate({
@@ -171,6 +173,8 @@ export async function reticketPointBetweenWallets({
       chainId,
       gasPrice: gasPriceGwei,
       gasLimit: txs[i].gas,
+      txnSigner,
+      txnSender,
     });
     txPairs.push({
       raw: hexify(stx.serialize()),
