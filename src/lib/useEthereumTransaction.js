@@ -119,6 +119,7 @@ export default function useEthereumTransaction(
       // Due to React's Rules of Hooks, optionally inject the
       // WC transaction signing function
       // https://reactjs.org/docs/hooks-rules.html
+      //TODO  this is duplicated across relevant callsites, should refactor
       const txnSigner =
         walletType === WALLET_TYPES.WALLET_CONNECT ? wcSign : undefined;
       const txnSender =

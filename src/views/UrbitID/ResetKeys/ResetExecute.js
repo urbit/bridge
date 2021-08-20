@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H4, Text, ErrorText } from 'indigo-react';
 
@@ -7,7 +7,6 @@ import {
   TRANSACTION_PROGRESS,
 } from 'lib/reticket';
 import * as need from 'lib/need';
-import useLifecycle from 'lib/useLifecycle';
 import { WALLET_TYPES } from 'lib/constants';
 import { convertToInt } from 'lib/convertToInt';
 import useBlockWindowClose from 'lib/useBlockWindowClose';
@@ -17,6 +16,8 @@ import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useHistory } from 'store/history';
+
+import { useWalletConnect } from 'lib/useWalletConnect';
 
 import { RestartButton, ForwardButton } from 'components/Buttons';
 import WarningBox from 'components/WarningBox';
@@ -54,6 +55,11 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
   } = useWallet();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
+  const {
+    signTransaction: wcSign,
+    sendTransaction: wcSend,
+    connector,
+  } = useWalletConnect();
 
   const [generalError, setGeneralError] = useState();
   const [progress, setProgress] = useState(0);
@@ -63,11 +69,28 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
   useBlockWindowClose();
 
   // start reticketing transactions on mount
-  useLifecycle(() => {
+  useEffect(() => {
     (async () => {
+      // due to react shenanigans we may need to wait for the connector
+      if (
+        walletType === WALLET_TYPES.WALLET_CONNECT &&
+        (!connector || !connector.connected)
+      ) {
+        setGeneralError(new Error('Awaiting WalletConnect connection...'));
+        return;
+      }
+      setGeneralError();
+
       const point = need.point(pointCursor);
       const details = need.details(getDetails(point));
       const networkRevision = convertToInt(details.keyRevisionNumber, 10);
+
+      // see also comment in useEthereumTransaction
+      const txnSigner =
+        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSign : undefined;
+      const txnSender =
+        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSend : undefined;
+
       try {
         await reticketPointBetweenWallets({
           fromWallet: need.wallet(wallet),
@@ -80,13 +103,19 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
           networkType,
           onUpdate: handleUpdate,
           nextRevision: networkRevision + 1,
+          txnSigner,
+          txnSender,
         });
       } catch (err) {
         console.error(err);
         setGeneralError(err);
       }
     })();
-  });
+    //NOTE  this was using useLifecycle previously (which is useEffect without
+    //      dependencies) and worked fine, but in the wc case we might need to
+    //      wait for the connector to get set due to react state shenanigans.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connector]);
 
   const goToRestart = useCallback(() => {
     reset();
@@ -99,7 +128,7 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
     setWalletType(WALLET_TYPES.TICKET);
     setUrbitWallet(Just(newWallet.value.wallet));
     // (implicit) pointCursor stays the same
-    // rediect to point
+    // redirect to point
     popTo(names.POINT);
   }, [resetWallet, setWalletType, setUrbitWallet, newWallet, popTo, names]);
 
