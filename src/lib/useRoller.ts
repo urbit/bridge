@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Config, RollerRPCAPI, Options } from 'roller-rpc-client';
+import { Config, RollerRPCAPI, Options } from '@urbit/roller-api';
 import { isDevelopment } from './flags';
 
 export default function useRoller() {
