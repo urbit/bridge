@@ -1,16 +1,21 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Config, RollerRPCAPI, Options } from '@urbit/roller-api';
-import { isDevelopment } from './flags';
+import { isDevelopment, isRopsten } from './flags';
+import { ROLLER_HOSTS } from './constants';
 
 export default function useRoller() {
   const [config, setConfig] = useState<Config | null>(null);
 
   const options: Options = useMemo(() => {
-    const type = isDevelopment ? 'http' : 'https';
-    // TODO: What is the prod host?
-    const host = isDevelopment ? 'localhost' : 'bridge.urbit.org';
+    const type = isRopsten || !isDevelopment ? 'https' : 'http';
+    const host = isRopsten
+      ? ROLLER_HOSTS.ROPSTEN
+      : isDevelopment
+      ? ROLLER_HOSTS.LOCAL
+      : ROLLER_HOSTS.MAINNET;
     const port = 80;
     const path = '/v1/roller';
+
     return {
       transport: {
         type,

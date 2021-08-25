@@ -97,6 +97,13 @@ const NONCUSTODIAL_WALLETS = new Set([
   WALLET_TYPES.WALLET_CONNECT,
 ]);
 
+// TODO: update Ropsten to use URI, ensure correct Prod host
+const ROLLER_HOSTS = {
+  LOCAL: 'localhost',
+  ROPSTEN: '34.105.35.120',
+  MAINNET: 'bridge.urbit.org',
+};
+
 export {
   CHECK_BLOCK_EVERY_MS,
   DEFAULT_GAS_PRICE_GWEI,
@@ -122,4 +129,5 @@ export {
   WALLET_TYPES,
   ZOD,
   PROGRESS_ANIMATION_DELAY_MS,
+  ROLLER_HOSTS,
 };
