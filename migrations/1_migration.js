@@ -6,6 +6,8 @@ var Ecliptic = artifacts.require('azimuth-solidity/Ecliptic');
 var DelegatedSending = artifacts.require('azimuth-solidity/DelegatedSending');
 var LSR = artifacts.require('azimuth-solidity/LinearStarRelease');
 var CSR = artifacts.require('azimuth-solidity/ConditionalStarRelease');
+// TODO: replace when https://github.com/urbit/azimuth/pull/43 is merged
+var Naive = artifacts.require('Naive');
 
 const user1 = '0xD53208cf45fC9bd7938B200BFf8814A26146688f';
 const rateUnit = 50;
@@ -87,6 +89,9 @@ module.exports = async function(deployer) {
 
   const lsr = await deployer.deploy(LSR, azimuth.address);
 
+  // deploy naive contract
+  const naive = await deployer.deploy(Naive);
+
   const own = await ecliptic.owner();
   switch (process.env.WITH_TEST_STATE) {
     case 'STAR_RELEASE':
@@ -137,6 +142,39 @@ module.exports = async function(deployer) {
         await ecliptic.spawn(offset + 256, own);
         await ecliptic.transferPoint(offset + 256, user1, false);
       }
+      break;
+    case 'L2':
+      // all ships will have as owner:
+      //   0x6deffb0cafdb11d175f123f6891aa64f01c24f7d
+      //
+      // ~zod -> L1
+      await ecliptic.createGalaxy(0, own);
+      await ecliptic.configureKeys(0, '0xffff', '0xffff', 1, false);
+      // ~marzod -> L1
+      await ecliptic.spawn(256, own);
+      await ecliptic.configureKeys(256, '0xffff', '0xffff', 1, false);
+      // ~wanzod -> L1
+      await ecliptic.spawn(768, own);
+      await ecliptic.configureKeys(768, '0xffff', '0xffff', 1, false);
+      // ~wanzod sets spawn-proxy to L2
+      await ecliptic.setSpawnProxy(
+        768,
+        '0x1111111111111111111111111111111111111111'
+      );
+      // ~wicdev-wisryt -> L1
+      await ecliptic.spawn(65792, own);
+      // ~panret-tocsel -> L1
+      await ecliptic.spawn(131328, own);
+      // ~binzod -> L1
+      await ecliptic.spawn(512, own);
+      // ~norsyr-torryn -> L1
+      await ecliptic.spawn(99549440, own);
+      // ~norsyr-torryn -> L2
+      await ecliptic.transferPoint(
+        99549440,
+        '0x1111111111111111111111111111111111111111',
+        true
+      );
       break;
 
     default:

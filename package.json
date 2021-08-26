@@ -115,6 +115,7 @@
     "pilot-mainnet": "REACT_APP_MAINNET=true HTTPS=true npm-run-all start --continue-on-error",
     "pilot-release": "WITH_TEST_STATE=STAR_RELEASE npm run pilot",
     "pilot-residents": "WITH_TEST_STATE=RESIDENTS npm run pilot",
+    "pilot-l2": "WITH_TEST_STATE=L2 HTTPS=false NODE_ENV=development npm run pilot",
     "pilot-ropsten": "REACT_APP_ROPSTEN=true HTTPS=true npm-run-all start --continue-on-error",
     "pilot:cleanup": "pkill -f ganache-cli",
     "lint:check": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
