@@ -26,6 +26,7 @@ import CopyButton from './CopyButton';
 import ProgressButton from './ProgressButton';
 import { convertToInt } from 'lib/convertToInt';
 import NeedFundsNotice from './NeedFundsNotice';
+import NoticeBox from './NoticeBox';
 
 export default function InlineEthereumTransaction({
   // from useEthereumTransaction.bind
@@ -33,6 +34,7 @@ export default function InlineEthereumTransaction({
   canSign,
   generateAndSign,
   signed,
+  fakeSigned,
   broadcast,
   broadcasted,
   confirmed,
@@ -277,7 +279,15 @@ export default function InlineEthereumTransaction({
               </>
             )}
 
-            {showSignedTx && (
+            {showSignedTx && fakeSigned && (
+              <>
+                <Grid.Item full as={NoticeBox} className="mt2">
+                  Your wallet will sign the transaction upon sending it.
+                </Grid.Item>
+              </>
+            )}
+
+            {showSignedTx && !fakeSigned && (
               <>
                 <Grid.Item
                   full

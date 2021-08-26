@@ -1,5 +1,6 @@
 import Common, { Chain, Hardfork } from '@ethereumjs/common';
-import { Transaction } from '@ethereumjs/tx';
+import { JsonTx, Transaction } from '@ethereumjs/tx';
+import { ITxData } from '@walletconnect/types';
 import { toHex } from 'web3-utils';
 import { safeFromWei, safeToWei } from './lib';
 import retry from 'async-retry';
@@ -8,16 +9,43 @@ import { NETWORK_TYPES } from './network';
 import { ledgerSignTransaction } from './ledger';
 import { trezorSignTransaction } from './trezor';
 import { walletConnectSignTransaction } from './WalletConnect';
-import { metamaskSignTransaction, FakeMetamaskTransaction } from './metamask';
+import { metamaskSignTransaction } from './metamask';
 import { addHexPrefix } from './utils/address';
 import { CHECK_BLOCK_EVERY_MS, WALLET_TYPES } from './constants';
 import { patp2dec } from './patp2dec';
+import Web3 from 'web3';
 
 const RETRY_OPTIONS = {
   retries: 99999,
   factor: 1,
   minTimeout: CHECK_BLOCK_EVERY_MS,
   randomize: false,
+};
+
+// catch-all type: Metamask passes an obj shaped like ITxData, WC passes JsonTx + from
+export type FakeSignableTx =
+  | ITxData
+  | (JsonTx & { from: string; to: string; gas: string });
+
+type TxSender = (txn: FakeSignableTx, web3: Web3) => Promise<string>; // Metamask requires Web3 (txhash)
+
+type SignedTx = {
+  serialize: () => string;
+};
+
+type FakeSignedTx = SignedTx & {
+  txn: FakeSignableTx;
+  send: TxSender;
+};
+
+const FakeSignResult = (txn: FakeSignableTx, send: TxSender): FakeSignedTx => {
+  return {
+    txn,
+    serialize: () => {
+      return '???'; //NOTE  update tank.js when changing this!
+    },
+    send,
+  };
 };
 
 const signTransaction = async ({
@@ -30,7 +58,8 @@ const signTransaction = async ({
   chainId, // number
   gasPrice, // string, in gwei
   gasLimit, // string | number
-  txnSigner, // optionally inject a transaction signing function
+  txnSigner, // optionally inject a transaction signing function,
+  txnSender, // and a sending function, for wallets that need these passed in.
 }) => {
   // TODO: require these in txn object
   nonce = toHex(nonce);
@@ -115,6 +144,7 @@ const signTransaction = async ({
       from,
       txn: stx,
       txnSigner,
+      txnSender,
     });
   } else {
     stx = stx.sign(wallet.privateKey);
@@ -123,19 +153,27 @@ const signTransaction = async ({
   return stx;
 };
 
-const sendSignedTransaction = (web3, stx, doubtNonceError) => {
-  // Handle fake metamask transaction
-  let eventEmitter;
-  let rawTx;
-  if (stx instanceof FakeMetamaskTransaction) {
-    eventEmitter = web3.eth.sendTransaction(stx.txnData);
-  } else {
-    rawTx = hexify(stx.serialize());
-    eventEmitter = web3.eth.sendSignedTransaction(rawTx);
+const sendSignedTransaction = (
+  web3: Web3,
+  stx: Transaction | FakeSignedTx,
+  doubtNonceError: boolean
+): Promise<string> => {
+  //  if we couldn't sign it, we depend on the given sender function
+  if (!(stx instanceof Transaction)) {
+    if (doubtNonceError) {
+      console.log('why doubting nonce error? tank unavailable without rawtx.');
+    }
+    if (!stx.send) {
+      throw new Error('no sign+sending function available');
+    }
+    return stx.send(stx.txn, web3);
   }
+
+  let rawTx: string = hexify(stx.serialize());
+  let eventEmitter = web3.eth.sendSignedTransaction(rawTx);
   return new Promise(async (resolve, reject) => {
     eventEmitter
-      .on('transactionHash', hash => {
+      .on('transactionHash', (hash: string) => {
         resolve(hash);
       })
       .on('error', err => {
@@ -240,6 +278,7 @@ const canDecodePatp = p => {
 
 export {
   RETRY_OPTIONS,
+  FakeSignResult,
   signTransaction,
   sendSignedTransaction,
   waitForTransactionConfirm,

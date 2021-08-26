@@ -25,10 +25,12 @@ import useGasPrice from 'lib/useGasPrice';
 import { timeout } from 'lib/timeout';
 import { safeToWei, safeFromWei } from 'lib/lib';
 import { useWalletConnect } from './useWalletConnect';
+import { Transaction } from '@ethereumjs/tx';
 
 const STATE = {
   NONE: 'NONE',
   SIGNED: 'SIGNED',
+  FAKE_SIGNED: 'FAKE_SIGNED',
   BROADCASTED: 'BROADCASTED',
   CONFIRMED: 'CONFIRMED',
   COMPLETED: 'COMPLETED',
@@ -50,7 +52,10 @@ export default function useEthereumTransaction(
   const { wallet, walletType, walletHdPath } = useWallet();
   const { web3, networkType } = useNetwork();
   const { pointCursor } = usePointCursor();
-  const { signTransaction: wcSign } = useWalletConnect();
+  const {
+    signTransaction: wcSign,
+    sendTransaction: wcSend,
+  } = useWalletConnect();
 
   const _web3 = need.web3(web3);
   const _wallet = need.wallet(wallet);
@@ -81,7 +86,8 @@ export default function useEthereumTransaction(
   const initializing = nonce === undefined || chainId === undefined;
   const constructed = !!unsignedTransactions;
   const isDefaultState = state === STATE.NONE;
-  const signed = state === STATE.SIGNED;
+  const signed = state === STATE.SIGNED || state === STATE.FAKE_SIGNED;
+  const fakeSigned = state === STATE.FAKE_SIGNED;
   const broadcasted = state === STATE.BROADCASTED;
   const confirmed = state === STATE.CONFIRMED;
   const completed = state === STATE.COMPLETED;
@@ -113,8 +119,11 @@ export default function useEthereumTransaction(
       // Due to React's Rules of Hooks, optionally inject the
       // WC transaction signing function
       // https://reactjs.org/docs/hooks-rules.html
+      //TODO  this is duplicated across relevant callsites, should refactor
       const txnSigner =
         walletType === WALLET_TYPES.WALLET_CONNECT ? wcSign : undefined;
+      const txnSender =
+        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSend : undefined;
 
       const txns = await Promise.all(
         utxs.map((utx, i) =>
@@ -129,12 +138,21 @@ export default function useEthereumTransaction(
             gasPrice: gasPrice.toFixed(0),
             gasLimit,
             txnSigner,
+            txnSender,
           })
         )
       );
 
       setSignedTransactions(txns);
-      setState(STATE.SIGNED);
+
+      // Per return type of `signTransaction`, tx is either a Transaction or FakeSignedTx.
+      // We check the negation in this case, since TS cannot perform run-time check of type
+      // FakeSignedTx, but it can check for an instance of the ethereumjs/tx class.
+      if (txns.some(tx => !(tx instanceof Transaction))) {
+        setState(STATE.FAKE_SIGNED);
+      } else {
+        setState(STATE.SIGNED);
+      }
     } catch (error) {
       console.error('error signing txs', error);
       setError(error);
@@ -151,6 +169,7 @@ export default function useEthereumTransaction(
     walletHdPath,
     walletType,
     wcSign,
+    wcSend,
   ]);
 
   const broadcast = useCallback(async () => {
@@ -327,6 +346,7 @@ export default function useEthereumTransaction(
     canSign,
     generateAndSign,
     signed,
+    fakeSigned,
     broadcast,
     broadcasted,
     confirmed,

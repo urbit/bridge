@@ -112,6 +112,7 @@ export default function PassportTransfer({ className, resetActivateRouter }) {
         networkType,
         onUpdate: handleUpdate,
         transferEth: true,
+        //NOTE  not passing wc function, we always have invite ticket wallet
       });
 
       // set the global wallet
