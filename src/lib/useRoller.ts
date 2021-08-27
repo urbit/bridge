@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Config, RollerRPCAPI, Options } from '@urbit/roller-api';
+import {
+  Config,
+  Ship,
+  Proxy,
+  RollerRPCAPI,
+  Options,
+  EthAddress,
+} from '@urbit/roller-api';
 import { isDevelopment, isRopsten } from './flags';
 import { ROLLER_HOSTS } from './constants';
 
@@ -13,7 +20,7 @@ export default function useRoller() {
       : isDevelopment
       ? ROLLER_HOSTS.LOCAL
       : ROLLER_HOSTS.MAINNET;
-    const port = 80;
+    const port = isDevelopment ? 8080 : 80;
     const path = '/v1/roller';
 
     return {
@@ -45,6 +52,26 @@ export default function useRoller() {
       });
   }, [api]);
 
+  const getPoints = useCallback(
+    async (proxy: Proxy, address: EthAddress) => {
+      const points: Ship[] =
+        proxy === 'own'
+          ? await api.getOwnedPoints(address)
+          : proxy === 'mange'
+          ? await api.getManagerFor(address)
+          : proxy === 'vote'
+          ? await api.getVotingFor(address)
+          : proxy === 'transfer'
+          ? await api.getTransferringFor(address)
+          : proxy === 'spawn'
+          ? await api.getSpawningFor(address)
+          : [];
+
+      return points;
+    },
+    [api]
+  );
+
   // On load, get initial config
   useEffect(() => {
     if (config) {
@@ -56,5 +83,6 @@ export default function useRoller() {
 
   return {
     config,
+    getPoints,
   };
 }
