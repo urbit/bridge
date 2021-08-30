@@ -1,12 +1,11 @@
-import React, { useCallback, useMemo, useRef } from 'react';
-import { Just, Nothing } from 'folktale/maybe';
+import { useCallback, useMemo, useRef } from 'react';
+import { Just } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 import { Grid, H4, P, CheckboxInput } from 'indigo-react';
 import { FORM_ERROR } from 'final-form';
 
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
-import Passport from 'components/Passport';
 import WarningBox from 'components/WarningBox';
 import FooterButton from 'components/FooterButton';
 
@@ -18,7 +17,7 @@ import { ROUTE_NAMES } from 'lib/routeNames';
 import { walletFromMnemonic } from 'lib/wallet';
 import { DEFAULT_HD_PATH } from 'lib/constants';
 import { generateWallet } from 'lib/invite';
-import { generateTemporaryOwnershipWallet } from 'lib/walletgen';
+import { generateOwnershipWallet } from 'lib/walletgen';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import { timeout } from 'lib/timeout';
@@ -39,20 +38,20 @@ import FormError from 'form/FormError';
 import { useActivateFlow } from './ActivateFlow';
 import { WARNING } from 'form/helpers';
 import { convertToInt } from 'lib/convertToInt';
+import { patp2dec } from 'lib/patp2dec';
 
 export default function ActivateCode() {
   const history = useHistory();
   const { names, push } = useLocalRouter();
   const { contracts } = useNetwork();
-  const impliedTicket = useImpliedTicket();
+  const { impliedPoint, impliedTicket } = useImpliedTicket();
   const [hasDisclaimed] = useHasDisclaimed();
   const didWarn = useRef(false);
 
   const {
+    setDerivedPoint,
     setDerivedWallet,
     setInviteWallet,
-    derivedPoint,
-    setDerivedPoint,
   } = useActivateFlow();
   // this is a pretty naive way to detect if we're on a mobile device
   // (i.e. we're checking the width of the screen)
@@ -90,18 +89,23 @@ export default function ActivateCode() {
     [validateForm]
   );
 
-  // set our state on submission
+  // derive and set our state on submission
   const onSubmit = useCallback(
-    async values => {
+    async _values => {
       await timeout(16); // allow the ui changes to flush before we lag it out
 
+      // TODO: fallback logic to first use implied values if present, otherwise form values?
+      // Derive wallet
+      const impliedAzimuthPoint = patp2dec(impliedPoint);
       const _contracts = need.contracts(contracts);
-      const { seed } = await generateTemporaryOwnershipWallet(values.ticket);
-
+      const { seed } = await generateOwnershipWallet(
+        impliedAzimuthPoint,
+        impliedTicket
+      );
       const inviteWallet = walletFromMnemonic(seed, DEFAULT_HD_PATH);
-
       const _inviteWallet = need.wallet(inviteWallet);
 
+      // Load associated points
       const owned = await azimuth.azimuth.getOwnedPoints(
         _contracts,
         _inviteWallet.address
@@ -110,11 +114,16 @@ export default function ActivateCode() {
         _contracts,
         _inviteWallet.address
       );
+
       const incoming = [...owned, ...transferring];
 
+      setInviteWallet(inviteWallet);
+
+      // Set derived
       if (incoming.length > 0) {
         if (incoming.length > 1 && !didWarn.current) {
           didWarn.current = true;
+
           return {
             [WARNING]:
               'This invite code has multiple points available. ' +
@@ -126,7 +135,6 @@ export default function ActivateCode() {
         const point = convertToInt(incoming[0], 10);
 
         setDerivedPoint(Just(point));
-        setInviteWallet(inviteWallet);
         setDerivedWallet(Just(await generateWallet(point, true)));
       } else {
         return {
@@ -136,7 +144,14 @@ export default function ActivateCode() {
         };
       }
     },
-    [contracts, setDerivedPoint, setDerivedWallet, setInviteWallet]
+    [
+      contracts,
+      impliedPoint,
+      impliedTicket,
+      setDerivedPoint,
+      setDerivedWallet,
+      setInviteWallet,
+    ]
   );
 
   const initialValues = useMemo(
@@ -147,19 +162,20 @@ export default function ActivateCode() {
   return (
     <View inset>
       <Grid>
-        <Grid.Item
-          full
-          as={Passport}
-          point={derivedPoint}
-          address={Nothing()}
-        />
         <Grid.Item full as={H4} className="mt3">
-          Activate
+          Welcome. This is your Urbit.
         </Grid.Item>
-        <Grid.Item full as={P} className="mb2">
-          Someone has invited you to claim your Urbit identity and join the
-          network. {!impliedTicket && 'Enter your activation code to continue.'}
-        </Grid.Item>
+        {!impliedTicket && (
+          <Grid.Item full as={P} className="mb2">
+            Enter your activation code to continue.
+          </Grid.Item>
+        )}
+
+        {impliedPoint && (
+          <Grid.Item full as={P} className="mb2">
+            {impliedPoint}
+          </Grid.Item>
+        )}
         <BridgeForm
           validate={validate}
           onSubmit={onSubmit}
@@ -201,7 +217,7 @@ export default function ActivateCode() {
                     ? 'Generating...'
                     : isWarning
                     ? 'Continue Activation'
-                    : 'Go'
+                    : 'Claim'
                 }
               </Grid.Item>
 
