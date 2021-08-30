@@ -6,13 +6,21 @@ export default function useActivateFlowState() {
   const [inviteWallet, setInviteWallet] = useState(Nothing());
   const [derivedPoint, setDerivedPoint] = useState(Nothing());
   const [generated, setGenerated] = useState(false);
+  const [incomingPoints, setIncomingPoints] = useState(Nothing());
 
   const reset = useCallback(() => {
     setDerivedWallet(Nothing());
     setInviteWallet(Nothing());
     setDerivedPoint(Nothing());
     setGenerated(false);
-  }, [setDerivedWallet, setInviteWallet, setDerivedPoint, setGenerated]);
+    setIncomingPoints(Nothing());
+  }, [
+    setDerivedWallet,
+    setInviteWallet,
+    setDerivedPoint,
+    setGenerated,
+    setIncomingPoints,
+  ]);
 
   return {
     derivedWallet,
@@ -23,6 +31,8 @@ export default function useActivateFlowState() {
     setDerivedPoint,
     generated,
     setGenerated,
+    incomingPoints,
+    setIncomingPoints,
     reset,
   };
 }

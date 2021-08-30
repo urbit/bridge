@@ -42,7 +42,7 @@ const INITIAL_POINT_CURSOR = IS_STUBBED ? Just(65792) : Nothing();
 
 function useInitialRoutes() {
   const [hasDisclaimed] = useHasDisclaimed();
-  const hasImpliedTicket = !!useImpliedTicket();
+  const { impliedTicket } = useImpliedTicket();
 
   const isActivateUrl = window.location.pathname === '/activate';
 
@@ -54,7 +54,7 @@ function useInitialRoutes() {
     ];
   }
 
-  if (hasImpliedTicket || isActivateUrl) {
+  if (impliedTicket || isActivateUrl) {
     return [{ key: ROUTE_NAMES.ACTIVATE }];
   }
 
