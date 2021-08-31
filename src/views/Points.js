@@ -25,6 +25,7 @@ import { ForwardButton } from 'components/Buttons';
 import CopiableAddress from 'components/copiable/CopiableAddress';
 import NavHeader from 'components/NavHeader';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
+import IncomingPoint from 'components/L2/Points/IncomingPoint';
 
 const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -286,48 +287,21 @@ export default function Points() {
           {abbreviateAddress(address)}
         </CopiableAddress>
       </NavHeader>
+      {incomingPoints.map(point => (
+        <IncomingPoint
+          point={point}
+          accept={() => {
+            setPointCursor(Just(point));
+            push(names.ACCEPT_TRANSFER);
+          }}
+          reject={() => addRejectedPoint(point)}
+        />
+      ))}
       <Grid>
         {displayEmptyState && (
           <Grid.Item full as={HelpText} className="mt8 t-center">
             No points to display. This wallet is not the owner or proxy for any
             points.
-          </Grid.Item>
-        )}
-
-        {incomingPoints.length > 0 && (
-          <Grid.Item full as={Grid} gap={1} className="mb6">
-            <Grid.Item full as={H5}>
-              {pluralize(
-                incomingPoints.length,
-                'Incoming Transfer',
-                'Incoming Transfers'
-              )}
-            </Grid.Item>
-            <Grid.Item
-              full
-              as={PointList}
-              points={incomingPoints}
-              actions={(point, i) => (
-                <ActionButtons
-                  actions={[
-                    {
-                      text: 'Accept',
-                      onClick: () => {
-                        setPointCursor(Just(point));
-                        push(names.ACCEPT_TRANSFER);
-                      },
-                    },
-                    {
-                      text: 'Reject',
-                      onClick: () => {
-                        addRejectedPoint(point);
-                      },
-                    },
-                  ]}
-                />
-              )}
-              inverted
-            />
           </Grid.Item>
         )}
 
