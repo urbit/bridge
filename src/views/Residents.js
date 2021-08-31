@@ -163,7 +163,6 @@ export default function Residents() {
     syncResidents(point);
   }, [syncResidents, point]);
 
-  // TODO: move the requests to the Points page
   const { residents, requests } = getResidents(point);
 
   const [currentTab, _setCurrentTab] = useState(NAMES.ALL);
