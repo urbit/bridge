@@ -1,0 +1,24 @@
+@import 'style/shared/variables.scss';
+
+.fee-dropdown {
+  font-size: 14px;
+  position: relative;
+  width: 180px;
+
+  .content-border {
+    .content {
+      .entry {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        padding: 8px;
+
+        &:hover {
+          background-color: $washedGray;
+        }
+      }
+    }
+  }
+}

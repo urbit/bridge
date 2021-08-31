@@ -29,7 +29,7 @@ import {
 } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
-import CopiableAddress from 'components/CopiableAddress';
+import CopiableAddress from 'components/copiable/CopiableAddress';
 import { convertToInt } from 'lib/convertToInt';
 
 function useIssueChild() {

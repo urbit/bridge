@@ -1,0 +1,41 @@
+@import 'style/shared/variables.scss';
+
+.sigil-mini {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.02);
+    transition-timing-function: ease-in-out;
+    /* Quick on the way out */
+    transition: 0.4s;
+  }
+
+  .sigil {
+    background-color: black;
+    padding: 25px;
+    border-radius: $large-border-radius;
+
+    &.locked {
+      background-color: $dark-gray;
+    }
+  }
+
+  .patp {
+    font-size: 12px;
+    line-height: 16px;
+    margin-top: 4px;
+  }
+
+  .lock {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    height: 14px;
+    width: 14px;
+  }
+}

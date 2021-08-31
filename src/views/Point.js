@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { Just } from 'folktale/maybe';
 import { Grid, Flex, Button } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
+import * as ob from 'urbit-ob';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useWallet } from 'store/wallet';
@@ -24,6 +25,15 @@ import { useLocalRouter } from 'lib/LocalRouter';
 
 import Inviter from 'views/Invite/Inviter';
 import { usePointCache } from 'store/pointCache';
+import Card from 'components/L2/Card';
+import { Icon, Row } from '@tlon/indigo-react';
+import L2PointHeader from 'components/L2/Headers/L2PointHeader';
+import useRoller from 'lib/useRoller';
+import { useRollerStore } from 'store/roller';
+import LayerIndicator from 'components/L2/LayerIndicator';
+import { convertToInt } from 'lib/convertToInt';
+
+import './Point.scss';
 
 function InviteForm({
   showInviteForm,
@@ -118,6 +128,39 @@ export default function Point() {
   const point = need.point(pointCursor);
 
   const { getResidents } = usePointCache();
+  const { api } = useRoller();
+  const {
+    pendingTransactions,
+    setPendingTransactions,
+    nextRoll,
+    setCurrentPoint,
+  } = useRollerStore();
+
+  useEffect(() => {
+    console.log('POINT', point);
+    const getTransactions = async () => {
+      const newPending = await api.getPendingByShip(Number(point));
+      console.log('PENDING', newPending);
+      setPendingTransactions(newPending);
+
+      // get list of spawned planets, and then determine if they have been claimed
+      const allSpawned = await api.getSpawned(Number(point));
+      console.log('SPAWNED', allSpawned.length, allSpawned);
+
+      const pointInfo = await api.getPoint(Number(point));
+      setCurrentPoint(pointInfo);
+      console.log('POINT', pointInfo);
+
+      const ownerAddress = pointInfo?.ownership?.owner?.address;
+      console.log('ADDRESS', ownerAddress);
+      if (ownerAddress) {
+        const transactionHistory = await api.getHistory(ownerAddress);
+        console.log('TRANSACTION HISTORY', transactionHistory);
+      }
+    };
+
+    getTransactions();
+  }, [api, point]); // eslint-disable-line
 
   const { residentCount, requestCount } = getResidents(point);
 
@@ -220,32 +263,42 @@ export default function Point() {
   const address = need.addressFromWallet(wallet);
 
   const _requestCount = requestCount.getOrElse(0);
+  const numPending = pendingTransactions.length;
 
   return (
-    <View pop={pop} inset>
+    <View
+      pop={pop}
+      inset
+      className="point"
+      header={<L2PointHeader hideTimer={!!numPending} />}>
       <Greeting point={point} />
+      {!!numPending && (
+        <div className="transaction">
+          <Row className="title-row">
+            <div className="title">
+              {numPending} Planet{numPending > 1 ? 's' : ''} Spawned
+            </div>
+            <div className="rollup-timer">{nextRoll}</div>
+          </Row>
+          <Row className="info-row">
+            <LayerIndicator layer={2} size="sm" />
+            <div className="date"></div>
+          </Row>
+        </div>
+      )}
       <Passport
         point={Just(point)}
         address={Just(address)}
         animationMode={'slide'}
       />
-      <Grid gap={3}>
+      <Grid gap={4}>
         {isParent && (
-          <Grid.Item
-            full
-            as={Flex}
-            justify="between"
-            onClick={goResidents}
-            className="mv1 pointer">
-            <Flex.Item>
-              Residents{' '}
-              <span className="gray3">{matchBlinky(residentCount)}</span>
-            </Flex.Item>
-            {_requestCount !== 0 && (
-              <Flex.Item className="f7 bg-gray2 h3 pv1 ph2 br-full r-full text-center">
-                {_requestCount} PENDING
-              </Flex.Item>
-            )}
+          <Grid.Item full as={Flex} justify="between">
+            <Card
+              title="Residency"
+              subtitle="Manage peers that you service"
+              onClick={goResidents}
+            />
           </Grid.Item>
         )}
         {isPlanet && hasInvites && (
@@ -266,31 +319,26 @@ export default function Point() {
             Invite Group <Blinky />
           </Grid.Item>
         )}
-      </Grid>
-      <Grid className="pt2">
-        <Grid.Divider />
-        {inviteButton}
-        <Grid.Item
-          full
-          as={ForwardButton}
-          disabled={!canManage}
-          onClick={goUrbitID}
-          className="mt1"
-          detail="Identity and security settings">
-          ID
+        {/* {inviteButton} */}
+        <Grid.Item full as={Flex} justify="between">
+          <Card
+            title="ID"
+            subtitle="Identity and security settings"
+            icon={<Icon icon="User" />}
+            onClick={goUrbitID}
+            disabled={!canManage}
+          />
         </Grid.Item>
-        <Grid.Divider />
-        <Grid.Item
-          full
-          as={ForwardButton}
-          disabled={!canManage}
-          className="mt1"
-          detail="Urbit OS Settings"
-          onClick={goUrbitOS}>
-          OS
+        <Grid.Item full as={Flex} justify="between">
+          <Card
+            title="OS"
+            subtitle="Urbit OS Settings"
+            icon={<Icon icon="Server" />}
+            onClick={goUrbitOS}
+            disabled={!canManage}
+          />
         </Grid.Item>
-        <Grid.Divider />
-        <Grid.Item
+        {/* <Grid.Item
           full
           as={ForwardButton}
           disabled={!canBitcoin}
@@ -298,9 +346,8 @@ export default function Point() {
           detail="Bitcoin management"
           onClick={goBitcoin}>
           Bitcoin
-        </Grid.Item>
-        <Grid.Divider />
-        {isParent && (
+        </Grid.Item> */}
+        {/* {isParent && (
           <>
             <Grid.Item
               full
@@ -311,7 +358,7 @@ export default function Point() {
             </Grid.Item>
             <Grid.Divider />
           </>
-        )}
+        )} */}
         {senateButton}
       </Grid>
     </View>

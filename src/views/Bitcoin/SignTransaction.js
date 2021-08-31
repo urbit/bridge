@@ -6,7 +6,7 @@ import { COMMANDS, useFlowCommand } from 'lib/flowCommand';
 
 import View from 'components/View';
 import Highlighted from 'components/Highlighted';
-import CopiableAddressWrap from 'components/CopiableAddressWrap';
+import CopiableAddressWrap from 'components/copiable/CopiableAddressWrap';
 import ViewHeader from 'components/ViewHeader';
 import SubmitButton from 'form/SubmitButton';
 

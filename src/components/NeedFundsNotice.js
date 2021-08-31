@@ -2,7 +2,7 @@ import React from 'react';
 import { safeFromWei } from '../lib/lib';
 
 import Highlighted from './Highlighted';
-import CopiableAddress from './CopiableAddress';
+import CopiableAddress from './copiable/CopiableAddress';
 import WarningBox from './WarningBox';
 import Blinky from './Blinky';
 

@@ -22,9 +22,9 @@ import Blinky from 'components/Blinky';
 import Passport from 'components/Passport';
 import Footer from 'components/Footer';
 import { ForwardButton } from 'components/Buttons';
-import CopiableAddress from 'components/CopiableAddress';
-import L2Header from 'components/L2Header';
+import CopiableAddress from 'components/copiable/CopiableAddress';
 import NavHeader from 'components/NavHeader';
+import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 
 const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -38,20 +38,26 @@ const maybeGetResult = (obj, key, defaultValue) =>
 
 const hasTransferProxy = details => !isZeroAddress(details.transferProxy);
 
-const PointList = function({ points, className, actions, ...rest }) {
+const PointList = function({
+  points,
+  className,
+  actions,
+  locked = false,
+  ...rest
+}) {
   const { setPointCursor } = usePointCursor();
   const { push, names } = useHistory();
 
   return (
-    <Grid gap={3} className={className}>
+    <Grid gap={4} className={className}>
       {points.map((point, i) => (
         <Grid.Item
           key={point}
-          className={`full half-${(i % 2) + 1}-md half-${(i % 2) + 1}-lg`}>
+          className={`full fourth-${(i % 4) + 1}-md fourth-${(i % 4) + 1}-lg`}>
           <Flex col>
             <Passport.Mini
+              locked={locked}
               point={point}
-              className="pointer"
               onClick={() => {
                 setPointCursor(Just(point));
                 push(names.POINT);
@@ -193,7 +199,7 @@ export default function Points() {
     ...managingPoints,
     ...votingPoints,
     ...spawningPoints,
-  ];
+  ].sort((a, b) => Number(a) - Number(b));
 
   const displayEmptyState =
     !loading && incomingPoints.length === 0 && allPoints.length === 0;
@@ -268,14 +274,17 @@ export default function Points() {
   }
 
   return (
-    <View inset pop={pop} hideBack>
+    <View
+      inset
+      pop={pop}
+      hideBack
+      header={<L2PointHeader hideTimer hideInvites />}>
       <NavHeader>
         <CopiableAddress
           text={address}
           className="f6 mono gray4 mb4 us-none pointer">
           {abbreviateAddress(address)}
         </CopiableAddress>
-        <L2Header />
       </NavHeader>
       <Grid>
         {displayEmptyState && (
@@ -356,9 +365,9 @@ export default function Points() {
 
         {allPoints.length > 0 && (
           <Grid.Item full as={Grid} gap={1}>
-            <Grid.Item full as={H5}>
+            {/* <Grid.Item full as={H5}>
               {pluralize(allPoints.length, 'ID')}
-            </Grid.Item>
+            </Grid.Item> */}
             <Grid.Item full as={PointList} points={allPoints} />
           </Grid.Item>
         )}

@@ -8,7 +8,7 @@ import ViewHeader from 'components/ViewHeader';
 import View from 'components/View';
 import WarningBox from 'components/WarningBox';
 
-import CopiableAddressWrap from 'components/CopiableAddressWrap';
+import CopiableAddressWrap from 'components/copiable/CopiableAddressWrap';
 import Highlighted from 'components/Highlighted';
 
 import * as need from 'lib/need';

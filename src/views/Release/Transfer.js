@@ -14,7 +14,7 @@ import { useHistory } from 'store/history';
 import { useStarReleaseCache } from 'store/starRelease';
 
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
-import CopiableAddress from 'components/CopiableAddress';
+import CopiableAddress from 'components/copiable/CopiableAddress';
 import NoticeBox from 'components/NoticeBox';
 
 import { AddressInput } from 'form/Inputs';

@@ -1,4 +1,4 @@
-import { CopyButtonWide } from 'components/CopyButtonWide';
+import { CopyButtonWide } from 'components/copiable/CopyButtonWide';
 import { Grid } from 'indigo-react';
 
 type AccessCodeArgs = {

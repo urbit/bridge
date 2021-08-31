@@ -25,7 +25,7 @@ import {
   hasErrors,
 } from 'form/validators';
 import FormError from 'form/FormError';
-import CopiableAddress from 'components/CopiableAddress';
+import CopiableAddress from 'components/copiable/CopiableAddress';
 
 function useCreateGalaxy() {
   const { contracts } = useNetwork();

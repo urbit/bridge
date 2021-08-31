@@ -4,7 +4,7 @@ import { azimuth } from 'azimuth-js';
 import { Just } from 'folktale/maybe';
 
 import { ForwardButton } from 'components/Buttons';
-import CopyButton from 'components/CopyButton';
+import CopyButton from 'components/copiable/CopyButton';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import { PROXY_TYPE, proxyTypeToHuman } from 'lib/proxy';

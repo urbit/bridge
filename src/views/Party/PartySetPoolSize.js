@@ -28,7 +28,7 @@ import {
   buildPointValidator,
 } from 'form/validators';
 import FormError from 'form/FormError';
-import CopiableAddress from 'components/CopiableAddress';
+import CopiableAddress from 'components/copiable/CopiableAddress';
 
 function useSetPoolSize() {
   const { contracts } = useNetwork();

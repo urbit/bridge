@@ -1,7 +1,7 @@
 import React from 'react';
 import { CopyButton as BaseCopyButton } from 'components/Buttons';
 import useCopiable from 'lib/useCopiable';
-import WithTooltip, { TooltipPosition } from './WithTooltip';
+import WithTooltip, { TooltipPosition } from '../WithTooltip';
 
 export function CopyButtonWide({ text, children, ...rest }) {
   const [doCopy, didCopy] = useCopiable(text);

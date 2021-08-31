@@ -1,0 +1,49 @@
+@import 'style/shared/variables.scss';
+
+.accounts-dropdown {
+  font-size: 14px;
+  position: relative;
+
+  .content-border {
+    .content {
+      .entry, .current-address {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+
+        padding: 8px 12px 8px 16px;
+
+        &:hover {
+          opacity: 0.8;
+        }
+
+        svg {
+          height: 16px;
+          width: 16px;
+        }
+
+        .sigil {
+          width: 24px;
+          height: 24px;
+          border-radius: $small-border-radius;
+        }
+
+        .layer-migration {
+          svg {
+            width: 12px;
+            height: 12px;
+            margin: 4px 2px;
+          }
+        }
+      }
+
+      .divider {
+        width: 100%;
+        height: 1px;
+        background-color: $light-gray;
+      }
+    }
+  }
+}

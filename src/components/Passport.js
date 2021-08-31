@@ -3,6 +3,8 @@ import { Just, Nothing } from 'folktale/maybe';
 import ob from 'urbit-ob';
 import BN from 'bn.js';
 import 'style/anim.css';
+import { sigil, reactRenderer } from 'urbit-sigil-js';
+import { Icon } from '@tlon/indigo-react';
 
 import * as need from 'lib/need';
 import { chunkStr, Matrix, walk, rand } from 'lib/card';
@@ -12,7 +14,7 @@ import { buildKeyType } from 'lib/point';
 
 import { useWallet } from 'store/wallet';
 
-import { sigil, reactRenderer } from 'urbit-sigil-js';
+import './SigilMini.scss';
 
 function makeSigil(size, patp, colors) {
   const config = {
@@ -211,7 +213,7 @@ const Cell = props => {
  * point is number
  *
  */
-function MiniPassport({ point, inverted, ...rest }) {
+function MiniPassport({ point, inverted, locked = false, ...rest }) {
   useSyncDetails([point]);
   const { wallet } = useWallet();
   const address = need.addressFromWallet(wallet);
@@ -219,70 +221,19 @@ function MiniPassport({ point, inverted, ...rest }) {
   const patp = ob.patp(point);
   const permissions = usePermissionsForPoint(address, point);
   const keyType = buildKeyType(permissions);
+
+  const contrast = locked ? '#666666' : 'black'
+
   const sigil = useMemo(
     () =>
-      makeSigil(44, patp, inverted ? ['white', 'black'] : ['black', 'white']),
-    [inverted, patp]
+      makeSigil(50, patp, inverted ? ['white', contrast] : [contrast, 'white']),
+    [inverted, patp, contrast]
   );
   return (
-    <div
-      style={{
-        fontFamily: 'Inter',
-        backgroundColor: inverted ? 'white' : 'black',
-        border: inverted ? '2px solid #E6E6E6' : '2px solid black',
-        borderRadius: '20px',
-        marginBottom: '16px',
-        maxWidth: `${230}px`,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-      {...rest}>
-      <div
-        style={{
-          height: '44px',
-          padding: '16px',
-          display: 'flex',
-        }}>
-        <div
-          style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-          }}>
-          {sigil}
-          <div
-            style={{
-              marginLeft: '16px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-            }}>
-            <div
-              style={{
-                fontWeight: '600',
-                color: inverted ? 'black' : 'white',
-                fontSize: '14px',
-                fontFamily: 'Source Code Pro',
-              }}>
-              {patp}
-            </div>
-            {keyType !== '' ? (
-              <div
-                style={{
-                  marginTop: '8px',
-                  fontWeight: '500',
-                  color: inverted ? 'black' : 'white',
-                  fontSize: '12px',
-                  fontFamily: 'Source Code Pro',
-                }}>
-                {keyType}
-              </div>
-            ) : (
-              <div />
-            )}
-          </div>
-        </div>
-      </div>
+    <div {...rest} className="sigil-mini">
+      <div className={`sigil ${locked ? 'locked' : ''}`}>{sigil}</div>
+      <span className="patp">{patp}</span>
+      {locked && <Icon color="white" icon="Locked" className="lock" />}
     </div>
   );
 }
