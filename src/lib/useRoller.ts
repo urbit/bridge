@@ -7,11 +7,13 @@ import * as ob from 'urbit-ob';
 import {
   Config,
   Ship,
+  L2Point,
   Proxy,
   RollerRPCAPI,
   Options,
   EthAddress,
 } from '@urbit/roller-api';
+
 import { isDevelopment, isRopsten } from './flags';
 import { ROLLER_HOSTS } from './constants';
 import { useRollerStore } from 'store/roller';
@@ -19,6 +21,26 @@ import { getTimeToNextBatch } from './utils/roller';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 import { useNetwork } from 'store/network';
+import { signTransactionHash } from './authToken';
+
+const getProxyAndNonce = (
+  point: L2Point,
+  address: string
+): { proxy?: string; nonce?: number } =>
+  point.ownership?.managementProxy?.address === address
+    ? { proxy: 'manage', nonce: point.ownership?.managementProxy.nonce }
+    : point.ownership?.owner?.address === address
+    ? { proxy: 'own', nonce: point.ownership?.owner.nonce }
+    : point.ownership?.spawnProxy?.address === address
+    ? { proxy: 'spawn', nonce: point.ownership?.spawn?.owner.nonce }
+    : point.ownership?.votingProxy?.address === address
+    ? { proxy: 'vote', nonce: point.ownership?.votingProxy?.owner.nonce }
+    : point.ownership?.transferProxy?.address === address
+    ? {
+        proxy: 'transfer',
+        nonce: point.transferProxy?.votingProxy?.owner.nonce,
+      }
+    : { proxy: undefined, nonce: undefined };
 
 export default function useRoller() {
   const { wallet, walletType, walletHdPath, authToken }: any = useWallet();
@@ -80,6 +102,7 @@ export default function useRoller() {
         throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
       }
 
+      // TODO: replace with api.getSpawned(point) from the Roller
       const planets: number[] = await azimuth.azimuth.getUnspawnedChildren(
         _contracts,
         _point
@@ -96,8 +119,10 @@ export default function useRoller() {
       const tickets: { ticket: string; planet: string }[] = [];
       const requests: Promise<string>[] = [];
 
-      const nonce = starInfo?.ownership?.owner?.nonce!;
-      const address = starInfo?.ownership?.owner?.address!;
+      const { proxy, nonce } = getProxyAndNonce(starInfo, _wallet.address);
+
+      if (proxy === undefined || nonce === undefined)
+        throw new Error("Error: Address doesn't match proxy");
 
       for (let i = 0; i < numInvites && planets[i]; i++) {
         const planet = planets[i];
@@ -109,7 +134,7 @@ export default function useRoller() {
 
         const from = {
           ship: _point, //ship that is spawning the planet
-          proxy: 'own', // this should be either "own" or "proxy"
+          proxy, // TODO: check that this is either "own" or "spawn"
         };
 
         const data = {
@@ -123,12 +148,9 @@ export default function useRoller() {
           'spawn',
           data
         );
-        const { signature } = _web3.eth.accounts.sign(
-          txHash,
-          _wallet.privateKey.toString('hex')
-        );
 
-        requests.push(api.spawn(signature, from, address, data));
+        const signature = signTransactionHash(txHash, _wallet.privateKey);
+        requests.push(api.spawn(signature, from, _wallet.address, data));
         tickets.push({ ticket, planet: ob.patp(planet) });
       }
 
@@ -144,7 +166,7 @@ export default function useRoller() {
       wallet,
       walletHdPath,
       walletType,
-      web3
+      web3,
     ]
   );
 
