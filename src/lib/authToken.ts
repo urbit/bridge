@@ -1,12 +1,14 @@
 import { crypto } from 'bitcoinjs-lib';
 import { ecdsaSign } from 'secp256k1';
 import Web3 from 'web3';
+import { hexToBytes } from 'web3-utils';
 import WalletConnect from '@walletconnect/client';
 
 import { WALLET_TYPES } from './constants';
 import { ledgerSignMessage } from './ledger';
 import { trezorSignMessage } from './trezor';
 import BridgeWallet from './types/BridgeWallet';
+import { Hash } from '@urbit/roller-api';
 
 const MESSAGE = 'Bridge Authentication Token';
 
@@ -25,19 +27,16 @@ function signMessage(privateKey: Buffer) {
   return ethSignature;
 }
 
-function signTransactionHash(privateKey: Buffer, hash: string) {
-  const msg = '\x19Ethereum Signed Message:\n' + hash.length + hash;
-  // #ecdsaSign requires a 32-byte buffer, hence sha256
-  const hashed = crypto.sha256(Buffer.from(msg));
-  const { signature } = ecdsaSign(Buffer.from(hashed), privateKey);
-
+export function signTransactionHash(msg: Hash, prvKey: Buffer) {
+  //  msg is a keccak-256 hash
+  //
+  const hashed = Buffer.from(hexToBytes(msg));
+  const { signature, recid } = ecdsaSign(hashed, prvKey);
   // add key recovery parameter
   const ethSignature = new Uint8Array(65);
   ethSignature.set(signature);
-  const v = (ethSignature[32] & 1) + 27;
-  ethSignature[64] = v;
-
-  return ethSignature;
+  ethSignature[64] = recid;
+  return `0x${Buffer.from(ethSignature).toString('hex')}`;
 }
 
 type MetamaskAuthTokenArgs = {
