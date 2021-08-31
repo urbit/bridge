@@ -25,6 +25,21 @@ function signMessage(privateKey: Buffer) {
   return ethSignature;
 }
 
+function signTransactionHash(privateKey: Buffer, hash: string) {
+  const msg = '\x19Ethereum Signed Message:\n' + hash.length + hash;
+  // #ecdsaSign requires a 32-byte buffer, hence sha256
+  const hashed = crypto.sha256(Buffer.from(msg));
+  const { signature } = ecdsaSign(Buffer.from(hashed), privateKey);
+
+  // add key recovery parameter
+  const ethSignature = new Uint8Array(65);
+  ethSignature.set(signature);
+  const v = (ethSignature[32] & 1) + 27;
+  ethSignature[64] = v;
+
+  return ethSignature;
+}
+
 type MetamaskAuthTokenArgs = {
   address: string;
   web3: Web3;

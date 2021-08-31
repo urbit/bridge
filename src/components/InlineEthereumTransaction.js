@@ -22,7 +22,7 @@ import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
 
 import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
-import CopyButton from './CopyButton';
+import CopyButton from './copiable/CopyButton';
 import ProgressButton from './ProgressButton';
 import { convertToInt } from 'lib/convertToInt';
 import NeedFundsNotice from './NeedFundsNotice';

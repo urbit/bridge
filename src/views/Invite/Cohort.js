@@ -14,7 +14,6 @@ import BarGraph from 'components/BarGraph';
 import MaybeSigil from 'components/MaybeSigil';
 import { matchBlinky } from 'components/Blinky';
 import Chip from 'components/Chip';
-import Crumbs from 'components/Crumbs';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import useInvites from 'lib/useInvites';
@@ -24,10 +23,27 @@ import * as wg from 'lib/walletgen';
 import Inviter from 'views/Invite/Inviter';
 
 import { ReactComponent as SearchIcon } from 'assets/search.svg';
-import CopyButton from 'components/CopyButton';
+import CopyButton from 'components/copiable/CopyButton';
 import { useSyncDetails } from 'lib/useSyncPoints';
 import { useNetwork } from 'store/network';
-import NavHeader from 'components/NavHeader';
+import L2BackHeader from 'components/L2/Headers/L2BackHeader';
+import Window from 'components/L2/Window/Window';
+import HeaderPane from 'components/L2/Window/HeaderPane';
+import { Icon, Row, StatelessTextInput } from '@tlon/indigo-react';
+import BodyPane from 'components/L2/Window/BodyPane';
+import { useRollerStore } from 'store/roller';
+import useRoller from 'lib/useRoller';
+import { convertToInt } from 'lib/convertToInt';
+import FeeDropdown from 'components/L2/Dropdowns/FeeDropdown';
+import LoadingOverlay from 'components/L2/LoadingOverlay';
+import { generateUrl } from 'lib/utils/invite';
+import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
+import Paginator from 'components/L2/Paginator';
+
+import './Cohort.scss';
+
+const INVITES_PER_PAGE = 7;
+const DEFAULT_NUM_INVITES = 5;
 
 function SearchInput({ className, value, onChange }) {
   return (
@@ -277,9 +293,25 @@ function CohortMemberExpanded({ point, className, ...rest }) {
 
 export default function InviteCohort() {
   const { pop } = useLocalRouter();
+  const {
+    nextRoll,
+    currentL2,
+    pendingTransactions,
+    invites,
+    setInvites,
+  } = useRollerStore();
+  const { generateInviteCodes } = useRoller();
 
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
+
+  const _point = convertToInt(need.point(pointCursor), 10);
+  const [page, setPage] = useState(0);
+
+  const invitesToDisplay = invites.slice(
+    page * INVITES_PER_PAGE,
+    (page + 1) * INVITES_PER_PAGE
+  );
 
   const {
     acceptedInvites,
@@ -289,8 +321,14 @@ export default function InviteCohort() {
     sentInvites,
   } = useInvites(point);
 
+  const hasPending = Boolean(pendingTransactions.length);
+  const hasInvites = Boolean(invites.length);
+
+  const [numInvites, setNumInvites] = useState(DEFAULT_NUM_INVITES);
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [tab, setTab] = useState(NAMES.ALL);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const _acceptedPoints = acceptedPoints.getOrElse([]);
   const _pendingPoints = pendingPoints.getOrElse([]);
@@ -309,17 +347,199 @@ export default function InviteCohort() {
     []
   );
 
+  const generateInvites = useCallback(async () => {
+    setLoading(true);
+    try {
+      const invites = await generateInviteCodes(numInvites);
+      console.log('INVITES', invites)
+      // TODO: store these invites somewhere. How do I recover the invites for future use?
+      setInvites(invites);
+      setShowInviteForm(false);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [generateInviteCodes, numInvites, setInvites]);
+
+  const getContent = () => {
+    if (hasInvites) {
+      return (
+        <>
+          <div>
+            Be careful who you share these with. Each planet code can only be
+            claimed once.
+          </div>
+          <div style={{ marginTop: 8 }}>
+            Once a code has been claimed, the code will automatically disappear.
+          </div>
+          <div className="invites">
+            {invitesToDisplay.map(invite => (
+              <div className="invite" key={invite.ticket}>
+                <div className="invite-url">
+                  {generateUrl(invite.ticket, invite.planet)}
+                </div>
+                <CopiableWithTooltip
+                  text={generateUrl(invite.ticket, invite.planet)}
+                  className={cn('copy-invite')}
+                />
+              </div>
+            ))}
+          </div>
+        </>
+      );
+    } else if (hasPending) {
+      return (
+        <>
+          Your invite codes are in queue.
+          <br />
+          Check back in <span className="timer"> {nextRoll}</span>
+        </>
+      );
+    }
+
+    return (
+      <>
+        You have no planet codes available.
+        <br />
+        {currentL2 && (
+          <>
+            Generate your codes in
+            <span className="timer"> {nextRoll} </span>
+            to get in the next roll.
+          </>
+        )}
+      </>
+    );
+  };
+
+  const header = (
+    <h5>
+      You have
+      <span className="number-emphasis"> {invites.length} </span>
+      Planet Code{invites.length > 1 ? 's' : ''}
+    </h5>
+  );
+
+  if (showInviteForm) {
+    return (
+      <View
+        className="cohort show-invite-form"
+        hideBack
+        header={<L2BackHeader back={() => setShowInviteForm(false)} />}>
+        <Window>
+          <HeaderPane>
+            <h5>Generate Planet Codes</h5>
+          </HeaderPane>
+          <BodyPane>
+            <div className="upper">
+              <Row className="points-input">
+                I want to generate
+                <StatelessTextInput
+                  className="input-box"
+                  value={numInvites}
+                  maxLength="3"
+                  onChange={e =>
+                    setNumInvites(Number(e.target.value.replace(/\D/g, '')))
+                  }
+                />
+                planet invite code{numInvites > 1 ? 's' : ''}
+              </Row>
+              {/* <div>Destination</div>
+              <div className="ship-or-address">Ship or ethereum address</div>
+              <Dropdown value={dropdownValue}>
+                {points.map(point => (
+                  <div onClick={selectPoint(point)} className="address">
+                    {ob.patp(point)}
+                  </div>
+                ))}
+              </Dropdown> */}
+            </div>
+            {/* <Inviter /> */}
+            <div className="lower">
+              <Row className="next-roll">
+                <span>{currentL2 ? 'Next Roll in' : 'Transaction Fee'}</span>
+                {currentL2 ? (
+                  <span className="timer">{nextRoll}</span>
+                ) : (
+                  <FeeDropdown />
+                )}
+              </Row>
+              <Button
+                as={'button'}
+                className="generate-codes"
+                center
+                solid
+                onClick={generateInvites}>
+                Generate Planet Codes ({numInvites})
+              </Button>
+            </div>
+          </BodyPane>
+        </Window>
+        <LoadingOverlay loading={loading} />
+      </View>
+    );
+  } else if (currentL2) {
+    return (
+      <View
+        pop={pop}
+        inset
+        className="cohort"
+        hideBack
+        header={<L2BackHeader />}>
+        <Window>
+          <HeaderPane>
+            {!hasInvites ? (
+              header
+            ) : (
+              <Row className="has-invites-header">
+                {header}
+                <div className="download-csv" onClick={() => null}>
+                  <Icon icon="Download" />
+                  <div>CSV</div>
+                </div>
+              </Row>
+            )}
+          </HeaderPane>
+          <BodyPane>
+            <div className={`content ${!hasInvites ? 'center' : ''}`}>
+              {getContent()}
+            </div>
+            {!hasPending && !hasInvites && (
+              <Button
+                as={'button'}
+                className="generate-button"
+                center
+                solid
+                onClick={() => setShowInviteForm(true)}>
+                Generate Codes
+              </Button>
+            )}
+            {hasInvites && (
+              <Paginator
+                page={page}
+                numPerPage={INVITES_PER_PAGE}
+                numElements={invites.length}
+                goPrevious={() => setPage(page - 1)}
+                goNext={() => setPage(page + 1)}
+              />
+            )}
+          </BodyPane>
+        </Window>
+        {(hasInvites || hasPending) && (
+          <Button
+            onClick={() => setShowInviteForm(true)}
+            className="add-more"
+            accessory={<Icon icon="ChevronEast" />}>
+            Add More
+          </Button>
+        )}
+      </View>
+    );
+  }
+
   return (
-    <View pop={pop} inset>
-      <NavHeader>
-        <Crumbs
-          className="mb1"
-          routes={[
-            { text: ob.patp(point), action: () => pop() },
-            { text: 'Invite Group' },
-          ]}
-        />
-      </NavHeader>
+    <View pop={pop} inset className="cohort" hideBack>
       <Grid gap={3}>
         <Grid.Item full>Invite Group</Grid.Item>
         <Grid.Item full>

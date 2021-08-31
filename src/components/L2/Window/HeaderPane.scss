@@ -1,0 +1,14 @@
+@import 'style/shared/variables';
+
+.header-pane {
+  border-bottom: 1px solid $light-gray;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+
+  h5 {
+    font-weight: 600;
+  }
+}

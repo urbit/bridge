@@ -1,0 +1,27 @@
+@import 'style/shared/variables.scss';
+
+.layer-indicator {
+  border-radius: $small-border-radius;
+  color: white;
+
+  &.l1 {
+    background-color: $mid-gray;
+  }
+
+  &.l2 {
+    background-color: black;
+  }
+
+  &.sm {
+    height: 16px;
+    padding: 2px 4px 0;
+    font-size: 12px;
+  }
+
+  &.md {
+    height: 20px;
+    padding: 4px 4px 0;
+    font-size: 14px;
+    margin-right: 4px;
+  }
+}

@@ -39,6 +39,8 @@ export default function useControlledPointsStore() {
         getPoints('spawn', address),
       ]);
 
+      console.log(ownedPoints)
+
       if (
         ownedPoints === null &&
         incomingPoints === null &&

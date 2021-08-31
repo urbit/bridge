@@ -1,0 +1,185 @@
+@import 'style/shared/variables.scss';
+
+.cohort {
+  font-size: 14px;
+
+  .has-invites-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+    .download-csv {
+      padding: 6px 12px;
+      background-color: $washedGray;
+      border-radius: $medium-border-radius;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+
+      svg {
+        height: 14px;
+        width: 20px;
+      }
+
+      div {
+        margin-left: 4px;
+      }
+    }
+  }
+
+  .number-emphasis {
+    background-color: $light-gray;
+    border-radius: $small-border-radius;
+    margin: 0 4px;
+  }
+
+  .body-pane {
+    min-height: 212px;
+    justify-content: space-between;
+    font-size: 14px;
+
+    &.center {
+      justify-content: center;
+    }
+
+    .content {
+      width: 100%;
+      font-size: 14px;
+      line-height: 24px;
+      
+      &.center {
+        text-align: center;
+        margin-top: 20px;
+        width: 320px;
+        margin: auto;
+      }
+
+      .timer {
+        font-weight: 800;
+      }
+
+      .invites {
+        .invite {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 12px;
+        }
+
+        .invite-url {
+          background-color: $washedGray;
+          border-radius: $medium-border-radius;
+          border: 1px solid $light-gray;
+          width: 390px;
+          padding: 3px 8px;
+        }
+
+        .copy-invite {
+          background-color: $washedGray;
+          border-radius: $medium-border-radius;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+
+          svg {
+            font-size: 16px;
+            margin-top: 6px;
+            margin-right: 4px;
+          }
+        }
+      }
+
+      .paginator {
+        margin-top: 16px;
+        text-align: center;
+      }
+    }
+
+    .generate-button {
+      margin-bottom: 20px;
+      border-radius: $medium-border-radius;
+    }
+  }
+
+  &.show-invite-form {
+    .body-pane {
+      .upper, .lower {
+        width: 100%;
+      }
+  
+      .points-input {
+        line-height: 28px;
+        margin-bottom: 24px;
+  
+        .input-box {
+          margin: 0 6px;
+          height: 28px;
+          width: 40px;
+          padding: 2px 6px;
+          font-weight: 800;
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
+          text-align: center;
+        }
+      }
+  
+      .ship-or-address {
+        margin: 6px 0;
+        color: $mid-gray;
+      }
+  
+      .dropdown .address {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+  
+        padding: 8px 12px 8px 16px;
+      }
+  
+      .next-roll {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 500;
+      }
+  
+      .generate-codes {
+        border-radius: $medium-border-radius;
+        width: 100%;
+        height: 32px;
+        font-size: 14px;
+        background-color: black;
+        color: white;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
+        border: none;
+        margin-top: 8px;
+        padding: 8px;
+      }
+    }
+  }
+
+  .add-more {
+    border: 1px solid $light-gray;
+    border-radius: $medium-border-radius;
+    margin-top: 16px;
+    padding: 16px;
+    font-size: 14px;
+    font-weight: 600;
+
+    svg {
+      height: 14px;
+      width: 12px;
+    }
+  }
+}
