@@ -12,6 +12,7 @@ import {
   RollerRPCAPI,
   Options,
   EthAddress,
+  UnspawnedPoints,
 } from '@urbit/roller-api';
 
 import { isDevelopment, isRopsten } from './flags';
@@ -102,18 +103,7 @@ export default function useRoller() {
         throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
       }
 
-      // TODO: replace with api.getSpawned(point) from the Roller
-      const planets: number[] = await azimuth.azimuth.getUnspawnedChildren(
-        _contracts,
-        _point
-      );
-
-      // const planets: any = await azimuth.delegatedSending.getPlanetsToSend(
-      //   _contracts,
-      //   _point,
-      //   numInvites,
-      // );
-
+      const planets: UnspawnedPoints = await api.getUnspawned(_point);
       const starInfo = await api.getPoint(_point);
 
       const tickets: { ticket: string; planet: string }[] = [];
@@ -164,8 +154,8 @@ export default function useRoller() {
       contracts,
       pointCursor,
       wallet,
-      walletHdPath,
-      walletType,
+      // walletHdPath,
+      // walletType,
       web3,
     ]
   );
