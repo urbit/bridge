@@ -23,6 +23,12 @@ import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 import { useNetwork } from 'store/network';
 import { signTransactionHash } from './authToken';
+import { Invite } from 'types/Invite';
+import { getStoredInvites, setPendingInvites, setStoredInvites } from 'store/storage/roller';
+import { usePointCache } from 'store/pointCache';
+import { maybeGetResult } from 'views/Points';
+
+const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 
 const getProxyAndNonce = (
   point: L2Point,
@@ -47,8 +53,16 @@ export default function useRoller() {
   const { wallet, walletType, walletHdPath, authToken }: any = useWallet();
   const { pointCursor }: any = usePointCursor();
   const { web3, contracts }: any = useNetwork();
+  const allPoints: any = usePointCache();
+  const controlledPoints = allPoints?.controlledPoints;
 
-  const { nextBatchTime, setNextBatchTime, setNextRoll } = useRollerStore();
+  const {
+    nextBatchTime,
+    setNextBatchTime,
+    setNextRoll,
+    setPendingTransactions,
+    setInvites,
+  } = useRollerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
   const options: Options = useMemo(() => {
@@ -106,7 +120,7 @@ export default function useRoller() {
       const planets: UnspawnedPoints = await api.getUnspawned(_point);
       const starInfo = await api.getPoint(_point);
 
-      const tickets: { ticket: string; planet: string }[] = [];
+      const tickets: { ticket: string; planet: number; owner: string }[] = [];
       const requests: Promise<string>[] = [];
 
       const { proxy, nonce } = getProxyAndNonce(starInfo, _wallet.address);
@@ -141,12 +155,22 @@ export default function useRoller() {
 
         const signature = signTransactionHash(txHash, _wallet.privateKey);
         requests.push(api.spawn(signature, from, _wallet.address, data));
-        tickets.push({ ticket, planet: ob.patp(planet) });
+        tickets.push({
+          ticket,
+          planet,
+          owner: owner.keys.address,
+        });
       }
 
       const hashes = await Promise.all(requests);
-
-      return hashes.map((hash, i) => ({ hash, ...tickets[i] }));
+      const pendingInvites = hashes.map(
+        (hash, i): Invite => ({
+          hash,
+          ...tickets[i],
+          status: 'pending',
+        })
+      );
+      setPendingInvites(_point, pendingInvites);
     },
     [
       api,
@@ -180,6 +204,104 @@ export default function useRoller() {
     [api]
   );
 
+  const getPendingTransactions = useCallback(async () => {
+    try {
+      const curPoint = need.point(pointCursor);
+      const newPending = await api.getPendingByShip(Number(curPoint));
+      console.log('PENDING', newPending);
+      setPendingTransactions(newPending);
+
+      // const allTransactions = await api.getHistory()
+    } catch (error) {
+      console.warn('ERROR GETTING PENDING', error);
+    }
+  }, [api, setPendingTransactions, pointCursor]);
+
+  const getInvites = useCallback(async () => {
+    try {
+      const curPoint: string = need.point(pointCursor);
+      const invites = getStoredInvites(curPoint);
+      const availableInvites = invites.available;
+
+      const pendingTransactions = await api.getPendingByShip(curPoint);
+      console.log('PENDING', pendingTransactions);
+      setPendingTransactions(pendingTransactions);
+
+      const stillPending = invites.pending.filter(invite => {
+        const completed = !pendingTransactions.find(
+          ({ tx }) => tx.tx?.data?.ship === invite.planet
+        );
+
+        if (completed) {
+          availableInvites.push({ ...invite, status: 'available' });
+        }
+
+        return !completed;
+      });
+
+      setStoredInvites(curPoint, {
+        available: availableInvites,
+        pending: stillPending,
+        claimed: invites.claimed,
+      });
+      setInvites(availableInvites);
+
+      const allSpawned = await api.getSpawned(Number(curPoint));
+      const ownedPoints = maybeGetResult(controlledPoints, 'ownedPoints', []);
+      const spawnedAndOwned = ownedPoints.filter(
+        (p: number) => allSpawned.includes(p) && p > 2000
+      );
+      console.log('SPAWNED AND OWNED', spawnedAndOwned);
+
+      // Iterate over all spawned and controlled planets
+      // If the planet is not in available invites, generate the ticket and add it
+      const _authToken = authToken.getOrElse(null);
+      const _contracts = contracts.getOrElse(null);
+
+      if (_authToken && _contracts) {
+        for (let i = 0; i < spawnedAndOwned.length; i++) {
+          const point = spawnedAndOwned[i];
+
+          if (!availableInvites.find(hasPoint(point))) {
+            console.log('MISSING IN AVAILABLE', point);
+            const {
+              ticket,
+              owner,
+            } = await wg.generateTemporaryDeterministicWallet(
+              point,
+              _authToken
+            );
+
+            availableInvites.push({
+              ticket,
+              status: 'available',
+              planet: point,
+              hash: '',
+              owner: owner.keys.address,
+            });
+          }
+        }
+
+        setStoredInvites(curPoint, {
+          available: availableInvites,
+          pending: stillPending,
+          claimed: invites.claimed,
+        });
+        setInvites(availableInvites);
+      }
+    } catch (error) {
+      console.warn('ERROR GETTING INVITES', error);
+    }
+  }, [
+    api,
+    pointCursor,
+    setInvites,
+    setPendingTransactions,
+    authToken,
+    contracts,
+    controlledPoints,
+  ]);
+
   // On load, get initial config
   useEffect(() => {
     if (config) {
@@ -198,16 +320,20 @@ export default function useRoller() {
         api.getRollerConfig().then(response => {
           setNextBatchTime(response.nextBatch);
         });
+
+        getInvites();
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [nextBatchTime]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [nextBatchTime, getPendingTransactions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     api,
     config,
     getPoints,
+    getInvites,
+    getPendingTransactions,
     generateInviteCodes,
   };
 }

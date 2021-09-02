@@ -11,6 +11,7 @@ export interface RollerStore {
   currentPoint: L2Point | null;
   currentL2: boolean;
   invites: Invite[];
+  recentlyCompleted: number;
   setNextBatchTime: (nextBatchTime: number) => void;
   setNextRoll: (nextRoll: string) => void;
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) => void;
@@ -25,10 +26,21 @@ export const useRollerStore = create<RollerStore>(set => ({
   currentPoint: null,
   currentL2: false,
   invites: [],
+  recentlyCompleted: 0,
   setNextBatchTime: (nextBatchTime: number) => set(() => ({ nextBatchTime })),
   setNextRoll: (nextRoll: string) => set(() => ({ nextRoll })),
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) =>
-    set(() => ({ pendingTransactions })),
+    set(state => {
+      const oldPending = state.pendingTransactions.length;
+      if (oldPending > 0 && pendingTransactions.length === 0) {
+        return {
+          ...state,
+          pendingTransactions,
+          recentlyCompleted: oldPending,
+        };
+      }
+      return { ...state, pendingTransactions };
+    }),
   setCurrentPoint: (currentPoint: L2Point) =>
     set(() => ({
       currentPoint,

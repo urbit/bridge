@@ -11,6 +11,7 @@ import { useRollerStore } from 'store/roller';
 import './L2PointHeader.scss';
 
 export interface L2PointHeaderProps {
+  numInvites: number;
   hideTimer: boolean;
   hideInvites: boolean;
 }
@@ -18,9 +19,10 @@ export interface L2PointHeaderProps {
 const L2PointHeader = ({
   hideTimer = false,
   hideInvites = false,
+  numInvites = 0,
 }: L2PointHeaderProps) => {
   const { config } = useRoller();
-  const { nextRoll, currentL2, invites } = useRollerStore();
+  const { nextRoll, currentL2, pendingTransactions } = useRollerStore();
 
   useEffect(() => {
     console.log('loaded config in L2PointHeader:', config);
@@ -44,10 +46,10 @@ const L2PointHeader = ({
         {!hideInvites && (
           <Row onClick={goToInvites} className="invites">
             <InviteIcon />
-            {invites.length}
+            {numInvites}
           </Row>
         )}
-        {!hideTimer && currentL2 && (
+        {!hideTimer && currentL2 && !pendingTransactions.length && (
           <div className="rollup-timer" onClick={goToHistory}>
             {nextRoll}
           </div>

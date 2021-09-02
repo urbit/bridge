@@ -9,22 +9,16 @@ import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';
 
 import View from 'components/View';
-import Tabs from 'components/Tabs';
-import BarGraph from 'components/BarGraph';
 import MaybeSigil from 'components/MaybeSigil';
 import { matchBlinky } from 'components/Blinky';
-import Chip from 'components/Chip';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import useInvites from 'lib/useInvites';
 import * as need from 'lib/need';
 import * as wg from 'lib/walletgen';
 
-import Inviter from 'views/Invite/Inviter';
-
 import { ReactComponent as SearchIcon } from 'assets/search.svg';
 import CopyButton from 'components/copiable/CopyButton';
-import { useSyncDetails } from 'lib/useSyncPoints';
 import { useNetwork } from 'store/network';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 import Window from 'components/L2/Window/Window';
@@ -33,7 +27,6 @@ import { Icon, Row, StatelessTextInput } from '@tlon/indigo-react';
 import BodyPane from 'components/L2/Window/BodyPane';
 import { useRollerStore } from 'store/roller';
 import useRoller from 'lib/useRoller';
-import { convertToInt } from 'lib/convertToInt';
 import FeeDropdown from 'components/L2/Dropdowns/FeeDropdown';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
 import { generateUrl } from 'lib/utils/invite';
@@ -41,6 +34,7 @@ import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
 import Paginator from 'components/L2/Paginator';
 
 import './Cohort.scss';
+import useInviter from 'lib/useInviter';
 
 const INVITES_PER_PAGE = 7;
 const DEFAULT_NUM_INVITES = 5;
@@ -298,69 +292,57 @@ export default function InviteCohort() {
     currentL2,
     pendingTransactions,
     invites,
-    setInvites,
   } = useRollerStore();
-  const { generateInviteCodes } = useRoller();
+  const { generateInvites } = useInviter();
+  const { generateInviteCodes, getPendingTransactions } = useRoller();
 
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
 
-  const _point = convertToInt(need.point(pointCursor), 10);
   const [page, setPage] = useState(0);
 
-  const invitesToDisplay = invites.slice(
+  const { pendingPoints } = useInvites(point);
+
+  const displayedInvites = currentL2 ? invites : pendingPoints.getOrElse([]);
+
+  const invitesToDisplay = displayedInvites.slice(
     page * INVITES_PER_PAGE,
     (page + 1) * INVITES_PER_PAGE
   );
 
-  const {
-    acceptedInvites,
-    acceptedPoints,
-    pendingPoints,
-    availableInvites,
-    sentInvites,
-  } = useInvites(point);
-
   const hasPending = Boolean(pendingTransactions.length);
-  const hasInvites = Boolean(invites.length);
+  const hasInvites = Boolean(displayedInvites.length);
 
   const [numInvites, setNumInvites] = useState(DEFAULT_NUM_INVITES);
   const [showInviteForm, setShowInviteForm] = useState(false);
-  const [tab, setTab] = useState(NAMES.ALL);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const _acceptedPoints = acceptedPoints.getOrElse([]);
-  const _pendingPoints = pendingPoints.getOrElse([]);
-  const _pendingInvites = _pendingPoints.length;
-  const _acceptedInvites = _acceptedPoints.length;
-  const _totalInvites = availableInvites
-    .map(a => sentInvites.getOrElse(0) + a)
-    .getOrElse(0);
-
-  const [selectedInvite, _setSelectedInvite] = useState();
-
-  useSyncDetails([..._acceptedPoints, ..._pendingPoints]);
-
-  const setSelectedInvite = useCallback(
-    p => _setSelectedInvite(old => (old === p ? null : p)),
-    []
-  );
-
-  const generateInvites = useCallback(async () => {
+  const createInvites = useCallback(async () => {
     setLoading(true);
     try {
-      const invites = await generateInviteCodes(numInvites);
-      console.log('INVITES', invites)
-      // TODO: store these invites somewhere. How do I recover the invites for future use?
-      setInvites(invites);
+      if (currentL2) {
+        const invites = await generateInviteCodes(numInvites);
+        console.log('INVITES', invites);
+        getPendingTransactions(point);
+      } else {
+        const invites = await generateInvites(numInvites);
+        console.log('INVITES', invites);
+      }
       setShowInviteForm(false);
     } catch (error) {
       setError(error);
     } finally {
       setLoading(false);
     }
-  }, [generateInviteCodes, numInvites, setInvites]);
+  }, [
+    generateInviteCodes,
+    numInvites,
+    getPendingTransactions,
+    point,
+    generateInvites,
+    currentL2,
+  ]);
 
   const getContent = () => {
     if (hasInvites) {
@@ -416,8 +398,8 @@ export default function InviteCohort() {
   const header = (
     <h5>
       You have
-      <span className="number-emphasis"> {invites.length} </span>
-      Planet Code{invites.length > 1 ? 's' : ''}
+      <span className="number-emphasis"> {displayedInvites.length} </span>
+      Planet Code{displayedInvites.length === 1 ? '' : 's'}
     </h5>
   );
 
@@ -470,7 +452,7 @@ export default function InviteCohort() {
                 className="generate-codes"
                 center
                 solid
-                onClick={generateInvites}>
+                onClick={createInvites}>
                 Generate Planet Codes ({numInvites})
               </Button>
             </div>
@@ -479,140 +461,57 @@ export default function InviteCohort() {
         <LoadingOverlay loading={loading} />
       </View>
     );
-  } else if (currentL2) {
-    return (
-      <View
-        pop={pop}
-        inset
-        className="cohort"
-        hideBack
-        header={<L2BackHeader />}>
-        <Window>
-          <HeaderPane>
-            {!hasInvites ? (
-              header
-            ) : (
-              <Row className="has-invites-header">
-                {header}
-                <div className="download-csv" onClick={() => null}>
-                  <Icon icon="Download" />
-                  <div>CSV</div>
-                </div>
-              </Row>
-            )}
-          </HeaderPane>
-          <BodyPane>
-            <div className={`content ${!hasInvites ? 'center' : ''}`}>
-              {getContent()}
-            </div>
-            {!hasPending && !hasInvites && (
-              <Button
-                as={'button'}
-                className="generate-button"
-                center
-                solid
-                onClick={() => setShowInviteForm(true)}>
-                Generate Codes
-              </Button>
-            )}
-            {hasInvites && (
-              <Paginator
-                page={page}
-                numPerPage={INVITES_PER_PAGE}
-                numElements={invites.length}
-                goPrevious={() => setPage(page - 1)}
-                goNext={() => setPage(page + 1)}
-              />
-            )}
-          </BodyPane>
-        </Window>
-        {(hasInvites || hasPending) && (
-          <Button
-            onClick={() => setShowInviteForm(true)}
-            className="add-more"
-            accessory={<Icon icon="ChevronEast" />}>
-            Add More
-          </Button>
-        )}
-      </View>
-    );
   }
 
   return (
-    <View pop={pop} inset className="cohort" hideBack>
-      <Grid gap={3}>
-        <Grid.Item full>Invite Group</Grid.Item>
-        <Grid.Item full>
-          <Flex align="center">
-            <Flex.Item>
-              {_acceptedInvites} / {_totalInvites}
-            </Flex.Item>
-            {_pendingInvites !== 0 && (
-              <Flex.Item as={Chip} className="bg-yellow4 white">
-                {_pendingInvites} pending
-              </Flex.Item>
-            )}
-          </Flex>
-        </Grid.Item>
-        <Grid.Item
-          full
-          as={BarGraph}
-          available={availableInvites}
-          sent={sentInvites}
-          accepted={acceptedInvites}
-        />
-        {availableInvites.getOrElse(0) !== 0 && !showInviteForm && (
-          <Grid.Item
-            full
-            solid
-            center
-            as={Button}
-            onClick={() => setShowInviteForm(true)}>
-            Add Members
-          </Grid.Item>
-        )}
-        {showInviteForm && <Inviter />}
-
-        {true && (
-          <Grid.Item
-            full
-            center
-            as={Tabs}
-            views={VIEWS}
-            options={OPTIONS}
-            currentTab={tab}
-            onTabChange={setTab}
-            acceptedPoints={_acceptedPoints}
-            pendingPoints={_pendingPoints}
-            onlyPending={tab === NAMES.PENDING}
-            onSelectInvite={setSelectedInvite}
-          />
-        )}
-        {selectedInvite && (
-          <Grid.Item
-            full
-            center
-            as={CohortMemberExpanded}
-            pending
-            point={selectedInvite}
-            onBack={() => setSelectedInvite(null)}
-          />
-        )}
-      </Grid>
+    <View pop={pop} inset className="cohort" hideBack header={<L2BackHeader />}>
+      <Window>
+        <HeaderPane>
+          {!hasInvites ? (
+            header
+          ) : (
+            <Row className="has-invites-header">
+              {header}
+              <div className="download-csv" onClick={() => null}>
+                <Icon icon="Download" />
+                <div>CSV</div>
+              </div>
+            </Row>
+          )}
+        </HeaderPane>
+        <BodyPane>
+          <div className={`content ${!hasInvites ? 'center' : ''}`}>
+            {getContent()}
+          </div>
+          {!hasPending && !hasInvites && (
+            <Button
+              as={'button'}
+              className="generate-button"
+              center
+              solid
+              onClick={() => setShowInviteForm(true)}>
+              Generate Codes
+            </Button>
+          )}
+          {hasInvites && (
+            <Paginator
+              page={page}
+              numPerPage={INVITES_PER_PAGE}
+              numElements={displayedInvites.length}
+              goPrevious={() => setPage(page - 1)}
+              goNext={() => setPage(page + 1)}
+            />
+          )}
+        </BodyPane>
+      </Window>
+      {(hasInvites || hasPending) && (
+        <Button
+          onClick={() => setShowInviteForm(true)}
+          className="add-more"
+          accessory={<Icon icon="ChevronEast" />}>
+          Add More
+        </Button>
+      )}
     </View>
   );
 }
-const NAMES = {
-  ALL: 'ALL',
-  PENDING: 'PENDING',
-};
-
-const VIEWS = {
-  [NAMES.PENDING]: CohortList,
-  [NAMES.ALL]: CohortList,
-};
-
-const OPTIONS = [
-  { text: 'All', value: NAMES.ALL },
-  { text: 'Pending', value: NAMES.PENDING },
-];

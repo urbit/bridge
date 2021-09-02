@@ -21,6 +21,8 @@ const AccountsDropdown = () => {
   const { setPointCursor }: any = usePointCursor();
   const { controlledPoints }: any = usePointCache();
 
+  const canBitcoin = Just.hasInstance(walletInfo.urbitWallet);
+
   const points =
     controlledPoints?.value?.value?.ownedPoints?.map((point: string) =>
       Number(point)
@@ -78,10 +80,12 @@ const AccountsDropdown = () => {
           <LayerIndicator layer={2} size="sm" />
         </Row>
       </Row>
-      <Row className="entry" onClick={goToBitcoin}>
-        <div>Bitcoin</div>
-        <Icon icon="Bitcoin" />
-      </Row>
+      {canBitcoin && (
+        <Row className="entry" onClick={goToBitcoin}>
+          <div>Bitcoin</div>
+          <Icon icon="Bitcoin" />
+        </Row>
+      )}
       <Row className="entry" onClick={onLogout}>
         <div>Logout</div>
         <Icon icon="LogOut" />

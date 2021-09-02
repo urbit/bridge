@@ -4,6 +4,7 @@ import { Just } from 'folktale/maybe';
 import { Grid, Flex, Button } from 'indigo-react';
 import { azimuth } from 'azimuth-js';
 import * as ob from 'urbit-ob';
+import * as wg from 'lib/walletgen';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useWallet } from 'store/wallet';
@@ -122,45 +123,39 @@ function InviteForm({
 
 export default function Point() {
   const { pop, push, names } = useLocalRouter();
+  const { wallet, authToken } = useWallet();
   const { pointCursor } = usePointCursor();
-
-  const { wallet, urbitWallet } = useWallet();
   const point = need.point(pointCursor);
 
   const { getResidents } = usePointCache();
-  const { api } = useRoller();
+  const { api, getInvites } = useRoller();
   const {
     pendingTransactions,
-    setPendingTransactions,
     nextRoll,
     setCurrentPoint,
+    currentL2,
+    invites,
+    recentlyCompleted,
   } = useRollerStore();
 
   useEffect(() => {
-    console.log('POINT', point);
-    const getTransactions = async () => {
-      const newPending = await api.getPendingByShip(Number(point));
-      console.log('PENDING', newPending);
-      setPendingTransactions(newPending);
+    const loadL2Info = async () => {
+      console.log('POINT', point);
+      const getTransactions = async () => {
+        const pointInfo = await api.getPoint(Number(point));
+        setCurrentPoint(pointInfo);
+        console.log('POINT', pointInfo);
 
-      // get list of spawned planets, and then determine if they have been claimed
-      const allSpawned = await api.getSpawned(Number(point));
-      console.log('SPAWNED', allSpawned.length, allSpawned);
+        if (pointInfo.dominion !== 'l1') {
+          getInvites();
+        }
+      };
 
-      const pointInfo = await api.getPoint(Number(point));
-      setCurrentPoint(pointInfo);
-      console.log('POINT', pointInfo);
-
-      const ownerAddress = pointInfo?.ownership?.owner?.address;
-      console.log('ADDRESS', ownerAddress);
-      if (ownerAddress) {
-        const transactionHistory = await api.getHistory(ownerAddress);
-        console.log('TRANSACTION HISTORY', transactionHistory);
-      }
+      getTransactions();
     };
 
-    getTransactions();
-  }, [api, point]); // eslint-disable-line
+    loadL2Info();
+  }, [api, point, authToken]); // eslint-disable-line
 
   const { residentCount, requestCount } = getResidents(point);
 
@@ -172,17 +167,15 @@ export default function Point() {
     canVote,
   } = useCurrentPermissions();
 
-  const canBitcoin = Just.hasInstance(urbitWallet);
-
-  // fetch the invites for the current cursor
-  const invites = useInvites(point);
+  // L1 invites
+  const l1Invites = useInvites(point);
   const {
     availableInvites,
     sentInvites,
     acceptedInvites,
     pendingPoints,
     acceptedPoints,
-  } = invites;
+  } = l1Invites;
 
   const showInvites = !(
     acceptedInvites.getOrElse(0) === 0 && sentInvites.getOrElse(0) === 0
@@ -199,8 +192,6 @@ export default function Point() {
   const goCohort = useCallback(() => push(names.INVITE_COHORT), [push, names]);
 
   const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
-
-  const goBitcoin = useCallback(() => push(names.BITCOIN), [push, names]);
 
   const goUrbitID = useCallback(() => push(names.URBIT_ID), [push, names]);
 
@@ -264,13 +255,16 @@ export default function Point() {
 
   const _requestCount = requestCount.getOrElse(0);
   const numPending = pendingTransactions.length;
+  const numInvites = currentL2 ? invites.length : sentInvites.length;
 
   return (
     <View
       pop={pop}
       inset
       className="point"
-      header={<L2PointHeader hideTimer={!!numPending} />}>
+      header={
+        <L2PointHeader hideTimer={!!numPending} numInvites={numInvites} />
+      }>
       <Greeting point={point} />
       {!!numPending && (
         <div className="transaction">

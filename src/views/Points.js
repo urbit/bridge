@@ -27,7 +27,7 @@ import NavHeader from 'components/NavHeader';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import IncomingPoint from 'components/L2/Points/IncomingPoint';
 
-const maybeGetResult = (obj, key, defaultValue) =>
+export const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
     Nothing: () => defaultValue,
     Just: p =>
@@ -59,10 +59,14 @@ const PointList = function({
             <Passport.Mini
               locked={locked}
               point={point}
-              onClick={() => {
-                setPointCursor(Just(point));
-                push(names.POINT);
-              }}
+              onClick={
+                locked
+                  ? undefined
+                  : () => {
+                      setPointCursor(Just(point));
+                      push(names.POINT);
+                    }
+              }
               {...rest}
             />
             {actions && (
@@ -121,6 +125,34 @@ export default function Points() {
                 .filter(p => p.value.has)
                 .map(p => p.value.point);
               return Just(outgoing);
+            } else {
+              return Nothing();
+            }
+          },
+        })
+      ),
+    [getDetails, controlledPoints]
+  );
+
+  const maybeLockedPoints = useMemo(
+    () =>
+      controlledPoints.chain(points =>
+        points.matchWith({
+          Error: () => Nothing(),
+          Ok: c => {
+            // TODO: how to determine this?
+            const points = c.value.ownedPoints.map(point =>
+              getDetails(point).chain(details =>
+                Just({ point: point, has: hasTransferProxy(details) })
+              )
+            );
+            // if we have details for every point,
+            // return the array of pending transfers.
+            if (points.every(p => Just.hasInstance(p))) {
+              const locked = points
+                .filter(p => p.value.has)
+                .map(p => p.value.point);
+              return Just(locked);
             } else {
               return Nothing();
             }
@@ -194,6 +226,7 @@ export default function Points() {
   const votingPoints = maybeGetResult(controlledPoints, 'votingPoints', []);
   const spawningPoints = maybeGetResult(controlledPoints, 'spawningPoints', []);
   const outgoingPoints = maybeOutgoingPoints.getOrElse([]);
+  const lockedPoints = maybeLockedPoints.getOrElse([]);
 
   const allPoints = [
     ...ownedPoints.filter(p => !outgoingPoints.includes(p)),
@@ -343,6 +376,12 @@ export default function Points() {
               {pluralize(allPoints.length, 'ID')}
             </Grid.Item> */}
             <Grid.Item full as={PointList} points={allPoints} />
+          </Grid.Item>
+        )}
+
+        {lockedPoints.length > 0 && (
+          <Grid.Item full as={Grid} gap={1}>
+            <Grid.Item full as={PointList} locked points={allPoints} />
           </Grid.Item>
         )}
 
