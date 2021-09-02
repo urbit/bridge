@@ -42,6 +42,8 @@ export default function useInvitesStore() {
         )
       );
 
+      console.log('INVITES STORE', availableInvites, invitedPoints, activity);
+
       const sentInvites = invitedPoints.length;
       const acceptedInvites = activity.filter(i => !!i).length;
 
