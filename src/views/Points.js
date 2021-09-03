@@ -37,7 +37,8 @@ export const maybeGetResult = (obj, key, defaultValue) =>
       }),
   });
 
-const hasTransferProxy = details => !isZeroAddress(details.transferProxy);
+export const hasTransferProxy = details =>
+  !isZeroAddress(details.transferProxy);
 
 const PointList = function({
   points,

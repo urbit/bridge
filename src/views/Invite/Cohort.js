@@ -1,348 +1,146 @@
-import React, { useMemo, useEffect, useCallback, useState } from 'react';
-import { Grid, Flex, Button } from 'indigo-react';
-import * as ob from 'urbit-ob';
-import { Just, Nothing } from 'folktale/maybe';
+import React, { useEffect, useCallback, useState } from 'react';
+import { Grid, Button } from 'indigo-react';
 import cn from 'classnames';
+import * as azimuth from 'azimuth-js';
+import { Icon, Row, StatelessTextInput } from '@tlon/indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';
-
-import View from 'components/View';
-import MaybeSigil from 'components/MaybeSigil';
-import { matchBlinky } from 'components/Blinky';
+import { useNetwork } from 'store/network';
+import { useRollerStore } from 'store/roller';
 
 import { useLocalRouter } from 'lib/LocalRouter';
-import useInvites from 'lib/useInvites';
 import * as need from 'lib/need';
 import * as wg from 'lib/walletgen';
+import useRoller from 'lib/useRoller';
+import { convertToInt } from 'lib/convertToInt';
+import { generateUrl } from 'lib/utils/invite';
 
-import { ReactComponent as SearchIcon } from 'assets/search.svg';
-import CopyButton from 'components/copiable/CopyButton';
-import { useNetwork } from 'store/network';
+import { useIssueChild } from 'views/IssueChild';
+import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
-import { Icon, Row, StatelessTextInput } from '@tlon/indigo-react';
 import BodyPane from 'components/L2/Window/BodyPane';
-import { useRollerStore } from 'store/roller';
-import useRoller from 'lib/useRoller';
-import FeeDropdown from 'components/L2/Dropdowns/FeeDropdown';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
-import { generateUrl } from 'lib/utils/invite';
 import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
 import Paginator from 'components/L2/Paginator';
+import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 
 import './Cohort.scss';
-import useInviter from 'lib/useInviter';
+import { getStoredInvites, setStoredInvites } from 'store/storage/roller';
 
 const INVITES_PER_PAGE = 7;
 const DEFAULT_NUM_INVITES = 5;
 
-function SearchInput({ className, value, onChange }) {
-  return (
-    <Flex align="center" full className={cn('b b-gray2 b1', className)}>
-      <Flex.Item className="p2">
-        <SearchIcon />
-      </Flex.Item>
-
-      <Flex.Item
-        flex={1}
-        as={'input'}
-        value={value}
-        onChange={onChange}
-        className="b-none h7"
-      />
-    </Flex>
-  );
-}
-
-function CohortMember({ point, pending = false, className, ...rest }) {
-  const { sentInvites } = useInvites(point);
-  const patp = useMemo(() => ob.patp(point), [point]);
-  const colors = pending ? ['#ee892b', '#FFFFFF'] : ['#000000', '#FFFFFF'];
-
-  const DetailText = useCallback(
-    () =>
-      pending ? 'Pending' : <> {matchBlinky(sentInvites)} points invited </>,
-    [pending, sentInvites]
-  );
-
-  return (
-    <Flex justify="between" className={cn('b1 b-gray2', className)} {...rest}>
-      <Flex.Item className="w9 h9">
-        <MaybeSigil patp={Just(patp)} size={64} colors={colors} />
-      </Flex.Item>
-
-      <Flex.Item
-        flex={1}
-        justify="evenly"
-        as={Flex}
-        col
-        className="mono f6 ph4">
-        <Flex.Item>{patp}</Flex.Item>
-        <Flex.Item className="gray4">
-          <DetailText />
-        </Flex.Item>
-      </Flex.Item>
-    </Flex>
-  );
-}
-function CohortList({
-  acceptedPoints,
-  pendingPoints,
-  className,
-  onlyPending,
-  onSelectInvite,
-}) {
-  const { syncInvites } = usePointCache();
-
-  const [query, setQuery] = useState('');
-
-  useEffect(() => {
-    acceptedPoints.map(syncInvites);
-  }, [acceptedPoints, syncInvites]);
-
-  const handleChange = useCallback(
-    e => {
-      setQuery(e.target.value);
-      e.preventDefault();
-    },
-    [setQuery]
-  );
-
-  const filterPoints = useCallback(
-    points =>
-      points.filter(p => {
-        const patp = ob.patp(p).slice(1);
-        return patp.startsWith(query);
-      }),
-    [query]
-  );
-  const selectInvite = useCallback(
-    point => () => {
-      onSelectInvite(point);
-    },
-    [onSelectInvite]
-  );
-  const _pendingPoints = filterPoints(pendingPoints);
-  const _acceptedPoints = filterPoints(acceptedPoints);
-
-  const offset = onlyPending ? 0 : _acceptedPoints.length;
-
-  return (
-    <Grid gap={3} className={cn('mt4', className)}>
-      <Grid.Item full as={SearchInput} value={query} onChange={handleChange} />
-      <>
-        {!onlyPending &&
-          _acceptedPoints.map((p, idx) => (
-            <Grid.Item
-              key={p}
-              half={(idx % 2) + 1}
-              as={CohortMember}
-              point={p}
-              onClick={selectInvite(p)}
-            />
-          ))}
-        {_pendingPoints.map((p, idx) => (
-          <Grid.Item
-            key={p}
-            half={((offset + idx) % 2) + 1}
-            as={CohortMember}
-            point={p}
-            pending
-            onClick={selectInvite(p)}
-          />
-        ))}
-      </>
-
-      {_pendingPoints.length === 0 &&
-        (_acceptedPoints.length === 0 || onlyPending) && (
-          <Grid.Item full className="p4 t-center">
-            {' '}
-            No invites accepted yet.
-          </Grid.Item>
-        )}
-    </Grid>
-  );
-}
-
-function hideIf(hider, hidden) {
-  return hider ? '●●●●●●●' : hidden;
-}
-
-function CohortMemberExpanded({ point, className, ...rest }) {
-  const { sentInvites, acceptedInvites } = useInvites(point);
-  const { getDetails } = usePointCache();
-  const { authToken } = useWallet();
-  const { contracts } = useNetwork();
-  const details = getDetails(point);
-  const { active } = details.getOrElse({});
-  const patp = useMemo(() => ob.patp(point), [point]);
-  const colors = useMemo(
-    () => (!active ? ['#ee892b', '#FFFFFF'] : ['#000000', '#FFFFFF']),
-    [active]
-  );
-
-  const [code, setCode] = useState(Nothing());
-  const [codeVisible, setCodeVisible] = useState(false);
-
-  useEffect(() => {
-    const fetchWallet = async () => {
-      const _authToken = authToken.getOrElse(null);
-      const _details = details.getOrElse(null);
-      const _contracts = contracts.getOrElse(null);
-      if (
-        !_authToken ||
-        !_details ||
-        _details.active ||
-        !_contracts ||
-        !codeVisible
-      ) {
-        setCode(Nothing());
-        return;
-      }
-      const { ticket, owner } = await wg.generateTemporaryDeterministicWallet(
-        point,
-        _authToken
-      );
-
-      if (owner.keys.address !== _details.transferProxy) {
-        setCode(Just(null));
-      } else {
-        setCode(Just(ticket));
-      }
-    };
-    fetchWallet();
-  }, [authToken, codeVisible, contracts, details, point]);
-
-  useEffect(() => {
-    setCodeVisible(false);
-  }, [point]);
-
-  return (
-    <Grid justify="between" className={cn('b1 b-gray2', className)} {...rest}>
-      <Grid.Item rows={[1, 4]} cols={[1, 4]} className="h10 w10">
-        <MaybeSigil patp={Just(patp)} size={64} colors={colors} />
-      </Grid.Item>
-
-      <Grid.Item cols={[4, 13]} className="mono mt-auto ">
-        {patp}
-      </Grid.Item>
-
-      {!active && (
-        <>
-          <Grid.Item
-            cols={[4, 13]}
-            className="mt-auto mb1 f6 gray4"
-            as={Flex}
-            col>
-            Invite Code
-          </Grid.Item>
-          <Grid.Item cols={[4, 10]} className="mb-auto mt1 f6 gray4">
-            {(code.getOrElse(true) === null &&
-              'This invite code cannot be recovered') ||
-              hideIf(!codeVisible, matchBlinky(code))}
-          </Grid.Item>
-          {!codeVisible && (
-            <Grid.Item
-              cols={[10, 13]}
-              className="mh-auto f6 underline pointer"
-              onClick={() => setCodeVisible(true)}>
-              Show
-            </Grid.Item>
-          )}
-          {codeVisible && code.getOrElse('') !== null && (
-            <Grid.Item
-              className="mh-auto f6 t-right"
-              cols={[10, 13]}
-              as={CopyButton}
-              text={code.getOrElse('')}
-            />
-          )}
-        </>
-      )}
-
-      {active && (
-        <>
-          <Grid.Item
-            cols={[4, 13]}
-            className="mt-auto mb1 f6 gray4"
-            as={Flex}
-            col>
-            {matchBlinky(sentInvites)} invites sent
-          </Grid.Item>
-          <Grid.Item
-            cols={[4, 13]}
-            className="mb-auto mt1 f6 gray4"
-            as={Flex}
-            col>
-            {matchBlinky(acceptedInvites)} invites accepted
-          </Grid.Item>
-        </>
-      )}
-    </Grid>
-  );
-}
-
 export default function InviteCohort() {
-  const { pop } = useLocalRouter();
+  const { pop, push, names } = useLocalRouter();
+  const { authToken } = useWallet();
   const {
     nextRoll,
     currentL2,
     pendingTransactions,
     invites,
   } = useRollerStore();
-  const { generateInvites } = useInviter();
   const { generateInviteCodes, getPendingTransactions } = useRoller();
-
   const { pointCursor } = usePointCursor();
+  const { contracts } = useNetwork();
+  const { getDetails } = usePointCache();
+
   const point = need.point(pointCursor);
+  const _contracts = need.contracts(contracts);
+
+  const pointSize = azimuth.azimuth.getPointSize(point);
+  const isParent = pointSize !== azimuth.azimuth.PointSize.Planet;
+  const details = need.details(getDetails(point));
+  const networkRevision = convertToInt(details.keyRevisionNumber, 10);
+  const networkKeysNotSet = !currentL2 && isParent && networkRevision === 0;
+
+  const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
+
+  const [numInvites, setNumInvites] = useState(
+    currentL2 ? DEFAULT_NUM_INVITES : 1
+  );
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [l1Invite, setL1Invite] = useState(null);
+
+  const { construct, unconstruct, completed, bind } = useIssueChild();
+
+  // Set up the invite spawn if on L1
+  useEffect(() => {
+    const _authToken = authToken.getOrElse(null);
+
+    const setUpInvite = async () => {
+      setLoading(true);
+      const [invitePoint] = await azimuth.azimuth.getUnspawnedChildren(
+        _contracts,
+        point
+      );
+
+      // TODO: figure out how to store the ticket and invite info
+      const { ticket, owner } = await wg.generateTemporaryDeterministicWallet(
+        point,
+        _authToken
+      );
+
+      construct(invitePoint, owner.keys.address);
+      setL1Invite({ ticket, planet: invitePoint });
+      setLoading(false);
+    };
+
+    if (!currentL2 && _contracts && point && _authToken && showInviteForm) {
+      setUpInvite();
+    } else {
+      unconstruct();
+    }
+  }, [
+    currentL2,
+    point,
+    _contracts,
+    authToken,
+    construct,
+    showInviteForm,
+    unconstruct,
+  ]);
+
+  const l1Complete = useCallback(() => {
+    const { available, pending, claimed } = getStoredInvites(point);
+    setStoredInvites(point, {
+      available: [...available, l1Invite],
+      pending,
+      claimed,
+    });
+    setShowInviteForm(false);
+  }, [l1Invite, point]);
+
+  useEffect(() => (completed ? l1Complete() : null), [completed, l1Complete]);
 
   const [page, setPage] = useState(0);
 
-  const { pendingPoints } = useInvites(point);
-
-  const displayedInvites = currentL2 ? invites : pendingPoints.getOrElse([]);
-
-  const invitesToDisplay = displayedInvites.slice(
+  const invitesToDisplay = invites.slice(
     page * INVITES_PER_PAGE,
     (page + 1) * INVITES_PER_PAGE
   );
 
   const hasPending = Boolean(pendingTransactions.length);
-  const hasInvites = Boolean(displayedInvites.length);
-
-  const [numInvites, setNumInvites] = useState(DEFAULT_NUM_INVITES);
-  const [showInviteForm, setShowInviteForm] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const hasInvites = Boolean(invites.length);
 
   const createInvites = useCallback(async () => {
     setLoading(true);
     try {
-      if (currentL2) {
-        const invites = await generateInviteCodes(numInvites);
-        console.log('INVITES', invites);
-        getPendingTransactions(point);
-      } else {
-        const invites = await generateInvites(numInvites);
-        console.log('INVITES', invites);
-      }
-      setShowInviteForm(false);
+      const invites = await generateInviteCodes(numInvites);
+      console.log('L2 INVITES', invites);
+      getPendingTransactions(point);
+      pop();
     } catch (error) {
       setError(error);
     } finally {
       setLoading(false);
     }
-  }, [
-    generateInviteCodes,
-    numInvites,
-    getPendingTransactions,
-    point,
-    generateInvites,
-    currentL2,
-  ]);
+  }, [generateInviteCodes, numInvites, getPendingTransactions, point, pop]);
 
   const getContent = () => {
     if (hasInvites) {
@@ -378,6 +176,18 @@ export default function InviteCohort() {
           Check back in <span className="timer"> {nextRoll}</span>
         </>
       );
+    } else if (networkKeysNotSet) {
+      return (
+        <>
+          This star's network keys are not set.
+          <br />
+          Either set the network keys or{' '}
+          <span className="migrate" onClick={() => null}>
+            {/* TODO: change this to navigate to migration */}
+            migrate this star to L2.
+          </span>
+        </>
+      );
     }
 
     return (
@@ -398,8 +208,8 @@ export default function InviteCohort() {
   const header = (
     <h5>
       You have
-      <span className="number-emphasis"> {displayedInvites.length} </span>
-      Planet Code{displayedInvites.length === 1 ? '' : 's'}
+      <span className="number-emphasis"> {invites.length} </span>
+      Planet Code{invites.length === 1 ? '' : 's'}
     </h5>
   );
 
@@ -415,18 +225,29 @@ export default function InviteCohort() {
           </HeaderPane>
           <BodyPane>
             <div className="upper">
-              <Row className="points-input">
-                I want to generate
-                <StatelessTextInput
-                  className="input-box"
-                  value={numInvites}
-                  maxLength="3"
-                  onChange={e =>
-                    setNumInvites(Number(e.target.value.replace(/\D/g, '')))
-                  }
-                />
-                planet invite code{numInvites > 1 ? 's' : ''}
-              </Row>
+              {currentL2 ? (
+                <Row className="points-input">
+                  I want to generate
+                  <StatelessTextInput
+                    className="input-box"
+                    value={numInvites}
+                    maxLength="3"
+                    onChange={e =>
+                      setNumInvites(Number(e.target.value.replace(/\D/g, '')))
+                    }
+                  />
+                  planet invite code{numInvites > 1 ? 's' : ''}
+                </Row>
+              ) : (
+                <div className="migration-prompt">
+                  ETH fees are very high currently. You can spawn invites for
+                  free after{' '}
+                  <span className="migrate" onClick={() => null}>
+                    {/* TODO: change this to navigate to migration */}
+                    migrating this star to L2.
+                  </span>
+                </div>
+              )}
               {/* <div>Destination</div>
               <div className="ship-or-address">Ship or ethereum address</div>
               <Dropdown value={dropdownValue}>
@@ -439,22 +260,30 @@ export default function InviteCohort() {
             </div>
             {/* <Inviter /> */}
             <div className="lower">
-              <Row className="next-roll">
-                <span>{currentL2 ? 'Next Roll in' : 'Transaction Fee'}</span>
-                {currentL2 ? (
+              {currentL2 && (
+                <Row className="next-roll">
+                  <span>Next Roll in</span>
                   <span className="timer">{nextRoll}</span>
-                ) : (
-                  <FeeDropdown />
-                )}
-              </Row>
-              <Button
-                as={'button'}
-                className="generate-codes"
-                center
-                solid
-                onClick={createInvites}>
-                Generate Planet Codes ({numInvites})
-              </Button>
+                </Row>
+              )}
+              {currentL2 ? (
+                <Button
+                  as={'button'}
+                  className="generate-codes"
+                  center
+                  solid
+                  onClick={createInvites}>
+                  Generate Planet Code{currentL2 ? `s (${numInvites})` : ''}
+                </Button>
+              ) : (
+                <Grid.Item
+                  full
+                  as={InlineEthereumTransaction}
+                  label="Generate Planet Code"
+                  {...bind}
+                  onReturn={() => pop()}
+                />
+              )}
             </div>
           </BodyPane>
         </Window>
@@ -463,8 +292,15 @@ export default function InviteCohort() {
     );
   }
 
+  const showGenerateButton = !hasPending && !hasInvites && !networkKeysNotSet;
+
   return (
-    <View pop={pop} inset className="cohort" hideBack header={<L2BackHeader />}>
+    <View
+      pop={pop}
+      inset
+      className="cohort"
+      hideBack
+      header={<L2BackHeader hideBalance />}>
       <Window>
         <HeaderPane>
           {!hasInvites ? (
@@ -483,7 +319,7 @@ export default function InviteCohort() {
           <div className={`content ${!hasInvites ? 'center' : ''}`}>
             {getContent()}
           </div>
-          {!hasPending && !hasInvites && (
+          {showGenerateButton && (
             <Button
               as={'button'}
               className="generate-button"
@@ -493,11 +329,21 @@ export default function InviteCohort() {
               Generate Codes
             </Button>
           )}
+          {networkKeysNotSet && (
+            <Button
+              as={'button'}
+              className="generate-button"
+              center
+              solid
+              onClick={goUrbitOS}>
+              Set Network Keys
+            </Button>
+          )}
           {hasInvites && (
             <Paginator
               page={page}
               numPerPage={INVITES_PER_PAGE}
-              numElements={displayedInvites.length}
+              numElements={invites.length}
               goPrevious={() => setPage(page - 1)}
               goNext={() => setPage(page + 1)}
             />

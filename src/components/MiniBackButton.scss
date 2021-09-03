@@ -1,0 +1,10 @@
+@import 'style/shared/variables.scss';
+
+svg.back-button {
+  padding: 6px 9px;
+  width: 14px;
+  height: 20px;
+  background-color: $washedGray;
+  border-radius: $medium-border-radius;
+  cursor: pointer;
+}

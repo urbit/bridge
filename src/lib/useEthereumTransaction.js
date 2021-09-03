@@ -144,14 +144,17 @@ export default function useEthereumTransaction(
       );
 
       setSignedTransactions(txns);
+      console.log(2, txns)
 
       // Per return type of `signTransaction`, tx is either a Transaction or FakeSignedTx.
       // We check the negation in this case, since TS cannot perform run-time check of type
       // FakeSignedTx, but it can check for an instance of the ethereumjs/tx class.
       if (txns.some(tx => !(tx instanceof Transaction))) {
         setState(STATE.FAKE_SIGNED);
+        console.log(3)
       } else {
         setState(STATE.SIGNED);
+        console.log(4)
       }
     } catch (error) {
       console.error('error signing txs', error);
@@ -174,6 +177,7 @@ export default function useEthereumTransaction(
 
   const broadcast = useCallback(async () => {
     try {
+      console.log(5)
       setConfirmationProgress(0.0);
       setError(undefined);
       setState(STATE.BROADCASTED);

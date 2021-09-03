@@ -3,6 +3,7 @@ import * as wg from 'lib/walletgen';
 import * as need from 'lib/need';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
+import { Just, Nothing } from 'folktale/maybe';
 
 import {
   Config,
@@ -24,9 +25,13 @@ import { usePointCursor } from 'store/pointCursor';
 import { useNetwork } from 'store/network';
 import { signTransactionHash } from './authToken';
 import { Invite } from 'types/Invite';
-import { getStoredInvites, setPendingInvites, setStoredInvites } from 'store/storage/roller';
+import {
+  getStoredInvites,
+  setPendingInvites,
+  setStoredInvites,
+} from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
-import { maybeGetResult } from 'views/Points';
+import { hasTransferProxy, maybeGetResult } from 'views/Points';
 
 const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 
@@ -50,11 +55,12 @@ const getProxyAndNonce = (
     : { proxy: undefined, nonce: undefined };
 
 export default function useRoller() {
-  const { wallet, walletType, walletHdPath, authToken }: any = useWallet();
+  const { wallet, authToken }: any = useWallet();
   const { pointCursor }: any = usePointCursor();
   const { web3, contracts }: any = useNetwork();
   const allPoints: any = usePointCache();
   const controlledPoints = allPoints?.controlledPoints;
+  const getDetails = allPoints?.getDetails;
 
   const {
     nextBatchTime,
@@ -62,6 +68,7 @@ export default function useRoller() {
     setNextRoll,
     setPendingTransactions,
     setInvites,
+    currentL2,
   } = useRollerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
@@ -229,7 +236,7 @@ export default function useRoller() {
 
       const stillPending = invites.pending.filter(invite => {
         const completed = !pendingTransactions.find(
-          ({ tx }) => tx.tx?.data?.ship === invite.planet
+          p => p?.rawTx?.tx?.tx?.data?.ship === invite.planet
         );
 
         if (completed) {
@@ -246,12 +253,43 @@ export default function useRoller() {
       });
       setInvites(availableInvites);
 
-      const allSpawned = await api.getSpawned(Number(curPoint));
-      const ownedPoints = maybeGetResult(controlledPoints, 'ownedPoints', []);
-      const spawnedAndOwned = ownedPoints.filter(
-        (p: number) => allSpawned.includes(p) && p > 2000
-      );
-      console.log('SPAWNED AND OWNED', spawnedAndOwned);
+      let possibleMissingInvites: number[] = [];
+
+      if (currentL2) {
+        const allSpawned = await api.getSpawned(Number(curPoint));
+        const ownedPoints = maybeGetResult(controlledPoints, 'ownedPoints', []);
+        possibleMissingInvites = ownedPoints.filter(
+          (p: number) =>
+            allSpawned.includes(p) &&
+            azimuth.azimuth.getPointSize(p) === azimuth.azimuth.PointSize.Planet
+        );
+        console.log('SPAWNED AND OWNED', possibleMissingInvites);
+      } else {
+        const maybeOutgoingPoints = controlledPoints.chain((points: any) =>
+          points.matchWith({
+            Error: () => Nothing(),
+            Ok: (c: any) => {
+              const points = c.value.ownedPoints.map((point: number) =>
+                getDetails(point).chain((details: any) =>
+                  Just({ point: point, has: hasTransferProxy(details) })
+                )
+              );
+              // if we have details for every point,
+              // return the array of pending transfers.
+              if (points.every((p: any) => Just.hasInstance(p))) {
+                const outgoing = points
+                  .filter((p: any) => p.value.has)
+                  .map((p: any) => p.value.point);
+                return Just(outgoing);
+              } else {
+                return Nothing();
+              }
+            },
+          })
+        );
+
+        possibleMissingInvites = maybeOutgoingPoints.getOrElse([]);
+      }
 
       // Iterate over all spawned and controlled planets
       // If the planet is not in available invites, generate the ticket and add it
@@ -259,8 +297,8 @@ export default function useRoller() {
       const _contracts = contracts.getOrElse(null);
 
       if (_authToken && _contracts) {
-        for (let i = 0; i < spawnedAndOwned.length; i++) {
-          const point = spawnedAndOwned[i];
+        for (let i = 0; i < possibleMissingInvites.length; i++) {
+          const point = possibleMissingInvites[i];
 
           if (!availableInvites.find(hasPoint(point))) {
             console.log('MISSING IN AVAILABLE', point);
@@ -300,6 +338,8 @@ export default function useRoller() {
     authToken,
     contracts,
     controlledPoints,
+    currentL2,
+    getDetails,
   ]);
 
   // On load, get initial config

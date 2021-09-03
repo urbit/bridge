@@ -2,37 +2,33 @@ import React, { useCallback, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { Just } from 'folktale/maybe';
 import { Grid, Flex, Button } from 'indigo-react';
+import { Icon, Row } from '@tlon/indigo-react';
 import { azimuth } from 'azimuth-js';
-import * as ob from 'urbit-ob';
-import * as wg from 'lib/walletgen';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useWallet } from 'store/wallet';
+import { usePointCache } from 'store/pointCache';
+import { useRollerStore } from 'store/roller';
 
 import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
-import Blinky, { matchBlinky } from 'components/Blinky';
+import Blinky from 'components/Blinky';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
 import InviteSigilList from 'components/InviteSigilList';
 import { ForwardButton } from 'components/Buttons';
+import L2PointHeader from 'components/L2/Headers/L2PointHeader';
+import LayerIndicator from 'components/L2/LayerIndicator';
+import Card from 'components/L2/Card';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
 import { useSyncExtras } from 'lib/useSyncPoints';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
-
 import Inviter from 'views/Invite/Inviter';
-import { usePointCache } from 'store/pointCache';
-import Card from 'components/L2/Card';
-import { Icon, Row } from '@tlon/indigo-react';
-import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import useRoller from 'lib/useRoller';
-import { useRollerStore } from 'store/roller';
-import LayerIndicator from 'components/L2/LayerIndicator';
-import { convertToInt } from 'lib/convertToInt';
 
 import './Point.scss';
 
@@ -132,30 +128,31 @@ export default function Point() {
   const {
     pendingTransactions,
     nextRoll,
-    setCurrentPoint,
-    currentL2,
     invites,
     recentlyCompleted,
+    setCurrentPoint,
+    setPendingTransactions,
   } = useRollerStore();
+
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const loadL2Info = async () => {
-      console.log('POINT', point);
       const getTransactions = async () => {
         const pointInfo = await api.getPoint(Number(point));
         setCurrentPoint(pointInfo);
-        console.log('POINT', pointInfo);
 
-        if (pointInfo.dominion !== 'l1') {
-          getInvites();
-        }
+        getInvites();
       };
 
-      getTransactions();
+      if (!loaded) {
+        getTransactions();
+        setLoaded(true);
+      }
     };
 
     loadL2Info();
-  }, [api, point, authToken]); // eslint-disable-line
+  }, [api, point, authToken, setPendingTransactions, loaded]); // eslint-disable-line
 
   const { residentCount, requestCount } = getResidents(point);
 
@@ -197,11 +194,6 @@ export default function Point() {
 
   const goResidents = useCallback(() => push(names.RESIDENTS), [push, names]);
 
-  const goPartiesSetPoolSize = useCallback(
-    () => push(names.PARTY_SET_POOL_SIZE),
-    [push, names]
-  );
-
   const goIssuePoint = useCallback(() => push(names.ISSUE_CHILD), [
     names.ISSUE_CHILD,
     push,
@@ -210,25 +202,6 @@ export default function Point() {
   const isPlanet = azimuth.getPointSize(point) === azimuth.PointSize.Planet;
 
   const [showInviteForm, setShowInviteForm] = useState(false);
-
-  const inviteButton = (() => {
-    if (azimuth.getPointSize(point) === azimuth.PointSize.Star) {
-      return (
-        <>
-          <Grid.Item
-            full
-            as={ForwardButton}
-            disabled={!isActiveOwner}
-            onClick={goPartiesSetPoolSize}>
-            Manage Invite Pools
-          </Grid.Item>
-          <Grid.Divider />
-        </>
-      );
-    }
-
-    return null;
-  })();
 
   const senateButton = (() => {
     if (azimuth.getPointSize(point) !== azimuth.PointSize.Galaxy) {
@@ -255,7 +228,6 @@ export default function Point() {
 
   const _requestCount = requestCount.getOrElse(0);
   const numPending = pendingTransactions.length;
-  const numInvites = currentL2 ? invites.length : sentInvites.length;
 
   return (
     <View
@@ -263,7 +235,7 @@ export default function Point() {
       inset
       className="point"
       header={
-        <L2PointHeader hideTimer={!!numPending} numInvites={numInvites} />
+        <L2PointHeader hideTimer={!!numPending} numInvites={invites.length} />
       }>
       <Greeting point={point} />
       {!!numPending && (

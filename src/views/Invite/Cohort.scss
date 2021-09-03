@@ -109,12 +109,22 @@
     }
   }
 
+  .migrate {
+    color: $mid-gray;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
   &.show-invite-form {
     .body-pane {
       .upper, .lower {
         width: 100%;
       }
-  
+
+      .migration-prompt {
+        line-height: 20px;
+      }
+
       .points-input {
         line-height: 28px;
         margin-bottom: 24px;

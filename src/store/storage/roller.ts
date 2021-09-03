@@ -10,7 +10,6 @@ export interface StoredInvites {
 
 export const getStoredInvites = (point: string): StoredInvites => {
   const invitesString = localStorage.getItem(INVITES_KEY) || '{}';
-  console.log(invitesString)
   const invites = JSON.parse(invitesString);
 
   console.log('STORED INVITES', invites);
@@ -34,3 +33,5 @@ export const setPendingInvites = (point: string, pendingInvites: Invite[]) => {
   invites.pending.push(...pendingInvites);
   setStoredInvites(point, invites);
 };
+
+export const clearInvitesStorage = () => localStorage.removeItem(INVITES_KEY);
