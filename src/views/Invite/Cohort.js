@@ -75,19 +75,28 @@ export default function InviteCohort() {
 
     const setUpInvite = async () => {
       setLoading(true);
-      const [invitePoint] = await azimuth.azimuth.getUnspawnedChildren(
+      const possiblePoints = await azimuth.azimuth.getUnspawnedChildren(
         _contracts,
         point
       );
 
-      // TODO: figure out how to store the ticket and invite info
-      const { ticket, owner } = await wg.generateTemporaryDeterministicWallet(
-        point,
-        _authToken
+      const invitePoint = possiblePoints.find(
+        p =>
+          azimuth.azimuth.getPointSize(p) === azimuth.azimuth.PointSize.Planet
       );
 
-      construct(invitePoint, owner.keys.address);
-      setL1Invite({ ticket, planet: invitePoint });
+      if (invitePoint) {
+        const { ticket, owner } = await wg.generateTemporaryDeterministicWallet(
+          point,
+          _authToken
+        );
+
+        construct(invitePoint, owner.keys.address);
+        setL1Invite({ ticket, planet: invitePoint });
+      } else {
+        setError('No available planets');
+      }
+
       setLoading(false);
     };
 
