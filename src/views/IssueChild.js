@@ -32,7 +32,7 @@ import FormError from 'form/FormError';
 import CopiableAddress from 'components/copiable/CopiableAddress';
 import { convertToInt } from 'lib/convertToInt';
 
-function useIssueChild() {
+export function useIssueChild() {
   const { contracts } = useNetwork();
   const { syncDates } = usePointCache();
 
@@ -43,6 +43,7 @@ function useIssueChild() {
   return useEthereumTransaction(
     useCallback(
       (spawnedPoint, owner) => {
+        console.log(1, spawnedPoint, owner, _contracts)
         setSpawnedPoint(spawnedPoint);
         return azimuth.ecliptic.spawn(_contracts, spawnedPoint, owner);
       },

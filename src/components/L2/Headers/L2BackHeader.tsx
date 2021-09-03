@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Row, Icon } from '@tlon/indigo-react';
 
 import useRoller from 'lib/useRoller';
@@ -6,15 +6,24 @@ import { useHistory } from 'store/history';
 import { useRollerStore } from 'store/roller';
 
 import './L2BackHeader.scss';
+import { useNetwork } from 'store/network';
+import { useWallet } from 'store/wallet';
+import { toBN } from 'web3-utils';
+import BN from 'bn.js';
 
 export interface L2BackHeaderProps {
   back?: () => void;
+  hideBalance?: boolean;
 }
 
-const L2BackHeader = ({ back }: L2BackHeaderProps) => {
+const L2BackHeader = ({ back, hideBalance = false }: L2BackHeaderProps) => {
   const { config } = useRoller();
   const { nextRoll, currentL2 } = useRollerStore(store => store);
   const { pop }: any = useHistory();
+  const { wallet }: any = useWallet();
+  const { web3 }: any = useNetwork();
+
+  const [ethBalance, setEthBalance] = useState<BN>(toBN(0));
 
   const goBack = useCallback(() => {
     if (back) {
@@ -28,7 +37,21 @@ const L2BackHeader = ({ back }: L2BackHeaderProps) => {
     console.log('loaded config in L2BackHeader:', config);
   }, [config]);
 
-  const ethBalance = 0.032;
+  useEffect(() => {
+    const getEthBalance = async () => {
+      const _web3 = web3.getOrElse(null);
+      const _wallet = wallet.getOrElse(null);
+
+      if (_web3 && _wallet) {
+        const newBalance = toBN(await _web3.eth.getBalance(_wallet.address));
+        setEthBalance(newBalance);
+      }
+    };
+
+    if (!currentL2) {
+      getEthBalance();
+    }
+  }, [currentL2, setEthBalance, wallet, web3]);
 
   return (
     <Row className="l2-back-header">
@@ -39,7 +62,9 @@ const L2BackHeader = ({ back }: L2BackHeaderProps) => {
           {nextRoll}
         </div>
       ) : (
-        <div className="eth-balance">Balance: {ethBalance} ETH</div>
+        !hideBalance && (
+          <div className="eth-balance">Balance: {Number(ethBalance)} ETH</div>
+        )
       )}
     </Row>
   );

@@ -31,12 +31,15 @@
     top: 36px;
     left: -3px;
     border-radius: $medium-border-radius;
+    z-index: 1;
 
     .content {
       border-radius: $medium-border-radius;
       background-color: white;
       border: 1px solid $light-gray;
       width: 240px;
+      max-height: 80vh;
+      overflow-y: scroll;
     }
   }
 }

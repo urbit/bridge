@@ -9,6 +9,7 @@ import { useWallet } from 'store/wallet';
 import { useHistory } from 'store/history';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
+import { clearInvitesStorage } from 'store/storage/roller';
 import CopiableAddressWrap from 'components/copiable/CopiableAddressWrap';
 import Dropdown from './Dropdown';
 
@@ -39,7 +40,10 @@ const AccountsDropdown = () => {
   };
   const goToMigrate = () => push(names.MIGRATE);
   const goToBitcoin = () => push(names.BITCOIN);
-  const onLogout = reset;
+  const onLogout = () => {
+    clearInvitesStorage();
+    reset();
+  };
 
   return (
     <Dropdown

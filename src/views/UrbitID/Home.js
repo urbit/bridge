@@ -30,6 +30,8 @@ export default function UrbitIDHome() {
     names,
   ]);
 
+  const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
+
   const goResetKeys = useCallback(() => push(names.RESET_KEYS), [push, names]);
 
   const isMasterTicket = Just.hasInstance(urbitWallet);
@@ -135,6 +137,7 @@ export default function UrbitIDHome() {
           <Grid.Item
             full
             as={ForwardButton}
+            onClick={goUrbitOS}
             className="f6"
             accessory={<span className="underline pointer">Set Keys</span>}>
             Network Keys Required
