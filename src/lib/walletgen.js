@@ -87,6 +87,11 @@ export const generateOwnershipWallet = async (ship, ticket) => {
   return kg.generateOwnershipWallet({ ship, ticket });
 };
 
+// temporary wallets need to be derivable from just the ticket,
+// so we always use ~zod as the wallet point.
+export const generateTemporaryOwnershipWallet = ticket =>
+  generateOwnershipWallet(ZOD, ticket);
+
 export const generateTemporaryTicketAndWallet = async point => {
   const ticket = await makeTicket(point);
   const owner = await generateOwnershipWallet(ZOD, ticket);

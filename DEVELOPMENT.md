@@ -158,14 +158,13 @@ To work with the L2 aggregator locally, set up the local environment like so:
 
 ```sh
 # Start ganache and apply the yu/naive-fallback branch from urbit/azimuth
-ganache-cli --host '0.0.0.0' -m 'benefit crew supreme gesture quantum web media hazard theory mercy wing kitten'
-truffle migrate with-state --reset --compile-all
+npm run pilot-l2
 
 # Build urbit at naive/fake-txs branch, start a local fake ship, then run these in the dojo:
-:azimuth|watch 'http://0.0.0.0:8545'
-|start %aggregator
-|start %aggregator-rpc
+:azimuth|watch 'http://0.0.0.0:8545' %local
+|start %roller
+|start %roller-rpc
 
 # If having CORS issues with API requests, try this:
-> |cors-approve ~~https~3a.~2f.~2f.localhost~3a.3000
+> |cors-approve ~~http~3a.~2f.~2f.localhost~3a.3000
 ```

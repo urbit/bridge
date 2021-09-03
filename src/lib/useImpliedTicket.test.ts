@@ -16,7 +16,13 @@ describe('#useImpliedTicket', () => {
       const input = '';
       window.location = { hash: input };
 
-      const { impliedTicket } = useImpliedTicket();
+      const {
+        impliedAzimuthPoint,
+        impliedPatp,
+        impliedTicket,
+      } = useImpliedTicket();
+      expect(impliedAzimuthPoint).toEqual(null);
+      expect(impliedPatp).toEqual(null);
       expect(impliedTicket).toEqual(null);
     });
   });
@@ -26,9 +32,13 @@ describe('#useImpliedTicket', () => {
       const input = '#widweb-tipfep-sabnux-nispec';
       window.location = { hash: input };
 
-      const { impliedPoint, impliedTicket } = useImpliedTicket();
-
-      expect(impliedPoint).toBe(null);
+      const {
+        impliedAzimuthPoint,
+        impliedPatp,
+        impliedTicket,
+      } = useImpliedTicket();
+      expect(impliedAzimuthPoint).toEqual(null);
+      expect(impliedPatp).toEqual(null);
       expect(impliedTicket).toEqual('~widweb-tipfep-sabnux-nispec');
     });
   });
@@ -38,9 +48,13 @@ describe('#useImpliedTicket', () => {
       const input = '#widweb-tipfep-sabnux-nispec-sampel';
       window.location = { hash: input };
 
-      const { impliedPoint, impliedTicket } = useImpliedTicket();
-
-      expect(impliedPoint).toBe('~sampel');
+      const {
+        impliedAzimuthPoint,
+        impliedPatp,
+        impliedTicket,
+      } = useImpliedTicket();
+      expect(impliedAzimuthPoint).toEqual(1135);
+      expect(impliedPatp).toBe('~sampel');
       expect(impliedTicket).toEqual('~widweb-tipfep-sabnux-nispec');
     });
   });
@@ -50,9 +64,13 @@ describe('#useImpliedTicket', () => {
       const input = '#widweb-tipfep-sabnux-nispec-sampel-palnet';
       window.location = { hash: input };
 
-      const { impliedPoint, impliedTicket } = useImpliedTicket();
-
-      expect(impliedPoint).toBe('~sampel-palnet');
+      const {
+        impliedAzimuthPoint,
+        impliedPatp,
+        impliedTicket,
+      } = useImpliedTicket();
+      expect(impliedAzimuthPoint).toEqual(1624961343);
+      expect(impliedPatp).toBe('~sampel-palnet');
       expect(impliedTicket).toEqual('~widweb-tipfep-sabnux-nispec');
     });
   });
