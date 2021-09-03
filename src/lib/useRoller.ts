@@ -274,8 +274,6 @@ export default function useRoller() {
                   Just({ point: point, has: hasTransferProxy(details) })
                 )
               );
-              // if we have details for every point,
-              // return the array of pending transfers.
               if (points.every((p: any) => Just.hasInstance(p))) {
                 const outgoing = points
                   .filter((p: any) => p.value.has)
@@ -288,7 +286,13 @@ export default function useRoller() {
           })
         );
 
-        possibleMissingInvites = maybeOutgoingPoints.getOrElse([]);
+        possibleMissingInvites = maybeOutgoingPoints
+          .getOrElse([])
+          .filter(
+            (p: number) =>
+              azimuth.azimuth.getPointSize(p) ===
+              azimuth.azimuth.PointSize.Planet
+          );
       }
 
       // Iterate over all spawned and controlled planets
