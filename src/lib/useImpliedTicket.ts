@@ -1,5 +1,6 @@
 import ob from 'urbit-ob';
 import { ensurePatFormat, ensureSigPrefix } from 'form/formatters';
+import { patp2dec } from './patp2dec';
 
 /**
  * pull the implied ticket and point from the #hash in the url
@@ -24,13 +25,15 @@ export default function useImpliedTicket() {
     ? pat.match(CAPTURE_TICKET_REGEX)![0]
     : null;
 
-  const impliedPoint = VALID_TICKET_AND_POINT_REGEX.test(pat)
+  const impliedPatp = VALID_TICKET_AND_POINT_REGEX.test(pat)
     ? ensureSigPrefix(pat.match(CAPTURE_POINT_REGEX)![1])
     : null;
 
   return {
-    impliedPoint:
-      impliedPoint && ob.isValidPatq(impliedPoint) ? impliedPoint : null,
+    impliedAzimuthPoint:
+      impliedPatp && ob.isValidPatq(impliedPatp) ? patp2dec(impliedPatp) : null,
+    impliedPatp:
+      impliedPatp && ob.isValidPatq(impliedPatp) ? impliedPatp : null,
     impliedTicket:
       impliedTicket && ob.isValidPatq(impliedTicket) ? impliedTicket : null,
   };

@@ -196,7 +196,7 @@ export default function useRoller() {
       const points: Ship[] =
         proxy === 'own'
           ? await api.getOwnedPoints(address)
-          : proxy === 'mange'
+          : proxy === 'manage'
           ? await api.getManagerFor(address)
           : proxy === 'vote'
           ? await api.getVotingFor(address)
