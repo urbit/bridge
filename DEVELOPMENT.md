@@ -157,10 +157,10 @@ verify the checksums on e.g. MacOS via `shasum -c checksums.txt`.
 To work with the L2 aggregator locally, set up the local environment like so:
 
 ```sh
-# Start ganache and apply the yu/naive-fallback branch from urbit/azimuth
+# Start Bridge with local blockchain preloaded with L1 and L2 points
 npm run pilot-l2
 
-# Build urbit at naive/fake-txs branch, start a local fake ship, then run these in the dojo:
+# Build urbit at naive/roller branch, start a local fake ship, then run these in the dojo:
 :azimuth|watch 'http://0.0.0.0:8545' %local
 |start %roller
 |start %roller-rpc
