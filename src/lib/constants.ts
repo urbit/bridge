@@ -106,6 +106,20 @@ const ROLLER_HOSTS = {
   MAINNET: 'roller.urbit.org',
 };
 
+const POINT_DOMINIONS = {
+  L1: 'l1',
+  L2: 'l2',
+  SPAWN: 'spawn',
+};
+
+const POINT_PROXIES = {
+  OWN: 'own',
+  MANAGE: 'manage',
+  TRANSFER: 'transfer',
+  VOTE: 'vote',
+  SPAWN: 'spawn',
+}
+
 export {
   CHECK_BLOCK_EVERY_MS,
   DEFAULT_GAS_PRICE_GWEI,
@@ -134,4 +148,6 @@ export {
   ZOD,
   PROGRESS_ANIMATION_DELAY_MS,
   ROLLER_HOSTS,
+  POINT_DOMINIONS,
+  POINT_PROXIES,
 };

@@ -1,0 +1,15 @@
+div.activate-view {
+  border: 1px solid rgb(204, 204, 204);
+  border-radius: 5px;
+  padding: 10px;
+  min-width: 600px;
+  min-height: 500px;
+
+  div.activate-view-inner {
+    height: 100%;
+  }
+
+  .mono {
+    font-family: 'Source Code Pro';
+  }
+}
