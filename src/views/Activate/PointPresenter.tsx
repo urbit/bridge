@@ -10,17 +10,22 @@ const PointPresenter = ({ patp, className }: PointPresenterArgs) => {
   return patp ? (
     <>
       <Box
-        width={128}
-        height={128}
+        width={256}
+        height={256}
         display="flex"
         flexDirection="column"
         flexWrap="nowrap"
         justifyContent="center"
         alignItems="center"
         background="white"
-        padding={32}
         className={className}>
-        <Box background="black" borderRadius={5} padding={32}>
+        <Box
+          background="black"
+          borderRadius={5}
+          padding={32}
+          mb={3}
+          width={64}
+          height={64}>
           <Sigil
             patp={patp}
             size={64}
@@ -31,9 +36,15 @@ const PointPresenter = ({ patp, className }: PointPresenterArgs) => {
             borderRadius={5}
           />
         </Box>
-        <Text display="block" className={'mono'}>
-          {patp}
-        </Text>
+        <Box>
+          <Text
+            display="block"
+            fontFamily={'Source Code Pro'}
+            fontSize={'18px'}
+            textAlign={'center'}>
+            {patp}
+          </Text>
+        </Box>
       </Box>
     </>
   ) : null;

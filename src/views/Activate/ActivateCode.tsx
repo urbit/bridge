@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Just } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
-import { Grid, H4, P, CheckboxInput } from 'indigo-react';
+import { Grid, CheckboxInput } from 'indigo-react';
 import { FORM_ERROR } from 'final-form';
 
 import View from 'components/View';
@@ -44,6 +44,7 @@ import useRoller from 'lib/useRoller';
 import { Ship } from '@urbit/roller-api';
 import { Box, Text } from '@tlon/indigo-react';
 import ActivateHeader from './ActivateHeader';
+import { MasterKey } from './MasterKey';
 
 export default function ActivateCode() {
   const history = useHistory();
@@ -57,6 +58,7 @@ export default function ActivateCode() {
   const [hasDisclaimed] = useHasDisclaimed();
   const didWarn = useRef(false);
   const { api, getPoints } = useRoller();
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
   const {
     setDerivedPoint,
@@ -128,6 +130,7 @@ export default function ActivateCode() {
   // derive and set our state on submission
   const onSubmit = useCallback(
     async values => {
+      setIsGenerating(true);
       await timeout(16); // allow the ui changes to flush before we lag it out
 
       // Derive wallet
@@ -152,6 +155,7 @@ export default function ActivateCode() {
       if (incoming.length > 0) {
         if (incoming.length > 1 && !didWarn.current) {
           didWarn.current = true;
+          setIsGenerating(false);
 
           return {
             [WARNING]:
@@ -162,11 +166,12 @@ export default function ActivateCode() {
         }
 
         const point = convertToInt(incoming[0], 10);
-        console.log('submitting point', point);
 
         setDerivedPoint(Just(point));
         setDerivedWallet(Just(await generateWallet(point, true)));
       } else {
+        setIsGenerating(false);
+
         return {
           [FORM_ERROR]:
             'Invite code has no claimable point.\n' +
@@ -209,6 +214,7 @@ export default function ActivateCode() {
         display="flex"
         flexDirection="column"
         flexWrap="nowrap"
+        height={'100%'}
         justifyContent="flex-end">
         <Grid>
           <BridgeForm
@@ -279,8 +285,12 @@ export default function ActivateCode() {
   return (
     <View inset>
       <ActivateView
-        header={<ActivateHeader copy={'Welcome. This is your Urbit.'} />}
-        footer={footer}>
+        header={
+          !isGenerating && (
+            <ActivateHeader copy={'Welcome. This is your Urbit.'} />
+          )
+        }
+        footer={!isGenerating && footer}>
         <Box
           alignItems={'center'}
           display={'flex'}
@@ -291,7 +301,20 @@ export default function ActivateCode() {
           {!impliedTicket && (
             <Text className="mb2">Enter your activation code to continue.</Text>
           )}
-          {impliedPatp && <PointPresenter patp={impliedPatp} />}
+          {!isGenerating && impliedPatp && (
+            <PointPresenter patp={impliedPatp} />
+          )}
+          {isGenerating && (
+            <Box
+              display={'flex'}
+              flexDirection={'row'}
+              flexWrap={'nowrap'}
+              width={'80%'}
+              height={'min-content'}
+              justifyContent={'center'}>
+              <MasterKey />
+            </Box>
+          )}
         </Box>
       </ActivateView>
 
