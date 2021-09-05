@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as wg from 'lib/walletgen';
 import * as need from 'lib/need';
 import * as azimuth from 'azimuth-js';
-import * as ob from 'urbit-ob';
 import { Just, Nothing } from 'folktale/maybe';
 
 import {
@@ -215,7 +214,6 @@ export default function useRoller() {
     try {
       const curPoint = need.point(pointCursor);
       const newPending = await api.getPendingByShip(Number(curPoint));
-      console.log('PENDING', newPending);
       setPendingTransactions(newPending);
 
       // const allTransactions = await api.getHistory()
@@ -263,7 +261,6 @@ export default function useRoller() {
             allSpawned.includes(p) &&
             azimuth.azimuth.getPointSize(p) === azimuth.azimuth.PointSize.Planet
         );
-        console.log('SPAWNED AND OWNED', possibleMissingInvites);
       } else {
         const maybeOutgoingPoints = controlledPoints.chain((points: any) =>
           points.matchWith({
@@ -300,24 +297,28 @@ export default function useRoller() {
       const _authToken = authToken.getOrElse(null);
       const _contracts = contracts.getOrElse(null);
 
+      const newClaimed = availableInvites.filter(
+        ({ planet }) => !possibleMissingInvites.includes(planet)
+      );
+
       if (_authToken && _contracts) {
         for (let i = 0; i < possibleMissingInvites.length; i++) {
-          const point = possibleMissingInvites[i];
+          const planet = possibleMissingInvites[i];
 
-          if (!availableInvites.find(hasPoint(point))) {
-            console.log('MISSING IN AVAILABLE', point);
+          if (!availableInvites.find(hasPoint(planet))) {
+            console.log('MISSING IN AVAILABLE', planet);
             const {
               ticket,
               owner,
             } = await wg.generateTemporaryDeterministicWallet(
-              point,
+              planet,
               _authToken
             );
 
             availableInvites.push({
               ticket,
               status: 'available',
-              planet: point,
+              planet,
               hash: '',
               owner: owner.keys.address,
             });
@@ -325,9 +326,11 @@ export default function useRoller() {
         }
 
         setStoredInvites(curPoint, {
-          available: availableInvites,
+          available: availableInvites.filter(({ planet }) =>
+            possibleMissingInvites.includes(planet)
+          ),
           pending: stillPending,
-          claimed: invites.claimed,
+          claimed: invites.claimed.concat(newClaimed),
         });
         setInvites(availableInvites);
       }
