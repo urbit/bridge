@@ -118,13 +118,10 @@ export default function Points() {
         points.matchWith({
           Error: () => Nothing(),
           Ok: c => {
-            const points = c.value.ownedPoints.map(point => {
-              console.log(point, getDetails(point))
-              return getDetails(point).chain(details =>
+            const points = c.value.ownedPoints.map(point =>
+              getDetails(point).chain(details =>
                 Just({ point: point, has: hasTransferProxy(details) })
               )
-            }
-              
             );
             // if we have details for every point,
             // return the array of pending transfers.
