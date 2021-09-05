@@ -40,6 +40,10 @@ export const maybeGetResult = (obj, key, defaultValue) =>
 export const hasTransferProxy = details =>
   !isZeroAddress(details.transferProxy);
 
+export const isLocked = details =>
+  details.owner === '0x86cd9cd0992f04231751e3761de45cecea5d1801' ||
+  details.owner === '0x8c241098c3d3498fe1261421633fd57986d74aea';
+
 const PointList = function({
   points,
   className,
@@ -114,10 +118,13 @@ export default function Points() {
         points.matchWith({
           Error: () => Nothing(),
           Ok: c => {
-            const points = c.value.ownedPoints.map(point =>
-              getDetails(point).chain(details =>
+            const points = c.value.ownedPoints.map(point => {
+              console.log(point, getDetails(point))
+              return getDetails(point).chain(details =>
                 Just({ point: point, has: hasTransferProxy(details) })
               )
+            }
+              
             );
             // if we have details for every point,
             // return the array of pending transfers.
@@ -144,7 +151,7 @@ export default function Points() {
             // TODO: how to determine this?
             const points = c.value.ownedPoints.map(point =>
               getDetails(point).chain(details =>
-                Just({ point: point, has: hasTransferProxy(details) })
+                Just({ point, has: isLocked(details) })
               )
             );
             // if we have details for every point,

@@ -42,6 +42,7 @@ export default function InviteCohort() {
     currentL2,
     pendingTransactions,
     invites,
+    setInvites,
   } = useRollerStore();
   const { generateInviteCodes, getPendingTransactions } = useRoller();
   const { pointCursor } = usePointCursor();
@@ -82,17 +83,22 @@ export default function InviteCohort() {
 
       const invitePoint = possiblePoints.find(
         p =>
-          azimuth.azimuth.getPointSize(p) === azimuth.azimuth.PointSize.Planet
+          azimuth.azimuth.getPointSize(p) ===
+            azimuth.azimuth.PointSize.Planet &&
+          !invites.find(({ planet }) => planet === p)
       );
 
       if (invitePoint) {
         const { ticket, owner } = await wg.generateTemporaryDeterministicWallet(
-          point,
+          invitePoint,
           _authToken
         );
 
+        console.log('INVITE POINT', invitePoint, owner.keys.address)
+
         construct(invitePoint, owner.keys.address);
         setL1Invite({ ticket, planet: invitePoint });
+        console.log(0, { ticket, planet: invitePoint })
       } else {
         setError('No available planets');
       }
@@ -101,6 +107,7 @@ export default function InviteCohort() {
     };
 
     if (!currentL2 && _contracts && point && _authToken && showInviteForm) {
+      console.log(1, 'NEW SETUP for L1')
       setUpInvite();
     } else {
       unconstruct();
@@ -113,19 +120,36 @@ export default function InviteCohort() {
     construct,
     showInviteForm,
     unconstruct,
+    invites,
   ]);
 
-  const l1Complete = useCallback(() => {
+  useEffect(() => {
     const { available, pending, claimed } = getStoredInvites(point);
+    console.log(2, completed, l1Invite)
+
+    if (
+      !completed ||
+      !l1Invite ||
+      available.find(({ planet }) => planet === l1Invite.planet)
+    ) {
+      return;
+    }
+
+    console.log(3, available)
+
     setStoredInvites(point, {
-      available: [...available, l1Invite],
+      available: [...invites, l1Invite],
       pending,
       claimed,
     });
-    setShowInviteForm(false);
-  }, [l1Invite, point]);
 
-  useEffect(() => (completed ? l1Complete() : null), [completed, l1Complete]);
+    console.log('SETTING', [...invites, l1Invite])
+    setInvites([...invites, l1Invite]);
+    // setShowInviteForm(false);
+    // setL1Invite(null);
+    unconstruct();
+    pop();
+  }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [page, setPage] = useState(0);
 
@@ -290,7 +314,7 @@ export default function InviteCohort() {
                   as={InlineEthereumTransaction}
                   label="Generate Planet Code"
                   {...bind}
-                  onReturn={() => pop()}
+                  onReturn={pop}
                 />
               )}
             </div>
