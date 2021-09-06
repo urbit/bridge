@@ -222,132 +222,134 @@ export default function useRoller() {
     }
   }, [api, setPendingTransactions, pointCursor]);
 
-  const getInvites = useCallback(async () => {
-    try {
-      const curPoint: string = need.point(pointCursor);
-      const invites = getStoredInvites(curPoint);
-      const availableInvites = invites.available;
+  const getInvites = useCallback(
+    async (isL2: boolean) => {
+      try {
+        const curPoint: string = need.point(pointCursor);
+        const invites = getStoredInvites(curPoint);
+        const availableInvites = invites.available;
 
-      const pendingTransactions = await api.getPendingByShip(curPoint);
-      console.log('PENDING', pendingTransactions);
-      setPendingTransactions(pendingTransactions);
+        const pendingTransactions = await api.getPendingByShip(curPoint);
+        console.log('PENDING', pendingTransactions);
+        setPendingTransactions(pendingTransactions);
 
-      const stillPending = invites.pending.filter(invite => {
-        const completed = !pendingTransactions.find(
-          p => p?.rawTx?.tx?.tx?.data?.ship === invite.planet
-        );
-
-        if (completed) {
-          availableInvites.push({ ...invite, status: 'available' });
-        }
-
-        return !completed;
-      });
-
-      setStoredInvites(curPoint, {
-        available: availableInvites,
-        pending: stillPending,
-        claimed: invites.claimed,
-      });
-      setInvites(availableInvites);
-
-      let possibleMissingInvites: number[] = [];
-
-      if (currentL2) {
-        const allSpawned = await api.getSpawned(Number(curPoint));
-        const ownedPoints = maybeGetResult(controlledPoints, 'ownedPoints', []);
-        possibleMissingInvites = ownedPoints.filter(
-          (p: number) =>
-            allSpawned.includes(p) &&
-            azimuth.azimuth.getPointSize(p) === azimuth.azimuth.PointSize.Planet
-        );
-      } else {
-        const maybeOutgoingPoints = controlledPoints.chain((points: any) =>
-          points.matchWith({
-            Error: () => Nothing(),
-            Ok: (c: any) => {
-              const points = c.value.ownedPoints.map((point: number) =>
-                getDetails(point).chain((details: any) =>
-                  Just({ point: point, has: hasTransferProxy(details) })
-                )
-              );
-              if (points.every((p: any) => Just.hasInstance(p))) {
-                const outgoing = points
-                  .filter((p: any) => p.value.has)
-                  .map((p: any) => p.value.point);
-                return Just(outgoing);
-              } else {
-                return Nothing();
-              }
-            },
-          })
-        );
-
-        possibleMissingInvites = maybeOutgoingPoints
-          .getOrElse([])
-          .filter(
-            (p: number) =>
-              azimuth.azimuth.getPointSize(p) ===
-              azimuth.azimuth.PointSize.Planet
+        const stillPending = invites.pending.filter(invite => {
+          const completed = !pendingTransactions.find(
+            p => p?.rawTx?.tx?.tx?.data?.ship === invite.planet
           );
-      }
 
-      // Iterate over all spawned and controlled planets
-      // If the planet is not in available invites, generate the ticket and add it
-      const _authToken = authToken.getOrElse(null);
-      const _contracts = contracts.getOrElse(null);
-
-      const newClaimed = availableInvites.filter(
-        ({ planet }) => !possibleMissingInvites.includes(planet)
-      );
-
-      if (_authToken && _contracts) {
-        for (let i = 0; i < possibleMissingInvites.length; i++) {
-          const planet = possibleMissingInvites[i];
-
-          if (!availableInvites.find(hasPoint(planet))) {
-            console.log('MISSING IN AVAILABLE', planet);
-            const {
-              ticket,
-              owner,
-            } = await wg.generateTemporaryDeterministicWallet(
-              planet,
-              _authToken
-            );
-
-            availableInvites.push({
-              ticket,
-              status: 'available',
-              planet,
-              hash: '',
-              owner: owner.keys.address,
-            });
+          if (completed) {
+            availableInvites.push({ ...invite, status: 'available' });
           }
-        }
+
+          return !completed;
+        });
 
         setStoredInvites(curPoint, {
-          available: availableInvites.filter(({ planet }) =>
-            possibleMissingInvites.includes(planet)
-          ),
+          available: availableInvites,
           pending: stillPending,
-          claimed: invites.claimed.concat(newClaimed),
+          claimed: invites.claimed,
         });
         setInvites(availableInvites);
+
+        let possibleMissingInvites: number[] = [];
+
+        if (isL2) {
+          const allSpawned = await api.getSpawned(Number(curPoint));
+          const ownedPoints = maybeGetResult(controlledPoints, 'ownedPoints', []);
+          possibleMissingInvites = allSpawned.filter(
+            (p: number) =>
+              ownedPoints.includes(p) &&
+              azimuth.azimuth.getPointSize(p) === azimuth.azimuth.PointSize.Planet
+          );
+        } else {
+          const maybeOutgoingPoints = controlledPoints.chain((points: any) =>
+            points.matchWith({
+              Error: () => Nothing(),
+              Ok: (c: any) => {
+                const points = c.value.ownedPoints.map((point: number) =>
+                  getDetails(point).chain((details: any) =>
+                    Just({ point: point, has: hasTransferProxy(details) })
+                  )
+                );
+                if (points.every((p: any) => Just.hasInstance(p))) {
+                  const outgoing = points
+                    .filter((p: any) => p.value.has)
+                    .map((p: any) => p.value.point);
+                  return Just(outgoing);
+                } else {
+                  return Nothing();
+                }
+              },
+            })
+          );
+
+          possibleMissingInvites = maybeOutgoingPoints
+            .getOrElse([])
+            .filter(
+              (p: number) =>
+                azimuth.azimuth.getPointSize(p) ===
+                azimuth.azimuth.PointSize.Planet
+            );
+        }
+
+        // Iterate over all spawned and controlled planets
+        // If the planet is not in available invites, generate the ticket and add it
+        const _authToken = authToken.getOrElse(null);
+        const _contracts = contracts.getOrElse(null);
+
+        const newClaimed = availableInvites.filter(
+          ({ planet }) => !possibleMissingInvites.includes(planet)
+        );
+
+        if (_authToken && _contracts) {
+          for (let i = 0; i < possibleMissingInvites.length; i++) {
+            const planet = possibleMissingInvites[i];
+
+            if (!availableInvites.find(hasPoint(planet))) {
+              console.log('MISSING IN AVAILABLE', planet);
+              const {
+                ticket,
+                owner,
+              } = await wg.generateTemporaryDeterministicWallet(
+                planet,
+                _authToken
+              );
+
+              availableInvites.push({
+                ticket,
+                status: 'available',
+                planet,
+                hash: '',
+                owner: owner.keys.address,
+              });
+            }
+          }
+
+          setStoredInvites(curPoint, {
+            available: availableInvites.filter(({ planet }) =>
+              possibleMissingInvites.includes(planet)
+            ),
+            pending: stillPending,
+            claimed: invites.claimed.concat(newClaimed),
+          });
+          setInvites(availableInvites);
+        }
+      } catch (error) {
+        console.warn('ERROR GETTING INVITES', error);
       }
-    } catch (error) {
-      console.warn('ERROR GETTING INVITES', error);
-    }
-  }, [
-    api,
-    pointCursor,
-    setInvites,
-    setPendingTransactions,
-    authToken,
-    contracts,
-    controlledPoints,
-    currentL2,
-    getDetails,
-  ]);
+    },
+    [
+      api,
+      pointCursor,
+      setInvites,
+      setPendingTransactions,
+      authToken,
+      contracts,
+      controlledPoints,
+      getDetails,
+    ]
+  );
 
   // On load, get initial config
   useEffect(() => {

@@ -8,7 +8,7 @@ import { azimuth } from 'azimuth-js';
 import { usePointCursor } from 'store/pointCursor';
 import { useWallet } from 'store/wallet';
 import { usePointCache } from 'store/pointCache';
-import { useRollerStore } from 'store/roller';
+import { isL2, useRollerStore } from 'store/roller';
 
 import View from 'components/View';
 import Greeting from 'components/Greeting';
@@ -142,7 +142,7 @@ export default function Point() {
         const pointInfo = await api.getPoint(Number(point));
         setCurrentPoint(pointInfo);
 
-        getInvites();
+        getInvites(isL2(pointInfo.dominion));
       };
 
       if (!loaded) {
@@ -313,7 +313,7 @@ export default function Point() {
           onClick={goBitcoin}>
           Bitcoin
         </Grid.Item> */}
-        {/* {isParent && (
+        {isParent && (
           <>
             <Grid.Item
               full
@@ -324,7 +324,7 @@ export default function Point() {
             </Grid.Item>
             <Grid.Divider />
           </>
-        )} */}
+        )}
         {senateButton}
       </Grid>
     </View>
