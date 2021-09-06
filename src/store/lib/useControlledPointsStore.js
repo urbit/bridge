@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import Result from 'folktale/result';
+import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from '../network';
 import { useWallet } from 'store/wallet';
 import useRoller from 'lib/useRoller';
+
+const onlyUnique = (value, index, self) => self.indexOf(value) === index;
 
 export default function useControlledPointsStore() {
   const { contracts } = useNetwork();
@@ -39,7 +42,19 @@ export default function useControlledPointsStore() {
         getPoints('spawn', address),
       ]);
 
-      console.log('OWNED POINTS', ownedPoints)
+      const [
+        ownedPointsL1,
+        incomingPointsL1,
+        managingPointsL1,
+        votingPointsL1,
+        spawningPointsL1,
+      ] = await Promise.all([
+        azimuth.azimuth.getOwnedPoints(_contracts, address),
+        azimuth.azimuth.getTransferringFor(_contracts, address),
+        azimuth.azimuth.getManagerFor(_contracts, address),
+        azimuth.azimuth.getVotingFor(_contracts, address),
+        azimuth.azimuth.getSpawningFor(_contracts, address),
+      ]);
 
       if (
         ownedPoints === null &&
@@ -55,11 +70,26 @@ export default function useControlledPointsStore() {
         _setControlledPoints(
           Just(
             Result.Ok({
-              ownedPoints,
-              incomingPoints,
-              managingPoints,
-              votingPoints,
-              spawningPoints,
+              ownedPoints: ownedPoints
+                .concat(ownedPointsL1)
+                .map(Number)
+                .filter(onlyUnique),
+              incomingPoints: incomingPoints
+                .concat(incomingPointsL1)
+                .map(Number)
+                .filter(onlyUnique),
+              managingPoints: managingPoints
+                .concat(managingPointsL1)
+                .map(Number)
+                .filter(onlyUnique),
+              votingPoints: votingPoints
+                .concat(votingPointsL1)
+                .map(Number)
+                .filter(onlyUnique),
+              spawningPoints: spawningPoints
+                .concat(spawningPointsL1)
+                .map(Number)
+                .filter(onlyUnique),
             })
           )
         );

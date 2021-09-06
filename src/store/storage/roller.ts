@@ -1,4 +1,4 @@
-import { Invite } from "types/Invite";
+import { Invite } from 'types/Invite';
 
 const INVITES_KEY = 'invites';
 

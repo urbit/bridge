@@ -1,5 +1,4 @@
 import React from 'react';
-import { ReactComponent as Copy } from 'assets/copy.svg';
 
 import useCopiable from 'lib/useCopiable';
 import WithTooltip from 'components/WithTooltip';

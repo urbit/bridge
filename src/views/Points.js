@@ -41,32 +41,29 @@ export const hasTransferProxy = details =>
   !isZeroAddress(details.transferProxy);
 
 export const getOutgoingPoints = (controlledPoints, getDetails) => {
-  return controlledPoints.chain((points) =>
-    points.matchWith({
-      Error: () => Nothing(),
-      Ok: (c) => {
-        const points = c.value.ownedPoints.map((point) =>
-          getDetails(point).chain((details) => {
-            // need those that are inactive
-            if (!details.active) {
-              console.log(point, details)
-            }
-            return Just({ point: point, has: hasTransferProxy(details) })
+  return controlledPoints
+    .chain(points =>
+      points.matchWith({
+        Error: () => Nothing(),
+        Ok: c => {
+          const points = c.value.ownedPoints.map(point =>
+            getDetails(point).chain(details =>
+              Just({ point: point, has: hasTransferProxy(details) })
+            )
+          );
+          if (points.every(p => Just.hasInstance(p))) {
+            const outgoing = points
+              .filter(p => p.value.has)
+              .map(p => p.value.point);
+            return Just(outgoing);
+          } else {
+            return Nothing();
           }
-          )
-        );
-        if (points.every((p) => Just.hasInstance(p))) {
-          const outgoing = points
-            .filter((p) => p.value.has)
-            .map((p) => p.value.point);
-          return Just(outgoing);
-        } else {
-          return Nothing();
-        }
-      },
-    })
-  ).getOrElse([]);
-}
+        },
+      })
+    )
+    .getOrElse([]);
+};
 
 export const isLocked = details =>
   details.owner === '0x86cd9cd0992f04231751e3761de45cecea5d1801' ||

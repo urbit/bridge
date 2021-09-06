@@ -29,7 +29,7 @@ import {
   setStoredInvites,
 } from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
-import { getOutgoingPoints, hasTransferProxy, maybeGetResult } from 'views/Points';
+import { getOutgoingPoints, maybeGetResult } from 'views/Points';
 
 const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 
@@ -227,7 +227,6 @@ export default function useRoller() {
         const curPoint: string = need.point(pointCursor);
         const invites = getStoredInvites(curPoint);
         const availableInvites = invites.available;
-        console.log('WHAT', curPoint, invites, availableInvites)
 
         const pendingTransactions = await api.getPendingByShip(curPoint);
         console.log('PENDING', pendingTransactions);
@@ -252,43 +251,51 @@ export default function useRoller() {
         });
         setInvites(availableInvites);
 
-        let possibleMissingInvites: number[] = [];
-
-        if (isL2) {
-          const allSpawned = await api.getSpawned(Number(curPoint));
-          const ownedPoints = maybeGetResult(controlledPoints, 'ownedPoints', []);
-          possibleMissingInvites = allSpawned.filter(
-            (p: number) =>
-              ownedPoints.includes(p) &&
-              azimuth.azimuth.getPointSize(p) ===
-                azimuth.azimuth.PointSize.Planet
-          );
-        } else {
-          // How to get outgoing points by star?
-          const outgoingPoints = getOutgoingPoints(
-            controlledPoints,
-            getDetails
-          );
-
-          possibleMissingInvites = outgoingPoints.filter(
-            (p: number) =>
-              azimuth.azimuth.getPointSize(p) ===
-              azimuth.azimuth.PointSize.Planet
-          );
-        }
-
-        // Iterate over all spawned and controlled planets
-        // If the planet is not in available invites, generate the ticket and add it
         const _authToken = authToken.getOrElse(null);
         const _contracts = contracts.getOrElse(null);
 
-        console.log('POSSIBLE MISSING', possibleMissingInvites)
-
-        const newClaimed = availableInvites.filter(
-          ({ planet }) => !possibleMissingInvites.includes(planet)
-        );
-
         if (_authToken && _contracts) {
+          let possibleMissingInvites: number[] = [];
+          if (isL2) {
+            const allSpawned = await api.getSpawned(Number(curPoint));
+            const ownedPoints = maybeGetResult(
+              controlledPoints,
+              'ownedPoints',
+              []
+            );
+            possibleMissingInvites = allSpawned.filter(
+              (p: number) =>
+                ownedPoints.includes(p) &&
+                azimuth.azimuth.getPointSize(p) ===
+                  azimuth.azimuth.PointSize.Planet
+            );
+          } else {
+            const outgoingPoints = getOutgoingPoints(
+              controlledPoints,
+              getDetails
+            );
+
+            const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
+              _contracts,
+              curPoint
+            );
+
+            possibleMissingInvites = outgoingPoints.filter(
+              (p: number) =>
+                azimuth.azimuth.getPointSize(p) ===
+                  azimuth.azimuth.PointSize.Planet &&
+                availablePoints.includes(p)
+            );
+          }
+
+          // Iterate over all spawned and controlled planets
+          // If the planet is not in available invites, generate the ticket and add it
+          console.log('POSSIBLE MISSING', possibleMissingInvites);
+
+          const newClaimed = availableInvites.filter(
+            ({ planet }) => !possibleMissingInvites.includes(planet)
+          );
+
           for (let i = 0; i < possibleMissingInvites.length; i++) {
             const planet = possibleMissingInvites[i];
 
@@ -359,12 +366,12 @@ export default function useRoller() {
           setNextBatchTime(response.nextBatch);
         });
 
-        getInvites();
+        getInvites(currentL2);
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [nextBatchTime, getPendingTransactions]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [nextBatchTime, getPendingTransactions, currentL2]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     api,
