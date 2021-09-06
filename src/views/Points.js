@@ -40,6 +40,34 @@ export const maybeGetResult = (obj, key, defaultValue) =>
 export const hasTransferProxy = details =>
   !isZeroAddress(details.transferProxy);
 
+export const getOutgoingPoints = (controlledPoints, getDetails) => {
+  return controlledPoints.chain((points) =>
+    points.matchWith({
+      Error: () => Nothing(),
+      Ok: (c) => {
+        const points = c.value.ownedPoints.map((point) =>
+          getDetails(point).chain((details) => {
+            // need those that are inactive
+            if (!details.active) {
+              console.log(point, details)
+            }
+            return Just({ point: point, has: hasTransferProxy(details) })
+          }
+          )
+        );
+        if (points.every((p) => Just.hasInstance(p))) {
+          const outgoing = points
+            .filter((p) => p.value.has)
+            .map((p) => p.value.point);
+          return Just(outgoing);
+        } else {
+          return Nothing();
+        }
+      },
+    })
+  ).getOrElse([]);
+}
+
 export const isLocked = details =>
   details.owner === '0x86cd9cd0992f04231751e3761de45cecea5d1801' ||
   details.owner === '0x8c241098c3d3498fe1261421633fd57986d74aea';
@@ -112,30 +140,8 @@ export default function Points() {
   ] = useRejectedIncomingPointTransfers();
   const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
 
-  const maybeOutgoingPoints = useMemo(
-    () =>
-      controlledPoints.chain(points =>
-        points.matchWith({
-          Error: () => Nothing(),
-          Ok: c => {
-            const points = c.value.ownedPoints.map(point =>
-              getDetails(point).chain(details =>
-                Just({ point: point, has: hasTransferProxy(details) })
-              )
-            );
-            // if we have details for every point,
-            // return the array of pending transfers.
-            if (points.every(p => Just.hasInstance(p))) {
-              const outgoing = points
-                .filter(p => p.value.has)
-                .map(p => p.value.point);
-              return Just(outgoing);
-            } else {
-              return Nothing();
-            }
-          },
-        })
-      ),
+  const outgoingPoints = useMemo(
+    () => getOutgoingPoints(controlledPoints, getDetails),
     [getDetails, controlledPoints]
   );
 
@@ -172,10 +178,7 @@ export default function Points() {
   // if there are any pending transfers, incoming or outgoing, stay on this
   // page, because those can only be completed/cancelled here.
   useEffect(() => {
-    if (
-      Nothing.hasInstance(maybeOutgoingPoints) ||
-      Nothing.hasInstance(starReleaseDetails)
-    ) {
+    if (outgoingPoints.length < 1 || Nothing.hasInstance(starReleaseDetails)) {
       return;
     }
     controlledPoints.matchWith({
@@ -196,7 +199,7 @@ export default function Points() {
             if (
               all.length === 1 &&
               incoming.length === 0 &&
-              maybeOutgoingPoints.value.length === 0 &&
+              outgoingPoints.length === 0 &&
               (starReleaseDetails.value === null ||
                 starReleaseDetails.value.total === 0)
             ) {
@@ -210,7 +213,7 @@ export default function Points() {
   }, [
     controlledPoints,
     rejectedPoints,
-    maybeOutgoingPoints,
+    outgoingPoints,
     setPointCursor,
     popAndPush,
     names,
@@ -230,7 +233,6 @@ export default function Points() {
   const managingPoints = maybeGetResult(controlledPoints, 'managingPoints', []);
   const votingPoints = maybeGetResult(controlledPoints, 'votingPoints', []);
   const spawningPoints = maybeGetResult(controlledPoints, 'spawningPoints', []);
-  const outgoingPoints = maybeOutgoingPoints.getOrElse([]);
   const lockedPoints = maybeLockedPoints.getOrElse([]);
 
   const allPoints = [

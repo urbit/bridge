@@ -39,7 +39,7 @@ export default function useControlledPointsStore() {
         getPoints('spawn', address),
       ]);
 
-      console.log(ownedPoints)
+      console.log('OWNED POINTS', ownedPoints)
 
       if (
         ownedPoints === null &&
