@@ -29,7 +29,7 @@ import Paginator from 'components/L2/Paginator';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 
 import './Cohort.scss';
-import { getStoredInvites, setStoredInvites } from 'store/storage/roller';
+import { getStoredInvites } from 'store/storage/roller';
 import { ETH_ZERO_ADDR } from 'lib/constants';
 
 const INVITES_PER_PAGE = 7;
@@ -45,10 +45,14 @@ export default function InviteCohort() {
     invites,
     setInvites,
   } = useRollerStore();
-  const { generateInviteCodes, getPendingTransactions } = useRoller();
+  const {
+    generateInviteCodes,
+    getPendingTransactions,
+    getInvites,
+  } = useRoller();
   const { pointCursor } = usePointCursor();
   const { contracts } = useNetwork();
-  const { getDetails } = usePointCache();
+  const { getDetails, syncControlledPoints } = usePointCache();
 
   const point = need.point(pointCursor);
   const _contracts = need.contracts(contracts);
@@ -70,6 +74,8 @@ export default function InviteCohort() {
   const [l1Invite, setL1Invite] = useState(null);
 
   const { construct, unconstruct, completed, bind } = useIssueChild();
+
+  useEffect(() => getInvites(), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Set up the invite spawn if on L1
   useEffect(() => {
@@ -102,11 +108,8 @@ export default function InviteCohort() {
           _authToken
         );
 
-        console.log('INVITE POINT', invitePoint, owner.keys.address)
-
         construct(invitePoint, owner.keys.address);
         setL1Invite({ ticket, planet: invitePoint });
-        console.log(0, { ticket, planet: invitePoint })
       } else {
         setError('No available planets');
       }
@@ -132,7 +135,6 @@ export default function InviteCohort() {
 
   useEffect(() => {
     const { available } = getStoredInvites(point);
-    console.log(2, completed, l1Invite)
 
     if (
       !completed ||
@@ -142,6 +144,7 @@ export default function InviteCohort() {
       return;
     }
 
+    syncControlledPoints();
     setInvites([...invites, l1Invite]);
     setShowInviteForm(false);
     setL1Invite(null);

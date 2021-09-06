@@ -222,7 +222,7 @@ function MiniPassport({ point, inverted, locked = false, ...rest }) {
   const permissions = usePermissionsForPoint(address, point);
   const keyType = buildKeyType(permissions);
 
-  const contrast = locked ? '#666666' : 'black'
+  const contrast = locked ? '#666666' : 'black';
 
   const sigil = useMemo(
     () =>

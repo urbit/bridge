@@ -7,7 +7,6 @@ import { azimuth } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useWallet } from 'store/wallet';
-import { usePointCache } from 'store/pointCache';
 import { isL2, useRollerStore } from 'store/roller';
 
 import View from 'components/View';
@@ -123,13 +122,11 @@ export default function Point() {
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
 
-  const { getResidents } = usePointCache();
   const { api, getInvites } = useRoller();
   const {
     pendingTransactions,
     nextRoll,
     invites,
-    recentlyCompleted,
     setCurrentPoint,
     setPendingTransactions,
   } = useRollerStore();
@@ -154,15 +151,7 @@ export default function Point() {
     loadL2Info();
   }, [api, point, authToken, setPendingTransactions, loaded]); // eslint-disable-line
 
-  const { residentCount, requestCount } = getResidents(point);
-
-  const {
-    isParent,
-    isActiveOwner,
-    canManage,
-    canSpawn,
-    canVote,
-  } = useCurrentPermissions();
+  const { isParent, canManage, canSpawn, canVote } = useCurrentPermissions();
 
   // L1 invites
   const l1Invites = useInvites(point);
@@ -225,8 +214,6 @@ export default function Point() {
   useSyncExtras([point]);
 
   const address = need.addressFromWallet(wallet);
-
-  const _requestCount = requestCount.getOrElse(0);
   const numPending = pendingTransactions.length;
 
   return (

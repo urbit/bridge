@@ -43,7 +43,7 @@ export function useIssueChild() {
   return useEthereumTransaction(
     useCallback(
       (spawnedPoint, owner) => {
-        console.log(5, spawnedPoint, owner)
+        console.log(5, spawnedPoint, owner);
         setSpawnedPoint(spawnedPoint);
         return azimuth.ecliptic.spawn(_contracts, spawnedPoint, owner);
       },
