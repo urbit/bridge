@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as wg from 'lib/walletgen';
 import * as need from 'lib/need';
 import * as azimuth from 'azimuth-js';
-import { Just, Nothing } from 'folktale/maybe';
 
 import {
   Config,
@@ -30,7 +29,7 @@ import {
   setStoredInvites,
 } from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
-import { hasTransferProxy, maybeGetResult } from 'views/Points';
+import { getOutgoingPoints, hasTransferProxy, maybeGetResult } from 'views/Points';
 
 const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 
@@ -228,6 +227,7 @@ export default function useRoller() {
         const curPoint: string = need.point(pointCursor);
         const invites = getStoredInvites(curPoint);
         const availableInvites = invites.available;
+        console.log('WHAT', curPoint, invites, availableInvites)
 
         const pendingTransactions = await api.getPendingByShip(curPoint);
         console.log('PENDING', pendingTransactions);
@@ -260,43 +260,29 @@ export default function useRoller() {
           possibleMissingInvites = allSpawned.filter(
             (p: number) =>
               ownedPoints.includes(p) &&
-              azimuth.azimuth.getPointSize(p) === azimuth.azimuth.PointSize.Planet
+              azimuth.azimuth.getPointSize(p) ===
+                azimuth.azimuth.PointSize.Planet
           );
         } else {
-          const maybeOutgoingPoints = controlledPoints.chain((points: any) =>
-            points.matchWith({
-              Error: () => Nothing(),
-              Ok: (c: any) => {
-                const points = c.value.ownedPoints.map((point: number) =>
-                  getDetails(point).chain((details: any) =>
-                    Just({ point: point, has: hasTransferProxy(details) })
-                  )
-                );
-                if (points.every((p: any) => Just.hasInstance(p))) {
-                  const outgoing = points
-                    .filter((p: any) => p.value.has)
-                    .map((p: any) => p.value.point);
-                  return Just(outgoing);
-                } else {
-                  return Nothing();
-                }
-              },
-            })
+          // How to get outgoing points by star?
+          const outgoingPoints = getOutgoingPoints(
+            controlledPoints,
+            getDetails
           );
 
-          possibleMissingInvites = maybeOutgoingPoints
-            .getOrElse([])
-            .filter(
-              (p: number) =>
-                azimuth.azimuth.getPointSize(p) ===
-                azimuth.azimuth.PointSize.Planet
-            );
+          possibleMissingInvites = outgoingPoints.filter(
+            (p: number) =>
+              azimuth.azimuth.getPointSize(p) ===
+              azimuth.azimuth.PointSize.Planet
+          );
         }
 
         // Iterate over all spawned and controlled planets
         // If the planet is not in available invites, generate the ticket and add it
         const _authToken = authToken.getOrElse(null);
         const _contracts = contracts.getOrElse(null);
+
+        console.log('POSSIBLE MISSING', possibleMissingInvites)
 
         const newClaimed = availableInvites.filter(
           ({ planet }) => !possibleMissingInvites.includes(planet)
@@ -306,7 +292,10 @@ export default function useRoller() {
           for (let i = 0; i < possibleMissingInvites.length; i++) {
             const planet = possibleMissingInvites[i];
 
-            if (!availableInvites.find(hasPoint(planet))) {
+            if (
+              !availableInvites.find(hasPoint(planet)) &&
+              !(await azimuth.azimuth.isActive(_contracts, planet))
+            ) {
               console.log('MISSING IN AVAILABLE', planet);
               const {
                 ticket,

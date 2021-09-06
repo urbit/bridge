@@ -30,6 +30,7 @@ import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 
 import './Cohort.scss';
 import { getStoredInvites, setStoredInvites } from 'store/storage/roller';
+import { ETH_ZERO_ADDR } from 'lib/constants';
 
 const INVITES_PER_PAGE = 7;
 const DEFAULT_NUM_INVITES = 5;
@@ -81,12 +82,19 @@ export default function InviteCohort() {
         point
       );
 
-      const invitePoint = possiblePoints.find(
-        p =>
+      let invitePoint;
+      for (let i = 0; i < possiblePoints.length; i++) {
+        const p = possiblePoints[i];
+        if (
+          !invites.find(({ planet }) => planet === p) &&
           azimuth.azimuth.getPointSize(p) ===
             azimuth.azimuth.PointSize.Planet &&
-          !invites.find(({ planet }) => planet === p)
-      );
+          (await azimuth.azimuth.getOwner(_contracts, p)) === ETH_ZERO_ADDR
+        ) {
+          invitePoint = p;
+          break;
+        }
+      }
 
       if (invitePoint) {
         const { ticket, owner } = await wg.generateTemporaryDeterministicWallet(
@@ -107,7 +115,6 @@ export default function InviteCohort() {
     };
 
     if (!currentL2 && _contracts && point && _authToken && showInviteForm) {
-      console.log(1, 'NEW SETUP for L1')
       setUpInvite();
     } else {
       unconstruct();
@@ -124,7 +131,7 @@ export default function InviteCohort() {
   ]);
 
   useEffect(() => {
-    const { available, pending, claimed } = getStoredInvites(point);
+    const { available } = getStoredInvites(point);
     console.log(2, completed, l1Invite)
 
     if (
@@ -135,18 +142,9 @@ export default function InviteCohort() {
       return;
     }
 
-    console.log(3, available)
-
-    setStoredInvites(point, {
-      available: [...invites, l1Invite],
-      pending,
-      claimed,
-    });
-
-    console.log('SETTING', [...invites, l1Invite])
     setInvites([...invites, l1Invite]);
-    // setShowInviteForm(false);
-    // setL1Invite(null);
+    setShowInviteForm(false);
+    setL1Invite(null);
     unconstruct();
     pop();
   }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -176,7 +174,7 @@ export default function InviteCohort() {
   }, [generateInviteCodes, numInvites, getPendingTransactions, point, pop]);
 
   const getContent = () => {
-    if (hasInvites) {
+    if (hasInvites && !networkKeysNotSet) {
       return (
         <>
           <div>
