@@ -4,6 +4,8 @@ import { L2Point, PendingTransaction } from '@urbit/roller-api/build';
 import { HOUR } from 'lib/utils/roller';
 import { Invite } from 'types/Invite';
 
+export const isL2 = (dom?: string) => dom === 'l2' || dom === 'spawn';
+
 export interface RollerStore {
   nextBatchTime: number;
   nextRoll: string;
@@ -44,8 +46,7 @@ export const useRollerStore = create<RollerStore>(set => ({
   setCurrentPoint: (currentPoint: L2Point) =>
     set(() => ({
       currentPoint,
-      currentL2:
-        currentPoint?.dominion === 'l2' || currentPoint?.dominion === 'spawn',
+      currentL2: isL2(currentPoint?.dominion),
     })),
   setInvites: (invites: Invite[]) => set(() => ({ invites })),
 }));
