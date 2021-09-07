@@ -369,7 +369,6 @@ export default function Points() {
                   ]}
                 />
               )}
-              inverted
             />
           </Grid.Item>
         )}
