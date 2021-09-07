@@ -134,7 +134,7 @@ export default function ActivateCode() {
     async values => {
       setIsGenerating(true);
       setIsFaded(true);
-      await timeout(1400); // Allow the Master Key animation to run for one cycle
+      await timeout(1900); // Allow the Master Key animation to run for one cycle
 
       // Derive wallet
       // TODO: fallback logic to first use implied values if present, otherwise form values?
@@ -191,6 +191,7 @@ export default function ActivateCode() {
       setDerivedPoint,
       setDerivedWallet,
       setInviteWallet,
+      setIsFaded,
     ]
   );
 

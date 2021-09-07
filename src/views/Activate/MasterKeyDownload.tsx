@@ -8,29 +8,18 @@ import ActivateParagraph from './ActivateParagraph';
 import { ActivateSteps } from './ActivateSteps';
 import { useActivateFlow } from './ActivateFlow';
 import { timeout } from 'lib/timeout';
-import { useLocalRouter } from 'lib/LocalRouter';
+import MasterKeyPresenter from './MasterKeyPresenter';
 
-const MasterKeyReveal = () => {
+const MasterKeyDownload = () => {
   const { isFaded, setIsFaded } = useActivateFlow();
-  const { push, names } = useLocalRouter();
-
-  const goToDownload = useCallback(() => {
-    push(names.DOWNLOAD);
-  }, [names.DOWNLOAD, push]);
-
-  const onRevealClick = useCallback(async () => {
-    setIsFaded(false);
-    await timeout(500); // Pause for UI fade animation
-    goToDownload();
-  }, [goToDownload, setIsFaded]);
 
   const header = useMemo(() => {
     return (
       <Box className={isFaded ? 'faded-in' : 'faded-out'}>
-        <ActivateHeader copy={'Here is your Master Key.'} />
+        <ActivateHeader copy={'Backup your Master Key.'} />
         <ActivateParagraph
           copy={
-            "Your Master Key is your 4-word password for your Urbit. Make sure you're in a private place before you reveal it."
+            'Download your backup and store it somewhere safe, e.g. your security deposit box or password manager.'
           }
         />
       </Box>
@@ -47,7 +36,7 @@ const MasterKeyReveal = () => {
         className={isFaded ? 'faded-in' : 'faded-out'}
         justifyContent="flex-end">
         <Button
-          onClick={onRevealClick}
+          onClick={() => console.log('reveal')}
           backgroundColor="black"
           color={'white'}
           padding={'16px'}
@@ -55,20 +44,13 @@ const MasterKeyReveal = () => {
           height={'50px'}
           fontWeight={'400'}
           fontSize={'18px'}>
-          <Icon
-            display="inline-block"
-            icon="Visible"
-            size="18px"
-            color={'white'}
-          />
-          &nbsp; Reveal
+          Download Backup
         </Button>
       </Box>
     );
-  }, [isFaded, onRevealClick]);
+  }, [isFaded]);
 
   const onViewTransition = useCallback(async () => {
-    await timeout(500); // Pause for UI fade animation
     setIsFaded(true);
     await timeout(500); // Pause for UI fade animation
   }, [setIsFaded]);
@@ -95,17 +77,13 @@ const MasterKeyReveal = () => {
             width={'80%'}
             height={'min-content'}
             justifyContent={'center'}>
-            <MasterKey paused={true} />
+            <MasterKeyPresenter />
           </Box>
         </Box>
       </ActivateView>
-      <ActivateSteps
-        currentStep={0}
-        totalSteps={4}
-        className={isFaded ? 'faded-in' : 'faded-out'}
-      />
+      <ActivateSteps currentStep={1} totalSteps={4} />
     </>
   );
 };
 
-export default MasterKeyReveal;
+export default MasterKeyDownload;

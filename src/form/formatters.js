@@ -86,3 +86,13 @@ export const ensureSigPrefix = s => {
 
   return s.indexOf(SIG_PREFIX) !== 0 ? `${SIG_PREFIX}${s}` : s;
 };
+
+export const stripSigPrefix = s => {
+  if (!s) {
+    return s;
+  }
+
+  return s.toLowerCase().indexOf(SIG_PREFIX) === 0
+    ? s.slice(SIG_PREFIX.length)
+    : s;
+};
