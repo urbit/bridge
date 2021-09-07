@@ -61,9 +61,11 @@ export default function ActivateCode() {
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
   const {
+    isFaded,
     setDerivedPoint,
     setDerivedWallet,
     setInviteWallet,
+    setIsFaded,
   } = useActivateFlow();
   // this is a pretty naive way to detect if we're on a mobile device
   // (i.e. we're checking the width of the screen)
@@ -76,13 +78,13 @@ export default function ActivateCode() {
     history,
   ]);
 
-  const goToPassport = useCallback(() => {
+  const goToMasterKey = useCallback(() => {
     if (!hasDisclaimed) {
-      push(names.DISCLAIMER, { next: names.PASSPORT });
+      push(names.DISCLAIMER, { next: names.MASTER_KEY });
     } else {
-      push(names.PASSPORT);
+      push(names.MASTER_KEY);
     }
-  }, [hasDisclaimed, names.DISCLAIMER, names.PASSPORT, push]);
+  }, [hasDisclaimed, names.DISCLAIMER, names.MASTER_KEY, push]);
 
   const validateForm = useCallback((values, errors) => {
     didWarn.current = false;
@@ -131,7 +133,8 @@ export default function ActivateCode() {
   const onSubmit = useCallback(
     async values => {
       setIsGenerating(true);
-      await timeout(16); // allow the ui changes to flush before we lag it out
+      setIsFaded(true);
+      await timeout(1400); // Allow the Master Key animation to run for one cycle
 
       // Derive wallet
       // TODO: fallback logic to first use implied values if present, otherwise form values?
@@ -220,7 +223,7 @@ export default function ActivateCode() {
           <BridgeForm
             validate={validate}
             onSubmit={onSubmit}
-            afterSubmit={goToPassport}
+            afterSubmit={goToMasterKey}
             initialValues={initialValues}>
             {({ validating, values, submitting, handleSubmit }) => (
               <>
@@ -275,7 +278,7 @@ export default function ActivateCode() {
     );
   }, [
     activationAllowed,
-    goToPassport,
+    goToMasterKey,
     impliedTicket,
     initialValues,
     onSubmit,
@@ -302,19 +305,21 @@ export default function ActivateCode() {
             <Text className="mb2">Enter your activation code to continue.</Text>
           )}
           {!isGenerating && impliedPatp && (
-            <PointPresenter patp={impliedPatp} />
+            <PointPresenter
+              patp={impliedPatp}
+              className={!isFaded ? 'faded-in' : 'faded-out'}
+            />
           )}
-          {isGenerating && (
-            <Box
-              display={'flex'}
-              flexDirection={'row'}
-              flexWrap={'nowrap'}
-              width={'80%'}
-              height={'min-content'}
-              justifyContent={'center'}>
-              <MasterKey />
-            </Box>
-          )}
+          <Box
+            display={'flex'}
+            flexDirection={'row'}
+            flexWrap={'nowrap'}
+            className={isFaded ? 'faded-in' : 'faded-out'}
+            width={'80%'}
+            height={'min-content'}
+            justifyContent={'center'}>
+            <MasterKey />
+          </Box>
         </Box>
       </ActivateView>
 

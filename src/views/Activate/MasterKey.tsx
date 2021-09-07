@@ -1,6 +1,11 @@
-export const MasterKey = () => {
+import cn from 'classnames';
+import 'style/master-key.scss';
+
+export const MasterKey = ({ paused = false }) => {
   return (
-    <svg className="master-key" viewBox="0 0 300 32">
+    <svg
+      className={cn({ 'master-key': true, paused: paused })}
+      viewBox="0 0 300 32">
       <g>
         <path
           className="first-one"
