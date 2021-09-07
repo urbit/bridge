@@ -28,3 +28,15 @@ div.copy-button-wide {
     font-size: 0.75rem;
   }
 }
+
+// For fading content in and out
+
+.faded-out{
+  opacity:0;
+  transition: opacity 0.5s;
+
+}
+.faded-in{
+  opacity:1;
+  transition: opacity 0.5s;
+}
