@@ -8,7 +8,7 @@ export interface CardProps {
   title?: string;
   subtitle?: string;
   onClick?: () => void;
-  children: any[];
+  children: React.ReactNode;
 }
 
 export default function Card({
@@ -23,10 +23,10 @@ export default function Card({
       {(!!icon || !!title) && (
         <Row>
           {!!icon && icon}
-          {!!title && <div className="card-title">{title}</div>}
+          {!!title && <Box className="card-title">{title}</Box>}
         </Row>
       )}
-      {!!subtitle && <div className="card-subtitle">{subtitle}</div>}
+      {!!subtitle && <Box className="card-subtitle">{subtitle}</Box>}
       {children}
     </Box>
   );

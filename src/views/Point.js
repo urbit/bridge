@@ -291,15 +291,6 @@ export default function Point() {
             disabled={!canManage}
           />
         </Grid.Item>
-        {/* <Grid.Item
-          full
-          as={ForwardButton}
-          disabled={!canBitcoin}
-          className="mt1"
-          detail="Bitcoin management"
-          onClick={goBitcoin}>
-          Bitcoin
-        </Grid.Item> */}
         {isParent && (
           <>
             <Grid.Item

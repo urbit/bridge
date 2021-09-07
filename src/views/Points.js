@@ -26,6 +26,7 @@ import CopiableAddress from 'components/copiable/CopiableAddress';
 import NavHeader from 'components/NavHeader';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import IncomingPoint from 'components/L2/Points/IncomingPoint';
+import { CONDITIONAL_STAR_RELEASE, LINEAR_STAR_RELEASE } from 'lib/constants';
 
 export const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -66,8 +67,8 @@ export const getOutgoingPoints = (controlledPoints, getDetails) => {
 };
 
 export const isLocked = details =>
-  details.owner === '0x86cd9cd0992f04231751e3761de45cecea5d1801' ||
-  details.owner === '0x8c241098c3d3498fe1261421633fd57986d74aea';
+  details.owner === LINEAR_STAR_RELEASE ||
+  details.owner === CONDITIONAL_STAR_RELEASE;
 
 const PointList = function({
   points,
@@ -148,7 +149,6 @@ export default function Points() {
         points.matchWith({
           Error: () => Nothing(),
           Ok: c => {
-            // TODO: how to determine this?
             const points = c.value.ownedPoints.map(point =>
               getDetails(point).chain(details =>
                 Just({ point, has: isLocked(details) })
@@ -375,9 +375,6 @@ export default function Points() {
 
         {allPoints.length > 0 && (
           <Grid.Item full as={Grid} gap={1}>
-            {/* <Grid.Item full as={H5}>
-              {pluralize(allPoints.length, 'ID')}
-            </Grid.Item> */}
             <Grid.Item full as={PointList} points={allPoints} />
           </Grid.Item>
         )}

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Row, Icon } from '@tlon/indigo-react';
+import { Row, Icon, Box } from '@tlon/indigo-react';
 
 import useRoller from 'lib/useRoller';
 import { useHistory } from 'store/history';
@@ -10,6 +10,7 @@ import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { toBN } from 'web3-utils';
 import BN from 'bn.js';
+import { isDevelopment } from 'lib/flags';
 
 export interface L2BackHeaderProps {
   back?: () => void;
@@ -34,7 +35,9 @@ const L2BackHeader = ({ back, hideBalance = false }: L2BackHeaderProps) => {
   }, [back, pop]);
 
   useEffect(() => {
-    console.log('loaded config in L2BackHeader:', config);
+    if (isDevelopment) {
+      console.log('loaded config in L2BackHeader:', config);
+    }
   }, [config]);
 
   useEffect(() => {
@@ -57,13 +60,13 @@ const L2BackHeader = ({ back, hideBalance = false }: L2BackHeaderProps) => {
     <Row className="l2-back-header">
       <Icon className="back-button" icon="ChevronWest" onClick={goBack} />
       {currentL2 ? (
-        <div className="rollup-timer">
+        <Row className="rollup-timer">
           <Icon icon="Clock" />
           {nextRoll}
-        </div>
+        </Row>
       ) : (
         !hideBalance && (
-          <div className="eth-balance">Balance: {Number(ethBalance)} ETH</div>
+          <Box className="eth-balance">Balance: {Number(ethBalance)} ETH</Box>
         )
       )}
     </Row>

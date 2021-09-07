@@ -1,11 +1,11 @@
 import React from 'react';
-import { Icon } from '@tlon/indigo-react';
+import { Box, Icon } from '@tlon/indigo-react';
 
 import './Dropdown.scss';
 
 export interface DropdownProps {
   className: string;
-  children: any;
+  children: React.ReactNode;
   value: string;
   open: boolean;
   toggleOpen: () => void;
@@ -19,17 +19,17 @@ const Dropdown = ({
   className,
 }: DropdownProps) => {
   return (
-    <div className={`dropdown ${className}`}>
-      <div className={`selector ${open ? 'open' : ''}`} onClick={toggleOpen}>
+    <Box className={`dropdown ${className}`}>
+      <Box className={`selector ${open ? 'open' : ''}`} onClick={toggleOpen}>
         {value}
         <Icon icon="ChevronSouth" />
-      </div>
+      </Box>
       {open && (
-        <div className="content-border">
-          <div className="content">{children}</div>
-        </div>
+        <Box className="content-border">
+          <Box className="content">{children}</Box>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 

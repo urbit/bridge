@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as ob from 'urbit-ob';
-import { Icon, Row } from '@tlon/indigo-react';
+import { Icon, Row, Box } from '@tlon/indigo-react';
 import { Just } from 'folktale/maybe';
 
 import Sigil from 'components/Sigil';
@@ -14,6 +14,7 @@ import CopiableAddressWrap from 'components/copiable/CopiableAddressWrap';
 import Dropdown from './Dropdown';
 
 import './AccountsDropdown.scss';
+import { abbreviateAddress } from 'lib/utils/address';
 
 const AccountsDropdown = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -30,8 +31,7 @@ const AccountsDropdown = () => {
     ) || [];
 
   const currentAddress = walletInfo?.wallet?.value?.address || '';
-  const addressLeadingFive = currentAddress.slice(0, 5);
-  const displayAddress = `${addressLeadingFive}...${currentAddress.slice(-4)}`;
+  const displayAddress = abbreviateAddress(currentAddress);
 
   const selectPoint = (point: number) => () => {
     setPointCursor(Just(point));
@@ -49,13 +49,13 @@ const AccountsDropdown = () => {
     <Dropdown
       className="accounts-dropdown"
       open={open}
-      value={addressLeadingFive}
+      value={displayAddress}
       toggleOpen={() => setOpen(!open)}>
       <CopiableAddressWrap className="current-address">
         {displayAddress}
       </CopiableAddressWrap>
-      <div className="divider" />
-      <div className="points">
+      <Box className="divider" />
+      <Box className="points">
         {points.map((point: number) => {
           const patp = ob.patp(point);
 
@@ -64,20 +64,20 @@ const AccountsDropdown = () => {
               className="entry"
               onClick={selectPoint(point)}
               key={`point-${point}`}>
-              <div>{patp}</div>
+              <Box>{patp}</Box>
               <Row>
                 <LayerIndicator layer={1} size="md" />
-                <div className="sigil">
+                <Box className="sigil">
                   <Sigil patp={patp} size={1} colors={['#000000', '#FFFFFF']} />
-                </div>
+                </Box>
               </Row>
             </Row>
           );
         })}
-      </div>
-      <div className="divider" />
+      </Box>
+      <Box className="divider" />
       <Row className="entry" onClick={goToMigrate}>
-        <div>Migrate</div>
+        <Box>Migrate</Box>
         <Row className="layer-migration">
           <LayerIndicator layer={1} size="sm" />
           <Icon icon="ArrowEast" />
@@ -86,12 +86,12 @@ const AccountsDropdown = () => {
       </Row>
       {canBitcoin && (
         <Row className="entry" onClick={goToBitcoin}>
-          <div>Bitcoin</div>
+          <Box>Bitcoin</Box>
           <Icon icon="Bitcoin" />
         </Row>
       )}
       <Row className="entry" onClick={onLogout}>
-        <div>Logout</div>
+        <Box>Logout</Box>
         <Icon icon="LogOut" />
       </Row>
     </Dropdown>

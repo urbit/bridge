@@ -165,8 +165,7 @@ export default function InviteCohort() {
   const createInvites = useCallback(async () => {
     setLoading(true);
     try {
-      const invites = await generateInviteCodes(numInvites);
-      console.log('L2 INVITES', invites);
+      await generateInviteCodes(numInvites);
       getPendingTransactions(point);
       pop();
     } catch (error) {

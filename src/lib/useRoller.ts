@@ -130,7 +130,7 @@ export default function useRoller() {
 
       const { proxy, nonce } = getProxyAndNonce(starInfo, _wallet.address);
 
-      if (proxy === undefined || nonce === undefined)
+      if (!(proxy === 'own' || proxy === 'spawn') || nonce === undefined)
         throw new Error("Error: Address doesn't match proxy");
 
       for (let i = 0; i < numInvites && planets[i]; i++) {
@@ -143,7 +143,7 @@ export default function useRoller() {
 
         const from = {
           ship: _point, //ship that is spawning the planet
-          proxy, // TODO: check that this is either "own" or "spawn"
+          proxy,
         };
 
         const data = {
@@ -229,7 +229,9 @@ export default function useRoller() {
         const availableInvites = invites.available;
 
         const pendingTransactions = await api.getPendingByShip(curPoint);
-        console.log('PENDING', pendingTransactions);
+        if (isDevelopment) {
+          console.log('PENDING', pendingTransactions);
+        }
         setPendingTransactions(pendingTransactions);
 
         const stillPending = invites.pending.filter(invite => {
@@ -290,7 +292,9 @@ export default function useRoller() {
 
           // Iterate over all spawned and controlled planets
           // If the planet is not in available invites, generate the ticket and add it
-          console.log('POSSIBLE MISSING', possibleMissingInvites);
+          if (isDevelopment) {
+            console.log('POSSIBLE MISSING', possibleMissingInvites);
+          }
 
           const newClaimed = availableInvites.filter(
             ({ planet }) => !possibleMissingInvites.includes(planet)

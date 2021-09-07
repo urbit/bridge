@@ -1,4 +1,4 @@
-import { Icon } from '@tlon/indigo-react';
+import { Row, Box, Icon } from '@tlon/indigo-react';
 
 import './Paginator.scss';
 
@@ -20,21 +20,21 @@ const Paginator = ({
   const numPages = Math.ceil(numElements / numPerPage);
 
   return (
-    <div className="paginator">
-      <div className="chevron-button">
+    <Row className="paginator">
+      <Box className="chevron-button">
         {page > 0 && (
           <Icon icon="ChevronWest" className="previous" onClick={goPrevious} />
         )}
-      </div>
-      <div className="info">
+      </Box>
+      <Box className="info">
         {page + 1} of {numPages}
-      </div>
-      <div className="chevron-button">
+      </Box>
+      <Box className="chevron-button">
         {page + 1 < numPages && (
           <Icon icon="ChevronEast" className="next" onClick={goNext} />
         )}
-      </div>
-    </div>
+      </Box>
+    </Row>
   );
 };
 
