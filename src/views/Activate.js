@@ -8,18 +8,21 @@ import { ActivateFlowProvider } from './Activate/ActivateFlow';
 import useActivateFlowState from './Activate/useActivateFlowState';
 import ActivateCode from './Activate/ActivateCode';
 import ActivatePassport from './Activate/ActivatePassport';
+import ActivateMasterKey from './Activate/ActivateMasterKey';
 import Disclaimer from './Disclaimer';
 
 const NAMES = {
   CODE: 'CODE',
   DISCLAIMER: 'DISCLAIMER',
   PASSPORT: 'PASSPORT',
+  MASTER_KEY: 'MASTER_KEY',
 };
 
 const VIEWS = {
   [NAMES.CODE]: ActivateCode,
   [NAMES.PASSPORT]: ActivatePassport,
   [NAMES.DISCLAIMER]: Disclaimer,
+  [NAMES.MASTER_KEY]: ActivateMasterKey,
 };
 
 export default function Activate() {
