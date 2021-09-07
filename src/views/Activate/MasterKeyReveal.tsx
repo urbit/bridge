@@ -8,7 +8,7 @@ import ActivateParagraph from './ActivateParagraph';
 import { ActivateSteps } from './ActivateSteps';
 import { useActivateFlow } from './ActivateFlow';
 
-const MasterKeyConfirm = () => {
+const MasterKeyReveal = () => {
   const { isFaded, setIsFaded } = useActivateFlow();
 
   const header = useMemo(() => {
@@ -55,8 +55,9 @@ const MasterKeyConfirm = () => {
   }, [isFaded]);
 
   useEffect(() => {
-    // Fade in content once
+    // Fade in content
     setIsFaded(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -89,4 +90,4 @@ const MasterKeyConfirm = () => {
   );
 };
 
-export default MasterKeyConfirm;
+export default MasterKeyReveal;
