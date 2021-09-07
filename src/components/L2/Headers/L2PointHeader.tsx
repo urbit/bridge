@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { Row } from '@tlon/indigo-react';
+import { Box, Row } from '@tlon/indigo-react';
 
 import useRoller from 'lib/useRoller';
 import { useHistory } from 'store/history';
@@ -9,6 +9,7 @@ import AccountsDropdown from '../Dropdowns/AccountsDropdown';
 import { useRollerStore } from 'store/roller';
 
 import './L2PointHeader.scss';
+import { isDevelopment } from 'lib/flags';
 
 export interface L2PointHeaderProps {
   numInvites: number;
@@ -25,7 +26,9 @@ const L2PointHeader = ({
   const { nextRoll, currentL2, pendingTransactions } = useRollerStore();
 
   useEffect(() => {
-    console.log('loaded config in L2PointHeader:', config);
+    if (isDevelopment) {
+      console.log('loaded config in L2PointHeader:', config);
+    }
   }, [config]);
 
   const { push, names }: any = useHistory();
@@ -50,9 +53,9 @@ const L2PointHeader = ({
           </Row>
         )}
         {!hideTimer && currentL2 && !pendingTransactions.length && (
-          <div className="rollup-timer" onClick={goToHistory}>
+          <Box className="rollup-timer" onClick={goToHistory}>
             {nextRoll}
-          </div>
+          </Box>
         )}
         {currentL2 && <HistoryIcon className="history" onClick={goToHistory} />}
       </Row>

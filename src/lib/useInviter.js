@@ -193,8 +193,6 @@ const useInviter = () => {
         };
       }
 
-      console.log('INVITES', confirmedInvites);
-      // TODO: store these locally, and also handle the situation
       return { invites: confirmedInvites };
     },
     [

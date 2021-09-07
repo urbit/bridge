@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Row } from '@tlon/indigo-react';
+import { Row, Box } from '@tlon/indigo-react';
 
 import * as need from 'lib/need';
 import { useWallet } from 'store/wallet';
@@ -8,7 +8,7 @@ import { useLocalRouter } from 'lib/LocalRouter';
 
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
-import { AddressHistory } from '@urbit/roller-api';
+import { RollerTransaction } from '@urbit/roller-api';
 
 import './TransactionHistory';
 
@@ -17,7 +17,7 @@ const TransactionHistory = () => {
   const { api } = useRoller();
   const { wallet }: any = useWallet();
   const address = need.addressFromWallet(wallet);
-  const [transactions, setTransactions] = useState<AddressHistory>([]);
+  const [transactions, setTransactions] = useState<RollerTransaction[]>([]);
 
   useEffect(() => {
     const getTransactionHistory = async () => {
@@ -36,16 +36,16 @@ const TransactionHistory = () => {
       className="transaction-history"
       header={<L2BackHeader />}>
       {transactions.map(({ ship, status, type, hash }) => (
-        <div className="transaction">
+        <Box className="transaction">
           <Row className="title-row">
-            <div className="title">{type}</div>
-            <div className="hash">{hash}</div>
+            <Box className="title">{type}</Box>
+            <Box className="hash">{hash}</Box>
           </Row>
           <Row className="info-row">
-            <div className="status">{status}</div>
-            <div className="date"></div>
+            <Box className="status">{status}</Box>
+            <Box className="date"></Box>
           </Row>
-        </div>
+        </Box>
       ))}
     </View>
   );
