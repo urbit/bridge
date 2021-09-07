@@ -1,17 +1,13 @@
 import React, { useMemo } from 'react';
-import cn from 'classnames';
-import { Grid } from 'indigo-react';
 
 import { LocalRouterProvider, useLocalRouter } from 'lib/LocalRouter';
 
 import View from 'components/View';
-import Passport from 'components/Passport';
 
 import { useActivateFlow } from './ActivateFlow';
-import useBreakpoints from 'lib/useBreakpoints';
 import useRouter from 'lib/useRouter';
 
-import PassportDownload from './PassportDownload';
+import MasterKeyDownload from './MasterKeyDownload';
 import PassportVerify from './PassportVerify';
 import PassportTransfer from './PassportTransfer';
 import { walletFromMnemonic } from 'lib/wallet';
@@ -28,12 +24,12 @@ const NAMES = {
 
 const VIEWS = {
   [NAMES.REVEAL]: MasterKeyReveal,
-  [NAMES.DOWNLOAD]: PassportDownload,
+  [NAMES.DOWNLOAD]: MasterKeyDownload,
   [NAMES.VERIFY]: PassportVerify,
   [NAMES.TRANSFER]: PassportTransfer,
 };
 
-export default function ActivatePassport() {
+export default function ActivateMasterKey() {
   const { derivedPoint, generated, derivedWallet } = useActivateFlow();
   // pull the reset function out of the 'activate' router
   const { reset: resetActivateRouter } = useLocalRouter();
@@ -43,24 +39,22 @@ export default function ActivatePassport() {
     initialRoutes: [{ key: NAMES.REVEAL }],
   });
 
-  const gap = useBreakpoints([4, 4, 7]);
-  const marginTop = useBreakpoints([false, false, 8]);
-
+  // TODO
   // addresses are not derived until we set[Urbit]Wallet(), so do that inline
-  const address = useMemo(
-    () =>
-      derivedWallet
-        .chain(wallet =>
-          walletFromMnemonic(
-            wallet.ownership.seed,
-            DEFAULT_HD_PATH,
-            wallet.meta.passphrase
-          )
-        )
-        .map(wallet => publicToAddress(wallet.publicKey)),
-    [derivedWallet]
-  );
-  //~hobbyn-mismur-fonrux-datber
+  // const address = useMemo(
+  //   () =>
+  //     derivedWallet
+  //       .chain(wallet =>
+  //         walletFromMnemonic(
+  //           wallet.ownership.seed,
+  //           DEFAULT_HD_PATH,
+  //           wallet.meta.passphrase
+  //         )
+  //       )
+  //       .map(wallet => publicToAddress(wallet.publicKey)),
+  //   [derivedWallet]
+  // );
+
   return (
     <View inset>
       <LocalRouterProvider value={router}>
