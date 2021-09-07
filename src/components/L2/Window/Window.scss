@@ -1,0 +1,7 @@
+@import 'style/shared/variables';
+
+.window {
+  border-radius: $medium-border-radius;
+  border: 1px solid $light-gray;
+  width: 480px;
+}

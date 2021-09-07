@@ -1,0 +1,47 @@
+@import 'style/shared/variables.scss';
+
+.incoming-point {
+  width: calc(100% - 18px);
+  padding: 8px;
+  border-radius: $large-border-radius;
+  border: 1px solid $light-gray;
+  margin-bottom: 16px;
+  font-size: 14px;
+
+  .top {
+    .title {
+      font-weight: 600;
+    }
+  }
+
+  .top, .bottom {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .bottom {
+    margin-top: 4px;
+  }
+
+  .button-row {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .accept, .reject {
+    border-radius: $medium-border-radius;
+    padding: 4px 10px;
+  }
+
+  .accept {
+    margin-right: 4px;
+    color: white;
+    background-color: $accept-green;
+  }
+
+  .reject {
+    background-color: $washedGray;
+  }
+}

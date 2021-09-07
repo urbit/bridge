@@ -1,0 +1,36 @@
+@import 'style/shared/variables.scss';
+
+.l2-back-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  margin: 48px 0px 16px;
+
+  svg.back-button {
+    padding: 6px 9px;
+    width: 14px;
+    height: 20px;
+    background-color: $washedGray;
+    border-radius: $medium-border-radius;
+    cursor: pointer;
+  }
+
+  .rollup-timer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      margin-right: 4px;
+    }
+  }
+
+  .eth-balance {
+    font-weight: 600;
+  }
+}

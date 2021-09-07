@@ -16,6 +16,7 @@ function View({
   full = false,
   hideBack = false,
   pop,
+  header,
   ...rest
 }) {
   const { reset } = useHistory();
@@ -88,7 +89,7 @@ function View({
 
       <Flex.Item flex={1} as={Flex} col justify="between">
         <Flex.Item className="pb5 ">
-          <Header logout={goBack} />
+          {header || <Header logout={goBack} />}
           {children}
         </Flex.Item>
         <Flex.Item as={Footer.Target} />

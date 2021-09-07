@@ -22,11 +22,13 @@ import Blinky from 'components/Blinky';
 import Passport from 'components/Passport';
 import Footer from 'components/Footer';
 import { ForwardButton } from 'components/Buttons';
-import CopiableAddress from 'components/CopiableAddress';
-import L2Header from 'components/L2Header';
+import CopiableAddress from 'components/copiable/CopiableAddress';
 import NavHeader from 'components/NavHeader';
+import L2PointHeader from 'components/L2/Headers/L2PointHeader';
+import IncomingPoint from 'components/L2/Points/IncomingPoint';
+import { CONDITIONAL_STAR_RELEASE, LINEAR_STAR_RELEASE } from 'lib/constants';
 
-const maybeGetResult = (obj, key, defaultValue) =>
+export const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
     Nothing: () => defaultValue,
     Just: p =>
@@ -36,26 +38,66 @@ const maybeGetResult = (obj, key, defaultValue) =>
       }),
   });
 
-const hasTransferProxy = details => !isZeroAddress(details.transferProxy);
+export const hasTransferProxy = details =>
+  !isZeroAddress(details.transferProxy);
 
-const PointList = function({ points, className, actions, ...rest }) {
+export const getOutgoingPoints = (controlledPoints, getDetails) => {
+  return controlledPoints
+    .chain(points =>
+      points.matchWith({
+        Error: () => Nothing(),
+        Ok: c => {
+          const points = c.value.ownedPoints.map(point =>
+            getDetails(point).chain(details =>
+              Just({ point: point, has: hasTransferProxy(details) })
+            )
+          );
+          if (points.every(p => Just.hasInstance(p))) {
+            const outgoing = points
+              .filter(p => p.value.has)
+              .map(p => p.value.point);
+            return Just(outgoing);
+          } else {
+            return Nothing();
+          }
+        },
+      })
+    )
+    .getOrElse([]);
+};
+
+export const isLocked = details =>
+  details.owner === LINEAR_STAR_RELEASE ||
+  details.owner === CONDITIONAL_STAR_RELEASE;
+
+const PointList = function({
+  points,
+  className,
+  actions,
+  locked = false,
+  ...rest
+}) {
   const { setPointCursor } = usePointCursor();
   const { push, names } = useHistory();
 
   return (
-    <Grid gap={3} className={className}>
+    <Grid gap={4} className={className}>
       {points.map((point, i) => (
         <Grid.Item
           key={point}
-          className={`full half-${(i % 2) + 1}-md half-${(i % 2) + 1}-lg`}>
+          className={`full fourth-${(i % 4) + 1}-md fourth-${(i % 4) + 1}-lg`}>
           <Flex col>
             <Passport.Mini
+              locked={locked}
               point={point}
-              className="pointer"
-              onClick={() => {
-                setPointCursor(Just(point));
-                push(names.POINT);
-              }}
+              onClick={
+                locked
+                  ? undefined
+                  : () => {
+                      setPointCursor(Just(point));
+                      push(names.POINT);
+                    }
+              }
               {...rest}
             />
             {actions && (
@@ -96,7 +138,12 @@ export default function Points() {
   ] = useRejectedIncomingPointTransfers();
   const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
 
-  const maybeOutgoingPoints = useMemo(
+  const outgoingPoints = useMemo(
+    () => getOutgoingPoints(controlledPoints, getDetails),
+    [getDetails, controlledPoints]
+  );
+
+  const maybeLockedPoints = useMemo(
     () =>
       controlledPoints.chain(points =>
         points.matchWith({
@@ -104,16 +151,16 @@ export default function Points() {
           Ok: c => {
             const points = c.value.ownedPoints.map(point =>
               getDetails(point).chain(details =>
-                Just({ point: point, has: hasTransferProxy(details) })
+                Just({ point, has: isLocked(details) })
               )
             );
             // if we have details for every point,
             // return the array of pending transfers.
             if (points.every(p => Just.hasInstance(p))) {
-              const outgoing = points
+              const locked = points
                 .filter(p => p.value.has)
                 .map(p => p.value.point);
-              return Just(outgoing);
+              return Just(locked);
             } else {
               return Nothing();
             }
@@ -128,10 +175,7 @@ export default function Points() {
   // if there are any pending transfers, incoming or outgoing, stay on this
   // page, because those can only be completed/cancelled here.
   useEffect(() => {
-    if (
-      Nothing.hasInstance(maybeOutgoingPoints) ||
-      Nothing.hasInstance(starReleaseDetails)
-    ) {
+    if (outgoingPoints.length < 1 || Nothing.hasInstance(starReleaseDetails)) {
       return;
     }
     controlledPoints.matchWith({
@@ -152,7 +196,7 @@ export default function Points() {
             if (
               all.length === 1 &&
               incoming.length === 0 &&
-              maybeOutgoingPoints.value.length === 0 &&
+              outgoingPoints.length === 0 &&
               (starReleaseDetails.value === null ||
                 starReleaseDetails.value.total === 0)
             ) {
@@ -166,7 +210,7 @@ export default function Points() {
   }, [
     controlledPoints,
     rejectedPoints,
-    maybeOutgoingPoints,
+    outgoingPoints,
     setPointCursor,
     popAndPush,
     names,
@@ -186,14 +230,14 @@ export default function Points() {
   const managingPoints = maybeGetResult(controlledPoints, 'managingPoints', []);
   const votingPoints = maybeGetResult(controlledPoints, 'votingPoints', []);
   const spawningPoints = maybeGetResult(controlledPoints, 'spawningPoints', []);
-  const outgoingPoints = maybeOutgoingPoints.getOrElse([]);
+  const lockedPoints = maybeLockedPoints.getOrElse([]);
 
   const allPoints = [
     ...ownedPoints.filter(p => !outgoingPoints.includes(p)),
     ...managingPoints,
     ...votingPoints,
     ...spawningPoints,
-  ];
+  ].sort((a, b) => Number(a) - Number(b));
 
   const displayEmptyState =
     !loading && incomingPoints.length === 0 && allPoints.length === 0;
@@ -268,57 +312,33 @@ export default function Points() {
   }
 
   return (
-    <View inset pop={pop} hideBack>
+    <View
+      inset
+      pop={pop}
+      hideBack
+      header={<L2PointHeader hideTimer hideInvites />}>
       <NavHeader>
         <CopiableAddress
           text={address}
           className="f6 mono gray4 mb4 us-none pointer">
           {abbreviateAddress(address)}
         </CopiableAddress>
-        <L2Header />
       </NavHeader>
+      {incomingPoints.map(point => (
+        <IncomingPoint
+          point={point}
+          accept={() => {
+            setPointCursor(Just(point));
+            push(names.ACCEPT_TRANSFER);
+          }}
+          reject={() => addRejectedPoint(point)}
+        />
+      ))}
       <Grid>
         {displayEmptyState && (
           <Grid.Item full as={HelpText} className="mt8 t-center">
             No points to display. This wallet is not the owner or proxy for any
             points.
-          </Grid.Item>
-        )}
-
-        {incomingPoints.length > 0 && (
-          <Grid.Item full as={Grid} gap={1} className="mb6">
-            <Grid.Item full as={H5}>
-              {pluralize(
-                incomingPoints.length,
-                'Incoming Transfer',
-                'Incoming Transfers'
-              )}
-            </Grid.Item>
-            <Grid.Item
-              full
-              as={PointList}
-              points={incomingPoints}
-              actions={(point, i) => (
-                <ActionButtons
-                  actions={[
-                    {
-                      text: 'Accept',
-                      onClick: () => {
-                        setPointCursor(Just(point));
-                        push(names.ACCEPT_TRANSFER);
-                      },
-                    },
-                    {
-                      text: 'Reject',
-                      onClick: () => {
-                        addRejectedPoint(point);
-                      },
-                    },
-                  ]}
-                />
-              )}
-              inverted
-            />
           </Grid.Item>
         )}
 
@@ -349,17 +369,19 @@ export default function Points() {
                   ]}
                 />
               )}
-              inverted
             />
           </Grid.Item>
         )}
 
         {allPoints.length > 0 && (
           <Grid.Item full as={Grid} gap={1}>
-            <Grid.Item full as={H5}>
-              {pluralize(allPoints.length, 'ID')}
-            </Grid.Item>
             <Grid.Item full as={PointList} points={allPoints} />
+          </Grid.Item>
+        )}
+
+        {lockedPoints.length > 0 && (
+          <Grid.Item full as={Grid} gap={1}>
+            <Grid.Item full as={PointList} locked points={allPoints} />
           </Grid.Item>
         )}
 

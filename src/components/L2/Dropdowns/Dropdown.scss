@@ -1,0 +1,45 @@
+@import 'style/shared/variables.scss';
+
+.dropdown {
+  font-size: 14px;
+  position: relative;
+
+  .selector {
+    background-color: $washedGray;
+    padding: 8px;
+    min-width: 84px;
+    border-radius: $medium-border-radius;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+
+    svg {
+      width: 16px;
+      height: 14px;
+    }
+
+    &.open > svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  .content-border {
+    border: 3px solid $washedGray;
+    position: absolute;
+    top: 36px;
+    left: -3px;
+    border-radius: $medium-border-radius;
+    z-index: 1;
+
+    .content {
+      border-radius: $medium-border-radius;
+      background-color: white;
+      border: 1px solid $light-gray;
+      width: 240px;
+      max-height: 80vh;
+      overflow-y: scroll;
+    }
+  }
+}

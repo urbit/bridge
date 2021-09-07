@@ -4,7 +4,7 @@ import { azimuth } from 'azimuth-js';
 import { Just } from 'folktale/maybe';
 
 import { ForwardButton } from 'components/Buttons';
-import CopyButton from 'components/CopyButton';
+import CopyButton from 'components/copiable/CopyButton';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import { PROXY_TYPE, proxyTypeToHuman } from 'lib/proxy';
@@ -29,6 +29,8 @@ export default function UrbitIDHome() {
     push,
     names,
   ]);
+
+  const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
 
   const goResetKeys = useCallback(() => push(names.RESET_KEYS), [push, names]);
 
@@ -135,6 +137,7 @@ export default function UrbitIDHome() {
           <Grid.Item
             full
             as={ForwardButton}
+            onClick={goUrbitOS}
             className="f6"
             accessory={<span className="underline pointer">Set Keys</span>}>
             Network Keys Required

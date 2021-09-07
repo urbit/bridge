@@ -1,0 +1,50 @@
+@import 'style/shared/variables.scss';
+
+.l2-point-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  margin: 40px 0px 16px;
+
+  .dropdown {
+    border-radius: $medium-border-radius;
+    background-color: $washedGray;
+  }
+  
+  .info {
+    svg {
+      width: 14px;
+      height: 16px;
+    }
+
+    .invites, .history, .rollup-timer {
+      border-radius: $medium-border-radius;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    .invites, .history {
+      background-color: $washedGray;
+      padding: 8px;
+    }
+
+    .invites {
+      margin-right: 4px;
+
+      svg {
+        margin-right: 4px;
+      }
+    }
+
+    .rollup-timer {
+      background-color: $rollup-yellow;
+      padding: 8px;
+      margin-right: 4px;
+      width: 90px;
+    }
+  }
+}

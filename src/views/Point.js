@@ -1,29 +1,35 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { Just } from 'folktale/maybe';
 import { Grid, Flex, Button } from 'indigo-react';
+import { Icon, Row } from '@tlon/indigo-react';
 import { azimuth } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useWallet } from 'store/wallet';
+import { isL2, useRollerStore } from 'store/roller';
 
 import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
-import Blinky, { matchBlinky } from 'components/Blinky';
+import Blinky from 'components/Blinky';
 import BarGraph from 'components/BarGraph';
 import Chip from 'components/Chip';
 import InviteSigilList from 'components/InviteSigilList';
 import { ForwardButton } from 'components/Buttons';
+import L2PointHeader from 'components/L2/Headers/L2PointHeader';
+import LayerIndicator from 'components/L2/LayerIndicator';
+import Card from 'components/L2/Card';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
 import { useSyncExtras } from 'lib/useSyncPoints';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
-
 import Inviter from 'views/Invite/Inviter';
-import { usePointCache } from 'store/pointCache';
+import useRoller from 'lib/useRoller';
+
+import './Point.scss';
 
 function InviteForm({
   showInviteForm,
@@ -112,34 +118,50 @@ function InviteForm({
 
 export default function Point() {
   const { pop, push, names } = useLocalRouter();
+  const { wallet, authToken } = useWallet();
   const { pointCursor } = usePointCursor();
-
-  const { wallet, urbitWallet } = useWallet();
   const point = need.point(pointCursor);
 
-  const { getResidents } = usePointCache();
-
-  const { residentCount, requestCount } = getResidents(point);
-
+  const { api, getInvites } = useRoller();
   const {
-    isParent,
-    isActiveOwner,
-    canManage,
-    canSpawn,
-    canVote,
-  } = useCurrentPermissions();
+    pendingTransactions,
+    nextRoll,
+    invites,
+    setCurrentPoint,
+    setPendingTransactions,
+  } = useRollerStore();
 
-  const canBitcoin = Just.hasInstance(urbitWallet);
+  const [loaded, setLoaded] = useState(false);
 
-  // fetch the invites for the current cursor
-  const invites = useInvites(point);
+  useEffect(() => {
+    const loadL2Info = async () => {
+      const getTransactions = async () => {
+        const pointInfo = await api.getPoint(Number(point));
+        setCurrentPoint(pointInfo);
+
+        getInvites(isL2(pointInfo.dominion));
+      };
+
+      if (!loaded) {
+        getTransactions();
+        setLoaded(true);
+      }
+    };
+
+    loadL2Info();
+  }, [api, point, authToken, setPendingTransactions, loaded]); // eslint-disable-line
+
+  const { isParent, canManage, canSpawn, canVote } = useCurrentPermissions();
+
+  // L1 invites
+  const l1Invites = useInvites(point);
   const {
     availableInvites,
     sentInvites,
     acceptedInvites,
     pendingPoints,
     acceptedPoints,
-  } = invites;
+  } = l1Invites;
 
   const showInvites = !(
     acceptedInvites.getOrElse(0) === 0 && sentInvites.getOrElse(0) === 0
@@ -157,16 +179,9 @@ export default function Point() {
 
   const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
 
-  const goBitcoin = useCallback(() => push(names.BITCOIN), [push, names]);
-
   const goUrbitID = useCallback(() => push(names.URBIT_ID), [push, names]);
 
   const goResidents = useCallback(() => push(names.RESIDENTS), [push, names]);
-
-  const goPartiesSetPoolSize = useCallback(
-    () => push(names.PARTY_SET_POOL_SIZE),
-    [push, names]
-  );
 
   const goIssuePoint = useCallback(() => push(names.ISSUE_CHILD), [
     names.ISSUE_CHILD,
@@ -176,25 +191,6 @@ export default function Point() {
   const isPlanet = azimuth.getPointSize(point) === azimuth.PointSize.Planet;
 
   const [showInviteForm, setShowInviteForm] = useState(false);
-
-  const inviteButton = (() => {
-    if (azimuth.getPointSize(point) === azimuth.PointSize.Star) {
-      return (
-        <>
-          <Grid.Item
-            full
-            as={ForwardButton}
-            disabled={!isActiveOwner}
-            onClick={goPartiesSetPoolSize}>
-            Manage Invite Pools
-          </Grid.Item>
-          <Grid.Divider />
-        </>
-      );
-    }
-
-    return null;
-  })();
 
   const senateButton = (() => {
     if (azimuth.getPointSize(point) !== azimuth.PointSize.Galaxy) {
@@ -218,34 +214,44 @@ export default function Point() {
   useSyncExtras([point]);
 
   const address = need.addressFromWallet(wallet);
-
-  const _requestCount = requestCount.getOrElse(0);
+  const numPending = pendingTransactions.length;
 
   return (
-    <View pop={pop} inset>
+    <View
+      pop={pop}
+      inset
+      className="point"
+      header={
+        <L2PointHeader hideTimer={!!numPending} numInvites={invites.length} />
+      }>
       <Greeting point={point} />
+      {!!numPending && (
+        <div className="transaction">
+          <Row className="title-row">
+            <div className="title">
+              {numPending} Planet{numPending > 1 ? 's' : ''} Spawned
+            </div>
+            <div className="rollup-timer">{nextRoll}</div>
+          </Row>
+          <Row className="info-row">
+            <LayerIndicator layer={2} size="sm" />
+            <div className="date"></div>
+          </Row>
+        </div>
+      )}
       <Passport
         point={Just(point)}
         address={Just(address)}
         animationMode={'slide'}
       />
-      <Grid gap={3}>
+      <Grid gap={4}>
         {isParent && (
-          <Grid.Item
-            full
-            as={Flex}
-            justify="between"
-            onClick={goResidents}
-            className="mv1 pointer">
-            <Flex.Item>
-              Residents{' '}
-              <span className="gray3">{matchBlinky(residentCount)}</span>
-            </Flex.Item>
-            {_requestCount !== 0 && (
-              <Flex.Item className="f7 bg-gray2 h3 pv1 ph2 br-full r-full text-center">
-                {_requestCount} PENDING
-              </Flex.Item>
-            )}
+          <Grid.Item full as={Flex} justify="between">
+            <Card
+              title="Residency"
+              subtitle="Manage peers that you service"
+              onClick={goResidents}
+            />
           </Grid.Item>
         )}
         {isPlanet && hasInvites && (
@@ -266,40 +272,25 @@ export default function Point() {
             Invite Group <Blinky />
           </Grid.Item>
         )}
-      </Grid>
-      <Grid className="pt2">
-        <Grid.Divider />
-        {inviteButton}
-        <Grid.Item
-          full
-          as={ForwardButton}
-          disabled={!canManage}
-          onClick={goUrbitID}
-          className="mt1"
-          detail="Identity and security settings">
-          ID
+        {/* {inviteButton} */}
+        <Grid.Item full as={Flex} justify="between">
+          <Card
+            title="ID"
+            subtitle="Identity and security settings"
+            icon={<Icon icon="User" />}
+            onClick={goUrbitID}
+            disabled={!canManage}
+          />
         </Grid.Item>
-        <Grid.Divider />
-        <Grid.Item
-          full
-          as={ForwardButton}
-          disabled={!canManage}
-          className="mt1"
-          detail="Urbit OS Settings"
-          onClick={goUrbitOS}>
-          OS
+        <Grid.Item full as={Flex} justify="between">
+          <Card
+            title="OS"
+            subtitle="Urbit OS Settings"
+            icon={<Icon icon="Server" />}
+            onClick={goUrbitOS}
+            disabled={!canManage}
+          />
         </Grid.Item>
-        <Grid.Divider />
-        <Grid.Item
-          full
-          as={ForwardButton}
-          disabled={!canBitcoin}
-          className="mt1"
-          detail="Bitcoin management"
-          onClick={goBitcoin}>
-          Bitcoin
-        </Grid.Item>
-        <Grid.Divider />
         {isParent && (
           <>
             <Grid.Item

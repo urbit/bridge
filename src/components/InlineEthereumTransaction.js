@@ -22,11 +22,13 @@ import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
 
 import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
-import CopyButton from './CopyButton';
+import CopyButton from './copiable/CopyButton';
 import ProgressButton from './ProgressButton';
 import { convertToInt } from 'lib/convertToInt';
 import NeedFundsNotice from './NeedFundsNotice';
 import NoticeBox from './NoticeBox';
+
+import './InlineEthereumTransaction.scss';
 
 export default function InlineEthereumTransaction({
   // from useEthereumTransaction.bind
@@ -101,7 +103,12 @@ export default function InlineEthereumTransaction({
   const renderPrimarySection = () => {
     if (error) {
       return (
-        <Grid.Item full as={RestartButton} solid onClick={() => reset()}>
+        <Grid.Item
+          className="eth-tx-button"
+          full
+          as={RestartButton}
+          solid
+          onClick={() => reset()}>
           Reset Transaction
         </Grid.Item>
       );
@@ -109,7 +116,11 @@ export default function InlineEthereumTransaction({
       return (
         <>
           <Grid.Divider />
-          <Grid.Item full as={RestartButton} onClick={onReturn}>
+          <Grid.Item
+            className="eth-tx-button"
+            full
+            as={RestartButton}
+            onClick={onReturn}>
             Return
           </Grid.Item>
           <Grid.Divider />
@@ -134,6 +145,7 @@ export default function InlineEthereumTransaction({
     } else if (showBroadcastButton) {
       return (
         <Grid.Item
+          className="eth-tx-button"
           full
           as={ForwardButton}
           solid
@@ -146,6 +158,7 @@ export default function InlineEthereumTransaction({
     } else if (showLoadingButton) {
       return (
         <Grid.Item
+          className="eth-tx-button"
           full
           as={ProgressButton}
           success
@@ -157,6 +170,7 @@ export default function InlineEthereumTransaction({
     } else {
       return (
         <Grid.Item
+          className="eth-tx-button"
           full
           as={GenerateButton}
           onClick={generateAndSign}
@@ -207,16 +221,16 @@ export default function InlineEthereumTransaction({
             {renderPrimarySection()}
 
             {error && (
-              <Grid.Item full as={ErrorText} className="mv1">
+              <Grid.Item className="mv1 eth-tx-button" full as={ErrorText}>
                 {error.message}
               </Grid.Item>
             )}
 
             {needFunds && (
               <Grid.Item
+                className="mt3 eth-tx-button"
                 full
                 as={NeedFundsNotice}
-                className="mt3"
                 {...needFunds}
               />
             )}
@@ -224,6 +238,7 @@ export default function InlineEthereumTransaction({
             {showConfigureInput && (
               <>
                 <Grid.Item
+                  className="eth-tx-button"
                   full
                   as={ToggleInput}
                   name="useAdvanced"
@@ -234,14 +249,14 @@ export default function InlineEthereumTransaction({
                 />
 
                 <Condition when="useAdvanced" is={true}>
-                  <Grid.Item full className="mb2"></Grid.Item>
+                  <Grid.Item className="mb2 eth-tx-button" full></Grid.Item>
                   <Grid.Divider />
                   <Grid.Item
+                    className="mt2 eth-tx-button"
                     full
                     as={Flex}
                     row
-                    justify="between"
-                    className="mt2">
+                    justify="between">
                     <Flex.Item as={H5}>Transaction Fee</Flex.Item>
 
                     <Flex.Item as={H5}>
@@ -255,6 +270,7 @@ export default function InlineEthereumTransaction({
 
                   {/* TODO(shrugs): move to indigo/RangeInput */}
                   <Grid.Item
+                    className="eth-tx-button"
                     full
                     as="input"
                     type="range"
@@ -266,11 +282,11 @@ export default function InlineEthereumTransaction({
                     }
                   />
                   <Grid.Item
+                    className="f6 mt1 eth-tx-button"
                     full
                     as={Flex}
                     row
-                    justify="between"
-                    className="f6 mt1">
+                    justify="between">
                     <Flex.Item as={Text}>Cheap</Flex.Item>
                     <Flex.Item as={Text}>Fast</Flex.Item>
                   </Grid.Item>
@@ -281,7 +297,7 @@ export default function InlineEthereumTransaction({
 
             {showSignedTx && fakeSigned && (
               <>
-                <Grid.Item full as={NoticeBox} className="mt2">
+                <Grid.Item className="mt2 eth-tx-button" full as={NoticeBox}>
                   Your wallet will sign the transaction upon sending it.
                 </Grid.Item>
               </>
@@ -290,6 +306,7 @@ export default function InlineEthereumTransaction({
             {showSignedTx && !fakeSigned && (
               <>
                 <Grid.Item
+                  className="eth-tx-button"
                   full
                   as={ToggleInput}
                   name="viewSigned"
@@ -317,21 +334,36 @@ function SignedTransactionList({ serializedTxsHex, nonce, maxCost }) {
   return serializedTxsHex.map((serializedTxHex, i) => (
     <React.Fragment key={i}>
       <Grid.Divider />
-      <Grid.Item full as={Flex} justify="between" className="pv4 black f5">
+      <Grid.Item
+        className="pv4 black f5 eth-tx-button"
+        full
+        as={Flex}
+        justify="between">
         <Flex.Item>Nonce</Flex.Item>
         <Flex.Item>{nonce + i}</Flex.Item>
       </Grid.Item>
       <Grid.Divider />
-      <Grid.Item full as={Flex} justify="between" className="pv4 black f5">
+      <Grid.Item
+        className="pv4 black f5 eth-tx-button"
+        full
+        as={Flex}
+        justify="between">
         <Flex.Item>Transaction Cost</Flex.Item>
         <Flex.Item>{maxCost} ETH</Flex.Item>
       </Grid.Item>
       <Grid.Divider />
-      <Grid.Item full as={Flex} justify="between" className="mt3 mb2">
+      <Grid.Item
+        className="mt3 mb2 eth-tx-button"
+        full
+        as={Flex}
+        justify="between">
         <Flex.Item as={H5}>Signed Transaction Hex</Flex.Item>
         <Flex.Item as={CopyButton} text={serializedTxHex} />
       </Grid.Item>
-      <Grid.Item full as="code" className="mb4 f6 mono gray4 wrap">
+      <Grid.Item
+        className="mb4 f6 mono gray4 wrap eth-tx-button"
+        full
+        as="code">
         {serializedTxHex}
       </Grid.Item>
       <Grid.Divider />
@@ -343,18 +375,26 @@ function TransactionReceipt({ txHashes, finalCost, onClose }) {
   const txUrls = useExploreTxUrls(txHashes);
   return (
     <>
-      <Grid.Item full as={Flex} justify="between" className="pv2 black f5">
+      <Grid.Item
+        className="pv2 black f5 eth-tx-button"
+        full
+        as={Flex}
+        justify="between">
         <Flex.Item>Receipt</Flex.Item>
         <Flex.Item onClick={onClose} className="underline pointer">
           Close
         </Flex.Item>
       </Grid.Item>
-      <Grid.Item full as={Flex} justify="between" className="pv2 black f5">
+      <Grid.Item
+        className="pv2 black f5 eth-tx-button"
+        full
+        as={Flex}
+        justify="between">
         <Flex.Item>Transaction Cost</Flex.Item>
         <Flex.Item className="mono">{finalCost} ETH</Flex.Item>
       </Grid.Item>
       <Grid.Divider />
-      <Grid.Item full as={Flex} col className="pv4">
+      <Grid.Item className="pv4 eth-tx-button" full as={Flex} col>
         <Flex.Item as={H5}>Receipt</Flex.Item>
 
         {txHashes &&

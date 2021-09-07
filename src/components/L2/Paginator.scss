@@ -1,0 +1,30 @@
+@import 'style/shared/variables.scss';
+
+.paginator {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 8px;
+
+  .info {
+    width: 40px;
+    text-align: center;
+  }
+
+  .chevron-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 54px;
+
+    svg {
+      height: 16px;
+      width: 14px;
+      margin: 0 16px;
+      padding: 4px;
+      cursor: pointer;
+    }
+  }
+}
