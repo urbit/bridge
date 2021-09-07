@@ -17,17 +17,17 @@ import PassportTransfer from './PassportTransfer';
 import { walletFromMnemonic } from 'lib/wallet';
 import { DEFAULT_HD_PATH } from 'lib/constants';
 import { publicToAddress } from 'lib/utils/address';
-import MasterKeyConfirm from './MasterKeyConfirm';
+import MasterKeyReveal from './MasterKeyReveal';
 
 const NAMES = {
-  CONFIRM: 'CONFIRM',
+  REVEAL: 'REVEAL',
   DOWNLOAD: 'DOWNLOAD',
   VERIFY: 'VERIFY',
   TRANSFER: 'TRANSFER',
 };
 
 const VIEWS = {
-  [NAMES.CONFIRM]: MasterKeyConfirm,
+  [NAMES.REVEAL]: MasterKeyReveal,
   [NAMES.DOWNLOAD]: PassportDownload,
   [NAMES.VERIFY]: PassportVerify,
   [NAMES.TRANSFER]: PassportTransfer,
@@ -40,7 +40,7 @@ export default function ActivatePassport() {
   const { Route, ...router } = useRouter({
     names: NAMES,
     views: VIEWS,
-    initialRoutes: [{ key: NAMES.CONFIRM }],
+    initialRoutes: [{ key: NAMES.REVEAL }],
   });
 
   const gap = useBreakpoints([4, 4, 7]);
