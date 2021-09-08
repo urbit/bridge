@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 
 import View from 'components/View';
 import { ForwardButton } from 'components/Buttons';
@@ -12,18 +12,17 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
 
-import { useActivateFlow } from './ActivateFlow';
-import PointPresenter from './PointPresenter';
+import { FadeablePointPresenter as PointPresenter } from './PointPresenter';
 import { Box, Text } from '@tlon/indigo-react';
-import ActivateHeader from './ActivateHeader';
-import ActivateCodeForm from './ActivateCodeForm';
+import { FadeableActivateHeader as ActivateHeader } from './ActivateHeader';
+import { FadeableActivateCodeForm as ActivateCodeForm } from './ActivateCodeForm';
+import useFadeIn from './useFadeIn';
 
 export default function ActivateCode() {
   const history = useHistory();
   const { names, push } = useLocalRouter();
   const { impliedPatp, impliedTicket } = useImpliedTicket();
   const [hasDisclaimed] = useHasDisclaimed();
-  const { isIn, setIsIn } = useActivateFlow();
 
   const goToLogin = useCallback(() => history.popAndPush(ROUTE_NAMES.LOGIN), [
     history,
@@ -38,16 +37,12 @@ export default function ActivateCode() {
   }, [hasDisclaimed, names.DISCLAIMER, names.MASTER_KEY, push]);
 
   // Fade in on load
-  useEffect(() => {
-    setIsIn(true);
-  }, [setIsIn]);
+  useFadeIn();
 
   return (
     <View inset>
       <ActivateView
-        header={
-          <ActivateHeader copy={'Welcome. This is your Urbit.'} isIn={isIn} />
-        }
+        header={<ActivateHeader copy={'Welcome. This is your Urbit.'} />}
         footer={<ActivateCodeForm afterSubmit={goToMasterKey} />}>
         <Box
           alignItems={'center'}
@@ -59,7 +54,7 @@ export default function ActivateCode() {
           {!impliedTicket && (
             <Text className="mb2">Enter your activation code to continue.</Text>
           )}
-          {impliedPatp && <PointPresenter patp={impliedPatp} isIn={isIn} />}
+          {impliedPatp && <PointPresenter patp={impliedPatp} />}
         </Box>
       </ActivateView>
 

@@ -32,6 +32,7 @@ import { Ship } from '@urbit/roller-api';
 import { convertToInt } from 'lib/convertToInt';
 import { Box } from '@tlon/indigo-react';
 import { timeout } from 'lib/timeout';
+import withFadeable from './withFadeable';
 
 interface ActivateCodeFormProps {
   afterSubmit: VoidFunction;
@@ -107,6 +108,9 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
   // derive and set our state on submission
   const onSubmit = useCallback(
     async values => {
+      // Allow UI animation to start
+      await timeout(42);
+
       // Derive wallet
       const ticket = impliedTicket || values.ticket;
       const { seed } = await generateTemporaryOwnershipWallet(ticket);
@@ -153,7 +157,6 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
     },
     [
       api,
-      didWarn,
       impliedAzimuthPoint,
       impliedTicket,
       loadL1Points,
@@ -161,6 +164,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
       setDerivedPoint,
       setDerivedWallet,
       setInviteWallet,
+      setIsIn,
     ]
   );
 
@@ -170,71 +174,71 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
   );
 
   return (
-    <CSSTransition classNames="fadeable" timeout={300} in={isIn}>
-      <Box
-        display="flex"
-        flexDirection="column"
-        flexWrap="nowrap"
-        height={'100%'}
-        justifyContent="flex-end">
-        <Grid>
-          <BridgeForm
-            validate={validate}
-            onSubmit={onSubmit}
-            afterSubmit={afterSubmit}
-            initialValues={initialValues}>
-            {({ validating, values, submitting, handleSubmit }) => (
-              <>
-                {!impliedTicket && (
-                  <>
-                    <Grid.Item
-                      full
-                      as={TicketInput}
-                      type={values.showTicket ? 'text' : 'password'}
-                      name="ticket"
-                      label="Activation Code"
-                      disabled={!activationAllowed}
-                    />
+    <Box
+      display="flex"
+      flexDirection="column"
+      flexWrap="nowrap"
+      height={'100%'}
+      justifyContent="flex-end">
+      <Grid>
+        <BridgeForm
+          validate={validate}
+          onSubmit={onSubmit}
+          afterSubmit={afterSubmit}
+          initialValues={initialValues}>
+          {({ validating, values, submitting, handleSubmit }) => (
+            <>
+              {!impliedTicket && (
+                <>
+                  <Grid.Item
+                    full
+                    as={TicketInput}
+                    type={values.showTicket ? 'text' : 'password'}
+                    name="ticket"
+                    label="Activation Code"
+                    disabled={!activationAllowed}
+                  />
 
-                    <Grid.Item
-                      full
-                      as={CheckboxInput}
-                      name="showTicket"
-                      label="Show"
-                    />
-                  </>
-                )}
+                  <Grid.Item
+                    full
+                    as={CheckboxInput}
+                    name="showTicket"
+                    label="Show"
+                  />
+                </>
+              )}
 
-                <Grid.Item full as={FormError} />
+              <Grid.Item full as={FormError} />
 
-                <Grid.Item
-                  full
-                  as={SubmitButton}
-                  className="mt4"
-                  handleSubmit={handleSubmit}>
-                  {isWarning =>
-                    validating
-                      ? 'Deriving...'
-                      : submitting
-                      ? 'Generating...'
-                      : isWarning
-                      ? 'Continue Activation'
-                      : 'Claim'
-                  }
+              <Grid.Item
+                full
+                as={SubmitButton}
+                className="mt4"
+                handleSubmit={handleSubmit}>
+                {isWarning =>
+                  validating
+                    ? 'Deriving...'
+                    : submitting
+                    ? 'Generating...'
+                    : isWarning
+                    ? 'Continue Activation'
+                    : 'Claim'
+                }
+              </Grid.Item>
+
+              {!activationAllowed && (
+                <Grid.Item full as={WarningBox} className="mt4">
+                  For your security, please access Bridge on a desktop device.
                 </Grid.Item>
-
-                {!activationAllowed && (
-                  <Grid.Item full as={WarningBox} className="mt4">
-                    For your security, please access Bridge on a desktop device.
-                  </Grid.Item>
-                )}
-              </>
-            )}
-          </BridgeForm>
-        </Grid>
-      </Box>
-    </CSSTransition>
+              )}
+            </>
+          )}
+        </BridgeForm>
+      </Grid>
+    </Box>
   );
 };
 
 export default ActivateCodeForm;
+
+export const FadeableActivateCodeForm = withFadeable(ActivateCodeForm);
