@@ -37,7 +37,7 @@ const MasterKeyPresenter = ({ className }: MasterKeyPresenterArgs) => {
                 {segment}
               </Box>
               {i < ticketSegments.length - 1 ? (
-                <Text alignSelf="center" color="gray" mx={1}>
+                <Text key={i} alignSelf="center" color="gray" mx={1}>
                   —
                 </Text>
               ) : null}
