@@ -1,32 +1,35 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import ActivateView from './ActivateView';
-import ActivateHeader from './ActivateHeader';
+import { FadeableActivateHeader as ActivateHeader } from './ActivateHeader';
 import { MasterKey } from './MasterKey';
-import { Box, Button, Icon } from '@tlon/indigo-react';
-import ActivateParagraph from './ActivateParagraph';
-import { ActivateSteps } from './ActivateSteps';
+import { Box, Icon } from '@tlon/indigo-react';
+import { FadeableActivateParagraph as ActivateParagraph } from './ActivateParagraph';
+import { FadeableActivateSteps as ActivateSteps } from './ActivateSteps';
 import { useActivateFlow } from './ActivateFlow';
 import { timeout } from 'lib/timeout';
 import { useLocalRouter } from 'lib/LocalRouter';
+import { FadeableActivateButton as ActivateButton } from './ActivateButton';
 
 const MasterKeyReveal = () => {
-  const { isFaded, setIsFaded } = useActivateFlow();
+  const { isIn, setIsIn } = useActivateFlow();
   const { push, names } = useLocalRouter();
+  const [showMasterKey, setShowMasterKey] = useState<boolean>(false);
+  const [triggerAnimation, setTriggerAnimation] = useState<boolean>(false);
 
   const goToDownload = useCallback(() => {
     push(names.DOWNLOAD);
   }, [names.DOWNLOAD, push]);
 
   const onRevealClick = useCallback(async () => {
-    setIsFaded(false);
+    setShowMasterKey(true);
     await timeout(500); // Pause for UI fade animation
     goToDownload();
-  }, [goToDownload, setIsFaded]);
+  }, [goToDownload]);
 
   const header = useMemo(() => {
-    return (
-      <Box className={isFaded ? 'faded-in' : 'faded-out'}>
+    return triggerAnimation ? (
+      <Box>
         <ActivateHeader copy={'Here is your Master Key.'} />
         <ActivateParagraph
           copy={
@@ -34,49 +37,37 @@ const MasterKeyReveal = () => {
           }
         />
       </Box>
-    );
-  }, [isFaded]);
+    ) : null;
+  }, [triggerAnimation]);
 
   const footer = useMemo(() => {
-    return (
-      <Box
-        display="flex"
-        flexDirection="column"
-        flexWrap="nowrap"
-        height={'100%'}
-        className={isFaded ? 'faded-in' : 'faded-out'}
-        justifyContent="flex-end">
-        <Button
-          onClick={onRevealClick}
-          backgroundColor="black"
+    return triggerAnimation ? (
+      <ActivateButton onClick={onRevealClick}>
+        <Icon
+          display="inline-block"
+          icon="Visible"
+          size="18px"
           color={'white'}
-          padding={'16px'}
-          fontFamily="Inter"
-          height={'50px'}
-          fontWeight={'400'}
-          fontSize={'18px'}>
-          <Icon
-            display="inline-block"
-            icon="Visible"
-            size="18px"
-            color={'white'}
-          />
-          &nbsp; Reveal
-        </Button>
-      </Box>
-    );
-  }, [isFaded, onRevealClick]);
+        />
+        &nbsp; Reveal
+      </ActivateButton>
+    ) : null;
+  }, [onRevealClick, triggerAnimation]);
 
-  const onViewTransition = useCallback(async () => {
-    await timeout(500); // Pause for UI fade animation
-    setIsFaded(true);
-    await timeout(500); // Pause for UI fade animation
-  }, [setIsFaded]);
+  const delayedFadeIn = useCallback(async () => {
+    setTimeout(() => {
+      setTriggerAnimation(true);
+      setIsIn(true);
+    }, 1200);
+  }, [setIsIn]);
 
   useEffect(() => {
-    // Fade in content
-    onViewTransition();
-  }, [onViewTransition]);
+    delayedFadeIn();
+
+    return () => {
+      setIsIn(false);
+    };
+  }, [delayedFadeIn, setIsIn]);
 
   return (
     <>
@@ -95,15 +86,11 @@ const MasterKeyReveal = () => {
             width={'80%'}
             height={'min-content'}
             justifyContent={'center'}>
-            <MasterKey paused={true} />
+            <MasterKey />
           </Box>
         </Box>
       </ActivateView>
-      <ActivateSteps
-        currentStep={0}
-        totalSteps={4}
-        className={isFaded ? 'faded-in' : 'faded-out'}
-      />
+      {triggerAnimation && <ActivateSteps currentStep={0} totalSteps={4} />}
     </>
   );
 };

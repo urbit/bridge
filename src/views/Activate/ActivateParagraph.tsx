@@ -1,7 +1,9 @@
 import { Box, Text } from '@tlon/indigo-react';
+import withFadeable from './withFadeable';
 
 type ActivateParagraphProps = {
   copy: string;
+  fadeTimeout?: number;
 };
 
 const ActivateParagraph = ({ copy }: ActivateParagraphProps) => {
@@ -27,3 +29,5 @@ const ActivateParagraph = ({ copy }: ActivateParagraphProps) => {
 };
 
 export default ActivateParagraph;
+
+export const FadeableActivateParagraph = withFadeable(ActivateParagraph);
