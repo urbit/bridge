@@ -8,6 +8,7 @@ export default function useActivateFlowState() {
   const [generated, setGenerated] = useState(false);
   const [incomingPoints, setIncomingPoints] = useState(Nothing());
   const [isFaded, setIsFaded] = useState(false);
+  const [isIn, setIsIn] = useState(false);
 
   const reset = useCallback(() => {
     setDerivedWallet(Nothing());
@@ -37,6 +38,8 @@ export default function useActivateFlowState() {
     setIncomingPoints,
     isFaded,
     setIsFaded,
+    isIn,
+    setIsIn,
     reset,
   };
 }
