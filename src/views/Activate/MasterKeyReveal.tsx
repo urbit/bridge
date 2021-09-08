@@ -12,7 +12,7 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import { FadeableActivateButton as ActivateButton } from './ActivateButton';
 
 const MasterKeyReveal = () => {
-  const { isIn, setIsIn } = useActivateFlow();
+  const { setIsIn } = useActivateFlow();
   const { push, names } = useLocalRouter();
   const [showMasterKey, setShowMasterKey] = useState<boolean>(false);
   const [triggerAnimation, setTriggerAnimation] = useState<boolean>(false);

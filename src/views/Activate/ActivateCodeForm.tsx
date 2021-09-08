@@ -17,7 +17,6 @@ import { CheckboxInput, Grid } from 'indigo-react';
 import { useCallback, useMemo, useRef } from 'react';
 import { useActivateFlow } from './ActivateFlow';
 import WarningBox from 'components/WarningBox';
-import { CSSTransition } from 'react-transition-group';
 import useRoller from 'lib/useRoller';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import {
@@ -45,7 +44,6 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
   const didWarn = useRef<boolean>(false);
 
   const {
-    isIn,
     setDerivedPoint,
     setDerivedWallet,
     setInviteWallet,
