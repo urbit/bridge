@@ -118,7 +118,10 @@ const POINT_PROXIES = {
   TRANSFER: 'transfer',
   VOTE: 'vote',
   SPAWN: 'spawn',
-}
+};
+
+// In ms
+const DEFAULT_FADE_TIMEOUT = 300;
 
 export {
   CHECK_BLOCK_EVERY_MS,
@@ -150,4 +153,5 @@ export {
   ROLLER_HOSTS,
   POINT_DOMINIONS,
   POINT_PROXIES,
+  DEFAULT_FADE_TIMEOUT,
 };

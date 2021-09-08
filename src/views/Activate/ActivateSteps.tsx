@@ -1,4 +1,5 @@
 import { Box } from '@tlon/indigo-react';
+import withFadeable from './withFadeable';
 
 type ActivateStepsProps = {
   currentStep: number;
@@ -14,18 +15,20 @@ export const ActivateSteps = ({
   const renderSteps = () => {
     let steps = [];
     for (let i = 0; i < totalSteps; i++) {
+      const isFirstStep = i === 0;
+      const isLastStep = i === totalSteps - 1;
       steps.push(
         <Box
-          borderTopLeftRadius={i === 0 ? '5px' : null}
-          borderBottomLeftRadius={i === 0 ? '5px' : null}
-          borderTopRightRadius={i === totalSteps - 1 ? '5px' : null}
-          borderBottomRightRadius={i === totalSteps - 1 ? '5px' : null}
+          borderTopLeftRadius={isFirstStep ? '5px' : null}
+          borderBottomLeftRadius={isFirstStep ? '5px' : null}
+          borderTopRightRadius={isLastStep ? '5px' : null}
+          borderBottomRightRadius={isLastStep ? '5px' : null}
           key={i}
           backgroundColor={i <= currentStep ? 'black' : 'gray'}
           height={'10px'}
           width={`${100 / totalSteps}%`}
-          marginLeft={'2px'}
-          marginRight={'2px'}></Box>
+          marginLeft={isFirstStep ? null : '2px'}
+          marginRight={isLastStep ? null : '2px'}></Box>
       );
     }
     return steps;
@@ -42,3 +45,5 @@ export const ActivateSteps = ({
     </Box>
   );
 };
+
+export const FadeableActivateSteps = withFadeable(ActivateSteps);

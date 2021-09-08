@@ -1,22 +1,18 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 
 import ActivateView from './ActivateView';
-import ActivateHeader from './ActivateHeader';
-import { MasterKey } from './MasterKey';
-import { Box, Button, Icon } from '@tlon/indigo-react';
+import { FadeableActivateHeader as ActivateHeader } from './ActivateHeader';
+import { Box } from '@tlon/indigo-react';
 import ActivateParagraph from './ActivateParagraph';
-import { ActivateSteps } from './ActivateSteps';
-import { useActivateFlow } from './ActivateFlow';
-import { timeout } from 'lib/timeout';
+import { FadeableActivateSteps as ActivateSteps } from './ActivateSteps';
 import MasterKeyPresenter from './MasterKeyPresenter';
-import { CopyButton } from 'components/Buttons';
+import { FadeableActivateButton as ActivateButton } from './ActivateButton';
+import useFadeIn from './useFadeIn';
 
 const MasterKeyDownload = () => {
-  const { isFaded, setIsFaded } = useActivateFlow();
-
   const header = useMemo(() => {
     return (
-      <Box className={isFaded ? 'faded-in' : 'faded-out'}>
+      <Box>
         <ActivateHeader copy={'Backup your Master Key.'} />
         <ActivateParagraph
           copy={
@@ -25,41 +21,17 @@ const MasterKeyDownload = () => {
         />
       </Box>
     );
-  }, [isFaded]);
+  }, []);
 
   const footer = useMemo(() => {
     return (
-      <Box
-        display="flex"
-        flexDirection="column"
-        flexWrap="nowrap"
-        height={'100%'}
-        className={isFaded ? 'faded-in' : 'faded-out'}
-        justifyContent="flex-end">
-        <Button
-          onClick={() => console.log('reveal')}
-          backgroundColor="black"
-          color={'white'}
-          padding={'16px'}
-          fontFamily="Inter"
-          height={'50px'}
-          fontWeight={'400'}
-          fontSize={'18px'}>
-          Download Backup
-        </Button>
-      </Box>
+      <ActivateButton onClick={() => console.log('download')}>
+        Download Backup
+      </ActivateButton>
     );
-  }, [isFaded]);
+  }, []);
 
-  const onViewTransition = useCallback(async () => {
-    setIsFaded(true);
-    await timeout(500); // Pause for UI fade animation
-  }, [setIsFaded]);
-
-  useEffect(() => {
-    // Fade in content
-    onViewTransition();
-  }, [onViewTransition]);
+  useFadeIn();
 
   return (
     <>
