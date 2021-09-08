@@ -27,8 +27,8 @@ export const ActivateSteps = ({
           backgroundColor={i <= currentStep ? 'black' : 'gray'}
           height={'10px'}
           width={`${100 / totalSteps}%`}
-          marginLeft={isFirstStep ? null : '2px'}
-          marginRight={isLastStep ? null : '2px'}></Box>
+          marginLeft={isFirstStep ? null : '1px'}
+          marginRight={isLastStep ? null : '1px'}></Box>
       );
     }
     return steps;

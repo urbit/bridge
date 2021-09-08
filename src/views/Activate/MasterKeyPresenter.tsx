@@ -2,6 +2,7 @@ import { Box, Text } from '@tlon/indigo-react';
 import { stripSigPrefix } from 'form/formatters';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import { useMemo } from 'react';
+import withFadeable from './withFadeable';
 
 type MasterKeyPresenterArgs = {
   className?: string;
@@ -49,3 +50,5 @@ const MasterKeyPresenter = ({ className }: MasterKeyPresenterArgs) => {
 };
 
 export default MasterKeyPresenter;
+
+export const FadeableMasterKeyPresenter = withFadeable(MasterKeyPresenter);
