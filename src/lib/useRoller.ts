@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as wg from 'lib/walletgen';
 import * as need from 'lib/need';
 import * as azimuth from 'azimuth-js';
+import * as ob from 'urbit-ob';
 
 import {
   Config,
@@ -224,7 +225,7 @@ export default function useRoller() {
   const getInvites = useCallback(
     async (isL2: boolean) => {
       try {
-        const curPoint: string = need.point(pointCursor);
+        const curPoint: number = Number(need.point(pointCursor));
         const invites = getStoredInvites(curPoint);
         const availableInvites = invites.available;
 
@@ -236,20 +237,17 @@ export default function useRoller() {
 
         const stillPending = invites.pending.filter(invite => {
           const completed = !pendingTransactions.find(
-            p => p?.rawTx?.tx?.tx?.data?.ship === invite.planet
+            p => `~${p?.rawTx?.tx?.tx?.data?.ship}` === ob.patp(invite.planet)
           );
-
           if (completed) {
             availableInvites.push({ ...invite, status: 'available' });
           }
-
           return !completed;
         });
 
         setStoredInvites(curPoint, {
           available: availableInvites,
           pending: stillPending,
-          claimed: invites.claimed,
         });
         setInvites(availableInvites);
 
@@ -296,10 +294,6 @@ export default function useRoller() {
             console.log('POSSIBLE MISSING', possibleMissingInvites);
           }
 
-          const newClaimed = availableInvites.filter(
-            ({ planet }) => !possibleMissingInvites.includes(planet)
-          );
-
           for (let i = 0; i < possibleMissingInvites.length; i++) {
             const planet = possibleMissingInvites[i];
 
@@ -331,7 +325,6 @@ export default function useRoller() {
               possibleMissingInvites.includes(planet)
             ),
             pending: stillPending,
-            claimed: invites.claimed.concat(newClaimed),
           });
           setInvites(availableInvites);
         }

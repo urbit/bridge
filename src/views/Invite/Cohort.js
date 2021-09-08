@@ -45,11 +45,7 @@ export default function InviteCohort() {
     invites,
     setInvites,
   } = useRollerStore();
-  const {
-    generateInviteCodes,
-    getPendingTransactions,
-    getInvites,
-  } = useRoller();
+  const { generateInviteCodes, getPendingTransactions } = useRoller();
   const { pointCursor } = usePointCursor();
   const { contracts } = useNetwork();
   const { getDetails, syncControlledPoints } = usePointCache();
@@ -74,8 +70,6 @@ export default function InviteCohort() {
   const [l1Invite, setL1Invite] = useState(null);
 
   const { construct, unconstruct, completed, bind } = useIssueChild();
-
-  useEffect(() => getInvites(), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Set up the invite spawn if on L1
   useEffect(() => {
