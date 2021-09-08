@@ -4,6 +4,7 @@ import { DEFAULT_FADE_TIMEOUT } from 'lib/constants';
 
 interface withFadeableProps {
   fadeTimeout?: number;
+  fadeIn?: boolean;
 }
 
 const withFadeable = <P extends object>(
@@ -11,9 +12,12 @@ const withFadeable = <P extends object>(
 ): React.FC<P & withFadeableProps> => (props: withFadeableProps) => {
   const { isIn } = useActivateFlow();
 
+  // Allow one-off overrides, otherwise fallback to shared fade-in state
+  const _in = props?.fadeIn ? props.fadeIn : isIn;
+
   return (
     <CSSTransition
-      in={isIn}
+      in={_in}
       classNames="fadeable"
       timeout={props.fadeTimeout || DEFAULT_FADE_TIMEOUT}>
       <Component {...(props as P)} />

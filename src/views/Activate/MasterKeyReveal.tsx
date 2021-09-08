@@ -10,11 +10,11 @@ import { useActivateFlow } from './ActivateFlow';
 import { timeout } from 'lib/timeout';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { FadeableActivateButton as ActivateButton } from './ActivateButton';
+import { DEFAULT_FADE_TIMEOUT, MASTER_KEY_DURATION } from 'lib/constants';
 
 const MasterKeyReveal = () => {
   const { setIsIn } = useActivateFlow();
   const { push, names } = useLocalRouter();
-  const [showMasterKey, setShowMasterKey] = useState<boolean>(false);
   const [triggerAnimation, setTriggerAnimation] = useState<boolean>(false);
 
   const goToDownload = useCallback(() => {
@@ -22,10 +22,10 @@ const MasterKeyReveal = () => {
   }, [names.DOWNLOAD, push]);
 
   const onRevealClick = useCallback(async () => {
-    setShowMasterKey(true);
-    await timeout(500); // Pause for UI fade animation
+    setIsIn(false);
+    await timeout(DEFAULT_FADE_TIMEOUT); // Pause for UI fade animation
     goToDownload();
-  }, [goToDownload]);
+  }, [goToDownload, setIsIn]);
 
   const header = useMemo(() => {
     return triggerAnimation ? (
@@ -58,7 +58,7 @@ const MasterKeyReveal = () => {
     setTimeout(() => {
       setTriggerAnimation(true);
       setIsIn(true);
-    }, 1200);
+    }, MASTER_KEY_DURATION);
   }, [setIsIn]);
 
   useEffect(() => {
@@ -90,7 +90,9 @@ const MasterKeyReveal = () => {
           </Box>
         </Box>
       </ActivateView>
-      {triggerAnimation && <ActivateSteps currentStep={0} totalSteps={4} />}
+      {triggerAnimation && (
+        <ActivateSteps currentStep={0} totalSteps={4} fadeIn={true} />
+      )}
     </>
   );
 };

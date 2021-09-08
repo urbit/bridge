@@ -7,64 +7,23 @@
   }
 }
 
+@mixin generate-progress-fill($numSegments, $duration: 300ms, $delayDelta: 100ms) {
+  @for $i from 1 through $numSegments {
+    .segment-#{$i} {
+      animation: opacity-fill $duration linear forwards;
+      animation-delay: $delayDelta * $i;
+    } 
+  }
+}
+
 svg.master-key {
-  .first-one {
-      animation: opacity-fill 200ms linear forwards;
-      animation-delay: 100ms;
+  // Initial state
+  path {
+    fill-opacity: 0.2;
   }
-  
-  .first-two {
-      animation: opacity-fill 200ms linear forwards;  
-      animation-delay: 200ms; 
-  }
-  
-  .first-three {
-      animation: opacity-fill 200ms linear forwards;  
-      animation-delay: 300ms; 
-  
-  }
-  
-  .second-one {
-      animation: opacity-fill 200ms linear forwards;  
-      animation-delay: 400ms; 
-  }
-  .second-two {
-      animation: opacity-fill 200ms linear forwards;  
-      animation-delay: 500ms; 
-  }
-  
-  .second-three {
-      animation: opacity-fill 200ms linear forwards;  
-      animation-delay: 600ms; 
-  }
-  
-  .third-one {
-      animation: opacity-fill 200ms linear forwards;  
-      animation-delay: 700ms;
-  }
-  .third-two {
-      animation: opacity-fill 200ms linear forwards;  
-      animation-delay: 800ms;
-  }
-  .third-three {
-      animation: opacity-fill 200ms linear forwards;  
-      animation-delay: 900ms;
-  }
-  
-  .fourth-one {
-      animation: opacity-fill 200ms linear forwards;  
-      animation-delay: 1s;
-  }
-  
-  .fourth-two {
-      animation: opacity-fill 200ms linear forwards;  
-      animation-delay: 1.1s;   
-  }
-  
-  .fourth-three {
-      animation: opacity-fill 200ms linear forwards;  
-      animation-delay: 1.2s;
-  }
+
+  // Animations
+  @include generate-progress-fill(18, 300ms, 100ms);
 
   &.paused g {
     animation-play-state: paused;
