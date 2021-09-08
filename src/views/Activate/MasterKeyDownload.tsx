@@ -1,17 +1,20 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import ActivateView from './ActivateView';
 import { FadeableActivateHeader as ActivateHeader } from './ActivateHeader';
 import { Box } from '@tlon/indigo-react';
 import ActivateParagraph from './ActivateParagraph';
-import { FadeableActivateSteps as ActivateSteps } from './ActivateSteps';
-import MasterKeyPresenter from './MasterKeyPresenter';
+import { ActivateSteps } from './ActivateSteps';
+import { FadeableMasterKeyPresenter as MasterKeyPresenter } from './MasterKeyPresenter';
 import { FadeableActivateButton as ActivateButton } from './ActivateButton';
-import useFadeIn from './useFadeIn';
+import { useActivateFlow } from './ActivateFlow';
 
 const MasterKeyDownload = () => {
+  const { setIsIn } = useActivateFlow();
+  const [triggerAnimation, setTriggerAnimation] = useState<boolean>(false);
+
   const header = useMemo(() => {
-    return (
+    return triggerAnimation ? (
       <Box>
         <ActivateHeader copy={'Backup your Master Key.'} />
         <ActivateParagraph
@@ -20,18 +23,31 @@ const MasterKeyDownload = () => {
           }
         />
       </Box>
-    );
-  }, []);
+    ) : null;
+  }, [triggerAnimation]);
 
   const footer = useMemo(() => {
-    return (
+    return triggerAnimation ? (
       <ActivateButton onClick={() => console.log('download')}>
         Download Backup
       </ActivateButton>
-    );
-  }, []);
+    ) : null;
+  }, [triggerAnimation]);
 
-  useFadeIn();
+  const delayedReveal = useCallback(async () => {
+    setTimeout(() => {
+      setTriggerAnimation(true);
+      setIsIn(true);
+    }, 800);
+  }, [setIsIn]);
+
+  useEffect(() => {
+    delayedReveal();
+
+    return () => {
+      setIsIn(false);
+    };
+  }, [delayedReveal, setIsIn]);
 
   return (
     <>
@@ -51,7 +67,7 @@ const MasterKeyDownload = () => {
             width={'80%'}
             height={'min-content'}
             justifyContent={'center'}>
-            <MasterKeyPresenter />
+            <MasterKeyPresenter fadeIn={true} />
           </Box>
           {/* <CopyButton text={'test'} /> */}
         </Box>
