@@ -9,6 +9,7 @@ import { ActivateSteps } from './ActivateSteps';
 import { useActivateFlow } from './ActivateFlow';
 import { timeout } from 'lib/timeout';
 import MasterKeyPresenter from './MasterKeyPresenter';
+import { CopyButton } from 'components/Buttons';
 
 const MasterKeyDownload = () => {
   const { isFaded, setIsFaded } = useActivateFlow();
@@ -70,6 +71,7 @@ const MasterKeyDownload = () => {
           flexWrap={'nowrap'}
           height={'100%'}
           justifyContent={'center'}>
+          {/* AlertBox */}
           <Box
             display={'flex'}
             flexDirection={'row'}
@@ -79,6 +81,7 @@ const MasterKeyDownload = () => {
             justifyContent={'center'}>
             <MasterKeyPresenter />
           </Box>
+          {/* <CopyButton text={'test'} /> */}
         </Box>
       </ActivateView>
       <ActivateSteps currentStep={1} totalSteps={4} />
