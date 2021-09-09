@@ -18,6 +18,8 @@ const ActivateParagraph = ({ copy }: ActivateParagraphProps) => {
         display="block"
         fontFamily="Inter"
         fontSize={2}
+        lineHeight={'20px'}
+        color={'rgba(0,0,0,0.6)'}
         mx={3}
         my={3}
         textAlign="center"
