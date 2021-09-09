@@ -1,10 +1,8 @@
 import create from 'zustand';
 import { L2Point, PendingTransaction } from '@urbit/roller-api/build';
 
-import { HOUR } from 'lib/utils/roller';
+import { HOUR, isL2 } from 'lib/utils/roller';
 import { Invite } from 'types/Invite';
-
-export const isL2 = (dom?: string) => dom === 'l2' || dom === 'spawn';
 
 export interface RollerStore {
   nextBatchTime: number;

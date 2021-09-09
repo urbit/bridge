@@ -7,7 +7,7 @@ import { azimuth } from 'azimuth-js';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useWallet } from 'store/wallet';
-import { isL2, useRollerStore } from 'store/roller';
+import { useRollerStore } from 'store/roller';
 
 import View from 'components/View';
 import Greeting from 'components/Greeting';
@@ -30,6 +30,7 @@ import Inviter from 'views/Invite/Inviter';
 import useRoller from 'lib/useRoller';
 
 import './Point.scss';
+import { isL2 } from 'lib/utils/roller';
 
 function InviteForm({
   showInviteForm,

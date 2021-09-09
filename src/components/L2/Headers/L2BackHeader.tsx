@@ -11,6 +11,7 @@ import { useWallet } from 'store/wallet';
 import { toBN } from 'web3-utils';
 import BN from 'bn.js';
 import { isDevelopment } from 'lib/flags';
+import { ReactComponent as Wallet } from 'assets/wallet.svg';
 
 export interface L2BackHeaderProps {
   back?: () => void;
@@ -66,7 +67,10 @@ const L2BackHeader = ({ back, hideBalance = false }: L2BackHeaderProps) => {
         </Row>
       ) : (
         !hideBalance && (
-          <Box className="eth-balance">Balance: {Number(ethBalance)} ETH</Box>
+          <Row className="eth-balance">
+            <Wallet className="wallet-icon" />
+            <Box>{ethBalance.toString()} ETH</Box>
+          </Row>
         )
       )}
     </Row>
