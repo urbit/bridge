@@ -269,24 +269,26 @@ export default function useRoller() {
                 azimuth.azimuth.getPointSize(p) ===
                   azimuth.azimuth.PointSize.Planet
             );
-          } else {
-            const outgoingPoints = getOutgoingPoints(
-              controlledPoints,
-              getDetails
-            );
+          }
 
-            const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
-              _contracts,
-              curPoint
-            );
+          const outgoingPoints = getOutgoingPoints(
+            controlledPoints,
+            getDetails
+          );
 
-            possibleMissingInvites = outgoingPoints.filter(
+          const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
+            _contracts,
+            curPoint
+          );
+
+          possibleMissingInvites = possibleMissingInvites.concat(
+            outgoingPoints.filter(
               (p: number) =>
                 azimuth.azimuth.getPointSize(p) ===
                   azimuth.azimuth.PointSize.Planet &&
                 availablePoints.includes(p)
-            );
-          }
+            )
+          );
 
           // Iterate over all spawned and controlled planets
           // If the planet is not in available invites, generate the ticket and add it
@@ -344,10 +346,6 @@ export default function useRoller() {
     ]
   );
 
-  const migratePoint = useCallback(async () => {
-    console.log('MIGRATING')
-  }, []);
-
   // On load, get initial config
   useEffect(() => {
     if (config) {
@@ -381,6 +379,5 @@ export default function useRoller() {
     getInvites,
     getPendingTransactions,
     generateInviteCodes,
-    migratePoint,
   };
 }

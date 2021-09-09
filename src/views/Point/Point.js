@@ -31,6 +31,7 @@ import useRoller from 'lib/useRoller';
 
 import './Point.scss';
 import { isL2 } from 'lib/utils/roller';
+import { isDevelopment } from 'lib/flags';
 
 function InviteForm({
   showInviteForm,
@@ -138,6 +139,9 @@ export default function Point() {
     const loadL2Info = async () => {
       const getTransactions = async () => {
         const pointInfo = await api.getPoint(Number(point));
+        if (isDevelopment) {
+          console.log('POINT INFO', pointInfo);
+        }
         setCurrentPoint(pointInfo);
 
         getInvites(isL2(pointInfo.dominion));
