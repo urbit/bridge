@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Grid } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
+import * as ob from 'urbit-ob';
 
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
@@ -25,8 +26,30 @@ import { useNetwork } from 'store/network';
 import { usePointCache } from 'store/pointCache';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
+import Dropdown from 'components/L2/Dropdowns/Dropdown';
+import { PointLayer } from 'lib/types/PointLayer';
+import Sigil from 'components/Sigil';
 
 const DUMMY_L2_ADDRESS = '0x1111111111111111111111111111111111111111';
+
+const PointEntry = ({
+  point,
+  select,
+}: {
+  point: number;
+  select?: () => void;
+}) => {
+  const patp = ob.patp(point);
+
+  return (
+    <Row className="entry" onClick={select}>
+      <Box className="sigil">
+        <Sigil patp={patp} size={1} colors={['#000000', '#FFFFFF']} />
+      </Box>
+      <Box>{patp}</Box>
+    </Row>
+  );
+};
 
 const useMigrate = () => {
   const { contracts }: any = useNetwork();
@@ -55,13 +78,25 @@ const useMigrate = () => {
 
 export default function MigrateL2() {
   const { pop }: any = useLocalRouter();
+  const { pointCursor }: any = usePointCursor();
+  const point = need.point(pointCursor);
+  const { controlledPoints }: any = usePointCache();
 
   const [proceed, setProceed] = useState(false);
   const [hideMessage, setHideMessage] = useState(false);
-  const hideInfo = getHideMigrationMessage();
+  const [selectedPoint, setSelectedPoint] = useState(point);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  const { pointCursor }: any = usePointCursor();
-  const point = need.point(pointCursor);
+  const points = controlledPoints?.value?.value?.pointsWithLayers || [
+    { point, layer: 1 },
+  ];
+  const l1Points = points.filter(
+    ({ point, layer }: PointLayer) =>
+      layer === 1 &&
+      azimuth.azimuth.getPointSize(point) === azimuth.azimuth.PointSize.Star
+  );
+
+  const hideInfo = getHideMigrationMessage();
 
   const { construct, unconstruct, completed, bind } = useMigrate();
 
@@ -95,6 +130,15 @@ export default function MigrateL2() {
     setProceed(true);
   }, [hideMessage]);
 
+  const selectPoint = useCallback(
+    (point: number) => {
+      setSelectedPoint(point);
+      setShowDropdown(false);
+      construct(point);
+    },
+    [setSelectedPoint, setShowDropdown, construct]
+  );
+
   const getContent = () => {
     if (proceed) {
       return (
@@ -102,7 +146,19 @@ export default function MigrateL2() {
           <Box className="ship-selector">
             <Box>Ship</Box>
             <Box className="select-ship">Select one of your ships</Box>
-            
+            <Dropdown
+              open={showDropdown}
+              toggleOpen={() => setShowDropdown(!showDropdown)}
+              value={<PointEntry point={selectedPoint} />} // change this to include the sigil
+              className="migrate-selector">
+              {l1Points.map(({ point }: PointLayer) => (
+                <PointEntry
+                  point={point}
+                  key={point}
+                  select={() => selectPoint(point)}
+                />
+              ))}
+            </Dropdown>
           </Box>
           <Grid.Item
             full

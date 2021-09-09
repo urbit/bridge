@@ -4,9 +4,9 @@ import { Box, Icon } from '@tlon/indigo-react';
 import './Dropdown.scss';
 
 export interface DropdownProps {
-  className: string;
+  className?: string;
   children: React.ReactNode;
-  value: string;
+  value: string | React.ReactNode;
   open: boolean;
   toggleOpen: () => void;
 }
@@ -16,7 +16,7 @@ const Dropdown = ({
   value,
   open,
   toggleOpen,
-  className,
+  className = '',
 }: DropdownProps) => {
   return (
     <Box className={`dropdown ${className}`}>
@@ -26,7 +26,7 @@ const Dropdown = ({
       </Box>
       {open && (
         <Box className="content-border">
-          <Box className="content">{children}</Box>
+          <Box className="dropdown-content">{children}</Box>
         </Box>
       )}
     </Box>

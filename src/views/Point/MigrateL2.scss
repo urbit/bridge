@@ -109,6 +109,50 @@
       .select-ship {
         color: $mid-gray;
       }
+
+      .entry {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        cursor: pointer;
+
+        padding: 8px 0 8px 6px;
+
+        &:hover {
+          opacity: 0.8;
+        }
+
+        svg {
+          height: 16px;
+          width: 16px;
+        }
+
+        .sigil {
+          margin-right: 8px;
+          width: 24px;
+          height: 24px;
+          border-radius: $small-border-radius;
+        }
+
+        .layer-migration {
+          svg {
+            width: 12px;
+            height: 12px;
+            margin: 4px 2px;
+          }
+        }
+      }
+
+      .dropdown {
+        margin-top: 4px;
+        &.migrate-selector .dropdown-content {
+          max-height: 200px;
+        }
+
+        .selector .entry {
+          padding: 0;
+        }
+      }
     }
   }
 }

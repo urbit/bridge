@@ -15,11 +15,7 @@ import Dropdown from './Dropdown';
 
 import './AccountsDropdown.scss';
 import { abbreviateAddress } from 'lib/utils/address';
-
-interface PointLayer {
-  point: number;
-  layer: 1 | 2;
-}
+import { PointLayer } from 'lib/types/PointLayer';
 
 const AccountsDropdown = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -30,7 +26,6 @@ const AccountsDropdown = () => {
 
   const canBitcoin = Just.hasInstance(walletInfo.urbitWallet);
 
-  console.log('WHAT', controlledPoints)
   const points = controlledPoints?.value?.value?.pointsWithLayers || [];
 
   const currentAddress = walletInfo?.wallet?.value?.address || '';
