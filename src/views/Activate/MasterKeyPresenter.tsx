@@ -5,16 +5,14 @@ import { useMemo } from 'react';
 import withFadeable from './withFadeable';
 
 type MasterKeyPresenterArgs = {
+  ticket: string;
   className?: string;
 };
 
-const MasterKeyPresenter = ({ className }: MasterKeyPresenterArgs) => {
-  // TODO: use actual MK ticket :)
-  const { impliedTicket } = useImpliedTicket();
-
+const MasterKeyPresenter = ({ ticket, className }: MasterKeyPresenterArgs) => {
   const ticketSegments = useMemo(() => {
-    return impliedTicket ? stripSigPrefix(impliedTicket).split('-') : null;
-  }, [impliedTicket]);
+    return ticket ? stripSigPrefix(ticket).split('-') : null;
+  }, [ticket]);
 
   return (
     <Box
