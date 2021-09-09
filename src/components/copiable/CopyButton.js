@@ -10,7 +10,7 @@ export default function CopyButton({
   as: As = LinkButton,
   text,
   children = renderDefaultCopyText,
-  className,
+  className = '',
   ...rest
 }) {
   const [doCopy, didCopy] = useCopiable(text);
