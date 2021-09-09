@@ -344,6 +344,10 @@ export default function useRoller() {
     ]
   );
 
+  const migratePoint = useCallback(async () => {
+    console.log('MIGRATING')
+  }, []);
+
   // On load, get initial config
   useEffect(() => {
     if (config) {
@@ -377,5 +381,6 @@ export default function useRoller() {
     getInvites,
     getPendingTransactions,
     generateInviteCodes,
+    migratePoint,
   };
 }

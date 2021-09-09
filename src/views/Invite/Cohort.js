@@ -17,7 +17,7 @@ import useRoller from 'lib/useRoller';
 import { convertToInt } from 'lib/convertToInt';
 import { generateUrl } from 'lib/utils/invite';
 
-import { useIssueChild } from 'views/IssueChild';
+import { useIssueChild } from 'views/Point/IssueChild';
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 import Window from 'components/L2/Window/Window';

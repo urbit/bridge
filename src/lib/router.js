@@ -1,25 +1,27 @@
 import Disclaimer from 'views/Disclaimer';
 import Login from 'views/Login';
 import Other from 'views/Login/Other.js';
-import Senate from 'views/Senate';
+import Senate from 'views/Point/Senate';
 import Documents from 'views/Senate/Documents';
 import Upgrades from 'views/Senate/Upgrades';
 import CreateGalaxy from 'views/CreateGalaxy';
-import IssueChild from 'views/IssueChild';
 import StarRelease from 'views/Release';
 import AcceptLockup from 'views/AcceptLockup';
 
-import Point from 'views/Point';
 import Points from 'views/Points';
 import Activate from 'views/Activate';
+
+import Point from 'views/Point/Point';
+import UrbitOS from 'views/Point/UrbitOS';
+import UrbitID from 'views/Point/UrbitID';
+import Residents from 'views/Point/Residents';
+import MigrateL2 from 'views/Point/MigrateL2.tsx';
+import IssueChild from 'views/Point/IssueChild';
 
 import PartySetPoolSize from 'views/Party/PartySetPoolSize';
 import InviteCohort from 'views/Invite/Cohort';
 import AcceptTransfer from 'views/AcceptTransfer';
 import CancelTransfer from 'views/CancelTransfer';
-import UrbitOS from 'views/UrbitOS';
-import UrbitID from 'views/UrbitID';
-import Residents from 'views/Residents';
 import Adopt from 'views/Adopt';
 import Bitcoin from 'views/Bitcoin/Bitcoin';
 import Xpub from 'views/Bitcoin/Xpub';
@@ -56,4 +58,5 @@ export const ROUTES = {
   [ROUTE_NAMES.BITCOIN_XPUB]: Xpub,
   [ROUTE_NAMES.BITCOIN_SIGN_TRANSACTION]: SignTransaction,
   [ROUTE_NAMES.TRANSACTION_HISTORY]: TransactionHistory,
+  [ROUTE_NAMES.MIGRATE_L2]: MigrateL2,
 };

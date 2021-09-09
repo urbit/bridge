@@ -11,9 +11,9 @@ import View from 'components/View';
 import Crumbs from 'components/Crumbs';
 import NavHeader from 'components/NavHeader';
 
-import UrbitOSHome from './UrbitOS/Home';
-import UrbitOSNetworkingKeys from './UrbitOS/NetworkingKeys';
-import UrbitOSChangeSponsor from './UrbitOS/ChangeSponsor';
+import UrbitOSHome from '../UrbitOS/Home';
+import UrbitOSNetworkingKeys from '../UrbitOS/NetworkingKeys';
+import UrbitOSChangeSponsor from '../UrbitOS/ChangeSponsor';
 
 const NAMES = {
   HOME: 'HOME',

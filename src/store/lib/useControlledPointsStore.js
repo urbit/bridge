@@ -6,13 +6,14 @@ import * as azimuth from 'azimuth-js';
 import { useNetwork } from '../network';
 import { useWallet } from 'store/wallet';
 import useRoller from 'lib/useRoller';
+import { isL2 } from 'lib/utils/roller';
 
 const onlyUnique = (value, index, self) => self.indexOf(value) === index;
 
 export default function useControlledPointsStore() {
   const { contracts } = useNetwork();
   const { wallet } = useWallet();
-  const { getPoints } = useRoller();
+  const { api, getPoints } = useRoller();
 
   const [controlledPoints, _setControlledPoints] = useState(Nothing());
 
@@ -34,27 +35,43 @@ export default function useControlledPointsStore() {
         managingPoints,
         votingPoints,
         spawningPoints,
-      ] = await Promise.all([
-        getPoints('own', address),
-        getPoints('transfer', address),
-        getPoints('manage', address),
-        getPoints('vote', address),
-        getPoints('spawn', address),
-      ]);
-
-      const [
         ownedPointsL1,
         incomingPointsL1,
         managingPointsL1,
         votingPointsL1,
         spawningPointsL1,
       ] = await Promise.all([
+        getPoints('own', address),
+        getPoints('transfer', address),
+        getPoints('manage', address),
+        getPoints('vote', address),
+        getPoints('spawn', address),
         azimuth.azimuth.getOwnedPoints(_contracts, address),
         azimuth.azimuth.getTransferringFor(_contracts, address),
         azimuth.azimuth.getManagerFor(_contracts, address),
         azimuth.azimuth.getVotingFor(_contracts, address),
         azimuth.azimuth.getSpawningFor(_contracts, address),
       ]);
+
+      console.log(1)
+      const pointsWithLayers = await Promise.all(
+        ownedPoints.map(async ship => {
+          console.log(2)
+          try {
+            const pointInfo = await api.getPoint(Number(ship));
+            console.log(3, pointInfo)
+            return {
+              point: Number(ship),
+              layer: isL2(pointInfo?.dominion) ? 1 : 2,
+            };
+          } catch (error) {
+            console.warn(error)
+            return { point: ship, layer: 1 };
+          }
+        })
+      );
+
+      console.log(4, pointsWithLayers)
 
       if (
         ownedPoints === null &&
@@ -90,6 +107,7 @@ export default function useControlledPointsStore() {
                 .concat(spawningPointsL1)
                 .map(Number)
                 .filter(onlyUnique),
+              pointsWithLayers,
             })
           )
         );
@@ -98,7 +116,7 @@ export default function useControlledPointsStore() {
       console.error('failed to fetch controlled points', error);
       _setControlledPoints(Just(Result.Error(error)));
     }
-  }, [contracts, wallet, getPoints]);
+  }, [contracts, wallet, getPoints, api]);
 
   // sync controlled points whenever wallet or contracts changes
   useEffect(() => {

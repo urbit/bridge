@@ -16,6 +16,11 @@ import Dropdown from './Dropdown';
 import './AccountsDropdown.scss';
 import { abbreviateAddress } from 'lib/utils/address';
 
+interface PointLayer {
+  point: number;
+  layer: 1 | 2;
+}
+
 const AccountsDropdown = () => {
   const [open, setOpen] = useState<boolean>(false);
   const walletInfo: any = useWallet();
@@ -25,10 +30,8 @@ const AccountsDropdown = () => {
 
   const canBitcoin = Just.hasInstance(walletInfo.urbitWallet);
 
-  const points =
-    controlledPoints?.value?.value?.ownedPoints?.map((point: string) =>
-      Number(point)
-    ) || [];
+  console.log('WHAT', controlledPoints)
+  const points = controlledPoints?.value?.value?.pointsWithLayers || [];
 
   const currentAddress = walletInfo?.wallet?.value?.address || '';
   const displayAddress = abbreviateAddress(currentAddress);
@@ -49,14 +52,14 @@ const AccountsDropdown = () => {
     <Dropdown
       className="accounts-dropdown"
       open={open}
-      value={displayAddress}
+      value={currentAddress.slice(0, 6)}
       toggleOpen={() => setOpen(!open)}>
       <CopiableAddressWrap className="current-address">
         {displayAddress}
       </CopiableAddressWrap>
       <Box className="divider" />
       <Box className="points">
-        {points.map((point: number) => {
+        {points.map(({ point, layer }: PointLayer) => {
           const patp = ob.patp(point);
 
           return (
@@ -66,7 +69,7 @@ const AccountsDropdown = () => {
               key={`point-${point}`}>
               <Box>{patp}</Box>
               <Row>
-                <LayerIndicator layer={1} size="md" />
+                <LayerIndicator layer={layer} size="md" />
                 <Box className="sigil">
                   <Sigil patp={patp} size={1} colors={['#000000', '#FFFFFF']} />
                 </Box>

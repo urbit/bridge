@@ -170,6 +170,7 @@ function Passport({
                     inverted={inverted}
                     loading={loading}
                     animationMode={animationMode}
+                    key={`cell-${_col}`}
                   />
                 );
               })}
