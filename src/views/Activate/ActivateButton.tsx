@@ -5,9 +5,14 @@ import withFadeable from './withFadeable';
 interface ActivateButtonProps {
   children: React.ReactNode | string;
   onClick: MouseEventHandler;
+  success?: boolean;
 }
 
-const ActivateButton = ({ children, onClick }: ActivateButtonProps) => {
+const ActivateButton = ({
+  children,
+  onClick,
+  success,
+}: ActivateButtonProps & React.ComponentPropsWithoutRef<'button'>) => {
   return (
     <Box
       display="flex"
@@ -17,7 +22,7 @@ const ActivateButton = ({ children, onClick }: ActivateButtonProps) => {
       justifyContent="flex-end">
       <Button
         onClick={onClick}
-        backgroundColor="black"
+        backgroundColor={success ? 'rgb(70,156,106)' : 'black'}
         color={'white'}
         padding={'16px'}
         fontFamily="Inter"
