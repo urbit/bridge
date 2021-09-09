@@ -14,7 +14,7 @@ const ActivateHeader = ({ copy }: ActivateHeaderProps) => {
         display="block"
         fontFamily="Inter"
         fontSize={3}
-        fontWeight="medium"
+        fontWeight={600}
         mx={3}
         my={3}
         textAlign="center">

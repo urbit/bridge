@@ -1,13 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import ActivateView from './ActivateView';
-import { FadeableActivateHeader as ActivateHeader } from './ActivateHeader';
-import { Box } from '@tlon/indigo-react';
-import ActivateParagraph from './ActivateParagraph';
 import { ActivateSteps } from './ActivateSteps';
-import { FadeableMasterKeyPresenter as MasterKeyPresenter } from './MasterKeyPresenter';
+import { Box } from '@tlon/indigo-react';
 import { FadeableActivateButton as ActivateButton } from './ActivateButton';
+import { FadeableActivateHeader as ActivateHeader } from './ActivateHeader';
+import { FadeableActivateParagraph as ActivateParagraph } from './ActivateParagraph';
+import { FadeableDangerBox as DangerBox } from './DangerBox';
+import { FadeableMasterKeyCopy as MasterKeyCopy } from './MasterKeyCopy';
+import { FadeableMasterKeyPresenter as MasterKeyPresenter } from './MasterKeyPresenter';
 import { useActivateFlow } from './ActivateFlow';
+import ActivateView from './ActivateView';
 
 const MasterKeyDownload = () => {
   const { setIsIn } = useActivateFlow();
@@ -58,18 +60,12 @@ const MasterKeyDownload = () => {
           flexDirection={'column'}
           flexWrap={'nowrap'}
           height={'100%'}
-          justifyContent={'center'}>
-          {/* AlertBox */}
-          <Box
-            display={'flex'}
-            flexDirection={'row'}
-            flexWrap={'nowrap'}
-            width={'80%'}
-            height={'min-content'}
-            justifyContent={'center'}>
-            <MasterKeyPresenter fadeIn={true} />
-          </Box>
-          {/* <CopyButton text={'test'} /> */}
+          justifyContent={'space-evenly'}>
+          {triggerAnimation && (
+            <DangerBox>Do not share this with anyone else!</DangerBox>
+          )}
+          <MasterKeyPresenter fadeIn={true} />
+          {triggerAnimation && <MasterKeyCopy text={'test'} />}
         </Box>
       </ActivateView>
       <ActivateSteps currentStep={1} totalSteps={4} />

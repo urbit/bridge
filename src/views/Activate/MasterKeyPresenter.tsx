@@ -23,28 +23,40 @@ const MasterKeyPresenter = ({ className }: MasterKeyPresenterArgs) => {
       flexWrap={'nowrap'}
       width={'80%'}
       height={'min-content'}
-      justifyContent={'space-evenly'}
-      className={className}>
-      {ticketSegments &&
-        ticketSegments.map((segment: string, i: number) => {
-          return (
-            <>
+      justifyContent={'center'}>
+      <Box
+        display={'flex'}
+        flexDirection={'row'}
+        flexWrap={'nowrap'}
+        width={'80%'}
+        height={'min-content'}
+        justifyContent={'space-evenly'}
+        className={className}>
+        {ticketSegments &&
+          ticketSegments.map((segment: string, i: number) => {
+            return (
               <Box
-                background={'rgba(0,0,0,0.05)'}
-                padding={'12px 10px'}
-                fontFamily={'Source Code Pro'}
-                borderRadius={'5px'}
-                border={'solid 1px gray'}>
-                {segment}
+                key={i}
+                display={'flex'}
+                flexDirection={'row'}
+                flexWrap={'nowrap'}>
+                <Box
+                  background={'rgba(0,0,0,0.05)'}
+                  padding={'12px 10px'}
+                  fontFamily={'Source Code Pro'}
+                  borderRadius={'5px'}
+                  border={'solid 1px gray'}>
+                  {segment}
+                </Box>
+                {i < ticketSegments.length - 1 ? (
+                  <Text key={i} alignSelf="center" color="gray" mx={1}>
+                    —
+                  </Text>
+                ) : null}
               </Box>
-              {i < ticketSegments.length - 1 ? (
-                <Text key={i} alignSelf="center" color="gray" mx={1}>
-                  —
-                </Text>
-              ) : null}
-            </>
-          );
-        })}
+            );
+          })}
+      </Box>
     </Box>
   );
 };
