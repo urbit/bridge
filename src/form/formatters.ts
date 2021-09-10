@@ -96,3 +96,11 @@ export const stripSigPrefix = s => {
     ? s.slice(SIG_PREFIX.length)
     : s;
 };
+
+export const ticketToSegments = (ticket: string): string[] => {
+  return stripSigPrefix(ticket).split('-');
+};
+
+export const ticketFromSegments = (segments: string[]): string => {
+  return ensureSigPrefix(segments.join('-'));
+};

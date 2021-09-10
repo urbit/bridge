@@ -4,7 +4,7 @@ import { DEFAULT_FADE_TIMEOUT } from 'lib/constants';
 
 interface withFadeableProps {
   fadeTimeout?: number;
-  fadeIn?: boolean;
+  overrideFadeIn?: boolean;
 }
 
 const withFadeable = <P extends object>(
@@ -13,7 +13,7 @@ const withFadeable = <P extends object>(
   const { isIn } = useActivateFlow();
 
   // Allow one-off overrides, otherwise fallback to shared fade-in state
-  const _in = props?.fadeIn ? props.fadeIn : isIn;
+  const _in = props?.overrideFadeIn ? props.overrideFadeIn : isIn;
 
   return (
     <CSSTransition

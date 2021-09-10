@@ -5,21 +5,21 @@ import View from 'components/View';
 import useRouter from 'lib/useRouter';
 
 import MasterKeyDownload from './MasterKeyDownload';
-import PassportVerify from './PassportVerify';
 import PassportTransfer from './PassportTransfer';
 import MasterKeyReveal from './MasterKeyReveal';
+import MasterKeyConfirm from './MasterKeyConfirm';
 
 const NAMES = {
   REVEAL: 'REVEAL',
   DOWNLOAD: 'DOWNLOAD',
-  VERIFY: 'VERIFY',
+  CONFIRM: 'CONFIRM',
   TRANSFER: 'TRANSFER',
 };
 
 const VIEWS = {
   [NAMES.REVEAL]: MasterKeyReveal,
   [NAMES.DOWNLOAD]: MasterKeyDownload,
-  [NAMES.VERIFY]: PassportVerify,
+  [NAMES.CONFIRM]: MasterKeyConfirm,
   [NAMES.TRANSFER]: PassportTransfer,
 };
 

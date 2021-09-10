@@ -20,6 +20,7 @@ import {
   validateLength,
   validateUnique,
   validatePsbt,
+  validateSegmentedTicket,
 } from 'lib/validators';
 import { isPromise } from 'lib/isPromise';
 
@@ -62,6 +63,8 @@ export const buildArrayValidator = validator => values => {
 export const hasErrors = iter =>
   some(iter, v => (Array.isArray(v) ? hasErrors(v) : v !== undefined));
 
+export const buildSegmentedTicketValidator = (validators = []) =>
+  buildValidator([validateNotEmpty, validateSegmentedTicket, ...validators]);
 export const buildPatqValidator = (validators = []) =>
   buildValidator([validateNotEmpty, validatePatq, ...validators]);
 export const buildShardValidator = (validators = []) =>
