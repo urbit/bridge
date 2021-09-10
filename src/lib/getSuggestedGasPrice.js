@@ -11,7 +11,10 @@ export default async function getSuggestedGasPrice(networkType) {
     default:
       try {
         const response = await fetch(
-          'https://ethgasstation.info/json/ethgasAPI.json',
+          'https://api.etherscan.io/api' +
+            '?module=gastracker' +
+            '&action=gasoracle' +
+            '&apikey=CG52E4R96W56GIKUI4IJ8CH9EZIXPUW1W8',
           {
             method: 'GET',
             cache: 'no-cache',
@@ -20,13 +23,21 @@ export default async function getSuggestedGasPrice(networkType) {
 
         const json = await response.json();
 
-        // ethgasstation returns values in floating point, one order of magitude
-        // more than gwei. see: https://docs.ethgasstation.info
-        const suggestedGasPrice = Math.ceil(json.fast / 10); // to gwei
+        if (json && json.status !== '1') {
+          console.warn('suggested gas price warning', json.message);
+        }
 
-        // we don't want to charge users more than the gas tank funds
+        const suggestedGasPrice = parseInt(
+          json && json.result && json.result.ProposeGasPrice
+        );
+        if (isNaN(suggestedGasPrice)) {
+          throw new Error('strange gas price response', json);
+        }
+
+        // safeguard against obscene suggestions
         return Math.min(suggestedGasPrice, MAX_GAS_PRICE_GWEI);
       } catch (e) {
+        console.warn('error fetching gas price', e);
         return DEFAULT_GAS_PRICE_GWEI;
       }
   }
