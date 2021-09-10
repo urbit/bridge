@@ -1,6 +1,5 @@
 import { Box, Text } from '@tlon/indigo-react';
 import { stripSigPrefix } from 'form/formatters';
-import useImpliedTicket from 'lib/useImpliedTicket';
 import { useMemo } from 'react';
 import withFadeable from './withFadeable';
 

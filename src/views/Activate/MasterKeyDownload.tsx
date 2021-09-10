@@ -17,6 +17,8 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import { compileNetworkingKey } from 'lib/keys';
 import { downloadWallet } from 'lib/invite';
 import PaperBuilder from 'components/PaperBuilder';
+import { DEFAULT_FADE_TIMEOUT } from 'lib/constants';
+import { timeout } from 'lib/timeout';
 
 const MasterKeyDownload = () => {
   const {
@@ -60,7 +62,11 @@ const MasterKeyDownload = () => {
     [paper, setGenerated]
   );
 
-  const goToVerify = useCallback(() => push(names.VERIFY), [push, names]);
+  const goToConfirm = useCallback(async () => {
+    setIsIn(false);
+    await timeout(DEFAULT_FADE_TIMEOUT); // Pause for UI fade animation
+    push(names.CONFIRM);
+  }, [setIsIn, push, names.CONFIRM]);
 
   const header = useMemo(() => {
     return triggerAnimation ? (
@@ -79,12 +85,12 @@ const MasterKeyDownload = () => {
     return triggerAnimation ? (
       <ActivateButton
         disabled={!generated}
-        onClick={!downloaded ? download : goToVerify}
+        onClick={!downloaded ? download : goToConfirm}
         success={downloaded}>
         {!downloaded ? 'Download Backup (Passport)' : 'Continue'}
       </ActivateButton>
     ) : null;
-  }, [download, downloaded, generated, goToVerify, triggerAnimation]);
+  }, [download, downloaded, generated, goToConfirm, triggerAnimation]);
 
   const delayedReveal = useCallback(async () => {
     setTimeout(() => {
@@ -114,7 +120,9 @@ const MasterKeyDownload = () => {
           {triggerAnimation && (
             <DangerBox>Do not share this with anyone else!</DangerBox>
           )}
-          {ticket && <MasterKeyPresenter fadeIn={true} ticket={ticket} />}
+          {ticket && (
+            <MasterKeyPresenter overrideFadeIn={true} ticket={ticket} />
+          )}
           {triggerAnimation && <MasterKeyCopy text={ticket} />}
         </Box>
       </ActivateView>
