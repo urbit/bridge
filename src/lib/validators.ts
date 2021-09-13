@@ -12,7 +12,6 @@ import {
   MIN_GALAXY,
   MAX_GALAXY,
 } from './constants';
-import { ticketFromSegments } from 'form/formatters';
 
 // NOTE: do not use the /g modifier for these regexes
 // https://stackoverflow.com/a/21373261
@@ -146,9 +145,4 @@ export const validatePsbt = base64 => {
   } catch (e) {
     return 'Invalid Partially Signed Bitcoin Transaction';
   }
-};
-
-export const validateSegmentedTicket = (segments: string[]) => {
-  const ticket = ticketFromSegments(segments);
-  return validatePatq(ticket);
 };

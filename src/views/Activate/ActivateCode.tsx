@@ -42,7 +42,7 @@ export default function ActivateCode() {
   return (
     <View inset>
       <ActivateView
-        header={<ActivateHeader copy={'Welcome. This is your Urbit.'} />}
+        header={<ActivateHeader content={'Welcome. This is your Urbit.'} />}
         footer={<ActivateCodeForm afterSubmit={goToMasterKey} />}>
         <Box
           alignItems={'center'}

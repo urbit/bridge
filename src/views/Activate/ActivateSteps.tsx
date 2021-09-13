@@ -1,4 +1,4 @@
-import { Box } from '@tlon/indigo-react';
+import { Box, SegmentedProgressBar } from '@tlon/indigo-react';
 import withFadeable from './withFadeable';
 
 type ActivateStepsProps = {
@@ -19,15 +19,15 @@ export const ActivateSteps = ({
       const isLastStep = i === totalSteps - 1;
       steps.push(
         <Box
-          borderTopLeftRadius={isFirstStep ? '5px' : null}
-          borderBottomLeftRadius={isFirstStep ? '5px' : null}
-          borderTopRightRadius={isLastStep ? '5px' : null}
-          borderBottomRightRadius={isLastStep ? '5px' : null}
+          borderTopLeftRadius={isFirstStep ? '3px' : null}
+          borderBottomLeftRadius={isFirstStep ? '3px' : null}
+          borderTopRightRadius={isLastStep ? '3px' : null}
+          borderBottomRightRadius={isLastStep ? '3px' : null}
           key={i}
           backgroundColor={i <= currentStep ? 'black' : 'gray'}
-          height={'10px'}
+          height={'4px'}
           width={`${100 / totalSteps}%`}
-          marginLeft={isFirstStep ? null : '1px'}
+          marginLeft={'0px'}
           marginRight={isLastStep ? null : '1px'}></Box>
       );
     }
@@ -41,6 +41,8 @@ export const ActivateSteps = ({
       flexWrap={'nowrap'}
       width={'100%'}
       className={className}>
+      {/* TODO: Ask Jimmy: */}
+      {/* <SegmentedProgressBar current={currentStep} segments={totalSteps} /> */}
       {renderSteps()}
     </Box>
   );

@@ -5,7 +5,7 @@ import View from 'components/View';
 import useRouter from 'lib/useRouter';
 
 import MasterKeyDownload from './MasterKeyDownload';
-import PassportTransfer from './PassportTransfer';
+import MasterKeyTransfer from './MasterKeyTransfer';
 import MasterKeyReveal from './MasterKeyReveal';
 import MasterKeyConfirm from './MasterKeyConfirm';
 
@@ -20,7 +20,7 @@ const VIEWS = {
   [NAMES.REVEAL]: MasterKeyReveal,
   [NAMES.DOWNLOAD]: MasterKeyDownload,
   [NAMES.CONFIRM]: MasterKeyConfirm,
-  [NAMES.TRANSFER]: PassportTransfer,
+  [NAMES.TRANSFER]: MasterKeyTransfer,
 };
 
 export default function ActivateMasterKey() {
@@ -31,22 +31,6 @@ export default function ActivateMasterKey() {
     views: VIEWS,
     initialRoutes: [{ key: NAMES.REVEAL }],
   });
-
-  // TODO
-  // addresses are not derived until we set[Urbit]Wallet(), so do that inline
-  // const address = useMemo(
-  //   () =>
-  //     derivedWallet
-  //       .chain(wallet =>
-  //         walletFromMnemonic(
-  //           wallet.ownership.seed,
-  //           DEFAULT_HD_PATH,
-  //           wallet.meta.passphrase
-  //         )
-  //       )
-  //       .map(wallet => publicToAddress(wallet.publicKey)),
-  //   [derivedWallet]
-  // );
 
   return (
     <View inset>
