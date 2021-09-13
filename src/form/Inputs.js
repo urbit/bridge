@@ -210,12 +210,6 @@ export function EmailInput({ ...rest }) {
   );
 }
 
-export function LegacyTicketSegmentInput({ ...rest }) {
-  return (
-    <Input autoCapitalize="none" autoCorrect="off" type="text" {...rest} />
-  );
-}
-
 export function TicketSegmentInput({ name, ...rest }) {
   const { input } = useField(name);
 

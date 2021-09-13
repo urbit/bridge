@@ -2,12 +2,12 @@ import { Box, Text } from '@tlon/indigo-react';
 import withFadeable from './withFadeable';
 
 type ActivateHeaderProps = {
-  copy: string;
+  content: string | React.ReactNode;
   fadeTimeout?: number;
   isInOverride?: boolean;
 };
 
-const ActivateHeader = ({ copy }: ActivateHeaderProps) => {
+const ActivateHeader = ({ content }: ActivateHeaderProps) => {
   return (
     <Box>
       <Text
@@ -18,7 +18,7 @@ const ActivateHeader = ({ copy }: ActivateHeaderProps) => {
         mx={3}
         my={3}
         textAlign="center">
-        {copy}
+        {content}
       </Text>
     </Box>
   );

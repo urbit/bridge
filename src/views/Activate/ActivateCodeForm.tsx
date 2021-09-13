@@ -1,5 +1,6 @@
 import * as azimuth from 'azimuth-js';
 import * as need from 'lib/need';
+import * as ob from 'urbit-ob';
 import { WARNING } from 'form/helpers';
 import { FORM_ERROR } from 'final-form';
 import { Just } from 'folktale/maybe';
@@ -44,7 +45,9 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
   const didWarn = useRef<boolean>(false);
 
   const {
+    setDerivedPatp,
     setDerivedPoint,
+    setDerivedPointDominion,
     setDerivedWallet,
     setInviteWallet,
     setIsIn,
@@ -141,7 +144,9 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
 
         const point = convertToInt(incoming[0], 10);
 
+        setDerivedPatp(Just(ob.patp(point)));
         setDerivedPoint(Just(point));
+        setDerivedPointDominion(Just(rollerPoint.dominion));
         setDerivedWallet(Just(await generateWallet(point, ticket, true)));
         setIsIn(false);
         await timeout(100);
@@ -159,7 +164,9 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
       impliedTicket,
       loadL1Points,
       loadl2points,
+      setDerivedPatp,
       setDerivedPoint,
+      setDerivedPointDominion,
       setDerivedWallet,
       setInviteWallet,
       setIsIn,

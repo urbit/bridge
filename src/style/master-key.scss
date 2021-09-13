@@ -7,7 +7,7 @@
   }
 }
 
-@mixin generate-progress-fill($numSegments, $duration: 300ms, $delayDelta: 100ms) {
+@mixin generate-progress-fill($numSegments, $duration: 150ms, $delayDelta: 50ms) {
   @for $i from 1 through $numSegments {
     .segment-#{$i} {
       animation: opacity-fill $duration linear forwards;
@@ -23,7 +23,7 @@ svg.master-key {
   }
 
   // Animations
-  @include generate-progress-fill(18, 300ms, 100ms);
+  @include generate-progress-fill(18);
 
   &.paused g {
     animation-play-state: paused;

@@ -2,40 +2,49 @@ import { useCallback, useState } from 'react';
 import { Nothing } from 'folktale/maybe';
 
 export default function useActivateFlowState() {
-  const [derivedWallet, setDerivedWallet] = useState(Nothing());
-  const [inviteWallet, setInviteWallet] = useState(Nothing());
+  const [derivedPatp, setDerivedPatp] = useState(Nothing());
   const [derivedPoint, setDerivedPoint] = useState(Nothing());
+  const [derivedPointDominion, setDerivedPointDominion] = useState(Nothing());
+  const [derivedWallet, setDerivedWallet] = useState(Nothing());
   const [generated, setGenerated] = useState(false);
   const [incomingPoints, setIncomingPoints] = useState(Nothing());
+  const [inviteWallet, setInviteWallet] = useState(Nothing());
   const [isIn, setIsIn] = useState(false);
 
   const reset = useCallback(() => {
-    setDerivedWallet(Nothing());
-    setInviteWallet(Nothing());
+    setDerivedPatp(Nothing());
     setDerivedPoint(Nothing());
+    setDerivedPointDominion(Nothing());
+    setDerivedWallet(Nothing());
     setGenerated(false);
     setIncomingPoints(Nothing());
+    setInviteWallet(Nothing());
   }, [
-    setDerivedWallet,
-    setInviteWallet,
     setDerivedPoint,
+    setDerivedPointDominion,
+    setDerivedWallet,
     setGenerated,
     setIncomingPoints,
+    setInviteWallet,
   ]);
 
   return {
-    derivedWallet,
-    setDerivedWallet,
-    inviteWallet,
-    setInviteWallet,
+    derivedPatp,
     derivedPoint,
-    setDerivedPoint,
+    derivedPointDominion,
+    derivedWallet,
     generated,
-    setGenerated,
     incomingPoints,
-    setIncomingPoints,
+    inviteWallet,
     isIn,
-    setIsIn,
     reset,
+    setDerivedPatp,
+    setDerivedPoint,
+    setDerivedPointDominion,
+    setDerivedWallet,
+    setGenerated,
+    setIncomingPoints,
+    setInviteWallet,
+    setIsIn,
   };
 }
