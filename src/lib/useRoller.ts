@@ -13,6 +13,8 @@ import {
   Options,
   EthAddress,
   UnspawnedPoints,
+  From,
+  Hash,
 } from '@urbit/roller-api';
 
 import { isDevelopment, isRopsten } from './flags';
@@ -341,6 +343,44 @@ export default function useRoller() {
     ]
   );
 
+  interface TransferPointParams {
+    point: Ship;
+    from: From;
+    to: EthAddress;
+    fromAddress: EthAddress;
+    signingKey: string;
+  }
+
+  const transferPoint = async ({
+    point,
+    from,
+    to,
+    fromAddress,
+    signingKey,
+  }: TransferPointParams) => {
+    const pointInfo = await api.getPoint(point);
+
+    const { nonce } = getProxyAndNonce(pointInfo, fromAddress);
+    if (nonce === undefined) {
+      throw new Error('Nonce unavailable');
+    }
+    const transferData = { address: fromAddress, reset: true };
+    const transferHash: Hash = await api.hashTransaction(
+      nonce,
+      from,
+      'transferPoint',
+      transferData
+    );
+
+    const sig = signTransactionHash(
+      transferHash,
+      Buffer.from(signingKey, 'hex')
+    );
+    const transferTxHash = await api.transferPoint(sig, from, to, transferData);
+
+    return transferTxHash;
+  };
+
   // On load, get initial config
   useEffect(() => {
     if (config) {
@@ -374,5 +414,6 @@ export default function useRoller() {
     getInvites,
     getPendingTransactions,
     generateInviteCodes,
+    transferPoint,
   };
 }

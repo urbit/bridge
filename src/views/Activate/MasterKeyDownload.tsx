@@ -17,7 +17,7 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import { compileNetworkingKey } from 'lib/keys';
 import { downloadWallet } from 'lib/invite';
 import PaperBuilder from 'components/PaperBuilder';
-import { DEFAULT_FADE_TIMEOUT } from 'lib/constants';
+import { DEFAULT_FADE_TIMEOUT, MASTER_KEY_DURATION } from 'lib/constants';
 import { timeout } from 'lib/timeout';
 
 const MasterKeyDownload = () => {
@@ -42,11 +42,11 @@ const MasterKeyDownload = () => {
     Just: p => p.value.toFixed(),
   });
 
-  const download = useCallback(() => {
+  const download = useCallback(async () => {
     const netkey = compileNetworkingKey(wallet.network.keys, point, 1);
     //TODO  could be deduplicated with useKeyfileGenerator's logic
     const filename = ob.patp(point).slice(1) + '-1.key';
-    downloadWallet(paper.getOrElse([]), netkey, filename);
+    await downloadWallet(paper.getOrElse([]), netkey, filename);
     setDownloaded(true);
   }, [paper, wallet, point, setDownloaded]);
 
@@ -62,16 +62,17 @@ const MasterKeyDownload = () => {
     [paper, setGenerated]
   );
 
-  const goToConfirm = useCallback(async () => {
+  const onDownloadClick = useCallback(async () => {
+    await download();
     setIsIn(false);
     await timeout(DEFAULT_FADE_TIMEOUT); // Pause for UI fade animation
     push(names.CONFIRM);
-  }, [setIsIn, push, names.CONFIRM]);
+  }, [download, setIsIn, push, names.CONFIRM]);
 
   const header = useMemo(() => {
     return triggerAnimation ? (
       <Box>
-        <ActivateHeader copy={'Backup your Master Key.'} />
+        <ActivateHeader content={'Backup your Master Key.'} />
         <ActivateParagraph
           copy={
             'Download your backup and store it somewhere safe, e.g. your security deposit box or password manager.'
@@ -83,20 +84,17 @@ const MasterKeyDownload = () => {
 
   const footer = useMemo(() => {
     return triggerAnimation ? (
-      <ActivateButton
-        disabled={!generated}
-        onClick={!downloaded ? download : goToConfirm}
-        success={downloaded}>
-        {!downloaded ? 'Download Backup (Passport)' : 'Continue'}
+      <ActivateButton onClick={onDownloadClick}>
+        {'Download Backup (Passport)'}
       </ActivateButton>
     ) : null;
-  }, [download, downloaded, generated, goToConfirm, triggerAnimation]);
+  }, [onDownloadClick, triggerAnimation]);
 
   const delayedReveal = useCallback(async () => {
     setTimeout(() => {
       setTriggerAnimation(true);
       setIsIn(true);
-    }, 800);
+    }, MASTER_KEY_DURATION);
   }, [setIsIn]);
 
   useEffect(() => {

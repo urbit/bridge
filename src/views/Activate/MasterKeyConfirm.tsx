@@ -18,10 +18,7 @@ import { validateExactly } from 'lib/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 import useFadeIn from './useFadeIn';
-import {
-  HiddenInput,
-  TicketSegmentInput,
-} from 'form/Inputs';
+import { HiddenInput, TicketSegmentInput } from 'form/Inputs';
 
 const MasterKeyConfirm = () => {
   const { derivedWallet, setIsIn } = useActivateFlow();
@@ -31,21 +28,12 @@ const MasterKeyConfirm = () => {
   const ticketSegments = useMemo(() => ticketToSegments(ticket), [ticket]);
 
   const onValues = useCallback(({ valid, values, form }) => {
-    console.log('valid:', valid);
-    console.log('values:', values);
-
     const { ticket0, ticket1, ticket2, ticket3 } = values;
 
-    const updatedTicket = ticketFromSegments([
-      ticket0,
-      ticket1,
-      ticket2,
-      ticket3,
-    ]);
-
-    console.log(updatedTicket);
-
-    form.change('ticket', updatedTicket);
+    form.change(
+      'ticket',
+      ticketFromSegments([ticket0, ticket1, ticket2, ticket3])
+    );
   }, []);
 
   const validate = useMemo(
@@ -64,7 +52,7 @@ const MasterKeyConfirm = () => {
       ticket0: STUB_VERIFY_TICKET ? ticketSegments[0] : undefined,
       ticket1: STUB_VERIFY_TICKET ? ticketSegments[1] : undefined,
       ticket2: STUB_VERIFY_TICKET ? ticketSegments[2] : undefined,
-      ticket3: undefined,
+      ticket3: STUB_VERIFY_TICKET ? ticketSegments[3] : undefined,
     }),
     [STUB_VERIFY_TICKET, ticket, ticketSegments]
   );
@@ -78,7 +66,7 @@ const MasterKeyConfirm = () => {
   const header = useMemo(() => {
     return (
       <Box>
-        <ActivateHeader copy={'Confirm Backup'} />
+        <ActivateHeader content={'Confirm Backup'} />
         <ActivateParagraph
           copy={
             'Confirm that you have stored your Master Key somewhere safe by entering it below'

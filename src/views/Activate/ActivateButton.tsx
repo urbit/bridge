@@ -6,24 +6,29 @@ interface ActivateButtonProps {
   children: React.ReactNode | string;
   onClick: MouseEventHandler;
   disabled?: boolean;
+  success?: boolean;
 }
 
 const ActivateButton = ({
   children,
   onClick,
-  disabled,
+  disabled = false,
+  success = false,
   ...rest
 }: ActivateButtonProps & React.ComponentPropsWithoutRef<'button'>) => {
+  const backgroundColor = success ? '#009F65' : 'black';
+
   return (
     <Button
       onClick={onClick}
-      backgroundColor={disabled ? 'rgba(0,0,0,0.2)' : 'black'}
+      backgroundColor={backgroundColor}
       color={'white'}
       padding={'16px'}
       fontFamily="Inter"
       height={'50px'}
       fontWeight={'400'}
       fontSize={'18px'}
+      opacity={disabled ? 0.2 : 1.0}
       {...rest}>
       {children}
     </Button>
