@@ -87,9 +87,7 @@ export default function MigrateL2() {
   const [selectedPoint, setSelectedPoint] = useState(point);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const points = controlledPoints?.value?.value?.pointsWithLayers || [
-    { point, layer: 1 },
-  ];
+  const points = controlledPoints?.value?.value?.pointsWithLayers || [];
   const l1Points = points.filter(
     ({ point, layer }: PointLayer) =>
       layer === 1 &&
@@ -140,6 +138,16 @@ export default function MigrateL2() {
   );
 
   const getContent = () => {
+    if (l1Points.length === 0) {
+      return (
+        <Box className="content">
+          <Box className="ship-selector">
+            <Box>All of your ships are already on Layer 2.</Box>
+          </Box>
+        </Box>
+      );
+    }
+
     if (proceed) {
       return (
         <Box className="content">
@@ -163,7 +171,7 @@ export default function MigrateL2() {
           <Grid.Item
             full
             as={InlineEthereumTransaction}
-            label="Migrate"
+            label="Migrate to Layer 2"
             {...bind}
             onReturn={pop}
           />

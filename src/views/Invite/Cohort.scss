@@ -175,6 +175,10 @@
         border: none;
         margin-top: 8px;
         padding: 8px;
+
+        &.loading {
+          background-color: $mid-gray;
+        }
       }
     }
   }

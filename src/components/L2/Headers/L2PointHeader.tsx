@@ -1,13 +1,12 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { azimuth } from 'azimuth-js';
-import { Box, Button, Icon, Row } from '@tlon/indigo-react';
+import { Box, Row } from '@tlon/indigo-react';
 
 import useRoller from 'lib/useRoller';
 import { useHistory } from 'store/history';
 import { ReactComponent as InviteIcon } from 'assets/invite.svg';
 import { ReactComponent as HistoryIcon } from 'assets/history.svg';
 import AccountsDropdown from '../Dropdowns/AccountsDropdown';
-import Modal from '../Modal';
 import { useRollerStore } from 'store/roller';
 
 import './L2PointHeader.scss';
@@ -18,17 +17,18 @@ export interface L2PointHeaderProps {
   numInvites: number;
   hideTimer: boolean;
   hideInvites: boolean;
+  showMigrate: boolean;
 }
 
 const L2PointHeader = ({
   hideTimer = false,
   hideInvites = false,
+  showMigrate = false,
   numInvites = 0,
 }: L2PointHeaderProps) => {
   const { config } = useRoller();
   const { nextRoll, currentL2, pendingTransactions } = useRollerStore();
   const { pointCursor }: any = usePointCursor();
-  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (isDevelopment) {
@@ -46,10 +46,6 @@ const L2PointHeader = ({
     names.TRANSACTION_HISTORY,
     push,
   ]);
-  const goMigrate = useCallback(() => push(names.MIGRATE_L2), [
-    names.MIGRATE_L2,
-    push,
-  ]);
 
   const isStar =
     pointCursor?.value &&
@@ -57,9 +53,9 @@ const L2PointHeader = ({
 
   return (
     <Row className="l2-point-header">
-      <AccountsDropdown />
+      <AccountsDropdown showMigrate={showMigrate} />
       <Row className="info">
-        {!hideInvites && (
+        {!hideInvites && isStar && (
           <Row onClick={goToInvites} className="invites">
             <InviteIcon />
             {numInvites}
@@ -70,36 +66,8 @@ const L2PointHeader = ({
             {nextRoll}
           </Box>
         )}
-        {currentL2 && <HistoryIcon className="history" onClick={goToHistory} />}
-        {!currentL2 && isStar && (
-          <Icon
-            icon="Swap"
-            className="history"
-            onClick={() => setShowModal(true)}
-          />
-        )}
+        <HistoryIcon className="history" onClick={goToHistory} />
       </Row>
-      <Modal show={showModal} hide={() => setShowModal(false)}>
-        <Box className="migrate-modal">
-          <Box className="close" onClick={() => setShowModal(false)}>
-            &#215;
-          </Box>
-          <Box className="title">Migrating to Layer 2</Box>
-          <Box className="message">
-            We've upgraded Bridge to support Layer 2 transactions. If you don't
-            migrate now, you can always do it later.
-          </Box>
-          <Box className="warning">Migrating to Layer 2 is irreversible.</Box>
-          <Row className="buttons">
-            <Button className="cancel" onClick={() => setShowModal(false)}>
-              Cancel
-            </Button>
-            <Button className="migrate" onClick={goMigrate}>
-              Migrate
-            </Button>
-          </Row>
-        </Box>
-      </Modal>
     </Row>
   );
 };

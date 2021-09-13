@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import cn from 'classnames';
-import { Just } from 'folktale/maybe';
-import { Grid, Flex, Button } from 'indigo-react';
-import { Icon, Row } from '@tlon/indigo-react';
 import { azimuth } from 'azimuth-js';
+import { Just } from 'folktale/maybe';
+import { Grid, Flex } from 'indigo-react';
+import { Box, Icon, Row, Button } from '@tlon/indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useWallet } from 'store/wallet';
@@ -32,6 +32,9 @@ import useRoller from 'lib/useRoller';
 import './Point.scss';
 import { isL2 } from 'lib/utils/roller';
 import { isDevelopment } from 'lib/flags';
+import { convertToInt } from 'lib/convertToInt';
+import { usePointCache } from 'store/pointCache';
+import Modal from 'components/L2/Modal';
 
 function InviteForm({
   showInviteForm,
@@ -123,6 +126,7 @@ export default function Point() {
   const { wallet, authToken } = useWallet();
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
+  const { getDetails } = usePointCache();
 
   const { api, getInvites } = useRoller();
   const {
@@ -131,9 +135,23 @@ export default function Point() {
     invites,
     setCurrentPoint,
     setPendingTransactions,
+    currentL2,
   } = useRollerStore();
 
-  const [loaded, setLoaded] = useState(false);
+  const pointSize = azimuth.getPointSize(point);
+  const details = need.details(getDetails(point));
+  const isStarOrGalaxy = pointSize !== azimuth.PointSize.Planet;
+  const networkRevision = convertToInt(details.keyRevisionNumber, 10);
+  const networkKeysNotSet =
+    !currentL2 && isStarOrGalaxy && networkRevision === 0;
+
+  const [showModal, setShowModal] = useState(networkKeysNotSet);
+
+  useEffect(() => {
+    if (networkKeysNotSet) {
+      setShowModal(true);
+    }
+  }, [networkKeysNotSet]);
 
   useEffect(() => {
     const loadL2Info = async () => {
@@ -147,14 +165,11 @@ export default function Point() {
         getInvites(isL2(pointInfo.dominion));
       };
 
-      if (!loaded) {
-        getTransactions();
-        setLoaded(true);
-      }
+      getTransactions();
     };
 
     loadL2Info();
-  }, [api, point, authToken, setPendingTransactions, loaded]); // eslint-disable-line
+  }, [api, point, authToken, setPendingTransactions]); // eslint-disable-line
 
   const { isParent, canManage, canSpawn, canVote } = useCurrentPermissions();
 
@@ -226,8 +241,13 @@ export default function Point() {
       pop={pop}
       inset
       className="point"
+      hideBack
       header={
-        <L2PointHeader hideTimer={!!numPending} numInvites={invites.length} />
+        <L2PointHeader
+          hideTimer={!!numPending}
+          numInvites={invites.length}
+          hideInvites={networkKeysNotSet}
+        />
       }>
       <Greeting point={point} />
       {!!numPending && (
@@ -236,7 +256,10 @@ export default function Point() {
             <div className="title">
               {numPending} Planet{numPending > 1 ? 's' : ''} Spawned
             </div>
-            <div className="rollup-timer">{nextRoll}</div>
+            <div className="rollup-timer">
+              <Icon icon="Clock" />
+              {nextRoll}
+            </div>
           </Row>
           <Row className="info-row">
             <LayerIndicator layer={2} size="sm" />
@@ -310,6 +333,27 @@ export default function Point() {
         )}
         {senateButton}
       </Grid>
+      <Modal show={showModal} hide={() => setShowModal(false)}>
+        <Box className="network-keys-modal">
+          <Box className="close" onClick={() => setShowModal(false)}>
+            &#215;
+          </Box>
+          <Box className="title">Network Keys Not Set</Box>
+          <Box className="message">
+            This point's network keys are not set. The network keys must be set
+            to spawn points or migrate to Layer 2. Please set them in Urbit OS
+            Settings.
+          </Box>
+          <Row className="buttons">
+            <Button className="cancel" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            <Button className="migrate" onClick={goUrbitOS}>
+              Set Keys
+            </Button>
+          </Row>
+        </Box>
+      </Modal>
     </View>
   );
 }
