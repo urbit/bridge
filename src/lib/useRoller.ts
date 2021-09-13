@@ -212,8 +212,8 @@ export default function useRoller() {
 
   const getPendingTransactions = useCallback(async () => {
     try {
-      const curPoint = need.point(pointCursor);
-      const newPending = await api.getPendingByShip(Number(curPoint));
+      const curPoint = Number(need.point(pointCursor));
+      const newPending = await api.getPendingByShip(curPoint);
       setPendingTransactions(newPending);
 
       // const allTransactions = await api.getHistory()
@@ -257,7 +257,7 @@ export default function useRoller() {
         if (_authToken && _contracts) {
           let possibleMissingInvites: number[] = [];
           if (isL2) {
-            const allSpawned = await api.getSpawned(Number(curPoint));
+            const allSpawned = await api.getSpawned(curPoint);
             const ownedPoints = maybeGetResult(
               controlledPoints,
               'ownedPoints',

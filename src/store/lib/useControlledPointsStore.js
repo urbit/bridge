@@ -53,24 +53,20 @@ export default function useControlledPointsStore() {
         azimuth.azimuth.getSpawningFor(_contracts, address),
       ]);
 
-      // const pointsWithLayers = await Promise.all(
-      //   ownedPoints.map(async ship => {
-      //     try {
-      //       const pointInfo = await api.getPoint(Number(ship));
-      //       return {
-      //         point: Number(ship),
-      //         layer: isL2(pointInfo?.dominion) ? 1 : 2,
-      //       };
-      //     } catch (error) {
-      //       console.warn(error);
-      //       return { point: ship, layer: 1 };
-      //     }
-      //   })
-      // );
-      const pointsWithLayers = ownedPoints.map(point => ({
-        point: Number(point),
-        layer: 1,
-      }));
+      const pointsWithLayers = await Promise.all(
+        ownedPoints.map(async ship => {
+          try {
+            const pointInfo = await api.getPoint(Number(ship));
+            return {
+              point: Number(ship),
+              layer: isL2(pointInfo?.dominion) ? 2 : 1,
+            };
+          } catch (error) {
+            console.warn(error);
+            return { point: ship, layer: 1 };
+          }
+        })
+      );
 
       if (
         ownedPoints === null &&

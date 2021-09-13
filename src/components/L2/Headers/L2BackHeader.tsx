@@ -47,7 +47,9 @@ const L2BackHeader = ({ back, hideBalance = false }: L2BackHeaderProps) => {
       const _wallet = wallet.getOrElse(null);
 
       if (_web3 && _wallet) {
-        const newBalance = toBN(await _web3.eth.getBalance(_wallet.address));
+        const newBalance = _web3.utils.fromWei(
+          await _web3.eth.getBalance(_wallet.address)
+        );
         setEthBalance(newBalance);
       }
     };

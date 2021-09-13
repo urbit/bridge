@@ -1,43 +1,82 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import * as ob from 'urbit-ob';
-import { Icon, Row, Box } from '@tlon/indigo-react';
+import { azimuth } from 'azimuth-js';
+import * as need from 'lib/need';
+import { Icon, Row, Box, Button } from '@tlon/indigo-react';
 import { Just } from 'folktale/maybe';
 
 import Sigil from 'components/Sigil';
 import LayerIndicator from 'components/L2/LayerIndicator';
+import CopiableAddressWrap from 'components/copiable/CopiableAddressWrap';
+
 import { useWallet } from 'store/wallet';
 import { useHistory } from 'store/history';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { clearInvitesStorage } from 'store/storage/roller';
-import CopiableAddressWrap from 'components/copiable/CopiableAddressWrap';
-import Dropdown from './Dropdown';
+import { useRollerStore } from 'store/roller';
 
-import './AccountsDropdown.scss';
-import { abbreviateAddress } from 'lib/utils/address';
 import { PointLayer } from 'lib/types/PointLayer';
+import { abbreviateAddress } from 'lib/utils/address';
 
-const AccountsDropdown = () => {
+import Dropdown from './Dropdown';
+import './AccountsDropdown.scss';
+import Modal from '../Modal';
+import { convertToInt } from 'lib/convertToInt';
+
+interface AccountsDropdownProps {
+  showMigrate: boolean;
+}
+
+const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
   const [open, setOpen] = useState<boolean>(false);
   const walletInfo: any = useWallet();
   const { push, names, reset }: any = useHistory();
   const { setPointCursor }: any = usePointCursor();
   const { controlledPoints }: any = usePointCache();
+  const { currentL2 } = useRollerStore();
+  const { getDetails }: any = usePointCache();
+  const { pointCursor }: any = usePointCursor();
+  const point = pointCursor.getOrElse(null);
+
+  let networkKeysNotSet = true;
+
+  if (point) {
+    const pointSize = azimuth.getPointSize(point);
+    const details = need.details(getDetails(point));
+    const isStarOrGalaxy = pointSize !== azimuth.PointSize.Planet;
+    const networkRevision = convertToInt(details.keyRevisionNumber, 10);
+    networkKeysNotSet = !currentL2 && isStarOrGalaxy && networkRevision === 0;
+  }
+
+  const [showModal, setShowModal] = useState(false);
 
   const canBitcoin = Just.hasInstance(walletInfo.urbitWallet);
 
-  const points = controlledPoints?.value?.value?.pointsWithLayers || [];
+  const points = (controlledPoints?.value?.value?.pointsWithLayers || []).sort(
+    (a: PointLayer, b: PointLayer) => a.point - b.point
+  );
 
   const currentAddress = walletInfo?.wallet?.value?.address || '';
   const displayAddress = abbreviateAddress(currentAddress);
 
-  const selectPoint = (point: number) => () => {
-    setPointCursor(Just(point));
-    push(names.POINT);
-    setOpen(false);
-  };
-  const goToMigrate = () => push(names.MIGRATE);
-  const goToBitcoin = () => push(names.BITCOIN);
+  const selectPoint = useCallback(
+    (point: number) => () => {
+      setPointCursor(Just(point));
+      push(names.POINT);
+      setOpen(false);
+    },
+    [push, names.POINT, setOpen, setPointCursor]
+  );
+  const goMigrate = useCallback(() => push(names.MIGRATE_L2), [
+    names.MIGRATE_L2,
+    push,
+  ]);
+  const goBitcoin = useCallback(() => push(names.BITCOIN), [
+    names.BITCOIN,
+    push,
+  ]);
+
   const onLogout = () => {
     clearInvitesStorage();
     reset();
@@ -74,16 +113,18 @@ const AccountsDropdown = () => {
         })}
       </Box>
       <Box className="divider" />
-      <Row className="entry" onClick={goToMigrate}>
-        <Box>Migrate</Box>
-        <Row className="layer-migration">
-          <LayerIndicator layer={1} size="sm" />
-          <Icon icon="ArrowEast" />
-          <LayerIndicator layer={2} size="sm" />
+      {(showMigrate || (!currentL2 && !networkKeysNotSet)) && (
+        <Row className="entry" onClick={() => setShowModal(true)}>
+          <Box>Migrate</Box>
+          <Row className="layer-migration">
+            <LayerIndicator layer={1} size="sm" />
+            <Icon icon="ArrowEast" />
+            <LayerIndicator layer={2} size="sm" />
+          </Row>
         </Row>
-      </Row>
+      )}
       {canBitcoin && (
-        <Row className="entry" onClick={goToBitcoin}>
+        <Row className="entry" onClick={goBitcoin}>
           <Box>Bitcoin</Box>
           <Icon icon="Bitcoin" />
         </Row>
@@ -92,6 +133,27 @@ const AccountsDropdown = () => {
         <Box>Logout</Box>
         <Icon icon="LogOut" />
       </Row>
+      <Modal show={showModal} hide={() => setShowModal(false)}>
+        <Box className="migrate-modal">
+          <Box className="close" onClick={() => setShowModal(false)}>
+            &#215;
+          </Box>
+          <Box className="title">Migrating to Layer 2</Box>
+          <Box className="message">
+            We've upgraded Bridge to support Layer 2 transactions. If you don't
+            migrate now, you can always do it later.
+          </Box>
+          <Box className="warning">Migrating to Layer 2 is irreversible.</Box>
+          <Row className="buttons">
+            <Button className="cancel" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            <Button className="migrate" onClick={goMigrate}>
+              Migrate
+            </Button>
+          </Row>
+        </Box>
+      </Modal>
     </Dropdown>
   );
 };
