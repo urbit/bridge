@@ -392,7 +392,7 @@ export default function useRoller() {
       encrypt: keys.crypt.public,
       breach: false,
       auth: keys.auth.public,
-      cryptoSuite: CRYPTO_SUITE_VERSION,
+      cryptoSuite: CRYPTO_SUITE_VERSION.toString(),
     };
     const keysFrom: From = {
       ship: patp,
