@@ -94,9 +94,7 @@ export default function MigrateL2() {
   const [transfer, setTransfer] = useState(true);
 
   const points = controlledPoints?.value?.value?.pointsWithLayers || [];
-  const l1Points = points.filter(
-    ({ point, layer }: PointLayer) => layer === 1 && isStar(point)
-  );
+  const l1Points = points.filter(({ point, layer }: PointLayer) => layer === 1);
 
   const hideInfo = getHideMigrationMessage();
 
@@ -134,6 +132,9 @@ export default function MigrateL2() {
 
   const selectPoint = useCallback(
     (point: number) => {
+      if (!isStar(point)) {
+        setTransfer(true);
+      }
       setSelectedPoint(point);
       setShowDropdown(false);
       construct(point, transfer);
