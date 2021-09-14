@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 export enum TooltipPosition {
   Top,
   TopRight,
+  Left,
   // Add more as necessary here and in #positionStyle
 }
 
@@ -30,6 +31,8 @@ export default function WithTooltip({
         return { bottom: '100%' };
       case TooltipPosition.TopRight:
         return { bottom: '90%', left: '90%' };
+      case TooltipPosition.Left:
+        return { bottom: '-67%', left: '-400%' };
       default:
         return { bottom: '100%' };
     }

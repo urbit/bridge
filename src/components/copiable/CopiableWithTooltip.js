@@ -9,6 +9,7 @@ export default function CopiableWithTooltip({
   text,
   children,
   className,
+  position,
   ...rest
 }) {
   const [doCopy, didCopy] = useCopiable(text || children);
@@ -16,7 +17,7 @@ export default function CopiableWithTooltip({
   return (
     <As className={className} {...rest}>
       {children}
-      <WithTooltip content={didCopy ? 'Copied!' : 'Copy'}>
+      <WithTooltip position={position} content={didCopy ? 'Copied!' : 'Copy'}>
         <Icon
           icon="Copy"
           style={{ height: '1em', width: '1em' }}
