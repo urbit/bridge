@@ -43,6 +43,12 @@ import {
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints, maybeGetResult } from 'views/Points';
 import { isPlanet } from './utils/point';
+import {
+  CRYPTO_SUITE_VERSION,
+  deriveNetworkKeys,
+  deriveNetworkSeedFromUrbitWallet,
+} from './keys';
+import { convertToInt } from './convertToInt';
 
 const spawn = async (
   api: any,
@@ -140,8 +146,8 @@ const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 const getProxyAndNonce = (
   point: L2Point,
   address: string
-): { proxy?: string; nonce?: number } =>
-  point.ownership?.managementProxy?.address === address
+): { proxy?: string; nonce?: number } => {
+  return point.ownership?.managementProxy?.address === address
     ? { proxy: 'manage', nonce: point.ownership?.managementProxy.nonce }
     : point.ownership?.owner?.address === address
     ? { proxy: 'own', nonce: point.ownership?.owner.nonce }
@@ -155,6 +161,7 @@ const getProxyAndNonce = (
         nonce: point.transferProxy?.votingProxy?.owner.nonce,
       }
     : { proxy: undefined, nonce: undefined };
+};
 
 export default function useRoller() {
   const { wallet, authToken, authMnemonic, urbitWallet }: any = useWallet();
@@ -466,40 +473,89 @@ export default function useRoller() {
     ]
   );
 
+  // TODO: extract from #transferPoint
+  // interface ConfigureKeysParams {
+
+  // }
+
+  // const configureKeys = async () => {
+
+  // }
+
   interface TransferPointParams {
     point: Ship;
-    from: From;
     to: EthAddress;
-    fromAddress: EthAddress;
-    signingKey: string;
+    ownerAddress: EthAddress;
+    wallet: any; // TODO: wallet type
   }
 
   const transferPoint = async ({
     point,
-    from,
     to,
-    fromAddress,
-    signingKey,
+    ownerAddress,
+    wallet,
   }: TransferPointParams) => {
-    const pointInfo = await api.getPoint(point);
+    const patp = ob.patp(point);
+    const signingKey = wallet.ownership.keys.private;
+    const azimuthPoint = await api.getPoint(point);
 
-    const { nonce } = getProxyAndNonce(pointInfo, fromAddress);
+    const { nonce } = getProxyAndNonce(azimuthPoint, ownerAddress);
     if (nonce === undefined) {
       throw new Error('Nonce unavailable');
     }
-    const transferData = { address: fromAddress, reset: true };
-    const transferHash: Hash = await api.hashTransaction(
+
+    // update networking keys
+    // TODO: extract this to a useRoller#configureKeys function?
+    const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
+    const nextRevision = networkRevision + 1;
+    const seed = await deriveNetworkSeedFromUrbitWallet(wallet, nextRevision);
+    const keys = deriveNetworkKeys(seed.value);
+    const keysData = {
+      address: ownerAddress,
+      encrypt: keys.crypt.public,
+      breach: false,
+      auth: keys.auth.public,
+      cryptoSuite: CRYPTO_SUITE_VERSION,
+    };
+    const keysFrom: From = {
+      ship: patp,
+      proxy: 'own',
+    };
+
+    const keysHash: Hash = await api.hashTransaction(
       nonce,
-      from,
+      keysFrom,
+      'configureKeys',
+      keysData
+    );
+
+    await api.configureKeys(
+      signTransactionHash(keysHash, Buffer.from(signingKey, 'hex')),
+      keysFrom,
+      ownerAddress,
+      keysData
+    );
+
+    // transfer point
+    const transferFrom: From = {
+      ship: patp,
+      proxy: 'transfer',
+    };
+
+    const transferData = { address: ownerAddress, reset: false };
+    const transferHash: Hash = await api.hashTransaction(
+      nonce + 1,
+      transferFrom,
       'transferPoint',
       transferData
     );
 
-    const sig = signTransactionHash(
-      transferHash,
-      Buffer.from(signingKey, 'hex')
+    const transferTxHash = await api.transferPoint(
+      signTransactionHash(transferHash, Buffer.from(signingKey, 'hex')),
+      transferFrom,
+      to,
+      transferData
     );
-    const transferTxHash = await api.transferPoint(sig, from, to, transferData);
 
     return transferTxHash;
   };

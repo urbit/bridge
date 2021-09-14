@@ -28,6 +28,7 @@ const ActivateButton = ({
       height={'50px'}
       fontWeight={'400'}
       fontSize={'18px'}
+      disabled={disabled}
       opacity={disabled ? 0.2 : 1.0}
       {...rest}>
       {children}
