@@ -24,7 +24,7 @@ export const ActivateSteps = ({
           borderTopRightRadius={isLastStep ? '3px' : null}
           borderBottomRightRadius={isLastStep ? '3px' : null}
           key={i}
-          backgroundColor={i <= currentStep ? 'black' : 'gray'}
+          backgroundColor={i <= currentStep ? 'black' : 'rgba(0, 0, 0, 0.2)'}
           height={'4px'}
           width={`${100 / totalSteps}%`}
           marginLeft={'0px'}
