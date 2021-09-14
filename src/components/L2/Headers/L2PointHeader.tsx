@@ -1,5 +1,4 @@
 import React, { useEffect, useCallback } from 'react';
-import { azimuth } from 'azimuth-js';
 import { Box, Row } from '@tlon/indigo-react';
 
 import useRoller from 'lib/useRoller';
@@ -12,6 +11,7 @@ import { useRollerStore } from 'store/roller';
 import './L2PointHeader.scss';
 import { isDevelopment } from 'lib/flags';
 import { usePointCursor } from 'store/pointCursor';
+import { isStar } from 'lib/utils/point';
 
 export interface L2PointHeaderProps {
   numInvites: number;
@@ -47,15 +47,13 @@ const L2PointHeader = ({
     push,
   ]);
 
-  const isStar =
-    pointCursor?.value &&
-    azimuth.getPointSize(pointCursor?.value) === azimuth.PointSize.Star;
+  const star = pointCursor?.value && isStar(pointCursor.value);
 
   return (
     <Row className="l2-point-header">
       <AccountsDropdown showMigrate={showMigrate} />
       <Row className="info">
-        {!hideInvites && isStar && (
+        {!hideInvites && star && (
           <Row onClick={goToInvites} className="invites">
             <InviteIcon />
             {numInvites}

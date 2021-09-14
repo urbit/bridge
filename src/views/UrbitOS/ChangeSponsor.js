@@ -22,6 +22,7 @@ import * as need from 'lib/need';
 import { validateMinimumPatpByteLength } from 'lib/validators';
 import { usePointCursor } from 'store/pointCursor';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
+import { isStar } from 'lib/utils/point';
 
 function useChangeSponsor() {
   const { contracts } = useNetwork();
@@ -73,8 +74,7 @@ function ChangeSponsor({ onDone }) {
   );
 
   const validate = useMemo(() => {
-    const sponsorSize =
-      azimuth.getPointSize(point) === azimuth.PointSize.Star ? 1 : 2;
+    const sponsorSize = isStar(point) ? 1 : 2;
     return composeValidator(
       {
         sponsor: buildPointValidator(sponsorSize, [

@@ -8,6 +8,7 @@ import { Just } from 'folktale/maybe';
 import Sigil from 'components/Sigil';
 import LayerIndicator from 'components/L2/LayerIndicator';
 import CopiableAddressWrap from 'components/copiable/CopiableAddressWrap';
+import { TooltipPosition } from 'components/WithTooltip';
 
 import { useWallet } from 'store/wallet';
 import { useHistory } from 'store/history';
@@ -88,7 +89,9 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
       open={open}
       value={currentAddress.slice(0, 6)}
       toggleOpen={() => setOpen(!open)}>
-      <CopiableAddressWrap className="current-address">
+      <CopiableAddressWrap
+        className="current-address"
+        position={TooltipPosition.Left}>
         {displayAddress}
       </CopiableAddressWrap>
       <Box className="divider" />

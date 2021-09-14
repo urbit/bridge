@@ -143,6 +143,36 @@
         }
       }
 
+      .transfer-spawn-selector {
+        display: flex;
+        flex-direction: row;
+
+        .transfer, .spawn {
+          margin: 16px 0px;
+          cursor: pointer;
+          border-radius: $medium-border-radius;
+          color: white;
+          background-color: $light-gray;
+          padding: 4px 8px;
+
+          &:hover {
+            opacity: 0.8;
+          }
+
+          &.selected {
+            background-color: black;
+
+            &:hover {
+              opacity: 1;
+            }
+          }
+        }
+
+        .transfer {
+          margin-right: 8px;
+        }
+      }
+
       .dropdown {
         margin-top: 4px;
         &.migrate-selector .dropdown-content {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Grid } from 'indigo-react';
-import * as azimuth from 'azimuth-js';
+import { azimuth, ecliptic } from 'azimuth-js';
 import * as ob from 'urbit-ob';
 
 import View from 'components/View';
@@ -29,6 +29,7 @@ import { GAS_LIMITS } from 'lib/constants';
 import Dropdown from 'components/L2/Dropdowns/Dropdown';
 import { PointLayer } from 'lib/types/PointLayer';
 import Sigil from 'components/Sigil';
+import { isStar } from 'lib/utils/point';
 
 const DUMMY_L2_ADDRESS = '0x1111111111111111111111111111111111111111';
 
@@ -61,13 +62,17 @@ const useMigrate = () => {
 
   return useEthereumTransaction(
     useCallback(
-      (selectedPoint: number) => {
+      (selectedPoint: number, transfer: boolean) => {
         setSelectedPoint(selectedPoint);
-        return azimuth.ecliptic.setSpawnProxy(
-          _contracts,
-          selectedPoint,
-          DUMMY_L2_ADDRESS
-        );
+        return transfer ||
+          azimuth.getPointSize(selectedPoint) === azimuth.PointSize.Planet
+          ? ecliptic.transferPoint(
+              _contracts,
+              selectedPoint,
+              DUMMY_L2_ADDRESS,
+              false
+            )
+          : ecliptic.setSpawnProxy(_contracts, selectedPoint, DUMMY_L2_ADDRESS);
       },
       [_contracts]
     ),
@@ -86,12 +91,11 @@ export default function MigrateL2() {
   const [hideMessage, setHideMessage] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState(point);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [transfer, setTransfer] = useState(true);
 
   const points = controlledPoints?.value?.value?.pointsWithLayers || [];
   const l1Points = points.filter(
-    ({ point, layer }: PointLayer) =>
-      layer === 1 &&
-      azimuth.azimuth.getPointSize(point) === azimuth.azimuth.PointSize.Star
+    ({ point, layer }: PointLayer) => layer === 1 && isStar(point)
   );
 
   const hideInfo = getHideMigrationMessage();
@@ -100,7 +104,7 @@ export default function MigrateL2() {
 
   useEffect(() => {
     if (point) {
-      construct(point);
+      construct(point, transfer);
     } else {
       unconstruct();
     }
@@ -132,12 +136,19 @@ export default function MigrateL2() {
     (point: number) => {
       setSelectedPoint(point);
       setShowDropdown(false);
-      construct(point);
+      construct(point, transfer);
     },
-    [setSelectedPoint, setShowDropdown, construct]
+    [setSelectedPoint, setShowDropdown, construct, transfer]
   );
 
+  const toggleTransfer = useCallback(() => {
+    construct(selectedPoint, !transfer);
+    setTransfer(!transfer);
+  }, [transfer, setTransfer, construct, selectedPoint]);
+
   const getContent = () => {
+    const star = isStar(selectedPoint);
+
     if (l1Points.length === 0) {
       return (
         <Box className="content">
@@ -167,11 +178,36 @@ export default function MigrateL2() {
                 />
               ))}
             </Dropdown>
+            {star && (
+              <Box className="transfer-spawn-selector">
+                <Box
+                  onClick={toggleTransfer}
+                  className={`transfer ${transfer ? 'selected' : ''}`}>
+                  Transfer Point
+                </Box>
+                <Box
+                  onClick={toggleTransfer}
+                  className={`spawn ${!transfer ? 'selected' : ''}`}>
+                  Set Spawn Proxy
+                </Box>
+              </Box>
+            )}
+            {star && (
+              <Box>
+                Transferring this point will allow you to conduct all
+                transactions on Layer 2 and is irreversible. Setting the spawn
+                proxy of a star to the Layer 2 contract is reversible, will
+                allow you to create planet invites for free, but will require
+                you to do all other transactions on Layer 1.
+              </Box>
+            )}
           </Box>
           <Grid.Item
             full
             as={InlineEthereumTransaction}
-            label="Migrate to Layer 2"
+            label={`${
+              transfer ? 'Transfer point' : 'Set spawn proxy'
+            } to Layer 2`}
             {...bind}
             onReturn={pop}
           />
@@ -184,7 +220,14 @@ export default function MigrateL2() {
         <Box className="message">
           You are about to migrate a node from Layer 1 to Layer 2. This will
           make transactions faster and cheaper. Here are some things you should
-          know. <span className="bold">Learn More</span>
+          know.{' '}
+          <a
+            className="bold"
+            target="_blank"
+            rel="noreferrer"
+            href="https://discord.com/channels/879614191672115260/879624035028324362">
+            Learn More
+          </a>
         </Box>
         {!hideInfo && (
           <Box className="info-list">
