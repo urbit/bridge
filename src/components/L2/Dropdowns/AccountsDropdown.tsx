@@ -24,6 +24,7 @@ import Dropdown from './Dropdown';
 import './AccountsDropdown.scss';
 import Modal from '../Modal';
 import { convertToInt } from 'lib/convertToInt';
+import { isPlanet } from 'lib/utils/point';
 
 interface AccountsDropdownProps {
   showMigrate: boolean;
@@ -43,9 +44,8 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
   let networkKeysNotSet = true;
 
   if (point) {
-    const pointSize = azimuth.getPointSize(point);
     const details = need.details(getDetails(point));
-    const isStarOrGalaxy = pointSize !== azimuth.PointSize.Planet;
+    const isStarOrGalaxy = !isPlanet(point);
     const networkRevision = convertToInt(details.keyRevisionNumber, 10);
     networkKeysNotSet = !currentL2 && isStarOrGalaxy && networkRevision === 0;
   }

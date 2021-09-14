@@ -31,6 +31,7 @@ import {
 } from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints, maybeGetResult } from 'views/Points';
+import { isPlanet } from './utils/point';
 
 const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 
@@ -264,10 +265,7 @@ export default function useRoller() {
               []
             );
             possibleMissingInvites = allSpawned.filter(
-              (p: number) =>
-                ownedPoints.includes(p) &&
-                azimuth.azimuth.getPointSize(p) ===
-                  azimuth.azimuth.PointSize.Planet
+              (p: number) => ownedPoints.includes(p) && isPlanet(p)
             );
           }
 
@@ -283,10 +281,7 @@ export default function useRoller() {
 
           possibleMissingInvites = possibleMissingInvites.concat(
             outgoingPoints.filter(
-              (p: number) =>
-                azimuth.azimuth.getPointSize(p) ===
-                  azimuth.azimuth.PointSize.Planet &&
-                availablePoints.includes(p)
+              (p: number) => isPlanet(p) && availablePoints.includes(p)
             )
           );
 

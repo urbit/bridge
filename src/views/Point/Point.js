@@ -35,6 +35,7 @@ import { isDevelopment } from 'lib/flags';
 import { convertToInt } from 'lib/convertToInt';
 import { usePointCache } from 'store/pointCache';
 import Modal from 'components/L2/Modal';
+import { isPlanet } from 'lib/utils/point';
 
 function InviteForm({
   showInviteForm,
@@ -208,7 +209,7 @@ export default function Point() {
     push,
   ]);
 
-  const isPlanet = azimuth.getPointSize(point) === azimuth.PointSize.Planet;
+  const planet = isPlanet(point);
 
   const [showInviteForm, setShowInviteForm] = useState(false);
 
@@ -282,7 +283,7 @@ export default function Point() {
             />
           </Grid.Item>
         )}
-        {isPlanet && hasInvites && (
+        {planet && hasInvites && (
           <InviteForm
             showInviteForm={showInviteForm}
             setShowInviteForm={setShowInviteForm}
@@ -295,7 +296,7 @@ export default function Point() {
             showInvites={showInvites}
           />
         )}
-        {!loadedInvites && isPlanet && (
+        {!loadedInvites && planet && (
           <Grid.Item className="mv2" full>
             Invite Group <Blinky />
           </Grid.Item>

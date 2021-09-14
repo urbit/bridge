@@ -29,7 +29,7 @@ import { GAS_LIMITS } from 'lib/constants';
 import Dropdown from 'components/L2/Dropdowns/Dropdown';
 import { PointLayer } from 'lib/types/PointLayer';
 import Sigil from 'components/Sigil';
-import { isStar } from 'lib/utils/point';
+import { isPlanet, isStar } from 'lib/utils/point';
 
 const DUMMY_L2_ADDRESS = '0x1111111111111111111111111111111111111111';
 
@@ -64,8 +64,7 @@ const useMigrate = () => {
     useCallback(
       (selectedPoint: number, transfer: boolean) => {
         setSelectedPoint(selectedPoint);
-        return transfer ||
-          azimuth.getPointSize(selectedPoint) === azimuth.PointSize.Planet
+        return transfer || isPlanet(selectedPoint)
           ? ecliptic.transferPoint(
               _contracts,
               selectedPoint,
