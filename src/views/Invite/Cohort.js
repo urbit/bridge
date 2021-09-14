@@ -30,6 +30,7 @@ import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import './Cohort.scss';
 import { getStoredInvites } from 'store/storage/roller';
 import { ETH_ZERO_ADDR } from 'lib/constants';
+import { isPlanet } from 'lib/utils/point';
 
 const INVITES_PER_PAGE = 7;
 const DEFAULT_NUM_INVITES = 5;
@@ -78,8 +79,7 @@ export default function InviteCohort() {
         const p = possiblePoints[i];
         if (
           !invites.find(({ planet }) => planet === p) &&
-          azimuth.azimuth.getPointSize(p) ===
-            azimuth.azimuth.PointSize.Planet &&
+          isPlanet(p) &&
           (await azimuth.azimuth.getOwner(_contracts, p)) === ETH_ZERO_ADDR
         ) {
           invitePoint = p;

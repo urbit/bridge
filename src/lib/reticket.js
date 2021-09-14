@@ -17,6 +17,7 @@ import getSuggestedGasPrice from './getSuggestedGasPrice';
 import { GAS_LIMITS } from './constants';
 import { toBN } from 'web3-utils';
 import { safeToWei } from './lib';
+import { isPlanet } from './utils/point';
 
 // the initial network key revision is always 1
 const INITIAL_NETWORK_KEY_REVISION = 1;
@@ -109,9 +110,7 @@ export async function reticketPointBetweenWallets({
   // set spawn & voting proxies situationally
 
   let txs = [transferTmpTx, keysTx, managementTx];
-  if (
-    azimuth.azimuth.getPointSize(point) !== azimuth.azimuth.PointSize.Planet
-  ) {
+  if (!isPlanet(point)) {
     const spawnTx = azimuth.ecliptic.setSpawnProxy(
       contracts,
       point,
