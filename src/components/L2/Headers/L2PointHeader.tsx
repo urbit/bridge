@@ -10,20 +10,25 @@ import { useRollerStore } from 'store/roller';
 
 import './L2PointHeader.scss';
 import { isDevelopment } from 'lib/flags';
+import { usePointCursor } from 'store/pointCursor';
+import { isStar } from 'lib/utils/point';
 
 export interface L2PointHeaderProps {
   numInvites: number;
   hideTimer: boolean;
   hideInvites: boolean;
+  showMigrate: boolean;
 }
 
 const L2PointHeader = ({
   hideTimer = false,
   hideInvites = false,
+  showMigrate = false,
   numInvites = 0,
 }: L2PointHeaderProps) => {
   const { config } = useRoller();
   const { nextRoll, currentL2, pendingTransactions } = useRollerStore();
+  const { pointCursor }: any = usePointCursor();
 
   useEffect(() => {
     if (isDevelopment) {
@@ -42,11 +47,13 @@ const L2PointHeader = ({
     push,
   ]);
 
+  const star = pointCursor?.value && isStar(pointCursor.value);
+
   return (
     <Row className="l2-point-header">
-      <AccountsDropdown />
+      <AccountsDropdown showMigrate={showMigrate} />
       <Row className="info">
-        {!hideInvites && (
+        {!hideInvites && star && (
           <Row onClick={goToInvites} className="invites">
             <InviteIcon />
             {numInvites}
@@ -57,7 +64,7 @@ const L2PointHeader = ({
             {nextRoll}
           </Box>
         )}
-        {currentL2 && <HistoryIcon className="history" onClick={goToHistory} />}
+        <HistoryIcon className="history" onClick={goToHistory} />
       </Row>
     </Row>
   );

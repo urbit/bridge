@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as wg from 'lib/walletgen';
 import * as need from 'lib/need';
 import * as azimuth from 'azimuth-js';
+import * as ob from 'urbit-ob';
 
 import {
   Config,
@@ -30,6 +31,7 @@ import {
 } from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints, maybeGetResult } from 'views/Points';
+import { isPlanet } from './utils/point';
 
 const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 
@@ -212,8 +214,8 @@ export default function useRoller() {
 
   const getPendingTransactions = useCallback(async () => {
     try {
-      const curPoint = need.point(pointCursor);
-      const newPending = await api.getPendingByShip(Number(curPoint));
+      const curPoint = Number(need.point(pointCursor));
+      const newPending = await api.getPendingByShip(curPoint);
       setPendingTransactions(newPending);
 
       // const allTransactions = await api.getHistory()
@@ -225,7 +227,7 @@ export default function useRoller() {
   const getInvites = useCallback(
     async (isL2: boolean) => {
       try {
-        const curPoint: string = need.point(pointCursor);
+        const curPoint: number = Number(need.point(pointCursor));
         const invites = getStoredInvites(curPoint);
         const availableInvites = invites.available;
 
@@ -237,20 +239,17 @@ export default function useRoller() {
 
         const stillPending = invites.pending.filter(invite => {
           const completed = !pendingTransactions.find(
-            p => p?.rawTx?.tx?.tx?.data?.ship === invite.planet
+            p => `~${p?.rawTx?.tx?.tx?.data?.ship}` === ob.patp(invite.planet)
           );
-
           if (completed) {
             availableInvites.push({ ...invite, status: 'available' });
           }
-
           return !completed;
         });
 
         setStoredInvites(curPoint, {
           available: availableInvites,
           pending: stillPending,
-          claimed: invites.claimed,
         });
         setInvites(availableInvites);
 
@@ -260,46 +259,38 @@ export default function useRoller() {
         if (_authToken && _contracts) {
           let possibleMissingInvites: number[] = [];
           if (isL2) {
-            const allSpawned = await api.getSpawned(Number(curPoint));
+            const allSpawned = await api.getSpawned(curPoint);
             const ownedPoints = maybeGetResult(
               controlledPoints,
               'ownedPoints',
               []
             );
             possibleMissingInvites = allSpawned.filter(
-              (p: number) =>
-                ownedPoints.includes(p) &&
-                azimuth.azimuth.getPointSize(p) ===
-                  azimuth.azimuth.PointSize.Planet
-            );
-          } else {
-            const outgoingPoints = getOutgoingPoints(
-              controlledPoints,
-              getDetails
-            );
-
-            const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
-              _contracts,
-              curPoint
-            );
-
-            possibleMissingInvites = outgoingPoints.filter(
-              (p: number) =>
-                azimuth.azimuth.getPointSize(p) ===
-                  azimuth.azimuth.PointSize.Planet &&
-                availablePoints.includes(p)
+              (p: number) => ownedPoints.includes(p) && isPlanet(p)
             );
           }
+
+          const outgoingPoints = getOutgoingPoints(
+            controlledPoints,
+            getDetails
+          );
+
+          const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
+            _contracts,
+            curPoint
+          );
+
+          possibleMissingInvites = possibleMissingInvites.concat(
+            outgoingPoints.filter(
+              (p: number) => isPlanet(p) && availablePoints.includes(p)
+            )
+          );
 
           // Iterate over all spawned and controlled planets
           // If the planet is not in available invites, generate the ticket and add it
           if (isDevelopment) {
             console.log('POSSIBLE MISSING', possibleMissingInvites);
           }
-
-          const newClaimed = availableInvites.filter(
-            ({ planet }) => !possibleMissingInvites.includes(planet)
-          );
 
           for (let i = 0; i < possibleMissingInvites.length; i++) {
             const planet = possibleMissingInvites[i];
@@ -332,7 +323,6 @@ export default function useRoller() {
               possibleMissingInvites.includes(planet)
             ),
             pending: stillPending,
-            claimed: invites.claimed.concat(newClaimed),
           });
           setInvites(availableInvites);
         }

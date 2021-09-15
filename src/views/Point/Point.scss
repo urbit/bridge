@@ -1,0 +1,106 @@
+@import 'style/shared/variables.scss';
+
+.point {
+}
+
+.transaction {
+  font-size: 14px;
+  padding: 8px;
+  border: 1px solid $light-gray;
+  border-radius: $large-border-radius;
+  margin-bottom: 16px;
+
+  .title-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    .title {
+      font-weight: 600;
+    }
+
+    .rollup-timer {
+      background-color: $rollup-yellow;
+      padding: 4px 8px;
+      width: 110px;
+      border-radius: $medium-border-radius;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+
+      svg {
+        height: 14px;
+        width: 14px;
+        margin-right: 4px;
+      }
+    }
+  }
+
+  .info-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    .date {
+      
+    }
+  }
+}
+
+.network-keys-modal {
+  padding: 16px;
+  background-color: white;
+  border-radius: $medium-border-radius;
+  line-height: 24px;
+  position: relative;
+  width: 368px;
+
+  .close {
+    position: absolute;
+    top: 3px;
+    right: 8px;
+    font-size: 18px;
+    font-weight: 200;
+    cursor: pointer;
+  }
+
+  .title {
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .message {
+    width: 340px;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 24px;
+
+    .cancel, .migrate {
+      border-radius: $medium-border-radius;
+      border: none;
+      height: 32px;
+      font-family: $default-font;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    .cancel {
+      margin-right: 8px;
+      background-color: $washed-gray;
+    }
+
+    .migrate {
+      background-color: black;
+      color: white;
+    }
+  }
+}

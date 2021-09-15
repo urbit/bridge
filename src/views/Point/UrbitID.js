@@ -11,12 +11,12 @@ import View from 'components/View';
 import Crumbs from 'components/Crumbs';
 import NavHeader from 'components/NavHeader';
 
-import UrbitIDHome from './UrbitID/Home';
-import SigilGenerator from './UrbitID/SigilGenerator';
-import DownloadKeys from './UrbitID/DownloadKeys';
-import SetProxy from './UrbitID/SetProxy';
-import ResetKeys from './UrbitID/ResetKeys';
-import Transfer from './UrbitID/Transfer';
+import UrbitIDHome from '../UrbitID/Home';
+import SigilGenerator from '../UrbitID/SigilGenerator';
+import DownloadKeys from '../UrbitID/DownloadKeys';
+import SetProxy from '../UrbitID/SetProxy';
+import ResetKeys from '../UrbitID/ResetKeys';
+import Transfer from '../UrbitID/Transfer';
 
 const NAMES = {
   HOME: 'HOME',
