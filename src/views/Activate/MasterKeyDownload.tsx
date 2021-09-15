@@ -35,7 +35,6 @@ const MasterKeyDownload = () => {
 
   const [paper, setPaper] = useState(Nothing());
   const [triggerAnimation, setTriggerAnimation] = useState<boolean>(false);
-  const [downloaded, setDownloaded] = useState<boolean>(false);
 
   const pointAsString = derivedPoint.matchWith({
     Nothing: () => '',
@@ -47,8 +46,7 @@ const MasterKeyDownload = () => {
     //TODO  could be deduplicated with useKeyfileGenerator's logic
     const filename = ob.patp(point).slice(1) + '-1.key';
     await downloadWallet(paper.getOrElse([]), netkey, filename);
-    setDownloaded(true);
-  }, [paper, wallet, point, setDownloaded]);
+  }, [paper, wallet, point]);
 
   // sync paper value to activation state
   useEffect(
@@ -70,7 +68,7 @@ const MasterKeyDownload = () => {
   }, [download, setIsIn, push, names.CONFIRM]);
 
   const header = useMemo(() => {
-    return triggerAnimation ? (
+    return (
       <Box>
         <ActivateHeader content={'Backup your Master Key.'} />
         <ActivateParagraph
@@ -79,16 +77,16 @@ const MasterKeyDownload = () => {
           }
         />
       </Box>
-    ) : null;
-  }, [triggerAnimation]);
+    );
+  }, []);
 
   const footer = useMemo(() => {
-    return triggerAnimation ? (
+    return (
       <ActivateButton onClick={onDownloadClick}>
         {'Download Backup (Passport)'}
       </ActivateButton>
-    ) : null;
-  }, [onDownloadClick, triggerAnimation]);
+    );
+  }, [onDownloadClick]);
 
   const delayedReveal = useCallback(async () => {
     setTimeout(() => {
@@ -107,7 +105,9 @@ const MasterKeyDownload = () => {
 
   return (
     <>
-      <ActivateView header={header} footer={footer}>
+      <ActivateView
+        header={triggerAnimation && header}
+        footer={triggerAnimation && footer}>
         <Box
           alignItems={'center'}
           display={'flex'}
@@ -119,7 +119,7 @@ const MasterKeyDownload = () => {
             <DangerBox>Do not share this with anyone else!</DangerBox>
           )}
           {ticket && (
-            <MasterKeyPresenter overrideFadeIn={true} ticket={ticket} />
+            <MasterKeyPresenter ticket={ticket} overrideFadeIn={true} />
           )}
           {triggerAnimation && <MasterKeyCopy text={ticket} />}
         </Box>

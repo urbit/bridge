@@ -14,7 +14,12 @@ import DangerBox from './DangerBox';
 
 const MasterKeyTransfer = () => {
   const { api, transferPoint } = useRoller();
-  const { derivedPatp, derivedPoint, derivedWallet } = useActivateFlow();
+  const {
+    derivedPatp,
+    derivedPoint,
+    derivedWallet,
+    inviteWallet,
+  } = useActivateFlow();
   const [error, setError] = useState();
 
   const claimPoint = useCallback(async () => {
@@ -26,13 +31,14 @@ const MasterKeyTransfer = () => {
         point: derivedPoint.value,
         to: derivedWallet.value.ownership.address,
         ownerAddress: l2point.ownership?.owner?.address!,
-        wallet: derivedWallet.value,
+        toWallet: derivedWallet.value,
+        fromWallet: inviteWallet.value,
       });
     } catch (error) {
       console.error(error);
       setError(error);
     }
-  }, [api, derivedPoint.value, derivedWallet.value, transferPoint]);
+  }, [api, derivedPoint.value, derivedWallet, inviteWallet, transferPoint]);
 
   useFadeIn();
 

@@ -1,4 +1,4 @@
-import { Box, Button } from '@tlon/indigo-react';
+import { Button } from '@tlon/indigo-react';
 import { MouseEventHandler } from 'react';
 import withFadeable from './withFadeable';
 
@@ -16,7 +16,11 @@ const ActivateButton = ({
   success = false,
   ...rest
 }: ActivateButtonProps & React.ComponentPropsWithoutRef<'button'>) => {
-  const backgroundColor = success ? '#009F65' : 'black';
+  const backgroundColor = disabled
+    ? 'rgba(0,0,0,0.2)'
+    : success
+    ? '#009F65'
+    : 'black';
 
   return (
     <Button
@@ -25,11 +29,11 @@ const ActivateButton = ({
       color={'white'}
       padding={'16px'}
       fontFamily="Inter"
-      height={'50px'}
+      height={'40px'}
       fontWeight={'400'}
-      fontSize={'18px'}
+      fontSize={'14px'}
+      borderRadius={'4px'}
       disabled={disabled}
-      opacity={disabled ? 0.2 : 1.0}
       {...rest}>
       {children}
     </Button>
