@@ -33,6 +33,7 @@ import { convertToInt } from 'lib/convertToInt';
 import { Box } from '@tlon/indigo-react';
 import { timeout } from 'lib/timeout';
 import withFadeable from './withFadeable';
+import ActivateButton from './ActivateButton';
 
 interface ActivateCodeFormProps {
   afterSubmit: VoidFunction;
@@ -185,61 +186,57 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
       flexWrap="nowrap"
       height={'100%'}
       justifyContent="flex-end">
-      <Grid>
-        <BridgeForm
-          validate={validate}
-          onSubmit={onSubmit}
-          afterSubmit={afterSubmit}
-          initialValues={initialValues}>
-          {({ validating, values, submitting, handleSubmit }) => (
-            <>
-              {!impliedTicket && (
-                <>
-                  <Grid.Item
-                    full
-                    as={TicketInput}
-                    type={values.showTicket ? 'text' : 'password'}
-                    name="ticket"
-                    label="Activation Code"
-                    disabled={!activationAllowed}
-                  />
+      <BridgeForm
+        validate={validate}
+        onSubmit={onSubmit}
+        afterSubmit={afterSubmit}
+        initialValues={initialValues}>
+        {({ valid, validating, values, submitting, handleSubmit }) => (
+          <>
+            {!impliedTicket && (
+              <>
+                <Grid.Item
+                  full
+                  as={TicketInput}
+                  type={values.showTicket ? 'text' : 'password'}
+                  name="ticket"
+                  label="Activation Code"
+                  disabled={!activationAllowed}
+                />
 
-                  <Grid.Item
-                    full
-                    as={CheckboxInput}
-                    name="showTicket"
-                    label="Show"
-                  />
-                </>
-              )}
+                <Grid.Item
+                  full
+                  as={CheckboxInput}
+                  name="showTicket"
+                  label="Show"
+                />
+              </>
+            )}
 
-              <Grid.Item full as={FormError} />
+            <Grid.Item full as={FormError} />
 
-              <Grid.Item
-                full
-                as={SubmitButton}
-                className="mt4"
-                handleSubmit={handleSubmit}>
-                {isWarning =>
-                  validating
-                    ? 'Deriving...'
-                    : submitting
-                    ? 'Generating...'
-                    : isWarning
-                    ? 'Continue Activation'
-                    : 'Claim'
-                }
+            <Box
+              display="flex"
+              flexDirection="column"
+              flexWrap="nowrap"
+              height={'100%'}
+              width={'100%'}
+              justifyContent="flex-end">
+              <ActivateButton
+                disabled={!valid || submitting}
+                onClick={handleSubmit}>
+                {submitting ? 'Generating...' : 'Claim'}
+              </ActivateButton>
+            </Box>
+
+            {!activationAllowed && (
+              <Grid.Item full as={WarningBox} className="mt4">
+                For your security, please access Bridge on a desktop device.
               </Grid.Item>
-
-              {!activationAllowed && (
-                <Grid.Item full as={WarningBox} className="mt4">
-                  For your security, please access Bridge on a desktop device.
-                </Grid.Item>
-              )}
-            </>
-          )}
-        </BridgeForm>
-      </Grid>
+            )}
+          </>
+        )}
+      </BridgeForm>
     </Box>
   );
 };

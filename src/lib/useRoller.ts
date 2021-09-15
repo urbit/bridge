@@ -40,6 +40,7 @@ import {
   deriveNetworkSeedFromUrbitWallet,
 } from './keys';
 import { convertToInt } from './convertToInt';
+import { ensureHexPrefix } from 'form/formatters';
 
 const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 
@@ -363,17 +364,18 @@ export default function useRoller() {
     point: Ship;
     to: EthAddress;
     ownerAddress: EthAddress;
-    wallet: any; // TODO: wallet type
+    fromWallet: any; // TODO: wallet type
+    toWallet: any; // TODO: wallet type
   }
 
   const transferPoint = async ({
     point,
     to,
     ownerAddress,
-    wallet,
+    fromWallet,
+    toWallet,
   }: TransferPointParams) => {
     const patp = ob.patp(point);
-    const signingKey = wallet.ownership.keys.private;
     const azimuthPoint = await api.getPoint(point);
 
     const { nonce } = getProxyAndNonce(azimuthPoint, ownerAddress);
@@ -385,14 +387,13 @@ export default function useRoller() {
     // TODO: extract this to a useRoller#configureKeys function?
     const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
     const nextRevision = networkRevision + 1;
-    const seed = await deriveNetworkSeedFromUrbitWallet(wallet, nextRevision);
+    const seed = await deriveNetworkSeedFromUrbitWallet(toWallet, nextRevision);
     const keys = deriveNetworkKeys(seed.value);
     const keysData = {
-      address: ownerAddress,
-      encrypt: keys.crypt.public,
+      auth: ensureHexPrefix(keys.auth.public),
       breach: false,
-      auth: keys.auth.public,
       cryptoSuite: CRYPTO_SUITE_VERSION.toString(),
+      encrypt: ensureHexPrefix(keys.crypt.public),
     };
     const keysFrom: From = {
       ship: patp,
@@ -407,7 +408,7 @@ export default function useRoller() {
     );
 
     await api.configureKeys(
-      signTransactionHash(keysHash, Buffer.from(signingKey, 'hex')),
+      signTransactionHash(keysHash, Buffer.from(keysSigningKey, 'hex')),
       keysFrom,
       ownerAddress,
       keysData
@@ -427,8 +428,9 @@ export default function useRoller() {
       transferData
     );
 
+    const transferSigningKey = toWallet.ownership.keys.private;
     const transferTxHash = await api.transferPoint(
-      signTransactionHash(transferHash, Buffer.from(signingKey, 'hex')),
+      signTransactionHash(transferHash, Buffer.from(transferSigningKey, 'hex')),
       transferFrom,
       to,
       transferData

@@ -22,13 +22,14 @@ const MasterKeyReveal = () => {
   }, [names.DOWNLOAD, push]);
 
   const onRevealClick = useCallback(async () => {
+    setTriggerAnimation(false);
     setIsIn(false);
     await timeout(DEFAULT_FADE_TIMEOUT); // Pause for UI fade animation
     goToDownload();
   }, [goToDownload, setIsIn]);
 
   const header = useMemo(() => {
-    return triggerAnimation ? (
+    return (
       <Box>
         <ActivateHeader content={'Here is your Master Key.'} />
         <ActivateParagraph
@@ -37,11 +38,11 @@ const MasterKeyReveal = () => {
           }
         />
       </Box>
-    ) : null;
-  }, [triggerAnimation]);
+    );
+  }, []);
 
   const footer = useMemo(() => {
-    return triggerAnimation ? (
+    return (
       <ActivateButton onClick={onRevealClick}>
         <Icon
           display="inline-block"
@@ -51,8 +52,8 @@ const MasterKeyReveal = () => {
         />
         &nbsp; Reveal
       </ActivateButton>
-    ) : null;
-  }, [onRevealClick, triggerAnimation]);
+    );
+  }, [onRevealClick]);
 
   const delayedFadeIn = useCallback(async () => {
     setTimeout(() => {
@@ -71,7 +72,9 @@ const MasterKeyReveal = () => {
 
   return (
     <>
-      <ActivateView header={header} footer={footer}>
+      <ActivateView
+        header={triggerAnimation && header}
+        footer={triggerAnimation && footer}>
         <Box
           alignItems={'center'}
           display={'flex'}
@@ -91,7 +94,7 @@ const MasterKeyReveal = () => {
         </Box>
       </ActivateView>
       {triggerAnimation && (
-        <ActivateSteps currentStep={0} totalSteps={4} fadeIn={true} />
+        <ActivateSteps currentStep={0} totalSteps={4} overrideFadeIn={true} />
       )}
     </>
   );
