@@ -14,10 +14,9 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import * as need from 'lib/need';
 import * as wg from 'lib/walletgen';
 import useRoller from 'lib/useRoller';
-import { convertToInt } from 'lib/convertToInt';
 import { generateUrl } from 'lib/utils/invite';
 
-import { useIssueChild } from 'views/IssueChild';
+import { useIssueChild } from 'views/Point/IssueChild';
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 import Window from 'components/L2/Window/Window';
@@ -31,12 +30,13 @@ import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import './Cohort.scss';
 import { getStoredInvites } from 'store/storage/roller';
 import { ETH_ZERO_ADDR } from 'lib/constants';
+import { isPlanet } from 'lib/utils/point';
 
 const INVITES_PER_PAGE = 7;
 const DEFAULT_NUM_INVITES = 5;
 
 export default function InviteCohort() {
-  const { pop, push, names } = useLocalRouter();
+  const { pop } = useLocalRouter();
   const { authToken } = useWallet();
   const {
     nextRoll,
@@ -48,18 +48,10 @@ export default function InviteCohort() {
   const { generateInviteCodes, getPendingTransactions } = useRoller();
   const { pointCursor } = usePointCursor();
   const { contracts } = useNetwork();
-  const { getDetails, syncControlledPoints } = usePointCache();
+  const { syncControlledPoints } = usePointCache();
 
   const point = need.point(pointCursor);
   const _contracts = need.contracts(contracts);
-
-  const pointSize = azimuth.azimuth.getPointSize(point);
-  const isParent = pointSize !== azimuth.azimuth.PointSize.Planet;
-  const details = need.details(getDetails(point));
-  const networkRevision = convertToInt(details.keyRevisionNumber, 10);
-  const networkKeysNotSet = !currentL2 && isParent && networkRevision === 0;
-
-  const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
 
   const [numInvites, setNumInvites] = useState(
     currentL2 ? DEFAULT_NUM_INVITES : 1
@@ -87,8 +79,7 @@ export default function InviteCohort() {
         const p = possiblePoints[i];
         if (
           !invites.find(({ planet }) => planet === p) &&
-          azimuth.azimuth.getPointSize(p) ===
-            azimuth.azimuth.PointSize.Planet &&
+          isPlanet(p) &&
           (await azimuth.azimuth.getOwner(_contracts, p)) === ETH_ZERO_ADDR
         ) {
           invitePoint = p;
@@ -170,7 +161,7 @@ export default function InviteCohort() {
   }, [generateInviteCodes, numInvites, getPendingTransactions, point, pop]);
 
   const getContent = () => {
-    if (hasInvites && !networkKeysNotSet) {
+    if (hasInvites) {
       return (
         <>
           <div>
@@ -203,18 +194,6 @@ export default function InviteCohort() {
           Check back in <span className="timer"> {nextRoll}</span>
         </>
       );
-    } else if (networkKeysNotSet) {
-      return (
-        <>
-          This star's network keys are not set.
-          <br />
-          Either set the network keys or{' '}
-          <span className="migrate" onClick={() => null}>
-            {/* TODO: change this to navigate to migration */}
-            migrate this star to L2.
-          </span>
-        </>
-      );
     }
 
     return (
@@ -224,7 +203,9 @@ export default function InviteCohort() {
         {currentL2 && (
           <>
             Generate your codes in
-            <span className="timer"> {nextRoll} </span>
+            <br />
+            <span className="timer">{nextRoll}</span>
+            <br />
             to get in the next roll.
           </>
         )}
@@ -296,11 +277,16 @@ export default function InviteCohort() {
               {currentL2 ? (
                 <Button
                   as={'button'}
-                  className="generate-codes"
+                  className={`generate-codes ${loading ? 'loading' : ''}`}
                   center
                   solid
+                  disabled={loading}
                   onClick={createInvites}>
-                  Generate Planet Code{currentL2 ? `s (${numInvites})` : ''}
+                  {loading
+                    ? 'Generating...'
+                    : `Generate Planet Code${
+                        currentL2 ? `s (${numInvites})` : ''
+                      }`}
                 </Button>
               ) : (
                 <Grid.Item
@@ -319,7 +305,7 @@ export default function InviteCohort() {
     );
   }
 
-  const showGenerateButton = !hasPending && !hasInvites && !networkKeysNotSet;
+  const showGenerateButton = !hasPending && !hasInvites;
 
   return (
     <View
@@ -354,16 +340,6 @@ export default function InviteCohort() {
               solid
               onClick={() => setShowInviteForm(true)}>
               Generate Codes
-            </Button>
-          )}
-          {networkKeysNotSet && (
-            <Button
-              as={'button'}
-              className="generate-button"
-              center
-              solid
-              onClick={goUrbitOS}>
-              Set Network Keys
             </Button>
           )}
           {hasInvites && (

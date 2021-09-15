@@ -1,6 +1,7 @@
 import { Invite } from 'types/Invite';
 
 const INVITES_KEY = 'invites';
+const HIDE_MIGRATION_MESSAGE_KEY = 'hide_migration_message';
 
 export interface StoredInvites {
   available: Invite[];
@@ -32,3 +33,9 @@ export const setPendingInvites = (point: number, pendingInvites: Invite[]) => {
 };
 
 export const clearInvitesStorage = () => localStorage.removeItem(INVITES_KEY);
+
+export const getHideMigrationMessage = () =>
+  Boolean(localStorage.getItem(HIDE_MIGRATION_MESSAGE_KEY));
+
+export const storeHideMigrationMessage = () =>
+  localStorage.setItem(HIDE_MIGRATION_MESSAGE_KEY, 'true');

@@ -31,6 +31,7 @@ import {
 } from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints, maybeGetResult } from 'views/Points';
+import { isPlanet } from './utils/point';
 
 const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 
@@ -212,8 +213,8 @@ export default function useRoller() {
 
   const getPendingTransactions = useCallback(async () => {
     try {
-      const curPoint = need.point(pointCursor);
-      const newPending = await api.getPendingByShip(Number(curPoint));
+      const curPoint = Number(need.point(pointCursor));
+      const newPending = await api.getPendingByShip(curPoint);
       setPendingTransactions(newPending);
 
       // const allTransactions = await api.getHistory()
@@ -257,36 +258,32 @@ export default function useRoller() {
         if (_authToken && _contracts) {
           let possibleMissingInvites: number[] = [];
           if (isL2) {
-            const allSpawned = await api.getSpawned(Number(curPoint));
+            const allSpawned = await api.getSpawned(curPoint);
             const ownedPoints = maybeGetResult(
               controlledPoints,
               'ownedPoints',
               []
             );
             possibleMissingInvites = allSpawned.filter(
-              (p: number) =>
-                ownedPoints.includes(p) &&
-                azimuth.azimuth.getPointSize(p) ===
-                  azimuth.azimuth.PointSize.Planet
-            );
-          } else {
-            const outgoingPoints = getOutgoingPoints(
-              controlledPoints,
-              getDetails
-            );
-
-            const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
-              _contracts,
-              curPoint
-            );
-
-            possibleMissingInvites = outgoingPoints.filter(
-              (p: number) =>
-                azimuth.azimuth.getPointSize(p) ===
-                  azimuth.azimuth.PointSize.Planet &&
-                availablePoints.includes(p)
+              (p: number) => ownedPoints.includes(p) && isPlanet(p)
             );
           }
+
+          const outgoingPoints = getOutgoingPoints(
+            controlledPoints,
+            getDetails
+          );
+
+          const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
+            _contracts,
+            curPoint
+          );
+
+          possibleMissingInvites = possibleMissingInvites.concat(
+            outgoingPoints.filter(
+              (p: number) => isPlanet(p) && availablePoints.includes(p)
+            )
+          );
 
           // Iterate over all spawned and controlled planets
           // If the planet is not in available invites, generate the ticket and add it

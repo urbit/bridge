@@ -6,6 +6,7 @@ import { azimuth } from 'azimuth-js';
 import { useNetwork } from 'store/network';
 
 import * as need from 'lib/need';
+import { isPlanet } from 'lib/utils/point';
 
 const emptyCacheEntry = {
   residentCount: Nothing(),
@@ -71,7 +72,7 @@ export default function useResidents() {
 
   const syncResidents = useCallback(
     async point => {
-      if (azimuth.getPointSize(point) === azimuth.PointSize.Planet) {
+      if (isPlanet(point)) {
         addToResidentCache(point, {
           residentCount: Just(0),
           requestCount: Just(0),

@@ -26,7 +26,7 @@ import CopiableAddress from 'components/copiable/CopiableAddress';
 import NavHeader from 'components/NavHeader';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import IncomingPoint from 'components/L2/Points/IncomingPoint';
-import { CONDITIONAL_STAR_RELEASE, LINEAR_STAR_RELEASE } from 'lib/constants';
+import { useNetwork } from 'store/network';
 
 export const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -66,9 +66,9 @@ export const getOutgoingPoints = (controlledPoints, getDetails) => {
     .getOrElse([]);
 };
 
-export const isLocked = details =>
-  details.owner === LINEAR_STAR_RELEASE ||
-  details.owner === CONDITIONAL_STAR_RELEASE;
+export const isLocked = (details, contracts) =>
+  details.owner === contracts.linearSR ||
+  details.owner === contracts.conditionalSR;
 
 const PointList = function({
   points,
@@ -131,6 +131,7 @@ export default function Points() {
   const { pop, push, popAndPush, names } = useHistory();
   const { setPointCursor } = usePointCursor();
   const { controlledPoints, getDetails } = usePointCache();
+  const { contracts } = useNetwork();
   const isEclipticOwner = useIsEclipticOwner();
   const [
     rejectedPoints,
@@ -143,6 +144,8 @@ export default function Points() {
     [getDetails, controlledPoints]
   );
 
+  const _contracts = need.contracts(contracts);
+
   const maybeLockedPoints = useMemo(
     () =>
       controlledPoints.chain(points =>
@@ -151,7 +154,7 @@ export default function Points() {
           Ok: c => {
             const points = c.value.ownedPoints.map(point =>
               getDetails(point).chain(details =>
-                Just({ point, has: isLocked(details) })
+                Just({ point, has: isLocked(details, _contracts) })
               )
             );
             // if we have details for every point,
@@ -167,7 +170,7 @@ export default function Points() {
           },
         })
       ),
-    [getDetails, controlledPoints]
+    [getDetails, controlledPoints, _contracts]
   );
 
   // if we can only interact with a single point, forget about the existence
@@ -316,7 +319,7 @@ export default function Points() {
       inset
       pop={pop}
       hideBack
-      header={<L2PointHeader hideTimer hideInvites />}>
+      header={<L2PointHeader hideTimer hideInvites showMigrate />}>
       <NavHeader>
         <CopiableAddress
           text={address}

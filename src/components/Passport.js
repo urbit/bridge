@@ -170,6 +170,7 @@ function Passport({
                     inverted={inverted}
                     loading={loading}
                     animationMode={animationMode}
+                    key={`cell-${_col}`}
                   />
                 );
               })}
@@ -215,12 +216,11 @@ const Cell = props => {
  */
 function MiniPassport({ point, inverted, locked = false, ...rest }) {
   useSyncDetails([point]);
-  const { wallet } = useWallet();
-  const address = need.addressFromWallet(wallet);
-
+  // const { wallet } = useWallet();
+  // const address = need.addressFromWallet(wallet);
+  // const permissions = usePermissionsForPoint(address, point);
+  // const keyType = buildKeyType(permissions);
   const patp = ob.patp(point);
-  const permissions = usePermissionsForPoint(address, point);
-  const keyType = buildKeyType(permissions);
 
   const contrast = locked ? '#666666' : 'black';
 
