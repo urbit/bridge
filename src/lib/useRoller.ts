@@ -407,6 +407,7 @@ export default function useRoller() {
       keysData
     );
 
+    const keysSigningKey = fromWallet.privateKey;
     await api.configureKeys(
       signTransactionHash(keysHash, Buffer.from(keysSigningKey, 'hex')),
       keysFrom,
