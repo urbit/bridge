@@ -57,7 +57,19 @@ type GetAuthTokenArgs =
   | DefaultAuthTokenArgs;
 
 const getMetamaskAuthToken = ({ address, web3 }: MetamaskAuthTokenArgs) => {
-  return web3.eth.personal.sign(MESSAGE, address, '');
+  if (window.ethereum) {
+    //NOTE  this doesn't _seem_ to be affected by #596,
+    //      but web3.eth.personal.sign hits it semi-reliably?
+    //      no idea what's going on, we should figure it out,
+    //      but we apply this bandaid to hopefully stop the bleeding.
+    return window.ethereum.request({
+      method: 'personal_sign',
+      params: [MESSAGE, address],
+      from: address,
+    });
+  } else {
+    return web3.eth.personal.sign(MESSAGE, address, '');
+  }
 };
 
 const getLedgerAuthToken = ({ walletHdPath }: LedgerAuthTokenArgs) => {
