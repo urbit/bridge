@@ -3,6 +3,15 @@ import * as wg from 'lib/walletgen';
 import * as need from 'lib/need';
 import * as azimuth from 'azimuth-js';
 import * as ob from 'urbit-ob';
+import { Just } from 'folktale/maybe';
+import { randomHex } from 'web3-utils';
+
+import {
+  attemptNetworkSeedDerivation,
+  deriveNetworkKeys,
+  CRYPTO_SUITE_VERSION,
+} from 'lib/keys';
+import { addHexPrefix } from 'lib/utils/address';
 
 import {
   Config,
@@ -33,6 +42,97 @@ import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints, maybeGetResult } from 'views/Points';
 import { isPlanet } from './utils/point';
 
+const spawn = async (
+  api: any,
+  _wallet: any,
+  _point: number,
+  proxy: string,
+  nonce: number,
+  planet: number
+) => {
+  const from = {
+    ship: _point, //ship that is spawning the planet
+    proxy,
+  };
+
+  const data = {
+    address: _wallet.address,
+    ship: planet, // ship to spawn
+  };
+
+  const hash = await api.hashTransaction(nonce, from, 'spawn', data);
+  const sSig = signTransactionHash(hash, _wallet.privateKey);
+  return api.spawn(sSig, from, _wallet.address, data);
+};
+
+const configureKeys = async (
+  api: any,
+  _wallet: any,
+  _point: number,
+  proxy: string,
+  nonce: number,
+  details: any,
+  authToken: string,
+  authMnemonic: string,
+  wallet: any,
+  urbitWallet: any
+) => {
+  const from = {
+    ship: _point, //ship that is spawning the planet
+    proxy,
+  };
+
+  const networkSeed = await attemptNetworkSeedDerivation({
+    urbitWallet,
+    wallet,
+    authMnemonic,
+    details,
+    point: _point,
+    authToken,
+    revision: 1,
+  });
+
+  const seed = Just.hasInstance(networkSeed)
+    ? networkSeed.value
+    : randomHex(32);
+
+  const pair = deriveNetworkKeys(seed);
+
+  const data = {
+    encrypt: addHexPrefix(pair.crypt.public),
+    auth: addHexPrefix(pair.auth.public),
+    cryptoSuite: String(CRYPTO_SUITE_VERSION),
+    breach: false,
+  };
+
+  const hash = await api.hashTransaction(nonce, from, 'configureKeys', data);
+  const sig = signTransactionHash(hash, _wallet.privateKey);
+  return api.configureKeys(sig, from, _wallet.address, data);
+};
+
+const transferPoint = async (
+  api: any,
+  _wallet: any,
+  _point: number,
+  proxy: string,
+  nonce: number,
+  address: string
+) => {
+  const from = {
+    ship: _point, //ship that is spawning the planet
+    proxy,
+  };
+
+  const data = {
+    address,
+    reset: false,
+  };
+
+  const hash = await api.hashTransaction(nonce, from, 'transferPoint', data);
+  const sig = signTransactionHash(hash, _wallet.privateKey);
+  return api.transferPoint(sig, from, _wallet.address, data);
+};
+
 const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 
 const getProxyAndNonce = (
@@ -55,7 +155,7 @@ const getProxyAndNonce = (
     : { proxy: undefined, nonce: undefined };
 
 export default function useRoller() {
-  const { wallet, authToken }: any = useWallet();
+  const { wallet, authToken, authMnemonic, urbitWallet }: any = useWallet();
   const { pointCursor }: any = usePointCursor();
   const { web3, contracts }: any = useNetwork();
   const allPoints: any = usePointCache();
@@ -119,7 +219,8 @@ export default function useRoller() {
       const _web3 = web3.getOrElse(null);
       const _wallet = wallet.getOrElse(null);
       const _authToken = authToken.getOrElse(null);
-      if (!_contracts || !_web3 || !_wallet || !_authToken) {
+      const _details = getDetails(_point);
+      if (!_contracts || !_web3 || !_wallet || !_authToken || !_details) {
         // not using need because we want a custom error
         throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
       }
@@ -137,31 +238,45 @@ export default function useRoller() {
 
       for (let i = 0; i < numInvites && planets[i]; i++) {
         const planet = planets[i];
+        const nonceInc = i * 3;
 
         const { ticket, owner } = await wg.generateTemporaryDeterministicWallet(
           planet,
           _authToken
         );
 
-        const from = {
-          ship: _point, //ship that is spawning the planet
+        const spawnRequest = await spawn(
+          api,
+          _wallet,
+          _point,
           proxy,
-        };
-
-        const data = {
-          address: owner.keys.address, // the new owner of the star (invite wallet)
-          ship: planet, // ship to spawn
-        };
-
-        const txHash = await api.hashTransaction(
-          nonce + i,
-          from,
-          'spawn',
-          data
+          nonceInc,
+          planet
         );
 
-        const signature = signTransactionHash(txHash, _wallet.privateKey);
-        requests.push(api.spawn(signature, from, _wallet.address, data));
+        const configureKeysRequest = await configureKeys(
+          api,
+          _wallet,
+          _point,
+          proxy,
+          nonceInc + 1,
+          _details,
+          authToken,
+          authMnemonic,
+          wallet,
+          urbitWallet
+        );
+
+        const transferPointRequest = await transferPoint(
+          api,
+          _wallet,
+          _point,
+          proxy,
+          nonceInc + 2,
+          owner.keys.address
+        );
+
+        requests.push(spawnRequest, configureKeysRequest, transferPointRequest);
         tickets.push({
           ticket,
           planet,
@@ -170,13 +285,13 @@ export default function useRoller() {
       }
 
       const hashes = await Promise.all(requests);
-      const pendingInvites = hashes.map(
-        (hash, i): Invite => ({
-          hash,
-          ...tickets[i],
-          status: 'pending',
-        })
-      );
+
+      const pendingInvites = tickets.map((ticket, ind) => ({
+        ...ticket,
+        hash: hashes[ind * 3 + 2],
+        status: 'pending',
+      }));
+
       setPendingInvites(_point, pendingInvites);
     },
     [
@@ -188,6 +303,9 @@ export default function useRoller() {
       // walletHdPath,
       // walletType,
       web3,
+      getDetails,
+      authMnemonic,
+      urbitWallet,
     ]
   );
 
@@ -240,9 +358,14 @@ export default function useRoller() {
           const completed = !pendingTransactions.find(
             p => `~${p?.rawTx?.tx?.tx?.data?.ship}` === ob.patp(invite.planet)
           );
-          if (completed) {
+
+          if (
+            completed &&
+            !availableInvites.find(({ ship }) => invite.ship === ship)
+          ) {
             availableInvites.push({ ...invite, status: 'available' });
           }
+
           return !completed;
         });
 

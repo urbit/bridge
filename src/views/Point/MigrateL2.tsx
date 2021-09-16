@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Grid } from 'indigo-react';
-import { azimuth, ecliptic } from 'azimuth-js';
+import { ecliptic } from 'azimuth-js';
 import * as ob from 'urbit-ob';
 
 import View from 'components/View';
@@ -83,21 +83,27 @@ const useMigrate = () => {
 export default function MigrateL2() {
   const { pop }: any = useLocalRouter();
   const { pointCursor }: any = usePointCursor();
-  const point = need.point(pointCursor);
   const { controlledPoints }: any = usePointCache();
 
   const [proceed, setProceed] = useState(false);
   const [hideMessage, setHideMessage] = useState(false);
-  const [selectedPoint, setSelectedPoint] = useState(point);
   const [showDropdown, setShowDropdown] = useState(false);
   const [transfer, setTransfer] = useState(true);
 
   const points = controlledPoints?.value?.value?.pointsWithLayers || [];
-  const l1Points = points.filter(({ point, layer }: PointLayer) => layer === 1);
+  const l1Points = points.filter(({ layer }: PointLayer) => layer === 1);
 
+  let { point } =
+    l1Points.find((p: any) => isStar(p.point)) || controlledPoints[0];
+
+  try {
+    point = need.point(pointCursor);
+  } catch (e) {}
+
+  const [selectedPoint, setSelectedPoint] = useState(point);
   const hideInfo = getHideMigrationMessage();
 
-  const { construct, unconstruct, completed, bind } = useMigrate();
+  const { construct, unconstruct, bind, completed } = useMigrate();
 
   useEffect(() => {
     if (point) {
