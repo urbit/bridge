@@ -5,7 +5,6 @@ import { WARNING } from 'form/helpers';
 import { FORM_ERROR } from 'final-form';
 import { Just } from 'folktale/maybe';
 import BridgeForm from 'form/BridgeForm';
-import SubmitButton from 'form/SubmitButton';
 import { TicketInput } from 'form/Inputs';
 import {
   composeValidator,

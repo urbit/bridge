@@ -13,7 +13,7 @@ const ActivateHeader = ({ content }: ActivateHeaderProps) => {
       <Text
         display="block"
         fontFamily="Inter"
-        fontSize={3}
+        fontSize={'16px'}
         fontWeight={600}
         mx={3}
         my={3}
