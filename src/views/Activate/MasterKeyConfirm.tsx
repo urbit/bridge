@@ -19,6 +19,7 @@ import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 import useFadeIn from './useFadeIn';
 import { HiddenInput, TicketSegmentInput } from 'form/Inputs';
+import View from 'components/View';
 
 const MasterKeyConfirm = () => {
   const { derivedWallet, setIsIn } = useActivateFlow();
@@ -52,7 +53,8 @@ const MasterKeyConfirm = () => {
       ticket0: STUB_VERIFY_TICKET ? ticketSegments[0] : undefined,
       ticket1: STUB_VERIFY_TICKET ? ticketSegments[1] : undefined,
       ticket2: STUB_VERIFY_TICKET ? ticketSegments[2] : undefined,
-      ticket3: STUB_VERIFY_TICKET ? ticketSegments[3] : undefined,
+      // ticket3: STUB_VERIFY_TICKET ? ticketSegments[3] : undefined,
+      ticket3: undefined,
     }),
     [STUB_VERIFY_TICKET, ticket, ticketSegments]
   );
@@ -79,7 +81,7 @@ const MasterKeyConfirm = () => {
   useFadeIn();
 
   return (
-    <>
+    <View centered={true} inset>
       <ActivateView
         header={header}
         gridRows={'20% 80%'}
@@ -185,7 +187,7 @@ const MasterKeyConfirm = () => {
         </Box>
       </ActivateView>
       <ActivateSteps currentStep={2} totalSteps={4} overrideFadeIn={true} />
-    </>
+    </View>
   );
 };
 

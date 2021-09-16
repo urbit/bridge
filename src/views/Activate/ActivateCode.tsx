@@ -1,13 +1,8 @@
 import { useCallback } from 'react';
 
 import View from 'components/View';
-import { ForwardButton } from 'components/Buttons';
-import FooterButton from 'components/FooterButton';
 import ActivateView from './ActivateView';
 
-import { useHistory } from 'store/history';
-
-import { ROUTE_NAMES } from 'lib/routeNames';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
@@ -19,14 +14,9 @@ import { FadeableActivateCodeForm as ActivateCodeForm } from './ActivateCodeForm
 import useFadeIn from './useFadeIn';
 
 export default function ActivateCode() {
-  const history = useHistory();
   const { names, push } = useLocalRouter();
   const { impliedPatp, impliedTicket } = useImpliedTicket();
   const [hasDisclaimed] = useHasDisclaimed();
-
-  const goToLogin = useCallback(() => history.popAndPush(ROUTE_NAMES.LOGIN), [
-    history,
-  ]);
 
   const goToMasterKey = useCallback(() => {
     if (!hasDisclaimed) {
@@ -40,7 +30,7 @@ export default function ActivateCode() {
   useFadeIn();
 
   return (
-    <View inset>
+    <View centered={true} inset>
       <ActivateView
         header={<ActivateHeader content={'Welcome. This is your Urbit.'} />}
         footer={<ActivateCodeForm afterSubmit={goToMasterKey} />}>
@@ -57,10 +47,6 @@ export default function ActivateCode() {
           {impliedPatp && <PointPresenter patp={impliedPatp} />}
         </Box>
       </ActivateView>
-
-      <FooterButton as={ForwardButton} onClick={goToLogin}>
-        Login
-      </FooterButton>
     </View>
   );
 }
