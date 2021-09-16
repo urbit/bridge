@@ -51,11 +51,30 @@ const MasterKeyTransfer = () => {
       <ActivateHeader
         content={
           <>
-            Congratulations{' '}
-            <Text fontFamily="Source Code Pro" fontSize={3} fontWeight={600}>
+            <Text
+              display={'block'}
+              fontFamily={'Inter'}
+              fontStyle={'normal'}
+              fontWeight={'600'}
+              fontSize={'16px'}
+              lineHeight={'24px'}>
+              Congratulations
+            </Text>
+            <Text
+              fontFamily="Source Code Pro"
+              fontSize={'16px'}
+              fontWeight={600}>
               {derivedPatp.value}
-            </Text>{' '}
-            is now yours
+            </Text>
+            &nbsp;
+            <Text
+              fontFamily={'Inter'}
+              fontStyle={'normal'}
+              fontWeight={'600'}
+              fontSize={'16px'}
+              lineHeight={'24px'}>
+              is now yours
+            </Text>
           </>
         }
       />
@@ -89,7 +108,9 @@ const MasterKeyTransfer = () => {
           fontSize={'14px'}
           fontWeight={'500'}
           lineHeight={'16px'}
-          textAlign={'center'}>
+          textAlign={'center'}
+          target={'_blank'}
+          rel={'nofollow noopener'}>
           or setup via command line
         </Anchor>
       </Box>
