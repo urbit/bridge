@@ -13,6 +13,8 @@ import {
   Options,
   EthAddress,
   UnspawnedPoints,
+  From,
+  Hash,
 } from '@urbit/roller-api';
 
 import { isDevelopment, isRopsten } from './flags';
@@ -32,14 +34,21 @@ import {
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints, maybeGetResult } from 'views/Points';
 import { isPlanet } from './utils/point';
+import {
+  CRYPTO_SUITE_VERSION,
+  deriveNetworkKeys,
+  deriveNetworkSeedFromUrbitWallet,
+} from './keys';
+import { convertToInt } from './convertToInt';
+import { ensureHexPrefix } from 'form/formatters';
 
 const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 
 const getProxyAndNonce = (
   point: L2Point,
   address: string
-): { proxy?: string; nonce?: number } =>
-  point.ownership?.managementProxy?.address === address
+): { proxy?: string; nonce?: number } => {
+  return point.ownership?.managementProxy?.address === address
     ? { proxy: 'manage', nonce: point.ownership?.managementProxy.nonce }
     : point.ownership?.owner?.address === address
     ? { proxy: 'own', nonce: point.ownership?.owner.nonce }
@@ -53,6 +62,7 @@ const getProxyAndNonce = (
         nonce: point.transferProxy?.votingProxy?.owner.nonce,
       }
     : { proxy: undefined, nonce: undefined };
+};
 
 export default function useRoller() {
   const { wallet, authToken }: any = useWallet();
@@ -197,7 +207,7 @@ export default function useRoller() {
       const points: Ship[] =
         proxy === 'own'
           ? await api.getOwnedPoints(address)
-          : proxy === 'mange'
+          : proxy === 'manage'
           ? await api.getManagerFor(address)
           : proxy === 'vote'
           ? await api.getVotingFor(address)
@@ -342,6 +352,95 @@ export default function useRoller() {
     ]
   );
 
+  // TODO: extract from #transferPoint
+  // interface ConfigureKeysParams {
+
+  // }
+
+  // const configureKeys = async () => {
+
+  // }
+
+  interface TransferPointParams {
+    point: Ship;
+    to: EthAddress;
+    ownerAddress: EthAddress;
+    fromWallet: any; // TODO: wallet type
+    toWallet: any; // TODO: wallet type
+  }
+
+  const transferPoint = async ({
+    point,
+    to,
+    ownerAddress,
+    fromWallet,
+    toWallet,
+  }: TransferPointParams) => {
+    const patp = ob.patp(point);
+    const azimuthPoint = await api.getPoint(point);
+
+    const { nonce } = getProxyAndNonce(azimuthPoint, ownerAddress);
+    if (nonce === undefined) {
+      throw new Error('Nonce unavailable');
+    }
+
+    // update networking keys
+    // TODO: extract this to a useRoller#configureKeys function?
+    const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
+    const nextRevision = networkRevision + 1;
+    const seed = await deriveNetworkSeedFromUrbitWallet(toWallet, nextRevision);
+    const keys = deriveNetworkKeys(seed.value);
+    const keysData = {
+      auth: ensureHexPrefix(keys.auth.public),
+      breach: false,
+      cryptoSuite: CRYPTO_SUITE_VERSION.toString(),
+      encrypt: ensureHexPrefix(keys.crypt.public),
+    };
+    const keysFrom: From = {
+      ship: patp,
+      proxy: 'own',
+    };
+
+    const keysHash: Hash = await api.hashTransaction(
+      nonce,
+      keysFrom,
+      'configureKeys',
+      keysData
+    );
+
+    const keysSigningKey = fromWallet.privateKey;
+    await api.configureKeys(
+      signTransactionHash(keysHash, Buffer.from(keysSigningKey, 'hex')),
+      keysFrom,
+      ownerAddress,
+      keysData
+    );
+
+    // transfer point
+    const transferFrom: From = {
+      ship: patp,
+      proxy: 'transfer',
+    };
+
+    const transferData = { address: ownerAddress, reset: false };
+    const transferHash: Hash = await api.hashTransaction(
+      nonce + 1,
+      transferFrom,
+      'transferPoint',
+      transferData
+    );
+
+    const transferSigningKey = toWallet.ownership.keys.private;
+    const transferTxHash = await api.transferPoint(
+      signTransactionHash(transferHash, Buffer.from(transferSigningKey, 'hex')),
+      transferFrom,
+      to,
+      transferData
+    );
+
+    return transferTxHash;
+  };
+
   // On load, get initial config
   useEffect(() => {
     if (config) {
@@ -375,5 +474,6 @@ export default function useRoller() {
     getInvites,
     getPendingTransactions,
     generateInviteCodes,
+    transferPoint,
   };
 }
