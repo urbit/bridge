@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import * as ob from 'urbit-ob';
-import { azimuth } from 'azimuth-js';
 import * as need from 'lib/need';
 import { Icon, Row, Box, Button } from '@tlon/indigo-react';
 import { Just } from 'folktale/maybe';

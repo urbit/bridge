@@ -16,6 +16,8 @@
     height: 16px;
     padding: 2px 4px 0;
     font-size: 12px;
+    width: 14px;
+    text-align: center;
   }
 
   &.md {
@@ -23,5 +25,7 @@
     padding: 4px 4px 0;
     font-size: 14px;
     margin-right: 4px;
+    width: 18px;
+    text-align: center;
   }
 }

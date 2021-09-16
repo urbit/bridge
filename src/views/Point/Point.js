@@ -162,7 +162,6 @@ export default function Point() {
           console.log('POINT INFO', pointInfo);
         }
         setCurrentPoint(pointInfo);
-
         getInvites(isL2(pointInfo.dominion));
       };
 
@@ -235,7 +234,9 @@ export default function Point() {
   useSyncExtras([point]);
 
   const address = need.addressFromWallet(wallet);
-  const numPending = pendingTransactions.length;
+  const numPending = pendingTransactions.filter(
+    ({ rawTx }) => rawTx?.tx?.tx?.type === 'spawn'
+  ).length;
 
   return (
     <View
