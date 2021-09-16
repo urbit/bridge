@@ -11,6 +11,7 @@ import { timeout } from 'lib/timeout';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { FadeableActivateButton as ActivateButton } from './ActivateButton';
 import { DEFAULT_FADE_TIMEOUT, MASTER_KEY_DURATION } from 'lib/constants';
+import View from 'components/View';
 
 const MasterKeyReveal = () => {
   const { setIsIn } = useActivateFlow();
@@ -71,7 +72,7 @@ const MasterKeyReveal = () => {
   }, [delayedFadeIn, setIsIn]);
 
   return (
-    <>
+    <View centered={true} inset>
       <ActivateView
         header={triggerAnimation && header}
         footer={triggerAnimation && footer}>
@@ -96,7 +97,7 @@ const MasterKeyReveal = () => {
       {triggerAnimation && (
         <ActivateSteps currentStep={0} totalSteps={4} overrideFadeIn={true} />
       )}
-    </>
+    </View>
   );
 };
 

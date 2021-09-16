@@ -11,6 +11,7 @@ import { FadeableActivateButton as ActivateButton } from './ActivateButton';
 import useFadeIn from './useFadeIn';
 import PointPresenter from './PointPresenter';
 import DangerBox from './DangerBox';
+import View from 'components/View';
 
 const MasterKeyTransfer = () => {
   const { api, transferPoint } = useRoller();
@@ -88,15 +89,15 @@ const MasterKeyTransfer = () => {
         flexDirection={'column'}
         flexWrap={'nowrap'}
         justifyContent={'space-between'}>
-        {error && <DangerBox>{error.toString()}</DangerBox>}
+        {/* {error && <DangerBox>{error.toString()}</DangerBox>} */}
         <ActivateButton
           onClick={() =>
             window.open(
               'https://github.com/urbit/port/releases/latest/download/Port.dmg'
             )
           }
-          success={true}
-          disabled={error}>
+          // disabled={error}
+          success={true}>
           Download the Client for Mac
         </ActivateButton>
         <Anchor
@@ -118,21 +119,23 @@ const MasterKeyTransfer = () => {
   }, [error]);
 
   return (
-    <ActivateView header={header} footer={footer}>
-      <Box
-        alignItems={'center'}
-        display={'flex'}
-        flexDirection={'column'}
-        flexWrap={'nowrap'}
-        height={'100%'}
-        justifyContent={'center'}>
-        <PointPresenter
-          patp={derivedPatp.value}
-          showLabel={false}
-          success={true}
-        />
-      </Box>
-    </ActivateView>
+    <View centered={true} inset>
+      <ActivateView header={header} footer={footer}>
+        <Box
+          alignItems={'center'}
+          display={'flex'}
+          flexDirection={'column'}
+          flexWrap={'nowrap'}
+          height={'100%'}
+          justifyContent={'center'}>
+          <PointPresenter
+            patp={derivedPatp.value}
+            showLabel={false}
+            success={true}
+          />
+        </Box>
+      </ActivateView>
+    </View>
   );
 };
 

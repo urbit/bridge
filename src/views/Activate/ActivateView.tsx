@@ -28,10 +28,10 @@ export default function ActivateView({
         border={'1px solid rgb(204, 204, 204)'}
         border-radius={'5px'}
         padding={'10px'}
-        width={'550px'}
-        height={'550px'}
-        max-width={'550px'}
-        max-height={'550px'}
+        width={'512px'}
+        height={'512px'}
+        max-width={'512px'}
+        max-height={'512px'}
         className={cn(className)}
         mb={3}>
         <Box gridArea="header">{header}</Box>

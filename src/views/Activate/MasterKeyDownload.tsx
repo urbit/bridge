@@ -19,6 +19,7 @@ import { downloadWallet } from 'lib/invite';
 import PaperBuilder from 'components/PaperBuilder';
 import { DEFAULT_FADE_TIMEOUT, MASTER_KEY_DURATION } from 'lib/constants';
 import { timeout } from 'lib/timeout';
+import View from 'components/View';
 
 const MasterKeyDownload = () => {
   const {
@@ -104,7 +105,7 @@ const MasterKeyDownload = () => {
   }, [delayedReveal, setIsIn]);
 
   return (
-    <>
+    <View centered={true} inset>
       <ActivateView
         header={triggerAnimation && header}
         footer={triggerAnimation && footer}>
@@ -132,7 +133,7 @@ const MasterKeyDownload = () => {
           setPaper(Just(data));
         }}
       />
-    </>
+    </View>
   );
 };
 
