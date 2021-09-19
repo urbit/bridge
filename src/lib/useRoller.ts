@@ -32,7 +32,7 @@ import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 import { useNetwork } from 'store/network';
 import { signTransactionHash } from './authToken';
-import { Invite } from 'types/Invite';
+import { Invite } from 'lib/types/Invite';
 import {
   getStoredInvites,
   setPendingInvites,
