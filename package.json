@@ -117,7 +117,7 @@
     "pilot-release": "WITH_TEST_STATE=STAR_RELEASE npm run pilot",
     "pilot-residents": "WITH_TEST_STATE=RESIDENTS npm run pilot",
     "pilot-l2": "BROWSER=NONE WITH_TEST_STATE=L2 HTTPS=false NODE_ENV=development npm-run-all pilot:setup start pilot:cleanup --continue-on-error",
-    "pilot-l2-local": "REACT_APP_STUB_LOCAL=true BROWSER=NONE REACT_APP_L2=true HTTPS=false NODE_ENV=development npm-run-all pilot:setup start pilot:cleanup --continue-on-error",
+    "pilot-l2-local": "REACT_APP_STUB_LOCAL=true BROWSER=NONE REACT_APP_L2=true HTTPS=false NODE_ENV=development npm run start --continue-on-error",
     "pilot-ropsten": "REACT_APP_ROPSTEN=true HTTPS=true npm-run-all start --continue-on-error",
     "pilot:cleanup": "pkill -f ganache-cli",
     "lint:check": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
