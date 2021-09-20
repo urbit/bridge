@@ -2,7 +2,7 @@ import create from 'zustand';
 import { L2Point, PendingTransaction } from '@urbit/roller-api/build';
 
 import { HOUR, isL2 } from 'lib/utils/roller';
-import { Invite } from 'types/Invite';
+import { Invite } from 'lib/types/Invite';
 
 export interface RollerStore {
   nextBatchTime: number;
@@ -10,6 +10,9 @@ export interface RollerStore {
   pendingTransactions: PendingTransaction[];
   currentPoint: L2Point | null;
   currentL2: boolean;
+  currentNonce: number;
+  increaseNonce: () => void;
+  setNonce: (nonce: number) => void;
   invites: Invite[];
   recentlyCompleted: number;
   setNextBatchTime: (nextBatchTime: number) => void;
@@ -27,6 +30,9 @@ export const useRollerStore = create<RollerStore>(set => ({
   currentL2: false,
   invites: [],
   recentlyCompleted: 0,
+  currentNonce: 0,
+  increaseNonce: () => set(state => ({ currentNonce: state.currentNonce++ })),
+  setNonce: (nonce: number) => set(() => ({ currentNonce: nonce })),
   setNextBatchTime: (nextBatchTime: number) => set(() => ({ nextBatchTime })),
   setNextRoll: (nextRoll: string) => set(() => ({ nextRoll })),
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) =>

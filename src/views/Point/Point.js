@@ -31,6 +31,7 @@ import useRoller from 'lib/useRoller';
 
 import './Point.scss';
 import { isL2 } from 'lib/utils/roller';
+import { getProxyAndNonce } from 'lib/utils/point';
 import { isDevelopment } from 'lib/flags';
 import { convertToInt } from 'lib/convertToInt';
 import { usePointCache } from 'store/pointCache';
@@ -137,6 +138,7 @@ export default function Point() {
     setCurrentPoint,
     setPendingTransactions,
     currentL2,
+    setNonce,
   } = useRollerStore();
 
   const pointSize = azimuth.getPointSize(point);
@@ -158,9 +160,11 @@ export default function Point() {
     const loadL2Info = async () => {
       const getTransactions = async () => {
         const pointInfo = await api.getPoint(Number(point));
+        const { nonce } = getProxyAndNonce(pointInfo, wallet.address);
         if (isDevelopment) {
           console.log('POINT INFO', pointInfo);
         }
+        setNonce(nonce);
         setCurrentPoint(pointInfo);
         getInvites(isL2(pointInfo.dominion));
       };
@@ -234,9 +238,12 @@ export default function Point() {
   useSyncExtras([point]);
 
   const address = need.addressFromWallet(wallet);
-  const numPending = pendingTransactions.filter(
+  const spawnedPending = pendingTransactions.filter(
     ({ rawTx }) => rawTx?.tx?.tx?.type === 'spawn'
   ).length;
+  const otherPending = pendingTransactions.filter(
+    ({ rawTx }) => rawTx?.tx?.tx?.type !== 'spawn'
+  );
 
   return (
     <View
@@ -246,17 +253,17 @@ export default function Point() {
       hideBack
       header={
         <L2PointHeader
-          hideTimer={!!numPending}
+          hideTimer={!!spawnedPending}
           numInvites={invites.length}
           hideInvites={networkKeysNotSet}
         />
       }>
       <Greeting point={point} />
-      {!!numPending && (
+      {!!spawnedPending && (
         <div className="transaction">
           <Row className="title-row">
             <div className="title">
-              {numPending} Planet{numPending > 1 ? 's' : ''} Spawned
+              {spawnedPending} Planet{spawnedPending > 1 ? 's' : ''} Spawned
             </div>
             <div className="rollup-timer">
               <Icon icon="Clock" />
@@ -269,6 +276,28 @@ export default function Point() {
           </Row>
         </div>
       )}
+      {!!otherPending.length &&
+        otherPending.map(pendingTx => (
+          <div className="transaction">
+            <Row className="title-row">
+              <div className="title">
+                {pendingTx.rawTx?.tx?.tx?.type === 'set-management-proxy'
+                  ? 'Management Address Changed'
+                  : pendingTx.rawTx?.tx?.tx?.type === 'configure-keys'
+                  ? 'Network Keys Configured'
+                  : ''}
+              </div>
+              <div className="rollup-timer">
+                <Icon icon="Clock" />
+                {nextRoll}
+              </div>
+            </Row>
+            <Row className="info-row">
+              <LayerIndicator layer={2} size="sm" />
+              <div className="date"></div>
+            </Row>
+          </div>
+        ))}
       <Passport
         point={Just(point)}
         address={Just(address)}

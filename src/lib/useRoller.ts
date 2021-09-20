@@ -22,6 +22,10 @@ import {
   Options,
   EthAddress,
   UnspawnedPoints,
+  Hash,
+  Signature,
+  From,
+  AddressParams,
 } from '@urbit/roller-api';
 
 import { isDevelopment, isRopsten } from './flags';
@@ -40,7 +44,7 @@ import {
 } from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints, maybeGetResult } from 'views/Points';
-import { isPlanet } from './utils/point';
+import { isPlanet, getProxyAndNonce } from './utils/point';
 
 const spawn = async (
   api: any,
@@ -133,26 +137,46 @@ const transferPoint = async (
   return api.transferPoint(sig, from, _wallet.address, data);
 };
 
-const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
+const hashProxyTx = async (
+  api: any,
+  proxy: Proxy,
+  nonce: number,
+  from: From,
+  data: AddressParams
+) => {
+  switch (proxy) {
+    case 'manage':
+      return await api.hashTransaction(nonce, from, 'setManagementProxy', data);
+    case 'spawn':
+      return await api.hashTransaction(nonce, from, 'setSpawnProxy', data);
+    case 'transfer':
+      return await api.hashTransaction(nonce, from, 'setTrasferProxy', data);
+    default:
+      throw new Error(`Unknown proxyType ${proxy}`);
+  }
+};
 
-const getProxyAndNonce = (
-  point: L2Point,
-  address: string
-): { proxy?: string; nonce?: number } =>
-  point.ownership?.managementProxy?.address === address
-    ? { proxy: 'manage', nonce: point.ownership?.managementProxy.nonce }
-    : point.ownership?.owner?.address === address
-    ? { proxy: 'own', nonce: point.ownership?.owner.nonce }
-    : point.ownership?.spawnProxy?.address === address
-    ? { proxy: 'spawn', nonce: point.ownership?.spawn?.owner.nonce }
-    : point.ownership?.votingProxy?.address === address
-    ? { proxy: 'vote', nonce: point.ownership?.votingProxy?.owner.nonce }
-    : point.ownership?.transferProxy?.address === address
-    ? {
-        proxy: 'transfer',
-        nonce: point.transferProxy?.votingProxy?.owner.nonce,
-      }
-    : { proxy: undefined, nonce: undefined };
+const setProxy = async (
+  api: any,
+  proxy: Proxy,
+  sig: Signature,
+  from: From,
+  address: EthAddress,
+  data: AddressParams
+) => {
+  switch (proxy) {
+    case 'manage':
+      return await api.setManagementProxy(sig, from, address, data);
+    case 'spawn':
+      return await api.setSpawnProxy(sig, from, address, data);
+    case 'transfer':
+      return await api.setTrasferProxy(sig, from, address, data);
+    default:
+      throw new Error(`Unknown proxyType ${proxy}`);
+  }
+};
+
+const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 
 export default function useRoller() {
   const { wallet, authToken, authMnemonic, urbitWallet }: any = useWallet();
@@ -169,6 +193,8 @@ export default function useRoller() {
     setPendingTransactions,
     setInvites,
     currentL2,
+    currentNonce,
+    increaseNonce,
   } = useRollerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
@@ -231,9 +257,9 @@ export default function useRoller() {
       const tickets: { ticket: string; planet: number; owner: string }[] = [];
       const requests: Promise<string>[] = [];
 
-      const { proxy, nonce } = getProxyAndNonce(starInfo, _wallet.address);
+      const { proxy } = getProxyAndNonce(starInfo, _wallet.address);
 
-      if (!(proxy === 'own' || proxy === 'spawn') || nonce === undefined)
+      if (!(proxy === 'own' || proxy === 'spawn'))
         throw new Error("Error: Address doesn't match proxy");
 
       for (let i = 0; i < numInvites && planets[i]; i++) {
@@ -464,6 +490,56 @@ export default function useRoller() {
     ]
   );
 
+  const setProxyAddress = useCallback(
+    async (proxyType: Proxy, address: EthAddress) => {
+      console.log(proxyType, address);
+      const _point = need.point(pointCursor);
+      const _wallet = wallet.getOrElse(null);
+      // const _details = getDetails(_point);
+      if (!_wallet) {
+        // not using need because we want a custom error
+        throw new Error('Internal Error: Missing Wallet');
+      }
+
+      const pointDetails = await api.getPoint(_point);
+      // TODO: replace with call to useNonce() store
+      const { proxy } = getProxyAndNonce(pointDetails, _wallet.address);
+      console.log(nonce, pointDetails, _wallet.address);
+      if (
+        (proxyType !== 'spawn' &&
+          proxyType !== 'manage' &&
+          proxyType !== 'transfer') ||
+        proxy === undefined
+      )
+        throw new Error("Error: Address doesn't match proxy");
+
+      const from = {
+        ship: _point,
+        proxy,
+      };
+
+      const hash: Hash = await hashProxyTx(api, proxyType, currentNonce, from, {
+        address,
+      });
+
+      const txHash: Hash = await setProxy(
+        api,
+        proxyType,
+        signTransactionHash(hash, _wallet.privateKey),
+        from,
+        _wallet.address,
+        { address }
+      );
+
+      increaseNonce();
+
+      const pendingTx = await api.getPendingTx(txHash);
+
+      return pendingTx;
+    },
+    [api, pointCursor, wallet, currentNonce, increaseNonce]
+  );
+
   // On load, get initial config
   useEffect(() => {
     if (config) {
@@ -497,5 +573,6 @@ export default function useRoller() {
     getInvites,
     getPendingTransactions,
     generateInviteCodes,
+    setProxyAddress,
   };
 }
