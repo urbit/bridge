@@ -201,10 +201,9 @@ export default function MigrateL2() {
             {star && (
               <Box>
                 Transferring this point will allow you to conduct all
-                transactions on Layer 2 and is irreversible. Setting the spawn
-                proxy of a star to the Layer 2 contract is reversible, will
-                allow you to create planet invites for free, but will require
-                you to do all other transactions on Layer 1.
+                transactions on Layer 2. Setting the spawn proxy of a star to
+                Layer 2 will allow you to create planet invites for free, but
+                will require you to do all other transactions on Layer 1.
               </Box>
             )}
           </Box>

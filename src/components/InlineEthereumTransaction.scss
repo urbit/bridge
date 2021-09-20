@@ -1,5 +1,10 @@
 @import 'style/shared/variables.scss';
 
-.eth-tx-button {
+span.eth-tx-button {
   border-radius: $medium-border-radius;
+  font-size: 14px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  line-height: 16px;
+  vertical-align: middle;
 }

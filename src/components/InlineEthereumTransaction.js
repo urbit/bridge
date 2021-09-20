@@ -218,23 +218,6 @@ export default function InlineEthereumTransaction({
       <BridgeForm validate={validate} onValues={onValues}>
         {() => (
           <>
-            {renderPrimarySection()}
-
-            {error && (
-              <Grid.Item className="mv1 eth-tx-button" full as={ErrorText}>
-                {error.message}
-              </Grid.Item>
-            )}
-
-            {needFunds && (
-              <Grid.Item
-                className="mt3 eth-tx-button"
-                full
-                as={NeedFundsNotice}
-                {...needFunds}
-              />
-            )}
-
             {showConfigureInput && (
               <>
                 <Grid.Item
@@ -293,6 +276,23 @@ export default function InlineEthereumTransaction({
                   <Grid.Divider className="mt4" />
                 </Condition>
               </>
+            )}
+
+            {renderPrimarySection()}
+
+            {error && (
+              <Grid.Item className="mv1 eth-tx-button" full as={ErrorText}>
+                {error.message}
+              </Grid.Item>
+            )}
+
+            {needFunds && (
+              <Grid.Item
+                className="mt3 eth-tx-button"
+                full
+                as={NeedFundsNotice}
+                {...needFunds}
+              />
             )}
 
             {showSignedTx && fakeSigned && (
