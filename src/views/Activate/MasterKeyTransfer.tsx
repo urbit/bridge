@@ -14,7 +14,7 @@ import DangerBox from './DangerBox';
 import View from 'components/View';
 
 const MasterKeyTransfer = () => {
-  const { api, transferPoint } = useRoller();
+  const { acceptInvite } = useRoller();
   const {
     derivedPatp,
     derivedPoint,
@@ -27,11 +27,9 @@ const MasterKeyTransfer = () => {
     setError(undefined);
 
     try {
-      const l2point = await api.getPoint(derivedPoint.value);
-      await transferPoint({
+      await acceptInvite({
         point: derivedPoint.value,
         to: derivedWallet.value.ownership.address,
-        ownerAddress: l2point.ownership?.owner?.address!,
         toWallet: derivedWallet.value,
         fromWallet: inviteWallet.value,
       });
@@ -39,7 +37,12 @@ const MasterKeyTransfer = () => {
       console.error(error);
       setError(error);
     }
-  }, [api, derivedPoint.value, derivedWallet, inviteWallet, transferPoint]);
+  }, [
+    derivedPoint.value,
+    derivedWallet.value,
+    inviteWallet.value,
+    acceptInvite,
+  ]);
 
   useFadeIn();
 
@@ -89,14 +92,14 @@ const MasterKeyTransfer = () => {
         flexDirection={'column'}
         flexWrap={'nowrap'}
         justifyContent={'space-between'}>
-        {/* {error && <DangerBox>{error.toString()}</DangerBox>} */}
+        {error && <DangerBox>{error.toString()}</DangerBox>}
         <ActivateButton
           onClick={() =>
             window.open(
               'https://github.com/urbit/port/releases/latest/download/Port.dmg'
             )
           }
-          // disabled={error}
+          disabled={error}
           success={true}>
           Download the Client for Mac
         </ActivateButton>
