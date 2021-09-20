@@ -195,6 +195,7 @@ export default function useRoller() {
     currentL2,
     currentNonce,
     increaseNonce,
+    setNonce,
   } = useRollerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
@@ -264,7 +265,7 @@ export default function useRoller() {
 
       for (let i = 0; i < numInvites && planets[i]; i++) {
         const planet = planets[i];
-        const nonceInc = i * 3;
+        const nonceInc = i * 3 + currentNonce;
 
         const { ticket, owner } = await wg.generateTemporaryDeterministicWallet(
           planet,
@@ -310,6 +311,8 @@ export default function useRoller() {
         });
       }
 
+      setNonce(currentNonce + numInvites * 3);
+
       const hashes = await Promise.all(requests);
 
       const pendingInvites = tickets.map((ticket, ind) => ({
@@ -332,6 +335,8 @@ export default function useRoller() {
       getDetails,
       authMnemonic,
       urbitWallet,
+      currentNonce,
+      setNonce,
     ]
   );
 
@@ -492,7 +497,6 @@ export default function useRoller() {
 
   const setProxyAddress = useCallback(
     async (proxyType: Proxy, address: EthAddress) => {
-      console.log(proxyType, address);
       const _point = need.point(pointCursor);
       const _wallet = wallet.getOrElse(null);
       // const _details = getDetails(_point);
@@ -502,9 +506,8 @@ export default function useRoller() {
       }
 
       const pointDetails = await api.getPoint(_point);
-      // TODO: replace with call to useNonce() store
       const { proxy } = getProxyAndNonce(pointDetails, _wallet.address);
-      console.log(nonce, pointDetails, _wallet.address);
+
       if (
         (proxyType !== 'spawn' &&
           proxyType !== 'manage' &&
