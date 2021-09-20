@@ -1,17 +1,33 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import * as wg from 'lib/walletgen';
-import * as need from 'lib/need';
 import * as azimuth from 'azimuth-js';
+import * as need from 'lib/need';
 import * as ob from 'urbit-ob';
+import * as wg from 'lib/walletgen';
+
+import { addHexPrefix } from 'lib/utils/address';
+import { convertToInt } from './convertToInt';
+import { ensureHexPrefix } from 'form/formatters';
+import { getOutgoingPoints, maybeGetResult } from 'views/Points';
+import { getTimeToNextBatch } from './utils/roller';
+import { Invite } from 'types/Invite';
+import { isDevelopment, isRopsten } from './flags';
+import { isPlanet } from './utils/point';
 import { Just } from 'folktale/maybe';
 import { randomHex } from 'web3-utils';
+import { ROLLER_HOSTS } from './constants';
+import { signTransactionHash } from './authToken';
+import { useNetwork } from 'store/network';
+import { usePointCache } from 'store/pointCache';
+import { usePointCursor } from 'store/pointCursor';
+import { useRollerStore } from 'store/roller';
+import { useWallet } from 'store/wallet';
 
 import {
   attemptNetworkSeedDerivation,
   deriveNetworkKeys,
   CRYPTO_SUITE_VERSION,
+  deriveNetworkSeedFromUrbitWallet,
 } from 'lib/keys';
-import { addHexPrefix } from 'lib/utils/address';
 
 import {
   Config,
@@ -26,30 +42,11 @@ import {
   Hash,
 } from '@urbit/roller-api';
 
-import { isDevelopment, isRopsten } from './flags';
-import { ROLLER_HOSTS } from './constants';
-import { useRollerStore } from 'store/roller';
-import { getTimeToNextBatch } from './utils/roller';
-import { useWallet } from 'store/wallet';
-import { usePointCursor } from 'store/pointCursor';
-import { useNetwork } from 'store/network';
-import { signTransactionHash } from './authToken';
-import { Invite } from 'types/Invite';
 import {
   getStoredInvites,
   setPendingInvites,
   setStoredInvites,
 } from 'store/storage/roller';
-import { usePointCache } from 'store/pointCache';
-import { getOutgoingPoints, maybeGetResult } from 'views/Points';
-import { isPlanet } from './utils/point';
-import {
-  CRYPTO_SUITE_VERSION,
-  deriveNetworkKeys,
-  deriveNetworkSeedFromUrbitWallet,
-} from './keys';
-import { convertToInt } from './convertToInt';
-import { ensureHexPrefix } from 'form/formatters';
 
 const spawn = async (
   api: any,
@@ -216,7 +213,7 @@ export default function useRoller() {
       .catch(err => {
         // TODO: more elegant error handling
         console.warn(
-          '[fetchConfig:failed] is roller running on localhost?\n',
+          '[fetchConfig:failed] check the roller connection?\n',
           err
         );
       });
@@ -483,33 +480,38 @@ export default function useRoller() {
 
   // }
 
-  interface TransferPointParams {
+  interface AcceptInviteParams {
     point: Ship;
     to: EthAddress;
-    ownerAddress: EthAddress;
     fromWallet: any; // TODO: wallet type
     toWallet: any; // TODO: wallet type
   }
 
-  const transferPoint = async ({
+  const acceptInvite = async ({
     point,
     to,
-    ownerAddress,
     fromWallet,
     toWallet,
-  }: TransferPointParams) => {
-    const patp = ob.patp(point);
+  }: AcceptInviteParams) => {
     const azimuthPoint = await api.getPoint(point);
+    const spawnerPatp = ob.patp(azimuthPoint?.network?.sponsor?.who);
+    console.log('azimuthPoint', azimuthPoint);
+    const ownerAddress = azimuthPoint?.ownership?.owner?.address!;
 
     const { nonce } = getProxyAndNonce(azimuthPoint, ownerAddress);
     if (nonce === undefined) {
       throw new Error('Nonce unavailable');
     }
 
-    // update networking keys
+    // 1. Update networking keys
     // TODO: extract this to a useRoller#configureKeys function?
     const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
     const nextRevision = networkRevision + 1;
+    const fromOwnerProxy: From = {
+      ship: spawnerPatp,
+      proxy: 'own',
+    };
+
     const seed = await deriveNetworkSeedFromUrbitWallet(toWallet, nextRevision);
     const keys = deriveNetworkKeys(seed.value);
     const keysData = {
@@ -518,14 +520,10 @@ export default function useRoller() {
       cryptoSuite: CRYPTO_SUITE_VERSION.toString(),
       encrypt: ensureHexPrefix(keys.crypt.public),
     };
-    const keysFrom: From = {
-      ship: patp,
-      proxy: 'own',
-    };
 
     const keysHash: Hash = await api.hashTransaction(
       nonce,
-      keysFrom,
+      fromOwnerProxy,
       'configureKeys',
       keysData
     );
@@ -533,21 +531,16 @@ export default function useRoller() {
     const keysSigningKey = fromWallet.privateKey;
     await api.configureKeys(
       signTransactionHash(keysHash, Buffer.from(keysSigningKey, 'hex')),
-      keysFrom,
+      fromOwnerProxy,
       ownerAddress,
       keysData
     );
 
-    // transfer point
-    const transferFrom: From = {
-      ship: patp,
-      proxy: 'transfer',
-    };
-
+    // 2. Transfer point
     const transferData = { address: ownerAddress, reset: false };
     const transferHash: Hash = await api.hashTransaction(
       nonce + 1,
-      transferFrom,
+      fromOwnerProxy,
       'transferPoint',
       transferData
     );
@@ -555,7 +548,7 @@ export default function useRoller() {
     const transferSigningKey = toWallet.ownership.keys.private;
     const transferTxHash = await api.transferPoint(
       signTransactionHash(transferHash, Buffer.from(transferSigningKey, 'hex')),
-      transferFrom,
+      fromOwnerProxy,
       to,
       transferData
     );
@@ -591,6 +584,7 @@ export default function useRoller() {
 
   return {
     api,
+    acceptInvite,
     config,
     getPoints,
     getInvites,
