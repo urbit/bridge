@@ -153,7 +153,7 @@ export default function useRoller() {
 
       for (let i = 0; i < numInvites && planets[i]; i++) {
         const planet = planets[i];
-        const nonceInc = i * 3;
+        const nonceInc = i + nonce;
 
         const { ticket, owner } = await wg.generateTemporaryDeterministicWallet(
           planet,
@@ -172,9 +172,9 @@ export default function useRoller() {
         const configureKeysRequest = await configureKeys(
           api,
           _wallet,
-          _point,
+          planet,
           proxy,
-          nonceInc + 1,
+          0, //nonceInc + 1,
           _details,
           authToken,
           authMnemonic,
@@ -187,7 +187,7 @@ export default function useRoller() {
           _wallet,
           planet,
           proxy,
-          nonceInc + 2,
+          1, //nonceInc + 2,
           owner.keys.address
         );
 
@@ -271,7 +271,7 @@ export default function useRoller() {
 
         const stillPending = invites.pending.filter(invite => {
           const completed = !pendingTransactions.find(
-            p => `~${p?.rawTx?.tx?.tx?.data?.ship}` === ob.patp(invite.planet)
+            p => `~${p?.rawTx?.tx?.data?.ship}` === ob.patp(invite.planet)
           );
 
           if (

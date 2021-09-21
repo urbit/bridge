@@ -1,5 +1,5 @@
-import { signTransactionHash } from "lib/authToken";
-import { Invite } from "lib/types/Invite";
+import { signTransactionHash } from 'lib/authToken';
+import { Invite } from 'lib/types/Invite';
 import { Just } from 'folktale/maybe';
 import { randomHex } from 'web3-utils';
 import {
@@ -65,7 +65,7 @@ export const configureKeys = async (
   urbitWallet: any
 ) => {
   const from = {
-    ship: _point, //ship that is spawning the planet
+    ship: _point, //ship to configure keys
     proxy,
   };
 
@@ -100,13 +100,13 @@ export const configureKeys = async (
 export const transferPoint = async (
   api: any,
   _wallet: any,
-  planet: number,
+  _point: number,
   proxy: string,
   nonce: number,
   address: string
 ) => {
   const from = {
-    ship: planet, //planet to transfer
+    ship: _point, // ship to transfer
     proxy,
   };
 
