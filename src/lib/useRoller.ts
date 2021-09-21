@@ -4,16 +4,11 @@ import * as need from 'lib/need';
 import * as ob from 'urbit-ob';
 import * as wg from 'lib/walletgen';
 
-import { addHexPrefix } from 'lib/utils/address';
 import { convertToInt } from './convertToInt';
 import { ensureHexPrefix } from 'form/formatters';
 import { getOutgoingPoints, maybeGetResult } from 'views/Points';
-import { getTimeToNextBatch } from './utils/roller';
-import { Invite } from 'types/Invite';
 import { isDevelopment, isRopsten } from './flags';
 import { isPlanet } from './utils/point';
-import { Just } from 'folktale/maybe';
-import { randomHex } from 'web3-utils';
 import { ROLLER_HOSTS } from './constants';
 import { signTransactionHash } from './authToken';
 import { useNetwork } from 'store/network';
@@ -23,7 +18,6 @@ import { useRollerStore } from 'store/roller';
 import { useWallet } from 'store/wallet';
 
 import {
-  attemptNetworkSeedDerivation,
   deriveNetworkKeys,
   CRYPTO_SUITE_VERSION,
   deriveNetworkSeedFromUrbitWallet,
@@ -43,103 +37,17 @@ import {
 } from '@urbit/roller-api';
 
 import {
+  configureKeys,
+  getTimeToNextBatch,
+  spawn,
+  transferPoint,
+} from './utils/roller';
+
+import {
   getStoredInvites,
   setPendingInvites,
   setStoredInvites,
 } from 'store/storage/roller';
-
-const spawn = async (
-  api: any,
-  _wallet: any,
-  _point: number,
-  proxy: string,
-  nonce: number,
-  planet: number
-) => {
-  const from = {
-    ship: _point, //ship that is spawning the planet
-    proxy,
-  };
-
-  const data = {
-    address: _wallet.address,
-    ship: planet, // ship to spawn
-  };
-
-  const hash = await api.hashTransaction(nonce, from, 'spawn', data);
-  const sSig = signTransactionHash(hash, _wallet.privateKey);
-  return api.spawn(sSig, from, _wallet.address, data);
-};
-
-const configureKeys = async (
-  api: any,
-  _wallet: any,
-  _point: number,
-  proxy: string,
-  nonce: number,
-  details: any,
-  authToken: string,
-  authMnemonic: string,
-  wallet: any,
-  urbitWallet: any
-) => {
-  const from = {
-    ship: _point, //ship that is spawning the planet
-    proxy,
-  };
-
-  const networkSeed = await attemptNetworkSeedDerivation({
-    urbitWallet,
-    wallet,
-    authMnemonic,
-    details,
-    point: _point,
-    authToken,
-    revision: 1,
-  });
-
-  const seed = Just.hasInstance(networkSeed)
-    ? networkSeed.value
-    : randomHex(32);
-
-  const pair = deriveNetworkKeys(seed);
-
-  const data = {
-    encrypt: addHexPrefix(pair.crypt.public),
-    auth: addHexPrefix(pair.auth.public),
-    cryptoSuite: String(CRYPTO_SUITE_VERSION),
-    breach: false,
-  };
-
-  const hash = await api.hashTransaction(nonce, from, 'configureKeys', data);
-  const sig = signTransactionHash(hash, _wallet.privateKey);
-  return api.configureKeys(sig, from, _wallet.address, data);
-};
-
-const transferPoint = async (
-  api: any,
-  _wallet: any,
-  _point: number,
-  proxy: string,
-  nonce: number,
-  address: string
-) => {
-  const from = {
-    ship: _point, //ship that is spawning the planet
-    proxy,
-  };
-
-  const data = {
-    address,
-    reset: false,
-  };
-
-  const hash = await api.hashTransaction(nonce, from, 'transferPoint', data);
-  const sig = signTransactionHash(hash, _wallet.privateKey);
-  return api.transferPoint(sig, from, _wallet.address, data);
-};
-
-const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
 
 const getProxyAndNonce = (
   point: L2Point,
@@ -277,7 +185,7 @@ export default function useRoller() {
         const transferPointRequest = await transferPoint(
           api,
           _wallet,
-          _point,
+          planet,
           proxy,
           nonceInc + 2,
           owner.keys.address
