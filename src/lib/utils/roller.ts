@@ -8,6 +8,10 @@ import {
   CRYPTO_SUITE_VERSION,
 } from 'lib/keys';
 import { addHexPrefix } from 'lib/utils/address';
+import {
+  makeDeterministicTicket,
+  generateOwnershipWallet,
+} from 'lib/walletgen';
 
 export const SECOND = 1000;
 export const MINUTE = SECOND * 60;
@@ -28,6 +32,13 @@ export const getTimeToNextBatch = (nextBatch: number, now: number) => {
 };
 
 export const isL2 = (dom?: string) => dom === 'l2' || dom === 'spawn';
+
+export const generateInviteWallet = async (point: number, seed: string) => {
+  const ticket = makeDeterministicTicket(point, seed);
+  const owner = await generateOwnershipWallet(point, ticket);
+
+  return { ticket, owner };
+};
 
 export const spawn = async (
   api: any,

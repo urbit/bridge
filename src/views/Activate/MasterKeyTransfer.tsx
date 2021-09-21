@@ -29,7 +29,7 @@ const MasterKeyTransfer = () => {
     try {
       await acceptInvite({
         point: derivedPoint.value,
-        to: derivedWallet.value.ownership.address,
+        to: derivedWallet.value.ownership.keys.address,
         toWallet: derivedWallet.value,
         fromWallet: inviteWallet.value,
       });
