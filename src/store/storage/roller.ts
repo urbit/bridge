@@ -1,4 +1,4 @@
-import { Invite } from 'types/Invite';
+import { Invite } from 'lib/types/Invite';
 
 const INVITES_KEY = 'invites';
 const HIDE_MIGRATION_MESSAGE_KEY = 'hide_migration_message';

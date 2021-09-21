@@ -2,7 +2,7 @@ import create from 'zustand';
 import { L2Point, PendingTransaction } from '@urbit/roller-api/build';
 
 import { HOUR, isL2 } from 'lib/utils/roller';
-import { Invite } from 'types/Invite';
+import { Invite } from 'lib/types/Invite';
 
 export interface RollerStore {
   nextBatchTime: number;
