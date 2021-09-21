@@ -1,4 +1,3 @@
-import * as azimuth from 'azimuth-js';
 import * as need from 'lib/need';
 import * as ob from 'urbit-ob';
 import { WARNING } from 'form/helpers';
@@ -19,13 +18,10 @@ import { useActivateFlow } from './ActivateFlow';
 import WarningBox from 'components/WarningBox';
 import useRoller from 'lib/useRoller';
 import useImpliedTicket from 'lib/useImpliedTicket';
-import {
-  generateTemporaryOwnershipWallet,
-  generateWallet,
-} from 'lib/walletgen';
+import { generateOwnershipWallet } from 'lib/walletgen';
+import { generateWallet } from 'lib/invite';
 import { walletFromMnemonic } from 'lib/wallet';
-import { useNetwork } from 'store/network';
-import { DEFAULT_HD_PATH, POINT_DOMINIONS, POINT_PROXIES } from 'lib/constants';
+import { DEFAULT_HD_PATH, POINT_PROXIES } from 'lib/constants';
 import useBreakpoints from 'lib/useBreakpoints';
 import { Ship } from '@urbit/roller-api';
 import { convertToInt } from 'lib/convertToInt';
@@ -39,9 +35,13 @@ interface ActivateCodeFormProps {
 }
 
 const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
-  const { contracts } = useNetwork();
   const { api, getPoints } = useRoller();
-  const { impliedAzimuthPoint, impliedTicket } = useImpliedTicket();
+  const {
+    impliedAzimuthPoint,
+    impliedTicket,
+    impliedPatp,
+  } = useImpliedTicket();
+  console.log(impliedAzimuthPoint, impliedTicket);
   const didWarn = useRef<boolean>(false);
 
   const {
@@ -80,27 +80,23 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
     [validateForm]
   );
 
-  const loadL1Points = useCallback(
-    async (address: string): Promise<number[]> => {
-      const _contracts = need.contracts(contracts);
-      const owned = await azimuth.azimuth.getOwnedPoints(_contracts, address);
-      const transferring = await azimuth.azimuth.getTransferringFor(
-        _contracts,
-        address
-      );
-      const incoming = [...owned, ...transferring];
-      console.log('incoming L1 points', incoming);
-      return incoming;
-    },
-    [contracts]
-  );
+  const getTicketAndPoint = (invite: string) => {
+    const segments = invite.split('-');
+    console.log(segments);
+    return {
+      ticket: segments.slice(0, 4).join('-'),
+      point: impliedPatp
+        ? ob.patp2dec(impliedPatp)
+        : ob.patp2dec(`~${segments.slice(4, segments.length).join('-')}`),
+    };
+  };
 
-  const loadl2points = useCallback(
+  const loadPoints = useCallback(
     async (address: string): Promise<Ship[]> => {
       const owned = await getPoints(POINT_PROXIES.OWN, address);
       const transferring = await getPoints(POINT_PROXIES.TRANSFER, address);
       const incoming = [...owned, ...transferring];
-      console.log('incoming L2 points', incoming);
+      console.log('incoming points', incoming);
       return incoming;
     },
     [getPoints]
@@ -113,21 +109,16 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
       await timeout(42);
 
       // Derive wallet
-      const ticket = impliedTicket || values.ticket;
-      const { seed } = await generateTemporaryOwnershipWallet(ticket);
+      const { ticket, point } = getTicketAndPoint(
+        impliedTicket || values.ticket
+      );
+      const { seed } = await generateOwnershipWallet(point, ticket);
       const inviteWallet = walletFromMnemonic(seed, DEFAULT_HD_PATH);
       setInviteWallet(inviteWallet);
       const _inviteWallet = need.wallet(inviteWallet);
       const inviteAddress = _inviteWallet.address;
 
-      // Query for points depending on point's dominion
-      const rollerPoint = await api.getPoint(impliedAzimuthPoint!);
-      let incoming: number[] | Ship[];
-      if (rollerPoint.dominion === POINT_DOMINIONS.L2) {
-        incoming = await loadl2points(inviteAddress);
-      } else {
-        incoming = await loadL1Points(inviteAddress);
-      }
+      let incoming: number[] | Ship[] = await loadPoints(inviteAddress);
 
       // Set derived
       if (incoming.length > 0) {
@@ -143,11 +134,12 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
         }
 
         const point = convertToInt(incoming[0], 10);
+        const rollerPoint = await api.getPoint(point!);
 
         setDerivedPatp(Just(ob.patp(point)));
         setDerivedPoint(Just(point));
         setDerivedPointDominion(Just(rollerPoint.dominion));
-        setDerivedWallet(Just(await generateWallet(point, ticket, true)));
+        setDerivedWallet(Just(await generateWallet(point, true)));
         setIsIn(false);
         await timeout(100);
       } else {
@@ -160,10 +152,9 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
     },
     [
       api,
-      impliedAzimuthPoint,
       impliedTicket,
-      loadL1Points,
-      loadl2points,
+      getTicketAndPoint,
+      loadPoints,
       setDerivedPatp,
       setDerivedPoint,
       setDerivedPointDominion,

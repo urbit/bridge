@@ -10,7 +10,7 @@ import { ensureHexPrefix } from 'form/formatters';
 import { getOutgoingPoints } from 'views/Points';
 import { isDevelopment, isRopsten } from './flags';
 import { isPlanet } from './utils/point';
-import { hasPoint } from './utils/roller';
+import { hasPoint, generateInviteWallet } from './utils/roller';
 import { ROLLER_HOSTS } from './constants';
 import { signTransactionHash } from './authToken';
 import { useNetwork } from 'store/network';
@@ -164,7 +164,7 @@ export default function useRoller() {
         const planet = planets[i];
         const nonceInc = i + nonce;
 
-        const { ticket, owner } = await wg.generateTemporaryDeterministicWallet(
+        const { ticket, owner } = await generateInviteWallet(
           planet,
           _authToken
         );
@@ -224,8 +224,6 @@ export default function useRoller() {
       contracts,
       pointCursor,
       wallet,
-      // walletHdPath,
-      // walletType,
       web3,
       getDetails,
       authMnemonic,
@@ -331,15 +329,16 @@ export default function useRoller() {
           if (isDevelopment) {
             console.log('POSSIBLE MISSING', possibleMissingInvites);
           }
-
+          // TODO: this can be verym slow, so best to allow the user to manually
+          // reveal the ticket, after checking if the invite is still "active"
+          // (i.e. if the address inferred from the derived inviteWallet corresponds to
+          // to the address the point has as owner)
+          //
           for (let i = 0; i < possibleMissingInvites.length; i++) {
             const planet = possibleMissingInvites[i];
             if (!availableInvites.find(hasPoint(planet))) {
               console.log('MISSING IN AVAILABLE', planet);
-              const {
-                ticket,
-                owner,
-              } = await wg.generateTemporaryDeterministicWallet(
+              const { ticket, owner } = await generateInviteWallet(
                 planet,
                 _authToken
               );
@@ -401,7 +400,6 @@ export default function useRoller() {
     toWallet,
   }: AcceptInviteParams) => {
     const azimuthPoint = await api.getPoint(point);
-    const spawnerPatp = ob.patp(azimuthPoint?.network?.sponsor?.who);
     console.log('azimuthPoint', azimuthPoint);
     const ownerAddress = azimuthPoint?.ownership?.owner?.address!;
 
@@ -415,7 +413,7 @@ export default function useRoller() {
     const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
     const nextRevision = networkRevision + 1;
     const fromOwnerProxy: From = {
-      ship: spawnerPatp,
+      ship: point,
       proxy: 'own',
     };
 
