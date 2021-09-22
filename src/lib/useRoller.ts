@@ -442,7 +442,7 @@ export default function useRoller() {
     );
 
     // 2. Transfer point
-    const transferData = { address: ownerAddress, reset: false };
+    const transferData = { address: to, reset: false };
     const transferHash: Hash = await api.hashTransaction(
       nonce + 1,
       fromOwnerProxy,
@@ -450,11 +450,10 @@ export default function useRoller() {
       transferData
     );
 
-    const transferSigningKey = toWallet.ownership.keys.private;
     const transferTxHash = await api.transferPoint(
-      signTransactionHash(transferHash, Buffer.from(transferSigningKey, 'hex')),
+      signTransactionHash(transferHash, Buffer.from(keysSigningKey, 'hex')),
       fromOwnerProxy,
-      to,
+      ownerAddress,
       transferData
     );
 
