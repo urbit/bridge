@@ -25,7 +25,6 @@ const MasterKeyDownload = () => {
   const {
     derivedPoint,
     derivedWallet,
-    generated,
     setGenerated,
     setIsIn,
   } = useActivateFlow();

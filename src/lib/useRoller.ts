@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as azimuth from 'azimuth-js';
 import * as need from 'lib/need';
 import * as ob from 'urbit-ob';
-import * as wg from 'lib/walletgen';
 
 import { Invite } from 'lib/types/Invite';
 import { convertToInt } from './convertToInt';
@@ -96,7 +95,8 @@ export default function useRoller() {
       : isDevelopment
       ? ROLLER_HOSTS.LOCAL
       : ROLLER_HOSTS.MAINNET;
-    const port = isDevelopment ? 8080 : 80;
+    // const port = isDevelopment ? 8080 : 80;
+    const port = 80;
     const path = '/v1/roller';
 
     return {

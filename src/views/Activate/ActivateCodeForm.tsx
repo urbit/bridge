@@ -36,12 +36,7 @@ interface ActivateCodeFormProps {
 
 const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
   const { api, getPoints } = useRoller();
-  const {
-    impliedAzimuthPoint,
-    impliedTicket,
-    impliedPatp,
-  } = useImpliedTicket();
-  console.log(impliedAzimuthPoint, impliedTicket);
+  const { impliedTicket, impliedPatp } = useImpliedTicket();
   const didWarn = useRef<boolean>(false);
 
   const {
@@ -80,16 +75,18 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
     [validateForm]
   );
 
-  const getTicketAndPoint = (invite: string) => {
-    const segments = invite.split('-');
-    console.log(segments);
-    return {
-      ticket: segments.slice(0, 4).join('-'),
-      point: impliedPatp
-        ? ob.patp2dec(impliedPatp)
-        : ob.patp2dec(`~${segments.slice(4, segments.length).join('-')}`),
-    };
-  };
+  const getTicketAndPoint = useCallback(
+    (invite: string) => {
+      const segments = invite.split('-');
+      return {
+        ticket: segments.slice(0, 4).join('-'),
+        point: impliedPatp
+          ? ob.patp2dec(impliedPatp)
+          : ob.patp2dec(`~${segments.slice(4, segments.length).join('-')}`),
+      };
+    },
+    [impliedPatp]
+  );
 
   const loadPoints = useCallback(
     async (address: string): Promise<Ship[]> => {
