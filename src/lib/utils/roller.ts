@@ -1,6 +1,6 @@
 import { signTransactionHash } from 'lib/authToken';
 import { Invite } from 'lib/types/Invite';
-import { Just } from 'folktale/maybe';
+import { Just, Nothing } from 'folktale/maybe';
 import { randomHex } from 'web3-utils';
 import {
   attemptNetworkSeedDerivation,
@@ -89,6 +89,11 @@ export const configureKeys = async (
     authToken,
     revision: 1,
   });
+  // TODO: do something here?
+  if (Nothing.hasInstance(networkSeed)) {
+    console.log("Network key Error: couldn't derive network keys");
+    // throw new Error("Network key Error: couldn't derive network keys");
+  }
 
   const seed = Just.hasInstance(networkSeed)
     ? networkSeed.value

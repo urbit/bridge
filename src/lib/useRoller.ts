@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as azimuth from 'azimuth-js';
 import * as need from 'lib/need';
 import * as ob from 'urbit-ob';
+import { Just } from 'folktale/maybe';
 
 import { Invite } from 'lib/types/Invite';
 import { convertToInt } from './convertToInt';
@@ -141,6 +142,11 @@ export default function useRoller() {
         throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
       }
 
+      if (Just.hasInstance(authMnemonic)) {
+        throw new Error(
+          "Auth key Error: A management mnemonic can't create invite codes"
+        );
+      }
       const planets: UnspawnedPoints = await api.getUnspawned(_point);
       const starInfo = await api.getPoint(_point);
 
