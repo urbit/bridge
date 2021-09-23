@@ -235,7 +235,7 @@ export default function Point() {
 
   const address = need.addressFromWallet(wallet);
   const numPending = pendingTransactions.filter(
-    ({ rawTx }) => rawTx?.tx?.tx?.type === 'spawn'
+    ({ rawTx }) => rawTx?.tx?.type === 'spawn'
   ).length;
 
   return (

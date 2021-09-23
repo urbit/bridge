@@ -53,10 +53,8 @@ export default function useControlledPointsStore() {
         azimuth.azimuth.getSpawningFor(_contracts, address),
       ]);
 
-      console.log(1)
       const pointsWithLayers = await Promise.all(
         ownedPoints.map(async ship => {
-          console.log(2)
           try {
             const pointInfo = await api.getPoint(Number(ship));
             return {

@@ -1,0 +1,35 @@
+@keyframes opacity-fill {
+  0% {
+    fill-opacity: 0.2;
+  }
+  100% {
+    fill-opacity: 1.0;
+  }
+}
+
+@mixin generate-progress-fill($numSegments, $duration: 150ms, $delayDelta: 50ms) {
+  @for $i from 1 through $numSegments {
+    .segment-#{$i} {
+      animation: opacity-fill $duration linear forwards;
+      animation-delay: $delayDelta * $i;
+    } 
+  }
+}
+
+svg.master-key {
+  // Initial state
+  path {
+    fill-opacity: 0.2;
+  }
+
+  // Animations
+  @include generate-progress-fill(18);
+
+  &.paused g {
+    animation-play-state: paused;
+  }
+
+  &.paused path {
+    animation-play-state: paused;
+  }
+}

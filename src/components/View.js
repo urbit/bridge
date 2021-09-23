@@ -17,6 +17,7 @@ function View({
   hideBack = false,
   pop,
   header,
+  centered = false,
   ...rest
 }) {
   const { reset } = useHistory();
@@ -87,7 +88,14 @@ function View({
         )}
       </Flex.Item>
 
-      <Flex.Item flex={1} as={Flex} col justify="between">
+      <Flex.Item
+        flex={1}
+        as={Flex}
+        col
+        className={cn({
+          'justify-between': !centered,
+          'justify-center': centered,
+        })}>
         <Flex.Item className="pb5 ">
           {header || <Header logout={goBack} />}
           {children}

@@ -154,6 +154,8 @@ export default function InviteCohort() {
       getPendingTransactions(point);
       pop();
     } catch (error) {
+      console.log(error);
+      // TODO: error is not used anywhere on the UI
       setError(error);
     } finally {
       setLoading(false);
