@@ -53,8 +53,7 @@ const MasterKeyConfirm = () => {
       ticket0: STUB_VERIFY_TICKET ? ticketSegments[0] : undefined,
       ticket1: STUB_VERIFY_TICKET ? ticketSegments[1] : undefined,
       ticket2: STUB_VERIFY_TICKET ? ticketSegments[2] : undefined,
-      // ticket3: STUB_VERIFY_TICKET ? ticketSegments[3] : undefined,
-      ticket3: undefined,
+      ticket3: STUB_VERIFY_TICKET ? ticketSegments[3].slice(0, 5) : undefined,
     }),
     [STUB_VERIFY_TICKET, ticket, ticketSegments]
   );
