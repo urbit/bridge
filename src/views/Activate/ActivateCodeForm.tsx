@@ -115,7 +115,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
       const _inviteWallet = need.wallet(inviteWallet);
       const inviteAddress = _inviteWallet.address;
 
-      let incoming: number[] | Ship[] = await loadPoints(inviteAddress);
+      let incoming = await loadPoints(inviteAddress);
 
       // Set derived
       if (incoming.length > 0) {
