@@ -1,6 +1,5 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { Just } from 'folktale/maybe';
-import * as azimuth from 'azimuth-js';
 import * as kg from 'urbit-key-generation';
 import {
   Grid,
@@ -11,11 +10,9 @@ import {
 } from 'indigo-react';
 import { FORM_ERROR } from 'final-form';
 
-import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 
-import * as need from 'lib/need';
 import { urbitWalletFromTicket } from 'lib/wallet';
 import { WALLET_TYPES } from 'lib/constants';
 import useImpliedPoint from 'lib/useImpliedPoint';
@@ -92,12 +89,11 @@ function TicketInputAccessory({ name }) {
 export default function Ticket({ className, goHome }) {
   useLoginView(WALLET_TYPES.TICKET);
 
-  const { contracts } = useNetwork();
   const { setUrbitWallet } = useWallet();
   const { setPointCursor } = usePointCursor();
   const impliedPoint = useImpliedPoint();
   const didWarn = useRef(false);
-  const { api, getPoints } = useRoller();
+  const { getPoints } = useRoller();
 
   const validateForm = useCallback((values, errors) => {
     didWarn.current = false;

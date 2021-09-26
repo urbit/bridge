@@ -401,14 +401,14 @@ export default function useRoller() {
       }
     },
     [
-      // api,
-      // pointCursor,
-      // setInvites,
-      // setPendingTransactions,
-      // authToken,
-      // contracts,
-      // controlledPoints,
-      // getDetails,
+      api,
+      authToken,
+      contracts,
+      controlledPoints,
+      getDetails,
+      pointCursor,
+      setInvites,
+      setPendingTransactions,
     ]
   );
 

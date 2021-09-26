@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import cn from 'classnames';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { azimuth } from 'azimuth-js';
 import { Just } from 'folktale/maybe';
 import { Grid, Flex } from 'indigo-react';
@@ -13,9 +12,6 @@ import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
 import Blinky from 'components/Blinky';
-import BarGraph from 'components/BarGraph';
-import Chip from 'components/Chip';
-import InviteSigilList from 'components/InviteSigilList';
 import { ForwardButton } from 'components/Buttons';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import LayerIndicator from 'components/L2/LayerIndicator';
@@ -23,185 +19,67 @@ import Card from 'components/L2/Card';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
-import { useSyncExtras } from 'lib/useSyncPoints';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
-import Inviter from 'views/Invite/Inviter';
 import useRoller from 'lib/useRoller';
 
 import './Point.scss';
 import { isL2 } from 'lib/utils/roller';
 import { isDevelopment } from 'lib/flags';
-import { convertToInt } from 'lib/convertToInt';
 import { usePointCache } from 'store/pointCache';
 import Modal from 'components/L2/Modal';
 import { isPlanet } from 'lib/utils/point';
-
-function InviteForm({
-  showInviteForm,
-  setShowInviteForm,
-  acceptedInvites,
-  acceptedPoints,
-  availableInvites,
-  goCohort,
-  pendingPoints,
-  sentInvites,
-  showInvites,
-}) {
-  const _totalInvites =
-    sentInvites.getOrElse(0) + availableInvites.getOrElse(0);
-  const _pendingInvites = pendingPoints.getOrElse([]).length;
-
-  return (
-    <>
-      <Grid.Item cols={[1, 11]}>
-        Invite Group
-        <br />
-      </Grid.Item>
-
-      <Grid.Item
-        className={cn('t-right underline pointer-hover', {
-          gray4: sentInvites.getOrElse(0) === 0,
-        })}
-        onClick={goCohort}
-        cols={[11, 13]}>
-        View
-      </Grid.Item>
-      <Grid.Item full>
-        <Flex align="center">
-          <Flex.Item>
-            {acceptedInvites.getOrElse(0)} / {_totalInvites}
-          </Flex.Item>
-          {_pendingInvites > 0 && (
-            <Flex.Item as={Chip} className="bg-yellow1 yellow4">
-              {_pendingInvites} pending
-            </Flex.Item>
-          )}
-        </Flex>
-      </Grid.Item>
-
-      {showInvites && (
-        <>
-          <Grid.Item
-            full
-            as={BarGraph}
-            available={availableInvites}
-            sent={sentInvites}
-            accepted={acceptedInvites}
-          />
-          <Grid.Item
-            full
-            as={InviteSigilList}
-            pendingPoints={pendingPoints}
-            acceptedPoints={acceptedPoints}
-          />
-        </>
-      )}
-      {!showInvites && (
-        <>
-          <Grid.Item full className="b-gray4 b-dotted b1 self-center">
-            <div className="p4 pv8 t-center gray4">
-              Start your invite group by adding members
-            </div>
-          </Grid.Item>
-        </>
-      )}
-      {!showInviteForm && availableInvites.getOrElse(0) > 0 && (
-        <Grid.Item
-          full
-          solid
-          as={Button}
-          center
-          onClick={() => setShowInviteForm(true)}>
-          Add Members
-        </Grid.Item>
-      )}
-      {showInviteForm && <Inviter />}
-      <Grid.Item full className="mb2" />
-    </>
-  );
-}
+import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
+import { InviteForm } from './InviteForm';
 
 export default function Point() {
   const { pop, push, names } = useLocalRouter();
-  const { wallet, authToken } = useWallet();
+  const { wallet } = useWallet();
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
-  const { getDetails } = usePointCache();
-  // sync the current cursor
-  useSyncExtras([point]);
-
+  const { syncExtras } = usePointCache();
   const { api, getInvites } = useRoller();
   const {
     pendingTransactions,
     nextRoll,
     invites,
     setCurrentPoint,
-    setPendingTransactions,
-    currentL2,
     setNonces,
     increaseNonce,
-    nonces,
   } = useRollerStore();
+  const networkKeysSet = useHasNetworkKeysSet();
+  const [showModal, setShowModal] = useState(!networkKeysSet);
 
-  // const pointSize = azimuth.getPointSize(point);
-  // const details = need.details(getDetails(point));
-  // const details = getDetails(point);
-  // console.log(details);
-  // const isStarOrGalaxy = pointSize !== azimuth.PointSize.Planet;
-  // const networkRevision =
-  //   Just.hasInstance(details) &&
-  //   convertToInt(need.details(details).keyRevisionNumber, 10);
-  // console.log(networkRevision);
-  const networkKeysNotSet = false;
-  //   networkRevision && !currentL2 && isStarOrGalaxy && networkRevision === 0;
+  const loadL1Info = useCallback(async () => {
+    await syncExtras(point);
+  }, [point, syncExtras]);
 
-  const [showModal, setShowModal] = useState(networkKeysNotSet);
+  const loadL2Info = useCallback(async () => {
+    const getTransactions = async () => {
+      const pointInfo = await api.getPoint(Number(point));
+      const pendingTxs = await api.getPendingByShip(Number(point));
+      if (isDevelopment) {
+        console.log('POINT INFO', pointInfo);
+      }
+      setNonces(point, pointInfo.ownership);
 
-  // useEffect(() => {
-  //   if (networkKeysNotSet) {
-  //     setShowModal(true);
-  //   }
-  // }, [networkKeysNotSet]);
+      for (let index = 0; index < pendingTxs.length; index++) {
+        const proxy = pendingTxs[index].rawTx?.from?.proxy;
+        console.log(pointInfo.ownership, proxy);
+        increaseNonce(point, proxy);
+      }
+      setCurrentPoint(pointInfo);
+      await getInvites(isL2(pointInfo.dominion));
+    };
 
-  useEffect(
-    () => {
-      const loadL2Info = async () => {
-        const getTransactions = async () => {
-          const pointInfo = await api.getPoint(Number(point));
-          const pendingTxs = await api.getPendingByShip(Number(point));
-          if (isDevelopment) {
-            console.log('POINT INFO', pointInfo);
-          }
-          setNonces(point, pointInfo.ownership);
+    await getTransactions();
+  }, [api, point, setCurrentPoint, increaseNonce, getInvites, setNonces]);
 
-          for (let index = 0; index < pendingTxs.length; index++) {
-            const proxy = pendingTxs[index].rawTx?.from?.proxy;
-            console.log(pointInfo.ownership, proxy);
-            increaseNonce(point, proxy);
-          }
-          setCurrentPoint(pointInfo);
-          getInvites(isL2(pointInfo.dominion));
-        };
-
-        getTransactions();
-      };
-
-      loadL2Info();
-    },
-    [
-      // TODO: adding this causes the effect to be called constantly...
-      // api,
-      // point,
-      // authToken,
-      // setPendingTransactions,
-      // nonces,
-      // setCurrentPoint,
-      // increaseNonce,
-      // getInvites,
-      // setNonces,
-    ]
-  );
+  useEffect(() => {
+    loadL1Info();
+    loadL2Info();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [point]);
 
   const { isParent, canManage, canSpawn, canVote } = useCurrentPermissions();
 
@@ -222,8 +100,6 @@ export default function Point() {
   const hasInvites = showInvites || availableInvites.getOrElse(0) !== 0;
 
   const loadedInvites = Just.hasInstance(availableInvites);
-  //
-  // availableInvites.getOrElse(0) === 0
 
   const goSenate = useCallback(() => push(names.SENATE), [push, names]);
 
@@ -262,13 +138,13 @@ export default function Point() {
     );
   })();
 
-  // sync the current cursor
-  useSyncExtras([point]);
-
   const address = need.addressFromWallet(wallet);
-  const numPending = pendingTransactions.filter(
-    ({ rawTx }) => rawTx?.tx?.type === 'spawn'
-  ).length;
+
+  const numPending = useMemo(() => {
+    return pendingTransactions.filter(
+      ({ rawTx }) => rawTx?.tx?.type === 'spawn'
+    ).length;
+  }, [pendingTransactions]);
 
   return (
     <View
@@ -280,7 +156,7 @@ export default function Point() {
         <L2PointHeader
           hideTimer={!!numPending}
           numInvites={invites.length}
-          hideInvites={networkKeysNotSet}
+          hideInvites={!networkKeysSet}
         />
       }>
       <Greeting point={point} />
