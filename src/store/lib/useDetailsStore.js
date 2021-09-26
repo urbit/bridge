@@ -10,7 +10,7 @@ const toL1Details = point => {
     dominion: 'l2',
     active: true,
     authenticationKey: point.network.keys.auth,
-    continuityNumber: point.network.keys.rift,
+    continuityNumber: point.network.rift,
     cryptoSuiteVersion: point.network.keys.suite,
     encryptionKey: point.network.keys.crypt,
     escapeRequested: point.network.escape ? true : false,
