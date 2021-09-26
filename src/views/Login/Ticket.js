@@ -22,6 +22,7 @@ import useImpliedPoint from 'lib/useImpliedPoint';
 import useLoginView from 'lib/useLoginView';
 import { patp2dec } from 'lib/patp2dec';
 import { timeout } from 'lib/timeout';
+import useRoller from 'lib/useRoller';
 
 import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
@@ -96,6 +97,7 @@ export default function Ticket({ className, goHome }) {
   const { setPointCursor } = usePointCursor();
   const impliedPoint = useImpliedPoint();
   const didWarn = useRef(false);
+  const { api, getPoints } = useRoller();
 
   const validateForm = useCallback((values, errors) => {
     didWarn.current = false;
@@ -134,7 +136,7 @@ export default function Ticket({ className, goHome }) {
         : values.ticket;
 
       try {
-        const _contracts = need.contracts(contracts);
+        // const _contracts = need.contracts(contracts);
         const point = patp2dec(values.point);
 
         await timeout(16); // allow ui events to flush
@@ -143,19 +145,24 @@ export default function Ticket({ className, goHome }) {
           point,
           values.passphrase
         );
-
-        const [isOwner, isTransferProxy] = await Promise.all([
-          azimuth.azimuth.isOwner(
-            _contracts,
-            point,
-            urbitWallet.ownership.keys.address
-          ),
-          azimuth.azimuth.isTransferProxy(
-            _contracts,
-            point,
-            urbitWallet.ownership.keys.address
-          ),
+        const [ownedPoints, incomingPoints] = await Promise.all([
+          getPoints('own', urbitWallet.ownership.keys.address),
+          getPoints('transfer', urbitWallet.ownership.keys.address),
         ]);
+        const isOwner = ownedPoints.length !== 0;
+        const isTransferProxy = incomingPoints.length !== 0;
+        // const [isOwner, isTransferProxy] = await Promise.all([
+        //   azimuth.azimuth.isOwner(
+        //     _contracts,
+        //     point,
+        //     urbitWallet.ownership.keys.address
+        //   ),
+        //   azimuth.azimuth.isTransferProxy(
+        //     _contracts,
+        //     point,
+        //     urbitWallet.ownership.keys.address
+        //   ),
+        // ]);
 
         const noPermissions = !isOwner && !isTransferProxy;
         // warn the user
@@ -178,7 +185,7 @@ export default function Ticket({ className, goHome }) {
         };
       }
     },
-    [contracts, setPointCursor, setUrbitWallet]
+    [setPointCursor, setUrbitWallet, getPoints]
   );
 
   const validate = useMemo(

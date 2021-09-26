@@ -42,12 +42,12 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
 
   let networkKeysNotSet = true;
 
-  if (point) {
-    const details = need.details(getDetails(point));
-    const isStarOrGalaxy = !isPlanet(point);
-    const networkRevision = convertToInt(details.keyRevisionNumber, 10);
-    networkKeysNotSet = !currentL2 && isStarOrGalaxy && networkRevision === 0;
-  }
+  // if (point) {
+  //   const details = need.details(getDetails(point));
+  //   const isStarOrGalaxy = !isPlanet(point);
+  //   const networkRevision = convertToInt(details.keyRevisionNumber, 10);
+  //   networkKeysNotSet = !currentL2 && isStarOrGalaxy && networkRevision === 0;
+  // }
 
   const [showModal, setShowModal] = useState(false);
 

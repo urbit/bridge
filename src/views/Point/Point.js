@@ -128,6 +128,8 @@ export default function Point() {
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
   const { getDetails } = usePointCache();
+  // sync the current cursor
+  useSyncExtras([point]);
 
   const { api, getInvites } = useRoller();
   const {
@@ -137,39 +139,69 @@ export default function Point() {
     setCurrentPoint,
     setPendingTransactions,
     currentL2,
+    setNonces,
+    increaseNonce,
+    nonces,
   } = useRollerStore();
 
-  const pointSize = azimuth.getPointSize(point);
-  const details = need.details(getDetails(point));
-  const isStarOrGalaxy = pointSize !== azimuth.PointSize.Planet;
-  const networkRevision = convertToInt(details.keyRevisionNumber, 10);
-  const networkKeysNotSet =
-    !currentL2 && isStarOrGalaxy && networkRevision === 0;
+  // const pointSize = azimuth.getPointSize(point);
+  // const details = need.details(getDetails(point));
+  // const details = getDetails(point);
+  // console.log(details);
+  // const isStarOrGalaxy = pointSize !== azimuth.PointSize.Planet;
+  // const networkRevision =
+  //   Just.hasInstance(details) &&
+  //   convertToInt(need.details(details).keyRevisionNumber, 10);
+  // console.log(networkRevision);
+  const networkKeysNotSet = false;
+  //   networkRevision && !currentL2 && isStarOrGalaxy && networkRevision === 0;
 
   const [showModal, setShowModal] = useState(networkKeysNotSet);
 
-  useEffect(() => {
-    if (networkKeysNotSet) {
-      setShowModal(true);
-    }
-  }, [networkKeysNotSet]);
+  // useEffect(() => {
+  //   if (networkKeysNotSet) {
+  //     setShowModal(true);
+  //   }
+  // }, [networkKeysNotSet]);
 
-  useEffect(() => {
-    const loadL2Info = async () => {
-      const getTransactions = async () => {
-        const pointInfo = await api.getPoint(Number(point));
-        if (isDevelopment) {
-          console.log('POINT INFO', pointInfo);
-        }
-        setCurrentPoint(pointInfo);
-        getInvites(isL2(pointInfo.dominion));
+  useEffect(
+    () => {
+      const loadL2Info = async () => {
+        const getTransactions = async () => {
+          const pointInfo = await api.getPoint(Number(point));
+          const pendingTxs = await api.getPendingByShip(Number(point));
+          if (isDevelopment) {
+            console.log('POINT INFO', pointInfo);
+          }
+          setNonces(point, pointInfo.ownership);
+
+          for (let index = 0; index < pendingTxs.length; index++) {
+            const proxy = pendingTxs[index].rawTx?.from?.proxy;
+            console.log(pointInfo.ownership, proxy);
+            increaseNonce(point, proxy);
+          }
+          setCurrentPoint(pointInfo);
+          getInvites(isL2(pointInfo.dominion));
+        };
+
+        getTransactions();
       };
 
-      getTransactions();
-    };
-
-    loadL2Info();
-  }, [api, point, authToken, setPendingTransactions]); // eslint-disable-line
+      loadL2Info();
+    },
+    [
+      // TODO: adding this causes the effect to be called constantly...
+      // api,
+      // point,
+      // authToken,
+      // setPendingTransactions,
+      // nonces,
+      // setCurrentPoint,
+      // increaseNonce,
+      // getInvites,
+      // setNonces,
+    ]
+  );
 
   const { isParent, canManage, canSpawn, canVote } = useCurrentPermissions();
 
@@ -256,7 +288,8 @@ export default function Point() {
         <div className="transaction">
           <Row className="title-row">
             <div className="title">
-              {numPending} Planet{numPending > 1 ? 's' : ''} Spawned
+              {numPending} Planet
+              {numPending > 1 ? 's' : ''} Spawned
             </div>
             <div className="rollup-timer">
               <Icon icon="Clock" />
