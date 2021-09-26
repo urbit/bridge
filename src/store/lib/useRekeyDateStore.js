@@ -33,7 +33,7 @@ export default function useRekeyDateStore() {
       if (!_web3 || !_contracts) {
         return;
       }
-
+      //TODO support L2 points
       //TODO tighter search?
       //TODO maybe move into azimuth-js?
       const logs = await _contracts.azimuth.getPastEvents('ChangedKeys', {

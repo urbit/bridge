@@ -3,7 +3,7 @@ import { Invite } from 'lib/types/Invite';
 import { Just, Nothing } from 'folktale/maybe';
 import { randomHex } from 'web3-utils';
 import {
-  attemptNetworkSeedDerivation,
+  deriveNetworkSeedFromUrbitWallet,
   deriveNetworkKeys,
   CRYPTO_SUITE_VERSION,
 } from 'lib/keys';
@@ -66,10 +66,6 @@ export const configureKeys = async (
   _point: number,
   proxy: string,
   nonce: number,
-  details: any,
-  authToken: string,
-  authMnemonic: string,
-  wallet: any,
   urbitWallet: any
 ) => {
   const from = {
@@ -77,15 +73,7 @@ export const configureKeys = async (
     proxy,
   };
 
-  const networkSeed = await attemptNetworkSeedDerivation({
-    urbitWallet,
-    wallet,
-    authMnemonic,
-    details,
-    point: _point,
-    authToken,
-    revision: 1,
-  });
+  const networkSeed = await deriveNetworkSeedFromUrbitWallet(urbitWallet, 1);
   // TODO: do something here?
   if (Nothing.hasInstance(networkSeed)) {
     console.log("Network key Error: couldn't derive network keys");
