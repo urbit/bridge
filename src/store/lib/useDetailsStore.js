@@ -2,10 +2,33 @@ import { useState, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 
+import useRoller from '../../lib/useRoller';
 import { useNetwork } from '../network';
+
+const toL1Details = point => {
+  return {
+    dominion: 'l2',
+    active: true,
+    authenticationKey: point.network.keys.auth,
+    continuityNumber: point.network.keys.rift,
+    cryptoSuiteVersion: point.network.keys.suite,
+    encryptionKey: point.network.keys.crypt,
+    escapeRequested: point.network.escape ? true : false,
+    escapeRequestedTo: point.network.escape,
+    hasSponsor: point.network.sponsor.has,
+    keyRevisionNumber: point.network.keys.life,
+    managementProxy: point.ownership.managementProxy.address,
+    owner: point.ownership.owner.address,
+    spawnProxy: point.ownership.spawnProxy.address,
+    sponsor: point.network.sponsor.who,
+    transferProxy: point.ownership.transferProxy.address,
+    votingProxy: point.ownership.votingProxy.address,
+  };
+};
 
 export default function useDetailsStore() {
   const { contracts } = useNetwork();
+  const { api } = useRoller();
   const [detailsCache, _setDetailsCache] = useState({});
 
   const addToDetails = useCallback(
@@ -32,12 +55,16 @@ export default function useDetailsStore() {
       }
 
       // fetch point details
-      const details = await azimuth.azimuth.getPoint(_contracts, point);
+      const l2Point = await api.getPoint(point);
+      const details =
+        l2Point && l2Point.dominion === 'l2'
+          ? toL1Details(l2Point)
+          : await azimuth.azimuth.getPoint(_contracts, point);
       addToDetails({
         [point]: details,
       });
     },
-    [contracts, addToDetails]
+    [api, contracts, addToDetails]
   );
 
   return {

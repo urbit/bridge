@@ -8,10 +8,7 @@ import {
   CRYPTO_SUITE_VERSION,
 } from 'lib/keys';
 import { addHexPrefix } from 'lib/utils/address';
-import {
-  makeDeterministicTicket,
-  generateOwnershipWallet,
-} from 'lib/walletgen';
+import { makeDeterministicTicket, generateWallet } from 'lib/walletgen';
 
 export const SECOND = 1000;
 export const MINUTE = SECOND * 60;
@@ -35,9 +32,9 @@ export const isL2 = (dom?: string) => dom === 'l2' || dom === 'spawn';
 
 export const generateInviteWallet = async (point: number, seed: string) => {
   const ticket = makeDeterministicTicket(point, seed);
-  const owner = await generateOwnershipWallet(point, ticket);
+  const inviteWallet = await generateWallet(point, ticket, true);
 
-  return { ticket, owner };
+  return { ticket, inviteWallet };
 };
 
 export const spawn = async (
@@ -134,6 +131,34 @@ export const transferPoint = async (
   const hash = await api.hashTransaction(nonce, from, 'transferPoint', data);
   const sig = signTransactionHash(hash, _wallet.privateKey);
   return api.transferPoint(sig, from, _wallet.address, data);
+};
+
+export const setSpawnProxy = async (
+  api: any,
+  _wallet: any,
+  _point: number,
+  proxy: string,
+  nonce: number,
+  address: string
+) => {
+  const from = {
+    ship: _point,
+    proxy,
+  };
+  const managementData = { address };
+  const managementHash = await api.hashTransaction(
+    nonce,
+    from,
+    'setManagementProxy',
+    managementData
+  );
+
+  return api.setManagementProxy(
+    signTransactionHash(managementHash, _wallet.privateKey),
+    from,
+    _wallet.address,
+    managementData
+  );
 };
 
 export const hasPoint = (point: number) => (invite: Invite) =>

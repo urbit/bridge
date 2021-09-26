@@ -172,13 +172,15 @@ export default function Points() {
       ),
     [getDetails, controlledPoints, _contracts]
   );
-
   // if we can only interact with a single point, forget about the existence
   // of this page and jump to the point page.
   // if there are any pending transfers, incoming or outgoing, stay on this
   // page, because those can only be completed/cancelled here.
   useEffect(() => {
-    if (outgoingPoints.length < 1 || Nothing.hasInstance(starReleaseDetails)) {
+    if (
+      Nothing.hasInstance(outgoingPoints) ||
+      Nothing.hasInstance(starReleaseDetails)
+    ) {
       return;
     }
     controlledPoints.matchWith({

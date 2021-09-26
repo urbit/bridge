@@ -30,6 +30,7 @@ const MasterKeyTransfer = () => {
       await acceptInvite({
         point: derivedPoint.value,
         to: derivedWallet.value.ownership.keys.address,
+        manager: derivedWallet.value.management.keys.address,
         toWallet: derivedWallet.value,
         fromWallet: inviteWallet.value,
       });
@@ -37,12 +38,7 @@ const MasterKeyTransfer = () => {
       console.error(error);
       setError(error);
     }
-  }, [
-    derivedPoint.value,
-    derivedWallet.value,
-    inviteWallet.value,
-    acceptInvite,
-  ]);
+  }, [derivedWallet, acceptInvite, derivedPoint.value, inviteWallet.value]);
 
   useFadeIn();
 
