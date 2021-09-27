@@ -150,12 +150,12 @@ export default function Point() {
   })();
 
   const address = need.addressFromWallet(wallet);
-
-  const numPending = useMemo(() => {
-    return pendingTransactions.filter(
-      ({ rawTx }) => rawTx?.tx?.type === 'spawn'
-    ).length;
-  }, [pendingTransactions]);
+  const spawnedPending = pendingTransactions.filter(
+    ({ rawTx }) => rawTx?.tx?.type === 'spawn'
+  ).length;
+  const otherPending = pendingTransactions.filter(
+    ({ rawTx }) => rawTx?.tx?.type !== 'spawn'
+  );
 
   return (
     <View
@@ -165,18 +165,17 @@ export default function Point() {
       hideBack
       header={
         <L2PointHeader
-          hideTimer={!!numPending}
+          hideTimer={!!spawnedPending}
           numInvites={invites.length}
           hideInvites={!networkKeysSet}
         />
       }>
       <Greeting point={point} />
-      {!!numPending && (
+      {!!spawnedPending && (
         <div className="transaction">
           <Row className="title-row">
             <div className="title">
-              {numPending} Planet
-              {numPending > 1 ? 's' : ''} Spawned
+              {spawnedPending} Planet{spawnedPending > 1 ? 's' : ''} Spawned
             </div>
             <div className="rollup-timer">
               <Icon icon="Clock" />
@@ -189,6 +188,28 @@ export default function Point() {
           </Row>
         </div>
       )}
+      {!!otherPending.length &&
+        otherPending.map(pendingTx => (
+          <div className="transaction">
+            <Row className="title-row">
+              <div className="title">
+                {pendingTx.rawTx?.tx?.type === 'set-management-proxy'
+                  ? 'Management Address Changed'
+                  : pendingTx.rawTx?.tx?.type === 'configure-keys'
+                  ? 'Network Keys Configured'
+                  : ''}
+              </div>
+              <div className="rollup-timer">
+                <Icon icon="Clock" />
+                {nextRoll}
+              </div>
+            </Row>
+            <Row className="info-row">
+              <LayerIndicator layer={2} size="sm" />
+              <div className="date"></div>
+            </Row>
+          </div>
+        ))}
       <Passport
         point={Just(point)}
         address={Just(address)}
