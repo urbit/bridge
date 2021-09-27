@@ -4,6 +4,7 @@ export type L1Point = {
   authenticationKey: string;
   continuityNumber: string;
   cryptoSuiteVersion: string;
+  dominion?: string;
   encryptionKey: string;
   escapeRequested: boolean;
   escapeRequestedTo: string;

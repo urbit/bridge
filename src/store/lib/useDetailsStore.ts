@@ -4,8 +4,10 @@ import * as azimuth from 'azimuth-js';
 
 import useRoller from '../../lib/useRoller';
 import { useNetwork } from '../network';
+import { L1Point } from 'lib/types/L1Point';
+import { L2Point } from '@urbit/roller-api';
 
-const toL1Details = point => {
+const toL1Details = (point: L2Point): L1Point => {
   return {
     dominion: 'l2',
     active: true,
