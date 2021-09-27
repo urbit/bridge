@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { azimuth } from 'azimuth-js';
 import { Just } from 'folktale/maybe';
 import { Grid, Flex } from 'indigo-react';
-import { Box, Icon, Row, Button } from '@tlon/indigo-react';
+import { Box, Icon, Row, Button, Checkbox } from '@tlon/indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useWallet } from 'store/wallet';
@@ -22,6 +22,7 @@ import useInvites from 'lib/useInvites';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useRoller from 'lib/useRoller';
+import useSeenMissingKeys from 'lib/useSeenMissingKeys';
 
 import './Point.scss';
 import { isL2 } from 'lib/utils/roller';
@@ -49,6 +50,8 @@ export default function Point() {
   } = useRollerStore();
   const networkKeysSet = useHasNetworkKeysSet();
   const [showModal, setShowModal] = useState(false);
+  const [seenMissingKeys, setSeeingMissingKeys] = useSeenMissingKeys();
+  const [hideMessage, setHideMessage] = useState(false);
 
   useEffect(() => {
     setShowModal(!networkKeysSet);
@@ -109,7 +112,11 @@ export default function Point() {
 
   const goCohort = useCallback(() => push(names.INVITE_COHORT), [push, names]);
 
-  const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
+  const goUrbitOS = useCallback(() => {
+    if (hideMessage) setSeeingMissingKeys(hideMessage);
+
+    push(names.URBIT_OS);
+  }, [push, names, hideMessage, setSeeingMissingKeys]);
 
   const goUrbitID = useCallback(() => push(names.URBIT_ID), [push, names]);
 
@@ -248,23 +255,31 @@ export default function Point() {
         )}
         {senateButton}
       </Grid>
-      <Modal show={showModal} hide={() => setShowModal(false)}>
+      <Modal
+        show={showModal && !seenMissingKeys}
+        hide={() => setShowModal(false)}>
         <Box className="network-keys-modal">
           <Box className="close" onClick={() => setShowModal(false)}>
             &#215;
           </Box>
-          <Box className="title">Network Keys Not Set</Box>
+          <Box className="title">No Network Keys Found</Box>
           <Box className="message">
-            This point's network keys are not set. The network keys must be set
-            to spawn points or migrate to Layer 2. Please set them in Urbit OS
-            Settings.
+            Network Keys are required to generate a Keyfile and use Landscape.
           </Box>
+          <Row className="hide-row">
+            <Checkbox
+              className="checkbox"
+              selected={hideMessage}
+              onClick={() => setHideMessage(!hideMessage)}
+            />
+            <Box className="dont-show">Do not warn me again</Box>
+          </Row>
           <Row className="buttons">
             <Button className="cancel" onClick={() => setShowModal(false)}>
               Cancel
             </Button>
             <Button className="migrate" onClick={goUrbitOS}>
-              Set Keys
+              Set Network Keys
             </Button>
           </Row>
         </Box>
