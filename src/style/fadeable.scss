@@ -1,0 +1,31 @@
+// These are consumed by the CSSTransition component in withFadeable
+
+.fadeable-enter {
+  opacity: 0;
+}
+
+.fadeable-enter-active {
+  opacity: 1;
+  transition: opacity 300ms;
+  transition-timing-function: ease-in;
+}
+
+.fadeable-exit {
+  opacity: 1;
+}
+
+.fadeable-exit-active {
+  opacity: 0;
+  transition: opacity 300ms;
+  transition-timing-function: ease-in;
+}
+
+.fadeable-appear {
+  opacity: 0;
+}
+
+.fadeable-appear-active {
+  opacity: 1;
+  transition: opacity 300ms;
+  transition-timing-function: ease-in;
+}

@@ -12,12 +12,13 @@ import {
 } from 'form/formatters';
 import { DEFAULT_HD_PATH } from 'lib/constants';
 import InputSigil from 'components/InputSigil';
+import { StatelessTextInput } from '@tlon/indigo-react';
 
 const PLACEHOLDER_POINT = '~sampel-ponnym';
 const PLACEHOLDER_HD_PATH = DEFAULT_HD_PATH;
 const PLACEHOLDER_MNEMONIC =
   'example crew supreme gesture quantum web media hazard theory mercy wing kitten';
-const PLACEHOLDER_TICKET = '~sampel-ticlyt-migfun-falmel';
+export const PLACEHOLDER_TICKET = '~sampel-ticlyt-migfun-falmel';
 const PLACEHOLDER_PASSWORD = '••••••-••••••-••••••-••••••';
 const PLACEHOLDER_ADDRESS = '0x';
 const PLACEHOLDER_HEX = '0x';
@@ -208,3 +209,21 @@ export function EmailInput({ ...rest }) {
     />
   );
 }
+
+export function TicketSegmentInput({ name, ...rest }) {
+  const { input } = useField(name);
+
+  return (
+    <StatelessTextInput
+      autoCapitalize="none"
+      autoCorrect="off"
+      type="text"
+      {...input}
+      {...rest}
+    />
+  );
+}
+
+export const HiddenInput = ({ ...rest }) => {
+  return <StatelessTextInput type="hidden" {...rest} />;
+};

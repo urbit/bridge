@@ -1,161 +1,70 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import * as wg from 'lib/walletgen';
-import * as need from 'lib/need';
+import _ from 'lodash';
 import * as azimuth from 'azimuth-js';
+import * as need from 'lib/need';
 import * as ob from 'urbit-ob';
 import { Just } from 'folktale/maybe';
-import { randomHex } from 'web3-utils';
 
-import {
-  attemptNetworkSeedDerivation,
-  deriveNetworkKeys,
-  CRYPTO_SUITE_VERSION,
-} from 'lib/keys';
-import { addHexPrefix } from 'lib/utils/address';
-
-import {
-  Config,
-  Ship,
-  L2Point,
-  Proxy,
-  RollerRPCAPI,
-  Options,
-  EthAddress,
-  UnspawnedPoints,
-} from '@urbit/roller-api';
-
-import { isDevelopment, isRopsten } from './flags';
-import { ROLLER_HOSTS } from './constants';
-import { useRollerStore } from 'store/roller';
-import { getTimeToNextBatch } from './utils/roller';
-import { useWallet } from 'store/wallet';
-import { usePointCursor } from 'store/pointCursor';
-import { useNetwork } from 'store/network';
-import { signTransactionHash } from './authToken';
 import { Invite } from 'lib/types/Invite';
+import { convertToInt } from './convertToInt';
+import { ensureHexPrefix } from 'form/formatters';
+import { isDevelopment, isRopsten } from './flags';
+import { hasPoint, generateInviteWallet } from './utils/roller';
+import { ROLLER_HOSTS } from './constants';
+import { signTransactionHash } from './authToken';
+
+import { useNetwork } from 'store/network';
+import { usePointCursor } from 'store/pointCursor';
+import { useRollerStore } from 'store/roller';
+import { useWallet } from 'store/wallet';
 import {
   getStoredInvites,
   setPendingInvites,
   setStoredInvites,
 } from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
-import { getOutgoingPoints, maybeGetResult } from 'views/Points';
+import { getOutgoingPoints } from 'views/Points';
+import { getSpawnNonce, getOwnerNonce } from './utils/nonce';
 import { isPlanet } from './utils/point';
 
-const spawn = async (
-  api: any,
-  _wallet: any,
-  _point: number,
-  proxy: string,
-  nonce: number,
-  planet: number
-) => {
-  const from = {
-    ship: _point, //ship that is spawning the planet
-    proxy,
-  };
+import {
+  deriveNetworkKeys,
+  CRYPTO_SUITE_VERSION,
+  deriveNetworkSeedFromUrbitWallet,
+} from 'lib/keys';
 
-  const data = {
-    address: _wallet.address,
-    ship: planet, // ship to spawn
-  };
+import {
+  Config,
+  Ship,
+  Proxy,
+  RollerRPCAPI,
+  Options,
+  EthAddress,
+  UnspawnedPoints,
+  From,
+  Hash,
+  SpawnParams,
+  L2Data,
+} from '@urbit/roller-api';
 
-  const hash = await api.hashTransaction(nonce, from, 'spawn', data);
-  const sSig = signTransactionHash(hash, _wallet.privateKey);
-  return api.spawn(sSig, from, _wallet.address, data);
-};
+import {
+  configureKeys,
+  getTimeToNextBatch,
+  spawn,
+  transferPoint,
+  setSpawnProxy,
+} from './utils/roller';
 
-const configureKeys = async (
-  api: any,
-  _wallet: any,
-  _point: number,
-  proxy: string,
-  nonce: number,
-  details: any,
-  authToken: string,
-  authMnemonic: string,
-  wallet: any,
-  urbitWallet: any
-) => {
-  const from = {
-    ship: _point, //ship that is spawning the planet
-    proxy,
-  };
+function isSpawn(tx: L2Data | undefined): tx is SpawnParams {
+  return (tx as SpawnParams) !== undefined;
+}
 
-  const networkSeed = await attemptNetworkSeedDerivation({
-    urbitWallet,
-    wallet,
-    authMnemonic,
-    details,
-    point: _point,
-    authToken,
-    revision: 1,
-  });
-
-  const seed = Just.hasInstance(networkSeed)
-    ? networkSeed.value
-    : randomHex(32);
-
-  const pair = deriveNetworkKeys(seed);
-
-  const data = {
-    encrypt: addHexPrefix(pair.crypt.public),
-    auth: addHexPrefix(pair.auth.public),
-    cryptoSuite: String(CRYPTO_SUITE_VERSION),
-    breach: false,
-  };
-
-  const hash = await api.hashTransaction(nonce, from, 'configureKeys', data);
-  const sig = signTransactionHash(hash, _wallet.privateKey);
-  return api.configureKeys(sig, from, _wallet.address, data);
-};
-
-const transferPoint = async (
-  api: any,
-  _wallet: any,
-  _point: number,
-  proxy: string,
-  nonce: number,
-  address: string
-) => {
-  const from = {
-    ship: _point, //ship that is spawning the planet
-    proxy,
-  };
-
-  const data = {
-    address,
-    reset: false,
-  };
-
-  const hash = await api.hashTransaction(nonce, from, 'transferPoint', data);
-  const sig = signTransactionHash(hash, _wallet.privateKey);
-  return api.transferPoint(sig, from, _wallet.address, data);
-};
-
-const hasPoint = (point: number) => (invite: Invite) => invite.planet === point;
-
-const getProxyAndNonce = (
-  point: L2Point,
-  address: string
-): { proxy?: string; nonce?: number } =>
-  point.ownership?.managementProxy?.address === address
-    ? { proxy: 'manage', nonce: point.ownership?.managementProxy.nonce }
-    : point.ownership?.owner?.address === address
-    ? { proxy: 'own', nonce: point.ownership?.owner.nonce }
-    : point.ownership?.spawnProxy?.address === address
-    ? { proxy: 'spawn', nonce: point.ownership?.spawn?.owner.nonce }
-    : point.ownership?.votingProxy?.address === address
-    ? { proxy: 'vote', nonce: point.ownership?.votingProxy?.owner.nonce }
-    : point.ownership?.transferProxy?.address === address
-    ? {
-        proxy: 'transfer',
-        nonce: point.transferProxy?.votingProxy?.owner.nonce,
-      }
-    : { proxy: undefined, nonce: undefined };
+function isShipNumber(ship: number | string | undefined): ship is number {
+  return (ship as number) !== undefined;
+}
 
 export default function useRoller() {
-  const { wallet, authToken, authMnemonic, urbitWallet }: any = useWallet();
+  const { wallet, authToken, authMnemonic }: any = useWallet();
   const { pointCursor }: any = usePointCursor();
   const { web3, contracts }: any = useNetwork();
   const allPoints: any = usePointCache();
@@ -169,6 +78,8 @@ export default function useRoller() {
     setPendingTransactions,
     setInvites,
     currentL2,
+    nonces,
+    increaseNonce,
   } = useRollerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
@@ -179,7 +90,7 @@ export default function useRoller() {
       : isDevelopment
       ? ROLLER_HOSTS.LOCAL
       : ROLLER_HOSTS.MAINNET;
-    const port = isDevelopment ? 8080 : 80;
+    const port = isRopsten ? 443 : 8080;
     const path = '/v1/roller';
 
     return {
@@ -206,7 +117,7 @@ export default function useRoller() {
       .catch(err => {
         // TODO: more elegant error handling
         console.warn(
-          '[fetchConfig:failed] is roller running on localhost?\n',
+          '[fetchConfig:failed] check the roller connection?\n',
           err
         );
       });
@@ -220,27 +131,57 @@ export default function useRoller() {
       const _wallet = wallet.getOrElse(null);
       const _authToken = authToken.getOrElse(null);
       const _details = getDetails(_point);
+
       if (!_contracts || !_web3 || !_wallet || !_authToken || !_details) {
         // not using need because we want a custom error
         throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
       }
 
-      const planets: UnspawnedPoints = await api.getUnspawned(_point);
-      const starInfo = await api.getPoint(_point);
+      if (Just.hasInstance(authMnemonic)) {
+        throw new Error(
+          "Auth key Error: A management mnemonic can't create invite codes"
+        );
+      }
+      let planets: UnspawnedPoints = await api.getUnspawned(_point);
 
-      const tickets: { ticket: string; planet: number; owner: string }[] = [];
+      const pendingTxs = await api.getPendingByShip(_point);
+
+      const pendingSpawns = _.reduce(
+        pendingTxs,
+        (acc, pending) => {
+          return isSpawn(pending.rawTx?.tx) &&
+            isShipNumber(pending.rawTx?.tx.data.ship)
+            ? acc.add(pending.rawTx?.tx.data.ship!)
+            : acc;
+        },
+        new Set<number>()
+      );
+
+      console.log(pendingTxs, pendingSpawns);
+
+      planets = planets.filter((point: number) => !pendingSpawns.has(point));
+
+      const starInfo = nonces[_point];
+      console.log(starInfo);
+      const tickets: {
+        ticket: string;
+        planet: number;
+        owner: string;
+      }[] = [];
       const requests: Promise<string>[] = [];
 
-      const { proxy, nonce } = getProxyAndNonce(starInfo, _wallet.address);
+      const operator =
+        getSpawnNonce(starInfo, _wallet.address) ||
+        getOwnerNonce(starInfo, _wallet.address);
 
-      if (!(proxy === 'own' || proxy === 'spawn') || nonce === undefined)
+      if (operator === undefined)
         throw new Error("Error: Address doesn't match proxy");
-
+      console.log('operator', operator);
       for (let i = 0; i < numInvites && planets[i]; i++) {
         const planet = planets[i];
-        const nonceInc = i * 3;
+        const nonceInc = i + operator.nonce!;
 
-        const { ticket, owner } = await wg.generateTemporaryDeterministicWallet(
+        const { ticket, inviteWallet } = await generateInviteWallet(
           planet,
           _authToken
         );
@@ -249,49 +190,61 @@ export default function useRoller() {
           api,
           _wallet,
           _point,
-          proxy,
+          operator.proxy!,
           nonceInc,
           planet
         );
+        increaseNonce(_point, operator.proxy!);
 
         const configureKeysRequest = await configureKeys(
           api,
           _wallet,
-          _point,
-          proxy,
-          nonceInc + 1,
-          _details,
-          authToken,
-          authMnemonic,
-          wallet,
-          urbitWallet
+          planet,
+          operator.proxy!,
+          0,
+          inviteWallet
+        );
+
+        const setManagementProxyRequest = await setSpawnProxy(
+          api,
+          _wallet,
+          planet,
+          operator.proxy!,
+          1,
+          inviteWallet.management.keys.address
         );
 
         const transferPointRequest = await transferPoint(
           api,
           _wallet,
-          _point,
-          proxy,
-          nonceInc + 2,
-          owner.keys.address
+          planet,
+          operator.proxy!,
+          2,
+          inviteWallet.ownership.keys.address
         );
 
-        requests.push(spawnRequest, configureKeysRequest, transferPointRequest);
+        requests.push(
+          spawnRequest,
+          configureKeysRequest,
+          setManagementProxyRequest,
+          transferPointRequest
+        );
         tickets.push({
           ticket,
           planet,
-          owner: owner.keys.address,
+          owner: inviteWallet.ownership.keys.address,
         });
       }
 
       const hashes = await Promise.all(requests);
 
-      const pendingInvites = tickets.map((ticket, ind) => ({
+      const pendingInvites: Invite[] = tickets.map((ticket, ind) => ({
         ...ticket,
         hash: hashes[ind * 3 + 2],
         status: 'pending',
       }));
 
+      console.log('latest update', nonces[_point]);
       setPendingInvites(_point, pendingInvites);
     },
     [
@@ -300,12 +253,11 @@ export default function useRoller() {
       contracts,
       pointCursor,
       wallet,
-      // walletHdPath,
-      // walletType,
       web3,
       getDetails,
       authMnemonic,
-      urbitWallet,
+      nonces,
+      increaseNonce,
     ]
   );
 
@@ -314,7 +266,7 @@ export default function useRoller() {
       const points: Ship[] =
         proxy === 'own'
           ? await api.getOwnedPoints(address)
-          : proxy === 'mange'
+          : proxy === 'manage'
           ? await api.getManagerFor(address)
           : proxy === 'vote'
           ? await api.getVotingFor(address)
@@ -347,7 +299,6 @@ export default function useRoller() {
         const curPoint: number = Number(need.point(pointCursor));
         const invites = getStoredInvites(curPoint);
         const availableInvites = invites.available;
-
         const pendingTransactions = await api.getPendingByShip(curPoint);
         if (isDevelopment) {
           console.log('PENDING', pendingTransactions);
@@ -356,12 +307,12 @@ export default function useRoller() {
 
         const stillPending = invites.pending.filter(invite => {
           const completed = !pendingTransactions.find(
-            p => `~${p?.rawTx?.tx?.tx?.data?.ship}` === ob.patp(invite.planet)
+            p => `~${p?.rawTx?.tx?.data?.ship}` === ob.patp(invite.planet)
           );
 
           if (
             completed &&
-            !availableInvites.find(({ ship }) => invite.ship === ship)
+            !availableInvites.find(({ planet }) => invite.planet === planet)
           ) {
             availableInvites.push({ ...invite, status: 'available' });
           }
@@ -380,26 +331,21 @@ export default function useRoller() {
 
         if (_authToken && _contracts) {
           let possibleMissingInvites: number[] = [];
+          let availablePoints: number[] = [];
           if (isL2) {
-            const allSpawned = await api.getSpawned(curPoint);
-            const ownedPoints = maybeGetResult(
-              controlledPoints,
-              'ownedPoints',
-              []
-            );
-            possibleMissingInvites = allSpawned.filter(
-              (p: number) => ownedPoints.includes(p) && isPlanet(p)
+            possibleMissingInvites = await api.getSpawned(curPoint);
+            availablePoints = await api.getUnspawned(curPoint);
+          } else {
+            // TODO: should it be removed?
+            availablePoints = await azimuth.azimuth.getUnspawnedChildren(
+              _contracts,
+              curPoint
             );
           }
 
           const outgoingPoints = getOutgoingPoints(
             controlledPoints,
             getDetails
-          );
-
-          const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
-            _contracts,
-            curPoint
           );
 
           possibleMissingInvites = possibleMissingInvites.concat(
@@ -413,19 +359,16 @@ export default function useRoller() {
           if (isDevelopment) {
             console.log('POSSIBLE MISSING', possibleMissingInvites);
           }
-
+          // TODO: this can be verym slow, so best to allow the user to manually
+          // reveal the ticket, after checking if the invite is still "active"
+          // (i.e. if the address inferred from the derived inviteWallet corresponds to
+          // to the address the point has as owner)
+          //
           for (let i = 0; i < possibleMissingInvites.length; i++) {
             const planet = possibleMissingInvites[i];
-
-            if (
-              !availableInvites.find(hasPoint(planet)) &&
-              !(await azimuth.azimuth.isActive(_contracts, planet))
-            ) {
+            if (!availableInvites.find(hasPoint(planet))) {
               console.log('MISSING IN AVAILABLE', planet);
-              const {
-                ticket,
-                owner,
-              } = await wg.generateTemporaryDeterministicWallet(
+              const { ticket, inviteWallet } = await generateInviteWallet(
                 planet,
                 _authToken
               );
@@ -435,7 +378,7 @@ export default function useRoller() {
                 status: 'available',
                 planet,
                 hash: '',
-                owner: owner.keys.address,
+                owner: inviteWallet.ownership.keys.address,
               });
             }
           }
@@ -454,15 +397,123 @@ export default function useRoller() {
     },
     [
       api,
-      pointCursor,
-      setInvites,
-      setPendingTransactions,
       authToken,
       contracts,
       controlledPoints,
       getDetails,
+      pointCursor,
+      setInvites,
+      setPendingTransactions,
     ]
   );
+
+  // TODO: extract from #transferPoint
+  // interface ConfigureKeysParams {
+
+  // }
+
+  // const configureKeys = async () => {
+
+  // }
+
+  interface AcceptInviteParams {
+    point: Ship;
+    to: EthAddress;
+    manager: EthAddress;
+    fromWallet: any; // TODO: wallet type
+    toWallet: any; // TODO: wallet type
+  }
+
+  const acceptInvite = async ({
+    point,
+    to,
+    manager,
+    fromWallet,
+    toWallet,
+  }: AcceptInviteParams) => {
+    const azimuthPoint = await api.getPoint(point);
+    console.log('azimuthPoint', azimuthPoint);
+    const ownerAddress = azimuthPoint?.ownership?.owner?.address!;
+
+    const operator =
+      azimuthPoint.ownership &&
+      getOwnerNonce(azimuthPoint.ownership, ownerAddress);
+
+    if (operator === undefined)
+      throw new Error("Error: Address doesn't match proxy");
+
+    const nonce = operator.nonce!;
+
+    // 1. Update networking keys
+    // TODO: extract this to a useRoller#configureKeys function?
+    const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
+    const nextRevision = networkRevision + 1;
+    const fromOwnerProxy: From = {
+      ship: point,
+      proxy: 'own',
+    };
+
+    const seed = await deriveNetworkSeedFromUrbitWallet(toWallet, nextRevision);
+    const keys = deriveNetworkKeys(seed.value);
+    const keysData = {
+      auth: ensureHexPrefix(keys.auth.public),
+      breach: false,
+      cryptoSuite: CRYPTO_SUITE_VERSION.toString(),
+      encrypt: ensureHexPrefix(keys.crypt.public),
+    };
+
+    const keysHash: Hash = await api.hashTransaction(
+      nonce,
+      fromOwnerProxy,
+      'configureKeys',
+      keysData
+    );
+
+    const keysSigningKey = fromWallet.privateKey;
+    await api.configureKeys(
+      signTransactionHash(keysHash, Buffer.from(keysSigningKey, 'hex')),
+      fromOwnerProxy,
+      ownerAddress,
+      keysData
+    );
+    // TODO: not needed? next time we operate with this point we will login, and get
+    // the latest nonce (updated with any nonce increase from possible pending txs)
+    // increaseNonce(point, operator.proxy!);
+
+    // 2. Set Management Proxy
+    const managementData = { address: manager };
+    const managementHash: Hash = await api.hashTransaction(
+      nonce + 1,
+      fromOwnerProxy,
+      'setManagementProxy',
+      managementData
+    );
+
+    await api.setManagementProxy(
+      signTransactionHash(managementHash, Buffer.from(keysSigningKey, 'hex')),
+      fromOwnerProxy,
+      ownerAddress,
+      managementData
+    );
+
+    // 3. Transfer point
+    const transferData = { address: to, reset: false };
+    const transferHash: Hash = await api.hashTransaction(
+      nonce + 2,
+      fromOwnerProxy,
+      'transferPoint',
+      transferData
+    );
+
+    const transferTxHash = await api.transferPoint(
+      signTransactionHash(transferHash, Buffer.from(keysSigningKey, 'hex')),
+      fromOwnerProxy,
+      ownerAddress,
+      transferData
+    );
+
+    return transferTxHash;
+  };
 
   // On load, get initial config
   useEffect(() => {
@@ -492,10 +543,12 @@ export default function useRoller() {
 
   return {
     api,
+    acceptInvite,
     config,
     getPoints,
     getInvites,
     getPendingTransactions,
     generateInviteCodes,
+    transferPoint,
   };
 }

@@ -97,6 +97,7 @@ export default function NetworkingKeys({ point }) {
           details.map(d => d.cryptoSuiteVersion)
         )}
       </Grid.Item>
+      {/* TODO: retrieve last rekeydate, if possible?  */}
       {hasKeys && (
         <Grid.Item full as={Flex} row justify="between" className="mt3">
           {renderDetail(
@@ -104,7 +105,7 @@ export default function NetworkingKeys({ point }) {
             getRekeyDate(point).map(date =>
               date.matchWith({
                 Ok: r => formatDotsWithTime(r.value),
-                Error: () => Nothing(),
+                Error: () => 'No date available',
               })
             )
           )}

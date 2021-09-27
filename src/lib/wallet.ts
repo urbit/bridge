@@ -21,10 +21,10 @@ export const urbitWalletFromTicket = async (ticket, point, passphrase) => {
 };
 
 export const walletFromMnemonic = (
-  mnemonic,
-  hdpath,
-  passphrase,
-  skipMnemonicCheck
+  mnemonic: string,
+  hdpath: string,
+  passphrase?: string,
+  skipMnemonicCheck?: boolean
 ) => {
   const seed =
     skipMnemonicCheck || bip39.validateMnemonic(mnemonic)
