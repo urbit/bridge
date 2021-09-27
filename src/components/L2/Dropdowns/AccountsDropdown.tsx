@@ -36,7 +36,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
   const { currentL2 }: any = useRollerStore();
 
   const networkKeysSet = useHasNetworkKeysSet();
-  const showMigrateModal = useMemo(() => {
+  const showMigrateOption = useMemo(() => {
     return showMigrate || (!currentL2 && networkKeysSet);
   }, [currentL2, networkKeysSet, showMigrate]);
 
@@ -106,7 +106,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
         })}
       </Box>
       <Box className="divider" />
-      {showMigrateModal && (
+      {showMigrateOption && (
         <Row className="entry" onClick={() => setShowModal(true)}>
           <Box>Migrate</Box>
           <Row className="layer-migration">

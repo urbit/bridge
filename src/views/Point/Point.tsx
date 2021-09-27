@@ -48,7 +48,11 @@ export default function Point() {
     increaseNonce,
   } = useRollerStore();
   const networkKeysSet = useHasNetworkKeysSet();
-  const [showModal, setShowModal] = useState(!networkKeysSet);
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    setShowModal(!networkKeysSet);
+  }, [networkKeysSet]);
 
   const loadL1Info = useCallback(async () => {
     await syncExtras(point);
