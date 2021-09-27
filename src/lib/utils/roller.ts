@@ -3,15 +3,12 @@ import { Invite } from 'lib/types/Invite';
 import { Just, Nothing } from 'folktale/maybe';
 import { randomHex } from 'web3-utils';
 import {
-  attemptNetworkSeedDerivation,
+  deriveNetworkSeedFromUrbitWallet,
   deriveNetworkKeys,
   CRYPTO_SUITE_VERSION,
 } from 'lib/keys';
 import { addHexPrefix } from 'lib/utils/address';
-import {
-  makeDeterministicTicket,
-  generateOwnershipWallet,
-} from 'lib/walletgen';
+import { makeDeterministicTicket, generateWallet } from 'lib/walletgen';
 
 export const SECOND = 1000;
 export const MINUTE = SECOND * 60;
@@ -35,9 +32,9 @@ export const isL2 = (dom?: string) => dom === 'l2' || dom === 'spawn';
 
 export const generateInviteWallet = async (point: number, seed: string) => {
   const ticket = makeDeterministicTicket(point, seed);
-  const owner = await generateOwnershipWallet(point, ticket);
+  const inviteWallet = await generateWallet(point, ticket, true);
 
-  return { ticket, owner };
+  return { ticket, inviteWallet };
 };
 
 export const spawn = async (
@@ -69,10 +66,6 @@ export const configureKeys = async (
   _point: number,
   proxy: string,
   nonce: number,
-  details: any,
-  authToken: string,
-  authMnemonic: string,
-  wallet: any,
   urbitWallet: any
 ) => {
   const from = {
@@ -80,15 +73,7 @@ export const configureKeys = async (
     proxy,
   };
 
-  const networkSeed = await attemptNetworkSeedDerivation({
-    urbitWallet,
-    wallet,
-    authMnemonic,
-    details,
-    point: _point,
-    authToken,
-    revision: 1,
-  });
+  const networkSeed = await deriveNetworkSeedFromUrbitWallet(urbitWallet, 1);
   // TODO: do something here?
   if (Nothing.hasInstance(networkSeed)) {
     console.log("Network key Error: couldn't derive network keys");
@@ -134,6 +119,34 @@ export const transferPoint = async (
   const hash = await api.hashTransaction(nonce, from, 'transferPoint', data);
   const sig = signTransactionHash(hash, _wallet.privateKey);
   return api.transferPoint(sig, from, _wallet.address, data);
+};
+
+export const setSpawnProxy = async (
+  api: any,
+  _wallet: any,
+  _point: number,
+  proxy: string,
+  nonce: number,
+  address: string
+) => {
+  const from = {
+    ship: _point,
+    proxy,
+  };
+  const managementData = { address };
+  const managementHash = await api.hashTransaction(
+    nonce,
+    from,
+    'setManagementProxy',
+    managementData
+  );
+
+  return api.setManagementProxy(
+    signTransactionHash(managementHash, _wallet.privateKey),
+    from,
+    _wallet.address,
+    managementData
+  );
 };
 
 export const hasPoint = (point: number) => (invite: Invite) =>

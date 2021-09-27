@@ -1,6 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import * as ob from 'urbit-ob';
-import * as need from 'lib/need';
 import { Icon, Row, Box, Button } from '@tlon/indigo-react';
 import { Just } from 'folktale/maybe';
 
@@ -14,7 +13,6 @@ import { useHistory } from 'store/history';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { clearInvitesStorage } from 'store/storage/roller';
-import { useRollerStore } from 'store/roller';
 
 import { PointLayer } from 'lib/types/PointLayer';
 import { abbreviateAddress } from 'lib/utils/address';
@@ -22,8 +20,8 @@ import { abbreviateAddress } from 'lib/utils/address';
 import Dropdown from './Dropdown';
 import './AccountsDropdown.scss';
 import Modal from '../Modal';
-import { convertToInt } from 'lib/convertToInt';
-import { isPlanet } from 'lib/utils/point';
+import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
+import { useRollerStore } from 'store/roller';
 
 interface AccountsDropdownProps {
   showMigrate: boolean;
@@ -35,19 +33,12 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
   const { push, names, reset }: any = useHistory();
   const { setPointCursor }: any = usePointCursor();
   const { controlledPoints }: any = usePointCache();
-  const { currentL2 } = useRollerStore();
-  const { getDetails }: any = usePointCache();
-  const { pointCursor }: any = usePointCursor();
-  const point = pointCursor.getOrElse(null);
+  const { currentL2 }: any = useRollerStore();
 
-  let networkKeysNotSet = true;
-
-  if (point) {
-    const details = need.details(getDetails(point));
-    const isStarOrGalaxy = !isPlanet(point);
-    const networkRevision = convertToInt(details.keyRevisionNumber, 10);
-    networkKeysNotSet = !currentL2 && isStarOrGalaxy && networkRevision === 0;
-  }
+  const networkKeysSet = useHasNetworkKeysSet();
+  const showMigrateOption = useMemo(() => {
+    return showMigrate || (!currentL2 && networkKeysSet);
+  }, [currentL2, networkKeysSet, showMigrate]);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -115,7 +106,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
         })}
       </Box>
       <Box className="divider" />
-      {(showMigrate || (!currentL2 && !networkKeysNotSet)) && (
+      {showMigrateOption && (
         <Row className="entry" onClick={() => setShowModal(true)}>
           <Box>Migrate</Box>
           <Row className="layer-migration">

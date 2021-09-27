@@ -45,7 +45,7 @@
     align-items: center;
 
     .date {
-      
+
     }
   }
 }
@@ -76,6 +76,33 @@
     width: 340px;
   }
 
+  .hide-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 31px;
+
+    .checkbox {
+      height: 16px;
+      width: 16px;
+
+      svg {
+        width: 16px;
+        height: 16px;
+        color: white;
+      }
+    }
+
+    .dont-show {
+      margin-left: 8px;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 16px;
+
+    }
+  }
+
+
   .buttons {
     display: flex;
     flex-direction: row;
@@ -92,6 +119,8 @@
         opacity: 0.8;
       }
     }
+
+
 
     .cancel {
       margin-right: 8px;

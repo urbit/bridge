@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import cn from 'classnames';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { azimuth } from 'azimuth-js';
 import { Just } from 'folktale/maybe';
 import { Grid, Flex } from 'indigo-react';
-import { Box, Icon, Row, Button } from '@tlon/indigo-react';
+import { Box, Icon, Row, Button, Checkbox } from '@tlon/indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
 import { useWallet } from 'store/wallet';
@@ -13,9 +12,6 @@ import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
 import Blinky from 'components/Blinky';
-import BarGraph from 'components/BarGraph';
-import Chip from 'components/Chip';
-import InviteSigilList from 'components/InviteSigilList';
 import { ForwardButton } from 'components/Buttons';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import LayerIndicator from 'components/L2/LayerIndicator';
@@ -23,153 +19,74 @@ import Card from 'components/L2/Card';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
-import { useSyncExtras } from 'lib/useSyncPoints';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
-import Inviter from 'views/Invite/Inviter';
 import useRoller from 'lib/useRoller';
+import useSeenMissingKeys from 'lib/useSeenMissingKeys';
 
 import './Point.scss';
 import { isL2 } from 'lib/utils/roller';
 import { isDevelopment } from 'lib/flags';
-import { convertToInt } from 'lib/convertToInt';
 import { usePointCache } from 'store/pointCache';
 import Modal from 'components/L2/Modal';
 import { isPlanet } from 'lib/utils/point';
-
-function InviteForm({
-  showInviteForm,
-  setShowInviteForm,
-  acceptedInvites,
-  acceptedPoints,
-  availableInvites,
-  goCohort,
-  pendingPoints,
-  sentInvites,
-  showInvites,
-}) {
-  const _totalInvites =
-    sentInvites.getOrElse(0) + availableInvites.getOrElse(0);
-  const _pendingInvites = pendingPoints.getOrElse([]).length;
-
-  return (
-    <>
-      <Grid.Item cols={[1, 11]}>
-        Invite Group
-        <br />
-      </Grid.Item>
-
-      <Grid.Item
-        className={cn('t-right underline pointer-hover', {
-          gray4: sentInvites.getOrElse(0) === 0,
-        })}
-        onClick={goCohort}
-        cols={[11, 13]}>
-        View
-      </Grid.Item>
-      <Grid.Item full>
-        <Flex align="center">
-          <Flex.Item>
-            {acceptedInvites.getOrElse(0)} / {_totalInvites}
-          </Flex.Item>
-          {_pendingInvites > 0 && (
-            <Flex.Item as={Chip} className="bg-yellow1 yellow4">
-              {_pendingInvites} pending
-            </Flex.Item>
-          )}
-        </Flex>
-      </Grid.Item>
-
-      {showInvites && (
-        <>
-          <Grid.Item
-            full
-            as={BarGraph}
-            available={availableInvites}
-            sent={sentInvites}
-            accepted={acceptedInvites}
-          />
-          <Grid.Item
-            full
-            as={InviteSigilList}
-            pendingPoints={pendingPoints}
-            acceptedPoints={acceptedPoints}
-          />
-        </>
-      )}
-      {!showInvites && (
-        <>
-          <Grid.Item full className="b-gray4 b-dotted b1 self-center">
-            <div className="p4 pv8 t-center gray4">
-              Start your invite group by adding members
-            </div>
-          </Grid.Item>
-        </>
-      )}
-      {!showInviteForm && availableInvites.getOrElse(0) > 0 && (
-        <Grid.Item
-          full
-          solid
-          as={Button}
-          center
-          onClick={() => setShowInviteForm(true)}>
-          Add Members
-        </Grid.Item>
-      )}
-      {showInviteForm && <Inviter />}
-      <Grid.Item full className="mb2" />
-    </>
-  );
-}
+import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
+import { InviteForm } from './InviteForm';
 
 export default function Point() {
   const { pop, push, names } = useLocalRouter();
-  const { wallet, authToken } = useWallet();
+  const { wallet } = useWallet();
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
-  const { getDetails } = usePointCache();
-
+  const { syncExtras } = usePointCache();
   const { api, getInvites } = useRoller();
   const {
     pendingTransactions,
     nextRoll,
     invites,
     setCurrentPoint,
-    setPendingTransactions,
-    currentL2,
+    setNonces,
+    increaseNonce,
   } = useRollerStore();
-
-  const pointSize = azimuth.getPointSize(point);
-  const details = need.details(getDetails(point));
-  const isStarOrGalaxy = pointSize !== azimuth.PointSize.Planet;
-  const networkRevision = convertToInt(details.keyRevisionNumber, 10);
-  const networkKeysNotSet =
-    !currentL2 && isStarOrGalaxy && networkRevision === 0;
-
-  const [showModal, setShowModal] = useState(networkKeysNotSet);
+  const networkKeysSet = useHasNetworkKeysSet();
+  const [showModal, setShowModal] = useState(false);
+  const [seenMissingKeys, setSeeingMissingKeys] = useSeenMissingKeys();
+  const [hideMessage, setHideMessage] = useState(false);
 
   useEffect(() => {
-    if (networkKeysNotSet) {
-      setShowModal(true);
-    }
-  }, [networkKeysNotSet]);
+    setShowModal(!networkKeysSet);
+  }, [networkKeysSet]);
 
-  useEffect(() => {
-    const loadL2Info = async () => {
-      const getTransactions = async () => {
-        const pointInfo = await api.getPoint(Number(point));
-        if (isDevelopment) {
-          console.log('POINT INFO', pointInfo);
-        }
-        setCurrentPoint(pointInfo);
-        getInvites(isL2(pointInfo.dominion));
-      };
+  const loadL1Info = useCallback(async () => {
+    await syncExtras(point);
+  }, [point, syncExtras]);
 
-      getTransactions();
+  const loadL2Info = useCallback(async () => {
+    const getTransactions = async () => {
+      const pointInfo = await api.getPoint(Number(point));
+      const pendingTxs = await api.getPendingByShip(Number(point));
+      if (isDevelopment) {
+        console.log('POINT INFO', pointInfo);
+      }
+      setNonces(point, pointInfo.ownership);
+
+      for (let index = 0; index < pendingTxs.length; index++) {
+        const proxy = pendingTxs[index].rawTx?.from?.proxy;
+        console.log(pointInfo.ownership, proxy);
+        increaseNonce(point, proxy);
+      }
+      setCurrentPoint(pointInfo);
+      await getInvites(isL2(pointInfo.dominion));
     };
 
+    await getTransactions();
+  }, [api, point, setCurrentPoint, increaseNonce, getInvites, setNonces]);
+
+  useEffect(() => {
+    loadL1Info();
     loadL2Info();
-  }, [api, point, authToken, setPendingTransactions]); // eslint-disable-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [point]);
 
   const { isParent, canManage, canSpawn, canVote } = useCurrentPermissions();
 
@@ -190,14 +107,16 @@ export default function Point() {
   const hasInvites = showInvites || availableInvites.getOrElse(0) !== 0;
 
   const loadedInvites = Just.hasInstance(availableInvites);
-  //
-  // availableInvites.getOrElse(0) === 0
 
   const goSenate = useCallback(() => push(names.SENATE), [push, names]);
 
   const goCohort = useCallback(() => push(names.INVITE_COHORT), [push, names]);
 
-  const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
+  const goUrbitOS = useCallback(() => {
+    if (hideMessage) setSeeingMissingKeys(hideMessage);
+
+    push(names.URBIT_OS);
+  }, [push, names, hideMessage, setSeeingMissingKeys]);
 
   const goUrbitID = useCallback(() => push(names.URBIT_ID), [push, names]);
 
@@ -230,13 +149,13 @@ export default function Point() {
     );
   })();
 
-  // sync the current cursor
-  useSyncExtras([point]);
-
   const address = need.addressFromWallet(wallet);
-  const numPending = pendingTransactions.filter(
-    ({ rawTx }) => rawTx?.tx?.type === 'spawn'
-  ).length;
+
+  const numPending = useMemo(() => {
+    return pendingTransactions.filter(
+      ({ rawTx }) => rawTx?.tx?.type === 'spawn'
+    ).length;
+  }, [pendingTransactions]);
 
   return (
     <View
@@ -248,7 +167,7 @@ export default function Point() {
         <L2PointHeader
           hideTimer={!!numPending}
           numInvites={invites.length}
-          hideInvites={networkKeysNotSet}
+          hideInvites={!networkKeysSet}
         />
       }>
       <Greeting point={point} />
@@ -256,7 +175,8 @@ export default function Point() {
         <div className="transaction">
           <Row className="title-row">
             <div className="title">
-              {numPending} Planet{numPending > 1 ? 's' : ''} Spawned
+              {numPending} Planet
+              {numPending > 1 ? 's' : ''} Spawned
             </div>
             <div className="rollup-timer">
               <Icon icon="Clock" />
@@ -335,23 +255,31 @@ export default function Point() {
         )}
         {senateButton}
       </Grid>
-      <Modal show={showModal} hide={() => setShowModal(false)}>
+      <Modal
+        show={showModal && !seenMissingKeys}
+        hide={() => setShowModal(false)}>
         <Box className="network-keys-modal">
           <Box className="close" onClick={() => setShowModal(false)}>
             &#215;
           </Box>
-          <Box className="title">Network Keys Not Set</Box>
+          <Box className="title">No Network Keys Found</Box>
           <Box className="message">
-            This point's network keys are not set. The network keys must be set
-            to spawn points or migrate to Layer 2. Please set them in Urbit OS
-            Settings.
+            Network Keys are required to generate a Keyfile and use Landscape.
           </Box>
+          <Row className="hide-row">
+            <Checkbox
+              className="checkbox"
+              selected={hideMessage}
+              onClick={() => setHideMessage(!hideMessage)}
+            />
+            <Box className="dont-show">Do not warn me again</Box>
+          </Row>
           <Row className="buttons">
             <Button className="cancel" onClick={() => setShowModal(false)}>
               Cancel
             </Button>
             <Button className="migrate" onClick={goUrbitOS}>
-              Set Keys
+              Set Network Keys
             </Button>
           </Row>
         </Box>
