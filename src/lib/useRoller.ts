@@ -64,7 +64,7 @@ function isShipNumber(ship: number | string | undefined): ship is number {
 }
 
 export default function useRoller() {
-  const { wallet, authToken, authMnemonic, urbitWallet }: any = useWallet();
+  const { wallet, authToken, authMnemonic }: any = useWallet();
   const { pointCursor }: any = usePointCursor();
   const { web3, contracts }: any = useNetwork();
   const allPoints: any = usePointCache();
@@ -185,7 +185,7 @@ export default function useRoller() {
           planet,
           _authToken
         );
-        console.log(inviteWallet);
+
         const spawnRequest = await spawn(
           api,
           _wallet,
@@ -202,11 +202,7 @@ export default function useRoller() {
           planet,
           operator.proxy!,
           0,
-          _details,
-          authToken,
-          authMnemonic,
-          wallet,
-          urbitWallet
+          inviteWallet
         );
 
         const setManagementProxyRequest = await setSpawnProxy(
@@ -260,7 +256,6 @@ export default function useRoller() {
       web3,
       getDetails,
       authMnemonic,
-      urbitWallet,
       nonces,
       increaseNonce,
     ]
