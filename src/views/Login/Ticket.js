@@ -147,18 +147,6 @@ export default function Ticket({ className, goHome }) {
         ]);
         const isOwner = ownedPoints.length !== 0;
         const isTransferProxy = incomingPoints.length !== 0;
-        // const [isOwner, isTransferProxy] = await Promise.all([
-        //   azimuth.azimuth.isOwner(
-        //     _contracts,
-        //     point,
-        //     urbitWallet.ownership.keys.address
-        //   ),
-        //   azimuth.azimuth.isTransferProxy(
-        //     _contracts,
-        //     point,
-        //     urbitWallet.ownership.keys.address
-        //   ),
-        // ]);
 
         const noPermissions = !isOwner && !isTransferProxy;
         // warn the user
