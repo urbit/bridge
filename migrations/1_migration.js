@@ -153,6 +153,12 @@ module.exports = async function(deployer) {
       // ~marzod -> L1
       await ecliptic.spawn(256, own);
       await ecliptic.configureKeys(256, '0xffff', '0xffff', 1, false);
+      // ~marzod -> L2
+      await ecliptic.transferPoint(
+        256,
+        '0x1111111111111111111111111111111111111111',
+        false
+      );
       // ~wanzod -> L1
       await ecliptic.spawn(768, own);
       await ecliptic.configureKeys(768, '0xffff', '0xffff', 1, false);

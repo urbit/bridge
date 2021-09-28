@@ -1,11 +1,14 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import cn from 'classnames';
-import { Grid, Text, Flex } from 'indigo-react';
+import { Grid, Text, Flex, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
+
+import './SetProxy.scss';
 
 import { useNetwork } from 'store/network';
 import { usePointCache } from 'store/pointCache';
 import { usePointCursor } from 'store/pointCursor';
+import { useRollerStore } from 'store/roller';
 
 import {
   PROXY_TYPE,
@@ -17,6 +20,7 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import { eqAddr, isZeroAddress } from 'lib/utils/address';
 import { capitalize } from 'lib/capitalize';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
+import useRoller from 'lib/useRoller';
 
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import { ETH_ZERO_ADDR, GAS_LIMITS } from 'lib/constants';
@@ -28,6 +32,15 @@ import {
 } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
+
+const getL2ProxyName = proxy =>
+  proxy === PROXY_TYPE.MANAGEMENT
+    ? 'manage'
+    : proxy === PROXY_TYPE.SPAWN
+    ? 'spawn'
+    : proxy === PROXY_TYPE.TRANSFER
+    ? 'transfer'
+    : '';
 
 const proxyFromDetails = (details, contracts, proxyType) => {
   switch (proxyType) {
@@ -97,12 +110,24 @@ export default function SetProxy() {
   const { getDetails } = usePointCache();
   const { pointCursor } = usePointCursor();
   const { contracts } = useNetwork();
+  const { currentL2, currentL2Spawn } = useRollerStore();
+  const { setProxyAddress, getPendingTransactions } = useRoller();
+  const [newAddress, setNewAddress] = useState('');
 
   const _point = need.point(pointCursor);
   const _details = need.details(getDetails(_point));
   const _contracts = need.contracts(contracts);
 
   const properProxyType = capitalize(proxyTypeToHuman(data.proxyType));
+
+  const txType =
+    data.proxyType === 'MANAGEMENT' && (currentL2Spawn || !currentL2)
+      ? 'ETH_TX'
+      : data.proxyType === 'MANAGEMENT' && currentL2 && !currentL2Spawn
+      ? 'L2'
+      : data.proxyType === 'SPAWN' && currentL2
+      ? 'L2'
+      : 'ETH_TX';
 
   const {
     construct,
@@ -113,7 +138,30 @@ export default function SetProxy() {
     bind,
   } = useSetProxy(data.proxyType);
 
+  const setProxy = useCallback(async () => {
+    // setLoading(true);
+    console.log(newAddress);
+    if (newAddress === '') return;
+    try {
+      await setProxyAddress(getL2ProxyName(data.proxyType), newAddress);
+      getPendingTransactions(_point);
+      pop();
+    } catch (error) {
+      // setError(error);
+    } finally {
+      // setLoading(false);
+    }
+  }, [
+    newAddress,
+    getPendingTransactions,
+    _point,
+    pop,
+    data.proxyType,
+    setProxyAddress,
+  ]);
+
   const validateForm = useCallback((values, errors) => {
+    console.log('hola');
     if (!values.unset && errors.address) {
       return errors;
     }
@@ -137,14 +185,16 @@ export default function SetProxy() {
         if (values.unset) {
           unset();
           form.change('address', '');
+          setNewAddress('');
         } else {
           construct(values.address);
+          setNewAddress(values.address);
         }
       } else {
         unconstruct();
       }
     },
-    [construct, unconstruct, unset]
+    [construct, unconstruct, unset, setNewAddress]
   );
 
   const initialValues = useMemo(() => ({ unset: false }), []);
@@ -213,12 +263,25 @@ export default function SetProxy() {
 
             <Grid.Item full as={FormError} />
 
-            <Grid.Item
-              full
-              as={InlineEthereumTransaction}
-              {...bind}
-              onReturn={() => pop()}
-            />
+            {txType === 'L2' ? (
+              <Grid.Item
+                as={Button}
+                full
+                className="set-proxy"
+                center
+                solid
+                disabled={values.unset}
+                onClick={setProxy}>
+                {'Sign Transaction'}
+              </Grid.Item>
+            ) : (
+              <Grid.Item
+                full
+                as={InlineEthereumTransaction}
+                {...bind}
+                onReturn={() => pop()}
+              />
+            )}
           </>
         )}
       </BridgeForm>

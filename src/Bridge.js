@@ -49,8 +49,8 @@ function useInitialRoutes() {
   if (IS_STUBBED) {
     return [
       { key: ROUTE_NAMES.LOGIN },
-      { key: ROUTE_NAMES.POINTS },
-      { key: ROUTE_NAMES.POINT },
+      // { key: ROUTE_NAMES.POINTS },
+      // { key: ROUTE_NAMES.POINT },
     ];
   }
 

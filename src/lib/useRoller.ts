@@ -24,7 +24,11 @@ import {
 } from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints } from 'views/Points';
-import { getSpawnNonce, getOwnerNonce } from './utils/nonce';
+import {
+  getSpawnNonce,
+  getOwnerNonce,
+  getManagementNonce,
+} from './utils/nonce';
 import { isPlanet } from './utils/point';
 
 import {
@@ -52,7 +56,7 @@ import {
   getTimeToNextBatch,
   spawn,
   transferPoint,
-  setSpawnProxy,
+  registerProxyAddress,
 } from './utils/roller';
 
 function isSpawn(tx: L2Data | undefined): tx is SpawnParams {
@@ -205,11 +209,12 @@ export default function useRoller() {
           inviteWallet
         );
 
-        const setManagementProxyRequest = await setSpawnProxy(
+        const setManagementProxyRequest = await registerProxyAddress(
           api,
           _wallet,
           planet,
           operator.proxy!,
+          'manage',
           1,
           inviteWallet.management.keys.address
         );
@@ -481,19 +486,14 @@ export default function useRoller() {
     // increaseNonce(point, operator.proxy!);
 
     // 2. Set Management Proxy
-    const managementData = { address: manager };
-    const managementHash: Hash = await api.hashTransaction(
+    await registerProxyAddress(
+      api,
+      fromWallet,
+      point,
+      operator.proxy!,
+      'manage',
       nonce + 1,
-      fromOwnerProxy,
-      'setManagementProxy',
-      managementData
-    );
-
-    await api.setManagementProxy(
-      signTransactionHash(managementHash, Buffer.from(keysSigningKey, 'hex')),
-      fromOwnerProxy,
-      ownerAddress,
-      managementData
+      manager
     );
 
     // 3. Transfer point
@@ -514,6 +514,42 @@ export default function useRoller() {
 
     return transferTxHash;
   };
+
+  const setProxyAddress = useCallback(
+    async (proxyType: Proxy, address: EthAddress) => {
+      console.log(proxyType, address);
+      const _point = need.point(pointCursor);
+      const _wallet = wallet.getOrElse(null);
+
+      if (!_wallet) {
+        // not using need because we want a custom error
+        throw new Error('Internal Error: Missing Wallet');
+      }
+
+      const pointDetails = nonces[_point];
+      const operator =
+        getManagementNonce(pointDetails, _wallet.address) ||
+        getOwnerNonce(pointDetails, _wallet.address);
+
+      if (operator === undefined)
+        throw new Error("Error: Address doesn't match proxy");
+
+      const txHash = await registerProxyAddress(
+        api,
+        _wallet,
+        _point,
+        operator.proxy!,
+        proxyType,
+        operator.nonce!,
+        address
+      );
+
+      const pendingTx = await api.getPendingTx(txHash);
+
+      return pendingTx;
+    },
+    [api, pointCursor, wallet, nonces]
+  );
 
   // On load, get initial config
   useEffect(() => {
@@ -550,5 +586,6 @@ export default function useRoller() {
     getPendingTransactions,
     generateInviteCodes,
     transferPoint,
+    setProxyAddress,
   };
 }

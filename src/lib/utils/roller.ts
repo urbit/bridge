@@ -2,6 +2,16 @@ import { signTransactionHash } from 'lib/authToken';
 import { Invite } from 'lib/types/Invite';
 import { Just, Nothing } from 'folktale/maybe';
 import { randomHex } from 'web3-utils';
+
+import {
+  Proxy,
+  Signature,
+  From,
+  EthAddress,
+  AddressParams,
+  Ship,
+} from '@urbit/roller-api';
+
 import {
   deriveNetworkSeedFromUrbitWallet,
   deriveNetworkKeys,
@@ -29,6 +39,8 @@ export const getTimeToNextBatch = (nextBatch: number, now: number) => {
 };
 
 export const isL2 = (dom?: string) => dom === 'l2' || dom === 'spawn';
+
+export const isL2Spawn = (dom?: string) => dom === 'spawn';
 
 export const generateInviteWallet = async (point: number, seed: string) => {
   const ticket = makeDeterministicTicket(point, seed);
@@ -121,11 +133,25 @@ export const transferPoint = async (
   return api.transferPoint(sig, from, _wallet.address, data);
 };
 
-export const setSpawnProxy = async (
+const proxyType = (proxy: Proxy) => {
+  switch (proxy) {
+    case 'manage':
+      return 'setManagementProxy';
+    case 'spawn':
+      return 'setSpawnProxy';
+    case 'transfer':
+      return 'setTransferProxy';
+    default:
+      throw new Error(`Unknown proxyType ${proxy}`);
+  }
+};
+
+export const registerProxyAddress = async (
   api: any,
   _wallet: any,
-  _point: number,
+  _point: Ship,
   proxy: string,
+  proxyAddressType: string,
   nonce: number,
   address: string
 ) => {
@@ -137,16 +163,37 @@ export const setSpawnProxy = async (
   const managementHash = await api.hashTransaction(
     nonce,
     from,
-    'setManagementProxy',
+    proxyType(proxyAddressType),
     managementData
   );
-
-  return api.setManagementProxy(
+  return setProxy(
+    api,
+    proxyAddressType,
     signTransactionHash(managementHash, _wallet.privateKey),
     from,
     _wallet.address,
     managementData
   );
+};
+
+const setProxy = async (
+  api: any,
+  proxyAddressType: string,
+  sig: Signature,
+  from: From,
+  address: EthAddress,
+  data: AddressParams
+) => {
+  switch (proxyAddressType) {
+    case 'manage':
+      return await api.setManagementProxy(sig, from, address, data);
+    case 'spawn':
+      return await api.setSpawnProxy(sig, from, address, data);
+    case 'transfer':
+      return await api.setTrasferProxy(sig, from, address, data);
+    default:
+      throw new Error(`Unknown proxyType ${proxyAddressType}`);
+  }
 };
 
 export const hasPoint = (point: number) => (invite: Invite) =>
