@@ -19,12 +19,12 @@ const toL1Details = (point: L2Point): L1Point => {
     escapeRequestedTo: point.network.escape,
     hasSponsor: point.network.sponsor.has,
     keyRevisionNumber: point.network.keys.life,
-    managementProxy: point.ownership.managementProxy.address,
-    owner: point.ownership.owner.address,
-    spawnProxy: point.ownership.spawnProxy.address,
+    managementProxy: point.ownership?.managementProxy?.address!,
+    owner: point.ownership?.owner?.address!,
+    spawnProxy: point.ownership?.spawnProxy?.address!,
     sponsor: point.network.sponsor.who,
-    transferProxy: point.ownership.transferProxy.address,
-    votingProxy: point.ownership.votingProxy.address,
+    transferProxy: point.ownership?.transferProxy?.address!,
+    votingProxy: point.ownership?.votingProxy?.address!,
   };
 };
 
@@ -59,7 +59,7 @@ export default function useDetailsStore() {
       // fetch point details
       const l2Point = await api.getPoint(point);
       const details =
-        l2Point && l2Point.dominion === 'l2'
+        l2Point && (l2Point.dominion === 'l2' || l2Point.dominion === 'spawn')
           ? toL1Details(l2Point)
           : await azimuth.azimuth.getPoint(_contracts, point);
       addToDetails({

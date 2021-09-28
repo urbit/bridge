@@ -1,7 +1,7 @@
 import create from 'zustand';
 import { L2Point, PendingTransaction, Ownership } from '@urbit/roller-api';
 
-import { HOUR, isL2 } from 'lib/utils/roller';
+import { HOUR, isL2, isL2Spawn } from 'lib/utils/roller';
 import { increaseProxyNonce, setProxyNonce } from 'lib/utils/nonce';
 import { Invite } from 'lib/types/Invite';
 
@@ -11,6 +11,7 @@ export interface RollerStore {
   pendingTransactions: PendingTransaction[];
   currentPoint: L2Point | null;
   currentL2: boolean;
+  currentL2Spawn: boolean;
   nonces: {
     [point: number]: Ownership;
   };
@@ -37,6 +38,7 @@ export const useRollerStore = create<RollerStore>(set => ({
   pendingTransactions: [],
   currentPoint: null,
   currentL2: false,
+  currentL2Spawn: false,
   invites: [],
   recentlyCompleted: 0,
   nonces: {},
@@ -51,7 +53,10 @@ export const useRollerStore = create<RollerStore>(set => ({
     set(state => {
       const updatedOwner = setProxyNonce(owner, proxy, nonce);
       if (!updatedOwner) throw new Error("Can't set nonce for this proxy");
-      return { ...state, nonces: { ...state.nonces, [point]: updatedOwner } };
+      return {
+        ...state,
+        nonces: { ...state.nonces, [point]: updatedOwner },
+      };
     }),
   setNonces: (point: number, owner: Ownership) =>
     set(state => {
@@ -75,6 +80,7 @@ export const useRollerStore = create<RollerStore>(set => ({
     set(() => ({
       currentPoint,
       currentL2: isL2(currentPoint?.dominion),
+      currentL2Spawn: isL2Spawn(currentPoint?.dominion),
     })),
   setInvites: (invites: Invite[]) => set(() => ({ invites })),
 }));
