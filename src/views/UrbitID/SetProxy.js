@@ -110,7 +110,7 @@ export default function SetProxy() {
   const { getDetails } = usePointCache();
   const { pointCursor } = usePointCursor();
   const { contracts } = useNetwork();
-  const { currentL2 } = useRollerStore();
+  const { currentL2, currentL2Spawn } = useRollerStore();
   const { setProxyAddress, getPendingTransactions } = useRoller();
   const [newAddress, setNewAddress] = useState('');
 
@@ -119,6 +119,15 @@ export default function SetProxy() {
   const _contracts = need.contracts(contracts);
 
   const properProxyType = capitalize(proxyTypeToHuman(data.proxyType));
+
+  const txType =
+    data.proxyType === 'MANAGEMENT' && (currentL2Spawn || !currentL2)
+      ? 'ETH_TX'
+      : data.proxyType === 'MANAGEMENT' && currentL2 && !currentL2Spawn
+      ? 'L2'
+      : data.proxyType === 'SPAWN' && currentL2
+      ? 'L2'
+      : 'ETH_TX';
 
   const {
     construct,
@@ -172,7 +181,6 @@ export default function SetProxy() {
 
   const onValues = useCallback(
     ({ valid, values, form }) => {
-      console.log('currentL2', currentL2);
       if (valid) {
         if (values.unset) {
           unset();
@@ -186,7 +194,7 @@ export default function SetProxy() {
         unconstruct();
       }
     },
-    [construct, unconstruct, unset, setNewAddress, currentL2]
+    [construct, unconstruct, unset, setNewAddress]
   );
 
   const initialValues = useMemo(() => ({ unset: false }), []);
@@ -255,7 +263,7 @@ export default function SetProxy() {
 
             <Grid.Item full as={FormError} />
 
-            {currentL2 ? (
+            {txType === 'L2' ? (
               <Grid.Item
                 as={Button}
                 full

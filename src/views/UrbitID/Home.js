@@ -53,7 +53,6 @@ export default function UrbitIDHome() {
 
   const renderProxyAction = useCallback(
     (proxyType, address) => {
-      console.log(details);
       const disabled =
         !isOwner ||
         (proxyType === PROXY_TYPE.SPAWN ? networkRevision === 0 : false);
