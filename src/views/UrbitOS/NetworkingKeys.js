@@ -52,7 +52,7 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
 
   const networkRevision = convertToInt(_details.keyRevisionNumber, 10);
   const randomSeed = useRef();
-  console.log(manualNetworkSeed);
+
   const {
     available: keyfileAvailable,
     generating: keyfileGenerating,
@@ -217,6 +217,13 @@ export default function UrbitOSNetworkingKeys({
       });
       // TODO: just use the tx hash instead?
       getPendingTransactions(point);
+      // TODO: this is just so we get visual feedback that the tx has gone through
+      // but this should be addressed with the new UI flow (-> download keyfile)
+      //
+      // A question here is how to deal with the modals/messages about the keys not being
+      // set since they are in pending in the Roller...
+      // we could inspect if there's a changeKeys in the local list of pending txs,...
+      //
       pop();
     } catch (error) {
       // setError(error);

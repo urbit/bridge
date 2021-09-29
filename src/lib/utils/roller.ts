@@ -12,11 +12,7 @@ import {
   Ship,
 } from '@urbit/roller-api';
 
-import {
-  deriveNetworkSeedFromUrbitWallet,
-  deriveNetworkKeys,
-  CRYPTO_SUITE_VERSION,
-} from 'lib/keys';
+import { deriveNetworkKeys, CRYPTO_SUITE_VERSION } from 'lib/keys';
 import { addHexPrefix } from 'lib/utils/address';
 import { makeDeterministicTicket, generateWallet } from 'lib/walletgen';
 
@@ -74,22 +70,17 @@ export const spawn = async (
 
 export const configureKeys = async (
   api: any,
-  _wallet: any,
-  _point: Ship,
+  wallet: any,
+  point: Ship,
   proxy: string,
   nonce: number,
-  urbitWallet: any,
-  nextRevision?: number,
-  customNetworkSeed?: string
+  networkSeed: any,
+  breach?: boolean
 ) => {
   const from = {
-    ship: _point, //ship to configure keys
+    ship: point, //ship to configure keys
     proxy,
   };
-
-  const networkSeed =
-    customNetworkSeed ||
-    (await deriveNetworkSeedFromUrbitWallet(urbitWallet, nextRevision || 1));
 
   // TODO: do something here?
   if (Nothing.hasInstance(networkSeed)) {
@@ -107,12 +98,12 @@ export const configureKeys = async (
     encrypt: addHexPrefix(pair.crypt.public),
     auth: addHexPrefix(pair.auth.public),
     cryptoSuite: String(CRYPTO_SUITE_VERSION),
-    breach: false,
+    breach,
   };
 
   const hash = await api.hashTransaction(nonce, from, 'configureKeys', data);
-  const sig = signTransactionHash(hash, _wallet.privateKey);
-  return api.configureKeys(sig, from, _wallet.address, data);
+  const sig = signTransactionHash(hash, wallet.privateKey);
+  return api.configureKeys(sig, from, wallet.address, data);
 };
 
 export const transferPointRequest = async (
