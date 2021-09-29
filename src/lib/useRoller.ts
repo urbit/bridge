@@ -7,11 +7,9 @@ import { Just } from 'folktale/maybe';
 
 import { Invite } from 'lib/types/Invite';
 import { convertToInt } from './convertToInt';
-import { ensureHexPrefix } from 'form/formatters';
 import { isDevelopment, isRopsten } from './flags';
 import { hasPoint, generateInviteWallet } from './utils/roller';
 import { ROLLER_HOSTS } from './constants';
-import { signTransactionHash } from './authToken';
 
 import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
@@ -33,9 +31,8 @@ import {
 import { isPlanet } from './utils/point';
 
 import {
-  deriveNetworkKeys,
-  CRYPTO_SUITE_VERSION,
   deriveNetworkSeedFromUrbitWallet,
+  attemptNetworkSeedDerivation,
 } from 'lib/keys';
 
 import {
@@ -46,8 +43,6 @@ import {
   Options,
   EthAddress,
   UnspawnedPoints,
-  From,
-  Hash,
   SpawnParams,
   L2Data,
 } from '@urbit/roller-api';
@@ -69,7 +64,7 @@ function isShipNumber(ship: number | string | undefined): ship is number {
 }
 
 export default function useRoller() {
-  const { wallet, authToken, authMnemonic }: any = useWallet();
+  const { wallet, authToken, authMnemonic, urbitWallet }: any = useWallet();
   const { pointCursor }: any = usePointCursor();
   const { web3, contracts }: any = useNetwork();
   const allPoints: any = usePointCache();
@@ -201,13 +196,17 @@ export default function useRoller() {
         );
         increaseNonce(_point, operator.proxy!);
 
+        const networkSeed = await deriveNetworkSeedFromUrbitWallet(
+          inviteWallet,
+          1
+        );
         const configureKeysRequest = await configureKeys(
           api,
           _wallet,
           planet,
           operator.proxy!,
           0,
-          inviteWallet
+          networkSeed
         );
 
         const setManagementProxyRequest = await registerProxyAddress(
@@ -423,32 +422,41 @@ export default function useRoller() {
     customNetworkSeed,
   }: ConfigureKeysParams) => {
     const _point = need.point(pointCursor);
+    const azimuthPoint = await api.getPoint(_point);
     const _wallet = wallet.getOrElse(null);
-    console.log(_point, _wallet);
-    if (!_wallet) {
+    const _details = getDetails(_point);
+    if (!_wallet || !_details) {
       // not using need because we want a custom error
-      throw new Error('Internal Error: Missing Wallet');
+      throw new Error('Internal Error: Missing Wallet/Details');
     }
 
     const pointDetails = nonces[_point];
     const operator =
       getManagementNonce(pointDetails, _wallet.address) ||
       getOwnerNonce(pointDetails, _wallet.address);
-
     if (operator === undefined)
       throw new Error("Error: Address doesn't match proxy");
-    const networkRevision = convertToInt(pointDetails.network.keys.life, 10);
+    const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
     const nextRevision = networkRevision + 1;
-    console.log('nextRevision', nextRevision);
+    const networkSeed = customNetworkSeed
+      ? customNetworkSeed
+      : await attemptNetworkSeedDerivation({
+          urbitWallet,
+          wallet,
+          authMnemonic,
+          details: _details,
+          point: _point,
+          authToken,
+          revision: nextRevision,
+        });
     const txHash = await configureKeys(
       api,
       _wallet,
       _point,
       operator.proxy!,
       operator.nonce!,
-      _wallet,
-      nextRevision,
-      customNetworkSeed
+      networkSeed,
+      breach
     );
     const pendingTx = await api.getPendingTx(txHash);
 
@@ -484,18 +492,19 @@ export default function useRoller() {
     const nonce = operator.nonce!;
 
     // 1. Update networking keys
-    // TODO: extract this to a useRoller#configureKeys function?
     const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
     const nextRevision = networkRevision + 1;
-
+    const networkSeed = await deriveNetworkSeedFromUrbitWallet(
+      toWallet,
+      nextRevision
+    );
     const configureKeysRequest = await configureKeys(
       api,
       fromWallet,
       point,
       operator.proxy!,
       nonce,
-      toWallet,
-      nextRevision
+      networkSeed
     );
 
     // TODO: not needed? next time we operate with this point we will login, and get
