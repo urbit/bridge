@@ -110,13 +110,14 @@ export const configureKeys = async (
   return api.configureKeys(sig, from, _wallet.address, data);
 };
 
-export const transferPoint = async (
+export const transferPointRequest = async (
   api: any,
   _wallet: any,
-  _point: number,
+  _point: Ship,
   proxy: string,
   nonce: number,
-  address: string
+  address: string,
+  reset?: boolean
 ) => {
   const from = {
     ship: _point, // ship to transfer
@@ -125,9 +126,8 @@ export const transferPoint = async (
 
   const data = {
     address,
-    reset: false,
+    reset: reset || false,
   };
-
   const hash = await api.hashTransaction(nonce, from, 'transferPoint', data);
   const sig = signTransactionHash(hash, _wallet.privateKey);
   return api.transferPoint(sig, from, _wallet.address, data);
