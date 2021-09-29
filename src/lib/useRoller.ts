@@ -28,6 +28,7 @@ import {
   getSpawnNonce,
   getOwnerNonce,
   getManagementNonce,
+  getTransferNonce,
 } from './utils/nonce';
 import { isPlanet } from './utils/point';
 
@@ -55,7 +56,7 @@ import {
   configureKeys,
   getTimeToNextBatch,
   spawn,
-  transferPoint,
+  transferPointRequest,
   registerProxyAddress,
 } from './utils/roller';
 
@@ -219,7 +220,7 @@ export default function useRoller() {
           inviteWallet.management.keys.address
         );
 
-        const transferPointRequest = await transferPoint(
+        const transferRequest = await transferPointRequest(
           api,
           _wallet,
           planet,
@@ -232,7 +233,7 @@ export default function useRoller() {
           spawnRequest,
           configureKeysRequest,
           setManagementProxyRequest,
-          transferPointRequest
+          transferRequest
         );
         tickets.push({
           ticket,
@@ -475,7 +476,7 @@ export default function useRoller() {
     );
 
     const keysSigningKey = fromWallet.privateKey;
-    await api.configureKeys(
+    const configureKeysRequest = await api.configureKeys(
       signTransactionHash(keysHash, Buffer.from(keysSigningKey, 'hex')),
       fromOwnerProxy,
       ownerAddress,
@@ -486,7 +487,7 @@ export default function useRoller() {
     // increaseNonce(point, operator.proxy!);
 
     // 2. Set Management Proxy
-    await registerProxyAddress(
+    const registerProxyAddressRequest = await registerProxyAddress(
       api,
       fromWallet,
       point,
@@ -497,27 +498,24 @@ export default function useRoller() {
     );
 
     // 3. Transfer point
-    const transferData = { address: to, reset: false };
-    const transferHash: Hash = await api.hashTransaction(
+    const transferTxRequest = await transferPointRequest(
+      api,
+      fromWallet,
+      point,
+      operator.proxy!,
       nonce + 2,
-      fromOwnerProxy,
-      'transferPoint',
-      transferData
+      to
     );
-
-    const transferTxHash = await api.transferPoint(
-      signTransactionHash(transferHash, Buffer.from(keysSigningKey, 'hex')),
-      fromOwnerProxy,
-      ownerAddress,
-      transferData
-    );
-
-    return transferTxHash;
+    const hashes = await Promise.all([
+      configureKeysRequest,
+      registerProxyAddressRequest,
+      transferTxRequest,
+    ]);
+    return hashes;
   };
 
   const setProxyAddress = useCallback(
     async (proxyType: Proxy, address: EthAddress) => {
-      console.log(proxyType, address);
       const _point = need.point(pointCursor);
       const _wallet = wallet.getOrElse(null);
 
@@ -544,6 +542,40 @@ export default function useRoller() {
         address
       );
 
+      const pendingTx = await api.getPendingTx(txHash);
+
+      return pendingTx;
+    },
+    [api, pointCursor, wallet, nonces]
+  );
+
+  const transferPoint = useCallback(
+    async (address: EthAddress, reset?: boolean) => {
+      const _point = need.point(pointCursor);
+      const _wallet = wallet.getOrElse(null);
+
+      if (!_wallet) {
+        // not using need because we want a custom error
+        throw new Error('Internal Error: Missing Wallet');
+      }
+
+      const pointDetails = nonces[_point];
+      const operator =
+        getTransferNonce(pointDetails, _wallet.address) ||
+        getOwnerNonce(pointDetails, _wallet.address);
+
+      if (operator === undefined)
+        throw new Error("Error: Address doesn't match proxy");
+
+      const txHash = await transferPointRequest(
+        api,
+        _wallet,
+        _point,
+        operator.proxy!,
+        operator.nonce!,
+        address,
+        reset || false
+      );
       const pendingTx = await api.getPendingTx(txHash);
 
       return pendingTx;
