@@ -45,8 +45,6 @@ export default function Point() {
     nextRoll,
     invites,
     setCurrentPoint,
-    setNonces,
-    increaseNonce,
   } = useRollerStore();
   const networkKeysSet = useHasNetworkKeysSet();
   const [showModal, setShowModal] = useState(false);
@@ -64,23 +62,16 @@ export default function Point() {
   const loadL2Info = useCallback(async () => {
     const getTransactions = async () => {
       const pointInfo = await api.getPoint(Number(point));
-      const pendingTxs = await api.getPendingByShip(Number(point));
+
       if (isDevelopment) {
         console.log('POINT INFO', pointInfo);
-      }
-      setNonces(point, pointInfo.ownership);
-
-      for (let index = 0; index < pendingTxs.length; index++) {
-        const proxy = pendingTxs[index].rawTx?.from?.proxy;
-        console.log(pointInfo.ownership, proxy);
-        increaseNonce(point, proxy);
       }
       setCurrentPoint(pointInfo);
       await getInvites(isL2(pointInfo.dominion));
     };
 
     await getTransactions();
-  }, [api, point, setCurrentPoint, increaseNonce, getInvites, setNonces]);
+  }, [api, point, getInvites, setCurrentPoint]);
 
   useEffect(() => {
     loadL1Info();
@@ -148,7 +139,6 @@ export default function Point() {
       </>
     );
   })();
-
   const address = need.addressFromWallet(wallet);
   const spawnedPending = pendingTransactions.filter(
     ({ rawTx }) => rawTx?.tx?.type === 'spawn'
@@ -197,6 +187,8 @@ export default function Point() {
                   ? 'Management Address Changed'
                   : pendingTx.rawTx?.tx?.type === 'configure-keys'
                   ? 'Network Keys Configured'
+                  : pendingTx.rawTx?.tx?.type === 'transfer-point'
+                  ? 'Point Transfered'
                   : ''}
               </div>
               <div className="rollup-timer">
