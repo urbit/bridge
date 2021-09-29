@@ -23,6 +23,9 @@ export const HOUR = MINUTE * 60;
 export const padZero = (amount: number) =>
   `${amount < 10 && amount > 0 ? '0' : ''}${amount}`;
 
+export const hasPoint = (point: number) => (invite: Invite) =>
+  invite.planet === point;
+
 export const getTimeToNextBatch = (nextBatch: number, now: number) => {
   const toNext = nextBatch - now;
   const hours = Math.floor(toNext / HOUR);
@@ -98,7 +101,7 @@ export const configureKeys = async (
     encrypt: addHexPrefix(pair.crypt.public),
     auth: addHexPrefix(pair.auth.public),
     cryptoSuite: String(CRYPTO_SUITE_VERSION),
-    breach,
+    breach: breach || false,
   };
 
   const hash = await api.hashTransaction(nonce, from, 'configureKeys', data);
@@ -142,6 +145,26 @@ const proxyType = (proxy: Proxy) => {
   }
 };
 
+const setProxy = async (
+  api: any,
+  proxyAddressType: string,
+  sig: Signature,
+  from: From,
+  address: EthAddress,
+  data: AddressParams
+) => {
+  switch (proxyAddressType) {
+    case 'manage':
+      return await api.setManagementProxy(sig, from, address, data);
+    case 'spawn':
+      return await api.setSpawnProxy(sig, from, address, data);
+    case 'transfer':
+      return await api.setTrasferProxy(sig, from, address, data);
+    default:
+      throw new Error(`Unknown proxyType ${proxyAddressType}`);
+  }
+};
+
 export const registerProxyAddress = async (
   api: any,
   _wallet: any,
@@ -172,25 +195,4 @@ export const registerProxyAddress = async (
   );
 };
 
-const setProxy = async (
-  api: any,
-  proxyAddressType: string,
-  sig: Signature,
-  from: From,
-  address: EthAddress,
-  data: AddressParams
-) => {
-  switch (proxyAddressType) {
-    case 'manage':
-      return await api.setManagementProxy(sig, from, address, data);
-    case 'spawn':
-      return await api.setSpawnProxy(sig, from, address, data);
-    case 'transfer':
-      return await api.setTrasferProxy(sig, from, address, data);
-    default:
-      throw new Error(`Unknown proxyType ${proxyAddressType}`);
-  }
-};
-
-export const hasPoint = (point: number) => (invite: Invite) =>
-  invite.planet === point;
+export const reticketL2Point = async () => {};

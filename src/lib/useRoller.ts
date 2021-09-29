@@ -80,6 +80,7 @@ export default function useRoller() {
     currentL2,
     nonces,
     increaseNonce,
+    setNonce,
   } = useRollerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
@@ -463,7 +464,7 @@ export default function useRoller() {
     return pendingTx;
   };
 
-  interface AcceptInviteParams {
+  interface ReticketParams {
     point: Ship;
     to: EthAddress;
     manager: EthAddress;
@@ -471,25 +472,30 @@ export default function useRoller() {
     toWallet: any; // TODO: wallet type
   }
 
-  const acceptInvite = async ({
+  const performL2Reticket = async ({
     point,
     to,
     manager,
     fromWallet,
     toWallet,
-  }: AcceptInviteParams) => {
+  }: ReticketParams) => {
+    let pointDetails = nonces[point];
     const azimuthPoint = await api.getPoint(point);
-    console.log('azimuthPoint', azimuthPoint);
-    const ownerAddress = azimuthPoint?.ownership?.owner?.address!;
 
-    const operator =
-      azimuthPoint.ownership &&
-      getOwnerNonce(azimuthPoint.ownership, ownerAddress);
+    console.log(pointDetails);
+    if (pointDetails === undefined) {
+      // This is an invite acceptance
+      pointDetails = azimuthPoint.ownership!;
+      console.log(pointDetails);
+    }
+    const ownerAddress = pointDetails.owner?.address!;
+    const operator = pointDetails && getOwnerNonce(pointDetails, ownerAddress);
 
     if (operator === undefined)
       throw new Error("Error: Address doesn't match proxy");
 
-    const nonce = operator.nonce!;
+    let nonce = operator.nonce!;
+    let requests = [];
 
     // 1. Update networking keys
     const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
@@ -506,36 +512,53 @@ export default function useRoller() {
       nonce,
       networkSeed
     );
-
-    // TODO: not needed? next time we operate with this point we will login, and get
-    // the latest nonce (updated with any nonce increase from possible pending txs)
+    nonce = nonce + 1;
     // increaseNonce(point, operator.proxy!);
+    requests.push(configureKeysRequest);
 
     // 2. Set Management Proxy
-    const registerProxyAddressRequest = await registerProxyAddress(
+    const registerMgmtRequest = await registerProxyAddress(
       api,
       fromWallet,
       point,
       operator.proxy!,
       'manage',
-      nonce + 1,
+      nonce,
       manager
     );
+    nonce = nonce + 1;
+    // increaseNonce(point, operator.proxy!);
+    requests.push(registerMgmtRequest);
 
-    // 3. Transfer point
+    // 3. Set Spawn Proxy
+    if (!isPlanet(Number(point))) {
+      const registerSpawnRequest = await registerProxyAddress(
+        api,
+        fromWallet,
+        point,
+        operator.proxy!,
+        'spawn',
+        nonce,
+        toWallet.spawn.keys.address
+      );
+      nonce = nonce + 1;
+      // increaseNonce(point, operator.proxy!);
+      requests.push(registerSpawnRequest);
+    }
+    // 4. Transfer point
     const transferTxRequest = await transferPointRequest(
       api,
       fromWallet,
       point,
       operator.proxy!,
-      nonce + 2,
+      nonce,
       to
     );
-    const hashes = await Promise.all([
-      configureKeysRequest,
-      registerProxyAddressRequest,
-      transferTxRequest,
-    ]);
+    // increaseNonce(point, operator.proxy!);
+    setNonce(point, pointDetails, operator.proxy!, nonce);
+    requests.push(transferTxRequest);
+
+    const hashes = await Promise.all(requests);
     return hashes;
   };
 
@@ -636,7 +659,7 @@ export default function useRoller() {
 
   return {
     api,
-    acceptInvite,
+    performL2Reticket,
     config,
     getPoints,
     getInvites,
