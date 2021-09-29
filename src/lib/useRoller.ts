@@ -413,14 +413,47 @@ export default function useRoller() {
     ]
   );
 
-  // TODO: extract from #transferPoint
-  // interface ConfigureKeysParams {
+  interface ConfigureKeysParams {
+    breach: boolean;
+    customNetworkSeed?: string;
+  }
 
-  // }
+  const configureNetworkingKeys = async ({
+    breach,
+    customNetworkSeed,
+  }: ConfigureKeysParams) => {
+    const _point = need.point(pointCursor);
+    const _wallet = wallet.getOrElse(null);
+    console.log(_point, _wallet);
+    if (!_wallet) {
+      // not using need because we want a custom error
+      throw new Error('Internal Error: Missing Wallet');
+    }
 
-  // const configureKeys = async () => {
+    const pointDetails = nonces[_point];
+    const operator =
+      getManagementNonce(pointDetails, _wallet.address) ||
+      getOwnerNonce(pointDetails, _wallet.address);
 
-  // }
+    if (operator === undefined)
+      throw new Error("Error: Address doesn't match proxy");
+    const networkRevision = convertToInt(pointDetails.network.keys.life, 10);
+    const nextRevision = networkRevision + 1;
+    console.log('nextRevision', nextRevision);
+    const txHash = await configureKeys(
+      api,
+      _wallet,
+      _point,
+      operator.proxy!,
+      operator.nonce!,
+      _wallet,
+      nextRevision,
+      customNetworkSeed
+    );
+    const pendingTx = await api.getPendingTx(txHash);
+
+    return pendingTx;
+  };
 
   interface AcceptInviteParams {
     point: Ship;
@@ -454,34 +487,17 @@ export default function useRoller() {
     // TODO: extract this to a useRoller#configureKeys function?
     const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
     const nextRevision = networkRevision + 1;
-    const fromOwnerProxy: From = {
-      ship: point,
-      proxy: 'own',
-    };
 
-    const seed = await deriveNetworkSeedFromUrbitWallet(toWallet, nextRevision);
-    const keys = deriveNetworkKeys(seed.value);
-    const keysData = {
-      auth: ensureHexPrefix(keys.auth.public),
-      breach: false,
-      cryptoSuite: CRYPTO_SUITE_VERSION.toString(),
-      encrypt: ensureHexPrefix(keys.crypt.public),
-    };
-
-    const keysHash: Hash = await api.hashTransaction(
+    const configureKeysRequest = await configureKeys(
+      api,
+      fromWallet,
+      point,
+      operator.proxy!,
       nonce,
-      fromOwnerProxy,
-      'configureKeys',
-      keysData
+      toWallet,
+      nextRevision
     );
 
-    const keysSigningKey = fromWallet.privateKey;
-    const configureKeysRequest = await api.configureKeys(
-      signTransactionHash(keysHash, Buffer.from(keysSigningKey, 'hex')),
-      fromOwnerProxy,
-      ownerAddress,
-      keysData
-    );
     // TODO: not needed? next time we operate with this point we will login, and get
     // the latest nonce (updated with any nonce increase from possible pending txs)
     // increaseNonce(point, operator.proxy!);
@@ -619,5 +635,6 @@ export default function useRoller() {
     generateInviteCodes,
     transferPoint,
     setProxyAddress,
+    configureNetworkingKeys,
   };
 }
