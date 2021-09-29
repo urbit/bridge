@@ -161,7 +161,6 @@ export default function SetProxy() {
   ]);
 
   const validateForm = useCallback((values, errors) => {
-    console.log('hola');
     if (!values.unset && errors.address) {
       return errors;
     }
