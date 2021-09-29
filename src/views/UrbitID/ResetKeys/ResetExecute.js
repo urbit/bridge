@@ -16,7 +16,9 @@ import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useHistory } from 'store/history';
+import { useRollerStore } from 'store/roller';
 
+import useRoller from 'lib/useRoller';
 import { useWalletConnect } from 'lib/useWalletConnect';
 
 import { RestartButton, ForwardButton } from 'components/Buttons';
@@ -53,6 +55,8 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
     walletType,
     walletHdPath,
   } = useWallet();
+  const { performL2Reticket } = useRoller();
+  const { currentL2 } = useRollerStore();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
   const {
@@ -92,20 +96,33 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
         walletType === WALLET_TYPES.WALLET_CONNECT ? wcSend : undefined;
 
       try {
-        await reticketPointBetweenWallets({
-          fromWallet: need.wallet(wallet),
-          fromWalletType: walletType,
-          fromWalletHdPath: walletHdPath,
-          toWallet: newWallet.value.wallet,
-          point: point,
-          web3: need.web3(web3),
-          contracts: need.contracts(contracts),
-          networkType,
-          onUpdate: handleUpdate,
-          nextRevision: networkRevision + 1,
-          txnSigner,
-          txnSender,
-        });
+        if (currentL2) {
+          console.log(newWallet.value);
+          // FIXME: the useEffect is called twice, which is fine since the duplicate
+          // L2 txs will be discarded
+          //
+          await performL2Reticket({
+            point,
+            to: newWallet.value.wallet.ownership.keys.address,
+            manager: newWallet.value.wallet.management.keys.address,
+            toWallet: newWallet.value.wallet,
+            fromWallet: need.wallet(wallet),
+          });
+        } else
+          await reticketPointBetweenWallets({
+            fromWallet: need.wallet(wallet),
+            fromWalletType: walletType,
+            fromWalletHdPath: walletHdPath,
+            toWallet: newWallet.value.wallet,
+            point: point,
+            web3: need.web3(web3),
+            contracts: need.contracts(contracts),
+            networkType,
+            onUpdate: handleUpdate,
+            nextRevision: networkRevision + 1,
+            txnSigner,
+            txnSender,
+          });
       } catch (err) {
         console.error(err);
         setGeneralError(err);

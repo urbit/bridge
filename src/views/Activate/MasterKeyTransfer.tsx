@@ -14,7 +14,7 @@ import DangerBox from './DangerBox';
 import View from 'components/View';
 
 const MasterKeyTransfer = () => {
-  const { acceptInvite } = useRoller();
+  const { performL2Reticket } = useRoller();
   const {
     derivedPatp,
     derivedPoint,
@@ -27,7 +27,7 @@ const MasterKeyTransfer = () => {
     setError(undefined);
 
     try {
-      await acceptInvite({
+      await performL2Reticket({
         point: derivedPoint.value,
         to: derivedWallet.value.ownership.keys.address,
         manager: derivedWallet.value.management.keys.address,
@@ -38,7 +38,12 @@ const MasterKeyTransfer = () => {
       console.error(error);
       setError(error);
     }
-  }, [derivedWallet, acceptInvite, derivedPoint.value, inviteWallet.value]);
+  }, [
+    derivedWallet,
+    performL2Reticket,
+    derivedPoint.value,
+    inviteWallet.value,
+  ]);
 
   useFadeIn();
 
