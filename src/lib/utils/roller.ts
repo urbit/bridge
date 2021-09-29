@@ -75,17 +75,22 @@ export const spawn = async (
 export const configureKeys = async (
   api: any,
   _wallet: any,
-  _point: number,
+  _point: Ship,
   proxy: string,
   nonce: number,
-  urbitWallet: any
+  urbitWallet: any,
+  nextRevision?: number,
+  customNetworkSeed?: string
 ) => {
   const from = {
     ship: _point, //ship to configure keys
     proxy,
   };
 
-  const networkSeed = await deriveNetworkSeedFromUrbitWallet(urbitWallet, 1);
+  const networkSeed =
+    customNetworkSeed ||
+    (await deriveNetworkSeedFromUrbitWallet(urbitWallet, nextRevision || 1));
+
   // TODO: do something here?
   if (Nothing.hasInstance(networkSeed)) {
     console.log("Network key Error: couldn't derive network keys");

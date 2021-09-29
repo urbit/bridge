@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Just } from 'folktale/maybe';
-import { Grid, ToggleInput, CheckboxInput } from 'indigo-react';
+import { Grid, ToggleInput, CheckboxInput, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 import { randomHex } from 'web3-utils';
 
@@ -8,7 +8,9 @@ import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
+import { useRollerStore } from 'store/roller';
 
+import useRoller from 'lib/useRoller';
 import { useLocalRouter } from 'lib/LocalRouter';
 import * as need from 'lib/need';
 import {
@@ -50,7 +52,7 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
 
   const networkRevision = convertToInt(_details.keyRevisionNumber, 10);
   const randomSeed = useRef();
-
+  console.log(manualNetworkSeed);
   const {
     available: keyfileAvailable,
     generating: keyfileGenerating,
@@ -141,6 +143,9 @@ export default function UrbitOSNetworkingKeys({
   const { pop } = useLocalRouter();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
+  const { currentL2 } = useRollerStore();
+  const { configureNetworkingKeys, getPendingTransactions } = useRoller();
+  const [breach, setBreach] = useState(false);
 
   const point = need.point(pointCursor);
   const details = getDetails(point);
@@ -187,16 +192,45 @@ export default function UrbitOSNetworkingKeys({
           values.useNetworkSeed ? values.networkSeed : undefined,
           values.useDiscontinuity
         );
+        setBreach(values.useDiscontinuity);
+        setManualNetworkSeed(values.useNetworkSeed);
       } else {
         unconstruct();
       }
 
       if (!values.useNetworkSeed && values.networkSeed) {
         form.change('networkSeed', '');
+        setBreach(false);
+        setManualNetworkSeed('');
       }
     },
-    [construct, unconstruct]
+    [construct, unconstruct, setManualNetworkSeed, setBreach]
   );
+
+  const setNetworkingKeys = useCallback(async () => {
+    // setLoading(true);
+    console.log(breach, manualNetworkSeed);
+    try {
+      const txHash = await configureNetworkingKeys({
+        breach,
+        manualNetworkSeed,
+      });
+      // TODO: just use the tx hash instead?
+      getPendingTransactions(point);
+      pop();
+    } catch (error) {
+      // setError(error);
+    } finally {
+      // setLoading(false);
+    }
+  }, [
+    breach,
+    manualNetworkSeed,
+    getPendingTransactions,
+    point,
+    pop,
+    configureNetworkingKeys,
+  ]);
 
   const initialValues = useMemo(
     () => ({
@@ -280,13 +314,25 @@ export default function UrbitOSNetworkingKeys({
                 </>
               )}
 
-              <Grid.Item
-                full
-                as={InlineEthereumTransaction}
-                {...bind}
-                label={`${hasKeys ? 'Reset' : 'Set'} Networking Keys`}
-                onReturn={() => pop()}
-              />
+              {currentL2 ? (
+                <Grid.Item
+                  as={Button}
+                  full
+                  className=""
+                  center
+                  solid
+                  onClick={setNetworkingKeys}>
+                  {'Sign Transaction'}
+                </Grid.Item>
+              ) : (
+                <Grid.Item
+                  full
+                  as={InlineEthereumTransaction}
+                  {...bind}
+                  label={`${hasKeys ? 'Reset' : 'Set'} Networking Keys`}
+                  onReturn={() => pop()}
+                />
+              )}
             </>
           )}
         </BridgeForm>
