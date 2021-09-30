@@ -149,7 +149,9 @@ export async function reticketPointBetweenWallets({
 
   progress(TRANSACTION_PROGRESS.SIGNING);
 
-  const gasPriceGwei = (await getSuggestedGasPrice(networkType)).toFixed();
+  const gasPriceGwei = (
+    await getSuggestedGasPrice(networkType)
+  ).average.price.toFixed();
   const chainId = await web3.eth.net.getId();
   const gasPriceWeiBN = toBN(safeToWei(gasPriceGwei, 'gwei'));
   let inviteNonce = await web3.eth.getTransactionCount(fromWallet.address);

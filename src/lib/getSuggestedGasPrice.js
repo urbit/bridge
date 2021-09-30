@@ -1,12 +1,32 @@
 import { NETWORK_TYPES } from './network';
 import { DEFAULT_GAS_PRICE_GWEI, MAX_GAS_PRICE_GWEI } from './constants';
 
+// ethgasstation returns values in floating point, one order of magitude
+// more than gwei. see: https://docs.ethgasstation.info
+// we don't want to charge users more than the gas tank funds
+const minGas = gas => Math.min(Math.ceil(gas / 10), MAX_GAS_PRICE_GWEI);
+
+export const defaultGasValues = value => ({
+  fast: {
+    price: value,
+    wait: 1,
+  },
+  average: {
+    price: value,
+    wait: 1,
+  },
+  low: {
+    price: value,
+    wait: 1,
+  },
+});
+
 export default async function getSuggestedGasPrice(networkType) {
   switch (networkType) {
     case NETWORK_TYPES.ROPSTEN:
-      return 10;
+      return defaultGasValues(10);
     case NETWORK_TYPES.OFFLINE:
-      return DEFAULT_GAS_PRICE_GWEI;
+      return defaultGasValues(DEFAULT_GAS_PRICE_GWEI);
     case NETWORK_TYPES.LOCAL:
     default:
       try {
@@ -20,14 +40,22 @@ export default async function getSuggestedGasPrice(networkType) {
 
         const json = await response.json();
 
-        // ethgasstation returns values in floating point, one order of magitude
-        // more than gwei. see: https://docs.ethgasstation.info
-        const suggestedGasPrice = Math.ceil(json.fast / 10); // to gwei
-
-        // we don't want to charge users more than the gas tank funds
-        return Math.min(suggestedGasPrice, MAX_GAS_PRICE_GWEI);
+        return {
+          fast: {
+            price: minGas(json.fast),
+            wait: json.fastWait,
+          },
+          average: {
+            price: minGas(json.average),
+            wait: json.avgWait,
+          },
+          low: {
+            price: minGas(json.safeLow),
+            wait: json.safeLowWait,
+          },
+        };
       } catch (e) {
-        return DEFAULT_GAS_PRICE_GWEI;
+        return defaultGasValues(DEFAULT_GAS_PRICE_GWEI);
       }
   }
 }

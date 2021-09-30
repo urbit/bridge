@@ -1,0 +1,32 @@
+@import 'style/shared/variables.scss';
+
+.fee-dropdown {
+  font-size: 14px;
+  position: relative;
+
+  .selector {
+    min-width: 150px;
+  }
+
+  .content-border {
+    z-index: 3;
+    
+    .dropdown-content {
+      .prices {
+        .price {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+
+          padding: 8px 12px 8px 16px;
+
+          &:hover {
+            opacity: 0.8;
+          }
+        }
+      }
+    }
+  }
+}
