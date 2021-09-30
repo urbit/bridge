@@ -12,7 +12,7 @@ import { ForwardButton } from 'components/Buttons';
 import NetworkingKeys from 'components/NetworkingKeys';
 
 import { useLocalRouter } from 'lib/LocalRouter';
-import { L1Point } from 'types/L1Point';
+import { L1Point } from 'lib/types/L1Point';
 import AlertBox from 'components/AlertBox';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';

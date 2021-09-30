@@ -7,11 +7,9 @@ import { Just } from 'folktale/maybe';
 
 import { Invite } from 'lib/types/Invite';
 import { convertToInt } from './convertToInt';
-import { ensureHexPrefix } from 'form/formatters';
 import { isDevelopment, isRopsten } from './flags';
 import { hasPoint, generateInviteWallet } from './utils/roller';
 import { ROLLER_HOSTS } from './constants';
-import { signTransactionHash } from './authToken';
 
 import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
@@ -25,16 +23,16 @@ import {
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints } from 'views/Points';
 import {
-  getSpawnNonce,
-  getOwnerNonce,
-  getManagementNonce,
-} from './utils/nonce';
+  getSpawnProxy,
+  getManagerProxy,
+  getAddressProxy,
+  getTransferProxy,
+} from './utils/proxy';
 import { isPlanet } from './utils/point';
 
 import {
-  deriveNetworkKeys,
-  CRYPTO_SUITE_VERSION,
   deriveNetworkSeedFromUrbitWallet,
+  attemptNetworkSeedDerivation,
 } from 'lib/keys';
 
 import {
@@ -45,8 +43,6 @@ import {
   Options,
   EthAddress,
   UnspawnedPoints,
-  From,
-  Hash,
   SpawnParams,
   L2Data,
 } from '@urbit/roller-api';
@@ -55,7 +51,7 @@ import {
   configureKeys,
   getTimeToNextBatch,
   spawn,
-  transferPoint,
+  transferPointRequest,
   registerProxyAddress,
 } from './utils/roller';
 
@@ -68,7 +64,7 @@ function isShipNumber(ship: number | string | undefined): ship is number {
 }
 
 export default function useRoller() {
-  const { wallet, authToken, authMnemonic }: any = useWallet();
+  const { wallet, authToken, authMnemonic, urbitWallet }: any = useWallet();
   const { pointCursor }: any = usePointCursor();
   const { web3, contracts }: any = useNetwork();
   const allPoints: any = usePointCache();
@@ -82,8 +78,6 @@ export default function useRoller() {
     setPendingTransactions,
     setInvites,
     currentL2,
-    nonces,
-    increaseNonce,
   } = useRollerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
@@ -161,12 +155,9 @@ export default function useRoller() {
         new Set<number>()
       );
 
-      console.log(pendingTxs, pendingSpawns);
-
       planets = planets.filter((point: number) => !pendingSpawns.has(point));
 
-      const starInfo = nonces[_point];
-      console.log(starInfo);
+      const starInfo = await api.getPoint(_point);
       const tickets: {
         ticket: string;
         planet: number;
@@ -174,56 +165,62 @@ export default function useRoller() {
       }[] = [];
       const requests: Promise<string>[] = [];
 
-      const operator =
-        getSpawnNonce(starInfo, _wallet.address) ||
-        getOwnerNonce(starInfo, _wallet.address);
+      const proxy = getSpawnProxy(starInfo.ownership!, _wallet.address);
 
-      if (operator === undefined)
+      if (proxy === undefined)
         throw new Error("Error: Address doesn't match proxy");
-      console.log('operator', operator);
+
+      const nonce = await api.getNonce({
+        ship: _point,
+        proxy,
+      });
+
       for (let i = 0; i < numInvites && planets[i]; i++) {
         const planet = planets[i];
-        const nonceInc = i + operator.nonce!;
+        const nonceInc = i + nonce;
 
         const { ticket, inviteWallet } = await generateInviteWallet(
           planet,
           _authToken
         );
 
-        const spawnRequest = await spawn(
+        const spawnRequest = spawn(
           api,
           _wallet,
           _point,
-          operator.proxy!,
+          proxy,
           nonceInc,
           planet
         );
-        increaseNonce(_point, operator.proxy!);
 
-        const configureKeysRequest = await configureKeys(
+        const networkSeed = await deriveNetworkSeedFromUrbitWallet(
+          inviteWallet,
+          1
+        );
+        const configureKeysRequest = configureKeys(
           api,
           _wallet,
           planet,
-          operator.proxy!,
+          'own',
           0,
-          inviteWallet
+          networkSeed
         );
 
-        const setManagementProxyRequest = await registerProxyAddress(
+        const setManagementProxyRequest = registerProxyAddress(
           api,
           _wallet,
           planet,
-          operator.proxy!,
+          'own',
           'manage',
           1,
           inviteWallet.management.keys.address
         );
 
-        const transferPointRequest = await transferPoint(
+        const transferRequest = transferPointRequest(
           api,
           _wallet,
           planet,
-          operator.proxy!,
+          'own',
           2,
           inviteWallet.ownership.keys.address
         );
@@ -232,7 +229,7 @@ export default function useRoller() {
           spawnRequest,
           configureKeysRequest,
           setManagementProxyRequest,
-          transferPointRequest
+          transferRequest
         );
         tickets.push({
           ticket,
@@ -249,7 +246,6 @@ export default function useRoller() {
         status: 'pending',
       }));
 
-      console.log('latest update', nonces[_point]);
       setPendingInvites(_point, pendingInvites);
     },
     [
@@ -261,8 +257,6 @@ export default function useRoller() {
       web3,
       getDetails,
       authMnemonic,
-      nonces,
-      increaseNonce,
     ]
   );
 
@@ -412,16 +406,63 @@ export default function useRoller() {
     ]
   );
 
-  // TODO: extract from #transferPoint
-  // interface ConfigureKeysParams {
+  interface ConfigureKeysParams {
+    breach: boolean;
+    customNetworkSeed?: string;
+  }
 
-  // }
+  const configureNetworkingKeys = async ({
+    breach,
+    customNetworkSeed,
+  }: ConfigureKeysParams) => {
+    const _point = need.point(pointCursor);
+    const azimuthPoint = await api.getPoint(_point);
+    const _wallet = wallet.getOrElse(null);
+    const _details = getDetails(_point);
+    if (!_wallet || !_details) {
+      // not using need because we want a custom error
+      throw new Error('Internal Error: Missing Wallet/Details');
+    }
 
-  // const configureKeys = async () => {
+    const pointDetails = await api.getPoint(_point);
+    const proxy = getManagerProxy(pointDetails.ownership!, _wallet.address);
 
-  // }
+    if (proxy === undefined)
+      throw new Error("Error: Address doesn't match proxy");
 
-  interface AcceptInviteParams {
+    const nonce = await api.getNonce({
+      ship: _point,
+      proxy,
+    });
+
+    const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
+    const nextRevision = networkRevision + 1;
+    const networkSeed = customNetworkSeed
+      ? customNetworkSeed
+      : await attemptNetworkSeedDerivation({
+          urbitWallet,
+          wallet,
+          authMnemonic,
+          details: _details,
+          point: _point,
+          authToken,
+          revision: nextRevision,
+        });
+    const txHash = await configureKeys(
+      api,
+      _wallet,
+      _point,
+      proxy!,
+      nonce,
+      networkSeed,
+      breach
+    );
+    const pendingTx = await api.getPendingTx(txHash);
+
+    return pendingTx;
+  };
+
+  interface ReticketParams {
     point: Ship;
     to: EthAddress;
     manager: EthAddress;
@@ -429,95 +470,81 @@ export default function useRoller() {
     toWallet: any; // TODO: wallet type
   }
 
-  const acceptInvite = async ({
+  const performL2Reticket = async ({
     point,
     to,
     manager,
     fromWallet,
     toWallet,
-  }: AcceptInviteParams) => {
+  }: ReticketParams) => {
     const azimuthPoint = await api.getPoint(point);
-    console.log('azimuthPoint', azimuthPoint);
-    const ownerAddress = azimuthPoint?.ownership?.owner?.address!;
+    const proxy = 'own';
+    let nonce = await api.getNonce({ ship: point, proxy });
 
-    const operator =
-      azimuthPoint.ownership &&
-      getOwnerNonce(azimuthPoint.ownership, ownerAddress);
-
-    if (operator === undefined)
-      throw new Error("Error: Address doesn't match proxy");
-
-    const nonce = operator.nonce!;
+    let requests = [];
 
     // 1. Update networking keys
-    // TODO: extract this to a useRoller#configureKeys function?
     const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
     const nextRevision = networkRevision + 1;
-    const fromOwnerProxy: From = {
-      ship: point,
-      proxy: 'own',
-    };
-
-    const seed = await deriveNetworkSeedFromUrbitWallet(toWallet, nextRevision);
-    const keys = deriveNetworkKeys(seed.value);
-    const keysData = {
-      auth: ensureHexPrefix(keys.auth.public),
-      breach: false,
-      cryptoSuite: CRYPTO_SUITE_VERSION.toString(),
-      encrypt: ensureHexPrefix(keys.crypt.public),
-    };
-
-    const keysHash: Hash = await api.hashTransaction(
-      nonce,
-      fromOwnerProxy,
-      'configureKeys',
-      keysData
+    const networkSeed = await deriveNetworkSeedFromUrbitWallet(
+      toWallet,
+      nextRevision
     );
-
-    const keysSigningKey = fromWallet.privateKey;
-    await api.configureKeys(
-      signTransactionHash(keysHash, Buffer.from(keysSigningKey, 'hex')),
-      fromOwnerProxy,
-      ownerAddress,
-      keysData
-    );
-    // TODO: not needed? next time we operate with this point we will login, and get
-    // the latest nonce (updated with any nonce increase from possible pending txs)
-    // increaseNonce(point, operator.proxy!);
-
-    // 2. Set Management Proxy
-    await registerProxyAddress(
+    const configureKeysRequest = await configureKeys(
       api,
       fromWallet,
       point,
-      operator.proxy!,
+      proxy,
+      nonce,
+      networkSeed
+    );
+    nonce = nonce + 1;
+    requests.push(configureKeysRequest);
+
+    // 2. Set Management Proxy
+    const registerMgmtRequest = await registerProxyAddress(
+      api,
+      fromWallet,
+      point,
+      proxy,
       'manage',
-      nonce + 1,
+      nonce,
       manager
     );
+    nonce = nonce + 1;
+    requests.push(registerMgmtRequest);
 
-    // 3. Transfer point
-    const transferData = { address: to, reset: false };
-    const transferHash: Hash = await api.hashTransaction(
-      nonce + 2,
-      fromOwnerProxy,
-      'transferPoint',
-      transferData
+    // 3. Set Spawn Proxy
+    if (!isPlanet(Number(point))) {
+      const registerSpawnRequest = await registerProxyAddress(
+        api,
+        fromWallet,
+        point,
+        proxy,
+        'spawn',
+        nonce,
+        toWallet.spawn.keys.address
+      );
+      nonce = nonce + 1;
+      requests.push(registerSpawnRequest);
+    }
+    // 4. Transfer point
+    const transferTxRequest = await transferPointRequest(
+      api,
+      fromWallet,
+      point,
+      proxy,
+      nonce,
+      to
     );
+    requests.push(transferTxRequest);
 
-    const transferTxHash = await api.transferPoint(
-      signTransactionHash(transferHash, Buffer.from(keysSigningKey, 'hex')),
-      fromOwnerProxy,
-      ownerAddress,
-      transferData
-    );
-
-    return transferTxHash;
+    const hashes = await Promise.all(requests);
+    return hashes;
   };
 
   const setProxyAddress = useCallback(
     async (proxyType: Proxy, address: EthAddress) => {
-      console.log(proxyType, address);
       const _point = need.point(pointCursor);
       const _wallet = wallet.getOrElse(null);
 
@@ -526,21 +553,22 @@ export default function useRoller() {
         throw new Error('Internal Error: Missing Wallet');
       }
 
-      const pointDetails = nonces[_point];
-      const operator =
-        getManagementNonce(pointDetails, _wallet.address) ||
-        getOwnerNonce(pointDetails, _wallet.address);
+      const pointDetails = await api.getPoint(_point);
+      const ownership = pointDetails.ownership!;
+      const proxy = getAddressProxy(ownership, _wallet.address, proxyType);
 
-      if (operator === undefined)
-        throw new Error("Error: Address doesn't match proxy");
+      if (proxy === undefined)
+        throw new Error("Error: Address doesn't match expected proxy");
+
+      const nonce = await api.getNonce({ ship: _point, proxy });
 
       const txHash = await registerProxyAddress(
         api,
         _wallet,
         _point,
-        operator.proxy!,
+        proxy,
         proxyType,
-        operator.nonce!,
+        nonce,
         address
       );
 
@@ -548,7 +576,41 @@ export default function useRoller() {
 
       return pendingTx;
     },
-    [api, pointCursor, wallet, nonces]
+    [api, pointCursor, wallet]
+  );
+
+  const transferPoint = useCallback(
+    async (address: EthAddress, reset?: boolean) => {
+      const _point = need.point(pointCursor);
+      const _wallet = wallet.getOrElse(null);
+
+      if (!_wallet) {
+        // not using need because we want a custom error
+        throw new Error('Internal Error: Missing Wallet');
+      }
+
+      const pointDetails = await api.getPoint(_point);
+      const proxy = getTransferProxy(pointDetails.ownership!, _wallet.address);
+
+      if (proxy === undefined)
+        throw new Error("Error: Address doesn't match proxy");
+
+      const nonce = await api.getNonce({ ship: _point, proxy });
+
+      const txHash = await transferPointRequest(
+        api,
+        _wallet,
+        _point,
+        proxy,
+        nonce,
+        address,
+        reset || false
+      );
+      const pendingTx = await api.getPendingTx(txHash);
+
+      return pendingTx;
+    },
+    [api, pointCursor, wallet]
   );
 
   // On load, get initial config
@@ -579,7 +641,7 @@ export default function useRoller() {
 
   return {
     api,
-    acceptInvite,
+    performL2Reticket,
     config,
     getPoints,
     getInvites,
@@ -587,5 +649,6 @@ export default function useRoller() {
     generateInviteCodes,
     transferPoint,
     setProxyAddress,
+    configureNetworkingKeys,
   };
 }

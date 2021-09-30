@@ -1,18 +1,20 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import cn from 'classnames';
-import { Grid, Text } from 'indigo-react';
+import { Grid, Text, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useStarReleaseCache } from 'store/starRelease';
+import { useRollerStore } from 'store/roller';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useCurrentPointName from 'lib/useCurrentPointName';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
+import useRoller from 'lib/useRoller';
 
 import ViewHeader from 'components/ViewHeader';
 import NoticeBox from 'components/NoticeBox';
@@ -45,6 +47,9 @@ export default function AdminTransfer() {
   const name = useCurrentPointName();
   const { pointCursor } = usePointCursor();
   const { starReleaseDetails } = useStarReleaseCache();
+  const { currentL2 } = useRollerStore();
+  const { setProxyAddress, getPendingTransactions } = useRoller();
+  const [owner, setNewOwner] = useState('');
 
   const {
     construct,
@@ -54,29 +59,46 @@ export default function AdminTransfer() {
     bind,
   } = useTransfer();
 
+  const point = need.point(pointCursor);
+
   const needLockupWarning = useMemo(() => {
-    const point = need.point(pointCursor);
     const az = azimuth.azimuth;
     return (
       az.getPointSize(point) === az.PointSize.Galaxy &&
       starReleaseDetails.map(a => a.kind).getOrElse('none') !== 'none'
     );
-  }, [pointCursor, starReleaseDetails]);
+  }, [starReleaseDetails, point]);
 
   const validate = useMemo(
     () => composeValidator({ address: buildAddressValidator() }),
     []
   );
 
+  const onSignTx = useCallback(async () => {
+    // setLoading(true);
+    if (owner === '') return;
+    try {
+      await setProxyAddress('transfer', owner);
+      getPendingTransactions(point);
+      pop();
+    } catch (error) {
+      // setError(error);
+    } finally {
+      // setLoading(false);
+    }
+  }, [owner, getPendingTransactions, point, pop, setProxyAddress]);
+
   const onValues = useCallback(
     ({ valid, values }) => {
       if (valid) {
         construct(values.address);
+        setNewOwner(values.address);
       } else {
         unconstruct();
+        setNewOwner('');
       }
     },
-    [construct, unconstruct]
+    [construct, unconstruct, setNewOwner]
   );
 
   return (
@@ -127,12 +149,25 @@ export default function AdminTransfer() {
 
             <Grid.Item full as={FormError} />
 
-            <Grid.Item
-              full
-              as={InlineEthereumTransaction}
-              {...bind}
-              onReturn={() => pop()}
-            />
+            {currentL2 ? (
+              <Grid.Item
+                as={Button}
+                full
+                className="set-proxy"
+                center
+                solid
+                disabled={values.unset}
+                onClick={onSignTx}>
+                {'Sign Transaction'}
+              </Grid.Item>
+            ) : (
+              <Grid.Item
+                full
+                as={InlineEthereumTransaction}
+                {...bind}
+                onReturn={() => pop()}
+              />
+            )}
           </>
         )}
       </BridgeForm>
