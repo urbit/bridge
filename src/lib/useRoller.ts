@@ -22,7 +22,12 @@ import {
 } from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints } from 'views/Points';
-import { getProxy } from './utils/proxy';
+import {
+  isManagementProxy,
+  isOwnerProxy,
+  isTransferProxy,
+  isSpawnProxy,
+} from './utils/proxy';
 import { isPlanet } from './utils/point';
 
 import {
@@ -160,14 +165,18 @@ export default function useRoller() {
       }[] = [];
       const requests: Promise<string>[] = [];
 
-      const proxy = getProxy(starInfo.ownership!, _wallet.address);
+      const proxy = isOwnerProxy(starInfo.ownership!, _wallet.address)
+        ? 'own'
+        : isSpawnProxy(starInfo.ownership!, _wallet.address)
+        ? 'spawn'
+        : undefined;
 
       if (proxy === undefined)
         throw new Error("Error: Address doesn't match proxy");
 
       const nonce = await api.getNonce({
         ship: _point,
-        proxy: proxy,
+        proxy,
       });
 
       for (let i = 0; i < numInvites && planets[i]; i++) {
@@ -179,7 +188,7 @@ export default function useRoller() {
           _authToken
         );
 
-        const spawnRequest = await spawn(
+        const spawnRequest = spawn(
           api,
           _wallet,
           _point,
@@ -192,30 +201,30 @@ export default function useRoller() {
           inviteWallet,
           1
         );
-        const configureKeysRequest = await configureKeys(
+        const configureKeysRequest = configureKeys(
           api,
           _wallet,
           planet,
-          proxy,
+          'own',
           0,
           networkSeed
         );
 
-        const setManagementProxyRequest = await registerProxyAddress(
+        const setManagementProxyRequest = registerProxyAddress(
           api,
           _wallet,
           planet,
-          proxy,
+          'own',
           'manage',
           1,
           inviteWallet.management.keys.address
         );
 
-        const transferRequest = await transferPointRequest(
+        const transferRequest = transferPointRequest(
           api,
           _wallet,
           planet,
-          proxy,
+          'own',
           2,
           inviteWallet.ownership.keys.address
         );
@@ -420,14 +429,19 @@ export default function useRoller() {
     }
 
     const pointDetails = await api.getPoint(_point);
-    const proxy = getProxy(pointDetails.ownership!, _wallet.address);
+    // const proxy = getProxy(pointDetails.ownership!, _wallet.address);
+    const proxy = isOwnerProxy(pointDetails.ownership!, _wallet.address)
+      ? 'own'
+      : isManagementProxy(pointDetails.ownership!, _wallet.address)
+      ? 'manage'
+      : undefined;
 
     if (proxy === undefined)
       throw new Error("Error: Address doesn't match proxy");
 
     const nonce = await api.getNonce({
       ship: _point,
-      proxy: proxy,
+      proxy,
     });
 
     const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
@@ -549,10 +563,21 @@ export default function useRoller() {
       }
 
       const pointDetails = await api.getPoint(_point);
-      const proxy = getProxy(pointDetails.ownership!, _wallet.address);
+      const ownership = pointDetails.ownership!;
+      const proxy = isOwnerProxy(ownership, _wallet.address)
+        ? 'own'
+        : proxyType === 'manage' &&
+          isManagementProxy(ownership, _wallet.address)
+        ? 'manage'
+        : proxyType === 'spawn' && isSpawnProxy(ownership, _wallet.address)
+        ? 'spawn'
+        : proxyType === 'transfer' &&
+          isTransferProxy(ownership, _wallet.address)
+        ? 'transfer'
+        : undefined;
 
       if (proxy === undefined)
-        throw new Error("Error: Address doesn't match proxy");
+        throw new Error("Error: Address doesn't match expected proxy");
 
       const nonce = await api.getNonce({ ship: _point, proxy });
 
@@ -584,7 +609,11 @@ export default function useRoller() {
       }
 
       const pointDetails = await api.getPoint(_point);
-      const proxy = getProxy(pointDetails.ownership!, _wallet.address);
+      const proxy = isOwnerProxy(pointDetails.ownership!, _wallet.address)
+        ? 'own'
+        : isTransferProxy(pointDetails.ownership!, _wallet.address)
+        ? 'transfer'
+        : undefined;
 
       if (proxy === undefined)
         throw new Error("Error: Address doesn't match proxy");

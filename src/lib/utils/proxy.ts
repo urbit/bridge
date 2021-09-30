@@ -16,3 +16,18 @@ export const getProxy = (
     : owner.transferProxy?.address === address
     ? 'transfer'
     : undefined;
+
+export const isManagementProxy = (owner: Ownership, address: string) =>
+  owner.managementProxy?.address === address;
+
+export const isTransferProxy = (owner: Ownership, address: string) =>
+  owner.transferProxy?.address === address;
+
+export const isVotingProxy = (owner: Ownership, address: string) =>
+  owner.votingProxy?.address === address;
+
+export const isSpawnProxy = (owner: Ownership, address: string) =>
+  owner.spawnProxy?.address === address;
+
+export const isOwnerProxy = (owner: Ownership, address: string) =>
+  owner.owner?.address === address;
