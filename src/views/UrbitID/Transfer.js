@@ -48,7 +48,7 @@ export default function AdminTransfer() {
   const { pointCursor } = usePointCursor();
   const { starReleaseDetails } = useStarReleaseCache();
   const { currentL2 } = useRollerStore();
-  const { transferPoint, getPendingTransactions } = useRoller();
+  const { setProxyAddress, getPendingTransactions } = useRoller();
   const [owner, setNewOwner] = useState('');
 
   const {
@@ -78,7 +78,7 @@ export default function AdminTransfer() {
     // setLoading(true);
     if (owner === '') return;
     try {
-      await transferPoint(owner);
+      await setProxyAddress('transfer', owner);
       getPendingTransactions(point);
       pop();
     } catch (error) {
@@ -86,7 +86,7 @@ export default function AdminTransfer() {
     } finally {
       // setLoading(false);
     }
-  }, [owner, getPendingTransactions, point, pop, transferPoint]);
+  }, [owner, getPendingTransactions, point, pop, setProxyAddress]);
 
   const onValues = useCallback(
     ({ valid, values }) => {

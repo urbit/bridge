@@ -3,7 +3,7 @@ import { Invite } from 'lib/types/Invite';
 import { Just, Nothing } from 'folktale/maybe';
 import { randomHex } from 'web3-utils';
 
-import {
+import RollerRPCAPI, {
   Proxy,
   Signature,
   From,
@@ -49,7 +49,7 @@ export const generateInviteWallet = async (point: number, seed: string) => {
 };
 
 export const spawn = async (
-  api: any,
+  api: RollerRPCAPI,
   _wallet: any,
   _point: number,
   proxy: string,
@@ -72,7 +72,7 @@ export const spawn = async (
 };
 
 export const configureKeys = async (
-  api: any,
+  api: RollerRPCAPI,
   wallet: any,
   point: Ship,
   proxy: string,
@@ -110,7 +110,7 @@ export const configureKeys = async (
 };
 
 export const transferPointRequest = async (
-  api: any,
+  api: RollerRPCAPI,
   _wallet: any,
   _point: Ship,
   proxy: string,
@@ -146,7 +146,7 @@ const proxyType = (proxy: Proxy) => {
 };
 
 const setProxy = async (
-  api: any,
+  api: RollerRPCAPI,
   proxyAddressType: string,
   sig: Signature,
   from: From,
@@ -159,14 +159,14 @@ const setProxy = async (
     case 'spawn':
       return await api.setSpawnProxy(sig, from, address, data);
     case 'transfer':
-      return await api.setTrasferProxy(sig, from, address, data);
+      return await api.setTransferProxy(sig, from, address, data);
     default:
       throw new Error(`Unknown proxyType ${proxyAddressType}`);
   }
 };
 
 export const registerProxyAddress = async (
-  api: any,
+  api: RollerRPCAPI,
   _wallet: any,
   _point: Ship,
   proxy: string,
@@ -178,20 +178,21 @@ export const registerProxyAddress = async (
     ship: _point,
     proxy,
   };
-  const managementData = { address };
-  const managementHash = await api.hashTransaction(
+  const proxyData = { address };
+  const proxyHash = await api.hashTransaction(
     nonce,
     from,
     proxyType(proxyAddressType),
-    managementData
+    proxyData
   );
+
   return setProxy(
     api,
     proxyAddressType,
-    signTransactionHash(managementHash, _wallet.privateKey),
+    signTransactionHash(proxyHash, _wallet.privateKey),
     from,
     _wallet.address,
-    managementData
+    proxyData
   );
 };
 

@@ -189,6 +189,8 @@ export default function Point() {
                   ? 'Network Keys Configured'
                   : pendingTx.rawTx?.tx?.type === 'transfer-point'
                   ? 'Point Transfered'
+                  : pendingTx.rawTx?.tx?.type === 'set-transfer-proxy'
+                  ? 'Transfer Proxy Changed'
                   : ''}
               </div>
               <div className="rollup-timer">
