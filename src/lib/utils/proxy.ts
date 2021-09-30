@@ -1,33 +1,49 @@
-import { Ownership } from '@urbit/roller-api';
+import { Ownership, Proxy } from '@urbit/roller-api';
 
-// TODO: test when all proxies are configured to the same address
-export const getProxy = (
-  owner: Ownership,
-  address: string
-): string | undefined =>
-  owner.owner?.address === address
+const isManagementProxy = (owner: Ownership, address: string) =>
+  owner.managementProxy?.address === address;
+
+const isTransferProxy = (owner: Ownership, address: string) =>
+  owner.transferProxy?.address === address;
+
+const isSpawnProxy = (owner: Ownership, address: string) =>
+  owner.spawnProxy?.address === address;
+
+const isOwnerProxy = (owner: Ownership, address: string) =>
+  owner.owner?.address === address;
+
+export const getSpawnProxy = (owner: Ownership, address: string) =>
+  isOwnerProxy(owner, address)
     ? 'own'
-    : owner.managementProxy?.address === address
-    ? 'manage'
-    : owner.spawnProxy?.address === address
+    : isSpawnProxy(owner, address)
     ? 'spawn'
-    : owner.votingProxy?.address === address
-    ? 'vote'
-    : owner.transferProxy?.address === address
+    : undefined;
+
+export const getManagerProxy = (owner: Ownership, address: string) =>
+  isOwnerProxy(owner, address)
+    ? 'own'
+    : isManagementProxy(owner, address)
+    ? 'manage'
+    : undefined;
+
+export const getAddressProxy = (
+  owner: Ownership,
+  address: string,
+  proxyType: Proxy
+) =>
+  isOwnerProxy(owner, address)
+    ? 'own'
+    : proxyType === 'manage' && isManagementProxy(owner, address)
+    ? 'manage'
+    : proxyType === 'spawn' && isSpawnProxy(owner, address)
+    ? 'spawn'
+    : proxyType === 'transfer' && isTransferProxy(owner, address)
     ? 'transfer'
     : undefined;
 
-export const isManagementProxy = (owner: Ownership, address: string) =>
-  owner.managementProxy?.address === address;
-
-export const isTransferProxy = (owner: Ownership, address: string) =>
-  owner.transferProxy?.address === address;
-
-export const isVotingProxy = (owner: Ownership, address: string) =>
-  owner.votingProxy?.address === address;
-
-export const isSpawnProxy = (owner: Ownership, address: string) =>
-  owner.spawnProxy?.address === address;
-
-export const isOwnerProxy = (owner: Ownership, address: string) =>
-  owner.owner?.address === address;
+export const getTransferProxy = (owner: Ownership, address: string) =>
+  isOwnerProxy(owner, address)
+    ? 'own'
+    : isTransferProxy(owner, address)
+    ? 'transfer'
+    : undefined;
