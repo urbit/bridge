@@ -1,0 +1,17 @@
+@import 'style/shared/variables.scss';
+
+.urbit-id {
+  font-size: 14px;
+
+  .body-pane {
+    .between-row {
+      &.sigil {
+        align-items: flex-start;
+        &:hover {
+          cursor: pointer;
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+}

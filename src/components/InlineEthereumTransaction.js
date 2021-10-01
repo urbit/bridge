@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import cn from 'classnames';
-import { Grid, ErrorText, Flex, LinkButton, H5, Text } from 'indigo-react';
+import { Grid, ErrorText, Flex, LinkButton, H5 } from 'indigo-react';
 import { toBN } from 'web3-utils';
 
 import { useExploreTxUrls } from 'lib/explorer';

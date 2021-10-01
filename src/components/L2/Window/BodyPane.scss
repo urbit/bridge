@@ -10,4 +10,59 @@
   &.spaced {
     justify-content: space-between;
   }
+
+  .between-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 16px 0;
+    width: 100%;
+  }
+
+  .subtitle {
+    margin-top: 4px;
+    color: $mid-gray;
+  }
+
+  .arrow-button {
+    height: 16px;
+    width: 16px;
+    padding: 0 4px;
+  }
+
+  button.secondary {
+    background-color: $washed-gray;
+    border-radius: $medium-border-radius;
+    border: none;
+    height: 32px;
+    padding: 8px 16px;
+    font-family: $default-font;
+
+    &:nth-child(2) {
+      margin-left: 8px;
+    }
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .copy-button {
+    background-color: $washed-gray;
+    border-radius: $medium-border-radius;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-left: 8px;
+
+    svg {
+      font-size: 16px;
+      margin-top: 6px;
+      margin-right: 4px;
+    }
+  }
 }

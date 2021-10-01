@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { Grid } from 'indigo-react';
 
 import { useHistory } from 'store/history';
 
-import useCurrentPointName from 'lib/useCurrentPointName';
 import useRouter from 'lib/useRouter';
 import { LocalRouterProvider } from 'lib/LocalRouter';
 
 import View from 'components/View';
-import Crumbs from 'components/Crumbs';
-import NavHeader from 'components/NavHeader';
+import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 
 import UrbitOSHome from '../UrbitOS/Home';
 import UrbitOSNetworkingKeys from '../UrbitOS/NetworkingKeys';
@@ -29,7 +26,6 @@ const VIEWS = {
 
 export default function UrbitOS() {
   const history = useHistory();
-  const name = useCurrentPointName();
 
   const { Route, ...router } = useRouter({
     names: NAMES,
@@ -39,22 +35,22 @@ export default function UrbitOS() {
 
   const [manualNetworkSeed, setManualNetworkSeed] = useState();
 
+  const onBack = () =>
+    router.peek().key === NAMES.HOME ? history.pop() : router.pop();
+
   return (
     <View
-      pop={() =>
-        router.peek().key === NAMES.HOME ? history.pop() : router.pop()
-      }
-      inset>
-      <NavHeader>
-        <Crumbs
-          routes={[
-            { text: name, action: () => history.pop() },
-            { text: 'Urbit OS' },
-          ]}
+      pop={onBack}
+      inset
+      hideBack
+      header={
+        <L2BackHeader
+          hideBalance={router.peek().key === NAMES.HOME}
+          back={onBack}
         />
-      </NavHeader>
+      }
+      className="urbit-id">
       <LocalRouterProvider value={router}>
-        <Grid className="mb4"></Grid>
         <Route
           manualNetworkSeed={manualNetworkSeed}
           setManualNetworkSeed={setManualNetworkSeed}

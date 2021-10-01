@@ -3,12 +3,7 @@ import { Invite } from 'lib/types/Invite';
 const INVITES_KEY = 'invites';
 const HIDE_MIGRATION_MESSAGE_KEY = 'hide_migration_message';
 
-export interface StoredInvites {
-  available: Invite[];
-  pending: Invite[];
-}
-
-export const getStoredInvites = (point: number): StoredInvites => {
+export const getStoredInvites = (point: number): Invite[] => {
   const invitesString = localStorage.getItem(INVITES_KEY) || '{}';
   const invites = JSON.parse(invitesString);
 
@@ -16,20 +11,14 @@ export const getStoredInvites = (point: number): StoredInvites => {
     return invites[String(point)];
   }
 
-  return { available: [], pending: [] };
+  return [];
 };
 
-export const setStoredInvites = (point: number, newInvites: StoredInvites) => {
+export const setStoredInvites = (point: number, newInvites: Invite[]) => {
   const invitesString = localStorage.getItem(INVITES_KEY) || '{}';
   const invites = JSON.parse(invitesString);
   invites[Number(point)] = newInvites;
   localStorage.setItem(INVITES_KEY, JSON.stringify(invites));
-};
-
-export const setPendingInvites = (point: number, pendingInvites: Invite[]) => {
-  const invites = getStoredInvites(point);
-  invites.pending.push(...pendingInvites);
-  setStoredInvites(point, invites);
 };
 
 export const clearInvitesStorage = () => localStorage.removeItem(INVITES_KEY);

@@ -15,9 +15,9 @@ import { isStar } from 'lib/utils/point';
 
 export interface L2PointHeaderProps {
   numInvites: number;
-  hideTimer: boolean;
-  hideInvites: boolean;
-  showMigrate: boolean;
+  hideTimer?: boolean;
+  hideInvites?: boolean;
+  showMigrate?: boolean;
 }
 
 const L2PointHeader = ({

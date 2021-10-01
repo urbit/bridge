@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { azimuth } from 'azimuth-js';
 import { Just } from 'folktale/maybe';
 import { Grid, Flex } from 'indigo-react';
@@ -34,17 +34,18 @@ import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
 import { InviteForm } from './InviteForm';
 
 export default function Point() {
-  const { pop, push, names } = useLocalRouter();
-  const { wallet } = useWallet();
-  const { pointCursor } = usePointCursor();
+  const { pop, push, names }: any = useLocalRouter();
+  const { wallet }: any = useWallet();
+  const { pointCursor }: any = usePointCursor();
   const point = need.point(pointCursor);
-  const { syncExtras } = usePointCache();
-  const { api, getInvites } = useRoller();
+  const { syncExtras }: any = usePointCache();
+  const { api, getNumInvites, getPendingTransactions } = useRoller();
   const {
     pendingTransactions,
     nextRoll,
-    invites,
+    invitePoints,
     setCurrentPoint,
+    setInvites,
   } = useRollerStore();
   const networkKeysSet = useHasNetworkKeysSet();
   const [showModal, setShowModal] = useState(false);
@@ -66,18 +67,22 @@ export default function Point() {
       if (isDevelopment) {
         console.log('POINT INFO', pointInfo);
       }
+      getPendingTransactions();
       setCurrentPoint(pointInfo);
-      await getInvites(isL2(pointInfo.dominion));
+      getNumInvites(isL2(pointInfo.dominion));
     };
 
     await getTransactions();
-  }, [api, point, getInvites, setCurrentPoint]);
+  }, [api, point, getNumInvites, setCurrentPoint, getPendingTransactions]);
 
   useEffect(() => {
     loadL1Info();
     loadL2Info();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [point]);
+  }, [point]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setInvites([]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { isParent, canManage, canSpawn, canVote } = useCurrentPermissions();
 
@@ -156,7 +161,7 @@ export default function Point() {
       header={
         <L2PointHeader
           hideTimer={!!spawnedPending}
-          numInvites={invites.length}
+          numInvites={invitePoints.length}
           hideInvites={!networkKeysSet}
         />
       }>
@@ -244,7 +249,7 @@ export default function Point() {
           <Card
             title="ID"
             subtitle="Identity and security settings"
-            icon={<Icon icon="User" />}
+            icon={(<Icon icon="User" />) as any}
             onClick={goUrbitID}
             disabled={!canManage}
           />
@@ -253,7 +258,7 @@ export default function Point() {
           <Card
             title="OS"
             subtitle="Urbit OS Settings"
-            icon={<Icon icon="Server" />}
+            icon={(<Icon icon="Server" />) as any}
             onClick={goUrbitOS}
             disabled={!canManage}
           />

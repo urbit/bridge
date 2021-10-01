@@ -1,8 +1,12 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { Grid, Button } from 'indigo-react';
-import cn from 'classnames';
 import * as azimuth from 'azimuth-js';
-import { Icon, Row, StatelessTextInput } from '@tlon/indigo-react';
+import {
+  Icon,
+  LoadingSpinner,
+  Row,
+  StatelessTextInput,
+} from '@tlon/indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
@@ -14,7 +18,11 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import * as need from 'lib/need';
 import * as wg from 'lib/walletgen';
 import useRoller from 'lib/useRoller';
-import { generateUrl } from 'lib/utils/invite';
+import {
+  generateUrl,
+  generateCsvLine,
+  generateCsvName,
+} from 'lib/utils/invite';
 
 import { useIssueChild } from 'views/Point/IssueChild';
 import View from 'components/View';
@@ -29,26 +37,40 @@ import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 
 import './Cohort.scss';
 import { getStoredInvites } from 'store/storage/roller';
-import { ETH_ZERO_ADDR } from 'lib/constants';
+import {
+  DEFAULT_NUM_INVITES,
+  ETH_ZERO_ADDR,
+  INVITES_PER_PAGE,
+  DEFAULT_CSV_NAME,
+} from 'lib/constants';
 import { isPlanet } from 'lib/utils/point';
 
-const INVITES_PER_PAGE = 7;
-const DEFAULT_NUM_INVITES = 5;
+interface L1Invite {
+  ticket: string;
+  planet: number;
+}
 
 export default function InviteCohort() {
-  const { pop } = useLocalRouter();
-  const { authToken } = useWallet();
+  const { pop }: any = useLocalRouter();
+  const { authToken }: any = useWallet();
   const {
     nextRoll,
     currentL2,
     pendingTransactions,
     invites,
+    invitePoints,
+    setInviteGeneratingNum,
     setInvites,
+    // inviteGeneratingNum,
   } = useRollerStore();
-  const { generateInviteCodes, getPendingTransactions } = useRoller();
-  const { pointCursor } = usePointCursor();
-  const { contracts } = useNetwork();
-  const { syncControlledPoints } = usePointCache();
+  const {
+    generateInviteCodes,
+    getPendingTransactions,
+    getInvites,
+  } = useRoller();
+  const { pointCursor }: any = usePointCursor();
+  const { contracts }: any = useNetwork();
+  const { syncControlledPoints }: any = usePointCache();
 
   const point = need.point(pointCursor);
   const _contracts = need.contracts(contracts);
@@ -58,10 +80,18 @@ export default function InviteCohort() {
   );
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [l1Invite, setL1Invite] = useState(null);
+  const [error, setError] = useState('');
+  const [downloadingCsv, setDownloadingCsv] = useState(false);
+  const [l1Invite, setL1Invite] = useState<L1Invite | null>(null);
+  const [page, setPage] = useState(0);
 
   const { construct, unconstruct, completed, bind } = useIssueChild();
+
+  useEffect(() => {
+    if (invitePoints.length > 0) {
+      getInvites(currentL2, page);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Set up the invite spawn if on L1
   useEffect(() => {
@@ -119,25 +149,23 @@ export default function InviteCohort() {
   ]);
 
   useEffect(() => {
-    const { available } = getStoredInvites(point);
+    const storedInvites = getStoredInvites(point);
 
     if (
       !completed ||
       !l1Invite ||
-      available.find(({ planet }) => planet === l1Invite.planet)
+      storedInvites.find(({ planet }) => planet === l1Invite.planet)
     ) {
       return;
     }
 
     syncControlledPoints();
-    setInvites([...invites, l1Invite]);
+    setInvites([...invites, { ...l1Invite, hash: '', owner: '' }]);
     setShowInviteForm(false);
     setL1Invite(null);
     unconstruct();
     pop();
   }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const [page, setPage] = useState(0);
 
   const invitesToDisplay = invites.slice(
     page * INVITES_PER_PAGE,
@@ -151,16 +179,64 @@ export default function InviteCohort() {
     setLoading(true);
     try {
       await generateInviteCodes(numInvites);
-      getPendingTransactions(point);
+      getPendingTransactions();
       pop();
     } catch (error) {
       console.log(error);
       // TODO: error is not used anywhere on the UI
-      setError(error);
+      setError(error as string);
     } finally {
       setLoading(false);
+      setInviteGeneratingNum(0);
     }
-  }, [generateInviteCodes, numInvites, getPendingTransactions, point, pop]);
+  }, [
+    generateInviteCodes,
+    numInvites,
+    getPendingTransactions,
+    pop,
+    setInviteGeneratingNum,
+  ]);
+
+  const downloadCsv = useCallback(() => {
+    const generateAndDownload = async () => {
+      setDownloadingCsv(true);
+      const invites = await getInvites(currentL2, page, true);
+      if (invites) {
+        const csv = invites.reduce(
+          (csvData, { ticket, planet }) =>
+            (csvData += generateCsvLine(ticket, planet)),
+          'Planet,Invite URL\n'
+        );
+        const hiddenElement = document.createElement('a');
+        hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURIComponent(
+          csv
+        )}`;
+        hiddenElement.target = '_blank';
+
+        //provide the name for the CSV file to be downloaded
+        hiddenElement.download = generateCsvName(DEFAULT_CSV_NAME, point);
+        hiddenElement.click();
+      } else {
+        setError('There was an error creating the CSV');
+      }
+      setDownloadingCsv(false);
+      setInviteGeneratingNum(0);
+    };
+    generateAndDownload();
+  }, [
+    getInvites,
+    setError,
+    setDownloadingCsv,
+    setInviteGeneratingNum,
+    currentL2,
+    page,
+    point,
+  ]);
+
+  const goNextPage = useCallback(() => {
+    setPage(page + 1);
+    getInvites(currentL2, page + 1);
+  }, [currentL2, getInvites, page]);
 
   const getContent = () => {
     if (hasInvites) {
@@ -175,14 +251,20 @@ export default function InviteCohort() {
           </div>
           <div className="invites">
             {invitesToDisplay.map(invite => (
-              <div className="invite" key={invite.ticket}>
+              <div className="invite" key={invite.planet}>
                 <div className="invite-url">
                   {generateUrl(invite.ticket, invite.planet)}
                 </div>
-                <CopiableWithTooltip
-                  text={generateUrl(invite.ticket, invite.planet)}
-                  className={cn('copy-invite')}
-                />
+                {invite.ticket ? (
+                  <CopiableWithTooltip
+                    text={generateUrl(invite.ticket, invite.planet)}
+                    className="copy-invite"
+                  />
+                ) : (
+                  <div className="ticket-loader">
+                    <LoadingSpinner foreground="black" background="white" />
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -226,6 +308,7 @@ export default function InviteCohort() {
   if (showInviteForm) {
     return (
       <View
+        pop={() => setShowInviteForm(false)}
         className="cohort show-invite-form"
         hideBack
         header={<L2BackHeader back={() => setShowInviteForm(false)} />}>
@@ -258,15 +341,6 @@ export default function InviteCohort() {
                   </span>
                 </div>
               )}
-              {/* <div>Destination</div>
-              <div className="ship-or-address">Ship or ethereum address</div>
-              <Dropdown value={dropdownValue}>
-                {points.map(point => (
-                  <div onClick={selectPoint(point)} className="address">
-                    {ob.patp(point)}
-                  </div>
-                ))}
-              </Dropdown> */}
             </div>
             {/* <Inviter /> */}
             <div className="lower">
@@ -285,7 +359,7 @@ export default function InviteCohort() {
                   disabled={loading}
                   onClick={createInvites}>
                   {loading
-                    ? 'Generating...'
+                    ? `Generating ${numInvites} invites...`
                     : `Generate Planet Code${
                         currentL2 ? `s (${numInvites})` : ''
                       }`}
@@ -323,10 +397,16 @@ export default function InviteCohort() {
           ) : (
             <Row className="has-invites-header">
               {header}
-              <div className="download-csv" onClick={() => null}>
-                <Icon icon="Download" />
-                <div>CSV</div>
-              </div>
+              {downloadingCsv ? (
+                <Row className="download-csv">
+                  Generating {invitePoints.length} codes...
+                </Row>
+              ) : (
+                <Row className="download-csv" onClick={downloadCsv}>
+                  <Icon icon="Download" />
+                  <div>CSV</div>
+                </Row>
+              )}
             </Row>
           )}
         </HeaderPane>
@@ -350,7 +430,7 @@ export default function InviteCohort() {
               numPerPage={INVITES_PER_PAGE}
               numElements={invites.length}
               goPrevious={() => setPage(page - 1)}
-              goNext={() => setPage(page + 1)}
+              goNext={goNextPage}
             />
           )}
         </BodyPane>

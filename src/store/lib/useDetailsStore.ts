@@ -6,6 +6,7 @@ import useRoller from '../../lib/useRoller';
 import { useNetwork } from '../network';
 import { L1Point } from 'lib/types/L1Point';
 import { L2Point } from '@urbit/roller-api';
+import { isDevelopment } from 'lib/flags';
 
 const toL1Details = (point: L2Point): L1Point => {
   return {
@@ -57,14 +58,20 @@ export default function useDetailsStore() {
       }
 
       // fetch point details
-      const l2Point = await api.getPoint(point);
-      const details =
-        l2Point && (l2Point.dominion === 'l2' || l2Point.dominion === 'spawn')
-          ? toL1Details(l2Point)
-          : await azimuth.azimuth.getPoint(_contracts, point);
-      addToDetails({
-        [point]: details,
-      });
+      try {
+        const l2Point = await api.getPoint(point);
+        const details =
+          l2Point && (l2Point.dominion === 'l2' || l2Point.dominion === 'spawn')
+            ? toL1Details(l2Point)
+            : await azimuth.azimuth.getPoint(_contracts, point);
+        addToDetails({
+          [point]: details,
+        });
+      } catch (e) {
+        if (isDevelopment) {
+          console.warn(e);
+        }
+      }
     },
     [api, contracts, addToDetails]
   );
