@@ -1,15 +1,12 @@
 import React from 'react';
-import { Grid } from 'indigo-react';
 
 import { useHistory } from 'store/history';
 
-import useCurrentPointName from 'lib/useCurrentPointName';
 import useRouter from 'lib/useRouter';
 import { LocalRouterProvider } from 'lib/LocalRouter';
 
 import View from 'components/View';
-import Crumbs from 'components/Crumbs';
-import NavHeader from 'components/NavHeader';
+import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 
 import UrbitIDHome from '../UrbitID/Home';
 import SigilGenerator from '../UrbitID/SigilGenerator';
@@ -36,26 +33,8 @@ const VIEWS = {
   [NAMES.TRANSFER]: Transfer,
 };
 
-const humanizeName = name => {
-  switch (name) {
-    case NAMES.SIGIL_GENERATOR:
-      return 'Sigil';
-    case NAMES.DOWNLOAD_KEYS:
-      return 'Download Keys';
-    case NAMES.SET_PROXY:
-      return 'Set Key';
-    case NAMES.RESET_KEYS:
-      return 'Reset Keys';
-    case NAMES.TRANSFER:
-      return 'Transfer';
-    default:
-      return undefined;
-  }
-};
-
 export default function UrbitID() {
   const history = useHistory();
-  const name = useCurrentPointName();
 
   const { Route, ...router } = useRouter({
     names: NAMES,
@@ -63,28 +42,22 @@ export default function UrbitID() {
     initialRoutes: [{ key: NAMES.HOME }],
   });
 
-  const last = router.peek().key;
-  const homeAction = last === NAMES.HOME ? undefined : () => history.pop();
-  const lastCrumb = homeAction ? [{ text: humanizeName(last) }] : [];
+  const onBack = () =>
+    router.peek().key === NAMES.HOME ? history.pop() : router.pop();
 
   return (
     <View
-      pop={() =>
-        router.peek().key === NAMES.HOME ? history.pop() : router.pop()
-      }
-      inset>
-      <NavHeader>
-        <Crumbs
-          routes={[
-            { text: name, action: () => history.pop() },
-            { text: 'Urbit ID', action: homeAction },
-            ...lastCrumb,
-          ]}
+      pop={onBack}
+      inset
+      hideBack
+      header={
+        <L2BackHeader
+          hideBalance={router.peek().key === NAMES.HOME}
+          back={onBack}
         />
-      </NavHeader>
-
+      }
+      className="urbit-id">
       <LocalRouterProvider value={router}>
-        <Grid className="mb4"></Grid>
         <Route />
       </LocalRouterProvider>
     </View>

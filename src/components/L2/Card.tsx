@@ -8,7 +8,8 @@ export interface CardProps {
   title?: string;
   subtitle?: string;
   onClick?: () => void;
-  children: React.ReactNode;
+  disabled?: boolean;
+  children?: React.ReactNode;
 }
 
 export default function Card({
@@ -17,9 +18,10 @@ export default function Card({
   subtitle,
   onClick,
   children,
+  disabled = false,
 }: CardProps) {
   return (
-    <Box className="card" onClick={onClick}>
+    <Box className="card" onClick={disabled ? undefined : onClick}>
       {(!!icon || !!title) && (
         <Row>
           {!!icon && icon}

@@ -112,15 +112,14 @@ export const configureKeys = async (
 export const transferPointRequest = async (
   api: RollerRPCAPI,
   _wallet: any,
-  _point: Ship,
-  planet: number,
+  pointToTransfer: Ship,
   proxy: string,
   nonce: number,
   address: string,
   reset?: boolean
 ) => {
   const from = {
-    ship: planet, //planet to transfer
+    ship: pointToTransfer,
     proxy,
   };
 
@@ -198,3 +197,6 @@ export const registerProxyAddress = async (
 };
 
 export const reticketL2Point = async () => {};
+
+export const hasInvite = (point: number) => (invite: Invite) =>
+  invite.planet === point && invite.ticket.length > 0;

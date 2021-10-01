@@ -8,21 +8,26 @@ import { usePointCache } from 'store/pointCache';
 
 import * as need from 'lib/need';
 
-import { ForwardButton } from 'components/Buttons';
 import NetworkingKeys from 'components/NetworkingKeys';
+import Window from 'components/L2/Window/Window';
+import HeaderPane from 'components/L2/Window/HeaderPane';
+import BodyPane from 'components/L2/Window/BodyPane';
+import { ReactComponent as KeyfileIcon } from 'assets/keyfile.svg';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import { L1Point } from 'lib/types/L1Point';
 import AlertBox from 'components/AlertBox';
-import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
-import AccessCode from './AccessCode';
+import { Box, Button, Row } from '@tlon/indigo-react';
+import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
 
-export default function UrbitOSHome({ manualNetworkSeed }) {
-  const { pointCursor } = usePointCursor();
-  const { getDetails } = usePointCache();
+import './UrbitOS.scss';
 
-  const { push, names } = useLocalRouter();
+export default function UrbitOSHome() {
+  const { pointCursor }: any = usePointCursor();
+  const { getDetails }: any = usePointCache();
+
+  const { push, names }: any = useLocalRouter();
 
   const point = need.point(pointCursor);
   const details: L1Point = need.details(getDetails(point));
@@ -36,7 +41,6 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
 
   // The initial key revision number is 0, and increments when set
   const hasSetNetworkingKeys = details.keyRevisionNumber !== '0';
-  const networkKeysAction = hasSetNetworkingKeys ? 'Reset' : 'Initialize';
 
   const goNetworkingKeys = useCallback(() => push(names.NETWORKING_KEYS), [
     names,
@@ -51,54 +55,67 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
   const { bind: keyBind, code } = useKeyfileGenerator();
 
   return (
-    <>
-      <Grid>
-        <Grid.Item full className="mv7 f5">
-          Urbit OS
-        </Grid.Item>
+    <Window className="os-home">
+      <HeaderPane>
+        <Row className="header-row">
+          <h5>OS</h5>
+          <Button
+            className="header-button keyfile"
+            disabled={!hasSetNetworkingKeys}
+            onClick={keyBind.download}>
+            <KeyfileIcon />
+            Download Keyfile
+          </Button>
+          {/* <Grid.Item
+            full
+            detail="A keyfile is used to boot your Urbit OS"
+            as={DownloadKeyfileButton}
+            {...keyBind}
+          /> */}
+        </Row>
+      </HeaderPane>
+      <BodyPane>
         {showSponsor && (
-          <>
-            <Grid.Divider />
-            <Grid.Item
-              full
-              as={ForwardButton}
-              detail="A sponsor finds new peers in your network"
-              accessory="Change"
-              onClick={goChangeSponsor}>
-              <span className="mono">{sponsor}</span>
-              <span className="f7 bg-black white p1 mb2 ml2 r4">SPONSOR</span>
-            </Grid.Item>
-          </>
+          <Row className="between-row management">
+            <Box>
+              <Row>
+                <span className="mono">{sponsor}</span>
+                <span className="f7 bg-black white p1 mb2 ml2 r4">SPONSOR</span>
+              </Row>
+              <Box className="subtitle">
+                Your sponsor finds new peers in your network
+              </Box>
+            </Box>
+            <Row>
+              <Button className="secondary" onClick={goChangeSponsor}>
+                Change
+              </Button>
+            </Row>
+          </Row>
         )}
-        {hasSetNetworkingKeys && (
-          <>
-            <Grid.Divider />
-            <Grid.Item
-              full
-              detail="A keyfile is used to boot your Urbit OS"
-              as={DownloadKeyfileButton}
-              {...keyBind}
-            />
-          </>
-        )}
-        <AccessCode code={code} />
-        <Grid.Divider />
-        <Grid.Item full as={ForwardButton} onClick={goNetworkingKeys}>
-          {networkKeysAction} Networking Keys
-        </Grid.Item>
-        {hasSetNetworkingKeys && (
-          <>
-            <Grid.Divider />
-            <Grid.Item
-              full
-              as={ForwardButton}
-              accessory={showKeys ? '▲' : '▼'}
-              onClick={toggleShowKeys}>
-              View Networking Keys
-            </Grid.Item>
-            {showKeys && <Grid.Item full as={NetworkingKeys} point={point} />}
-          </>
-        )}
+        <Row className="between-row management">
+          <Box>
+            <Box>Network Keys</Box>
+            <Box className="subtitle">
+              {hasSetNetworkingKeys
+                ? `Revision: ${details.keyRevisionNumber}`
+                : 'Unset'}
+            </Box>
+          </Box>
+          <Row>
+            <Button className="secondary" onClick={goNetworkingKeys}>
+              {hasSetNetworkingKeys ? 'Reset' : 'Initialize'}
+            </Button>
+            {hasSetNetworkingKeys && (
+              <Button className="secondary" onClick={toggleShowKeys}>
+                {showKeys ? 'Hide' : 'View'}
+              </Button>
+            )}
+          </Row>
+        </Row>
+
+        {showKeys && <Grid.Item full as={NetworkingKeys} point={point} />}
+
         {!hasSetNetworkingKeys && (
           <>
             <Grid.Item full as={AlertBox} className="mt4">
@@ -106,7 +123,19 @@ export default function UrbitOSHome({ manualNetworkSeed }) {
             </Grid.Item>
           </>
         )}
-      </Grid>
-    </>
+
+        {!!code && (
+          <Row className="between-row management">
+            <Box>
+              <Box>Access Key</Box>
+              <Box className="subtitle">Your passkey to login to Landscape</Box>
+            </Box>
+            <Row>
+              <CopiableWithTooltip text={code} className="copy-button" />
+            </Row>
+          </Row>
+        )}
+      </BodyPane>
+    </Window>
   );
 }
