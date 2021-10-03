@@ -66,12 +66,6 @@ export default function UrbitOSHome() {
             <KeyfileIcon />
             Download Keyfile
           </Button>
-          {/* <Grid.Item
-            full
-            detail="A keyfile is used to boot your Urbit OS"
-            as={DownloadKeyfileButton}
-            {...keyBind}
-          /> */}
         </Row>
       </HeaderPane>
       <BodyPane>
