@@ -1,5 +1,6 @@
 import cn from 'classnames';
 import 'style/master-key.scss';
+import withFadeable from './withFadeable';
 
 export const MasterKey = ({ paused = false }) => {
   return (
@@ -117,3 +118,5 @@ export const MasterKey = ({ paused = false }) => {
     </svg>
   );
 };
+
+export const FadeableMasterKey = withFadeable(MasterKey);

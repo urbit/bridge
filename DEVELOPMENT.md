@@ -166,5 +166,5 @@ npm run pilot-l2
 |start %roller-rpc
 
 # If having CORS issues with API requests, try this:
-> |cors-approve ~~http~3a.~2f.~2f.localhost~3a.3000
+|cors-approve ~~http~3a.~2f.~2f.localhost~3a.3000
 ```

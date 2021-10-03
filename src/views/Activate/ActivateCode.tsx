@@ -30,7 +30,7 @@ export default function ActivateCode() {
   useFadeIn();
 
   return (
-    <View centered={true} inset>
+    <View centered={true}>
       <ActivateView
         header={<ActivateHeader content={'Welcome. This is your Urbit.'} />}
         footer={<ActivateCodeForm afterSubmit={goToMasterKey} />}>
