@@ -104,7 +104,7 @@ const MasterKeyDownload = () => {
   }, [delayedReveal, setIsIn]);
 
   return (
-    <View centered={true} inset>
+    <View centered={true}>
       <ActivateView
         header={triggerAnimation && header}
         footer={triggerAnimation && footer}>
