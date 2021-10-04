@@ -242,6 +242,8 @@ export default function useRoller() {
           setManagementProxyRequest,
           transferRequest
         );
+        await Promise.all(requests);
+
         tickets.push({
           ticket,
           planet,
