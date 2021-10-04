@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useNetwork } from 'store/network';
 
-import getSuggestedGasPrice from 'lib/getSuggestedGasPrice';
+import getSuggestedGasPrices, {
+  defaultGasValues,
+} from 'lib/getSuggestedGasPrice';
 import { DEFAULT_GAS_PRICE_GWEI } from './constants';
 
 /**
@@ -14,33 +16,36 @@ import { DEFAULT_GAS_PRICE_GWEI } from './constants';
  */
 export default function useGasPrice(initialGasPrice = DEFAULT_GAS_PRICE_GWEI) {
   const { networkType } = useNetwork();
-  const [suggestedGasPrice, setSuggestedGasPrice] = useState(initialGasPrice); // gwei
+  const [suggestedGasPrices, setSuggestedGasPrices] = useState(
+    defaultGasValues(initialGasPrice)
+  ); // fast, average, low. In gwei
   const [gasPrice, setGasPrice] = useState(initialGasPrice); // gwei
 
   useEffect(() => {
     let mounted = true;
 
     (async () => {
-      const suggestedGasPrice = await getSuggestedGasPrice(networkType);
+      const suggestedGasPrices = await getSuggestedGasPrices(networkType);
 
       if (!mounted) {
         return;
       }
 
       // TODO: BN
-      setSuggestedGasPrice(suggestedGasPrice);
-      setGasPrice(suggestedGasPrice);
+      setSuggestedGasPrices(suggestedGasPrices);
+      setGasPrice(suggestedGasPrices.average.price);
     })();
 
     return () => (mounted = true);
   }, [networkType]);
 
-  const resetGasPrice = useCallback(() => setGasPrice(suggestedGasPrice), [
-    suggestedGasPrice,
-  ]);
+  const resetGasPrice = useCallback(
+    () => setGasPrice(suggestedGasPrices.average.price),
+    [suggestedGasPrices]
+  );
 
   return {
-    suggestedGasPrice,
+    suggestedGasPrices,
     gasPrice,
     setGasPrice,
     resetGasPrice,

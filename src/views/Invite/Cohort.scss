@@ -79,7 +79,7 @@
           padding: 3px 8px;
         }
 
-        .copy-invite {
+        .copy-invite, .ticket-loader {
           background-color: $washed-gray;
           border-radius: $medium-border-radius;
           width: 32px;
@@ -88,12 +88,17 @@
           flex-direction: column;
           justify-content: center;
           align-items: center;
+        }
 
-          svg {
-            font-size: 16px;
-            margin-top: 6px;
-            margin-right: 4px;
-          }
+        .copy-invite svg {
+          font-size: 16px;
+          margin-top: 6px;
+          margin-right: 4px;
+        }
+
+        .ticket-loader > svg {
+          width: 16px;
+          height: 16px;
         }
       }
 

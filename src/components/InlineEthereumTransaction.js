@@ -1,34 +1,21 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import cn from 'classnames';
-import {
-  Grid,
-  ToggleInput,
-  ErrorText,
-  Flex,
-  LinkButton,
-  H5,
-  Text,
-} from 'indigo-react';
+import { Grid, ErrorText, Flex, LinkButton, H5 } from 'indigo-react';
 import { toBN } from 'web3-utils';
 
-import { ReactComponent as InfoIcon } from 'assets/info.svg';
-
 import { useExploreTxUrls } from 'lib/explorer';
-import { hexify } from 'lib/txn';
 import { safeFromWei, safeToWei } from 'lib/lib';
 
 import { composeValidator, buildCheckboxValidator } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
-import Condition from 'form/Condition';
 
 import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
-import CopyButton from './copiable/CopyButton';
 import ProgressButton from './ProgressButton';
-import { convertToInt } from 'lib/convertToInt';
 import NeedFundsNotice from './NeedFundsNotice';
 import NoticeBox from './NoticeBox';
 
 import './InlineEthereumTransaction.scss';
+import FeeDropdown from './L2/Dropdowns/FeeDropdown';
 
 export default function InlineEthereumTransaction({
   // from useEthereumTransaction.bind
@@ -47,10 +34,7 @@ export default function InlineEthereumTransaction({
   setGasPrice,
   resetGasPrice,
   txHashes,
-  nonce,
-  chainId,
   needFunds,
-  signedTransactions,
   confirmationProgress,
   gasLimit,
   unsignedTransactions,
@@ -75,12 +59,6 @@ export default function InlineEthereumTransaction({
   const canBroadcast = signed && !needFunds;
   // show signed tx only when signing (for offline usage)
   const showSignedTx = signed;
-
-  const [showGasDetails, _setShowGasDetails] = useState(false);
-  const toggleGasDetails = useCallback(
-    () => _setShowGasDetails(!showGasDetails),
-    [_setShowGasDetails, showGasDetails]
-  );
 
   const validate = useMemo(
     () =>
@@ -182,13 +160,6 @@ export default function InlineEthereumTransaction({
     }
   };
 
-  const serializedTxsHex = useMemo(
-    () =>
-      signedTransactions &&
-      signedTransactions.map(stx => hexify(stx.serialize())),
-    [signedTransactions]
-  );
-
   const numTxs = useMemo(() => (unsignedTransactions || []).length || 1, [
     unsignedTransactions,
   ]);
@@ -206,18 +177,36 @@ export default function InlineEthereumTransaction({
     [gasLimit, gasPrice, numTxs]
   );
 
-  const gasInfo = useMemo(() => {
-    const extra = numTxs === 1 ? '' : `*  ${numTxs} txs`;
-    return showGasDetails
-      ? `${gasPrice} Gwei * ${gasLimit} ${extra} = ${maxCost} ETH`
-      : `${maxCost} ETH`;
-  }, [showGasDetails, maxCost, gasPrice, gasLimit, numTxs]);
-
   return (
     <Grid className={cn(className, 'mt1')}>
       <BridgeForm validate={validate} onValues={onValues}>
         {() => (
           <>
+            {showConfigureInput && (
+              <>
+                <Grid.Item
+                  className="mt2 text eth-tx-button"
+                  full
+                  as={Flex}
+                  row
+                  justify="between">
+                  <Flex.Item as={H5}>Gas Fee</Flex.Item>
+                  <FeeDropdown setGasPrice={setGasPrice} />
+                </Grid.Item>
+
+                <Grid.Item
+                  className="mt2 text eth-tx-button"
+                  full
+                  as={Flex}
+                  row
+                  justify="between">
+                  <Flex.Item as={H5}>Max Transaction Cost</Flex.Item>
+                  <Flex.Item as={H5}>{maxCost} ETH</Flex.Item>
+                </Grid.Item>
+                <Grid.Divider className="mt4" />
+              </>
+            )}
+
             {renderPrimarySection()}
 
             {error && (
@@ -235,66 +224,6 @@ export default function InlineEthereumTransaction({
               />
             )}
 
-            {showConfigureInput && (
-              <>
-                <Grid.Item
-                  className="eth-tx-button"
-                  full
-                  as={ToggleInput}
-                  name="useAdvanced"
-                  label="Advanced"
-                  inverseLabel="Back to Defaults"
-                  inverseColor="red3"
-                  disabled={!showConfigureInput || initializing}
-                />
-
-                <Condition when="useAdvanced" is={true}>
-                  <Grid.Item className="mb2 eth-tx-button" full></Grid.Item>
-                  <Grid.Divider />
-                  <Grid.Item
-                    className="mt2 eth-tx-button"
-                    full
-                    as={Flex}
-                    row
-                    justify="between">
-                    <Flex.Item as={H5}>Transaction Fee</Flex.Item>
-
-                    <Flex.Item as={H5}>
-                      {gasInfo}{' '}
-                      <InfoIcon
-                        className="pointer"
-                        onClick={toggleGasDetails}
-                      />
-                    </Flex.Item>
-                  </Grid.Item>
-
-                  {/* TODO(shrugs): move to indigo/RangeInput */}
-                  <Grid.Item
-                    className="eth-tx-button"
-                    full
-                    as="input"
-                    type="range"
-                    min="1"
-                    max="400"
-                    value={gasPrice}
-                    onChange={e =>
-                      setGasPrice(convertToInt(e.target.value, 10))
-                    }
-                  />
-                  <Grid.Item
-                    className="f6 mt1 eth-tx-button"
-                    full
-                    as={Flex}
-                    row
-                    justify="between">
-                    <Flex.Item as={Text}>Cheap</Flex.Item>
-                    <Flex.Item as={Text}>Fast</Flex.Item>
-                  </Grid.Item>
-                  <Grid.Divider className="mt4" />
-                </Condition>
-              </>
-            )}
-
             {showSignedTx && fakeSigned && (
               <>
                 <Grid.Item className="mt2 eth-tx-button" full as={NoticeBox}>
@@ -302,73 +231,11 @@ export default function InlineEthereumTransaction({
                 </Grid.Item>
               </>
             )}
-
-            {showSignedTx && !fakeSigned && (
-              <>
-                <Grid.Item
-                  className="eth-tx-button"
-                  full
-                  as={ToggleInput}
-                  name="viewSigned"
-                  label="Signed Transaction"
-                  inverseLabel="Hide"
-                  disabled={!showSignedTx}
-                />
-                <Condition when="viewSigned" is={true}>
-                  <SignedTransactionList
-                    serializedTxsHex={serializedTxsHex}
-                    maxCost={maxCost}
-                    nonce={nonce}
-                  />
-                </Condition>
-              </>
-            )}
           </>
         )}
       </BridgeForm>
     </Grid>
   );
-}
-
-function SignedTransactionList({ serializedTxsHex, nonce, maxCost }) {
-  return serializedTxsHex.map((serializedTxHex, i) => (
-    <React.Fragment key={i}>
-      <Grid.Divider />
-      <Grid.Item
-        className="pv4 black f5 eth-tx-button"
-        full
-        as={Flex}
-        justify="between">
-        <Flex.Item>Nonce</Flex.Item>
-        <Flex.Item>{nonce + i}</Flex.Item>
-      </Grid.Item>
-      <Grid.Divider />
-      <Grid.Item
-        className="pv4 black f5 eth-tx-button"
-        full
-        as={Flex}
-        justify="between">
-        <Flex.Item>Transaction Cost</Flex.Item>
-        <Flex.Item>{maxCost} ETH</Flex.Item>
-      </Grid.Item>
-      <Grid.Divider />
-      <Grid.Item
-        className="mt3 mb2 eth-tx-button"
-        full
-        as={Flex}
-        justify="between">
-        <Flex.Item as={H5}>Signed Transaction Hex</Flex.Item>
-        <Flex.Item as={CopyButton} text={serializedTxHex} />
-      </Grid.Item>
-      <Grid.Item
-        className="mb4 f6 mono gray4 wrap eth-tx-button"
-        full
-        as="code">
-        {serializedTxHex}
-      </Grid.Item>
-      <Grid.Divider />
-    </React.Fragment>
-  ));
 }
 
 function TransactionReceipt({ txHashes, finalCost, onClose }) {

@@ -2,24 +2,19 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import _ from 'lodash';
 import * as azimuth from 'azimuth-js';
 import * as need from 'lib/need';
-import * as ob from 'urbit-ob';
 import { Just } from 'folktale/maybe';
 
 import { Invite } from 'lib/types/Invite';
 import { convertToInt } from './convertToInt';
 import { isDevelopment, isRopsten } from './flags';
-import { hasPoint, generateInviteWallet } from './utils/roller';
-import { ROLLER_HOSTS } from './constants';
+import { hasInvite, generateInviteWallet } from './utils/roller';
+import { INVITES_PER_PAGE, ROLLER_HOSTS } from './constants';
 
 import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
 import { useRollerStore } from 'store/roller';
 import { useWallet } from 'store/wallet';
-import {
-  getStoredInvites,
-  setPendingInvites,
-  setStoredInvites,
-} from 'store/storage/roller';
+import { getStoredInvites, setStoredInvites } from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints } from 'views/Points';
 import {
@@ -63,6 +58,18 @@ function isShipNumber(ship: number | string | undefined): ship is number {
   return (ship as number) !== undefined;
 }
 
+const inviteTemplate = (
+  planet: number,
+  ticket = '',
+  owner = '',
+  hash = ''
+): Invite => ({
+  planet,
+  ticket,
+  owner,
+  hash,
+});
+
 export default function useRoller() {
   const { wallet, authToken, authMnemonic, urbitWallet }: any = useWallet();
   const { pointCursor }: any = usePointCursor();
@@ -73,11 +80,14 @@ export default function useRoller() {
 
   const {
     nextBatchTime,
+    currentL2,
+    invitePoints,
     setNextBatchTime,
     setNextRoll,
     setPendingTransactions,
     setInvites,
-    currentL2,
+    setInvitePoints,
+    setInviteGeneratingNum,
   } = useRollerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
@@ -176,6 +186,7 @@ export default function useRoller() {
       });
 
       for (let i = 0; i < numInvites && planets[i]; i++) {
+        setInviteGeneratingNum(i + 1);
         const planet = planets[i];
         const nonceInc = i + nonce;
 
@@ -237,16 +248,6 @@ export default function useRoller() {
           owner: inviteWallet.ownership.keys.address,
         });
       }
-
-      const hashes = await Promise.all(requests);
-
-      const pendingInvites: Invite[] = tickets.map((ticket, ind) => ({
-        ...ticket,
-        hash: hashes[ind * 3 + 2],
-        status: 'pending',
-      }));
-
-      setPendingInvites(_point, pendingInvites);
     },
     [
       api,
@@ -257,6 +258,7 @@ export default function useRoller() {
       web3,
       getDetails,
       authMnemonic,
+      setInviteGeneratingNum,
     ]
   );
 
@@ -284,6 +286,7 @@ export default function useRoller() {
     try {
       const curPoint = Number(need.point(pointCursor));
       const newPending = await api.getPendingByShip(curPoint);
+
       setPendingTransactions(newPending);
 
       // const allTransactions = await api.getHistory()
@@ -293,102 +296,75 @@ export default function useRoller() {
   }, [api, setPendingTransactions, pointCursor]);
 
   const getInvites = useCallback(
-    async (isL2: boolean) => {
+    async (isL2: boolean, page: number, getAll = false) => {
       try {
         const curPoint: number = Number(need.point(pointCursor));
-        const invites = getStoredInvites(curPoint);
-        const availableInvites = invites.available;
-        const pendingTransactions = await api.getPendingByShip(curPoint);
-        if (isDevelopment) {
-          console.log('PENDING', pendingTransactions);
+        const storedInvites = getStoredInvites(curPoint);
+        if (storedInvites.length) {
+          setInvites(storedInvites);
+        } else {
+          setInvites(invitePoints.map(p => inviteTemplate(p)));
         }
-        setPendingTransactions(pendingTransactions);
-
-        const stillPending = invites.pending.filter(invite => {
-          const completed = !pendingTransactions.find(
-            p => `~${p?.rawTx?.tx?.data?.ship}` === ob.patp(invite.planet)
-          );
-
-          if (
-            completed &&
-            !availableInvites.find(({ planet }) => invite.planet === planet)
-          ) {
-            availableInvites.push({ ...invite, status: 'available' });
-          }
-
-          return !completed;
-        });
-
-        setStoredInvites(curPoint, {
-          available: availableInvites,
-          pending: stillPending,
-        });
-        setInvites(availableInvites);
 
         const _authToken = authToken.getOrElse(null);
         const _contracts = contracts.getOrElse(null);
 
         if (_authToken && _contracts) {
-          let possibleMissingInvites: number[] = [];
-          let availablePoints: number[] = [];
-          if (isL2) {
-            possibleMissingInvites = await api.getSpawned(curPoint);
-            availablePoints = await api.getUnspawned(curPoint);
-          } else {
-            // TODO: should it be removed?
-            availablePoints = await azimuth.azimuth.getUnspawnedChildren(
-              _contracts,
-              curPoint
-            );
-          }
+          const spawnedPoints = isL2 ? await api.getSpawned(curPoint) : [];
+
+          const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
+            _contracts,
+            curPoint
+          );
 
           const outgoingPoints = getOutgoingPoints(
             controlledPoints,
             getDetails
-          );
+          ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
 
-          possibleMissingInvites = possibleMissingInvites.concat(
-            outgoingPoints.filter(
-              (p: number) => isPlanet(p) && availablePoints.includes(p)
-            )
-          );
+          const invitePlanets = spawnedPoints.concat(outgoingPoints);
 
-          // Iterate over all spawned and controlled planets
-          // If the planet is not in available invites, generate the ticket and add it
           if (isDevelopment) {
-            console.log('POSSIBLE MISSING', possibleMissingInvites);
+            console.log('INVITED PLANETS', invitePlanets);
           }
-          // TODO: this can be verym slow, so best to allow the user to manually
-          // reveal the ticket, after checking if the invite is still "active"
-          // (i.e. if the address inferred from the derived inviteWallet corresponds to
-          // to the address the point has as owner)
-          //
-          for (let i = 0; i < possibleMissingInvites.length; i++) {
-            const planet = possibleMissingInvites[i];
-            if (!availableInvites.find(hasPoint(planet))) {
-              console.log('MISSING IN AVAILABLE', planet);
+
+          const newInvites: Invite[] = [];
+          // Iterate over all of the stored invites, generating wallet info as necessary
+          for (let i = 0; i < invitePlanets.length; i++) {
+            setInviteGeneratingNum(i + 1);
+            const planet = invitePlanets[i];
+            const invite = storedInvites.find(hasInvite(planet));
+
+            const start = page * INVITES_PER_PAGE;
+            const end = start + INVITES_PER_PAGE;
+
+            if (invite) {
+              newInvites.push(invite);
+            } else if (getAll || (i >= start && i < end)) {
+              if (isDevelopment) {
+                console.log('MISSING INVITE INFO', planet);
+              }
               const { ticket, inviteWallet } = await generateInviteWallet(
                 planet,
                 _authToken
               );
 
-              availableInvites.push({
-                ticket,
-                status: 'available',
-                planet,
-                hash: '',
-                owner: inviteWallet.ownership.keys.address,
-              });
+              newInvites.push(
+                inviteTemplate(
+                  planet,
+                  ticket,
+                  inviteWallet.ownership.keys.address
+                )
+              );
+            } else {
+              newInvites.push(inviteTemplate(planet));
             }
           }
 
-          setStoredInvites(curPoint, {
-            available: availableInvites.filter(({ planet }) =>
-              possibleMissingInvites.includes(planet)
-            ),
-            pending: stillPending,
-          });
-          setInvites(availableInvites);
+          setStoredInvites(curPoint, newInvites);
+          setInvites(newInvites);
+
+          return newInvites;
         }
       } catch (error) {
         console.warn('ERROR GETTING INVITES', error);
@@ -401,8 +377,48 @@ export default function useRoller() {
       controlledPoints,
       getDetails,
       pointCursor,
+      invitePoints,
       setInvites,
-      setPendingTransactions,
+      setInviteGeneratingNum,
+    ]
+  );
+
+  const getNumInvites = useCallback(
+    async (isL2: boolean) => {
+      try {
+        const curPoint: number = Number(need.point(pointCursor));
+        const _authToken = authToken.getOrElse(null);
+        const _contracts = contracts.getOrElse(null);
+
+        if (_authToken && _contracts) {
+          let invitePoints = isL2 ? await api.getSpawned(curPoint) : [];
+
+          const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
+            _contracts,
+            curPoint
+          );
+
+          const outgoingPoints = getOutgoingPoints(
+            controlledPoints,
+            getDetails
+          ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
+
+          setInvitePoints(invitePoints.concat(outgoingPoints));
+        }
+      } catch (e) {
+        if (isDevelopment) {
+          console.warn(e);
+        }
+      }
+    },
+    [
+      api,
+      pointCursor,
+      setInvitePoints,
+      authToken,
+      contracts,
+      controlledPoints,
+      getDetails,
     ]
   );
 
@@ -632,7 +648,7 @@ export default function useRoller() {
           setNextBatchTime(response.nextBatch);
         });
 
-        getInvites(currentL2);
+        getInvites(currentL2, 0);
       }
     }, 1000);
 
@@ -650,5 +666,6 @@ export default function useRoller() {
     transferPoint,
     setProxyAddress,
     configureNetworkingKeys,
+    getNumInvites,
   };
 }

@@ -6,13 +6,8 @@ import 'style/anim.css';
 import { sigil, reactRenderer } from 'urbit-sigil-js';
 import { Icon } from '@tlon/indigo-react';
 
-import * as need from 'lib/need';
 import { chunkStr, Matrix, walk, rand } from 'lib/card';
-import usePermissionsForPoint from 'lib/usePermissionsForPoint';
 import { useSyncDetails } from 'lib/useSyncPoints';
-import { buildKeyType } from 'lib/point';
-
-import { useWallet } from 'store/wallet';
 
 import './SigilMini.scss';
 
@@ -40,9 +35,9 @@ const symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 function Passport({
   address,
   point,
-  inverted,
+  inverted = false,
   animationMode = 'none',
-  keyType,
+  keyType = '',
 }) {
   const [cols, rows, tile] = [35, 12, 12];
 

@@ -1,6 +1,6 @@
-import { signTransactionHash } from 'lib/authToken';
-import { Invite } from 'lib/types/Invite';
 import { Just, Nothing } from 'folktale/maybe';
+import { Invite } from 'lib/types/Invite';
+import { signTransactionHash } from 'lib/authToken';
 import { randomHex } from 'web3-utils';
 
 import RollerRPCAPI, {
@@ -112,14 +112,14 @@ export const configureKeys = async (
 export const transferPointRequest = async (
   api: RollerRPCAPI,
   _wallet: any,
-  _point: Ship,
+  pointToTransfer: Ship,
   proxy: string,
   nonce: number,
   address: string,
   reset?: boolean
 ) => {
   const from = {
-    ship: _point, // ship to transfer
+    ship: pointToTransfer,
     proxy,
   };
 
@@ -197,3 +197,6 @@ export const registerProxyAddress = async (
 };
 
 export const reticketL2Point = async () => {};
+
+export const hasInvite = (point: number) => (invite: Invite) =>
+  invite.planet === point && invite.ticket.length > 0;

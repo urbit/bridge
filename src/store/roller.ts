@@ -11,13 +11,17 @@ export interface RollerStore {
   currentPoint: L2Point | null;
   currentL2: boolean;
   currentL2Spawn: boolean;
+  invitePoints: number[];
   invites: Invite[];
   recentlyCompleted: number;
+  inviteGeneratingNum: number;
   setNextBatchTime: (nextBatchTime: number) => void;
   setNextRoll: (nextRoll: string) => void;
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) => void;
   setCurrentPoint: (currentPoint: L2Point) => void;
+  setInvitePoints: (points: number[]) => void;
   setInvites: (invites: Invite[]) => void;
+  setInviteGeneratingNum: (numGenerating: number) => void;
 }
 
 export const useRollerStore = create<RollerStore>(set => ({
@@ -27,8 +31,10 @@ export const useRollerStore = create<RollerStore>(set => ({
   currentPoint: null,
   currentL2: false,
   currentL2Spawn: false,
+  invitePoints: [],
   invites: [],
   recentlyCompleted: 0,
+  inviteGeneratingNum: 0,
   setNextBatchTime: (nextBatchTime: number) => set(() => ({ nextBatchTime })),
   setNextRoll: (nextRoll: string) => set(() => ({ nextRoll })),
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) =>
@@ -49,5 +55,8 @@ export const useRollerStore = create<RollerStore>(set => ({
       currentL2: isL2(currentPoint?.dominion),
       currentL2Spawn: isL2Spawn(currentPoint?.dominion),
     })),
+  setInvitePoints: (invitePoints: number[]) => set(() => ({ invitePoints })),
   setInvites: (invites: Invite[]) => set(() => ({ invites })),
+  setInviteGeneratingNum: (inviteGeneratingNum: number) =>
+    set(() => ({ inviteGeneratingNum })),
 }));

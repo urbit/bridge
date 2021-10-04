@@ -1,15 +1,15 @@
 import React from 'react';
 
 import useCopiable from 'lib/useCopiable';
-import WithTooltip from 'components/WithTooltip';
+import WithTooltip, { TooltipPosition } from 'components/WithTooltip';
 import { Icon } from '@tlon/indigo-react';
 
 export default function CopiableWithTooltip({
   as: As = 'span',
   text,
-  children,
+  children = null,
   className,
-  position,
+  position = TooltipPosition.Top,
   ...rest
 }) {
   const [doCopy, didCopy] = useCopiable(text || children);

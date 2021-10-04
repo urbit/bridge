@@ -81,7 +81,8 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
       toggleOpen={() => setOpen(!open)}>
       <CopiableAddressWrap
         className="current-address"
-        position={TooltipPosition.Left}>
+        position={TooltipPosition.Left}
+        text={currentAddress}>
         {displayAddress}
       </CopiableAddressWrap>
       <Box className="divider" />
