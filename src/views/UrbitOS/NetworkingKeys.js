@@ -143,7 +143,7 @@ export default function UrbitOSNetworkingKeys({
   const { pop } = useLocalRouter();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
-  const { currentL2 } = useRollerStore();
+  const { currentL2, currentL2Spawn } = useRollerStore();
   const { configureNetworkingKeys, getPendingTransactions } = useRoller();
   const [breach, setBreach] = useState(false);
 
@@ -321,7 +321,7 @@ export default function UrbitOSNetworkingKeys({
                 </>
               )}
 
-              {currentL2 ? (
+              {currentL2 && !currentL2Spawn ? (
                 <Grid.Item
                   as={Button}
                   full
