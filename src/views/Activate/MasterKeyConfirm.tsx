@@ -20,6 +20,8 @@ import FormError from 'form/FormError';
 import useFadeIn from './useFadeIn';
 import { HiddenInput, TicketSegmentInput } from 'form/Inputs';
 import View from 'components/View';
+import NavHeader from 'components/NavHeader';
+import { MiniBackButton } from 'components/MiniBackButton';
 
 const MasterKeyConfirm = () => {
   const { derivedWallet, setIsIn } = useActivateFlow();
@@ -64,6 +66,12 @@ const MasterKeyConfirm = () => {
     push(names.TRANSFER);
   }, [names.TRANSFER, push, setIsIn]);
 
+  const goBack = useCallback(async () => {
+    setIsIn(false);
+    await timeout(DEFAULT_FADE_TIMEOUT); // Pause for UI fade animation
+    push(names.DOWNLOAD);
+  }, [names.DOWNLOAD, push, setIsIn]);
+
   const header = useMemo(() => {
     return (
       <Box>
@@ -80,7 +88,18 @@ const MasterKeyConfirm = () => {
   useFadeIn();
 
   return (
-    <View centered={true} inset>
+    <View centered={true}>
+      <NavHeader>
+        <Box
+          marginBottom={'10px'}>
+          <MiniBackButton
+            hpadding={true}
+            vpadding={true}
+            onClick={goBack}
+            className=""
+          />
+        </Box>
+      </NavHeader>
       <ActivateView
         header={header}
         gridRows={'20% 80%'}

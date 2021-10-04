@@ -123,7 +123,7 @@ const MasterKeyTransfer = () => {
   }, [error]);
 
   return (
-    <View centered={true} inset>
+    <View centered={true}>
       <ActivateView header={header} footer={footer}>
         <Box
           alignItems={'center'}

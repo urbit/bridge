@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import ActivateView from './ActivateView';
 import { FadeableActivateHeader as ActivateHeader } from './ActivateHeader';
-import { MasterKey } from './MasterKey';
+import { FadeableMasterKey as MasterKey } from './MasterKey';
 import { Box, Icon } from '@tlon/indigo-react';
 import { FadeableActivateParagraph as ActivateParagraph } from './ActivateParagraph';
 import { FadeableActivateSteps as ActivateSteps } from './ActivateSteps';
@@ -17,6 +17,7 @@ const MasterKeyReveal = () => {
   const { setIsIn } = useActivateFlow();
   const { push, names } = useLocalRouter();
   const [triggerAnimation, setTriggerAnimation] = useState<boolean>(false);
+  const [fadeOutKey, setFadeOutKey] = useState<boolean>(false);
 
   const goToDownload = useCallback(() => {
     push(names.DOWNLOAD);
@@ -25,6 +26,7 @@ const MasterKeyReveal = () => {
   const onRevealClick = useCallback(async () => {
     setTriggerAnimation(false);
     setIsIn(false);
+    setFadeOutKey(true);
     await timeout(DEFAULT_FADE_TIMEOUT); // Pause for UI fade animation
     goToDownload();
   }, [goToDownload, setIsIn]);
@@ -72,7 +74,7 @@ const MasterKeyReveal = () => {
   }, [delayedFadeIn, setIsIn]);
 
   return (
-    <View centered={true} inset>
+    <View centered={true}>
       <ActivateView
         header={triggerAnimation && header}
         footer={triggerAnimation && footer}>
@@ -90,7 +92,7 @@ const MasterKeyReveal = () => {
             width={'80%'}
             height={'min-content'}
             justifyContent={'center'}>
-            <MasterKey />
+            <MasterKey overrideFadeIn={!fadeOutKey} />
           </Box>
         </Box>
       </ActivateView>
