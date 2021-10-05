@@ -26,11 +26,24 @@ const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
     from: toHex(txn.from),
   };
 
-  //NOTE  since this gives us a receipt instead of just the hash of the signed
-  //      tx, it makes us wait for confirmation outside of our own
-  //      waitForTransactionConfirm. because of this the progress bar loses
-  //      its progressiveness for metamask users.
-  //TODO  can we do better?
-  const receipt = await web3.eth.sendTransaction(metamaskFormattedTxn);
-  return receipt.transactionHash;
+  let txHash;
+  if (window.ethereum) {
+    //NOTE  see also #596, #630, #646
+    //      no idea what's going on, we should figure it out,
+    //      but we apply this bandaid to hopefully stop the bleeding.
+    //      at least it also helps with the NOTE of the other branch.
+    txHash = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [metamaskFormattedTxn],
+      from: txn.from,
+    });
+  } else {
+    //NOTE  since this gives us a receipt instead of just the hash of the
+    //      signed tx, it makes us wait for confirmation outside of our own
+    //      waitForTransactionConfirm. because of this the progress bar loses
+    //      its progressiveness for metamask users.
+    let receipt = await await web3.eth.sendTransaction(metamaskFormattedTxn);
+    txHash = receipt.transactionHash;
+  }
+  return txHash;
 };
