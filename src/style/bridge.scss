@@ -28,3 +28,10 @@ div.copy-button-wide {
     font-size: 0.75rem;
   }
 }
+
+// Animations for Activate Flow
+div.danger-box, div.mk-copy {
+  &.hidden {
+    opacity: 0;
+  }
+}

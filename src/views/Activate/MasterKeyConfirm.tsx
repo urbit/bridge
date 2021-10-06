@@ -90,8 +90,7 @@ const MasterKeyConfirm = () => {
   return (
     <View centered={true}>
       <NavHeader>
-        <Box
-          marginBottom={'10px'}>
+        <Box marginBottom={'10px'}>
           <MiniBackButton
             hpadding={true}
             vpadding={true}
