@@ -168,6 +168,12 @@ export default function Ledger({ className, goHome }) {
         message outside of Bridge.
       </Grid.Item>
 
+      <Grid.Item full as={Text} className="f6 gray4 mb3">
+        Connecting a Ledger directly is no longer supported in Chrome-based
+        browsers. To log in to Bridge with a Ledger, either use Firefox, add
+        your Ledger to Metamask, or connect through another kind of wallet.
+      </Grid.Item>
+
       <BridgeForm
         validate={validate}
         onValues={onValues}
