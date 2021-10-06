@@ -218,6 +218,7 @@ export function TicketSegmentInput({ name, ...rest }) {
       autoCapitalize="none"
       autoCorrect="off"
       type="text"
+      maxlength="6"
       {...input}
       {...rest}
     />
