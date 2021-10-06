@@ -25,6 +25,7 @@ const MasterKeyDownload = () => {
   const {
     derivedPoint,
     derivedWallet,
+    isIn,
     setGenerated,
     setIsIn,
   } = useActivateFlow();
@@ -115,13 +116,19 @@ const MasterKeyDownload = () => {
           flexWrap={'nowrap'}
           height={'100%'}
           justifyContent={'space-evenly'}>
-          {triggerAnimation && (
-            <DangerBox>Do not share this with anyone else!</DangerBox>
-          )}
+          <DangerBox
+            overrideFadeIn={triggerAnimation && isIn}
+            className={!isIn ? 'hidden' : ''}>
+            Do not share this with anyone else!
+          </DangerBox>
           {ticket && (
             <MasterKeyPresenter ticket={ticket} overrideFadeIn={true} />
           )}
-          {triggerAnimation && <MasterKeyCopy text={ticket} />}
+          <MasterKeyCopy
+            text={ticket}
+            overrideFadeIn={triggerAnimation && isIn}
+            className={!isIn ? 'hidden' : ''}
+          />
         </Box>
       </ActivateView>
       <ActivateSteps currentStep={1} totalSteps={4} />

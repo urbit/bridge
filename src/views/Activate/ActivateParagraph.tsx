@@ -20,8 +20,6 @@ const ActivateParagraph = ({ copy }: ActivateParagraphProps) => {
         fontSize={2}
         lineHeight={'20px'}
         color={'rgba(0,0,0,0.6)'}
-        mx={3}
-        my={3}
         textAlign="center"
         width={'80%'}>
         {copy}
