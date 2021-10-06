@@ -13,6 +13,8 @@ import PointPresenter from './PointPresenter';
 import DangerBox from './DangerBox';
 import View from 'components/View';
 
+import { isMacOs, isWindows } from 'react-device-detect';
+
 const MasterKeyTransfer = () => {
   const { performL2Reticket } = useRoller();
   const {
@@ -44,6 +46,22 @@ const MasterKeyTransfer = () => {
     derivedPoint.value,
     inviteWallet.value,
   ]);
+
+  const downloadButtonLabel = useMemo(() => {
+    return isMacOs
+      ? 'Download the Client for Mac'
+      : isWindows
+      ? 'Download the Client for Windows'
+      : 'Download the Client for Your OS';
+  }, []);
+
+  const downloadUrl = useMemo(() => {
+    return isMacOs
+      ? `https://github.com/urbit/port/releases/latest/download/Port.dmg`
+      : isWindows
+      ? 'https://github.com/urbit/urbit/releases/download/latest/windows.tgz'
+      : 'https://github.com/urbit/port/releases/download/latest';
+  }, []);
 
   useFadeIn();
 
@@ -95,14 +113,10 @@ const MasterKeyTransfer = () => {
         justifyContent={'space-between'}>
         {error && <DangerBox>{error.toString()}</DangerBox>}
         <ActivateButton
-          onClick={() =>
-            window.open(
-              'https://github.com/urbit/port/releases/latest/download/Port.dmg'
-            )
-          }
+          onClick={() => window.open(downloadUrl)}
           disabled={error}
           success={true}>
-          Download the Client for Mac
+          {downloadButtonLabel}
         </ActivateButton>
         <Anchor
           href="https://urbit.org/getting-started/cli"
@@ -120,7 +134,7 @@ const MasterKeyTransfer = () => {
         </Anchor>
       </Box>
     );
-  }, [error]);
+  }, [downloadButtonLabel, downloadUrl, error]);
 
   return (
     <View centered={true}>
