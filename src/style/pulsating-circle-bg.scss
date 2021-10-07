@@ -1,0 +1,18 @@
+@keyframes pulsating-circular-bg {
+  0% {
+    box-shadow: 0 0 3.3em 0.2em #00DD66;
+  }
+  50% {
+    box-shadow: 0 0 3.3em 2em #00DD66;
+  }
+  100% {
+    box-shadow: 0 0 3.3em 0.2em #00DD66;
+  }
+}
+
+div.pulsating-background {
+  &.enter {
+    border-radius: 50%;
+    animation: pulsating-circular-bg 6000ms ease-in-out infinite;
+  }  
+}
