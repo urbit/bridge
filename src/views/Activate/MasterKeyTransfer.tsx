@@ -7,13 +7,12 @@ import { useActivateFlow } from './ActivateFlow';
 import ActivateView from './ActivateView';
 import useRoller from 'lib/useRoller';
 import { FadeableActivateHeader as ActivateHeader } from './ActivateHeader';
-import { FadeableActivateButton as ActivateButton } from './ActivateButton';
 import useFadeIn from './useFadeIn';
 import PointPresenter from './PointPresenter';
 import DangerBox from './DangerBox';
 import View from 'components/View';
 
-import { isMacOs, isWindows } from 'react-device-detect';
+import { DownloadPortButton } from './DownloadPortButton';
 
 const MasterKeyTransfer = () => {
   const { performL2Reticket } = useRoller();
@@ -36,9 +35,9 @@ const MasterKeyTransfer = () => {
         toWallet: derivedWallet.value,
         fromWallet: inviteWallet.value,
       });
-    } catch (error) {
-      console.error(error);
-      setError(error);
+    } catch (e) {
+      console.error(e);
+      setError(e);
     }
   }, [
     derivedWallet,
@@ -46,22 +45,6 @@ const MasterKeyTransfer = () => {
     derivedPoint.value,
     inviteWallet.value,
   ]);
-
-  const downloadButtonLabel = useMemo(() => {
-    return isMacOs
-      ? 'Download the Client for Mac'
-      : isWindows
-      ? 'Download the Client for Windows'
-      : 'Download the Client for Your OS';
-  }, []);
-
-  const downloadUrl = useMemo(() => {
-    return isMacOs
-      ? `https://github.com/urbit/port/releases/latest/download/Port.dmg`
-      : isWindows
-      ? 'https://github.com/urbit/urbit/releases/download/latest/windows.tgz'
-      : 'https://github.com/urbit/port/releases/download/latest';
-  }, []);
 
   useFadeIn();
 
@@ -112,12 +95,7 @@ const MasterKeyTransfer = () => {
         flexWrap={'nowrap'}
         justifyContent={'space-between'}>
         {error && <DangerBox>{error.toString()}</DangerBox>}
-        <ActivateButton
-          onClick={() => window.open(downloadUrl)}
-          disabled={error}
-          success={true}>
-          {downloadButtonLabel}
-        </ActivateButton>
+        <DownloadPortButton error={error} />
         <Anchor
           href="https://urbit.org/getting-started/cli"
           marginTop={'20px'}
@@ -134,7 +112,7 @@ const MasterKeyTransfer = () => {
         </Anchor>
       </Box>
     );
-  }, [downloadButtonLabel, downloadUrl, error]);
+  }, [error]);
 
   return (
     <View centered={true}>
