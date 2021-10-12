@@ -104,3 +104,14 @@ export const ticketToSegments = (ticket: string): string[] => {
 export const ticketFromSegments = (segments: string[]): string => {
   return ensureSigPrefix(segments.join('-'));
 };
+
+export const capitalize = (s: string) => {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+export const titleize = (s: string): string => {
+  return s
+    .split(' ')
+    .map(_s => capitalize(_s))
+    .join(' ');
+};

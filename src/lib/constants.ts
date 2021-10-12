@@ -128,6 +128,28 @@ const INVITES_PER_PAGE = 7;
 const DEFAULT_NUM_INVITES = 5;
 const DEFAULT_CSV_NAME = 'urbit_invites.csv';
 
+const TRANSACTION_STATUS_ICONS = {
+  confirmed: 'Checkmark',
+  pending: 'Clock',
+  sending: 'ArrowEast',
+  failed: 'X',
+  unknown: 'NullIcon',
+};
+
+const TRANSACTION_TYPE_ICONS = {
+  spawn: 'ArrowEast',
+  'configure-keys': 'Gear',
+  'transfer-point': 'Swap',
+  'set-management-proxy': 'ArrowRefresh',
+};
+
+const TRANSACTION_TYPE_TITLES = {
+  spawn: 'Point Issued',
+  'configure-keys': 'Network Keys Configured',
+  'transfer-point': 'Point Transferred',
+  'set-management-proxy': 'Management Key Changed',
+};
+
 export {
   CHECK_BLOCK_EVERY_MS,
   DEFAULT_GAS_PRICE_GWEI,
@@ -163,4 +185,7 @@ export {
   INVITES_PER_PAGE,
   DEFAULT_NUM_INVITES,
   DEFAULT_CSV_NAME,
+  TRANSACTION_STATUS_ICONS,
+  TRANSACTION_TYPE_ICONS,
+  TRANSACTION_TYPE_TITLES,
 };

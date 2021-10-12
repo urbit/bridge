@@ -1,0 +1,138 @@
+@import 'style/shared/variables.scss';
+
+.transaction-history {
+
+  .transaction-container {
+    width: 100%;
+  }
+
+  .transaction-row {
+    display: grid;
+    grid-template-areas: "icon info";
+    grid-template-columns: 18px auto;
+    grid-template-rows: auto;
+    column-gap: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+
+    .icon {
+      grid-area: icon;
+      padding-top: 3px;
+
+      svg {
+        height: 18px;
+        width: 18px;
+      }
+    }
+
+    .info {
+      grid-area: info;
+
+    }
+
+    .title-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+        
+      .title {
+        font-family: Inter;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 24px;
+        letter-spacing: -0.011em;
+      }
+
+      .status {
+        .badge {
+          width: 78px;
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: space-between;
+          align-items: center;
+          font-family: Inter;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 18px;
+          letter-spacing: 0em;
+          text-align: center;
+          color: white;
+          background-color: black;
+          padding: 2px;
+          border-radius: 2px;
+
+          svg {
+            height: 14px;
+            width: 14px;
+            padding-top: 4px;
+            path {
+              fill: white;
+            }
+          }
+
+          &.failed {
+            background-color: rgb(246,200,196);
+            color: rgb(236,81,66);
+            width: 58px;
+            
+
+            svg {
+              path {
+                fill: rgb(236,81,66);;
+              }
+            }
+          }
+
+          &.pending {
+            background-color: $rollup-yellow;
+            color: #000;
+            padding: 4px 8px;
+            width: 100px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+      
+            svg {
+              path {
+                fill: #000;
+              }
+            }
+          }
+        }
+      }
+    }
+  
+    .info-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+  
+      .hash {
+        font-family: Inter;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 16px;
+        letter-spacing: -0.011em;
+        color: rgba(0,0,0,0.6);
+      }
+
+      .date {
+        font-family: Inter;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 16px;
+        letter-spacing: -0.011em;
+      }
+    }
+  }  
+}
