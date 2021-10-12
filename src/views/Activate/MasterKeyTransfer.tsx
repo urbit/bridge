@@ -7,11 +7,12 @@ import { useActivateFlow } from './ActivateFlow';
 import ActivateView from './ActivateView';
 import useRoller from 'lib/useRoller';
 import { FadeableActivateHeader as ActivateHeader } from './ActivateHeader';
-import { FadeableActivateButton as ActivateButton } from './ActivateButton';
 import useFadeIn from './useFadeIn';
 import PointPresenter from './PointPresenter';
 import DangerBox from './DangerBox';
 import View from 'components/View';
+
+import { DownloadPortButton } from './DownloadPortButton';
 
 const MasterKeyTransfer = () => {
   const { performL2Reticket } = useRoller();
@@ -34,9 +35,9 @@ const MasterKeyTransfer = () => {
         toWallet: derivedWallet.value,
         fromWallet: inviteWallet.value,
       });
-    } catch (error) {
-      console.error(error);
-      setError(error);
+    } catch (e) {
+      console.error(e);
+      setError(e);
     }
   }, [
     derivedWallet,
@@ -94,16 +95,7 @@ const MasterKeyTransfer = () => {
         flexWrap={'nowrap'}
         justifyContent={'space-between'}>
         {error && <DangerBox>{error.toString()}</DangerBox>}
-        <ActivateButton
-          onClick={() =>
-            window.open(
-              'https://github.com/urbit/port/releases/latest/download/Port.dmg'
-            )
-          }
-          disabled={error}
-          success={true}>
-          Download the Client for Mac
-        </ActivateButton>
+        <DownloadPortButton error={error} />
         <Anchor
           href="https://urbit.org/getting-started/cli"
           marginTop={'20px'}
