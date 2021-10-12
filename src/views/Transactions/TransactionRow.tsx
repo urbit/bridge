@@ -32,14 +32,29 @@ export const TransactionRow = ({
     return abbreviateAddress(hash);
   }, [hash]);
 
-  const shortDate = useMemo(() => {
+  const parsedDate = useMemo(() => {
     if (!time) {
       return null;
     }
-    const d = fromUnixTime(time / 1000);
-    console.log(d.toLocaleTimeString());
-    return format(d, 'MMMM dd');
+
+    return fromUnixTime(time / 1000);
   }, [time]);
+
+  const shortDate = useMemo(() => {
+    if (!parsedDate) {
+      return null;
+    }
+
+    return format(parsedDate, 'MMMM dd');
+  }, [parsedDate]);
+
+  const longDate = useMemo(() => {
+    if (!parsedDate) {
+      return null;
+    }
+
+    return parsedDate.toISOString();
+  }, [parsedDate]);
 
   const statusBadge = useMemo(() => {
     return (
@@ -62,7 +77,9 @@ export const TransactionRow = ({
         </Row>
         <Row className="info-row">
           <Box className="hash">{shortHash}</Box>
-          <Box className="date">{shortDate}</Box>
+          <Box className="date" title={longDate}>
+            {shortDate}
+          </Box>
         </Row>
       </Box>
     </Box>
