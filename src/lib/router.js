@@ -26,7 +26,7 @@ import Adopt from 'views/Adopt';
 import Bitcoin from 'views/Bitcoin/Bitcoin';
 import Xpub from 'views/Bitcoin/Xpub';
 import SignTransaction from 'views/Bitcoin/SignTransaction';
-import TransactionHistory from 'views/TransactionHistory';
+import TransactionHistory from 'views/Transactions/TransactionHistory';
 
 import { ROUTE_NAMES } from './routeNames';
 
