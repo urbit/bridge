@@ -14,11 +14,69 @@
 
 .transaction-history {
 
+  .loading {
+    width: 100%;
+    min-height: 400px;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    color: rgba(0,0,0,0.6);
+  }
+
+  .transaction-header {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .transaction-dropdown {
+    font-size: 14px;
+    position: relative;
+  
+    .selector {
+      font-family: "Source Code Pro", "Roboto mono", "Courier New", monospace;
+    }
+  
+    .content-border {
+      .dropdown-content {
+        .entry, .current-address {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+  
+          padding: 8px 12px 8px 16px;
+  
+          &:hover {
+            opacity: 0.8;
+          }
+  
+          .sigil {
+            background-color: black;
+            height: 14px;
+            width: 14px;
+            padding: 4px;
+            border-radius: $small-border-radius;
+          }
+        }
+  
+        .divider {
+          width: 100%;
+          height: 1px;
+          background-color: $light-gray;
+        }
+      }
+    }
+  }
+
   .transaction-container {
     width: 100%;
   }
 
-  .ship-row {
+  .patp-row {
     @include tx-row();
 
     .icon {

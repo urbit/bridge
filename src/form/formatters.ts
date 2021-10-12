@@ -106,6 +106,10 @@ export const ticketFromSegments = (segments: string[]): string => {
 };
 
 export const capitalize = (s: string) => {
+  if (!s || s === '') {
+    return s;
+  }
+
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
