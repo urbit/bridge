@@ -76,6 +76,34 @@
     width: 100%;
   }
 
+  .address-row {
+    @include tx-row();
+
+    .icon {
+      grid-area: icon;      
+      background-color: black;
+      border-radius: 2px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .info {
+      grid-area: info;
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: center;
+
+      .address {
+        font-family: Source Code Pro;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 16px;
+        letter-spacing: 0em;
+      }
+    }
+  }
+
   .patp-row {
     @include tx-row();
 

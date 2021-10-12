@@ -18,6 +18,8 @@ import { Box, Row } from '@tlon/indigo-react';
 import { PatpRow } from './PatpRow';
 import Dropdown from 'components/L2/Dropdowns/Dropdown';
 import Sigil from 'components/Sigil';
+import { AddressRow } from './AddressRow';
+import { abbreviateAddress } from 'lib/utils/address';
 
 interface GroupedTransactions {
   [ship: string]: RollerTransaction[];
@@ -32,6 +34,10 @@ const TransactionHistory = () => {
   const [transactions, setTransactions] = useState<RollerTransaction[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [selectedPatp, setSelectedPatp] = useState<string | null>(null);
+
+  const shortAddress = useMemo(() => {
+    return abbreviateAddress(address);
+  }, [address]);
 
   const fetchTransactions = useCallback(async () => {
     const txns = await api.getHistory(address);
@@ -89,10 +95,20 @@ const TransactionHistory = () => {
                 <Dropdown
                   className="transaction-dropdown"
                   open={dropdownOpen}
-                  value={selectedPatp}
+                  value={selectedPatp ? selectedPatp : shortAddress}
                   toggleOpen={() => setDropdownOpen(!dropdownOpen)}>
                   <Box className="divider" />
                   <Box className="points">
+                    <Row className="entry" onClick={() => selectPatp(null)}>
+                      <Box>{shortAddress}</Box>
+                      <Row>
+                        <Box
+                          background="black"
+                          borderRadius="2px"
+                          width="24px"
+                          height="24px"></Box>
+                      </Row>
+                    </Row>
                     {txPatps.map(patp => {
                       return (
                         <Row
@@ -119,6 +135,7 @@ const TransactionHistory = () => {
             </HeaderPane>
             <BodyPane>
               <Box className="transaction-container">
+                {!selectedPatp && <AddressRow address={address} />}
                 {filteredPatps.map(patp => {
                   return (
                     <Box key={patp}>
