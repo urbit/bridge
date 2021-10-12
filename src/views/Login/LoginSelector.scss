@@ -1,0 +1,78 @@
+@import 'style/shared/variables.scss';
+
+.login-selector {
+  width: 100%;
+  min-height: 300px;
+
+  .login-menu-item {
+    padding: 16px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 24px;
+    border-radius: $medium-border-radius;
+    border: $light-gray-border;
+    cursor: pointer;
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  
+    &:first-of-type {
+      margin-top: 48px;
+    }
+
+    svg {
+      height: 18px;
+      width: 16px;
+    }
+
+    svg.logo-icon {
+      height: 24px;
+      width: 24px;
+    }
+  }
+
+  button.activate {
+    font-size: 14px;
+    color: white;
+    font-weight: 600;
+    background-color: $activate-blue;
+    margin-top: 12px;
+    height: 56px;
+    border: none;
+    border-radius: $medium-border-radius;
+    font-family: $default-font;
+  }
+
+  .unsupported-info {
+    font-size: 14px;
+    line-height: 18px;
+    margin-top: 16px;
+    font-family: $default-font;
+    text-align: center;
+    cursor: pointer;
+
+    svg {
+      margin-bottom: -3px;
+      margin-right: 4px;
+      height: 16px;
+      width: 16px;
+    }
+  }
+
+  .info-modal-content {
+    position: relative;
+    background-color: white;
+    height: 302px;
+    width: 320px;
+    border-radius: $large-border-radius;
+    font-family: $default-font;
+    padding: 16px 48px 16px 16px;
+    font-size: 14px;
+    line-height: 24px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+}

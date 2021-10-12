@@ -74,10 +74,16 @@ function Login({ onSubmit, goHome }) {
       </Grid.Item>
       <BridgeForm onSubmit={onSubmit} afterSubmit={goHome}>
         {({ handleSubmit }) => (
-          <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
-            Login
-            {window.ethereum.selectedAddress &&
-              ' as ' + abbreviateAddress(window.ethereum.selectedAddress)}
+          <Grid.Item full className="flex-col justify-end">
+            <Grid.Item
+              center
+              full
+              as={SubmitButton}
+              handleSubmit={handleSubmit}>
+              Login
+              {window.ethereum.selectedAddress &&
+                ' as ' + abbreviateAddress(window.ethereum.selectedAddress)}
+            </Grid.Item>
           </Grid.Item>
         )}
       </BridgeForm>

@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Box, Row } from '@tlon/indigo-react';
+import React, { useCallback, useEffect, useState, FormEvent } from 'react';
+import { Box, Row, StatelessTextInput } from '@tlon/indigo-react';
 import { DEFAULT_GAS_PRICE_GWEI } from 'lib/constants';
 import useGasPrice from 'lib/useGasPrice';
 
@@ -10,19 +10,48 @@ const PRICE_LABELS = ['Fast', 'Average', 'Slow'];
 
 export interface GasPrice {
   price: number;
-  wait: number;
+  wait: string;
 }
 
-const formatPriceWait = ({ price, wait }: GasPrice) =>
-  `${price} gwei (${Math.round(wait * 100) / 100} min)`;
+export const formatWait = (wait: number) => Math.round(wait * 100) / 100;
+export const formatDisplay = ({ price, wait }: GasPrice) =>
+  `${price} gwei (${wait} min)`;
 
-const FeeDropdown = ({ setGasPrice }: { setGasPrice: (g: number) => void }) => {
+export default function FeeDropdown({
+  setGasPrice,
+}: {
+  setGasPrice: (g: number) => void;
+}) {
   const { suggestedGasPrices } = useGasPrice(DEFAULT_GAS_PRICE_GWEI);
 
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
+  const [custom, setCustom] = useState<string>('0');
   const [selected, setSelected] = useState<GasPrice>(
     suggestedGasPrices.average
   );
+
+  const handleCustom = (e: FormEvent) => {
+    const cleanedValue = e.target.value.replace(/[^0-9]/g, '');
+    const cleanedNum = Number(cleanedValue);
+    setCustom(cleanedValue);
+    setGasPrice(cleanedNum);
+
+    let customWait = 'Unknown';
+
+    const { fast, average, low } = suggestedGasPrices;
+
+    if (cleanedNum < low.price) {
+      customWait = `> ${low.wait}`;
+    } else if (cleanedNum < average.price) {
+      customWait = `~${low.wait}`;
+    } else if (cleanedNum < fast.price) {
+      customWait = `~${average.wait}`;
+    } else {
+      customWait = `< ${fast.wait}`;
+    }
+
+    setSelected({ price: cleanedValue, wait: customWait });
+  };
 
   useEffect(() => {
     setSelected(suggestedGasPrices.average);
@@ -41,7 +70,7 @@ const FeeDropdown = ({ setGasPrice }: { setGasPrice: (g: number) => void }) => {
     <Dropdown
       className="fee-dropdown"
       open={open}
-      value={formatPriceWait(selected)}
+      value={formatDisplay(selected)}
       toggleOpen={() => setOpen(!open)}>
       <Box className="prices">
         {Object.values(suggestedGasPrices).map(
@@ -50,13 +79,21 @@ const FeeDropdown = ({ setGasPrice }: { setGasPrice: (g: number) => void }) => {
               className="price"
               onClick={selectPrice(value)}
               key={value.wait}>
-              {PRICE_LABELS[ind]}: {formatPriceWait(value)}
+              {PRICE_LABELS[ind]}: {formatDisplay(value)}
             </Row>
           )
         )}
+        <Row className="price">
+          <Box className="label">Custom:</Box>
+          <StatelessTextInput
+            value={custom}
+            className="custom-input"
+            placeholder="0"
+            onChange={handleCustom}
+          />
+          <Box className="unit">gwei</Box>
+        </Row>
       </Box>
     </Dropdown>
   );
 };
-
-export default FeeDropdown;
