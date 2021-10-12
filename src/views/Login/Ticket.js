@@ -209,66 +209,69 @@ export default function Ticket({ className, goHome }) {
         validate={validate}
         onSubmit={onSubmit}
         afterSubmit={goHome}
+        className="flex-col justify-between"
         initialValues={initialValues}>
         {({ handleSubmit, values, submitting }) => (
-          <>
-            <Grid.Item full as={PointInput} name="point" />
+          <Grid.Item full className="flex-col justify-between">
+            <Grid.Item full>
+              <Grid.Item full as={PointInput} name="point" />
 
-            <Condition when="useShards" is={false}>
-              <Grid.Item
-                full
-                as={TicketInput}
-                hidden={values.ticketHidden}
-                labelAccessory={<AdvancedOptions />}
-                accessory={<TicketInputAccessory name="ticketHidden" />}
-                className="mt3"
-                name="ticket"
-                label="Master Ticket"
-              />
-            </Condition>
+              <Condition when="useShards" is={false}>
+                <Grid.Item
+                  full
+                  as={TicketInput}
+                  hidden={values.ticketHidden}
+                  labelAccessory={<AdvancedOptions />}
+                  accessory={<TicketInputAccessory name="ticketHidden" />}
+                  className="mt3"
+                  name="ticket"
+                  label="Master Ticket"
+                />
+              </Condition>
 
-            <Condition when="useShards" is={true}>
-              <Grid.Item
-                full
-                as={TicketInput}
-                accessory={<TicketInputAccessory name="ticketHidden" />}
-                hidden={values.ticketHidden}
-                labelAccessory={<AdvancedOptions />}
-                className="mt3"
-                name="shard1"
-                label="Shard 1"
-              />
-              <Grid.Item
-                full
-                as={TicketInput}
-                accessory={<TicketInputAccessory name="ticketHidden" />}
-                hidden={values.ticketHidden}
-                className="mt3"
-                name="shard2"
-                label="Shard 2"
-              />
-              <Grid.Item
-                full
-                as={TicketInput}
-                className="mt3"
-                accessory={<TicketInputAccessory name="ticketHidden" />}
-                hidden={values.ticketHidden}
-                name="shard3"
-                label="Shard 3"
-              />
-            </Condition>
+              <Condition when="useShards" is={true}>
+                <Grid.Item
+                  full
+                  as={TicketInput}
+                  accessory={<TicketInputAccessory name="ticketHidden" />}
+                  hidden={values.ticketHidden}
+                  labelAccessory={<AdvancedOptions />}
+                  className="mt3"
+                  name="shard1"
+                  label="Shard 1"
+                />
+                <Grid.Item
+                  full
+                  as={TicketInput}
+                  accessory={<TicketInputAccessory name="ticketHidden" />}
+                  hidden={values.ticketHidden}
+                  className="mt3"
+                  name="shard2"
+                  label="Shard 2"
+                />
+                <Grid.Item
+                  full
+                  as={TicketInput}
+                  className="mt3"
+                  accessory={<TicketInputAccessory name="ticketHidden" />}
+                  hidden={values.ticketHidden}
+                  name="shard3"
+                  label="Shard 3"
+                />
+              </Condition>
 
-            <Condition when="usePassphrase" is={true}>
-              <Grid.Item
-                full
-                as={PassphraseInput}
-                className="mt3"
-                name="passphrase"
-                label="Wallet Passphrase"
-              />
-            </Condition>
+              <Condition when="usePassphrase" is={true}>
+                <Grid.Item
+                  full
+                  as={PassphraseInput}
+                  className="mt3"
+                  name="passphrase"
+                  label="Wallet Passphrase"
+                />
+              </Condition>
 
-            <Grid.Item full as={FormError} />
+              <Grid.Item full as={FormError} />
+            </Grid.Item>
 
             <Grid.Item
               full
@@ -280,10 +283,10 @@ export default function Ticket({ className, goHome }) {
                   ? 'Logging in...'
                   : isWarning
                   ? 'Login Anyway'
-                  : 'Login'
+                  : 'Log In'
               }
             </Grid.Item>
-          </>
+          </Grid.Item>
         )}
       </BridgeForm>
     </Grid>

@@ -19,11 +19,26 @@
           justify-content: space-between;
           align-items: center;
           cursor: pointer;
+          line-height: 20px;
 
           padding: 8px 12px 8px 16px;
 
           &:hover {
             opacity: 0.8;
+          }
+
+          .label {
+            margin-right: 32px;
+          }
+
+          .custom-input {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
+            text-align: right;
+            height: 32px;
+          }
+
+          .unit {
+            margin-left: 4px;
           }
         }
       }

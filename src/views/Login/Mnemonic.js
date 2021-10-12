@@ -71,52 +71,58 @@ export default function Mnemonic({ className, goHome }) {
   };
 
   return (
-    <Grid className={cn('mt4', className)}>
+    <Grid className={cn(className)}>
       <BridgeForm
         validate={validate}
         onValues={onValues}
         afterSubmit={goHome}
         initialValues={initialValues}>
         {({ handleSubmit }) => (
-          <>
-            <Grid.Item
-              full
-              as={MnemonicInput}
-              name="mnemonic"
-              label="BIP39 Mnemonic"
-            />
+          <Grid.Item full className="flex-col justify-between">
+            <Grid.Item full>
+              <Grid.Item full as={MnemonicInput} name="mnemonic" />
 
-            <Grid.Item
-              full
-              as={CheckboxInput}
-              name="anyMnemonic"
-              label="Skip mnemonic validation"
-            />
-
-            <Condition when="useAdvanced" is={true}>
               <Grid.Item
                 full
-                as={PassphraseInput}
-                name="passphrase"
-                label="Passphrase"
+                as={CheckboxInput}
+                name="anyMnemonic"
+                label="Skip passphrase validation"
               />
 
-              <Grid.Item full as={HdPathInput} name="hdpath" label="HD Path" />
-            </Condition>
+              <Condition when="useAdvanced" is={true}>
+                <Grid.Item
+                  full
+                  as={PassphraseInput}
+                  name="passphrase"
+                  label="Passphrase"
+                />
+
+                <Grid.Item
+                  full
+                  as={HdPathInput}
+                  name="hdpath"
+                  label="HD Path"
+                />
+              </Condition>
+
+              <Grid.Item
+                full
+                as={CheckboxInput}
+                name="useAdvanced"
+                label="Passphrase & HD Path"
+              />
+
+              <Grid.Item full as={FormError} />
+            </Grid.Item>
 
             <Grid.Item
               full
-              as={CheckboxInput}
-              name="useAdvanced"
-              label="Passphrase & HD Path"
-            />
-
-            <Grid.Item full as={FormError} />
-
-            <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
-              Login
+              as={SubmitButton}
+              handleSubmit={handleSubmit}
+              center>
+              Log In
             </Grid.Item>
-          </>
+          </Grid.Item>
         )}
       </BridgeForm>
     </Grid>

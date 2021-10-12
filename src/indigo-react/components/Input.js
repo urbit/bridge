@@ -86,7 +86,7 @@ export default function Input({
           // NOTE: 1.15 from input line-height, 24px = 12px * 2 (from p3 styling)
           style={type === 'textarea' ? { minHeight: 'calc(1.5rem * 3)' } : {}}
           className={cn(
-            'b b1 p3 outline-none bs-none',
+            'b b1 p3 outline-none bs-none r4',
             { mono },
             {
               'bg-white': !disabled,

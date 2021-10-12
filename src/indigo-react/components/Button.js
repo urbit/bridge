@@ -34,9 +34,9 @@ export default function Button({
       tabIndex={!disabled ? 0 : undefined}
       onKeyPress={handleKeyPress}
       className={cn(
-        'rel pointer pv4 truncate flex-row justify-between us-none',
+        'rel pointer pv2 truncate flex-row justify-between us-none r4',
         {
-          p4: solid,
+          p2: solid,
         },
         {
           'bg-green3': success && !disabled,

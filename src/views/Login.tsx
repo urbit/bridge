@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Grid, Text, Button, Flex, LinkButton } from 'indigo-react';
+import { Grid, Text, Flex } from 'indigo-react';
 
 import { versionLabel } from 'lib/flags';
 
@@ -10,21 +10,15 @@ import { COMMANDS, useFlowCommand } from 'lib/flowCommand';
 import View from 'components/View';
 import Footer from 'components/Footer';
 
-import Ticket from './Login/Ticket';
 import Other from './Login/Other';
 
 export default function Login() {
   // globals
-  const { push, names } = useHistory();
-  const flow = useFlowCommand();
+  const { push, names }: any = useHistory();
+  const flow: any = useFlowCommand();
 
   // inputs
   const [isOther, setisOther] = useState(false);
-
-  const goToActivate = useCallback(() => push(names.ACTIVATE), [
-    push,
-    names.ACTIVATE,
-  ]);
 
   const goHome = useCallback(() => {
     if (!flow) {
@@ -70,50 +64,17 @@ export default function Login() {
     <View inset>
       <Grid>
         <Grid.Item full as={Text} className="flex justify-center mt9 mb7">
-          <Grid.Item as={Text} className="gray3">
-            Urbit ID /&nbsp;
+          <Grid.Item as={Text}>Bridge /&nbsp;</Grid.Item>
+          <Grid.Item className="fw-bold" as={Text}>
+            Log In
           </Grid.Item>
-          <Grid.Item as={Text}>Login</Grid.Item>
         </Grid.Item>
         {flow && (
           <Grid.Item full as={Text} className="t-center mb4">
             {flowDescription(flow)}
           </Grid.Item>
         )}
-        <Grid.Item full as={isOther ? Other : Ticket} goHome={goHome} />
-        {!isOther && (
-          <>
-            <Grid.Item full className="t-center mv4 gray4">
-              or
-            </Grid.Item>
-            <Grid.Item
-              full
-              as={Button}
-              className="b-solid b1 b-black"
-              center
-              onClick={() => setisOther(true)}>
-              Metamask, Mnemonic, Hardware Wallet...
-            </Grid.Item>
-            {!flow && (
-              <Grid.Item
-                full
-                onClick={goToActivate}
-                className="mv10 t-center f6">
-                <span className="gray4">New Urbit ID? </span>
-                <LinkButton>Activate</LinkButton>
-              </Grid.Item>
-            )}
-          </>
-        )}
-        {isOther && (
-          <Grid.Item
-            as={LinkButton}
-            onClick={() => setisOther(false)}
-            full
-            className="t-center underline f6 mt8">
-            Back
-          </Grid.Item>
-        )}
+        <Grid.Item full as={Other} goHome={goHome} className="login-selector" />
       </Grid>
 
       <Footer>
