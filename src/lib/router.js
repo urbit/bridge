@@ -1,6 +1,6 @@
 import Disclaimer from 'views/Disclaimer';
 import Login from 'views/Login';
-import Other from 'views/Login/Other.js';
+import Other from 'views/Login/Other';
 import Senate from 'views/Point/Senate';
 import Documents from 'views/Senate/Documents';
 import Upgrades from 'views/Senate/Upgrades';

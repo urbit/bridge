@@ -10,8 +10,11 @@ export const generateUrl = (ticket: string, planet: number) => {
   return 'No Ticket or Ship';
 };
 
-export const generateCsvLine = (ticket: string, planet: number) =>
-  `${ob.patp(planet)},${generateUrl(ticket, planet)}\n`;
+export const generateCsvLine = (ind: number, ticket: string, planet: number) =>
+  `${ind + 1},${ob.patp(planet)},${generateUrl(
+    ticket,
+    planet
+  )},${planet},${ticket}\n`;
 
 export const generateCsvName = (defaultName: string, point: number) =>
   `${ob.patp(point).slice(1)}_${defaultName}`;

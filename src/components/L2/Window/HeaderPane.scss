@@ -19,6 +19,11 @@
     justify-content: space-between;
     align-items: center;
 
+    svg {
+      height: 16px;
+      width: 16px;
+    }
+
     .header-button {
       background-color: black;
       color: white;

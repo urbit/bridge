@@ -8,13 +8,8 @@
   font-size: 14px;
   margin: 48px 0px 8px;
 
-  svg.back-button {
-    padding: 6px 9px;
-    width: 14px;
-    height: 20px;
-    background-color: $washed-gray;
-    border-radius: $medium-border-radius;
-    cursor: pointer;
+  .login-margins {
+    margin: 0px 0px 16px;
   }
 
   .rollup-timer {

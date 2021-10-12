@@ -5,10 +5,11 @@ import './BodyPane.scss';
 
 export interface BodyPaneProps {
   children: React.ReactNode;
+  className?: string;
 }
 
-const BodyPane = ({ children }: BodyPaneProps) => {
-  return <Box className="body-pane">{children}</Box>;
+const BodyPane = ({ children, className = '' }: BodyPaneProps) => {
+  return <Box className={`body-pane ${className}`}>{children}</Box>;
 };
 
 export default BodyPane;

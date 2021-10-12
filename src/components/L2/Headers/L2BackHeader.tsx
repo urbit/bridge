@@ -12,13 +12,19 @@ import { toBN } from 'web3-utils';
 import BN from 'bn.js';
 import { isDevelopment } from 'lib/flags';
 import { ReactComponent as Wallet } from 'assets/wallet.svg';
+import L2BackButton from './L2BackButton';
 
 export interface L2BackHeaderProps {
   back?: () => void;
   hideBalance?: boolean;
+  className: string;
 }
 
-const L2BackHeader = ({ back, hideBalance = false }: L2BackHeaderProps) => {
+const L2BackHeader = ({
+  back,
+  className = '',
+  hideBalance = false,
+}: L2BackHeaderProps) => {
   const { config } = useRoller();
   const { nextRoll, currentL2 } = useRollerStore(store => store);
   const { pop }: any = useHistory();
@@ -62,8 +68,8 @@ const L2BackHeader = ({ back, hideBalance = false }: L2BackHeaderProps) => {
   const hasBalance = Number(ethBalance.toString()) !== 0;
 
   return (
-    <Row className="l2-back-header">
-      <Icon className="back-button" icon="ChevronWest" onClick={goBack} />
+    <Row className={`l2-back-header ${className}`}>
+      <L2BackButton onBack={goBack} />
       {currentL2 && !hideBalance ? (
         <Row className="rollup-timer">
           <Icon icon="Clock" />

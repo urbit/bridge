@@ -11,4 +11,13 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  .close {
+    position: absolute;
+    top: 3px;
+    right: 8px;
+    font-size: 18px;
+    font-weight: 200;
+    cursor: pointer;
+  }
 }

@@ -1,5 +1,6 @@
 import { NETWORK_TYPES } from './network';
 import { DEFAULT_GAS_PRICE_GWEI, MAX_GAS_PRICE_GWEI } from './constants';
+import { formatWait } from 'components/L2/Dropdowns/FeeDropdown';
 
 // ethgasstation returns values in floating point, one order of magitude
 // more than gwei. see: https://docs.ethgasstation.info
@@ -9,15 +10,15 @@ const minGas = gas => Math.min(Math.ceil(gas / 10), MAX_GAS_PRICE_GWEI);
 export const defaultGasValues = value => ({
   fast: {
     price: value,
-    wait: 1,
+    wait: '1',
   },
   average: {
     price: value,
-    wait: 1,
+    wait: '1',
   },
   low: {
     price: value,
-    wait: 1,
+    wait: '1',
   },
 });
 
@@ -43,15 +44,15 @@ export default async function getSuggestedGasPrice(networkType) {
         return {
           fast: {
             price: minGas(json.fast),
-            wait: json.fastWait,
+            wait: formatWait(json.fastWait),
           },
           average: {
             price: minGas(json.average),
-            wait: json.avgWait,
+            wait: formatWait(json.avgWait),
           },
           low: {
             price: minGas(json.safeLow),
-            wait: json.safeLowWait,
+            wait: formatWait(json.safeLowWait),
           },
         };
       } catch (e) {

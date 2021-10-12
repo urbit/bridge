@@ -203,9 +203,9 @@ export default function InviteCohort() {
       const invites = await getInvites(currentL2, page, true);
       if (invites) {
         const csv = invites.reduce(
-          (csvData, { ticket, planet }) =>
-            (csvData += generateCsvLine(ticket, planet)),
-          'Planet,Invite URL\n'
+          (csvData, { ticket, planet }, ind) =>
+            (csvData += generateCsvLine(ind, ticket, planet)),
+          'Number,Planet,Invite URL,Point,Ticket\n'
         );
         const hiddenElement = document.createElement('a');
         hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURIComponent(
