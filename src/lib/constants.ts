@@ -138,7 +138,7 @@ const TRANSACTION_STATUS_ICONS = {
 
 const TRANSACTION_TYPE_ICONS = {
   spawn: 'ArrowEast',
-  'configure-keys': 'Gear',
+  'configure-keys': 'BootNode',
   'transfer-point': 'Swap',
   'set-management-proxy': 'ArrowRefresh',
 };
