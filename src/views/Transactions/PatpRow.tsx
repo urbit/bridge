@@ -1,10 +1,10 @@
-import { Box, Row } from '@tlon/indigo-react';
+import { Box } from '@tlon/indigo-react';
 import Sigil from 'components/Sigil';
 
-export const ShipRow = ({ patp }) => {
+export const PatpRow = ({ patp }) => {
   return (
     <>
-      <Box className="ship-row">
+      <Box className="patp-row">
         <Box className="icon">
           <Box className="sigil">
             {

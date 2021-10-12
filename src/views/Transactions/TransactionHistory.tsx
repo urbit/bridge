@@ -14,8 +14,10 @@ import { RollerTransaction } from '@urbit/roller-api';
 
 import './TransactionHistory.scss';
 import { TransactionRow } from './TransactionRow';
-import { Box } from '@tlon/indigo-react';
-import { ShipRow } from './ShipRow';
+import { Box, Row } from '@tlon/indigo-react';
+import { PatpRow } from './PatpRow';
+import Dropdown from 'components/L2/Dropdowns/Dropdown';
+import Sigil from 'components/Sigil';
 
 interface GroupedTransactions {
   [ship: string]: RollerTransaction[];
@@ -26,7 +28,21 @@ const TransactionHistory = () => {
   const { api } = useRoller();
   const { wallet }: any = useWallet();
   const address = need.addressFromWallet(wallet);
+  const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<RollerTransaction[]>([]);
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const [selectedPatp, setSelectedPatp] = useState<string | null>(null);
+
+  const fetchTransactions = useCallback(async () => {
+    const txns = await api.getHistory(address);
+    setTransactions(txns);
+    setLoading(false);
+  }, [address, api]);
+
+  const selectPatp = useCallback(patp => {
+    setSelectedPatp(patp);
+    setDropdownOpen(false);
+  }, []);
 
   const txnsByPatp = useMemo(() => {
     return transactions.reduce((memo, tx) => {
@@ -39,14 +55,17 @@ const TransactionHistory = () => {
     }, {} as GroupedTransactions);
   }, [transactions]);
 
-  const txKeys = useMemo(() => {
+  const txPatps = useMemo(() => {
     return Object.keys(txnsByPatp).sort();
   }, [txnsByPatp]);
 
-  const fetchTransactions = useCallback(async () => {
-    const txns = await api.getHistory(address);
-    setTransactions(txns);
-  }, [address, api]);
+  const filteredPatps = useMemo(() => {
+    if (!selectedPatp) {
+      return txPatps;
+    }
+
+    return txPatps.filter(p => p === selectedPatp);
+  }, [selectedPatp, txPatps]);
 
   useEffect(() => {
     fetchTransactions();
@@ -60,27 +79,64 @@ const TransactionHistory = () => {
       className="transaction-history"
       header={<L2BackHeader />}>
       <Window>
-        <HeaderPane>
-          <h5>Transactions</h5>
-        </HeaderPane>
-        <BodyPane>
-          <Box className="transaction-container">
-            {txKeys.map(patp => {
-              return (
-                <>
-                  <ShipRow patp={patp} />
-                  {txnsByPatp[patp]
-                    .sort((a, b) => {
-                      return a.time - b.time;
-                    })
-                    .map(tx => (
-                      <TransactionRow key={tx.time} {...tx} />
-                    ))}
-                </>
-              );
-            })}
-          </Box>
-        </BodyPane>
+        {loading ? (
+          <Box className={'loading'}>Loading...</Box>
+        ) : (
+          <>
+            <HeaderPane>
+              <Box className="transaction-header">
+                <h5>Transactions</h5>
+                <Dropdown
+                  className="transaction-dropdown"
+                  open={dropdownOpen}
+                  value={selectedPatp}
+                  toggleOpen={() => setDropdownOpen(!dropdownOpen)}>
+                  <Box className="divider" />
+                  <Box className="points">
+                    {txPatps.map(patp => {
+                      return (
+                        <Row
+                          className="entry"
+                          onClick={() => selectPatp(patp)}
+                          key={patp}>
+                          <Box>{patp}</Box>
+                          <Row>
+                            <Box className="sigil">
+                              <Sigil
+                                icon
+                                patp={patp}
+                                size={1}
+                                colors={['#000', '#FFF']}
+                              />
+                            </Box>
+                          </Row>
+                        </Row>
+                      );
+                    })}
+                  </Box>
+                </Dropdown>
+              </Box>
+            </HeaderPane>
+            <BodyPane>
+              <Box className="transaction-container">
+                {filteredPatps.map(patp => {
+                  return (
+                    <Box key={patp}>
+                      <PatpRow patp={patp} />
+                      {txnsByPatp[patp]
+                        .sort((a, b) => {
+                          return a.time - b.time;
+                        })
+                        .map(tx => (
+                          <TransactionRow key={tx.time} {...tx} />
+                        ))}
+                    </Box>
+                  );
+                })}
+              </Box>
+            </BodyPane>
+          </>
+        )}
       </Window>
     </View>
   );
