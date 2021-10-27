@@ -2,8 +2,12 @@ import Web3 from 'web3';
 import { toHex } from 'web3-utils';
 import { FakeSignableTx, FakeSignResult } from './txn';
 
-export function MetamaskWallet(address) {
-  this.address = address;
+export class MetamaskWallet {
+  address: string;
+
+  constructor(address: string) {
+    this.address = address;
+  }
 }
 
 // Cheat a bit and pretend to sign transaction

@@ -59,13 +59,15 @@ export default function UrbitOSHome() {
       <HeaderPane>
         <Row className="header-row">
           <h5>OS</h5>
-          <Button
-            className="header-button keyfile"
-            disabled={!hasSetNetworkingKeys}
-            onClick={keyBind.download}>
-            <KeyfileIcon />
-            Download Keyfile
-          </Button>
+          {hasSetNetworkingKeys && (
+            <Button
+              className="header-button keyfile"
+              disabled={!hasSetNetworkingKeys}
+              onClick={keyBind.download}>
+              <KeyfileIcon />
+              Download Keyfile
+            </Button>
+          )}
         </Row>
       </HeaderPane>
       <BodyPane>
@@ -90,14 +92,19 @@ export default function UrbitOSHome() {
         <Row className="between-row management">
           <Box>
             <Box>Network Keys</Box>
-            <Box className="subtitle">
+            <Box
+              className={`subtitle ${
+                !hasSetNetworkingKeys ? 'error-text' : ''
+              }`}>
               {hasSetNetworkingKeys
                 ? `Revision: ${details.keyRevisionNumber}`
-                : 'Unset'}
+                : 'No network keys found'}
             </Box>
           </Box>
           <Row>
-            <Button className="secondary" onClick={goNetworkingKeys}>
+            <Button
+              className={hasSetNetworkingKeys ? 'secondary' : 'primary'}
+              onClick={goNetworkingKeys}>
               {hasSetNetworkingKeys ? 'Reset' : 'Initialize'}
             </Button>
             {hasSetNetworkingKeys && (
@@ -109,14 +116,6 @@ export default function UrbitOSHome() {
         </Row>
 
         {showKeys && <Grid.Item full as={NetworkingKeys} point={point} />}
-
-        {!hasSetNetworkingKeys && (
-          <>
-            <Grid.Item full as={AlertBox} className="mt4">
-              Networking Keys are required to generate a keyfile
-            </Grid.Item>
-          </>
-        )}
 
         {!!code && (
           <Row className="between-row management">

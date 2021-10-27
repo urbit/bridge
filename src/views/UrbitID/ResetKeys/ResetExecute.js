@@ -194,7 +194,7 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
 
     return (
       <Grid.Item full as={WarningBox} className="mt4">
-        Never give your Master Key to anyone
+        Never give your Master Ticket to anyone
       </Grid.Item>
     );
   };
@@ -218,7 +218,7 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
             className="mt4"
             accessory="↺"
             onClick={loginAndGoHome}>
-            Login with New Master Key
+            Login with New Master Ticket
           </Grid.Item>
         </>
       ) : (

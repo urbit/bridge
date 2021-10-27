@@ -30,14 +30,12 @@ export default function UrbitIDHome() {
   const { urbitWallet }: any = useWallet();
   const { currentPoint } = useRollerStore();
 
-  const goSigil = useCallback(() => push(names.SIGIL_GENERATOR), [push, names]);
-
   const goDownloadKeys = useCallback(() => push(names.DOWNLOAD_KEYS), [
     push,
     names,
   ]);
 
-  const goUrbitOS = useCallback(() => push(names.URBIT_OS), [push, names]);
+  const goSigil = useCallback(() => push(names.SIGIL_GENERATOR), [push, names]);
 
   const goResetKeys = useCallback(() => push(names.RESET_KEYS), [push, names]);
 
@@ -68,7 +66,11 @@ export default function UrbitIDHome() {
       <HeaderPane>
         <Row className="header-row">
           <h5>ID</h5>
-          <Button className="header-button">Download Passport</Button>
+          {isMasterTicket && (
+            <Button onClick={goDownloadKeys} className="header-button">
+              Download Passport
+            </Button>
+          )}
         </Row>
       </HeaderPane>
       <BodyPane>
@@ -98,7 +100,7 @@ export default function UrbitIDHome() {
               <Box>Management Address</Box>
               <div className="mt1 mono black subtitle">
                 {noManagement
-                  ? 'Unset'
+                  ? 'Not set'
                   : abbreviateAddress(details.managementProxy)}
               </div>
             </Box>
@@ -148,7 +150,7 @@ export default function UrbitIDHome() {
               <Box>Master Ticket</Box>
               <Box className="subtitle">
                 {isMasterTicket
-                  ? 'Reset Master Key and all other keys'
+                  ? 'Reset Master Ticket and all other keys'
                   : 'Transfer to Master Ticket, resetting all keys'}
               </Box>
             </Box>
@@ -163,26 +165,9 @@ export default function UrbitIDHome() {
             <Box>
               <Box>Network Keys Required</Box>
               <Box className="subtitle">
-                Set your network keys to spawn points
+                Set your network keys in "OS" to spawn points
               </Box>
             </Box>
-            <Button className="secondary" onClick={goUrbitOS}>
-              Set Keys
-            </Button>
-          </Row>
-        )}
-
-        {isMasterTicket && (
-          <Row className="between-row management">
-            <Box>
-              <Box>Download Keys</Box>
-              <Box className="subtitle">
-                Download the keys to your master ticket.
-              </Box>
-            </Box>
-            <Button className="secondary" onClick={goDownloadKeys}>
-              Download
-            </Button>
           </Row>
         )}
 
