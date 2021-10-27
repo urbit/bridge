@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { azimuth } from 'azimuth-js';
 import { Just } from 'folktale/maybe';
 import { Grid, Flex } from 'indigo-react';
 import { Box, Icon, Row, Button, Checkbox } from '@tlon/indigo-react';
@@ -12,7 +11,6 @@ import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
 import Blinky from 'components/Blinky';
-import { ForwardButton } from 'components/Buttons';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import LayerIndicator from 'components/L2/LayerIndicator';
 import Card from 'components/L2/Card';
@@ -29,7 +27,7 @@ import { isL2 } from 'lib/utils/roller';
 import { isDevelopment } from 'lib/flags';
 import { usePointCache } from 'store/pointCache';
 import Modal from 'components/L2/Modal';
-import { isPlanet } from 'lib/utils/point';
+import { isPlanet, isStar } from 'lib/utils/point';
 import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
 import { InviteForm } from './InviteForm';
 
@@ -48,13 +46,21 @@ export default function Point() {
     setInvites,
   } = useRollerStore();
   const networkKeysSet = useHasNetworkKeysSet();
+  const [seenMissingKeys, setSeenMissingKeys] = useSeenMissingKeys();
   const [showModal, setShowModal] = useState(false);
-  const [seenMissingKeys, setSeeingMissingKeys] = useSeenMissingKeys();
   const [hideMessage, setHideMessage] = useState(false);
 
+  const hideModal = useCallback(() => {
+    if (hideMessage) {
+      setSeenMissingKeys(true);
+    }
+
+    setShowModal(false);
+  }, [hideMessage, setShowModal, setSeenMissingKeys]);
+
   useEffect(() => {
-    setShowModal(!networkKeysSet);
-  }, [networkKeysSet]);
+    setShowModal(!networkKeysSet && !seenMissingKeys);
+  }, [networkKeysSet, seenMissingKeys]);
 
   const loadL1Info = useCallback(async () => {
     await syncExtras(point);
@@ -84,7 +90,7 @@ export default function Point() {
     setInvites([]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { isParent, canManage, canSpawn, canVote } = useCurrentPermissions();
+  const { isParent, canManage } = useCurrentPermissions();
 
   // L1 invites
   const l1Invites = useInvites(point);
@@ -104,46 +110,22 @@ export default function Point() {
 
   const loadedInvites = Just.hasInstance(availableInvites);
 
-  const goSenate = useCallback(() => push(names.SENATE), [push, names]);
-
   const goCohort = useCallback(() => push(names.INVITE_COHORT), [push, names]);
 
   const goUrbitOS = useCallback(() => {
-    if (hideMessage) setSeeingMissingKeys(hideMessage);
+    if (hideMessage) setSeenMissingKeys(hideMessage);
 
     push(names.URBIT_OS);
-  }, [push, names, hideMessage, setSeeingMissingKeys]);
+  }, [push, names, hideMessage, setSeenMissingKeys]);
 
   const goUrbitID = useCallback(() => push(names.URBIT_ID), [push, names]);
 
   const goResidents = useCallback(() => push(names.RESIDENTS), [push, names]);
 
-  const goIssuePoint = useCallback(() => push(names.ISSUE_CHILD), [
-    names.ISSUE_CHILD,
-    push,
-  ]);
-
   const planet = isPlanet(point);
 
   const [showInviteForm, setShowInviteForm] = useState(false);
 
-  const senateButton = (() => {
-    if (azimuth.getPointSize(point) !== azimuth.PointSize.Galaxy) {
-      return null;
-    }
-    return (
-      <>
-        <Grid.Item
-          full
-          as={ForwardButton}
-          disabled={!canVote}
-          onClick={goSenate}>
-          Senate
-        </Grid.Item>
-        <Grid.Divider />
-      </>
-    );
-  })();
   const address = need.addressFromWallet(wallet);
   const spawnedPending = pendingTransactions.filter(
     ({ rawTx }) => rawTx?.tx?.type === 'spawn'
@@ -220,8 +202,12 @@ export default function Point() {
         {isParent && (
           <Grid.Item full as={Flex} justify="between">
             <Card
-              title="Residency"
-              subtitle="Manage peers that you service"
+              title={`${isStar(point) ? 'Star' : 'Galaxy'} Ops`}
+              subtitle={
+                isStar(point)
+                  ? 'Manage planets you sponsor and spawn planets'
+                  : 'Manage stars you sponsor, spawn stars, and vote'
+              }
               onClick={goResidents}
             />
           </Grid.Item>
@@ -263,25 +249,10 @@ export default function Point() {
             disabled={!canManage}
           />
         </Grid.Item>
-        {isParent && (
-          <>
-            <Grid.Item
-              full
-              as={ForwardButton}
-              disabled={!canSpawn}
-              onClick={goIssuePoint}>
-              Issue Point
-            </Grid.Item>
-            <Grid.Divider />
-          </>
-        )}
-        {senateButton}
       </Grid>
-      <Modal
-        show={showModal && !seenMissingKeys}
-        hide={() => setShowModal(false)}>
+      <Modal show={showModal} hide={hideModal}>
         <Box className="network-keys-modal">
-          <Box className="close" onClick={() => setShowModal(false)}>
+          <Box className="close" onClick={hideModal}>
             &#215;
           </Box>
           <Box className="title">No Network Keys Found</Box>
@@ -297,7 +268,7 @@ export default function Point() {
             <Box className="dont-show">Do not warn me again</Box>
           </Row>
           <Row className="buttons">
-            <Button className="cancel" onClick={() => setShowModal(false)}>
+            <Button className="cancel" onClick={hideModal}>
               Cancel
             </Button>
             <Button className="migrate" onClick={goUrbitOS}>

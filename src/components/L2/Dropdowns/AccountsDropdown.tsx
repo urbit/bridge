@@ -22,6 +22,7 @@ import './AccountsDropdown.scss';
 import Modal from '../Modal';
 import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
 import { useRollerStore } from 'store/roller';
+import useCurrentPermissions from 'lib/useCurrentPermissions';
 
 interface AccountsDropdownProps {
   showMigrate: boolean;
@@ -59,12 +60,19 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
     },
     [push, names.POINT, setOpen, setPointCursor]
   );
+
   const goMigrate = useCallback(() => push(names.MIGRATE_L2), [
     names.MIGRATE_L2,
     push,
   ]);
+
   const goBitcoin = useCallback(() => push(names.BITCOIN), [
     names.BITCOIN,
+    push,
+  ]);
+
+  const goIssuePoint = useCallback(() => push(names.ISSUE_CHILD), [
+    names.ISSUE_CHILD,
     push,
   ]);
 
@@ -72,6 +80,8 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
     clearInvitesStorage();
     reset();
   };
+
+  const { canSpawn, isParent } = useCurrentPermissions();
 
   return (
     <Dropdown
@@ -121,6 +131,12 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
         <Row className="entry" onClick={goBitcoin}>
           <Box>Bitcoin</Box>
           <Icon icon="Bitcoin" />
+        </Row>
+      )}
+      {isParent && canSpawn && (
+        <Row className="entry" onClick={goIssuePoint}>
+          <Box>Issue Point</Box>
+          <Icon icon="Plus" />
         </Row>
       )}
       <Row className="entry" onClick={onLogout}>

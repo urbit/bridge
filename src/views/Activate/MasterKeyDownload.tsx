@@ -71,7 +71,7 @@ const MasterKeyDownload = () => {
   const header = useMemo(() => {
     return (
       <Box>
-        <ActivateHeader content={'Backup your Master Key.'} />
+        <ActivateHeader content={'Backup your Master Ticket.'} />
         <ActivateParagraph
           copy={
             'Download your backup and store it somewhere safe, e.g. your security deposit box or password manager.'

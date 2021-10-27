@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import cn from 'classnames';
 import { Grid, H4, HelpText } from 'indigo-react';
 import { Just, Nothing } from 'folktale/maybe';
+import { azimuth } from 'azimuth-js';
 import * as ob from 'urbit-ob';
 
 import View from 'components/View';
@@ -10,9 +11,11 @@ import Crumbs from 'components/Crumbs';
 import Sigil from 'components/Sigil';
 import Blinky from 'components/Blinky';
 import NavHeader from 'components/NavHeader';
+import { ForwardButton } from 'components/Buttons';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import useCurrentPointName from 'lib/useCurrentPointName';
+import useCurrentPermissions from 'lib/useCurrentPermissions';
 import * as need from 'lib/need';
 
 import { usePointCursor } from 'store/pointCursor';
@@ -168,6 +171,13 @@ export default function Residents() {
   const [currentTab, _setCurrentTab] = useState(NAMES.ALL);
   const [page, setPage] = useState(0);
 
+  const goSenate = useCallback(() => push(names.SENATE), [push, names]);
+
+  const goIssuePoint = useCallback(() => push(names.ISSUE_CHILD), [
+    names.ISSUE_CHILD,
+    push,
+  ]);
+
   const setCurrentTab = useCallback(
     tab => {
       setPage(0);
@@ -199,6 +209,25 @@ export default function Residents() {
   const onDecline = isRequests && _onDecline;
 
   const points = isRequests ? requests : residents;
+  const { canSpawn, canVote } = useCurrentPermissions();
+
+  const senateButton = (() => {
+    if (azimuth.getPointSize(point) !== azimuth.PointSize.Galaxy) {
+      return null;
+    }
+    return (
+      <>
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!canVote}
+          onClick={goSenate}>
+          Senate
+        </Grid.Item>
+        <Grid.Divider />
+      </>
+    );
+  })();
 
   return (
     <View pop={pop} inset>
@@ -211,6 +240,16 @@ export default function Residents() {
         <Grid.Item full as={H4} className="mt4">
           Residents
         </Grid.Item>
+        <Grid.Divider />
+        <Grid.Item
+          full
+          as={ForwardButton}
+          disabled={!canSpawn}
+          onClick={goIssuePoint}>
+          Issue Point
+        </Grid.Item>
+        <Grid.Divider />
+        {senateButton}
         <Grid.Item
           full
           className="mt1"

@@ -9,7 +9,7 @@ import LoginSelector from './LoginSelector';
 import { ReactComponent as MetamaskIcon } from 'assets/metamask.svg';
 import { ReactComponent as WalletConnectIcon } from 'assets/wallet-connect.svg';
 
-const NAMES = {
+export const NAMES = {
   METAMASK: 'METAMASK',
   MNEMONIC: 'MNEMONIC',
   WALLET_CONNECT: 'WALLET_CONNECT',
@@ -28,7 +28,7 @@ const settingsIcon = <Icon icon="Gear" />;
 
 const OPTIONS = [
   {
-    text: 'Master Key',
+    text: 'Master Ticket',
     value: NAMES.MASTER_TICKET,
     menuIcon: rightArrowIcon,
     headerIcon: settingsIcon,
