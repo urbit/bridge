@@ -131,20 +131,20 @@ const DEFAULT_CSV_NAME = 'urbit_invites.csv';
 const TRANSACTION_STATUS_ICONS = {
   confirmed: 'Checkmark',
   pending: 'Clock',
-  sending: 'ArrowEast',
+  sending: 'ArrowNorth',
   failed: 'X',
   unknown: 'NullIcon',
 };
 
 const TRANSACTION_TYPE_ICONS = {
-  spawn: 'ArrowEast',
+  spawn: 'Node',
   'configure-keys': 'BootNode',
   'transfer-point': 'Swap',
   'set-management-proxy': 'ArrowRefresh',
 };
 
 const TRANSACTION_TYPE_TITLES = {
-  spawn: 'Point Issued',
+  spawn: 'Point Spawned',
   'configure-keys': 'Network Keys Configured',
   'transfer-point': 'Point Transferred',
   'set-management-proxy': 'Management Key Changed',

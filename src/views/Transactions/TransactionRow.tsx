@@ -1,4 +1,5 @@
 import cn from 'classnames';
+import * as ob from 'urbit-ob';
 import { Box, Icon, Row } from '@tlon/indigo-react';
 import { RollerTransaction } from '@urbit/roller-api';
 import { format, fromUnixTime } from 'date-fns';
@@ -11,8 +12,11 @@ import {
 import { abbreviateAddress } from 'lib/utils/address';
 import { useMemo } from 'react';
 import { useRollerStore } from 'store/roller';
+import LayerIndicator from 'components/L2/LayerIndicator';
+import { isPlanet, isStar } from 'lib/utils/point';
 
 export const TransactionRow = ({
+  ship,
   type,
   hash,
   status,
@@ -20,9 +24,24 @@ export const TransactionRow = ({
 }: RollerTransaction) => {
   const { nextRoll } = useRollerStore();
 
+  // For spawn events (associated with the spawner), we want to show the spawnee tier;
+  // For all other events we will show the event's ship's tier
+  const pointLabel = useMemo(() => {
+    const azimuthIndex = ob.patp2dec(`~${ship}`);
+    if (type === 'spawn') {
+      return isStar(azimuthIndex) ? 'Planet' : 'Star';
+    } else {
+      return isStar(azimuthIndex)
+        ? 'Star'
+        : isPlanet(azimuthIndex)
+        ? 'Planet'
+        : 'Galaxy';
+    }
+  }, [ship, type]);
+
   const label = useMemo(() => {
-    return TRANSACTION_TYPE_TITLES[type] || type;
-  }, [type]);
+    return TRANSACTION_TYPE_TITLES[type].replace('Point', pointLabel) || type;
+  }, [pointLabel, type]);
 
   const icon = useMemo(() => {
     return <Icon icon={TRANSACTION_TYPE_ICONS[type] || 'Bug'} />;
@@ -62,10 +81,16 @@ export const TransactionRow = ({
         <span>
           <Icon icon={TRANSACTION_STATUS_ICONS[status] || 'Bug'} />
         </span>
-        <span>{status === 'pending' ? nextRoll : titleize(status)}</span>
+        <span>
+          {status === 'pending'
+            ? nextRoll
+            : status === 'confirmed'
+            ? 'Completed'
+            : titleize(status)}
+        </span>
       </div>
     );
-  }, [status, nextRoll]);
+  }, [nextRoll, status]);
 
   return (
     <Box className="transaction-row">
@@ -76,7 +101,10 @@ export const TransactionRow = ({
           <Box className="status">{statusBadge}</Box>
         </Row>
         <Row className="info-row">
-          <Box className="hash">{shortHash}</Box>
+          <Box className="hash-container">
+            <Box className="hash">{shortHash}</Box>
+            <LayerIndicator layer={2} size={'sm'} />
+          </Box>
           <Box className="date" title={longDate}>
             {shortDate}
           </Box>
