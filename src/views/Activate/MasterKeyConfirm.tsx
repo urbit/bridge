@@ -78,7 +78,7 @@ const MasterKeyConfirm = () => {
         <ActivateHeader content={'Confirm Backup'} />
         <ActivateParagraph
           copy={
-            'Confirm that you have stored your Master Key somewhere safe by entering it below'
+            'Confirm that you have stored your Master Ticket somewhere safe by entering it below'
           }
         />
       </Box>

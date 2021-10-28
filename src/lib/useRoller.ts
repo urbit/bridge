@@ -145,11 +145,11 @@ export default function useRoller() {
         throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
       }
 
-      if (Just.hasInstance(authMnemonic)) {
-        throw new Error(
-          "Auth key Error: A management mnemonic can't create invite codes"
-        );
-      }
+      // if (Just.hasInstance(authMnemonic)) {
+      //   throw new Error(
+      //     "Auth key Error: A management mnemonic can't create invite codes"
+      //   );
+      // }
       let planets: UnspawnedPoints = await api.getUnspawned(_point);
 
       const pendingTxs = await api.getPendingByShip(_point);

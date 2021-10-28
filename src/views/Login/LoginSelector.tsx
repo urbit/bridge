@@ -1,16 +1,28 @@
 import React, { useCallback, useState } from 'react';
 import cn from 'classnames';
 import { Grid } from 'indigo-react';
+import { Box, Button, Icon, Row, Text } from '@tlon/indigo-react';
+import { useHistory } from 'store/history';
+import { Just, Nothing } from 'folktale/maybe';
+import { FORM_ERROR } from 'final-form';
+
+import { useWallet } from 'store/wallet';
+import { useNetwork } from 'store/network';
+import { usePointCursor } from 'store/pointCursor';
+
+import { WALLET_TYPES } from 'lib/constants';
+import { MetamaskWallet } from 'lib/metamask';
+import { getAuthToken } from 'lib/authToken';
+import * as need from 'lib/need';
+import { useWalletConnect } from 'lib/useWalletConnect';
+
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
-import { Box, Button, Icon, Row, Text } from '@tlon/indigo-react';
-import L2BackHeader from 'components/L2/Headers/L2BackHeader';
-
-import './LoginSelector.scss';
-import { useHistory } from 'store/history';
 import Modal from 'components/L2/Modal';
 import L2BackButton from 'components/L2/Headers/L2BackButton';
+import './LoginSelector.scss';
+import { NAMES } from './Other';
 
 interface LoginSelectorProps {
   className: string;
@@ -23,6 +35,7 @@ interface LoginSelectorProps {
   }[];
   currentTab?: string;
   setCurrentTab: (tab?: string) => void;
+  goHome: () => void;
 }
 
 export default function LoginSelector({
@@ -31,16 +44,82 @@ export default function LoginSelector({
   options,
   currentTab,
   setCurrentTab,
+  goHome,
   // Tab props
   ...rest
 }: LoginSelectorProps) {
   const { push, names }: any = useHistory();
   const [showModal, setShowModal] = useState(false);
 
+  const {
+    setWallet,
+    setWalletType,
+    resetWallet,
+    setAuthToken,
+  }: any = useWallet();
+
+  const { setPointCursor }: any = usePointCursor();
+  const { authenticate } = useWalletConnect();
+  const { web3 }: any = useNetwork();
+  const _web3 = need.web3(web3);
+
   const goToActivate = useCallback(() => push(names.ACTIVATE), [
     push,
     names.ACTIVATE,
   ]);
+
+  const connectWalletConnect = async () => {
+    resetWallet();
+    setWalletType(WALLET_TYPES.WALLET_CONNECT);
+    setPointCursor(Nothing());
+    await authenticate();
+    goHome();
+  };
+
+  const connectMetamask = useCallback(async () => {
+    try {
+      resetWallet();
+      setWalletType(WALLET_TYPES.METAMASK);
+      setPointCursor(Nothing());
+
+      const accounts = await (window as any).ethereum.send(
+        'eth_requestAccounts'
+      );
+      const wallet = new MetamaskWallet(accounts.result[0]);
+
+      const authToken = await getAuthToken({
+        address: wallet.address,
+        walletType: WALLET_TYPES.METAMASK,
+        web3: _web3,
+      });
+
+      setAuthToken(Just(authToken));
+      setWallet(Just(wallet));
+      setWalletType(WALLET_TYPES.METAMASK);
+      goHome();
+    } catch (e) {
+      console.error(e);
+      return { [FORM_ERROR]: (e as any).message };
+    }
+  }, [
+    _web3,
+    setAuthToken,
+    setWallet,
+    setWalletType,
+    resetWallet,
+    setPointCursor,
+    goHome,
+  ]);
+
+  const selectOption = (value: string) => () => {
+    if (value === NAMES.METAMASK) {
+      connectMetamask();
+    } else if (value === NAMES.WALLET_CONNECT) {
+      connectWalletConnect();
+    } else {
+      setCurrentTab(value);
+    }
+  };
 
   if (!currentTab) {
     return (
@@ -50,7 +129,7 @@ export default function LoginSelector({
             <Grid.Item
               full
               className={cn('f5 pv3 rel pointer login-menu-item')}
-              onClick={() => setCurrentTab(option.value)}>
+              onClick={selectOption(option.value)}>
               {option.text}
               {option.menuIcon}
             </Grid.Item>
@@ -109,7 +188,13 @@ export default function LoginSelector({
           </Row>
         </HeaderPane>
         <BodyPane className="login-body-pane">
-          <Grid.Item full as={Tab} {...rest} className="login-selector" />
+          <Grid.Item
+            full
+            as={Tab}
+            {...rest}
+            goHome={goHome}
+            className="login-selector"
+          />
         </BodyPane>
       </Window>
     </Box>
