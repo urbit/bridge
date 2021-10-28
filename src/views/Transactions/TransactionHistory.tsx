@@ -144,7 +144,7 @@ const TransactionHistory = () => {
                         <PatpRow patp={patp} />
                         {txnsByPatp[patp]
                           .sort((a, b) => {
-                            return a.time - b.time;
+                            return b.time - a.time;
                           })
                           .map(tx => (
                             <TransactionRow key={tx.time} {...tx} />

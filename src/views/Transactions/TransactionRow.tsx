@@ -78,16 +78,10 @@ export const TransactionRow = ({
   const statusBadge = useMemo(() => {
     return (
       <div className={cn(['badge', status])}>
-        <span>
+        <span className={'icon-wrapper'}>
           <Icon icon={TRANSACTION_STATUS_ICONS[status] || 'Bug'} />
         </span>
-        <span>
-          {status === 'pending'
-            ? nextRoll
-            : status === 'confirmed'
-            ? 'Completed'
-            : titleize(status)}
-        </span>
+        <span>{status === 'pending' ? nextRoll : titleize(status)}</span>
       </div>
     );
   }, [nextRoll, status]);
