@@ -47,6 +47,7 @@
     "buffer": "^5.6.1",
     "classnames": "^2.2.6",
     "copy-to-clipboard": "^3.2.0",
+    "date-fns": "^2.25.0",
     "ethereum-blockies-base64": "^1.0.2",
     "ethereumjs-util": "^7.0.10",
     "file-saver": "^2.0.0",
