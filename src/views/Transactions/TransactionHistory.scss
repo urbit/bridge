@@ -230,11 +230,20 @@
           &.failed {
             background-color: rgb(246,200,196);
             color: rgb(236,81,66);
-            width: 58px;
+            width: 62px;
+
+            span.icon-wrapper {
+              height: 16px;
+              width: 16px;
+              border-radius: 50%;
+              background-color: #FF4136;
+            }
 
             svg {
+              padding-top: 1px;
+              
               path {
-                fill: rgb(236,81,66);;
+                fill: white;
               }
             }
           }
@@ -249,6 +258,10 @@
                 fill: #000;
               }
             }
+          }
+
+          &.unknown {
+            width: 82px;
           }
         }
       }

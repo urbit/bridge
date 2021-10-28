@@ -132,7 +132,7 @@ const TRANSACTION_STATUS_ICONS = {
   confirmed: 'Checkmark',
   pending: 'Clock',
   sending: 'ArrowNorth',
-  failed: 'X',
+  failed: 'ExclaimationMark',
   unknown: 'NullIcon',
 };
 
