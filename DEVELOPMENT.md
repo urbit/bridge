@@ -161,10 +161,7 @@ To work with the L2 aggregator locally, set up the local environment like so:
 npm run pilot-l2
 
 # Build urbit at naive/roller branch, start a local fake ship, then run these in the dojo:
-:azimuth|watch 'http://0.0.0.0:8545' %local
-|start %roller
-|start %roller-rpc
-
-# If having CORS issues with API requests, try this:
 |cors-approve 'http://localhost:3000'
+:azimuth|watch 'http://0.0.0.0:8545' %local
+|rein %base [& %roller] [& %roller-rpc] [& %azimuth-rpc]
 ```
