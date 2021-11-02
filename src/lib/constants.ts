@@ -137,17 +137,30 @@ const TRANSACTION_STATUS_ICONS = {
 };
 
 const TRANSACTION_TYPE_ICONS = {
-  spawn: 'Node',
+  adopt: 'CreateGroup',
+  'cancel-escape': 'X',
   'configure-keys': 'BootNode',
-  'transfer-point': 'Swap',
+  detach: 'BootNode',
+  escape: 'Node',
+  reject: 'X',
   'set-management-proxy': 'ArrowRefresh',
+  'set-transfer-proxy': 'ArrowRefresh',
+  spawn: 'Node',
+  'transfer-point': 'Swap',
 };
 
 const TRANSACTION_TYPE_TITLES = {
-  spawn: 'Point Spawned',
+  adopt: 'Adopted',
+  'cancel-escape': 'Escape Canceled',
   'configure-keys': 'Network Keys Configured',
+  detach: 'Detached',
+  escape: 'Escaped',
+  reject: 'Rejected',
+  'set-management-proxy': 'Management Proxy Changed',
+  'set-spawn-proxy': 'Spawn Proxy Changed',
+  'set-transfer-proxy': 'Transfer Proxy Changed',
+  spawn: 'Point Spawned',
   'transfer-point': 'Point Transferred',
-  'set-management-proxy': 'Management Key Changed',
 };
 const DUMMY_L2_ADDRESS = '0x1111111111111111111111111111111111111111';
 
