@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import _ from 'lodash';
 import * as azimuth from 'azimuth-js';
 import * as need from 'lib/need';
-import { Just } from 'folktale/maybe';
+import SecureLS from 'secure-ls';
 
 import { Invite } from 'lib/types/Invite';
 import { convertToInt } from './convertToInt';
 import { isDevelopment, isRopsten } from './flags';
-import { hasInvite, generateInviteWallet } from './utils/roller';
-import { INVITES_PER_PAGE, ROLLER_HOSTS } from './constants';
+import { generateInviteWallet, getPendingSpawns } from './utils/roller';
+import { ROLLER_HOSTS } from './constants';
 
 import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
@@ -38,8 +37,6 @@ import {
   Options,
   EthAddress,
   UnspawnedPoints,
-  SpawnParams,
-  L2Data,
 } from '@urbit/roller-api';
 
 import {
@@ -50,13 +47,7 @@ import {
   registerProxyAddress,
 } from './utils/roller';
 
-function isSpawn(tx: L2Data | undefined): tx is SpawnParams {
-  return (tx as SpawnParams) !== undefined;
-}
-
-function isShipNumber(ship: number | string | undefined): ship is number {
-  return (ship as number) !== undefined;
-}
+const ONE_SECOND = 1000;
 
 const inviteTemplate = (
   planet: number,
@@ -82,6 +73,7 @@ export default function useRoller() {
     nextBatchTime,
     currentL2,
     invitePoints,
+    invites,
     setNextBatchTime,
     setNextRoll,
     setPendingTransactions,
@@ -131,6 +123,11 @@ export default function useRoller() {
       });
   }, [api]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const ls = new SecureLS({
+    isCompression: false,
+    encryptionSecret: authToken.getOrElse('default'),
+  });
+
   const generateInviteCodes = useCallback(
     async (numInvites: number) => {
       const _point = need.point(pointCursor);
@@ -154,25 +151,12 @@ export default function useRoller() {
 
       const pendingTxs = await api.getPendingByShip(_point);
 
-      const pendingSpawns = _.reduce(
-        pendingTxs,
-        (acc, pending) => {
-          return isSpawn(pending.rawTx?.tx) &&
-            isShipNumber(pending.rawTx?.tx.data.ship)
-            ? acc.add(pending.rawTx?.tx.data.ship!)
-            : acc;
-        },
-        new Set<number>()
-      );
+      const pendingSpawns = getPendingSpawns(pendingTxs);
 
       planets = planets.filter((point: number) => !pendingSpawns.has(point));
 
       const starInfo = await api.getPoint(_point);
-      const tickets: {
-        ticket: string;
-        planet: number;
-        owner: string;
-      }[] = [];
+      const invites: Invite[] = [];
       const requests: Promise<string>[] = [];
 
       const proxy = getSpawnProxy(starInfo.ownership!, _wallet.address);
@@ -244,12 +228,15 @@ export default function useRoller() {
         );
         await Promise.all(requests);
 
-        tickets.push({
+        invites.push({
+          hash: '',
           ticket,
           planet,
           owner: inviteWallet.ownership.keys.address,
         });
       }
+
+      setStoredInvites(ls, invites);
     },
     [
       api,
@@ -259,7 +246,7 @@ export default function useRoller() {
       wallet,
       web3,
       getDetails,
-      authMnemonic,
+      ls,
       setInviteGeneratingNum,
     ]
   );
@@ -290,23 +277,25 @@ export default function useRoller() {
       const newPending = await api.getPendingByShip(curPoint);
 
       setPendingTransactions(newPending);
-
-      // const allTransactions = await api.getHistory()
     } catch (error) {
       console.warn('ERROR GETTING PENDING', error);
     }
   }, [api, setPendingTransactions, pointCursor]);
 
+  const generateInviteInfo = async (planet: number, _authToken: string) => {
+    const { ticket, inviteWallet } = await generateInviteWallet(
+      planet,
+      _authToken
+    );
+
+    return inviteTemplate(planet, ticket, inviteWallet.ownership.keys.address);
+  };
+
   const getInvites = useCallback(
-    async (isL2: boolean, page: number, getAll = false) => {
+    async (isL2: boolean, getAll = false) => {
       try {
         const curPoint: number = Number(need.point(pointCursor));
-        const storedInvites = getStoredInvites(curPoint);
-        if (storedInvites.length) {
-          setInvites(storedInvites);
-        } else {
-          setInvites(invitePoints.map(p => inviteTemplate(p)));
-        }
+        setInvites(invitePoints.map(p => inviteTemplate(p)));
 
         const _authToken = authToken.getOrElse(null);
         const _contracts = contracts.getOrElse(null);
@@ -332,38 +321,27 @@ export default function useRoller() {
 
           const newInvites: Invite[] = [];
           // Iterate over all of the stored invites, generating wallet info as necessary
+          const storedInvites = getStoredInvites(ls);
+
           for (let i = 0; i < invitePlanets.length; i++) {
             setInviteGeneratingNum(i + 1);
             const planet = invitePlanets[i];
-            const invite = storedInvites.find(hasInvite(planet));
+            const invite = storedInvites[planet];
 
-            const start = page * INVITES_PER_PAGE;
-            const end = start + INVITES_PER_PAGE;
-
-            if (invite) {
+            if (invite?.ticket) {
               newInvites.push(invite);
-            } else if (getAll || (i >= start && i < end)) {
+            } else if (getAll) {
               if (isDevelopment) {
                 console.log('MISSING INVITE INFO', planet);
               }
-              const { ticket, inviteWallet } = await generateInviteWallet(
-                planet,
-                _authToken
-              );
-
-              newInvites.push(
-                inviteTemplate(
-                  planet,
-                  ticket,
-                  inviteWallet.ownership.keys.address
-                )
-              );
+              const newInvite = await generateInviteInfo(planet, _authToken);
+              newInvites.push(newInvite);
             } else {
               newInvites.push(inviteTemplate(planet));
             }
           }
 
-          setStoredInvites(curPoint, newInvites);
+          setStoredInvites(ls, newInvites);
           setInvites(newInvites);
 
           return newInvites;
@@ -380,9 +358,26 @@ export default function useRoller() {
       getDetails,
       pointCursor,
       invitePoints,
+      ls,
       setInvites,
       setInviteGeneratingNum,
     ]
+  );
+
+  const showInvite = useCallback(
+    async (planet: number) => {
+      const _authToken = authToken.getOrElse(null);
+
+      if (_authToken) {
+        const newInvite = await generateInviteInfo(planet, _authToken);
+        const newInvites = invites.map(invite =>
+          invite.planet === planet ? newInvite : invite
+        );
+        setInvites(newInvites);
+        setStoredInvites(ls, newInvites);
+      }
+    },
+    [authToken, invites, ls, setInvites]
   );
 
   const getNumInvites = useCallback(
@@ -400,12 +395,22 @@ export default function useRoller() {
             curPoint
           );
 
+          const newPending = await api.getPendingByShip(curPoint);
+          const pendingSpawns = getPendingSpawns(newPending);
+
           const outgoingPoints = getOutgoingPoints(
             controlledPoints,
             getDetails
           ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
 
-          setInvitePoints(invitePoints.concat(outgoingPoints));
+          console.log(pendingSpawns, outgoingPoints, invitePoints)
+
+          setPendingTransactions(newPending);
+          setInvitePoints(
+            invitePoints
+              .concat(outgoingPoints)
+              .filter(p => !pendingSpawns.has(p))
+          );
         }
       } catch (e) {
         if (isDevelopment) {
@@ -416,11 +421,12 @@ export default function useRoller() {
     [
       api,
       pointCursor,
-      setInvitePoints,
       authToken,
       contracts,
       controlledPoints,
       getDetails,
+      setInvitePoints,
+      setPendingTransactions,
     ]
   );
 
@@ -645,12 +651,11 @@ export default function useRoller() {
       const nextRoll = getTimeToNextBatch(nextBatchTime, new Date().getTime());
       setNextRoll(nextRoll);
 
-      if (nextBatchTime <= new Date().getTime()) {
+      if (nextBatchTime - ONE_SECOND <= new Date().getTime()) {
         api.getRollerConfig().then(response => {
           setNextBatchTime(response.nextBatch);
+          getNumInvites(currentL2);
         });
-
-        getInvites(currentL2, 0);
       }
     }, 1000);
 
@@ -669,5 +674,7 @@ export default function useRoller() {
     setProxyAddress,
     configureNetworkingKeys,
     getNumInvites,
+    showInvite,
+    ls,
   };
 }

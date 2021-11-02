@@ -45,7 +45,7 @@ export default function NetworkingKeys({ point }) {
         ),
         Just: ({ value: key }) => (
           <>
-            <Grid.Item full as="code" className="f5 mono wrap">
+            <Grid.Item full as="div" className="f5 mono">
               0x
             </Grid.Item>
             <Grid.Item full as="code" className="f5 mono wrap">
@@ -58,59 +58,66 @@ export default function NetworkingKeys({ point }) {
   );
 
   const renderDetail = (title, value) => (
-    <Flex.Item as={Flex} col>
-      <Flex.Item as={H5} className="gray4">
+    <Flex.Item as={Flex} row>
+      <Flex.Item style={{ minWidth: 192, marginBottom: 8 }} as={H5}>
         {title}
       </Flex.Item>
       {value.matchWith({
         Nothing: () => (
-          <Flex.Item as={Text} className="f5 gray4">
+          <Flex.Item as={H5} className="f5 gray4">
             Unset
           </Flex.Item>
         ),
-        Just: ({ value }) => <Flex.Item as={Text}>{value}</Flex.Item>,
+        Just: ({ value }) => <Flex.Item as={H5}>{value}</Flex.Item>,
       })}
     </Flex.Item>
   );
 
+  const revisionNumber = details
+    .map(d => d.keyRevisionNumber)
+    .matchWith({
+      Nothing: () => 0,
+      Just: ({ value }) => value,
+    });
+
+  const revisionTime = hasKeys
+    ? ` at ${getRekeyDate(point)
+        .map(date =>
+          date.matchWith({
+            Ok: r => formatDotsWithTime(r.value),
+            Error: () => 'No date available',
+          })
+        )
+        .matchWith({
+          Nothing: () => null,
+          Just: ({ value }) => value,
+        })}`
+    : '';
+
   return (
     <>
+      <h5 className="fw-bold">Network Keys</h5>
+      <h5 className="gray4">
+        Revision {revisionNumber} {revisionTime}
+      </h5>
       {renderNetworkKeySection(
-        'Authentication',
+        'Authentication Key',
         details.chain(chainKeyProp('authenticationKey'))
       )}
       {renderNetworkKeySection(
-        'Encryption',
+        'Encryption Key',
         details.chain(chainKeyProp('encryptionKey'))
       )}
-      <Grid.Item full as={Flex} row justify="between" className="mt3">
-        {renderDetail(
-          'Revision',
-          details.map(d => d.keyRevisionNumber)
-        )}
+      <Grid.Item full as={Flex} col justify="between" className="mt3">
         {renderDetail(
           'Continuity Era',
           details.map(d => d.continuityNumber)
         )}
         {renderDetail(
-          'Crypto Suite Ver.',
+          'Crypto Suite Version',
           details.map(d => d.cryptoSuiteVersion)
         )}
       </Grid.Item>
-      {/* TODO: retrieve last rekeydate, if possible?  */}
-      {hasKeys && (
-        <Grid.Item full as={Flex} row justify="between" className="mt3">
-          {renderDetail(
-            'Last Set',
-            getRekeyDate(point).map(date =>
-              date.matchWith({
-                Ok: r => formatDotsWithTime(r.value),
-                Error: () => 'No date available',
-              })
-            )
-          )}
-        </Grid.Item>
-      )}
     </>
   );
 }

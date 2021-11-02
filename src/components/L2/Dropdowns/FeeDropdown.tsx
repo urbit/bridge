@@ -78,7 +78,7 @@ export default function FeeDropdown({
             <Row
               className="price"
               onClick={selectPrice(value)}
-              key={value.wait}>
+              key={`gas-price-${ind}`}>
               {PRICE_LABELS[ind]}: {formatDisplay(value)}
             </Row>
           )

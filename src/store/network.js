@@ -84,6 +84,7 @@ function _useNetwork(initialNetworkType = null) {
         }
         case NETWORK_TYPES.ROPSTEN: {
           const endpoint = `https://ropsten.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
+          console.log('ENDPOINT', endpoint)
 
           initWeb3(
             new Web3.providers.HttpProvider(endpoint),

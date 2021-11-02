@@ -77,6 +77,10 @@
           border: 1px solid $light-gray;
           width: 390px;
           padding: 3px 8px;
+
+          &.shortened {
+            width: 300px;
+          }
         }
 
         .copy-invite, .ticket-loader {
@@ -111,6 +115,8 @@
     .generate-button {
       margin-bottom: 20px;
       border-radius: $medium-border-radius;
+      color: white;
+      background-color: black;
     }
   }
 

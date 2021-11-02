@@ -147,24 +147,27 @@
         display: flex;
         flex-direction: row;
 
-        .transfer, .spawn {
+        .transfer {
           margin: 16px 0px;
           cursor: pointer;
-          border-radius: $medium-border-radius;
-          color: white;
-          background-color: $light-gray;
           padding: 4px 8px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+
+          .radio {
+            margin-right: 8px;
+            height: 16px;
+            width: 16px;
+            border-color: black;
+
+            &.selected {
+              background-color: gray;
+            }
+          }
 
           &:hover {
             opacity: 0.8;
-          }
-
-          &.selected {
-            background-color: black;
-
-            &:hover {
-              opacity: 1;
-            }
           }
         }
 

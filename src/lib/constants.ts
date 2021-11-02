@@ -149,6 +149,7 @@ const TRANSACTION_TYPE_TITLES = {
   'transfer-point': 'Point Transferred',
   'set-management-proxy': 'Management Key Changed',
 };
+const DUMMY_L2_ADDRESS = '0x1111111111111111111111111111111111111111';
 
 export {
   CHECK_BLOCK_EVERY_MS,
@@ -188,4 +189,5 @@ export {
   TRANSACTION_STATUS_ICONS,
   TRANSACTION_TYPE_ICONS,
   TRANSACTION_TYPE_TITLES,
+  DUMMY_L2_ADDRESS,
 };
