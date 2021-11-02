@@ -10,6 +10,9 @@ import RollerRPCAPI, {
   EthAddress,
   AddressParams,
   Ship,
+  SpawnParams,
+  L2Data,
+  PendingTransaction,
 } from '@urbit/roller-api';
 
 import { deriveNetworkKeys, CRYPTO_SUITE_VERSION } from 'lib/keys';
@@ -200,3 +203,19 @@ export const reticketL2Point = async () => {};
 
 export const hasInvite = (point: number) => (invite: Invite) =>
   invite.planet === point && invite.ticket.length > 0;
+
+function isSpawn(tx: L2Data | undefined): tx is SpawnParams {
+  return (tx as SpawnParams) !== undefined;
+}
+
+function isShipNumber(ship: number | string | undefined): ship is number {
+  return (ship as number) !== undefined;
+}
+
+export const getPendingSpawns = (pendingTxs: PendingTransaction[]) =>
+  pendingTxs.reduce((acc, pending) => {
+    return isSpawn(pending.rawTx?.tx) &&
+      isShipNumber(pending.rawTx?.tx.data.ship)
+      ? acc.add(pending.rawTx?.tx.data.ship!)
+      : acc;
+  }, new Set<number>());

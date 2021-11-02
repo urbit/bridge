@@ -11,6 +11,10 @@ import ResetConfirm from './ResetKeys/ResetConfirm';
 import ResetDownload from './ResetKeys/ResetDownload';
 import ResetVerify from './ResetKeys/ResetVerify';
 import ResetExecute from './ResetKeys/ResetExecute';
+import Window from 'components/L2/Window/Window';
+import HeaderPane from 'components/L2/Window/HeaderPane';
+import BodyPane from 'components/L2/Window/BodyPane';
+import { Row } from '@tlon/indigo-react';
 
 const NAMES = {
   CONFIRM: 'CONFIRM',
@@ -50,13 +54,17 @@ export default function ResetKeys() {
   );
 
   return (
-    <LocalRouterProvider value={router}>
-      <Grid>
-        <Grid.Item full as={Flex} row align="center">
+    <Window>
+      <HeaderPane>
+        <Row className="header-row">
           <Flex.Item as={Steps} num={router.size} total={STEPS.length} />
-        </Grid.Item>
-      </Grid>
-      <Route newWallet={newWallet} setNewWallet={setNewWallet} />
-    </LocalRouterProvider>
+        </Row>
+      </HeaderPane>
+      <BodyPane>
+        <LocalRouterProvider value={router}>
+          <Route newWallet={newWallet} setNewWallet={setNewWallet} />
+        </LocalRouterProvider>
+      </BodyPane>
+    </Window>
   );
 }

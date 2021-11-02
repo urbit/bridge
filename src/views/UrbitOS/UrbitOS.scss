@@ -1,5 +1,15 @@
+@import 'style/shared/variables.scss';
+
 .os-home {
   .keyfile > svg {
     margin-right: 4px;
   }
+}
+
+.show-keys-modal-content {
+  width: 375px;
+  background-color: white;
+  padding: 1rem 1.5rem;
+  border-radius: $large-border-radius;
+  position: relative;
 }

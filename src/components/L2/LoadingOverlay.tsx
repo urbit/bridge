@@ -2,14 +2,23 @@ import { Box, LoadingSpinner } from '@tlon/indigo-react';
 
 import './LoadingOverlay.scss';
 
-const LoadingOverlay = ({ loading = false }: { loading: boolean }) => {
+const LoadingOverlay = ({
+  loading = false,
+  text,
+}: {
+  loading: boolean;
+  text?: string;
+}) => {
   if (!loading) {
     return null;
   }
 
   return (
     <Box className="loading-overlay">
-      <LoadingSpinner foreground="white" background="rgba(0,0,0,0.3)" />
+      <Box className={`${text ? 'solid' : ''}`}>
+        {text && <Box className="loader-text">{text}</Box>}
+        <LoadingSpinner foreground="white" background="rgba(0,0,0,0.3)" />
+      </Box>
     </Box>
   );
 };

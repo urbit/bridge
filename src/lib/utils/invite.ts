@@ -2,7 +2,21 @@ import * as ob from 'urbit-ob';
 
 export const generateUrl = (ticket: string, planet: number) => {
   if (ticket && planet) {
-    return `urb.it/#${ticket.slice(1)}-${ob.patp(planet).slice(1)}`;
+    return `${window.location.host}/#${ticket.slice(1)}-${ob
+      .patp(planet)
+      .slice(1)}`;
+  } else if (planet) {
+    return ob.patp(planet);
+  }
+
+  return 'No Ticket or Ship';
+};
+
+export const generateUrlAbbreviation = (ticket: string, planet: number) => {
+  if (ticket && planet) {
+    return `${window.location.host}/#${ticket.slice(1, 7)}...${ob
+      .patp(planet)
+      .slice(1)}`;
   } else if (planet) {
     return ob.patp(planet);
   }

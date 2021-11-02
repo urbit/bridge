@@ -23,7 +23,6 @@ import { GAS_LIMITS } from 'lib/constants';
 import { addHexPrefix } from 'lib/utils/address';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
-import ViewHeader from 'components/ViewHeader';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import NoticeBox from 'components/NoticeBox';
@@ -39,6 +38,10 @@ import BridgeForm from 'form/BridgeForm';
 import Condition from 'form/Condition';
 import FormError from 'form/FormError';
 import { convertToInt } from 'lib/convertToInt';
+import Window from 'components/L2/Window/Window';
+import HeaderPane from 'components/L2/Window/HeaderPane';
+import BodyPane from 'components/L2/Window/BodyPane';
+import { Box, Row } from '@tlon/indigo-react';
 
 function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
   const { urbitWallet, wallet, authMnemonic, authToken } = useWallet();
@@ -255,13 +258,15 @@ export default function UrbitOSNetworkingKeys({
     'You need this keyfile to authenticate with your OS. Please Download.';
 
   return (
-    <>
-      <Grid>
-        <Grid.Item full as={ViewHeader}>
-          {viewTitle}
-        </Grid.Item>
+    <Window>
+      <HeaderPane>
+        <Row className="header-row">
+          <h5>{viewTitle}</h5>
+        </Row>
+      </HeaderPane>
+      <BodyPane>
         {!completed && (
-          <Grid.Item className="gray4 f5" full>
+          <Grid.Item className="gray4 f5 mv2 align-self-start" full>
             Network Keys authenticate Urbit ID with Urbit OS.
           </Grid.Item>
         )}
@@ -272,6 +277,7 @@ export default function UrbitOSNetworkingKeys({
               className="mb3"
               as={DownloadKeyfileButton}
               solid
+              left
               {...keyfileBind}
             />
             <Grid.Item full as={AlertBox} className="mb8">
@@ -284,7 +290,7 @@ export default function UrbitOSNetworkingKeys({
           onValues={onValues}
           initialValues={initialValues}>
           {() => (
-            <>
+            <Box width="100%">
               {!completed && (
                 <>
                   <Grid.Item
@@ -307,6 +313,7 @@ export default function UrbitOSNetworkingKeys({
                       name="networkSeed"
                       label="Network Seed (32 bytes)"
                       disabled={inputsLocked}
+                      className="mb6"
                     />
                   </Condition>
                   <Grid.Item
@@ -315,6 +322,7 @@ export default function UrbitOSNetworkingKeys({
                     name="useDiscontinuity"
                     label="Breach Continuity"
                     disabled={inputsLocked}
+                    className="mb6"
                   />
 
                   <Grid.Item full as={FormError} />
@@ -340,10 +348,10 @@ export default function UrbitOSNetworkingKeys({
                   onReturn={() => pop()}
                 />
               )}
-            </>
+            </Box>
           )}
         </BridgeForm>
-      </Grid>
-    </>
+      </BodyPane>
+    </Window>
   );
 }

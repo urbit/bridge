@@ -31,6 +31,7 @@ import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 import CopiableAddress from 'components/copiable/CopiableAddress';
 import { convertToInt } from 'lib/convertToInt';
+import useCurrentPermissions from 'lib/useCurrentPermissions';
 
 export function useIssueChild() {
   const { contracts } = useNetwork();
@@ -128,11 +129,13 @@ export default function IssueChild() {
     [construct, unconstruct]
   );
 
+  const { isStar } = useCurrentPermissions();
+
   return (
     <View pop={pop} inset>
       <Grid>
         <Grid.Item full as={ViewHeader}>
-          Issue Child Point
+          Spawn {isStar ? ' Planets' : ' Stars'}
         </Grid.Item>
 
         {isDefaultState && (

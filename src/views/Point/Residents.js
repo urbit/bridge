@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import cn from 'classnames';
 import { Grid, H4, HelpText } from 'indigo-react';
 import { Just, Nothing } from 'folktale/maybe';
-import { azimuth } from 'azimuth-js';
 import * as ob from 'urbit-ob';
 
 import View from 'components/View';
@@ -21,6 +20,7 @@ import * as need from 'lib/need';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import Footer from 'components/Footer';
+import { isGalaxy } from 'lib/utils/point';
 
 const NAMES = {
   REQUESTS: 'REQUESTS',
@@ -209,10 +209,10 @@ export default function Residents() {
   const onDecline = isRequests && _onDecline;
 
   const points = isRequests ? requests : residents;
-  const { canSpawn, canVote } = useCurrentPermissions();
+  const { canSpawn, canVote, isStar } = useCurrentPermissions();
 
   const senateButton = (() => {
-    if (azimuth.getPointSize(point) !== azimuth.PointSize.Galaxy) {
+    if (!isGalaxy(point)) {
       return null;
     }
     return (
@@ -246,7 +246,7 @@ export default function Residents() {
           as={ForwardButton}
           disabled={!canSpawn}
           onClick={goIssuePoint}>
-          Issue Point
+          Spawn {isStar ? ' Planets' : ' Stars'}
         </Grid.Item>
         <Grid.Divider />
         {senateButton}

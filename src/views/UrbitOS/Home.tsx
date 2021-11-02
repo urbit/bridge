@@ -16,12 +16,12 @@ import { ReactComponent as KeyfileIcon } from 'assets/keyfile.svg';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import { L1Point } from 'lib/types/L1Point';
-import AlertBox from 'components/AlertBox';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 import { Box, Button, Row } from '@tlon/indigo-react';
 import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
 
 import './UrbitOS.scss';
+import Modal from 'components/L2/Modal';
 
 export default function UrbitOSHome() {
   const { pointCursor }: any = usePointCursor();
@@ -109,13 +109,11 @@ export default function UrbitOSHome() {
             </Button>
             {hasSetNetworkingKeys && (
               <Button className="secondary" onClick={toggleShowKeys}>
-                {showKeys ? 'Hide' : 'View'}
+                View
               </Button>
             )}
           </Row>
         </Row>
-
-        {showKeys && <Grid.Item full as={NetworkingKeys} point={point} />}
 
         {!!code && (
           <Row className="between-row management">
@@ -129,6 +127,15 @@ export default function UrbitOSHome() {
           </Row>
         )}
       </BodyPane>
+
+      <Modal show={showKeys} hide={toggleShowKeys}>
+        <Box className="show-keys-modal-content">
+          <Box className="close" onClick={toggleShowKeys}>
+            &#215;
+          </Box>
+          <Grid.Item full as={NetworkingKeys} point={point} />
+        </Box>
+      </Modal>
     </Window>
   );
 }

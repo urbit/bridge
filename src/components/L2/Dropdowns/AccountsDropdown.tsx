@@ -31,7 +31,7 @@ interface AccountsDropdownProps {
 const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
   const [open, setOpen] = useState<boolean>(false);
   const walletInfo: any = useWallet();
-  const { push, names, reset }: any = useHistory();
+  const { push, popTo, names, reset }: any = useHistory();
   const { setPointCursor }: any = usePointCursor();
   const { controlledPoints }: any = usePointCache();
   const { currentL2 }: any = useRollerStore();
@@ -61,6 +61,8 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
     [push, names.POINT, setOpen, setPointCursor]
   );
 
+  const goHome = useCallback(() => popTo(names.POINTS), [names, popTo]);
+
   const goMigrate = useCallback(() => push(names.MIGRATE_L2), [
     names.MIGRATE_L2,
     push,
@@ -81,7 +83,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
     reset();
   };
 
-  const { canSpawn, isParent } = useCurrentPermissions();
+  const { canSpawn, isParent, isStar } = useCurrentPermissions();
 
   return (
     <Dropdown
@@ -93,7 +95,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
         className="current-address"
         position={TooltipPosition.Left}
         text={currentAddress}>
-        {displayAddress}
+        <Box onClick={goHome}>{displayAddress}</Box>
       </CopiableAddressWrap>
       <Box className="divider" />
       <Box className="points">
@@ -102,7 +104,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
 
           return (
             <Row
-              className="entry"
+              className="entry point"
               onClick={selectPoint(point)}
               key={`point-${point}`}>
               <Box>{patp}</Box>
@@ -135,7 +137,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
       )}
       {isParent && canSpawn && (
         <Row className="entry" onClick={goIssuePoint}>
-          <Box>Issue Point</Box>
+          <Box>Spawn{isStar ? ' Planets' : ' Stars'}</Box>
           <Icon icon="Plus" />
         </Row>
       )}

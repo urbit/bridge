@@ -1,7 +1,7 @@
 @import 'style/shared/variables.scss';
 
 .loading-overlay {
-  background-color: rgba(0, 0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.3);
   position: fixed;
   top: 0;
   bottom: 0;
@@ -13,9 +13,27 @@
   align-items: center;
   z-index: 1000;
 
+  .solid {
+    width: 300px;
+    height: 160px;
+    background-color: rgb(91, 91, 91);
+    padding: 1rem 2rem 2rem;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loader-text {
+    color: white;
+    margin-bottom: 2rem;
+    width: 200px;
+    text-align: center;
+    line-height: 1.5rem;
+  }
+
   svg {
-    display: none;
-    margin-bottom: 120px;
     height: 60px;
     width: 60px;
   }

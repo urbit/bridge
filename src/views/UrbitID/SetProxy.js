@@ -32,6 +32,10 @@ import {
 } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
+import Window from 'components/L2/Window/Window';
+import HeaderPane from 'components/L2/Window/HeaderPane';
+import BodyPane from 'components/L2/Window/BodyPane';
+import { Row } from '@tlon/indigo-react';
 
 const getL2ProxyName = proxy =>
   proxy === PROXY_TYPE.MANAGEMENT
@@ -207,83 +211,88 @@ export default function SetProxy() {
   }, [completed, properProxyType]);
 
   return (
-    <Grid>
-      <Grid.Item full className="f5 mb2">
-        {header}
-      </Grid.Item>
-
-      {!completed && (
-        <>
-          <Grid.Item full as={Text} className="mb4 f5 gray4">
-            {proxyTypeToHumanDescription(data.proxyType)}
-          </Grid.Item>
-          <Grid.Item
-            full
-            as={Text}
-            className={cn('f6', {
-              green3: completed,
-            })}>
-            Current
-          </Grid.Item>
-        </>
-      )}
-
-      <BridgeForm
-        validate={validate}
-        onValues={onValues}
-        initialValues={initialValues}>
-        {({ handleSubmit, values }) => (
-          <>
-            <Grid.Item full as={Flex} row justify="between" align="center">
-              <Flex.Item
-                flex
+    <Window>
+      <HeaderPane>
+        <Row className="header-row">
+          <h5>{header}</h5>
+        </Row>
+      </HeaderPane>
+      <BodyPane>
+        <Grid style={{ width: '100%' }}>
+          {!completed && (
+            <>
+              <Grid.Item full as={Text} className="mb4 f5 gray4">
+                {proxyTypeToHumanDescription(data.proxyType)}
+              </Grid.Item>
+              <Grid.Item
+                full
                 as={Text}
-                className={cn('mono mv3 gray4', {
-                  black: !completed && isProxySet,
-                  gray4: !completed && !isProxySet,
+                className={cn('f6', {
                   green3: completed,
                 })}>
-                {isProxySet ? proxyAddress : 'Unset'}
-              </Flex.Item>
-            </Grid.Item>
-
-            {completed ? (
-              <Grid.Item full className="mb4" />
-            ) : (
-              <Grid.Item
-                full
-                as={AddressInput}
-                className="mv4"
-                name="address"
-                label={`New ${properProxyType} Address`}
-                disabled={inputsLocked || values.unset}
-              />
-            )}
-
-            <Grid.Item full as={FormError} />
-
-            {txType === 'L2' ? (
-              <Grid.Item
-                as={Button}
-                full
-                className="set-proxy"
-                center
-                solid
-                disabled={values.unset}
-                onClick={setProxy}>
-                {'Sign Transaction'}
+                Current
               </Grid.Item>
-            ) : (
-              <Grid.Item
-                full
-                as={InlineEthereumTransaction}
-                {...bind}
-                onReturn={() => pop()}
-              />
+            </>
+          )}
+
+          <BridgeForm
+            validate={validate}
+            onValues={onValues}
+            initialValues={initialValues}>
+            {({ handleSubmit, values }) => (
+              <>
+                <Grid.Item full as={Flex} row justify="between" align="center">
+                  <Flex.Item
+                    flex
+                    as={Text}
+                    className={cn('mono mv3 gray4', {
+                      black: !completed && isProxySet,
+                      gray4: !completed && !isProxySet,
+                      green3: completed,
+                    })}>
+                    {isProxySet ? proxyAddress : 'Unset'}
+                  </Flex.Item>
+                </Grid.Item>
+
+                {completed ? (
+                  <Grid.Item full className="mb4" />
+                ) : (
+                  <Grid.Item
+                    full
+                    as={AddressInput}
+                    className="mv4"
+                    name="address"
+                    label={`New ${properProxyType} Address`}
+                    disabled={inputsLocked || values.unset}
+                  />
+                )}
+
+                <Grid.Item full as={FormError} />
+
+                {txType === 'L2' ? (
+                  <Grid.Item
+                    as={Button}
+                    full
+                    className="set-proxy"
+                    center
+                    solid
+                    disabled={values.unset}
+                    onClick={setProxy}>
+                    {'Sign Transaction'}
+                  </Grid.Item>
+                ) : (
+                  <Grid.Item
+                    full
+                    as={InlineEthereumTransaction}
+                    {...bind}
+                    onReturn={() => pop()}
+                  />
+                )}
+              </>
             )}
-          </>
-        )}
-      </BridgeForm>
-    </Grid>
+          </BridgeForm>
+        </Grid>
+      </BodyPane>
+    </Window>
   );
 }

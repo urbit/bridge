@@ -23,6 +23,10 @@ import { validateMinimumPatpByteLength } from 'lib/validators';
 import { usePointCursor } from 'store/pointCursor';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { isStar } from 'lib/utils/point';
+import Window from 'components/L2/Window/Window';
+import HeaderPane from 'components/L2/Window/HeaderPane';
+import { Box, Row } from '@tlon/indigo-react';
+import BodyPane from 'components/L2/Window/BodyPane';
 
 function useChangeSponsor() {
   const { contracts } = useNetwork();
@@ -96,32 +100,37 @@ function ChangeSponsor({ onDone }) {
     [construct, unconstruct]
   );
   return (
-    <Grid>
-      <Grid.Item full as={ViewHeader}>
-        Change Sponsor
-      </Grid.Item>
-      <BridgeForm validate={validate} onValues={onValues}>
-        {() => (
-          <>
-            <Grid.Item
-              full
-              as={PointInput}
-              name="sponsor"
-              disabled={inputsLocked}
-              label="New sponsor"
-            />
-            <Grid.Item full as={FormError} />
-            <Grid.Item
-              full
-              as={InlineEthereumTransaction}
-              {...bind}
-              onReturn={onDone}
-              label="Request"
-            />
-          </>
-        )}
-      </BridgeForm>
-    </Grid>
+    <Window>
+      <HeaderPane>
+        <Row className="header-row">
+          <h5>Change Sponsor</h5>
+        </Row>
+      </HeaderPane>
+      <BodyPane>
+        <BridgeForm validate={validate} onValues={onValues}>
+          {() => (
+            <Box width="100%">
+              <Grid.Item
+                full
+                as={PointInput}
+                name="sponsor"
+                disabled={inputsLocked}
+                label="New sponsor"
+                className="mv4"
+              />
+              <Grid.Item full as={FormError} />
+              <Grid.Item
+                full
+                as={InlineEthereumTransaction}
+                {...bind}
+                onReturn={onDone}
+                label="Request"
+              />
+            </Box>
+          )}
+        </BridgeForm>
+      </BodyPane>
+    </Window>
   );
 }
 

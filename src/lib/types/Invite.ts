@@ -4,3 +4,7 @@ export interface Invite {
   hash: string;
   owner: string;
 }
+
+export interface Invites {
+  [key: number]: Invite;
+}
