@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import * as need from 'lib/need';
+import * as ob from 'urbit-ob';
 import { useWallet } from 'store/wallet';
 import useRoller from 'lib/useRoller';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -25,7 +26,7 @@ interface GroupedTransactions {
 }
 
 const TransactionHistory = () => {
-  const { pop }: any = useLocalRouter();
+  const { pop, data }: any = useLocalRouter();
   const { api } = useRoller();
   const { wallet }: any = useWallet();
   const address = need.addressFromWallet(wallet);
@@ -34,6 +35,14 @@ const TransactionHistory = () => {
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [selectedPatp, setSelectedPatp] = useState<string | null>(null);
 
+  // Pre-filter the results if navigating from Point view
+  const filterByPoint = useMemo(() => {
+    return data?.filterByPoint.matchWith({
+      Nothing: () => null,
+      Just: (p: number) => ob.patp(p.value).replace('~', ''),
+    });
+  }, [data]);
+
   const shortAddress = useMemo(() => {
     return address.slice(0, 6);
   }, [address]);
@@ -41,8 +50,11 @@ const TransactionHistory = () => {
   const fetchTransactions = useCallback(async () => {
     const txns = await api.getHistory(address);
     setTransactions(txns);
+    if (filterByPoint) {
+      setSelectedPatp(filterByPoint);
+    }
     setLoading(false);
-  }, [address, api]);
+  }, [address, api, filterByPoint]);
 
   const selectPatp = useCallback(patp => {
     setSelectedPatp(patp);
@@ -51,17 +63,20 @@ const TransactionHistory = () => {
 
   const txnsByPatp = useMemo(() => {
     return transactions.reduce((memo, tx) => {
-      if (Object.keys(memo).includes(tx.ship)) {
-        memo[tx.ship].push(tx);
+      const patp = tx.ship;
+      if (Object.keys(memo).includes(patp)) {
+        memo[patp].push(tx);
       } else {
-        memo[tx.ship] = [tx];
+        memo[patp] = [tx];
       }
       return memo;
     }, {} as GroupedTransactions);
   }, [transactions]);
 
   const txPatps = useMemo(() => {
-    return Object.keys(txnsByPatp).sort();
+    return Object.keys(txnsByPatp).sort((a, b) => {
+      return ob.patp2dec(`~${a}`) - ob.patp2dec(`~${b}`);
+    });
   }, [txnsByPatp]);
 
   const filteredPatps = useMemo(() => {
@@ -74,7 +89,9 @@ const TransactionHistory = () => {
 
   useEffect(() => {
     fetchTransactions();
-  }, [fetchTransactions]);
+    // Load the TX history only once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <View

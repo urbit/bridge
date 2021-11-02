@@ -42,10 +42,10 @@ const L2PointHeader = ({
     push,
     names.INVITE_COHORT,
   ]);
-  const goToHistory = useCallback(() => push(names.TRANSACTION_HISTORY), [
-    names.TRANSACTION_HISTORY,
-    push,
-  ]);
+  const goToHistory = useCallback(
+    () => push(names.TRANSACTION_HISTORY, { filterByPoint: pointCursor }),
+    [names.TRANSACTION_HISTORY, pointCursor, push]
+  );
 
   const showInvites =
     !hideInvites && Boolean(pointCursor?.value && isStar(pointCursor.value));
