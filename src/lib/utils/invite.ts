@@ -2,7 +2,9 @@ import * as ob from 'urbit-ob';
 
 export const generateUrl = (ticket: string, planet: number) => {
   if (ticket && planet) {
-    return `bridge.urbit.org/#${ticket.slice(1)}-${ob.patp(planet).slice(1)}`;
+    return `${window.location.host}/#${ticket.slice(1)}-${ob
+      .patp(planet)
+      .slice(1)}`;
   } else if (planet) {
     return ob.patp(planet);
   }
@@ -12,7 +14,7 @@ export const generateUrl = (ticket: string, planet: number) => {
 
 export const generateUrlAbbreviation = (ticket: string, planet: number) => {
   if (ticket && planet) {
-    return `bridge.urbit.org/#${ticket.slice(1, 7)}...${ob
+    return `${window.location.host}/#${ticket.slice(1, 7)}...${ob
       .patp(planet)
       .slice(1)}`;
   } else if (planet) {
