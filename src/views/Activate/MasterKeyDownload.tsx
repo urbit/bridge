@@ -29,13 +29,17 @@ const MasterKeyDownload = () => {
     setGenerated,
     setIsIn,
   } = useActivateFlow();
-  const { push, names } = useLocalRouter();
+  const { data, push, names } = useLocalRouter();
   const point = need.point(derivedPoint);
   const wallet = need.wallet(derivedWallet);
   const ticket = wallet.ticket;
 
   const [paper, setPaper] = useState(Nothing());
   const [triggerAnimation, setTriggerAnimation] = useState<boolean>(false);
+
+  const skipAnimationDelay = useMemo(() => {
+    return data?.skipAnimationDelay ? true : false;
+  }, [data]);
 
   const pointAsString = derivedPoint.matchWith({
     Nothing: () => '',
@@ -89,20 +93,28 @@ const MasterKeyDownload = () => {
     );
   }, [onDownloadClick]);
 
-  const delayedReveal = useCallback(async () => {
-    setTimeout(() => {
-      setTriggerAnimation(true);
-      setIsIn(true);
-    }, MASTER_KEY_DURATION);
+  const fadeIn = useCallback(() => {
+    setTriggerAnimation(true);
+    setIsIn(true);
   }, [setIsIn]);
 
+  const delayedFadeIn = useCallback(async () => {
+    setTimeout(() => {
+      fadeIn();
+    }, MASTER_KEY_DURATION);
+  }, [fadeIn]);
+
   useEffect(() => {
-    delayedReveal();
+    if (skipAnimationDelay) {
+      fadeIn();
+    } else {
+      delayedFadeIn();
+    }
 
     return () => {
       setIsIn(false);
     };
-  }, [delayedReveal, setIsIn]);
+  }, [delayedFadeIn, fadeIn, setIsIn, skipAnimationDelay]);
 
   return (
     <View centered={true}>

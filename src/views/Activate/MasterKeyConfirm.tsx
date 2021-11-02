@@ -69,7 +69,7 @@ const MasterKeyConfirm = () => {
   const goBack = useCallback(async () => {
     setIsIn(false);
     await timeout(DEFAULT_FADE_TIMEOUT); // Pause for UI fade animation
-    push(names.DOWNLOAD);
+    push(names.DOWNLOAD, { skipAnimationDelay: true });
   }, [names.DOWNLOAD, push, setIsIn]);
 
   const header = useMemo(() => {
