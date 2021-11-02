@@ -403,8 +403,6 @@ export default function useRoller() {
             getDetails
           ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
 
-          console.log(pendingSpawns, outgoingPoints, invitePoints)
-
           setPendingTransactions(newPending);
           setInvitePoints(
             invitePoints
@@ -448,8 +446,7 @@ export default function useRoller() {
       throw new Error('Internal Error: Missing Wallet/Details');
     }
 
-    const pointDetails = await api.getPoint(_point);
-    const proxy = getManagerProxy(pointDetails.ownership!, _wallet.address);
+    const proxy = getManagerProxy(azimuthPoint.ownership!, _wallet.address);
 
     if (proxy === undefined)
       throw new Error("Error: Address doesn't match proxy");
