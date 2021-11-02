@@ -17,7 +17,7 @@ import L2BackButton from './L2BackButton';
 export interface L2BackHeaderProps {
   back?: () => void;
   hideBalance?: boolean;
-  className: string;
+  className?: string;
 }
 
 const L2BackHeader = ({

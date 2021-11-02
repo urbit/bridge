@@ -47,13 +47,14 @@ const L2PointHeader = ({
     push,
   ]);
 
-  const star = pointCursor?.value && isStar(pointCursor.value);
+  const showInvites =
+    !hideInvites && Boolean(pointCursor?.value && isStar(pointCursor.value));
 
   return (
     <Row className="l2-point-header">
       <AccountsDropdown showMigrate={showMigrate} />
       <Row className="info">
-        {!hideInvites && star && (
+        {showInvites && (
           <Row onClick={goToInvites} className="invites">
             <InviteIcon />
             {numInvites}

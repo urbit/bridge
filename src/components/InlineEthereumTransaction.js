@@ -223,14 +223,6 @@ export default function InlineEthereumTransaction({
                 {...needFunds}
               />
             )}
-
-            {/* {showSignedTx && fakeSigned && (
-              <>
-                <Grid.Item className="mt2 eth-tx-button" full as={NoticeBox}>
-                  Your wallet will sign the transaction upon sending it.
-                </Grid.Item>
-              </>
-            )} */}
           </>
         )}
       </BridgeForm>

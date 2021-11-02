@@ -15,8 +15,14 @@ import * as need from 'lib/need';
 
 import { usePointCursor } from 'store/pointCursor';
 
-import './MigrateL2.scss';
-import { Box, Button, Checkbox, Icon, Row } from '@tlon/indigo-react';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Icon,
+  RadioButton,
+  Row,
+} from '@tlon/indigo-react';
 import {
   getHideMigrationMessage,
   storeHideMigrationMessage,
@@ -25,13 +31,13 @@ import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import { useNetwork } from 'store/network';
 import { usePointCache } from 'store/pointCache';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
-import { GAS_LIMITS } from 'lib/constants';
+import { DUMMY_L2_ADDRESS, GAS_LIMITS } from 'lib/constants';
 import Dropdown from 'components/L2/Dropdowns/Dropdown';
 import { PointLayer } from 'lib/types/PointLayer';
 import Sigil from 'components/Sigil';
 import { isPlanet, isStar } from 'lib/utils/point';
 
-const DUMMY_L2_ADDRESS = '0x1111111111111111111111111111111111111111';
+import './MigrateL2.scss';
 
 const PointEntry = ({
   point,
@@ -186,16 +192,24 @@ export default function MigrateL2() {
             </Dropdown>
             {star && (
               <Box className="transfer-spawn-selector">
-                <Box
-                  onClick={toggleTransfer}
-                  className={`transfer ${transfer ? 'selected' : ''}`}>
+                <Row onClick={toggleTransfer} className="transfer">
+                  <RadioButton
+                    color="rgba(0,0,0,0.3)"
+                    className={`radio ${transfer ? 'selected' : ''}`}
+                    selected={transfer}
+                    name="transferType"
+                  />
                   Transfer Point
-                </Box>
-                <Box
-                  onClick={toggleTransfer}
-                  className={`spawn ${!transfer ? 'selected' : ''}`}>
+                </Row>
+                <Row onClick={toggleTransfer} className="transfer">
+                  <RadioButton
+                    color="rgba(0,0,0,0.3)"
+                    className={`radio ${!transfer ? 'selected' : ''}`}
+                    selected={!transfer}
+                    name="transferType"
+                  />
                   Set Spawn Proxy
-                </Box>
+                </Row>
               </Box>
             )}
             {star && (

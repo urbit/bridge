@@ -1,24 +1,27 @@
-import { Invite } from 'lib/types/Invite';
+import SecureLS from 'secure-ls';
+import { Invite, Invites } from 'lib/types/Invite';
 
 const INVITES_KEY = 'invites';
 const HIDE_MIGRATION_MESSAGE_KEY = 'hide_migration_message';
 
-export const getStoredInvites = (point: number): Invite[] => {
-  const invitesString = localStorage.getItem(INVITES_KEY) || '{}';
-  const invites = JSON.parse(invitesString);
-
-  if (invites[String(point)]) {
-    return invites[String(point)];
-  }
-
-  return [];
+export const getStoredInvites = (ls: SecureLS): Invites => {
+  let invites = {};
+  try {
+    invites = ls.get(INVITES_KEY);
+  } catch (e) {}
+  return invites;
 };
 
-export const setStoredInvites = (point: number, newInvites: Invite[]) => {
-  const invitesString = localStorage.getItem(INVITES_KEY) || '{}';
-  const invites = JSON.parse(invitesString);
-  invites[Number(point)] = newInvites;
-  localStorage.setItem(INVITES_KEY, JSON.stringify(invites));
+export const setStoredInvites = (ls: SecureLS, newInvites: Invite[]) => {
+  let invites: Invites = {};
+  try {
+    invites = ls.get(INVITES_KEY);
+  } catch (e) {}
+
+  newInvites.forEach(invite => {
+    invites[Number(invite.planet)] = invite;
+  });
+  ls.set(INVITES_KEY, invites);
 };
 
 export const clearInvitesStorage = () => localStorage.removeItem(INVITES_KEY);

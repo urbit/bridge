@@ -59,7 +59,6 @@ export default function LoginSelector({
   }: any = useWallet();
 
   const { setPointCursor }: any = usePointCursor();
-  const { authenticate } = useWalletConnect();
   const { web3 }: any = useNetwork();
   const _web3 = need.web3(web3);
 
@@ -67,14 +66,6 @@ export default function LoginSelector({
     push,
     names.ACTIVATE,
   ]);
-
-  const connectWalletConnect = async () => {
-    resetWallet();
-    setWalletType(WALLET_TYPES.WALLET_CONNECT);
-    setPointCursor(Nothing());
-    await authenticate();
-    goHome();
-  };
 
   const connectMetamask = useCallback(async () => {
     try {
@@ -114,8 +105,6 @@ export default function LoginSelector({
   const selectOption = (value: string) => () => {
     if (value === NAMES.METAMASK) {
       connectMetamask();
-    } else if (value === NAMES.WALLET_CONNECT) {
-      connectWalletConnect();
     } else {
       setCurrentTab(value);
     }
