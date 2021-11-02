@@ -17,7 +17,7 @@ const ActivateParagraph = ({ copy }: ActivateParagraphProps) => {
       <Text
         display="block"
         fontFamily="Inter"
-        fontSize={2}
+        fontSize={'14px'}
         lineHeight={'20px'}
         color={'rgba(0,0,0,0.6)'}
         textAlign="center"

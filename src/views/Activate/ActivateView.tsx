@@ -26,7 +26,7 @@ export default function ActivateView({
         gridTemplateRows={gridRows || '20% 60% 20%'}
         gridTemplateAreas={gridAreas || "'header' 'content' 'footer'"}
         border={'1px solid rgb(204, 204, 204)'}
-        border-radius={'5px'}
+        borderRadius={'8px'}
         padding={'10px'}
         width={'512px'}
         height={'512px'}
