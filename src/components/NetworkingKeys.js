@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Flex, H5, Text } from 'indigo-react';
+import { Grid, Flex, H5 } from 'indigo-react';
 import { Just, Nothing } from 'folktale/maybe';
 
 import { formatDotsWithTime } from 'lib/dateFormat';

@@ -244,7 +244,7 @@ export default function MigrateL2() {
             className="bold"
             target="_blank"
             rel="noreferrer"
-            href="https://discord.com/channels/879614191672115260/879624035028324362">
+            href="https://urbit-org-9l0a6849p-urbit.vercel.app/docs/azimuth/l2/layer2">
             Learn More
           </a>
         </Box>

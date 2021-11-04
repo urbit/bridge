@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { Grid, Text, Flex } from 'indigo-react';
 
 import { versionLabel } from 'lib/flags';
@@ -16,9 +16,6 @@ export default function Login() {
   // globals
   const { push, names }: any = useHistory();
   const flow: any = useFlowCommand();
-
-  // inputs
-  const [isOther, setisOther] = useState(false);
 
   const goHome = useCallback(() => {
     if (!flow) {

@@ -55,10 +55,7 @@ const WalletConnectLogin = ({ className, goHome }) => {
                 <LegacyText as="div">
                   {address ? abbreviateAddress(address) : null}
                 </LegacyText>
-                <RestartButton
-                  as="a"
-                  className={'gray3'}
-                  onClick={disconnect}>
+                <RestartButton as="a" className={'gray3'} onClick={disconnect}>
                   disconnect
                 </RestartButton>
               </Grid.Item>

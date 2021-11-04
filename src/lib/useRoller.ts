@@ -123,10 +123,14 @@ export default function useRoller() {
       });
   }, [api]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const ls = new SecureLS({
-    isCompression: false,
-    encryptionSecret: authToken.getOrElse('default'),
-  });
+  const ls = useMemo(
+    () =>
+      new SecureLS({
+        isCompression: false,
+        encryptionSecret: authToken.getOrElse('default'),
+      }),
+    [authToken]
+  );
 
   const generateInviteCodes = useCallback(
     async (numInvites: number) => {
@@ -313,7 +317,9 @@ export default function useRoller() {
             getDetails
           ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
 
-          const invitePlanets = spawnedPoints.concat(outgoingPoints);
+          const invitePlanets = spawnedPoints.concat(
+            outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
+          );
 
           if (isDevelopment) {
             console.log('INVITED PLANETS', invitePlanets);
@@ -406,8 +412,10 @@ export default function useRoller() {
           setPendingTransactions(newPending);
           setInvitePoints(
             invitePoints
-              .concat(outgoingPoints)
-              .filter(p => !pendingSpawns.has(p))
+              .concat(
+                outgoingPoints.filter((p: number) => !invitePoints.includes(p))
+              )
+              .filter((p: number) => !pendingSpawns.has(p))
           );
         }
       } catch (e) {
