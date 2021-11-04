@@ -75,7 +75,7 @@ export default function InviteCohort() {
   const { contracts }: any = useNetwork();
   const { syncControlledPoints }: any = usePointCache();
 
-  const point = Just(pointCursor)
+  const point = pointCursor.getOrElse(null);
   const _contracts = need.contracts(contracts);
 
   const [numInvites, setNumInvites] = useState(
@@ -83,12 +83,24 @@ export default function InviteCohort() {
   );
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [downloadingCsv, setDownloadingCsv] = useState(false);
+  const [error, setError] = useState('');
   const [l1Invite, setL1Invite] = useState<L1Invite | null>(null);
   const [page, setPage] = useState(0);
 
   const { construct, unconstruct, completed, bind } = useIssueChild();
+
+  const onClickShowInvite = useCallback(
+    (planet: number) => {
+      setLoading(true);
+      // Put this in a timeout to let the UI update
+      setTimeout(async () => {
+        await showInvite(planet);
+        setLoading(false);
+      }, 50);
+    },
+    [setLoading, showInvite]
+  );
 
   useEffect(() => {
     if (invitePoints.length > 0) {
@@ -101,7 +113,7 @@ export default function InviteCohort() {
     const _authToken = authToken.getOrElse(null);
 
     const setUpInvite = async () => {
-      setLoading(true);
+      setDownloadingCsv(true);
       const possiblePoints = await azimuth.azimuth.getUnspawnedChildren(
         _contracts,
         point
@@ -132,7 +144,7 @@ export default function InviteCohort() {
         setError('No available planets');
       }
 
-      setLoading(false);
+      setDownloadingCsv(false);
     };
 
     if (!currentL2 && _contracts && point && _authToken && showInviteForm) {
@@ -154,7 +166,12 @@ export default function InviteCohort() {
   useEffect(() => {
     const storedInvites = getStoredInvites(ls);
 
-    if (!completed || !l1Invite || storedInvites[l1Invite.planet]) {
+    if (
+      !currentL2 ||
+      !completed ||
+      !l1Invite ||
+      storedInvites[l1Invite.planet]
+    ) {
       return;
     }
 
@@ -164,7 +181,7 @@ export default function InviteCohort() {
     setL1Invite(null);
     unconstruct();
     pop();
-  }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [completed, currentL2]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const invitesToDisplay = invites.slice(
     page * INVITES_PER_PAGE,
@@ -198,7 +215,7 @@ export default function InviteCohort() {
 
   const downloadCsv = useCallback(() => {
     const generateAndDownload = async () => {
-      setDownloadingCsv(true);
+      setLoading(true);
       const invites = await getInvites(currentL2, true);
       if (invites) {
         const csv = invites.reduce(
@@ -218,14 +235,14 @@ export default function InviteCohort() {
       } else {
         setError('There was an error creating the CSV');
       }
-      setDownloadingCsv(false);
+      setLoading(false);
       setInviteGeneratingNum(0);
     };
     generateAndDownload();
   }, [
     getInvites,
     setError,
-    setDownloadingCsv,
+    setLoading,
     setInviteGeneratingNum,
     currentL2,
     point,
@@ -261,7 +278,7 @@ export default function InviteCohort() {
                 ) : (
                   <Button2
                     className="secondary"
-                    onClick={() => showInvite(invite.planet)}>
+                    onClick={() => onClickShowInvite(invite.planet)}>
                     Show Invite
                   </Button2>
                 )}
@@ -437,7 +454,10 @@ export default function InviteCohort() {
           Add More
         </Button>
       )}
-      <LoadingOverlay loading={downloadingCsv} text={downloadingCsvText} />
+      <LoadingOverlay
+        loading={downloadingCsv || loading}
+        text={downloadingCsv ? downloadingCsvText : undefined}
+      />
     </View>
   );
 }
