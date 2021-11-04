@@ -1,7 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { Grid, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
-import { Just } from 'folktale/maybe';
 import {
   Icon,
   Row,

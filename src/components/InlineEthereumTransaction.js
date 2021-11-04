@@ -12,7 +12,6 @@ import BridgeForm from 'form/BridgeForm';
 import { GenerateButton, ForwardButton, RestartButton } from './Buttons';
 import ProgressButton from './ProgressButton';
 import NeedFundsNotice from './NeedFundsNotice';
-import NoticeBox from './NoticeBox';
 
 import './InlineEthereumTransaction.scss';
 import FeeDropdown from './L2/Dropdowns/FeeDropdown';
@@ -58,7 +57,6 @@ export default function InlineEthereumTransaction({
   const showLoadingButton = broadcasted || confirmed;
   const canBroadcast = signed && !needFunds;
   // show signed tx only when signing (for offline usage)
-  const showSignedTx = signed;
 
   const validate = useMemo(
     () =>
