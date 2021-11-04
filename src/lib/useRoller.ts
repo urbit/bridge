@@ -123,10 +123,14 @@ export default function useRoller() {
       });
   }, [api]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const ls = new SecureLS({
-    isCompression: false,
-    encryptionSecret: authToken.getOrElse('default'),
-  });
+  const ls = useMemo(
+    () =>
+      new SecureLS({
+        isCompression: false,
+        encryptionSecret: authToken.getOrElse('default'),
+      }),
+    [authToken]
+  );
 
   const generateInviteCodes = useCallback(
     async (numInvites: number) => {
