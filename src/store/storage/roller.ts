@@ -15,7 +15,7 @@ export const getStoredInvites = (ls: SecureLS): Invites => {
 export const setStoredInvites = (ls: SecureLS, newInvites: Invite[]) => {
   let invites: Invites = {};
   try {
-    invites = ls.get(INVITES_KEY);
+    invites = ls.get(INVITES_KEY) || {};
   } catch (e) {}
 
   newInvites.forEach(invite => {

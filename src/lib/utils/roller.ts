@@ -30,7 +30,7 @@ export const hasPoint = (point: number) => (invite: Invite) =>
   invite.planet === point;
 
 export const getTimeToNextBatch = (nextBatch: number, now: number) => {
-  const toNext = nextBatch - now;
+  const toNext = Math.max(nextBatch - now, 0);
   const hours = Math.floor(toNext / HOUR);
   const minutes = Math.floor((toNext - hours * HOUR) / MINUTE);
   const seconds = Math.floor(

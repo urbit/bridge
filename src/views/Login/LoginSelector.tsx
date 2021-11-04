@@ -15,6 +15,7 @@ import { MetamaskWallet } from 'lib/metamask';
 import { getAuthToken } from 'lib/authToken';
 import * as need from 'lib/need';
 import { useWalletConnect } from 'lib/useWalletConnect';
+import useLoginView from 'lib/useLoginView';
 
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
@@ -48,6 +49,8 @@ export default function LoginSelector({
   // Tab props
   ...rest
 }: LoginSelectorProps) {
+  useLoginView(WALLET_TYPES.WALLET_CONNECT);
+
   const { push, names }: any = useHistory();
   const [showModal, setShowModal] = useState(false);
 
@@ -57,6 +60,8 @@ export default function LoginSelector({
     resetWallet,
     setAuthToken,
   }: any = useWallet();
+
+  const { connect } = useWalletConnect();
 
   const { setPointCursor }: any = usePointCursor();
   const { web3 }: any = useNetwork();
@@ -106,6 +111,9 @@ export default function LoginSelector({
     if (value === NAMES.METAMASK) {
       connectMetamask();
     } else {
+      if (value === NAMES.WALLET_CONNECT) {
+        connect();
+      }
       setCurrentTab(value);
     }
   };
