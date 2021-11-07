@@ -1,6 +1,7 @@
 import React from 'react';
+import * as ob from 'urbit-ob';
 import { Input, AccessoryIcon } from 'indigo-react';
-import { useField } from 'react-final-form';
+import { useField, useForm } from 'react-final-form';
 
 import {
   convertToNumber,
@@ -9,10 +10,14 @@ import {
   ensurePatFormat,
   stripHexPrefix,
   ensureHexPrefix,
+  ticketToSegments,
 } from 'form/formatters';
 import { DEFAULT_HD_PATH } from 'lib/constants';
 import InputSigil from 'components/InputSigil';
-import { StatelessTextInput } from '@tlon/indigo-react';
+import {
+  StatelessTextInput,
+  StatelessTextInputProps,
+} from '@tlon/indigo-react';
 
 const PLACEHOLDER_POINT = '~sampel-ponnym';
 const PLACEHOLDER_HD_PATH = DEFAULT_HD_PATH;
@@ -210,16 +215,44 @@ export function EmailInput({ ...rest }) {
   );
 }
 
-export function TicketSegmentInput({ name, ...rest }) {
+type TicketSegmentInputProps = {
+  name: string;
+  rest: StatelessTextInputProps;
+};
+
+export function TicketSegmentInput({ name, ...rest }: TicketSegmentInputProps) {
   const { input } = useField(name);
+  const { change } = useForm();
+
+  const onPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    try {
+      const pasteBuffer = event.clipboardData.getData('text');
+      const patp = ensurePatFormat(pasteBuffer);
+      if (!ob.isValidPatp(patp)) {
+        throw new Error('invalid patp');
+      }
+
+      // prevent pasting the entire clipboard text into the field
+      event.preventDefault();
+
+      const segments = ticketToSegments(pasteBuffer);
+      change('ticket0', segments[0]);
+      change('ticket1', segments[1]);
+      change('ticket2', segments[2]);
+      change('ticket3', segments[3]);
+    } catch (error) {
+      console.log(`skipping ticket autofill: ${error}`);
+    }
+  };
 
   return (
     <StatelessTextInput
+      {...input}
       autoCapitalize="none"
       autoCorrect="off"
       type="text"
       maxLength="6"
-      {...input}
+      onPaste={onPaste}
       {...rest}
     />
   );
