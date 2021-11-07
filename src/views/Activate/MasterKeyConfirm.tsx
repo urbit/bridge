@@ -162,6 +162,7 @@ const MasterKeyConfirm = () => {
                             borderRadius={'5px'}
                             border={'solid 1px rgba(0,0,0,0.25)'}
                             name={`ticket${i}`}
+                            autoFocus={i === 0}
                           />
                           {i < ticketSegments.length - 1 ? (
                             <Text
