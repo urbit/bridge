@@ -216,11 +216,16 @@ export function EmailInput({ ...rest }) {
 }
 
 type TicketSegmentInputProps = {
+  className?: string;
   name: string;
   rest: StatelessTextInputProps;
 };
 
-export function TicketSegmentInput({ name, ...rest }: TicketSegmentInputProps) {
+export function TicketSegmentInput({
+  className,
+  name,
+  ...rest
+}: TicketSegmentInputProps) {
   const { input } = useField(name);
   const { change } = useForm();
 
@@ -276,6 +281,7 @@ export function TicketSegmentInput({ name, ...rest }: TicketSegmentInputProps) {
 
   return (
     <StatelessTextInput
+      className={className}
       {...mergedInput}
       autoCapitalize="none"
       autoCorrect="off"
