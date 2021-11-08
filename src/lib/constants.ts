@@ -103,7 +103,7 @@ const NONCUSTODIAL_WALLETS = new Set([
 const ROLLER_HOSTS = {
   LOCAL: 'localhost',
   ROPSTEN: 'roller-tmp.urbit.org',
-  MAINNET: 'roller.urbit.org',
+  MAINNET: 'roller-staging.urbit.org', // TODO: temporary
 };
 
 const POINT_DOMINIONS = {
