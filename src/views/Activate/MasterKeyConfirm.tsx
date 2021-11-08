@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import * as need from 'lib/need';
+import cn from 'classnames';
 
 import ActivateView from './ActivateView';
 import { Box, Text } from '@tlon/indigo-react';
@@ -22,6 +23,8 @@ import { HiddenInput, TicketSegmentInput } from 'form/Inputs';
 import View from 'components/View';
 import NavHeader from 'components/NavHeader';
 import { MiniBackButton } from 'components/MiniBackButton';
+
+import './MasterKeyConfirm.scss';
 
 const MasterKeyConfirm = () => {
   const { derivedWallet, setIsIn } = useActivateFlow();
@@ -90,7 +93,7 @@ const MasterKeyConfirm = () => {
   useFadeIn();
 
   return (
-    <View centered={true}>
+    <View centered={true} id={'master-key-confirm'}>
       <NavHeader>
         <Box marginBottom={'10px'}>
           <MiniBackButton
@@ -105,13 +108,7 @@ const MasterKeyConfirm = () => {
         header={header}
         gridRows={'20% 80%'}
         gridAreas={"'header' 'content'"}>
-        <Box
-          alignItems={'center'}
-          display={'flex'}
-          flexDirection={'column'}
-          flexWrap={'nowrap'}
-          height={'100%'}
-          justifyContent={'center'}>
+        <Box className={'content'}>
           <BridgeForm
             style={{
               display: 'flex',
@@ -126,34 +123,14 @@ const MasterKeyConfirm = () => {
             onValues={onValues}
             initialValues={initialValues}>
             {({ handleSubmit, valid }) => (
-              <Box
-                display={'grid'}
-                gridTemplateAreas={"'inputs' 'submit'"}
-                gridTemplateColumns={'1fr'}
-                gridTemplateRows={'80% 20%'}
-                width={'100%'}
-                height={'100%'}>
-                <Box
-                  gridArea="inputs"
-                  display={'flex'}
-                  flexDirection={'column'}
-                  flexWrap={'nowrap'}
-                  height={'100%'}
-                  alignItems={'center'}
-                  justifyContent={'center'}>
+              <Box className="form-inner">
+                <Box className="inputs-outer">
                   {showError && (
                     <Box height={'24px'}>
                       {/* this is a flexbox placeholder to balance the error message below*/}
                     </Box>
                   )}
-                  <Box
-                    display={'flex'}
-                    flexDirection={'row'}
-                    width={'80%'}
-                    height={'min-content'}
-                    marginY={'16px'}
-                    flexWrap={'nowrap'}
-                    justifyContent={'center'}>
+                  <Box className="inputs-inner">
                     {ticketSegments.map((segment, i) => {
                       return (
                         <Box
@@ -162,18 +139,9 @@ const MasterKeyConfirm = () => {
                           flexDirection={'row'}
                           flexWrap={'nowrap'}>
                           <TicketSegmentInput
-                            width={'75px'}
-                            paddingY={'18px'}
-                            fontSize={'16px'}
-                            height={'24px'}
-                            fontFamily={'Source Code Pro'}
-                            borderRadius={'5px'}
-                            border={'solid 1px rgba(0,0,0,0.25)'}
-                            borderColor={
-                              showError ? '#FF4136' : 'rgba(0,0,0,0.25)'
-                            }
-                            color={showError ? '#FF4136' : 'rgba(0,0,0,0.95)'}
-                            backgroundColor={showError ? '#FF41360D' : '#FFF'}
+                            className={cn('ticket-input', {
+                              'has-error': showError,
+                            })}
                             name={`ticket${i}`}
                             autoFocus={i === 0}
                           />
@@ -192,12 +160,7 @@ const MasterKeyConfirm = () => {
                   </Box>
                   {showError && (
                     <Box>
-                      <Text
-                        color={'#FF4136'}
-                        fontFamily={'Inter'}
-                        fontSize={'14px'}
-                        fontWeight={'600'}
-                        lineHeight={'24px'}>
+                      <Text className="error-message">
                         The Master Ticket you entered is incorrect
                       </Text>
                     </Box>
