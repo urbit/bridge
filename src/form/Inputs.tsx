@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import * as ob from 'urbit-ob';
 import { Input, AccessoryIcon } from 'indigo-react';
 import { useField, useForm } from 'react-final-form';
@@ -224,30 +224,59 @@ export function TicketSegmentInput({ name, ...rest }: TicketSegmentInputProps) {
   const { input } = useField(name);
   const { change } = useForm();
 
-  const onPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
-    try {
-      const pasteBuffer = event.clipboardData.getData('text');
-      const patp = ensurePatFormat(pasteBuffer);
-      if (!ob.isValidPatp(patp)) {
-        throw new Error('invalid patp');
+  const onPaste = useCallback(
+    (event: React.ClipboardEvent<HTMLInputElement>) => {
+      try {
+        const pasteBuffer = event.clipboardData.getData('text');
+        const patp = ensurePatFormat(pasteBuffer);
+        if (!ob.isValidPatp(patp)) {
+          throw new Error('invalid patp');
+        }
+
+        // prevent pasting the entire clipboard text into the field
+        event.preventDefault();
+
+        const segments = ticketToSegments(pasteBuffer);
+        segments.forEach((s, i) => {
+          change(`ticket${i}`, s);
+        });
+      } catch (error) {
+        console.log(`skipping ticket autofill: ${error}`);
       }
+    },
+    [change]
+  );
 
-      // prevent pasting the entire clipboard text into the field
-      event.preventDefault();
+  // Advance the focused field after typing 6 characters
+  const onChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const currentIndex = Number(name.replace('ticket', ''));
+      if (currentIndex < 3 && event.target.value.length === 6) {
+        const nextField = document.querySelector(
+          `input[name=ticket${currentIndex + 1}]`
+        );
 
-      const segments = ticketToSegments(pasteBuffer);
-      change('ticket0', segments[0]);
-      change('ticket1', segments[1]);
-      change('ticket2', segments[2]);
-      change('ticket3', segments[3]);
-    } catch (error) {
-      console.log(`skipping ticket autofill: ${error}`);
-    }
+        if (nextField !== null) {
+          nextField.focus();
+        }
+      }
+    },
+    [name]
+  );
+
+  // Run the react-final-form onChange handler,
+  // and our own custom one to advance the form cursor
+  const mergedInput = {
+    ...input,
+    onChange: e => {
+      input.onChange(e);
+      onChange(e);
+    },
   };
 
   return (
     <StatelessTextInput
-      {...input}
+      {...mergedInput}
       autoCapitalize="none"
       autoCorrect="off"
       type="text"
