@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import * as need from 'lib/need';
 
 import ActivateView from './ActivateView';
@@ -29,14 +29,16 @@ const MasterKeyConfirm = () => {
   const { push, names } = useLocalRouter();
   const STUB_VERIFY_TICKET = isDevelopment;
   const ticketSegments = useMemo(() => ticketToSegments(ticket), [ticket]);
+  const [showError, setShowError] = useState<boolean>(false);
 
   const onValues = useCallback(({ valid, values, form }) => {
     const { ticket0, ticket1, ticket2, ticket3 } = values;
+    const tickets = [ticket0, ticket1, ticket2, ticket3];
+    const allTicketsPopulated = tickets.every(t => t?.length === 6);
 
-    form.change(
-      'ticket',
-      ticketFromSegments([ticket0, ticket1, ticket2, ticket3])
-    );
+    setShowError(!valid && allTicketsPopulated);
+
+    form.change('ticket', ticketFromSegments(tickets));
   }, []);
 
   const validate = useMemo(
@@ -139,11 +141,17 @@ const MasterKeyConfirm = () => {
                   height={'100%'}
                   alignItems={'center'}
                   justifyContent={'center'}>
+                  {showError && (
+                    <Box height={'24px'}>
+                      {/* this is a flexbox placeholder to balance the error message below*/}
+                    </Box>
+                  )}
                   <Box
                     display={'flex'}
                     flexDirection={'row'}
                     width={'80%'}
                     height={'min-content'}
+                    marginY={'16px'}
                     flexWrap={'nowrap'}
                     justifyContent={'center'}>
                     {ticketSegments.map((segment, i) => {
@@ -161,6 +169,11 @@ const MasterKeyConfirm = () => {
                             fontFamily={'Source Code Pro'}
                             borderRadius={'5px'}
                             border={'solid 1px rgba(0,0,0,0.25)'}
+                            borderColor={
+                              showError ? '#FF4136' : 'rgba(0,0,0,0.25)'
+                            }
+                            color={showError ? '#FF4136' : 'rgba(0,0,0,0.95)'}
+                            backgroundColor={showError ? '#FF41360D' : '#FFF'}
                             name={`ticket${i}`}
                             autoFocus={i === 0}
                           />
@@ -177,6 +190,18 @@ const MasterKeyConfirm = () => {
                       );
                     })}
                   </Box>
+                  {showError && (
+                    <Box>
+                      <Text
+                        color={'#FF4136'}
+                        fontFamily={'Inter'}
+                        fontSize={'14px'}
+                        fontWeight={'600'}
+                        lineHeight={'24px'}>
+                        The Master Ticket you entered is incorrect
+                      </Text>
+                    </Box>
+                  )}
                 </Box>
 
                 <Box
