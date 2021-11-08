@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import * as ob from 'urbit-ob';
 import { Input, AccessoryIcon } from 'indigo-react';
-import { useField } from 'react-final-form';
+import { useField, useForm } from 'react-final-form';
 
 import {
   convertToNumber,
@@ -9,10 +10,14 @@ import {
   ensurePatFormat,
   stripHexPrefix,
   ensureHexPrefix,
+  ticketToSegments,
 } from 'form/formatters';
 import { DEFAULT_HD_PATH } from 'lib/constants';
 import InputSigil from 'components/InputSigil';
-import { StatelessTextInput } from '@tlon/indigo-react';
+import {
+  StatelessTextInput,
+  StatelessTextInputProps,
+} from '@tlon/indigo-react';
 
 const PLACEHOLDER_POINT = '~sampel-ponnym';
 const PLACEHOLDER_HD_PATH = DEFAULT_HD_PATH;
@@ -210,16 +215,79 @@ export function EmailInput({ ...rest }) {
   );
 }
 
-export function TicketSegmentInput({ name, ...rest }) {
+type TicketSegmentInputProps = {
+  className?: string;
+  name: string;
+  rest: StatelessTextInputProps;
+};
+
+export function TicketSegmentInput({
+  className,
+  name,
+  ...rest
+}: TicketSegmentInputProps) {
   const { input } = useField(name);
+  const { change } = useForm();
+
+  const onPaste = useCallback(
+    (event: React.ClipboardEvent<HTMLInputElement>) => {
+      try {
+        const pasteBuffer = event.clipboardData.getData('text');
+        const patp = ensurePatFormat(pasteBuffer);
+        if (!ob.isValidPatp(patp)) {
+          throw new Error('invalid patp');
+        }
+
+        // prevent pasting the entire clipboard text into the field
+        event.preventDefault();
+
+        const segments = ticketToSegments(pasteBuffer);
+        segments.forEach((s, i) => {
+          change(`ticket${i}`, s);
+        });
+      } catch (error) {
+        console.log(`skipping ticket autofill: ${error}`);
+      }
+    },
+    [change]
+  );
+
+  // Advance the focused field after typing 6 characters
+  const onChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const currentIndex = Number(name.replace('ticket', ''));
+      if (currentIndex < 3 && event.target.value.length === 6) {
+        const nextField = document.querySelector(
+          `input[name=ticket${currentIndex + 1}]`
+        );
+
+        if (nextField !== null) {
+          nextField.focus();
+        }
+      }
+    },
+    [name]
+  );
+
+  // Run the react-final-form onChange handler,
+  // and our own custom one to advance the form cursor
+  const mergedInput = {
+    ...input,
+    onChange: e => {
+      input.onChange(e);
+      onChange(e);
+    },
+  };
 
   return (
     <StatelessTextInput
+      className={className}
+      {...mergedInput}
       autoCapitalize="none"
       autoCorrect="off"
       type="text"
       maxLength="6"
-      {...input}
+      onPaste={onPaste}
       {...rest}
     />
   );

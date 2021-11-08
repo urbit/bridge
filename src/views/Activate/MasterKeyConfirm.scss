@@ -1,0 +1,73 @@
+@import 'style/shared/variables';
+
+#master-key-confirm {
+  .content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    height: 100%;
+    justify-content: center;
+  }
+
+  .form-inner {
+    display: grid;
+    grid-template-areas: 'inputs' 'submit';
+    grid-template-columns: 1fr;
+    grid-template-rows: 80% 20%;
+    width: 100%;
+    height: 100%;
+  }
+
+  .inputs-outer {
+    grid-area: inputs;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .inputs-inner {
+    display: flex;
+    flex-direction: row;
+    width: 80%;
+    height: min-content;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    flex-wrap: nowrap;
+    justify-content: center;
+  }
+
+  .error-message {
+    color: $activate-error-red;
+    font-family: Inter;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 24px;
+  }
+
+  .ticket-input {
+    width: 75px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+    font-size: 16px;
+    height: 24px;
+    font-family: Source Code Pro;
+    border-radius: 5px;
+    border-style: solid;
+    color: black;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.25);
+  }
+
+  .has-error {
+    border-color: $activate-error-red;
+    color: $activate-error-red;
+    background-color: transparentize(
+      $color: $activate-error-red,
+      $amount: 0.95
+    );
+  }
+}

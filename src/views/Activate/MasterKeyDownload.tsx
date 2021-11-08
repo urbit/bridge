@@ -32,7 +32,7 @@ const MasterKeyDownload = () => {
   const { data, push, names } = useLocalRouter();
   const point = need.point(derivedPoint);
   const wallet = need.wallet(derivedWallet);
-  const ticket = wallet.ticket;
+  const ticket = wallet.ticket.replace('~', '');
 
   const [paper, setPaper] = useState(Nothing());
   const [triggerAnimation, setTriggerAnimation] = useState<boolean>(false);
