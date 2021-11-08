@@ -90,7 +90,7 @@ export default function useRoller() {
       : isDevelopment
       ? ROLLER_HOSTS.LOCAL
       : ROLLER_HOSTS.MAINNET;
-    const port = isRopsten ? 443 : 8080;
+    const port = isDevelopment ? 8080 : 443;
     const path = '/v1/roller';
 
     return {
