@@ -48,13 +48,15 @@ function Passport({
 
   const patp = ob.patp(point.value);
 
-  const makeMatrix = addr => {
-    // remove the 0x
-    const onlyTheNumberPart = addr.substring(2);
+  const makeMatrix = azimuthPoint => {
+    // convert point to hex
+    const azimuthPointHex = azimuthPoint.toString(16);
+
     // make bigNum from hex
-    const int = new BN(onlyTheNumberPart, 16);
+    const int = new BN(azimuthPointHex, 16);
+
     // make a bigger number
-    const big = int.pow(new BN(10));
+    const big = int.pow(new BN(100));
     // parse that to a string and pad
     const b10 = big.toString(10).padStart(32, '0');
     // split the big number into parts
@@ -71,7 +73,7 @@ function Passport({
     return matrix;
   };
 
-  const matrix = address.matchWith({
+  const matrix = point.matchWith({
     Just: ({ value }) => makeMatrix(value),
     Nothing: defaultMatrix,
   });
