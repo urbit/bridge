@@ -150,12 +150,12 @@ const TRANSACTION_TYPE_ICONS = {
 };
 
 const TRANSACTION_TYPE_TITLES = {
-  adopt: 'Adopted',
+  adopt: 'Point Sponsored',
   'cancel-escape': 'Escape Canceled',
   'configure-keys': 'Network Keys Configured',
-  detach: 'Detached',
-  escape: 'Escaped',
-  reject: 'Rejected',
+  detach: 'Sponsee Detached',
+  escape: 'Sponsor Escaped',
+  reject: 'Sponsorhip Rejected',
   'set-management-proxy': 'Management Proxy Changed',
   'set-spawn-proxy': 'Spawn Proxy Changed',
   'set-transfer-proxy': 'Transfer Proxy Changed',
