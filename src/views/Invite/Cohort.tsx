@@ -111,6 +111,10 @@ export default function InviteCohort() {
   useEffect(() => {
     const _authToken = authToken.getOrElse(null);
 
+    if (!_authToken) {
+      return;
+    }
+
     const setUpInvite = async () => {
       setDownloadingCsv(true);
       const possiblePoints = await azimuth.azimuth.getUnspawnedChildren(
@@ -137,7 +141,7 @@ export default function InviteCohort() {
           _authToken
         );
 
-        construct(invitePoint, inviteWallet.keys.address);
+        construct(invitePoint, inviteWallet.ownership.keys.address);
         setL1Invite({ ticket, planet: invitePoint });
       } else {
         setError('No available planets');
@@ -148,7 +152,7 @@ export default function InviteCohort() {
 
     if (!currentL2 && _contracts && point && _authToken && showInviteForm) {
       setUpInvite();
-    } else {
+    } else if (!currentL2 && !showInviteForm) {
       unconstruct();
     }
   }, [
@@ -197,7 +201,6 @@ export default function InviteCohort() {
       getPendingTransactions();
       pop();
     } catch (error) {
-      console.log(error);
       // TODO: error is not used anywhere on the UI
       setError(error as string);
     } finally {
@@ -428,7 +431,7 @@ export default function InviteCohort() {
           </div>
           {showGenerateButton && (
             <Button
-              className="generate-button"
+              className="generate-button ph4"
               center
               onClick={() => setShowInviteForm(true)}>
               Generate Codes
