@@ -29,6 +29,7 @@ import SignTransaction from 'views/Bitcoin/SignTransaction';
 import TransactionHistory from 'views/Transactions/TransactionHistory';
 
 import { ROUTE_NAMES } from './routeNames';
+import { Ops } from 'views/Ops/Ops';
 
 export const ROUTES = {
   [ROUTE_NAMES.DISCLAIMER]: Disclaimer,
@@ -59,4 +60,5 @@ export const ROUTES = {
   [ROUTE_NAMES.BITCOIN_SIGN_TRANSACTION]: SignTransaction,
   [ROUTE_NAMES.TRANSACTION_HISTORY]: TransactionHistory,
   [ROUTE_NAMES.MIGRATE_L2]: MigrateL2,
+  [ROUTE_NAMES.OPS]: Ops,
 };
