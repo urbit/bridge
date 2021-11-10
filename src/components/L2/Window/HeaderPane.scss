@@ -36,6 +36,10 @@
       &:hover {
         opacity: 0.8;
       }
+
+      svg > path {
+        fill: white;
+      }
     }
   }
 }
