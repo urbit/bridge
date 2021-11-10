@@ -137,15 +137,15 @@ const TRANSACTION_STATUS_ICONS = {
 };
 
 const TRANSACTION_TYPE_ICONS = {
-  adopt: 'CreateGroup',
-  'cancel-escape': 'X',
+  adopt: 'EscapeApproved',
+  'cancel-escape': 'EscapeRejected',
   'configure-keys': 'BootNode',
-  detach: 'BootNode',
-  escape: 'Node',
-  reject: 'X',
+  detach: 'EjectedSponsor',
+  escape: 'EscapeRequested',
+  reject: 'EscapeRejected',
   'set-management-proxy': 'ArrowRefresh',
   'set-transfer-proxy': 'ArrowRefresh',
-  spawn: 'Node',
+  spawn: 'ShipSpawned',
   'transfer-point': 'Swap',
 };
 
