@@ -69,7 +69,7 @@ export const spawn = async (
     ship: planet, // ship to spawn
   };
 
-  const hash = await api.hashTransaction(nonce, from, 'spawn', data);
+  const hash = await api.getUnsignedTx(nonce, from, 'spawn', data);
   const sSig = signTransactionHash(hash, _wallet.privateKey);
   return api.spawn(sSig, from, _wallet.address, data);
 };
@@ -107,7 +107,7 @@ export const configureKeys = async (
     breach: breach || false,
   };
 
-  const hash = await api.hashTransaction(nonce, from, 'configureKeys', data);
+  const hash = await api.getUnsignedTx(nonce, from, 'configureKeys', data);
   const sig = signTransactionHash(hash, wallet.privateKey);
   return api.configureKeys(sig, from, wallet.address, data);
 };
@@ -130,7 +130,7 @@ export const transferPointRequest = async (
     address,
     reset: reset || false,
   };
-  const hash = await api.hashTransaction(nonce, from, 'transferPoint', data);
+  const hash = await api.getUnsignedTx(nonce, from, 'transferPoint', data);
   const sig = signTransactionHash(hash, _wallet.privateKey);
   return api.transferPoint(sig, from, _wallet.address, data);
 };
@@ -182,7 +182,7 @@ export const registerProxyAddress = async (
     proxy,
   };
   const proxyData = { address };
-  const proxyHash = await api.hashTransaction(
+  const proxyHash = await api.getUnsignedTx(
     nonce,
     from,
     proxyType(proxyAddressType),
