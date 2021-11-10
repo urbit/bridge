@@ -63,16 +63,12 @@
   .info-modal-content {
     position: relative;
     background-color: white;
-    height: 302px;
-    width: 320px;
+    width: 280px;
     border-radius: $large-border-radius;
     font-family: $default-font;
-    padding: 16px 48px 16px 16px;
+    padding: 24px;
     font-size: 14px;
     line-height: 24px;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
   }
 }
