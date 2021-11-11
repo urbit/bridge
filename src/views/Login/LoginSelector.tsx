@@ -147,24 +147,21 @@ export default function LoginSelector({
             <Box className="close" onClick={() => setShowModal(false)}>
               &#215;
             </Box>
-            <span>
-              <span className="fw-bold">Other Wallet Types</span> <br />
-              All other wallet types are now supported via Metamask or
-              WalletConnect.
-              <br />
-              <br />
-              If you are you using a{' '}
-              <span className="fw-bold">
-                Hardware Wallet, Ethereum Keystore, Ethereum Private Key
-              </span>{' '}
-              please use Metamask going forward.
-              <br />
-              <br />
+              <div className="fw-bold">Other Wallet Types</div>
+              <div className="mb5">All other wallet types are now supported via Metamask or
+              WalletConnect.</div>
+              <div className="mb5">
+                If you are you using a{' '}
+                <span className="fw-bold">
+                  Hardware Wallet, Ethereum Keystore, or Ethereum Private Key
+                </span>{' '}
+                please use Metamask going forward.
+              </div>
+              <div>
               If you are using a{' '}
-              <span className="fw-bold">non-custodial wallet</span> or{' '}
               <span className="fw-bold">mobile wallet</span>, please use
               WalletConnect going forward.
-            </span>
+              </div>
           </Box>
         </Modal>
       </Grid>
