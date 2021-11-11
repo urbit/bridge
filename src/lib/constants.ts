@@ -137,25 +137,25 @@ const TRANSACTION_STATUS_ICONS = {
 };
 
 const TRANSACTION_TYPE_ICONS = {
-  adopt: 'CreateGroup',
-  'cancel-escape': 'X',
+  adopt: 'EscapeApproved',
+  'cancel-escape': 'EscapeRejected',
   'configure-keys': 'BootNode',
-  detach: 'BootNode',
-  escape: 'Node',
-  reject: 'X',
+  detach: 'EjectedSponsor',
+  escape: 'EscapeRequested',
+  reject: 'EscapeRejected',
   'set-management-proxy': 'ArrowRefresh',
   'set-transfer-proxy': 'ArrowRefresh',
-  spawn: 'Node',
+  spawn: 'ShipSpawned',
   'transfer-point': 'Swap',
 };
 
 const TRANSACTION_TYPE_TITLES = {
-  adopt: 'Adopted',
+  adopt: 'Point Sponsored',
   'cancel-escape': 'Escape Canceled',
   'configure-keys': 'Network Keys Configured',
-  detach: 'Detached',
-  escape: 'Escaped',
-  reject: 'Rejected',
+  detach: 'Sponsee Detached',
+  escape: 'Sponsor Escaped',
+  reject: 'Sponsorhip Rejected',
   'set-management-proxy': 'Management Proxy Changed',
   'set-spawn-proxy': 'Spawn Proxy Changed',
   'set-transfer-proxy': 'Transfer Proxy Changed',

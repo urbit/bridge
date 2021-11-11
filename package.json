@@ -23,7 +23,7 @@
     "@reach/tabs": "^0.15.0",
     "@tlon/indigo-dark": "^1.0.6",
     "@tlon/indigo-light": "^1.0.7",
-    "@tlon/indigo-react": "^1.2.25",
+    "@tlon/indigo-react": "^1.2.27",
     "@tlon/sigil-js": "^1.4.1",
     "@types/jest": "^26.0.23",
     "@types/node": "^15.12.2",
