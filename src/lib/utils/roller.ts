@@ -63,12 +63,13 @@ export const generateHashAndSign = async (
   web3: any
 ) => {
   if (walletType === WALLET_TYPES.METAMASK) {
-    const hash = await api.getUnsignedTx(nonce, from, type, data);
+    const hash = await api.prepareForSigning(nonce, from, type, data);
     const sig = await web3.eth.personal.sign(hash, wallet.address, '');
     return sig;
   } else {
-    const hash = await api.hashTransaction(nonce, from, type, data);
-    return signTransactionHash(hash, wallet.privateKey);
+    const hash = await api.getUnsignedTx(nonce, from, type, data);
+    const sig = await signTransactionHash(hash, wallet.privateKey);
+    return sig;
   }
 };
 

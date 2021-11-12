@@ -336,10 +336,6 @@ export default function useRoller() {
             outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
           );
 
-          if (isDevelopment) {
-            console.log('INVITED PLANETS', invitePlanets);
-          }
-
           const newInvites: Invite[] = [];
           // Iterate over all of the stored invites, generating wallet info as necessary
           const storedInvites = getStoredInvites(ls);
@@ -409,7 +405,7 @@ export default function useRoller() {
         const _contracts = contracts.getOrElse(null);
 
         if (_authToken && _contracts) {
-          let invitePoints = isL2 ? await api.getSpawned(curPoint) : [];
+          let spawnedPoints = isL2 ? await api.getSpawned(curPoint) : [];
 
           const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
             _contracts,
@@ -424,14 +420,16 @@ export default function useRoller() {
             getDetails
           ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
 
+          const invitePoints = spawnedPoints
+            .concat(
+              outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
+            )
+            .filter((p: number) => !pendingSpawns.has(p));
+
           setPendingTransactions(newPending);
-          setInvitePoints(
-            invitePoints
-              .concat(
-                outgoingPoints.filter((p: number) => !invitePoints.includes(p))
-              )
-              .filter((p: number) => !pendingSpawns.has(p))
-          );
+          setInvitePoints(invitePoints);
+
+          return invitePoints;
         }
       } catch (e) {
         if (isDevelopment) {
@@ -695,7 +693,7 @@ export default function useRoller() {
           getNumInvites(currentL2);
         });
       }
-    }, 1000);
+    }, 10000000);
 
     return () => clearInterval(interval);
   }, [nextBatchTime, getPendingTransactions, currentL2]); // eslint-disable-line react-hooks/exhaustive-deps

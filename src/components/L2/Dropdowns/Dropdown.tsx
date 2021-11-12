@@ -20,6 +20,7 @@ const Dropdown = ({
 }: DropdownProps) => {
   return (
     <Box className={`dropdown ${className}`}>
+      {open && <Box className="close-background" onClick={toggleOpen} />}
       <Box className={`selector ${open ? 'open' : ''}`} onClick={toggleOpen}>
         {value}
         <Icon icon="ChevronSouth" />
