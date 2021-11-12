@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { Just } from 'folktale/maybe';
 import { Grid, Flex } from 'indigo-react';
 import { Box, Icon, Row, Button, Checkbox } from '@tlon/indigo-react';
@@ -30,13 +30,16 @@ import Modal from 'components/L2/Modal';
 import { isPlanet, isStar } from 'lib/utils/point';
 import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
 import { InviteForm } from './InviteForm';
+import LoadingOverlay from 'components/L2/LoadingOverlay';
 
 export default function Point() {
   const { pop, push, names }: any = useLocalRouter();
   const { wallet }: any = useWallet();
   const { pointCursor }: any = usePointCursor();
   const point = need.point(pointCursor);
+  const networkKeysSet = useHasNetworkKeysSet();
   const { syncExtras }: any = usePointCache();
+
   const { api, getNumInvites, getPendingTransactions } = useRoller();
   const {
     pendingTransactions,
@@ -45,10 +48,13 @@ export default function Point() {
     setCurrentPoint,
     setInvites,
   } = useRollerStore();
-  const networkKeysSet = useHasNetworkKeysSet();
+
   const [seenMissingKeys, setSeenMissingKeys] = useSeenMissingKeys();
   const [showModal, setShowModal] = useState(false);
   const [hideMessage, setHideMessage] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const pointRef = useRef<number | null>(null);
 
   const hideModal = useCallback(() => {
     if (hideMessage) {
@@ -59,8 +65,11 @@ export default function Point() {
   }, [hideMessage, setShowModal, setSeenMissingKeys]);
 
   useEffect(() => {
-    setShowModal(!networkKeysSet && !seenMissingKeys);
-  }, [networkKeysSet, seenMissingKeys]);
+    if (pointRef.current !== point) {
+      pointRef.current = point;
+      setShowModal(!networkKeysSet && !seenMissingKeys);
+    }
+  }, [networkKeysSet, seenMissingKeys, point]);
 
   const loadL1Info = useCallback(async () => {
     await syncExtras(point);
@@ -68,6 +77,7 @@ export default function Point() {
 
   const loadL2Info = useCallback(async () => {
     const getTransactions = async () => {
+      setLoading(true);
       const pointInfo = await api.getPoint(Number(point));
 
       if (isDevelopment) {
@@ -76,10 +86,19 @@ export default function Point() {
       getPendingTransactions();
       setCurrentPoint(pointInfo);
       getNumInvites(isL2(pointInfo.dominion));
+
+      setTimeout(() => setLoading(false), 100);
     };
 
     await getTransactions();
-  }, [api, point, getNumInvites, setCurrentPoint, getPendingTransactions]);
+  }, [
+    api,
+    point,
+    getNumInvites,
+    setCurrentPoint,
+    getPendingTransactions,
+    setLoading,
+  ]);
 
   useEffect(() => {
     loadL1Info();
@@ -277,6 +296,7 @@ export default function Point() {
           </Row>
         </Box>
       </Modal>
+      <LoadingOverlay loading={loading} />
     </View>
   );
 }
