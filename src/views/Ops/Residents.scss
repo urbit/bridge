@@ -1,0 +1,58 @@
+.ops-residents {
+  div.content-container {
+    height: 550px;
+    overflow-y: scroll;
+    width: 100%;
+
+    // hide the vertical scrollbar
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    &::-webkit-scrollbar {
+      display: none; /* Chrome */
+    }
+  }
+
+  ul.residents-list {
+    padding-left: unset;
+    li {
+      list-style: none;
+      margin-bottom: 16px;
+      height: 24px;
+      display: flex;
+      flex-flow: row nowrap;
+
+      &:first {
+        margin-top: unset;
+      }
+
+      div.sigil {
+        height: 24px;
+        width: 24px;
+        margin-right: 8px;
+        border-radius: 2px;
+        background: black;
+
+        div.sigil-container {
+          height: 16px;
+          width: 16px;
+          padding: 4px;
+
+          svg {
+
+          }
+        }
+
+      }
+
+      .patp {
+        font-family: Source Code Pro;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 16px;
+        letter-spacing: 0em;
+        align-self: center;
+      }
+    }
+  }
+}
