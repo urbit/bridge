@@ -29,6 +29,7 @@ export const ROUTE_NAMES = {
   URBIT_OS: Symbol('URBIT_OS'),
   URBIT_ID: Symbol('URBIT_ID'),
   RESIDENTS: Symbol('RESIDENTS'),
+  REQUESTS: Symbol('REQUESTS'),
   ADOPT: Symbol('ADOPT'),
   BITCOIN: Symbol('BITCOIN'),
   BITCOIN_XPUB: Symbol('BITCOIN_XPUB'),

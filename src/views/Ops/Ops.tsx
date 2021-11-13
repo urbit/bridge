@@ -18,6 +18,7 @@ export const Ops = () => {
 
   const goSenate = useCallback(() => push(names.SENATE), [push, names]);
   const goResidents = useCallback(() => push(names.RESIDENTS), [push, names]);
+  const goRequests = useCallback(() => push(names.REQUESTS), [push, names]);
   const goIssuePoint = useCallback(() => push(names.ISSUE_CHILD), [
     names.ISSUE_CHILD,
     push,
@@ -25,11 +26,10 @@ export const Ops = () => {
 
   return (
     <View
-      id="ops"
       pop={pop}
       inset
       hideBack
-      className="urbit-id"
+      className="ops"
       header={<L2BackHeader hideBalance back={pop} />}>
       <Window className="id-ops">
         <HeaderPane>
@@ -58,7 +58,7 @@ export const Ops = () => {
                 Planets requesting your sponsorship
               </Box>
             </Box>
-            <Button className="secondary" onClick={goResidents}>
+            <Button className="secondary" onClick={goRequests}>
               View
             </Button>
           </Row>
