@@ -201,6 +201,8 @@ export default function Point() {
                   ? 'Transfer Proxy Changed'
                   : pendingTx.rawTx?.tx?.type === 'set-spawn-proxy'
                   ? 'Spawn Proxy Changed'
+                  : pendingTx.rawTx?.tx?.type === 'detach'
+                  ? 'Sponsee Detached'
                   : ''}
               </div>
               <div className="rollup-timer">

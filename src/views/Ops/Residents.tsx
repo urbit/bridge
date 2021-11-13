@@ -1,6 +1,5 @@
 import * as need from 'lib/need';
-import ob from 'urbit-ob';
-import { Box, Row } from '@tlon/indigo-react';
+import { Box, LoadingSpinner, Row } from '@tlon/indigo-react';
 
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
@@ -9,30 +8,40 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 import { usePointCursor } from 'store/pointCursor';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import './Residents.scss';
-import Sigil from 'components/Sigil';
 import useRoller from 'lib/useRoller';
 import { Ship } from '@urbit/roller-api';
+import { ResidentRow } from './ResidentRow';
 
 export const Residents = () => {
   const { pop }: any = useLocalRouter();
   const { pointCursor } = usePointCursor();
-  const point = need.point(pointCursor);
-  const { api } = useRoller();
+  const point = useMemo(() => need.point(pointCursor), [pointCursor]);
+  const { api, kickPoint } = useRoller();
   const [sponsoredPoints, setSponsoredPoints] = useState<Ship[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const fetchResidents = useCallback(async () => {
     if (!point) {
       return;
     }
 
+    setLoading(true);
     // TODO: remove this hack once the API is updated
     const { residentes, residents } = await api.getSponsoredPoints(point);
-
     setSponsoredPoints((residents || residentes || []).sort());
+    setLoading(false);
   }, [api, point]);
+
+  const handleKick = useCallback(
+    async (point: Ship) => {
+      await kickPoint(point);
+      await fetchResidents();
+    },
+    [fetchResidents, kickPoint]
+  );
 
   useEffect(() => {
     fetchResidents();
@@ -56,23 +65,19 @@ export const Residents = () => {
         </HeaderPane>
         <BodyPane>
           <Box className="content-container">
-            <ul className="residents-list">
-              {sponsoredPoints.map(sp => (
-                <li>
-                  <Box className="sigil">
-                    <Box className="sigil-container">
-                      <Sigil
-                        icon
-                        patp={ob.patp(sp)}
-                        size={16}
-                        colors={['#000000', '#FFFFFF']}
-                      />
-                    </Box>
-                  </Box>
-                  <Box className={'patp'}>{ob.patp(sp)}</Box>
-                </li>
-              ))}
-            </ul>
+            {loading ? (
+              <Box className={'loading'}>
+                <LoadingSpinner />
+              </Box>
+            ) : sponsoredPoints.length > 0 ? (
+              <ul className="residents-list">
+                {sponsoredPoints.map(sp => (
+                  <ResidentRow point={sp} onKick={handleKick} />
+                ))}
+              </ul>
+            ) : (
+              <Box className="no-results">No residents</Box>
+            )}
           </Box>
         </BodyPane>
       </Window>
