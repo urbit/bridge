@@ -54,11 +54,12 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
 
   const selectPoint = useCallback(
     (point: number) => () => {
+      popTo(names.POINTS);
       setPointCursor(Just(point));
       push(names.POINT);
       setOpen(false);
     },
-    [push, names.POINT, setOpen, setPointCursor]
+    [push, popTo, names, setOpen, setPointCursor]
   );
 
   const goHome = useCallback(() => popTo(names.POINTS), [names, popTo]);
@@ -137,7 +138,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
       )}
       {isParent && canSpawn && (
         <Row className="entry" onClick={goIssuePoint}>
-          <Box>Spawn{isStar ? ' Planets' : ' Stars'}</Box>
+          <Box>{isStar ? 'Generate Invites' : 'Spawn Stars'}</Box>
           <Icon icon="Plus" />
         </Row>
       )}

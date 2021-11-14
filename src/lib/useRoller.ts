@@ -62,7 +62,13 @@ const inviteTemplate = (
 });
 
 export default function useRoller() {
-  const { wallet, authToken, authMnemonic, urbitWallet }: any = useWallet();
+  const {
+    wallet,
+    authToken,
+    authMnemonic,
+    urbitWallet,
+    walletType,
+  }: any = useWallet();
   const { pointCursor }: any = usePointCursor();
   const { web3, contracts }: any = useNetwork();
   const allPoints: any = usePointCache();
@@ -189,7 +195,9 @@ export default function useRoller() {
           _point,
           proxy,
           nonceInc,
-          planet
+          planet,
+          walletType,
+          _web3
         );
 
         const networkSeed = await deriveNetworkSeedFromUrbitWallet(
@@ -202,7 +210,9 @@ export default function useRoller() {
           planet,
           'own',
           0,
-          networkSeed
+          networkSeed,
+          walletType,
+          _web3
         );
 
         const setManagementProxyRequest = registerProxyAddress(
@@ -212,7 +222,9 @@ export default function useRoller() {
           'own',
           'manage',
           1,
-          inviteWallet.management.keys.address
+          inviteWallet.management.keys.address,
+          walletType,
+          _web3
         );
 
         const transferRequest = transferPointRequest(
@@ -221,7 +233,9 @@ export default function useRoller() {
           planet,
           'own',
           2,
-          inviteWallet.ownership.keys.address
+          inviteWallet.ownership.keys.address,
+          walletType,
+          _web3
         );
 
         requests.push(
@@ -248,6 +262,7 @@ export default function useRoller() {
       contracts,
       pointCursor,
       wallet,
+      walletType,
       web3,
       getDetails,
       ls,
@@ -321,10 +336,6 @@ export default function useRoller() {
             outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
           );
 
-          if (isDevelopment) {
-            console.log('INVITED PLANETS', invitePlanets);
-          }
-
           const newInvites: Invite[] = [];
           // Iterate over all of the stored invites, generating wallet info as necessary
           const storedInvites = getStoredInvites(ls);
@@ -394,7 +405,7 @@ export default function useRoller() {
         const _contracts = contracts.getOrElse(null);
 
         if (_authToken && _contracts) {
-          let invitePoints = isL2 ? await api.getSpawned(curPoint) : [];
+          let spawnedPoints = isL2 ? await api.getSpawned(curPoint) : [];
 
           const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
             _contracts,
@@ -409,14 +420,16 @@ export default function useRoller() {
             getDetails
           ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
 
+          const invitePoints = spawnedPoints
+            .concat(
+              outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
+            )
+            .filter((p: number) => !pendingSpawns.has(p));
+
           setPendingTransactions(newPending);
-          setInvitePoints(
-            invitePoints
-              .concat(
-                outgoingPoints.filter((p: number) => !invitePoints.includes(p))
-              )
-              .filter((p: number) => !pendingSpawns.has(p))
-          );
+          setInvitePoints(invitePoints);
+
+          return invitePoints;
         }
       } catch (e) {
         if (isDevelopment) {
@@ -448,8 +461,9 @@ export default function useRoller() {
     const _point = need.point(pointCursor);
     const azimuthPoint = await api.getPoint(_point);
     const _wallet = wallet.getOrElse(null);
+    const _web3 = web3.getOrElse(null);
     const _details = getDetails(_point);
-    if (!_wallet || !_details) {
+    if (!_wallet || !_details || !_web3) {
       // not using need because we want a custom error
       throw new Error('Internal Error: Missing Wallet/Details');
     }
@@ -484,6 +498,8 @@ export default function useRoller() {
       proxy!,
       nonce,
       networkSeed,
+      walletType,
+      _web3,
       breach
     );
     const pendingTx = await api.getPendingTx(txHash);
@@ -508,6 +524,7 @@ export default function useRoller() {
   }: ReticketParams) => {
     const azimuthPoint = await api.getPoint(point);
     const proxy = 'own';
+    const _web3 = web3.getOrElse(null);
     let nonce = await api.getNonce({ ship: point, proxy });
 
     let requests = [];
@@ -525,7 +542,9 @@ export default function useRoller() {
       point,
       proxy,
       nonce,
-      networkSeed
+      networkSeed,
+      walletType,
+      _web3
     );
     nonce = nonce + 1;
     requests.push(configureKeysRequest);
@@ -538,7 +557,9 @@ export default function useRoller() {
       proxy,
       'manage',
       nonce,
-      manager
+      manager,
+      walletType,
+      _web3
     );
     nonce = nonce + 1;
     requests.push(registerMgmtRequest);
@@ -552,7 +573,9 @@ export default function useRoller() {
         proxy,
         'spawn',
         nonce,
-        toWallet.spawn.keys.address
+        toWallet.spawn.keys.address,
+        walletType,
+        _web3
       );
       nonce = nonce + 1;
       requests.push(registerSpawnRequest);
@@ -564,7 +587,9 @@ export default function useRoller() {
       point,
       proxy,
       nonce,
-      to
+      to,
+      walletType,
+      _web3
     );
     requests.push(transferTxRequest);
 
@@ -576,6 +601,7 @@ export default function useRoller() {
     async (proxyType: Proxy, address: EthAddress) => {
       const _point = need.point(pointCursor);
       const _wallet = wallet.getOrElse(null);
+      const _web3 = web3.getOrElse(null);
 
       if (!_wallet) {
         // not using need because we want a custom error
@@ -598,20 +624,23 @@ export default function useRoller() {
         proxy,
         proxyType,
         nonce,
-        address
+        address,
+        walletType,
+        _web3
       );
 
       const pendingTx = await api.getPendingTx(txHash);
 
       return pendingTx;
     },
-    [api, pointCursor, wallet]
+    [api, pointCursor, wallet, web3, walletType]
   );
 
   const transferPoint = useCallback(
     async (address: EthAddress, reset?: boolean) => {
       const _point = need.point(pointCursor);
       const _wallet = wallet.getOrElse(null);
+      const _web3 = web3.getOrElse(null);
 
       if (!_wallet) {
         // not using need because we want a custom error
@@ -633,13 +662,15 @@ export default function useRoller() {
         proxy,
         nonce,
         address,
+        walletType,
+        _web3,
         reset || false
       );
       const pendingTx = await api.getPendingTx(txHash);
 
       return pendingTx;
     },
-    [api, pointCursor, wallet]
+    [api, pointCursor, wallet, web3, walletType]
   );
 
   // On load, get initial config
@@ -662,7 +693,7 @@ export default function useRoller() {
           getNumInvites(currentL2);
         });
       }
-    }, 1000);
+    }, 10000000);
 
     return () => clearInterval(interval);
   }, [nextBatchTime, getPendingTransactions, currentL2]); // eslint-disable-line react-hooks/exhaustive-deps

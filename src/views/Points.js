@@ -8,6 +8,7 @@ import { useWallet } from 'store/wallet';
 import { usePointCache } from 'store/pointCache';
 import { usePointCursor } from 'store/pointCursor';
 import { useStarReleaseCache } from 'store/starRelease';
+import { useNetwork } from 'store/network';
 
 import * as need from 'lib/need';
 import { isZeroAddress, abbreviateAddress } from 'lib/utils/address';
@@ -18,7 +19,6 @@ import { pluralize } from 'lib/pluralize';
 import newGithubIssueUrl from 'new-github-issue-url';
 
 import View from 'components/View';
-import Blinky from 'components/Blinky';
 import Passport from 'components/Passport';
 import Footer from 'components/Footer';
 import { ForwardButton } from 'components/Buttons';
@@ -26,7 +26,7 @@ import CopiableAddress from 'components/copiable/CopiableAddress';
 import NavHeader from 'components/NavHeader';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import IncomingPoint from 'components/L2/Points/IncomingPoint';
-import { useNetwork } from 'store/network';
+import LoadingOverlay from 'components/L2/LoadingOverlay';
 
 export const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -307,11 +307,7 @@ export default function Points() {
   ) {
     return (
       <View inset>
-        <Grid>
-          <Grid.Item full as={HelpText} className="mt8 t-center">
-            <Blinky /> Loading...
-          </Grid.Item>
-        </Grid>
+        <LoadingOverlay loading />
       </View>
     );
   }

@@ -18,13 +18,14 @@ import RollerRPCAPI, {
 import { deriveNetworkKeys, CRYPTO_SUITE_VERSION } from 'lib/keys';
 import { addHexPrefix } from 'lib/utils/address';
 import { makeDeterministicTicket, generateWallet } from 'lib/walletgen';
+import { WALLET_TYPES } from 'lib/constants';
 
 export const SECOND = 1000;
 export const MINUTE = SECOND * 60;
 export const HOUR = MINUTE * 60;
 
 export const padZero = (amount: number) =>
-  `${amount < 10 && amount > 0 ? '0' : ''}${amount}`;
+  `${amount < 10 && amount >= 0 ? '0' : ''}${amount}`;
 
 export const hasPoint = (point: number) => (invite: Invite) =>
   invite.planet === point;
@@ -51,13 +52,36 @@ export const generateInviteWallet = async (point: number, seed: string) => {
   return { ticket, inviteWallet };
 };
 
+export const generateHashAndSign = async (
+  api: RollerRPCAPI,
+  wallet: any,
+  nonce: number,
+  from: From,
+  type: string,
+  data: any,
+  walletType: symbol,
+  web3: any
+) => {
+  if (walletType === WALLET_TYPES.METAMASK) {
+    const hash = await api.prepareForSigning(nonce, from, type, data);
+    const sig = await web3.eth.personal.sign(hash, wallet.address, '');
+    return sig;
+  } else {
+    const hash = await api.getUnsignedTx(nonce, from, type, data);
+    const sig = await signTransactionHash(hash, wallet.privateKey);
+    return sig;
+  }
+};
+
 export const spawn = async (
   api: RollerRPCAPI,
-  _wallet: any,
+  wallet: any,
   _point: number,
   proxy: string,
   nonce: number,
-  planet: number
+  planet: number,
+  walletType: symbol,
+  web3: any
 ) => {
   const from = {
     ship: _point, //ship that is spawning the planet
@@ -65,13 +89,21 @@ export const spawn = async (
   };
 
   const data = {
-    address: _wallet.address,
+    address: wallet.address,
     ship: planet, // ship to spawn
   };
 
-  const hash = await api.getUnsignedTx(nonce, from, 'spawn', data);
-  const sSig = signTransactionHash(hash, _wallet.privateKey);
-  return api.spawn(sSig, from, _wallet.address, data);
+  const sig = await generateHashAndSign(
+    api,
+    wallet,
+    nonce,
+    from,
+    'spawn',
+    data,
+    walletType,
+    web3
+  );
+  return api.spawn(sig, from, wallet.address, data);
 };
 
 export const configureKeys = async (
@@ -81,6 +113,8 @@ export const configureKeys = async (
   proxy: string,
   nonce: number,
   networkSeed: any,
+  walletType: symbol,
+  web3: any,
   breach?: boolean
 ) => {
   const from = {
@@ -107,18 +141,28 @@ export const configureKeys = async (
     breach: breach || false,
   };
 
-  const hash = await api.getUnsignedTx(nonce, from, 'configureKeys', data);
-  const sig = signTransactionHash(hash, wallet.privateKey);
+  const sig = await generateHashAndSign(
+    api,
+    wallet,
+    nonce,
+    from,
+    'configureKeys',
+    data,
+    walletType,
+    web3
+  );
   return api.configureKeys(sig, from, wallet.address, data);
 };
 
 export const transferPointRequest = async (
   api: RollerRPCAPI,
-  _wallet: any,
+  wallet: any,
   pointToTransfer: Ship,
   proxy: string,
   nonce: number,
   address: string,
+  walletType: symbol,
+  web3: any,
   reset?: boolean
 ) => {
   const from = {
@@ -130,9 +174,19 @@ export const transferPointRequest = async (
     address,
     reset: reset || false,
   };
-  const hash = await api.getUnsignedTx(nonce, from, 'transferPoint', data);
-  const sig = signTransactionHash(hash, _wallet.privateKey);
-  return api.transferPoint(sig, from, _wallet.address, data);
+
+  const sig = await generateHashAndSign(
+    api,
+    wallet,
+    nonce,
+    from,
+    'transferPoint',
+    data,
+    walletType,
+    web3
+  );
+
+  return api.transferPoint(sig, from, wallet.address, data);
 };
 
 const proxyType = (proxy: Proxy) => {
@@ -170,33 +224,33 @@ const setProxy = async (
 
 export const registerProxyAddress = async (
   api: RollerRPCAPI,
-  _wallet: any,
+  wallet: any,
   _point: Ship,
   proxy: string,
   proxyAddressType: string,
   nonce: number,
-  address: string
+  address: string,
+  walletType: symbol,
+  web3: any
 ) => {
   const from = {
     ship: _point,
     proxy,
   };
-  const proxyData = { address };
-  const proxyHash = await api.getUnsignedTx(
+  const data = { address };
+
+  const sig = await generateHashAndSign(
+    api,
+    wallet,
     nonce,
     from,
     proxyType(proxyAddressType),
-    proxyData
+    data,
+    walletType,
+    web3
   );
 
-  return setProxy(
-    api,
-    proxyAddressType,
-    signTransactionHash(proxyHash, _wallet.privateKey),
-    from,
-    _wallet.address,
-    proxyData
-  );
+  return setProxy(api, proxyAddressType, sig, from, wallet.address, data);
 };
 
 export const reticketL2Point = async () => {};

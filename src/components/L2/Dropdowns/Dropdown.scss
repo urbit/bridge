@@ -4,6 +4,14 @@
   font-size: 14px;
   position: relative;
 
+  .close-background {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
+
   .selector {
     background-color: $washed-gray;
     padding: 8px;

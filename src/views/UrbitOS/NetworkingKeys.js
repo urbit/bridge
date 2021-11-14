@@ -212,7 +212,6 @@ export default function UrbitOSNetworkingKeys({
 
   const setNetworkingKeys = useCallback(async () => {
     // setLoading(true);
-    console.log(breach, manualNetworkSeed);
     try {
       const txHash = await configureNetworkingKeys({
         breach,
