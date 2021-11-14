@@ -34,12 +34,28 @@
     li {
       list-style: none;
       margin-bottom: 16px;
-      height: 24px;
+      height: 32px;
       display: flex;
       flex-flow: row nowrap;
+      justify-content: space-between;
+      align-items: center;
 
       &:first {
         margin-top: unset;
+      }
+
+      .point-wrapper {
+        display: flex;
+        flex-flow: row nowrap;
+      }
+
+
+      .button-wrapper {
+        cursor: pointer;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        position: relative;
       }
 
       div.sigil {

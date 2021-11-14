@@ -51,35 +51,35 @@
       .button-wrapper {
         cursor: pointer;
         display: flex;
-        flex-flow: column nowrap;
+        flex-flow: row nowrap;
         justify-content: center;
         position: relative;
+      }
 
-        .kick-dropdown {
-          z-index: 9999;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          justify-content: center;
-          width: 100px;
-          height: 48px;
-          background-color: #fff;
-          border: 1px solid rgba(0, 0, 0, 0.2);
-          box-sizing: border-box;
-          border-radius: 4px;
-          position: absolute;
-          top: 28px;
-          right: 0px;
-          padding: 16px;
+      .kick-dropdown {
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        width: 100px;
+        height: 48px;
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        box-sizing: border-box;
+        border-radius: 4px;
+        position: absolute;
+        top: 28px;
+        right: 0px;
+        padding: 16px;
 
-          span {
-            font-family: Inter;
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 500;
-            line-height: 16px;
-            color: rgba(255, 65, 54, 1);
-          }
+        span {
+          font-family: Inter;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 16px;
+          color: rgba(255, 65, 54, 1);
         }
       }
 

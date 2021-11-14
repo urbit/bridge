@@ -139,8 +139,6 @@ export default function Point() {
 
   const goUrbitID = useCallback(() => push(names.URBIT_ID), [push, names]);
 
-  const goResidents = useCallback(() => push(names.RESIDENTS), [push, names]);
-
   const goOps = useCallback(() => push(names.OPS), [push, names]);
 
   const planet = isPlanet(point);
@@ -225,7 +223,7 @@ export default function Point() {
         {isParent && (
           <Grid.Item full as={Flex} justify="between">
             <Card
-              icon={(<Icon icon="BootNode" />) as any}
+              icon={(<Icon icon="ShipActivated" />) as any}
               title={`${isStar(point) ? 'Star' : 'Galaxy'} Ops`}
               subtitle={
                 isStar(point)

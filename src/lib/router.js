@@ -14,7 +14,6 @@ import Activate from 'views/Activate';
 import Point from 'views/Point/Point';
 import UrbitOS from 'views/Point/UrbitOS';
 import UrbitID from 'views/Point/UrbitID';
-// import Residents from 'views/Point/Residents';
 import { Residents } from 'views/Ops/Residents';
 import MigrateL2 from 'views/Point/MigrateL2.tsx';
 import IssueChild from 'views/Point/IssueChild';

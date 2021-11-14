@@ -6,9 +6,14 @@ import SecureLS from 'secure-ls';
 import { Invite } from 'lib/types/Invite';
 import { convertToInt } from './convertToInt';
 import { isDevelopment, isRopsten } from './flags';
-import { detach, generateInviteWallet, getPendingSpawns } from './utils/roller';
+import {
+  adopt,
+  detach,
+  generateInviteWallet,
+  getPendingSpawns,
+  reject,
+} from './utils/roller';
 import { ROLLER_HOSTS } from './constants';
-import { patp2dec } from './patp2dec';
 
 import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
@@ -637,6 +642,27 @@ export default function useRoller() {
     [api, pointCursor, wallet, web3, walletType]
   );
 
+  const adoptPoint = useCallback(
+    async (point: Ship) => {
+      const sponsor = need.point(pointCursor);
+      const _wallet = wallet.getOrElse(null);
+
+      const sponsorInfo = await api.getPoint(sponsor);
+      const ownership = sponsorInfo.ownership!;
+      const proxy = getManagerProxy(ownership, _wallet.address);
+
+      if (proxy === undefined)
+        throw new Error("Error: Address doesn't match expected proxy");
+
+      const nonce = await api.getNonce({ ship: sponsor, proxy });
+      const txHash = await adopt(api, _wallet, sponsor, proxy, nonce, point);
+      const pendingTx = await api.getPendingTx(txHash);
+
+      return pendingTx;
+    },
+    [api, pointCursor, wallet]
+  );
+
   const kickPoint = useCallback(
     async (point: Ship) => {
       const sponsor = need.point(pointCursor);
@@ -651,6 +677,27 @@ export default function useRoller() {
 
       const nonce = await api.getNonce({ ship: sponsor, proxy });
       const txHash = await detach(api, _wallet, sponsor, proxy, nonce, point);
+      const pendingTx = await api.getPendingTx(txHash);
+
+      return pendingTx;
+    },
+    [api, pointCursor, wallet]
+  );
+
+  const rejectPoint = useCallback(
+    async (point: Ship) => {
+      const sponsor = need.point(pointCursor);
+      const _wallet = wallet.getOrElse(null);
+
+      const sponsorInfo = await api.getPoint(sponsor);
+      const ownership = sponsorInfo.ownership!;
+      const proxy = getManagerProxy(ownership, _wallet.address);
+
+      if (proxy === undefined)
+        throw new Error("Error: Address doesn't match expected proxy");
+
+      const nonce = await api.getNonce({ ship: sponsor, proxy });
+      const txHash = await reject(api, _wallet, sponsor, proxy, nonce, point);
       const pendingTx = await api.getPendingTx(txHash);
 
       return pendingTx;
@@ -721,6 +768,7 @@ export default function useRoller() {
   }, [nextBatchTime, getPendingTransactions, currentL2]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
+    adoptPoint,
     api,
     performL2Reticket,
     config,
@@ -729,6 +777,7 @@ export default function useRoller() {
     getPendingTransactions,
     generateInviteCodes,
     kickPoint,
+    rejectPoint,
     transferPoint,
     setProxyAddress,
     configureNetworkingKeys,

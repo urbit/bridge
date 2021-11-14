@@ -1,8 +1,9 @@
 import ob from 'urbit-ob';
-import { Box, Icon, Text} from '@tlon/indigo-react';
+import { Box, Icon, Text } from '@tlon/indigo-react';
 import { Ship } from '@urbit/roller-api';
 import Sigil from 'components/Sigil';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import useOnClickOutside from 'lib/useOnClickOutside';
 
 interface ResidentRowProps {
   point: Ship;
@@ -11,6 +12,14 @@ interface ResidentRowProps {
 
 export const ResidentRow = ({ point, onKick }: ResidentRowProps) => {
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  const handleClickOutside = useCallback((event: MouseEvent | TouchEvent) => {
+    event.stopImmediatePropagation();
+    setShowDropdown(false);
+  }, []);
+
+  useOnClickOutside(dropdownRef, handleClickOutside);
 
   const handleKickClick = useCallback(async () => {
     setShowDropdown(false);
@@ -32,10 +41,12 @@ export const ResidentRow = ({ point, onKick }: ResidentRowProps) => {
         </Box>
         <Box className={'patp'}>{ob.patp(point)}</Box>
       </Box>
-      <Box
-        className="button-wrapper"
-        onClick={() => setShowDropdown(!showDropdown)}>
-        <Icon icon="Ellipsis" size="18px" />
+      <Box className="button-wrapper" ref={dropdownRef}>
+        <Icon
+          icon="Ellipsis"
+          size="18px"
+          onClick={() => setShowDropdown(!showDropdown)}
+        />
         {showDropdown && (
           <Box className={'kick-dropdown'} onClick={handleKickClick}>
             <Text>Kick</Text>

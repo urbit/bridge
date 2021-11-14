@@ -1,5 +1,4 @@
 import * as need from 'lib/need';
-import ob from 'urbit-ob';
 import { Box, LoadingSpinner, Row } from '@tlon/indigo-react';
 
 import Window from 'components/L2/Window/Window';
@@ -12,15 +11,15 @@ import { usePointCursor } from 'store/pointCursor';
 import { useCallback, useEffect, useState } from 'react';
 
 import './Requests.scss';
-import Sigil from 'components/Sigil';
 import useRoller from 'lib/useRoller';
 import { Ship } from '@urbit/roller-api';
+import { RequestRow } from './RequestRow';
 
 export const Requests = () => {
   const { pop }: any = useLocalRouter();
   const { pointCursor } = usePointCursor();
   const point = need.point(pointCursor);
-  const { api } = useRoller();
+  const { api, adoptPoint, rejectPoint } = useRoller();
   const [requestingPoints, setRequestingPoints] = useState<Ship[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -35,6 +34,24 @@ export const Requests = () => {
     setRequestingPoints((requests || []).sort());
     setLoading(false);
   }, [api, point]);
+
+  const handleAcceptClick = useCallback(
+    async (point: Ship) => {
+      setLoading(true);
+      await adoptPoint(point);
+      await fetchRequests();
+    },
+    [adoptPoint, fetchRequests]
+  );
+
+  const handleRejectClick = useCallback(
+    async (point: Ship) => {
+      setLoading(true);
+      await rejectPoint(point);
+      await fetchRequests();
+    },
+    [rejectPoint, fetchRequests]
+  );
 
   useEffect(() => {
     fetchRequests();
@@ -65,19 +82,11 @@ export const Requests = () => {
             ) : requestingPoints.length > 0 ? (
               <ul className="requests-list">
                 {requestingPoints.map(sp => (
-                  <li>
-                    <Box className="sigil">
-                      <Box className="sigil-container">
-                        <Sigil
-                          icon
-                          patp={ob.patp(sp)}
-                          size={16}
-                          colors={['#000000', '#FFFFFF']}
-                        />
-                      </Box>
-                    </Box>
-                    <Box className={'patp'}>{ob.patp(sp)}</Box>
-                  </li>
+                  <RequestRow
+                    point={sp}
+                    onAccept={handleAcceptClick}
+                    onReject={handleRejectClick}
+                  />
                 ))}
               </ul>
             ) : (
