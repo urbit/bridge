@@ -37,6 +37,7 @@ export const Residents = () => {
 
   const handleKick = useCallback(
     async (point: Ship) => {
+      setLoading(true);
       await kickPoint(point);
       await fetchResidents();
     },
