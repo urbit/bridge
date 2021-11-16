@@ -320,7 +320,15 @@ export const registerProxyAddress = async (
 };
 
 const getDataAndMethod = (args: L2TransactionArgs) => {
-  const { address, api, breach, networkSeed, reset, pointToSpawn } = args;
+  const {
+    address,
+    api,
+    breach,
+    networkSeed,
+    reset,
+    pointToSpawn,
+    newSponsor,
+  } = args;
   const result: TransactionData = { data: { address }, method: () => null };
 
   switch (args.type) {
@@ -352,6 +360,11 @@ const getDataAndMethod = (args: L2TransactionArgs) => {
         breach: breach || false,
       };
       result.method = api.configureKeys;
+      return result;
+    case 'escape':
+      result.method = api.escape;
+      result.data.ship = newSponsor;
+      delete result.data.address;
       return result;
   }
 };

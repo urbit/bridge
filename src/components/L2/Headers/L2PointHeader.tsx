@@ -60,13 +60,13 @@ const L2PointHeader = ({
         <AccountsDropdown showMigrate={showMigrate} />
       </Row>
       <Row className="info">
-        {showInvites && point.canSpawn && (
+        {showInvites && point.showInvites && (
           <Row onClick={goToInvites} className="invites">
             <InviteIcon />
             {numInvites}
           </Row>
         )}
-        {!hideTimer && point?.isL2Spawn && !pendingTransactions.length && (
+        {!hideTimer && point.isL2Spawn && !pendingTransactions.length && (
           <Box className="rollup-timer" onClick={goToHistory}>
             {nextRoll}
           </Box>

@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Just } from 'folktale/maybe';
+import React, { useCallback, useState } from 'react';
+import { Just, Nothing } from 'folktale/maybe';
 import { Box, Button, Icon, Row } from '@tlon/indigo-react';
 
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -9,6 +9,8 @@ import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { convertToInt } from 'lib/convertToInt';
 import { ETH_ZERO_ADDR } from 'lib/constants';
 import { abbreviateAddress } from 'lib/utils/address';
+import { downloadWallet } from 'lib/invite';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';
@@ -18,6 +20,7 @@ import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
+import PaperBuilder from 'components/PaperBuilder';
 
 import './UrbitID.scss';
 
@@ -27,10 +30,16 @@ export default function UrbitIDHome() {
   const { urbitWallet }: any = useWallet();
   const { point } = useRollerStore();
 
-  const goDownloadKeys = useCallback(() => push(names.DOWNLOAD_KEYS), [
-    push,
-    names,
-  ]);
+  const [keysDownloaded, setKeysDownloaded] = useState(false);
+
+  const _urbitWallet = need.wallet(urbitWallet);
+  const { keyfile, filename } = useKeyfileGenerator();
+  const [paper, setPaper] = useState(Nothing());
+
+  const downloadKeys = useCallback(() => {
+    downloadWallet(paper.value, keyfile, filename);
+    setKeysDownloaded(true);
+  }, [paper, keyfile, filename, setKeysDownloaded]);
 
   const goSigil = useCallback(() => push(names.SIGIL_GENERATOR), [push, names]);
 
@@ -58,8 +67,13 @@ export default function UrbitIDHome() {
         <Row className="header-row">
           <h5>ID</h5>
           {isMasterTicket && (
-            <Button onClick={goDownloadKeys} className="header-button">
-              Download Passport
+            <Button onClick={downloadKeys} className="header-button">
+              {keysDownloaded
+                ? 'Downloaded!'
+                : paper.matchWith({
+                    Nothing: () => 'Printing and folding...',
+                    Just: (_: any) => 'Download Passport',
+                  })}
             </Button>
           )}
         </Row>
@@ -183,6 +197,13 @@ export default function UrbitIDHome() {
           </Row>
         )}
       </BodyPane>
+      <PaperBuilder
+        point={point.value}
+        wallets={[_urbitWallet]}
+        callback={(paper: any) => {
+          setPaper(Just(paper));
+        }}
+      />
     </Window>
   );
 }

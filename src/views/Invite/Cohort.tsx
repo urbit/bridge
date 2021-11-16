@@ -5,7 +5,8 @@ import {
   Icon,
   Row,
   StatelessTextInput,
-  Button as Button2,
+  Box,
+  LoadingSpinner,
 } from '@tlon/indigo-react';
 
 import { usePointCache } from 'store/pointCache';
@@ -59,6 +60,7 @@ export default function InviteCohort() {
     pendingTransactions,
     invites,
     invitePoints,
+    inviteGeneratingNum,
     setInviteGeneratingNum,
     setInvites,
   } = useRollerStore();
@@ -70,11 +72,10 @@ export default function InviteCohort() {
     generateInviteCodes,
     getPendingTransactions,
     getInvites,
-    showInvite,
   } = useRoller();
   const { contracts }: any = useNetwork();
   const { syncControlledPoints }: any = usePointCache();
-  const currentL2 = Boolean(point?.isL2);
+  const currentL2 = Boolean(point?.isL2Spawn);
 
   const _contracts = need.contracts(contracts);
 
@@ -90,21 +91,9 @@ export default function InviteCohort() {
 
   const { construct, unconstruct, completed, bind } = useIssueChild();
 
-  const onClickShowInvite = useCallback(
-    (planet: number) => {
-      setLoading(true);
-      // Put this in a timeout to let the UI update
-      setTimeout(async () => {
-        await showInvite(planet);
-        setLoading(false);
-      }, 50);
-    },
-    [setLoading, showInvite]
-  );
-
   useEffect(() => {
     if (invitePoints.length > 0) {
-      getInvites(currentL2);
+      getInvites(currentL2, true);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -282,11 +271,12 @@ export default function InviteCohort() {
                     className="copy-invite"
                   />
                 ) : (
-                  <Button2
-                    className="secondary"
-                    onClick={() => onClickShowInvite(invite.planet)}>
-                    Show Invite
-                  </Button2>
+                  <Box className="ticket-loader">
+                    <LoadingSpinner
+                      foreground="white"
+                      background="rgba(0,0,0,0.3)"
+                    />
+                  </Box>
                 )}
               </div>
             ))}
@@ -307,7 +297,7 @@ export default function InviteCohort() {
       <>
         You have no planet codes available.
         <br />
-        {currentL2 && (
+        {currentL2 && point.canSpawn && (
           <>
             Generate your codes in
             <br />
@@ -404,10 +394,9 @@ export default function InviteCohort() {
     );
   }
 
-  const showGenerateButton = !hasPending && !hasInvites;
-  const downloadingCsvText = `Generating ${
-    invitePoints.length
-  } codes, this could take up to ${invitePoints.length * 5} seconds...`;
+  const showGenerateButton = !hasPending && !hasInvites && point.canSpawn;
+  const showAddMoreButton = (hasInvites || hasPending) && point.canSpawn;
+  const downloadingCsvText = `Generating invite code ${inviteGeneratingNum} of ${invitePoints.length}...`;
 
   return (
     <View
@@ -453,7 +442,7 @@ export default function InviteCohort() {
           )}
         </BodyPane>
       </Window>
-      {(hasInvites || hasPending) && (
+      {showAddMoreButton && (
         <Button
           onClick={() => setShowInviteForm(true)}
           className="add-more"

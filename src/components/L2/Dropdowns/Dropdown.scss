@@ -46,8 +46,14 @@
       background-color: white;
       border: 1px solid $light-gray;
       width: 240px;
-      max-height: 80vh;
+      max-height: 200px;
       overflow-y: scroll;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
   }
 }
