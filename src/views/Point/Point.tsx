@@ -3,9 +3,10 @@ import { Just } from 'folktale/maybe';
 import { Grid, Flex } from 'indigo-react';
 import { Box, Icon, Row, Button, Checkbox } from '@tlon/indigo-react';
 
-import { usePointCursor } from 'store/pointCursor';
+import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';
-import { useRollerStore } from 'store/roller';
+import { useRollerStore } from 'store/rollerStore';
+import { useTimerStore } from 'store/timerStore';
 
 import View from 'components/View';
 import Greeting from 'components/Greeting';
@@ -21,40 +22,29 @@ import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useRoller from 'lib/useRoller';
 import useSeenMissingKeys from 'lib/useSeenMissingKeys';
-
-import './Point.scss';
-import { isL2 } from 'lib/utils/roller';
-import { isDevelopment } from 'lib/flags';
-import { usePointCache } from 'store/pointCache';
-import Modal from 'components/L2/Modal';
-import { isPlanet, isStar } from 'lib/utils/point';
 import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
+
 import { InviteForm } from './InviteForm';
+import Modal from 'components/L2/Modal';
+import './Point.scss';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
 
 export default function Point() {
   const { pop, push, names }: any = useLocalRouter();
   const { wallet }: any = useWallet();
-  const { pointCursor }: any = usePointCursor();
-  const point = need.point(pointCursor);
-  const networkKeysSet = useHasNetworkKeysSet();
   const { syncExtras }: any = usePointCache();
-
-  const { api, getNumInvites, getPendingTransactions } = useRoller();
-  const {
-    pendingTransactions,
-    nextRoll,
-    invitePoints,
-    setCurrentPoint,
-    setInvites,
-  } = useRollerStore();
-
+  const { getNumInvites, getPendingTransactions } = useRoller();
+  const { pendingTransactions, point, invites } = useRollerStore();
+  const { nextRoll } = useTimerStore();
+  const networkKeysSet = useHasNetworkKeysSet();
   const [seenMissingKeys, setSeenMissingKeys] = useSeenMissingKeys();
   const [showModal, setShowModal] = useState(false);
   const [hideMessage, setHideMessage] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const pointRef = useRef<number | null>(null);
+
+  const invitePoints = invites[point.value] || [];
 
   const hideModal = useCallback(() => {
     if (hideMessage) {
@@ -65,54 +55,36 @@ export default function Point() {
   }, [hideMessage, setShowModal, setSeenMissingKeys]);
 
   useEffect(() => {
-    if (pointRef.current !== point) {
-      pointRef.current = point;
-      setShowModal(!networkKeysSet && !seenMissingKeys);
+    if (!pointRef.current || pointRef.current !== point.value) {
+      pointRef.current = point.value;
+      setShowModal(!point.networkKeysSet && !seenMissingKeys);
     }
-  }, [networkKeysSet, seenMissingKeys, point]);
+  }, [seenMissingKeys, point]);
 
   const loadL1Info = useCallback(async () => {
-    await syncExtras(point);
+    await syncExtras(point.value);
   }, [point, syncExtras]);
 
   const loadL2Info = useCallback(async () => {
     const getTransactions = async () => {
       setLoading(true);
-      const pointInfo = await api.getPoint(Number(point));
-
-      if (isDevelopment) {
-        console.log('POINT INFO', pointInfo);
-      }
       getPendingTransactions();
-      setCurrentPoint(pointInfo);
-      getNumInvites(isL2(pointInfo.dominion));
-
+      getNumInvites(point.isL2);
       setTimeout(() => setLoading(false), 100);
     };
 
     await getTransactions();
-  }, [
-    api,
-    point,
-    getNumInvites,
-    setCurrentPoint,
-    getPendingTransactions,
-    setLoading,
-  ]);
+  }, [point, getNumInvites, getPendingTransactions, setLoading]);
 
   useEffect(() => {
     loadL1Info();
     loadL2Info();
   }, [point]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    setInvites([]);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const { isParent, canManage } = useCurrentPermissions();
+  const { isParent, canManage, isSpawnProxy } = useCurrentPermissions();
 
   // L1 invites
-  const l1Invites = useInvites(point);
+  const l1Invites = useInvites(point.value);
   const {
     availableInvites,
     sentInvites,
@@ -141,8 +113,6 @@ export default function Point() {
 
   const goOps = useCallback(() => push(names.OPS), [push, names]);
 
-  const planet = isPlanet(point);
-
   const [showInviteForm, setShowInviteForm] = useState(false);
 
   const address = need.addressFromWallet(wallet);
@@ -166,7 +136,7 @@ export default function Point() {
           hideInvites={!networkKeysSet}
         />
       }>
-      <Greeting point={point} />
+      <Greeting point={point.value} />
       {!!spawnedPending && (
         <div className="transaction">
           <Row className="title-row">
@@ -215,7 +185,7 @@ export default function Point() {
           </div>
         ))}
       <Passport
-        point={Just(point)}
+        point={Just(point.value)}
         address={Just(address)}
         animationMode={'slide'}
       />
@@ -224,9 +194,9 @@ export default function Point() {
           <Grid.Item full as={Flex} justify="between">
             <Card
               icon={(<Icon icon="ShipActivated" />) as any}
-              title={`${isStar(point) ? 'Star' : 'Galaxy'} Ops`}
+              title={`${point.isStar ? 'Star' : 'Galaxy'} Ops`}
               subtitle={
-                isStar(point)
+                point.isStar
                   ? 'Residents, Requests, Spawn Planets'
                   : 'Residents, Requests, Spawn Stars, Vote'
               }
@@ -234,7 +204,7 @@ export default function Point() {
             />
           </Grid.Item>
         )}
-        {planet && hasInvites && (
+        {point.isPlanet && hasInvites && (
           <InviteForm
             showInviteForm={showInviteForm}
             setShowInviteForm={setShowInviteForm}
@@ -247,30 +217,34 @@ export default function Point() {
             showInvites={showInvites}
           />
         )}
-        {!loadedInvites && planet && (
+        {!loadedInvites && point.isPlanet && (
           <Grid.Item className="mv2" full>
             Invite Group <Blinky />
           </Grid.Item>
         )}
         {/* {inviteButton} */}
-        <Grid.Item full as={Flex} justify="between">
-          <Card
-            title="ID"
-            subtitle="Master Key, Passport, Proxy Addresses, etc"
-            icon={(<Icon icon="User" />) as any}
-            onClick={goUrbitID}
-            disabled={!canManage}
-          />
-        </Grid.Item>
-        <Grid.Item full as={Flex} justify="between">
-          <Card
-            title="OS"
-            subtitle="Sponsor, Network Keys, Access Key"
-            icon={(<Icon icon="Server" />) as any}
-            onClick={goUrbitOS}
-            disabled={!canManage}
-          />
-        </Grid.Item>
+        {(canManage || isSpawnProxy) && (
+          <Grid.Item full as={Flex} justify="between">
+            <Card
+              title="ID"
+              subtitle="Master Key, Passport, Proxy Addresses, etc"
+              icon={(<Icon icon="User" />) as any}
+              onClick={goUrbitID}
+              disabled={!canManage}
+            />
+          </Grid.Item>
+        )}
+        {canManage && (
+          <Grid.Item full as={Flex} justify="between">
+            <Card
+              title="OS"
+              subtitle="Sponsor, Network Keys, Access Key"
+              icon={(<Icon icon="Server" />) as any}
+              onClick={goUrbitOS}
+              disabled={!canManage}
+            />
+          </Grid.Item>
+        )}
       </Grid>
       <Modal show={showModal} hide={hideModal}>
         <Box className="network-keys-modal">

@@ -1,24 +1,27 @@
 import create from 'zustand';
-import { L2Point, PendingTransaction } from '@urbit/roller-api';
+import { PendingTransaction } from '@urbit/roller-api';
 
-import { HOUR, isL2, isL2Spawn } from 'lib/utils/roller';
+import { HOUR } from 'lib/utils/roller';
 import { Invite } from 'lib/types/Invite';
+import Point, { Points, Relationship } from 'lib/types/Point';
+import { toL1Details } from 'lib/utils/point';
+
+export const EMPTY_POINT = new Point(-1, Relationship.own, toL1Details({}), '');
 
 export interface RollerStore {
   nextBatchTime: number;
-  nextRoll: string;
   pendingTransactions: PendingTransaction[];
-  currentPoint: L2Point | null;
-  currentL2: boolean;
-  currentL2Spawn: boolean;
+  point: Point;
+  points: Points;
+  pointList: Point[];
   invitePoints: number[];
   invites: Invite[];
   recentlyCompleted: number;
   inviteGeneratingNum: number;
   setNextBatchTime: (nextBatchTime: number) => void;
-  setNextRoll: (nextRoll: string) => void;
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) => void;
-  setCurrentPoint: (currentPoint: L2Point) => void;
+  setPoint: (point: number) => void;
+  setPoints: (points: Points) => void;
   setInvitePoints: (points: number[]) => void;
   setInvites: (invites: Invite[]) => void;
   setInviteGeneratingNum: (numGenerating: number) => void;
@@ -26,17 +29,15 @@ export interface RollerStore {
 
 export const useRollerStore = create<RollerStore>(set => ({
   nextBatchTime: new Date().getTime() + HOUR,
-  nextRoll: '0h 00m 00s',
   pendingTransactions: [],
-  currentPoint: null,
-  currentL2: false,
-  currentL2Spawn: false,
+  point: EMPTY_POINT,
+  pointList: [],
+  points: {},
   invitePoints: [],
   invites: [],
   recentlyCompleted: 0,
   inviteGeneratingNum: 0,
   setNextBatchTime: (nextBatchTime: number) => set(() => ({ nextBatchTime })),
-  setNextRoll: (nextRoll: string) => set(() => ({ nextRoll })),
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) =>
     set(state => {
       const oldPending = state.pendingTransactions.length;
@@ -49,12 +50,10 @@ export const useRollerStore = create<RollerStore>(set => ({
       }
       return { ...state, pendingTransactions };
     }),
-  setCurrentPoint: (currentPoint: L2Point) =>
-    set(() => ({
-      currentPoint,
-      currentL2: isL2(currentPoint?.dominion),
-      currentL2Spawn: isL2Spawn(currentPoint?.dominion),
-    })),
+  setPoint: (point: number) =>
+    set(state => ({ point: state.points[point] || EMPTY_POINT })),
+  setPoints: (points: Points) =>
+    set(() => ({ points, pointList: Object.values(points) })),
   setInvitePoints: (invitePoints: number[]) => set(() => ({ invitePoints })),
   setInvites: (invites: Invite[]) => set(() => ({ invites })),
   setInviteGeneratingNum: (inviteGeneratingNum: number) =>

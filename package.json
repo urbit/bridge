@@ -92,6 +92,7 @@
     "@types/keccak": "^3.0.1",
     "@types/lodash": "^4.14.170",
     "@types/react-transition-group": "^4.4.2",
+    "comlink-loader": "^2.0.0",
     "eslint-config-prettier": "^5.0.0",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react-hooks": "^1.6.0",

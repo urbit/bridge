@@ -30,5 +30,5 @@ export const generateCsvLine = (ind: number, ticket: string, planet: number) =>
     planet
   )},${planet},${ticket}\n`;
 
-export const generateCsvName = (defaultName: string, point: number) =>
-  `${point ? ob.patp(point).slice(1) : 'bridge'}_${defaultName}`;
+export const generateCsvName = (defaultName: string, patp: string) =>
+  `${patp}_${defaultName}`;

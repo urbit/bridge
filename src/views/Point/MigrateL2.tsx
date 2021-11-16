@@ -3,17 +3,15 @@ import { Grid } from 'indigo-react';
 import { ecliptic } from 'azimuth-js';
 import * as ob from 'urbit-ob';
 
+import { useLocalRouter } from 'lib/LocalRouter';
+import * as need from 'lib/need';
+
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 import BodyPane from 'components/L2/Window/BodyPane';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import Window from 'components/L2/Window/Window';
 import { ReactComponent as StarIcon } from 'assets/star.svg';
-
-import { useLocalRouter } from 'lib/LocalRouter';
-import * as need from 'lib/need';
-
-import { usePointCursor } from 'store/pointCursor';
 
 import {
   Box,
@@ -33,11 +31,12 @@ import { usePointCache } from 'store/pointCache';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { DUMMY_L2_ADDRESS, GAS_LIMITS } from 'lib/constants';
 import Dropdown from 'components/L2/Dropdowns/Dropdown';
-import { PointLayer } from 'lib/types/PointLayer';
 import Sigil from 'components/Sigil';
-import { isPlanet, isStar } from 'lib/utils/point';
+import { isPlanet } from 'lib/utils/point';
 
 import './MigrateL2.scss';
+import { useRollerStore } from 'store/rollerStore';
+import Point from 'lib/types/Point';
 
 const PointEntry = ({
   point,
@@ -46,6 +45,14 @@ const PointEntry = ({
   point: number;
   select?: () => void;
 }) => {
+  if (point < 0) {
+    return (
+      <Row className="entry" onClick={select}>
+        <Box>Select a point</Box>
+      </Row>
+    );
+  }
+
   const patp = ob.patp(point);
 
   return (
@@ -69,6 +76,9 @@ const useMigrate = () => {
   return useEthereumTransaction(
     useCallback(
       (selectedPoint: number, transfer: boolean) => {
+        if (selectedPoint < 0) {
+          return;
+        }
         setSelectedPoint(selectedPoint);
         return transfer || isPlanet(selectedPoint)
           ? ecliptic.transferPoint(
@@ -88,32 +98,27 @@ const useMigrate = () => {
 
 export default function MigrateL2() {
   const { pop }: any = useLocalRouter();
-  const { pointCursor }: any = usePointCursor();
-  const { controlledPoints }: any = usePointCache();
+  const { point, pointList } = useRollerStore();
+  const l1Points = pointList.filter(({ canMigrate }) => canMigrate);
 
   const [proceed, setProceed] = useState(false);
   const [hideMessage, setHideMessage] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [transfer, setTransfer] = useState(true);
 
-  const points = controlledPoints?.value?.value?.pointsWithLayers || [];
-  const l1Points = points.filter(({ layer }: PointLayer) => layer === 1);
-
-  let { point } =
-    l1Points.find((p: any) => isStar(p.point)) || controlledPoints[0];
-
-  try {
-    point = need.point(pointCursor);
-  } catch (e) {}
-
-  const [selectedPoint, setSelectedPoint] = useState(point);
+  const [selectedPoint, setSelectedPoint] = useState(
+    point.isL1 ? point : l1Points[0]
+  );
   const hideInfo = getHideMigrationMessage();
 
   const { construct, unconstruct, bind, completed } = useMigrate();
 
   useEffect(() => {
-    if (point) {
-      construct(point, transfer);
+    if (point.isGalaxy && point.isL1) {
+      setTransfer(false);
+      construct(point.value, false);
+    } else if (point.isL1) {
+      construct(point.value, transfer);
     } else {
       unconstruct();
     }
@@ -142,34 +147,37 @@ export default function MigrateL2() {
   }, [hideMessage]);
 
   const selectPoint = useCallback(
-    (point: number) => {
-      if (!isStar(point)) {
+    (point: Point) => {
+      if (point.isPlanet || (point.isStar && point.isL2Spawn)) {
         setTransfer(true);
+      } else if (point.isGalaxy) {
+        setTransfer(false);
       }
       setSelectedPoint(point);
       setShowDropdown(false);
-      construct(point, transfer);
+      construct(point.value, transfer);
     },
     [setSelectedPoint, setShowDropdown, construct, transfer]
   );
 
   const toggleTransfer = useCallback(() => {
-    construct(selectedPoint, !transfer);
+    construct(selectedPoint.value, !transfer);
     setTransfer(!transfer);
   }, [transfer, setTransfer, construct, selectedPoint]);
 
   const getContent = () => {
-    const star = isStar(selectedPoint);
-
     if (l1Points.length === 0) {
       return (
         <Box className="content">
           <Box className="ship-selector">
-            <Box>All of your ships are already on Layer 2.</Box>
+            <Box>All of your eligible ships are already on Layer 2.</Box>
           </Box>
         </Box>
       );
     }
+
+    const isStar = Boolean(selectedPoint?.isStar);
+    const isGalaxy = Boolean(selectedPoint?.isGalaxy);
 
     if (proceed) {
       return (
@@ -180,17 +188,17 @@ export default function MigrateL2() {
             <Dropdown
               open={showDropdown}
               toggleOpen={() => setShowDropdown(!showDropdown)}
-              value={<PointEntry point={selectedPoint} />} // change this to include the sigil
+              value={<PointEntry point={selectedPoint.value} />}
               className="migrate-selector">
-              {l1Points.map(({ point }: PointLayer) => (
+              {l1Points.map((p: Point) => (
                 <PointEntry
-                  point={point}
-                  key={point}
-                  select={() => selectPoint(point)}
+                  point={p.value}
+                  key={p.value}
+                  select={() => selectPoint(p)}
                 />
               ))}
             </Dropdown>
-            {star && (
+            {isStar && !point.isL2Spawn && (
               <Box className="transfer-spawn-selector">
                 <Row onClick={toggleTransfer} className="transfer">
                   <RadioButton
@@ -212,12 +220,19 @@ export default function MigrateL2() {
                 </Row>
               </Box>
             )}
-            {star && (
+            {isStar && (
               <Box>
                 Transferring this point will allow you to conduct all
                 transactions on Layer 2. Setting the spawn proxy of a star to
                 Layer 2 will allow you to create planet invites for free, but
                 will require you to do all other transactions on Layer 1.
+              </Box>
+            )}
+            {isGalaxy && (
+              <Box className="mt4">
+                Setting the spawn proxy of this galaxy to Layer 2 will allow you
+                to spawn stars on Layer 2 for free, but will still require you
+                to do all other transactions on Layer 1.
               </Box>
             )}
           </Box>

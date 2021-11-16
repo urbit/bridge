@@ -8,7 +8,7 @@ import './SetProxy.scss';
 import { useNetwork } from 'store/network';
 import { usePointCache } from 'store/pointCache';
 import { usePointCursor } from 'store/pointCursor';
-import { useRollerStore } from 'store/roller';
+import { useRollerStore } from 'store/rollerStore';
 
 import {
   PROXY_TYPE,
@@ -65,6 +65,19 @@ const proxyFromDetails = (details, contracts, proxyType) => {
   }
 };
 
+const getButtonText = proxyType => {
+  switch (proxyType) {
+    case PROXY_TYPE.MANAGEMENT:
+      return 'Set Management Proxy';
+    case PROXY_TYPE.SPAWN:
+      return 'Set Spawn Proxy';
+    case PROXY_TYPE.TRANSFER:
+      return 'Set Transfer Proxy';
+    default:
+      return 'Set Management Proxy';
+  }
+};
+
 function useSetProxy(proxyType) {
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
@@ -114,7 +127,9 @@ export default function SetProxy() {
   const { getDetails } = usePointCache();
   const { pointCursor } = usePointCursor();
   const { contracts } = useNetwork();
-  const { currentL2, currentL2Spawn } = useRollerStore();
+  const {
+    point: { isL2, isL2Spawn },
+  } = useRollerStore();
   const { setProxyAddress, getPendingTransactions } = useRoller();
   const [newAddress, setNewAddress] = useState('');
 
@@ -124,14 +139,10 @@ export default function SetProxy() {
 
   const properProxyType = capitalize(proxyTypeToHuman(data.proxyType));
 
-  const txType =
-    data.proxyType === 'MANAGEMENT' && (currentL2Spawn || !currentL2)
-      ? 'ETH_TX'
-      : data.proxyType === 'MANAGEMENT' && currentL2 && !currentL2Spawn
-      ? 'L2'
-      : data.proxyType === 'SPAWN' && currentL2
-      ? 'L2'
-      : 'ETH_TX';
+  const isL2Tx =
+    (data.proxyType === 'MANAGEMENT' && isL2) ||
+    (data.proxyType === 'SPAWN' && isL2Spawn) ||
+    (data.proxyType === 'TRANSFER' && isL2);
 
   const {
     construct,
@@ -269,7 +280,7 @@ export default function SetProxy() {
 
                 <Grid.Item full as={FormError} />
 
-                {txType === 'L2' ? (
+                {isL2Tx ? (
                   <Grid.Item
                     as={Button}
                     full
@@ -278,7 +289,7 @@ export default function SetProxy() {
                     solid
                     disabled={values.unset}
                     onClick={setProxy}>
-                    {'Sign Transaction'}
+                    {getButtonText(data.proxyType)}
                   </Grid.Item>
                 ) : (
                   <Grid.Item

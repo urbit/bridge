@@ -16,7 +16,7 @@ import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useHistory } from 'store/history';
-import { useRollerStore } from 'store/roller';
+import { useRollerStore } from 'store/rollerStore';
 
 import useRoller from 'lib/useRoller';
 import { useWalletConnect } from 'lib/useWalletConnect';
@@ -56,7 +56,9 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
     walletHdPath,
   } = useWallet();
   const { performL2Reticket } = useRoller();
-  const { currentL2 } = useRollerStore();
+  const {
+    point: { isL2 },
+  } = useRollerStore();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
   const {
@@ -96,7 +98,7 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
         walletType === WALLET_TYPES.WALLET_CONNECT ? wcSend : undefined;
 
       try {
-        if (currentL2) {
+        if (isL2) {
           console.log(newWallet.value);
           // FIXME: the useEffect is called twice, which is fine since the duplicate
           // L2 txs will be discarded

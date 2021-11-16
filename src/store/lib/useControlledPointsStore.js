@@ -6,14 +6,13 @@ import * as azimuth from 'azimuth-js';
 import { useNetwork } from '../network';
 import { useWallet } from 'store/wallet';
 import useRoller from 'lib/useRoller';
-import { isL2 } from 'lib/utils/roller';
 
 const onlyUnique = (value, index, self) => self.indexOf(value) === index;
 
 export default function useControlledPointsStore() {
   const { contracts } = useNetwork();
   const { wallet } = useWallet();
-  const { api, getPoints } = useRoller();
+  const { getPoints, getPointDetails } = useRoller();
 
   const [controlledPoints, _setControlledPoints] = useState(Nothing());
 
@@ -30,79 +29,76 @@ export default function useControlledPointsStore() {
 
     try {
       const [
-        ownedPoints,
-        incomingPoints,
-        managingPoints,
-        votingPoints,
-        spawningPoints,
         ownedPointsL1,
         incomingPointsL1,
         managingPointsL1,
         votingPointsL1,
         spawningPointsL1,
+        ownedPointsL2,
+        incomingPointsL2,
+        managingPointsL2,
+        votingPointsL2,
+        spawningPointsL2,
       ] = await Promise.all([
-        getPoints('own', address),
-        getPoints('transfer', address),
-        getPoints('manage', address),
-        getPoints('vote', address),
-        getPoints('spawn', address),
         azimuth.azimuth.getOwnedPoints(_contracts, address),
         azimuth.azimuth.getTransferringFor(_contracts, address),
         azimuth.azimuth.getManagerFor(_contracts, address),
         azimuth.azimuth.getVotingFor(_contracts, address),
         azimuth.azimuth.getSpawningFor(_contracts, address),
+        getPoints('own', address),
+        getPoints('transfer', address),
+        getPoints('manage', address),
+        getPoints('vote', address),
+        getPoints('spawn', address),
       ]);
 
-      const pointsWithLayers = await Promise.all(
-        ownedPoints.map(async ship => {
-          try {
-            const pointInfo = await api.getPoint(Number(ship));
-            return {
-              point: Number(ship),
-              layer: isL2(pointInfo?.dominion) ? 2 : 1,
-            };
-          } catch (error) {
-            console.warn(error);
-            return { point: ship, layer: 1 };
-          }
-        })
-      );
-
       if (
-        ownedPoints === null &&
-        incomingPoints === null &&
-        managingPoints === null &&
-        votingPoints === null &&
-        spawningPoints === null
+        ownedPointsL1 === null &&
+        incomingPointsL1 === null &&
+        managingPointsL1 === null &&
+        votingPointsL1 === null &&
+        spawningPointsL1 === null &&
+        ownedPointsL2 === null &&
+        incomingPointsL2 === null &&
+        managingPointsL2 === null &&
+        votingPointsL2 === null &&
+        spawningPointsL2 === null
       ) {
         _setControlledPoints(
           Just(Result.Error('Failed to read the blockchain.'))
         );
       } else {
+        getPointDetails(
+          (ownedPointsL1 || []).concat(ownedPointsL2 || []),
+          (incomingPointsL1 || []).concat(incomingPointsL2 || []),
+          (managingPointsL1 || []).concat(managingPointsL2 || []),
+          (votingPointsL1 || []).concat(votingPointsL2 || []),
+          (spawningPointsL1 || []).concat(spawningPointsL2 || [])
+        );
+
         _setControlledPoints(
           Just(
             Result.Ok({
-              ownedPoints: ownedPoints
+              ownedPoints: ownedPointsL2
                 .concat(ownedPointsL1)
                 .map(Number)
                 .filter(onlyUnique),
-              incomingPoints: incomingPoints
+              incomingPoints: incomingPointsL2
                 .concat(incomingPointsL1)
                 .map(Number)
                 .filter(onlyUnique),
-              managingPoints: managingPoints
+              managingPoints: managingPointsL2
                 .concat(managingPointsL1)
                 .map(Number)
                 .filter(onlyUnique),
-              votingPoints: votingPoints
+              votingPoints: votingPointsL2
                 .concat(votingPointsL1)
                 .map(Number)
                 .filter(onlyUnique),
-              spawningPoints: spawningPoints
+              spawningPoints: spawningPointsL2
                 .concat(spawningPointsL1)
                 .map(Number)
                 .filter(onlyUnique),
-              pointsWithLayers,
             })
           )
         );
@@ -111,7 +107,7 @@ export default function useControlledPointsStore() {
       console.error('failed to fetch controlled points', error);
       _setControlledPoints(Just(Result.Error(error)));
     }
-  }, [contracts, wallet, getPoints, api]);
+  }, [contracts, wallet, getPoints, getPointDetails]);
 
   // sync controlled points whenever wallet or contracts changes
   useEffect(() => {

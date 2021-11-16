@@ -8,7 +8,7 @@ import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
-import { useRollerStore } from 'store/roller';
+import { useRollerStore } from 'store/rollerStore';
 
 import useRoller from 'lib/useRoller';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -146,7 +146,9 @@ export default function UrbitOSNetworkingKeys({
   const { pop } = useLocalRouter();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
-  const { currentL2, currentL2Spawn } = useRollerStore();
+  const {
+    point: { isL2 },
+  } = useRollerStore();
   const { configureNetworkingKeys, getPendingTransactions } = useRoller();
   const [breach, setBreach] = useState(false);
 
@@ -213,7 +215,7 @@ export default function UrbitOSNetworkingKeys({
   const setNetworkingKeys = useCallback(async () => {
     // setLoading(true);
     try {
-      const txHash = await configureNetworkingKeys({
+      await configureNetworkingKeys({
         breach,
         manualNetworkSeed,
       });
@@ -328,7 +330,7 @@ export default function UrbitOSNetworkingKeys({
                 </>
               )}
 
-              {currentL2 && !currentL2Spawn ? (
+              {isL2 ? (
                 <Grid.Item
                   as={Button}
                   full
@@ -336,7 +338,7 @@ export default function UrbitOSNetworkingKeys({
                   center
                   solid
                   onClick={setNetworkingKeys}>
-                  {'Sign Transaction'}
+                  {'Reset Networking Keys'}
                 </Grid.Item>
               ) : (
                 <Grid.Item

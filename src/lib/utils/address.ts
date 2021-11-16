@@ -11,15 +11,15 @@ export const addHexPrefix = (hex: string) => {
   return hex.startsWith('0x') ? hex : `0x${hex}`;
 };
 
-export const isValidAddress = a => '0x0' === a || isAddress(a);
+export const isValidAddress = (a: string) => '0x0' === a || isAddress(a);
 
-export const abbreviateAddress = address =>
+export const abbreviateAddress = (address: string) =>
   `${address.slice(0, 6)}…${address.slice(-4)}`;
 
-export const isZeroAddress = a =>
+export const isZeroAddress = (a: string) =>
   a === ETH_ZERO_ADDR || a === ETH_ZERO_ADDR_SHORT;
 
-export const toChecksumAddress = address => {
+export const toChecksumAddress = (address: string) => {
   const addr = stripHexPrefix(address).toLowerCase();
   const hash = keccak256(addr).toString('hex');
 
@@ -31,8 +31,10 @@ export const toChecksumAddress = address => {
   );
 };
 
-export const eqAddr = (addr0, addr1) =>
-  toChecksumAddress(addr0) === toChecksumAddress(addr1);
+export const eqAddr = (addr0: string, addr1: string) =>
+  !addr0 || !addr1
+    ? false
+    : toChecksumAddress(addr0) === toChecksumAddress(addr1);
 
 export const publicToAddress = (publicKey: Buffer): string => {
   return '0x' + pubToAddress(Buffer.from(publicKey), true).toString('hex');

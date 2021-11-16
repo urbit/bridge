@@ -1,15 +1,31 @@
-import React, { createContext, forwardRef, useContext, useState } from 'react';
+import React, {
+  createContext,
+  forwardRef,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
 import { Nothing } from 'folktale/maybe';
+import { useRollerStore } from './rollerStore';
 
 export const PointCursorContext = createContext(null);
 
 // pointCursor is Maybe<number>
 function _usePointCursor(initialPointCursor = Nothing()) {
   const [pointCursor, setPointCursor] = useState(initialPointCursor);
+  const { setPoint } = useRollerStore();
+
+  const handleSetPointCursor = useCallback(
+    point => {
+      setPoint(Number(point?.value));
+      setPointCursor(point);
+    },
+    [setPoint, setPointCursor]
+  );
 
   return {
     pointCursor,
-    setPointCursor,
+    setPointCursor: handleSetPointCursor,
   };
 }
 
