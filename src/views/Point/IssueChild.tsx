@@ -226,9 +226,11 @@ export default function IssueChild() {
                         label="Ethereum Address"
                         disabled={inputsLocked}
                       />
-                      <Box>
-                        <AddressButton>Use my address</AddressButton>
-                      </Box>
+                      {isDefaultState && (
+                        <Box>
+                          <AddressButton>Use my address</AddressButton>
+                        </Box>
+                      )}
                     </>
                   )}
 
