@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { azimuth } from 'azimuth-js';
 import { Just } from 'folktale/maybe';
 import { Box, Button, Icon, Row } from '@tlon/indigo-react';
 
@@ -11,10 +10,9 @@ import { convertToInt } from 'lib/convertToInt';
 import { ETH_ZERO_ADDR } from 'lib/constants';
 import { abbreviateAddress } from 'lib/utils/address';
 
-import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';
-import { useRollerStore } from 'store/roller';
+import { useRollerStore } from 'store/rollerStore';
 
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
@@ -25,10 +23,9 @@ import './UrbitID.scss';
 
 export default function UrbitIDHome() {
   const { push, names }: any = useLocalRouter();
-  const { pointCursor }: any = usePointCursor();
   const { getDetails }: any = usePointCache();
   const { urbitWallet }: any = useWallet();
-  const { currentPoint } = useRollerStore();
+  const { point } = useRollerStore();
 
   const goDownloadKeys = useCallback(() => push(names.DOWNLOAD_KEYS), [
     push,
@@ -40,14 +37,9 @@ export default function UrbitIDHome() {
   const goResetKeys = useCallback(() => push(names.RESET_KEYS), [push, names]);
 
   const isMasterTicket = Just.hasInstance(urbitWallet);
-  const point = need.point(pointCursor);
-  const details = need.details(getDetails(point));
-  const { isOwner } = useCurrentPermissions();
+  const details = need.details(getDetails(point.value));
+  const { isOwner, canManage } = useCurrentPermissions();
   const networkRevision = convertToInt(details.keyRevisionNumber, 10);
-
-  const pointSize = azimuth.getPointSize(point);
-  const isParent = pointSize !== azimuth.PointSize.Planet;
-  const isSenate = pointSize === azimuth.PointSize.Galaxy;
 
   const goSetProxy = useCallback(
     proxyType => push(names.SET_PROXY, { proxyType }),
@@ -58,8 +50,7 @@ export default function UrbitIDHome() {
 
   const noManagement = details.managementProxy === ETH_ZERO_ADDR;
   const noSpawn = details.spawnProxy === ETH_ZERO_ADDR;
-  const showSpawn = currentPoint?.dominion === 'l1';
-  const showManage = showSpawn || currentPoint?.dominion === 'spawn';
+  const showSpawn = point.isL1 && !point.isL2Spawn;
 
   return (
     <Window className="id-home">
@@ -94,7 +85,7 @@ export default function UrbitIDHome() {
           </Row>
         )}
 
-        {isOwner && showManage && (
+        {canManage && (
           <Row className="between-row management">
             <Box>
               <Box>Management Address</Box>
@@ -120,7 +111,7 @@ export default function UrbitIDHome() {
           </Row>
         )}
 
-        {isParent && networkRevision !== 0 && showSpawn && (
+        {point.isParent && networkRevision !== 0 && showSpawn && (
           <Row className="between-row management">
             <Box>
               <Box>Spawn Proxy Address</Box>
@@ -160,7 +151,7 @@ export default function UrbitIDHome() {
           </Row>
         )}
 
-        {isParent && networkRevision === 0 && (
+        {point.isParent && networkRevision === 0 && (
           <Row className="between-row management">
             <Box>
               <Box>Network Keys Required</Box>
@@ -179,7 +170,7 @@ export default function UrbitIDHome() {
           <Icon className="arrow-button" icon="ArrowEast" />
         </Row>
 
-        {isSenate && (
+        {point.isGalaxy && (
           <Row className="between-row management">
             <Box>
               <Box>Edit Voting Key</Box>

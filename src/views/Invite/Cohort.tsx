@@ -8,11 +8,10 @@ import {
   Button as Button2,
 } from '@tlon/indigo-react';
 
-import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';
 import { useNetwork } from 'store/network';
-import { useRollerStore } from 'store/roller';
+import { useRollerStore } from 'store/rollerStore';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import * as need from 'lib/need';
@@ -45,6 +44,7 @@ import {
 } from 'lib/constants';
 import { isPlanet } from 'lib/utils/point';
 import { generateInviteWallet } from 'lib/utils/roller';
+import { useTimerStore } from 'store/timerStore';
 
 interface L1Invite {
   ticket: string;
@@ -55,14 +55,16 @@ export default function InviteCohort() {
   const { pop }: any = useLocalRouter();
   const { authToken }: any = useWallet();
   const {
-    nextRoll,
-    currentL2,
+    point,
     pendingTransactions,
     invites,
     invitePoints,
     setInviteGeneratingNum,
     setInvites,
   } = useRollerStore();
+
+  const { nextRoll } = useTimerStore();
+
   const {
     ls,
     generateInviteCodes,
@@ -70,11 +72,10 @@ export default function InviteCohort() {
     getInvites,
     showInvite,
   } = useRoller();
-  const { pointCursor }: any = usePointCursor();
   const { contracts }: any = useNetwork();
   const { syncControlledPoints }: any = usePointCache();
+  const currentL2 = Boolean(point?.isL2);
 
-  const point = pointCursor.getOrElse(null);
   const _contracts = need.contracts(contracts);
 
   const [numInvites, setNumInvites] = useState(
@@ -232,7 +233,10 @@ export default function InviteCohort() {
         hiddenElement.target = '_blank';
 
         //provide the name for the CSV file to be downloaded
-        hiddenElement.download = generateCsvName(DEFAULT_CSV_NAME, point);
+        hiddenElement.download = generateCsvName(
+          DEFAULT_CSV_NAME,
+          point?.patp?.slice(1) || 'bridge'
+        );
         hiddenElement.click();
       } else {
         setError('There was an error creating the CSV');
@@ -343,10 +347,11 @@ export default function InviteCohort() {
                   <StatelessTextInput
                     className="input-box"
                     value={numInvites}
-                    maxLength="3"
-                    onChange={e =>
-                      setNumInvites(Number(e.target.value.replace(/\D/g, '')))
-                    }
+                    maxLength={3}
+                    onChange={e => {
+                      const target = e.target as HTMLInputElement;
+                      setNumInvites(Number(target.value.replace(/\D/g, '')));
+                    }}
                   />
                   planet invite code{numInvites > 1 ? 's' : ''}
                 </Row>

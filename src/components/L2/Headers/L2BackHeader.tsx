@@ -1,18 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Row, Icon, Box } from '@tlon/indigo-react';
-
-import useRoller from 'lib/useRoller';
-import { useHistory } from 'store/history';
-import { useRollerStore } from 'store/roller';
-
-import './L2BackHeader.scss';
-import { useNetwork } from 'store/network';
-import { useWallet } from 'store/wallet';
 import { toBN } from 'web3-utils';
 import BN from 'bn.js';
-import { isDevelopment } from 'lib/flags';
+
+import { useHistory } from 'store/history';
+import { useRollerStore } from 'store/rollerStore';
+import { useNetwork } from 'store/network';
+import { useWallet } from 'store/wallet';
+import { useTimerStore } from 'store/timerStore';
+
 import { ReactComponent as Wallet } from 'assets/wallet.svg';
-import L2BackButton from './L2BackButton';
+import HeaderButton from './HeaderButton';
+import './L2BackHeader.scss';
 
 export interface L2BackHeaderProps {
   back?: () => void;
@@ -25,11 +24,13 @@ const L2BackHeader = ({
   className = '',
   hideBalance = false,
 }: L2BackHeaderProps) => {
-  const { config } = useRoller();
-  const { nextRoll, currentL2 } = useRollerStore(store => store);
+  const { point } = useRollerStore(store => store);
+  const { nextRoll } = useTimerStore();
   const { pop }: any = useHistory();
   const { wallet }: any = useWallet();
   const { web3 }: any = useNetwork();
+
+  const currentL2 = !!point?.isL2;
 
   const [ethBalance, setEthBalance] = useState<BN>(toBN(0));
 
@@ -40,12 +41,6 @@ const L2BackHeader = ({
       pop();
     }
   }, [back, pop]);
-
-  useEffect(() => {
-    if (isDevelopment) {
-      console.log('loaded config in L2BackHeader:', config);
-    }
-  }, [config]);
 
   useEffect(() => {
     const getEthBalance = async () => {
@@ -60,7 +55,7 @@ const L2BackHeader = ({
       }
     };
 
-    if (!currentL2) {
+    if (currentL2) {
       getEthBalance();
     }
   }, [currentL2, setEthBalance, wallet, web3]);
@@ -69,7 +64,7 @@ const L2BackHeader = ({
 
   return (
     <Row className={`l2-back-header ${className}`}>
-      <L2BackButton onBack={goBack} />
+      <HeaderButton icon="ChevronWest" onClick={goBack} />
       {currentL2 && !hideBalance ? (
         <Row className="rollup-timer">
           <Icon icon="Clock" />

@@ -1,10 +1,11 @@
 // Response returned by L1's azimuth#getPoint
 export type L1Point = {
   active: boolean;
+  layer: 1 | 2;
+  isL2Spawn?: boolean;
   authenticationKey: string;
   continuityNumber: string;
   cryptoSuiteVersion: string;
-  dominion?: string;
   encryptionKey: string;
   escapeRequested: boolean;
   escapeRequestedTo: string;

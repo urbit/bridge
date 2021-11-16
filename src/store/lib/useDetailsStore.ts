@@ -2,32 +2,10 @@ import { useState, useCallback } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as azimuth from 'azimuth-js';
 
-import useRoller from '../../lib/useRoller';
-import { useNetwork } from '../network';
-import { L1Point } from 'lib/types/L1Point';
-import { L2Point } from '@urbit/roller-api';
 import { isDevelopment } from 'lib/flags';
-
-const toL1Details = (point: L2Point): L1Point => {
-  return {
-    dominion: 'l2',
-    active: true,
-    authenticationKey: point.network.keys.auth,
-    continuityNumber: point.network.rift,
-    cryptoSuiteVersion: point.network.keys.suite,
-    encryptionKey: point.network.keys.crypt,
-    escapeRequested: point.network.escape ? true : false,
-    escapeRequestedTo: point.network.escape,
-    hasSponsor: point.network.sponsor.has,
-    keyRevisionNumber: point.network.keys.life,
-    managementProxy: point.ownership?.managementProxy?.address!,
-    owner: point.ownership?.owner?.address!,
-    spawnProxy: point.ownership?.spawnProxy?.address!,
-    sponsor: point.network.sponsor.who,
-    transferProxy: point.ownership?.transferProxy?.address!,
-    votingProxy: point.ownership?.votingProxy?.address!,
-  };
-};
+import { toL1Details } from 'lib/utils/point';
+import useRoller from 'lib/useRoller';
+import { useNetwork } from '../network';
 
 export default function useDetailsStore() {
   const { contracts } = useNetwork();

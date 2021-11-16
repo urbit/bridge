@@ -1,42 +1,39 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { Box, Row } from '@tlon/indigo-react';
 
-import useRoller from 'lib/useRoller';
-import { useHistory } from 'store/history';
-import { ReactComponent as InviteIcon } from 'assets/invite.svg';
-import { ReactComponent as HistoryIcon } from 'assets/history.svg';
-import AccountsDropdown from '../Dropdowns/AccountsDropdown';
-import { useRollerStore } from 'store/roller';
-
-import './L2PointHeader.scss';
-import { isDevelopment } from 'lib/flags';
-import { usePointCursor } from 'store/pointCursor';
 import { isStar } from 'lib/utils/point';
+
+import { useHistory } from 'store/history';
+import { useRollerStore } from 'store/rollerStore';
+import { useTimerStore } from 'store/timerStore';
+import { usePointCursor } from 'store/pointCursor';
+
+import { ReactComponent as HistoryIcon } from 'assets/history.svg';
+import { ReactComponent as InviteIcon } from 'assets/invite.svg';
+import HeaderButton from './HeaderButton';
+import AccountsDropdown from '../Dropdowns/AccountsDropdown';
+import './L2PointHeader.scss';
 
 export interface L2PointHeaderProps {
   numInvites: number;
+  hideHome?: boolean;
   hideTimer?: boolean;
   hideInvites?: boolean;
   showMigrate?: boolean;
 }
 
 const L2PointHeader = ({
+  numInvites = 0,
+  hideHome = false,
   hideTimer = false,
   hideInvites = false,
   showMigrate = false,
-  numInvites = 0,
 }: L2PointHeaderProps) => {
-  const { config } = useRoller();
-  const { nextRoll, currentL2, pendingTransactions } = useRollerStore();
+  const { point, pendingTransactions } = useRollerStore();
+  const { nextRoll } = useTimerStore();
   const { pointCursor }: any = usePointCursor();
 
-  useEffect(() => {
-    if (isDevelopment) {
-      console.log('loaded config in L2PointHeader:', config);
-    }
-  }, [config]);
-
-  const { push, names }: any = useHistory();
+  const { popTo, push, names }: any = useHistory();
 
   const goToInvites = useCallback(() => push(names.INVITE_COHORT), [
     push,
@@ -52,15 +49,24 @@ const L2PointHeader = ({
 
   return (
     <Row className="l2-point-header">
-      <AccountsDropdown showMigrate={showMigrate} />
+      <Row>
+        {!hideHome && (
+          <HeaderButton
+            className="home"
+            icon="Home"
+            onClick={() => popTo(names.POINTS)}
+          />
+        )}
+        <AccountsDropdown showMigrate={showMigrate} />
+      </Row>
       <Row className="info">
-        {showInvites && (
+        {showInvites && point.canSpawn && (
           <Row onClick={goToInvites} className="invites">
             <InviteIcon />
             {numInvites}
           </Row>
         )}
-        {!hideTimer && currentL2 && !pendingTransactions.length && (
+        {!hideTimer && point?.isL2Spawn && !pendingTransactions.length && (
           <Box className="rollup-timer" onClick={goToHistory}>
             {nextRoll}
           </Box>

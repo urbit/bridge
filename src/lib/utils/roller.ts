@@ -1,8 +1,5 @@
 import { Just, Nothing } from 'folktale/maybe';
-import { Invite } from 'lib/types/Invite';
-import { signTransactionHash } from 'lib/authToken';
 import { randomHex } from 'web3-utils';
-
 import RollerRPCAPI, {
   Proxy,
   Signature,
@@ -15,10 +12,13 @@ import RollerRPCAPI, {
   PendingTransaction,
 } from '@urbit/roller-api';
 
+import { Invite } from 'lib/types/Invite';
+import { signTransactionHash } from 'lib/authToken';
 import { deriveNetworkKeys, CRYPTO_SUITE_VERSION } from 'lib/keys';
 import { addHexPrefix } from 'lib/utils/address';
 import { makeDeterministicTicket, generateWallet } from 'lib/walletgen';
 import { WALLET_TYPES } from 'lib/constants';
+import { L2TransactionArgs, TransactionData } from 'lib/types/L2Transaction';
 
 export const SECOND = 1000;
 export const MINUTE = SECOND * 60;
@@ -41,7 +41,7 @@ export const getTimeToNextBatch = (nextBatch: number, now: number) => {
   return `${padZero(hours)}h ${padZero(minutes)}m ${padZero(seconds)}s`;
 };
 
-export const isL2 = (dom?: string) => dom === 'l2' || dom === 'spawn';
+export const isL2 = (dom?: string) => dom === 'l2';
 
 export const isL2Spawn = (dom?: string) => dom === 'spawn';
 
@@ -317,6 +317,63 @@ export const registerProxyAddress = async (
   );
 
   return setProxy(api, proxyAddressType, sig, from, wallet.address, data);
+};
+
+const getDataAndMethod = (args: L2TransactionArgs) => {
+  const { address, api, breach, networkSeed, reset, pointToSpawn } = args;
+  const result: TransactionData = { data: { address }, method: () => null };
+
+  switch (args.type) {
+    case 'transferPoint':
+      result.method = api.transferPoint;
+      result.data.reset = reset || false;
+      return result;
+    case 'spawn':
+      result.method = api.spawn;
+      result.data.ship = pointToSpawn;
+      return result;
+    case 'configureKeys':
+      // TODO: do something here?
+      if (Nothing.hasInstance(networkSeed)) {
+        console.log("Network key Error: couldn't derive network keys");
+        // throw new Error("Network key Error: couldn't derive network keys");
+      }
+
+      const seed = Just.hasInstance(networkSeed)
+        ? networkSeed.value
+        : randomHex(32);
+
+      const pair = deriveNetworkKeys(seed);
+
+      result.data = {
+        encrypt: addHexPrefix(pair.crypt.public),
+        auth: addHexPrefix(pair.auth.public),
+        cryptoSuite: String(CRYPTO_SUITE_VERSION),
+        breach: breach || false,
+      };
+      result.method = api.configureKeys;
+      return result;
+  }
+};
+
+export const submitL2Transaction = async (args: L2TransactionArgs) => {
+  const { api, wallet, ship, type, proxy, nonce, walletType, web3 } = args;
+
+  const from = { ship, proxy };
+  const { data, method } = getDataAndMethod(args);
+
+  const sig = await generateHashAndSign(
+    api,
+    wallet,
+    nonce,
+    from,
+    type,
+    data,
+    walletType,
+    web3
+  );
+
+  return method(sig, from, wallet.address, data);
 };
 
 export const reticketL2Point = async () => {};

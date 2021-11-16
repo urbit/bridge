@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Grid } from 'indigo-react';
+import { Grid, Button } from 'indigo-react';
 import * as ob from 'urbit-ob';
 import { azimuth, ecliptic } from 'azimuth-js';
 
@@ -27,6 +27,8 @@ import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import { Box, Row } from '@tlon/indigo-react';
 import BodyPane from 'components/L2/Window/BodyPane';
+import { useRollerStore } from 'store/rollerStore';
+import useRoller from 'lib/useRoller';
 
 function useChangeSponsor() {
   const { contracts } = useNetwork();
@@ -50,10 +52,22 @@ function useChangeSponsor() {
 function ChangeSponsor({ onDone }) {
   const { contracts } = useNetwork();
   const { pointCursor } = usePointCursor();
+  const { changeSponsor } = useRoller();
+  const {
+    point: { isL2 },
+  } = useRollerStore();
 
   const _contracts = need.contracts(contracts);
   const point = need.point(pointCursor);
   const { construct, unconstruct, inputsLocked, bind } = useChangeSponsor();
+
+  const [newSponsor, setNewSponsor] = useState();
+
+  const requestNewSponsor = useCallback(async () => {
+    if (newSponsor !== undefined) {
+      changeSponsor(newSponsor);
+    }
+  }, [newSponsor, changeSponsor]);
 
   const validateFormAsync = useCallback(
     async values => {
@@ -92,13 +106,17 @@ function ChangeSponsor({ onDone }) {
   const onValues = useCallback(
     ({ valid, values }) => {
       if (valid) {
-        construct(ob.patp2dec(values.sponsor));
+        const sponsorPoint = ob.patp2dec(values.sponsor);
+        construct(sponsorPoint);
+        setNewSponsor(Number(sponsorPoint));
       } else {
         unconstruct();
+        setNewSponsor(undefined);
       }
     },
     [construct, unconstruct]
   );
+
   return (
     <Window>
       <HeaderPane>
@@ -119,13 +137,25 @@ function ChangeSponsor({ onDone }) {
                 className="mv4"
               />
               <Grid.Item full as={FormError} />
-              <Grid.Item
-                full
-                as={InlineEthereumTransaction}
-                {...bind}
-                onReturn={onDone}
-                label="Request"
-              />
+              {isL2 ? (
+                <Grid.Item
+                  as={Button}
+                  full
+                  className=""
+                  center
+                  solid
+                  onClick={requestNewSponsor}>
+                  {'Request New Sponsor'}
+                </Grid.Item>
+              ) : (
+                <Grid.Item
+                  full
+                  as={InlineEthereumTransaction}
+                  {...bind}
+                  onReturn={onDone}
+                  label="Request"
+                />
+              )}
             </Box>
           )}
         </BridgeForm>
