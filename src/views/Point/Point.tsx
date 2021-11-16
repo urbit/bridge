@@ -139,7 +139,7 @@ export default function Point() {
 
   const goUrbitID = useCallback(() => push(names.URBIT_ID), [push, names]);
 
-  const goResidents = useCallback(() => push(names.RESIDENTS), [push, names]);
+  const goOps = useCallback(() => push(names.OPS), [push, names]);
 
   const planet = isPlanet(point);
 
@@ -199,6 +199,8 @@ export default function Point() {
                   ? 'Transfer Proxy Changed'
                   : pendingTx.rawTx?.tx?.type === 'set-spawn-proxy'
                   ? 'Spawn Proxy Changed'
+                  : pendingTx.rawTx?.tx?.type === 'detach'
+                  ? 'Sponsee Detached'
                   : ''}
               </div>
               <div className="rollup-timer">
@@ -221,13 +223,14 @@ export default function Point() {
         {isParent && (
           <Grid.Item full as={Flex} justify="between">
             <Card
+              icon={(<Icon icon="ShipActivated" />) as any}
               title={`${isStar(point) ? 'Star' : 'Galaxy'} Ops`}
               subtitle={
                 isStar(point)
-                  ? 'Manage planets you sponsor and spawn planets'
-                  : 'Manage stars you sponsor, spawn stars, and vote'
+                  ? 'Residents, Requests, Spawn Planets'
+                  : 'Residents, Requests, Spawn Stars, Vote'
               }
-              onClick={goResidents}
+              onClick={goOps}
             />
           </Grid.Item>
         )}
@@ -253,7 +256,7 @@ export default function Point() {
         <Grid.Item full as={Flex} justify="between">
           <Card
             title="ID"
-            subtitle="Identity and security settings"
+            subtitle="Master Key, Passport, Proxy Addresses, etc"
             icon={(<Icon icon="User" />) as any}
             onClick={goUrbitID}
             disabled={!canManage}
@@ -262,7 +265,7 @@ export default function Point() {
         <Grid.Item full as={Flex} justify="between">
           <Card
             title="OS"
-            subtitle="Urbit OS Settings"
+            subtitle="Sponsor, Network Keys, Access Key"
             icon={(<Icon icon="Server" />) as any}
             onClick={goUrbitOS}
             disabled={!canManage}

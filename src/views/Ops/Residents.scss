@@ -1,0 +1,116 @@
+.ops-residents {
+  div.content-container {
+    height: 550px;
+    overflow-y: scroll;
+    width: 100%;
+
+    // hide the vertical scrollbar
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    &::-webkit-scrollbar {
+      display: none; /* Chrome */
+    }
+  }
+
+  .loading {
+    &> svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .loading, .no-results {
+    width: 100%;
+    min-height: 500px;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    color: rgba(0,0,0,0.6);
+  }
+
+  ul.residents-list {
+    padding-left: unset;
+    li {
+      list-style: none;
+      margin-bottom: 16px;
+      height: 24px;
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+
+      &:first {
+        margin-top: unset;
+      }
+
+      .point-wrapper {
+        display: flex;
+        flex-flow: row nowrap;
+      }
+
+      .button-wrapper {
+        cursor: pointer;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        position: relative;
+      }
+
+      .kick-dropdown {
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        width: 100px;
+        height: 48px;
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        box-sizing: border-box;
+        border-radius: 4px;
+        position: absolute;
+        top: 28px;
+        right: 0px;
+        padding: 16px;
+
+        span {
+          font-family: Inter;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 16px;
+          color: rgba(255, 65, 54, 1);
+        }
+      }
+
+      div.sigil {
+        height: 24px;
+        width: 24px;
+        margin-right: 8px;
+        border-radius: 2px;
+        background: black;
+
+        div.sigil-container {
+          height: 16px;
+          width: 16px;
+          padding: 4px;
+
+          svg {
+
+          }
+        }
+
+      }
+
+      .patp {
+        font-family: Source Code Pro;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 16px;
+        letter-spacing: 0em;
+        align-self: center;
+      }
+    }
+  }
+}

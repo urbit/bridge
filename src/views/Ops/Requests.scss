@@ -1,0 +1,91 @@
+.ops-requests {
+  div.content-container {
+    height: 550px;
+    overflow-y: scroll;
+    width: 100%;
+
+    // hide the vertical scrollbar
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    &::-webkit-scrollbar {
+      display: none; /* Chrome */
+    }
+  }
+
+  .loading {
+    &> svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .loading, .no-results {
+    width: 100%;
+    min-height: 500px;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    color: rgba(0,0,0,0.6);
+  }
+
+  ul.requests-list {
+    padding-left: unset;
+    li {
+      list-style: none;
+      margin-bottom: 16px;
+      height: 32px;
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+      align-items: center;
+
+      &:first {
+        margin-top: unset;
+      }
+
+      .point-wrapper {
+        display: flex;
+        flex-flow: row nowrap;
+      }
+
+
+      .button-wrapper {
+        cursor: pointer;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        position: relative;
+      }
+
+      div.sigil {
+        height: 24px;
+        width: 24px;
+        margin-right: 8px;
+        border-radius: 2px;
+        background: black;
+
+        div.sigil-container {
+          height: 16px;
+          width: 16px;
+          padding: 4px;
+
+          svg {
+
+          }
+        }
+
+      }
+
+      .patp {
+        font-family: Source Code Pro;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 16px;
+        letter-spacing: 0em;
+        align-self: center;
+      }
+    }
+  }
+}

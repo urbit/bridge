@@ -14,7 +14,7 @@ import Activate from 'views/Activate';
 import Point from 'views/Point/Point';
 import UrbitOS from 'views/Point/UrbitOS';
 import UrbitID from 'views/Point/UrbitID';
-import Residents from 'views/Point/Residents';
+import { Residents } from 'views/Ops/Residents';
 import MigrateL2 from 'views/Point/MigrateL2.tsx';
 import IssueChild from 'views/Point/IssueChild';
 
@@ -29,6 +29,8 @@ import SignTransaction from 'views/Bitcoin/SignTransaction';
 import TransactionHistory from 'views/Transactions/TransactionHistory';
 
 import { ROUTE_NAMES } from './routeNames';
+import { Ops } from 'views/Ops/Ops';
+import { Requests } from 'views/Ops/Requests';
 
 export const ROUTES = {
   [ROUTE_NAMES.DISCLAIMER]: Disclaimer,
@@ -53,10 +55,12 @@ export const ROUTES = {
   [ROUTE_NAMES.URBIT_OS]: UrbitOS,
   [ROUTE_NAMES.URBIT_ID]: UrbitID,
   [ROUTE_NAMES.RESIDENTS]: Residents,
+  [ROUTE_NAMES.REQUESTS]: Requests,
   [ROUTE_NAMES.ADOPT]: Adopt,
   [ROUTE_NAMES.BITCOIN]: Bitcoin,
   [ROUTE_NAMES.BITCOIN_XPUB]: Xpub,
   [ROUTE_NAMES.BITCOIN_SIGN_TRANSACTION]: SignTransaction,
   [ROUTE_NAMES.TRANSACTION_HISTORY]: TransactionHistory,
   [ROUTE_NAMES.MIGRATE_L2]: MigrateL2,
+  [ROUTE_NAMES.OPS]: Ops,
 };

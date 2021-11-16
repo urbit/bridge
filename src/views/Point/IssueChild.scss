@@ -1,0 +1,59 @@
+.id-issue-child {
+  div.body-pane {
+    div.inner-container {
+      width: 100%;
+    }
+  }
+
+  .input-label {
+    font-family: Inter;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0em;
+    text-align: left;
+    color: rgba(0, 0, 0, 1);
+  }
+
+  .input-hint {
+    font-family: Inter;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0em;
+    text-align: left;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  .patp-badge-container {
+    width: 100%;
+    margin-top: 4px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+
+    .badges {
+      .patp-badge {
+        padding: 4px;
+        font-family: Source Code Pro;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 16px;
+        letter-spacing: 0em;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.04);
+        color: rgba(0, 0, 0, 1);
+        margin-right: 8px;
+        cursor: pointer;
+      }
+    }
+
+    .shuffle {
+      cursor: pointer;
+    }
+  }
+}
