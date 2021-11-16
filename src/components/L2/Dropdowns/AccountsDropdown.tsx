@@ -28,7 +28,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
   const walletInfo: any = useWallet();
   const { push, popTo, names, reset }: any = useHistory();
   const { setPointCursor }: any = usePointCursor();
-  const { pointList } = useRollerStore();
+  const { point, pointList } = useRollerStore();
 
   const canBitcoin = Just.hasInstance(walletInfo.urbitWallet);
 
@@ -74,11 +74,14 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
     return showMigrate || hasL1Points;
   }, [hasL1Points, showMigrate]);
 
+  const displayText =
+    point.value >= 0 ? point.patp : currentAddress.slice(0, 6);
+
   return (
     <Dropdown
       className="accounts-dropdown"
       open={open}
-      value={currentAddress.slice(0, 6)}
+      value={displayText}
       toggleOpen={() => setOpen(!open)}>
       <CopiableAddressWrap
         className="current-address"

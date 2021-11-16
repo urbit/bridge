@@ -13,6 +13,9 @@ import {
   PLANET_ENTROPY_BITS,
   ZOD,
 } from './constants';
+import Worker from 'worker';
+
+const worker = new Worker();
 
 const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8;
 
@@ -78,9 +81,13 @@ export const generateWallet = async (point, ticket, boot) => {
   // hangs, blocking UI updates so this cannot be done in the UI
   console.log('Generating Wallet for point address: ', point);
 
-  const wallet = await kg.generateWallet(config);
+  return new Promise(async resolve => {
+    // Use a web worker to process the data
+    console.log(1, config)
+    const processed = await worker.generateWallet(JSON.stringify(config));
 
-  return wallet;
+    resolve(processed);
+  });
 };
 
 export const generateOwnershipWallet = async (ship, ticket) => {

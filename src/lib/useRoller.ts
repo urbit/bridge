@@ -13,7 +13,11 @@ import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
 import { EMPTY_POINT, useRollerStore } from 'store/rollerStore';
 import { useWallet } from 'store/wallet';
-import { getStoredInvites, setStoredInvites } from 'store/storage/roller';
+import {
+  getStoredInvites,
+  setStoredInvite,
+  setStoredInvites,
+} from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints } from 'views/Points';
 
@@ -86,13 +90,14 @@ export default function useRoller() {
     nextBatchTime,
     point,
     invitePoints,
-    invites,
+    removeInvite,
     setNextBatchTime,
     setPendingTransactions,
     setInvites,
     setInvitePoints,
     setInviteGeneratingNum,
     setPoints,
+    updateInvite,
   } = useRollerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
@@ -120,6 +125,15 @@ export default function useRoller() {
     return new RollerRPCAPI(options);
   }, [options]);
 
+  const ls = useMemo(
+    () =>
+      new SecureLS({
+        isCompression: false,
+        encryptionSecret: authToken.getOrElse('default'),
+      }),
+    [authToken]
+  );
+
   const fetchConfig = useCallback(async () => {
     api
       .getRollerConfig()
@@ -135,15 +149,6 @@ export default function useRoller() {
         );
       });
   }, [api]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const ls = useMemo(
-    () =>
-      new SecureLS({
-        isCompression: false,
-        encryptionSecret: authToken.getOrElse('default'),
-      }),
-    [authToken]
-  );
 
   const generateInviteCodes = useCallback(
     async (numInvites: number) => {
@@ -346,21 +351,20 @@ export default function useRoller() {
           for (let i = 0; i < invitePlanets.length; i++) {
             setInviteGeneratingNum(i + 1);
             const planet = invitePlanets[i];
-            const invite = storedInvites[planet];
+            const invite =
+              storedInvites[planet] ||
+              (await generateInviteInfo(planet, _authToken));
 
-            if (invite?.ticket) {
+            // TODO: check if the invite point's owner still matches the deterministic wallet address
+            const planetInfo = await api.getPoint(planet);
+            if (invite.owner === planetInfo.ownership?.transferProxy?.address) {
               newInvites.push(invite);
-            } else if (getAll) {
-              if (isDevelopment) {
-                console.log('MISSING INVITE INFO', planet);
-              }
-              const newInvite = await generateInviteInfo(planet, _authToken);
-              newInvites.push(newInvite);
+              updateInvite(invite);
+              setStoredInvite(ls, invite);
             } else {
-              newInvites.push(inviteTemplate(planet));
+              removeInvite(planet);
             }
           }
-
           setStoredInvites(ls, newInvites);
           setInvites(newInvites);
 
@@ -379,25 +383,11 @@ export default function useRoller() {
       pointCursor,
       invitePoints,
       ls,
+      removeInvite,
       setInvites,
       setInviteGeneratingNum,
+      updateInvite,
     ]
-  );
-
-  const showInvite = useCallback(
-    async (planet: number) => {
-      const _authToken = authToken.getOrElse(null);
-
-      if (_authToken) {
-        const newInvite = await generateInviteInfo(planet, _authToken);
-        const newInvites = invites.map(invite =>
-          invite.planet === planet ? newInvite : invite
-        );
-        setInvites(newInvites);
-        setStoredInvites(ls, newInvites);
-      }
-    },
-    [authToken, invites, ls, setInvites]
   );
 
   const getNumInvites = useCallback(
@@ -887,6 +877,5 @@ export default function useRoller() {
     ls,
     performL2Reticket,
     setProxyAddress,
-    showInvite,
   };
 }

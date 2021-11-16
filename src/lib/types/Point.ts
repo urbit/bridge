@@ -60,6 +60,7 @@ export default class Point {
   canSpawn: boolean;
   canTransfer: boolean;
   canVote: boolean;
+  showInvites: boolean;
 
   constructor(
     value: number,
@@ -115,11 +116,10 @@ export default class Point {
       this.networkKeysSet;
     this.canVote =
       this.isGalaxy && this.active && (this.isOwner || this.isVotingProxy);
-
     this.canMigrate =
       this.canManage &&
-      this.networkKeysSet &&
       this.isL1 &&
       ((this.isGalaxy && !this.isL2Spawn) || this.isStar || this.isPlanet);
+    this.showInvites = this.canManage || this.canSpawn;
   }
 }
