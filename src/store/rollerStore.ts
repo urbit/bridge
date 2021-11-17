@@ -2,7 +2,7 @@ import create from 'zustand';
 import { PendingTransaction } from '@urbit/roller-api';
 
 import { HOUR } from 'lib/utils/roller';
-import { Invite } from 'lib/types/Invite';
+import { Invite, Invites } from 'lib/types/Invite';
 import Point, { Points, Relationship } from 'lib/types/Point';
 import { toL1Details } from 'lib/utils/point';
 
@@ -14,19 +14,16 @@ export interface RollerStore {
   point: Point;
   points: Points;
   pointList: Point[];
-  invitePoints: number[];
-  invites: Invite[];
+  invites: Invites;
   recentlyCompleted: number;
   inviteGeneratingNum: number;
-  removeInvite: (point: number) => void;
   setNextBatchTime: (nextBatchTime: number) => void;
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) => void;
   setPoint: (point: number) => void;
   setPoints: (points: Points) => void;
-  setInvitePoints: (points: number[]) => void;
-  setInvites: (invites: Invite[]) => void;
+  setInvites: (points: number, invites: Invite[]) => void;
   setInviteGeneratingNum: (numGenerating: number) => void;
-  updateInvite: (invite: Invite) => void;
+  updateInvite: (point: number, invite: Invite) => void;
 }
 
 export const useRollerStore = create<RollerStore>(set => ({
@@ -35,14 +32,9 @@ export const useRollerStore = create<RollerStore>(set => ({
   point: EMPTY_POINT,
   pointList: [],
   points: {},
-  invitePoints: [],
-  invites: [],
+  invites: {},
   recentlyCompleted: 0,
   inviteGeneratingNum: 0,
-  removeInvite: (point: number) =>
-    set(state => ({
-      invites: state.invites.filter(({ planet }) => point !== planet),
-    })),
   setNextBatchTime: (nextBatchTime: number) => set(() => ({ nextBatchTime })),
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) =>
     set(state => {
@@ -60,14 +52,20 @@ export const useRollerStore = create<RollerStore>(set => ({
     set(state => ({ point: state.points[point] || EMPTY_POINT })),
   setPoints: (points: Points) =>
     set(() => ({ points, pointList: Object.values(points) })),
-  setInvitePoints: (invitePoints: number[]) => set(() => ({ invitePoints })),
-  setInvites: (invites: Invite[]) => set(() => ({ invites })),
+  setInvites: (point: number, invites: Invite[]) =>
+    set(state => {
+      const newInvites: Invites = {};
+      newInvites[point] = invites;
+      return { invites: Object.assign(state.invites, newInvites) };
+    }),
   setInviteGeneratingNum: (inviteGeneratingNum: number) =>
     set(() => ({ inviteGeneratingNum })),
-  updateInvite: (invite: Invite) =>
-    set(state => ({
-      invites: state.invites.map(i =>
+  updateInvite: (point: number, invite: Invite) =>
+    set(state => {
+      const newInvites: Invites = {};
+      newInvites[point] = state.invites[point]?.map(i =>
         i.planet === invite.planet ? invite : i
-      ),
-    })),
+      );
+      return { invites: Object.assign(state.invites, newInvites) };
+    }),
 }));

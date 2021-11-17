@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Box, Row } from '@tlon/indigo-react';
+import { Box, LoadingSpinner, Row } from '@tlon/indigo-react';
 
 import { isStar } from 'lib/utils/point';
 
@@ -15,7 +15,7 @@ import AccountsDropdown from '../Dropdowns/AccountsDropdown';
 import './L2PointHeader.scss';
 
 export interface L2PointHeaderProps {
-  numInvites: number;
+  numInvites?: number;
   hideHome?: boolean;
   hideTimer?: boolean;
   hideInvites?: boolean;
@@ -23,7 +23,7 @@ export interface L2PointHeaderProps {
 }
 
 const L2PointHeader = ({
-  numInvites = 0,
+  numInvites,
   hideHome = false,
   hideTimer = false,
   hideInvites = false,
@@ -63,7 +63,11 @@ const L2PointHeader = ({
         {showInvites && point.showInvites && (
           <Row onClick={goToInvites} className="invites">
             <InviteIcon />
-            {numInvites}
+            {numInvites === undefined ? (
+              <LoadingSpinner foreground="rgba(0,0,0,0.3)" background="white" />
+            ) : (
+              numInvites
+            )}
           </Row>
         )}
         {!hideTimer && point.isL2Spawn && !pendingTransactions.length && (

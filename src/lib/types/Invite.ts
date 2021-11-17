@@ -6,5 +6,9 @@ export interface Invite {
 }
 
 export interface Invites {
+  [key: number]: Invite[];
+}
+
+export interface InviteTickets {
   [key: number]: Invite;
 }

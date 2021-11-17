@@ -33,7 +33,7 @@ export default function Point() {
   const { pop, push, names }: any = useLocalRouter();
   const { wallet }: any = useWallet();
   const { syncExtras }: any = usePointCache();
-  const { getNumInvites, getPendingTransactions } = useRoller();
+  const { getInvites, getPendingTransactions } = useRoller();
   const { pendingTransactions, point, invites } = useRollerStore();
   const { nextRoll } = useTimerStore();
   const networkKeysSet = useHasNetworkKeysSet();
@@ -69,12 +69,12 @@ export default function Point() {
     const getTransactions = async () => {
       setLoading(true);
       getPendingTransactions();
-      getNumInvites(point.isL2);
+      getInvites(point.isL2);
       setTimeout(() => setLoading(false), 100);
     };
 
     await getTransactions();
-  }, [point, getNumInvites, getPendingTransactions, setLoading]);
+  }, [point, getInvites, getPendingTransactions, setLoading]);
 
   useEffect(() => {
     loadL1Info();
@@ -132,7 +132,7 @@ export default function Point() {
       header={
         <L2PointHeader
           hideTimer={!!spawnedPending}
-          numInvites={invitePoints.length}
+          numInvites={invites[point.value]?.length}
           hideInvites={!networkKeysSet}
         />
       }>

@@ -41,6 +41,12 @@
 
       svg {
         margin-right: 4px;
+
+        &:nth-child(2) {
+          margin: 2px 0 0 4px;
+          width: 12px;
+          height: 12px;
+        }
       }
     }
 
