@@ -59,7 +59,6 @@ export default function InviteCohort() {
     point,
     pendingTransactions,
     invites,
-    invitePoints,
     inviteGeneratingNum,
     setInviteGeneratingNum,
     setInvites,
@@ -75,7 +74,7 @@ export default function InviteCohort() {
   } = useRoller();
   const { contracts }: any = useNetwork();
   const { syncControlledPoints }: any = usePointCache();
-  const currentL2 = Boolean(point?.isL2Spawn);
+  const currentL2 = Boolean(point.isL2Spawn);
 
   const _contracts = need.contracts(contracts);
 
@@ -90,12 +89,7 @@ export default function InviteCohort() {
   const [page, setPage] = useState(0);
 
   const { construct, unconstruct, completed, bind } = useIssueChild();
-
-  useEffect(() => {
-    if (invitePoints.length > 0) {
-      getInvites(currentL2, true);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const invitePoints = invites[point.value] || [];
 
   // Set up the invite spawn if on L1
   useEffect(() => {
@@ -116,7 +110,7 @@ export default function InviteCohort() {
       for (let i = 0; i < possiblePoints.length; i++) {
         const p = possiblePoints[i];
         if (
-          !invites.find(({ planet }) => planet === p) &&
+          !invitePoints.find(({ planet }) => planet === p) &&
           isPlanet(p) &&
           (await azimuth.azimuth.getOwner(_contracts, p)) === ETH_ZERO_ADDR
         ) {
@@ -153,7 +147,7 @@ export default function InviteCohort() {
     construct,
     showInviteForm,
     unconstruct,
-    invites,
+    invitePoints,
   ]);
 
   useEffect(() => {
@@ -169,20 +163,23 @@ export default function InviteCohort() {
     }
 
     syncControlledPoints();
-    setInvites([...invites, { ...l1Invite, hash: '', owner: '' }]);
+    setInvites(point.value, [
+      ...invitePoints,
+      { ...l1Invite, hash: '', owner: '' },
+    ]);
     setShowInviteForm(false);
     setL1Invite(null);
     unconstruct();
     pop();
-  }, [completed, currentL2]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [completed, currentL2, point]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const invitesToDisplay = invites.slice(
+  const invitesToDisplay = invitePoints.slice(
     page * INVITES_PER_PAGE,
     (page + 1) * INVITES_PER_PAGE
   );
 
   const hasPending = Boolean(pendingTransactions.length);
-  const hasInvites = Boolean(invites.length);
+  const hasInvites = Boolean(invitePoints.length);
 
   const createInvites = useCallback(async () => {
     setLoading(true);
@@ -208,7 +205,7 @@ export default function InviteCohort() {
   const downloadCsv = useCallback(() => {
     const generateAndDownload = async () => {
       setLoading(true);
-      const invites = await getInvites(currentL2, true);
+      const invites = await getInvites(currentL2);
       if (invites) {
         const csv = invites.reduce(
           (csvData, { ticket, planet }, ind) =>
@@ -224,7 +221,7 @@ export default function InviteCohort() {
         //provide the name for the CSV file to be downloaded
         hiddenElement.download = generateCsvName(
           DEFAULT_CSV_NAME,
-          point?.patp?.slice(1) || 'bridge'
+          point.patp?.slice(1) || 'bridge'
         );
         hiddenElement.click();
       } else {
@@ -313,8 +310,8 @@ export default function InviteCohort() {
   const header = (
     <h5>
       You have
-      <span className="number-emphasis"> {invites.length} </span>
-      Planet Code{invites.length === 1 ? '' : 's'}
+      <span className="number-emphasis"> {invitePoints.length} </span>
+      Planet Code{invitePoints.length === 1 ? '' : 's'}
     </h5>
   );
 
@@ -435,7 +432,7 @@ export default function InviteCohort() {
             <Paginator
               page={page}
               numPerPage={INVITES_PER_PAGE}
-              numElements={invites.length}
+              numElements={invitePoints.length}
               goPrevious={() => setPage(page - 1)}
               goNext={goNextPage}
             />

@@ -40,7 +40,7 @@ import {
   detach,
   reject,
 } from './utils/roller';
-import { ROLLER_HOSTS } from './constants';
+import { ETH_ZERO_ADDR, ROLLER_HOSTS } from './constants';
 
 import {
   Config,
@@ -89,12 +89,9 @@ export default function useRoller() {
   const {
     nextBatchTime,
     point,
-    invitePoints,
-    removeInvite,
     setNextBatchTime,
     setPendingTransactions,
     setInvites,
-    setInvitePoints,
     setInviteGeneratingNum,
     setPoints,
     updateInvite,
@@ -319,16 +316,18 @@ export default function useRoller() {
   };
 
   const getInvites = useCallback(
-    async (isL2: boolean, getAll = false) => {
+    async (isL2: boolean) => {
       try {
         const curPoint: number = Number(need.point(pointCursor));
-        setInvites(invitePoints.map(p => inviteTemplate(p)));
-
         const _authToken = authToken.getOrElse(null);
         const _contracts = contracts.getOrElse(null);
 
         if (_authToken && _contracts) {
           const spawnedPoints = isL2 ? await api.getSpawned(curPoint) : [];
+
+          const newPending = await api.getPendingByShip(curPoint);
+          setPendingTransactions(newPending);
+          const pendingSpawns = getPendingSpawns(newPending);
 
           const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
             _contracts,
@@ -340,9 +339,11 @@ export default function useRoller() {
             getDetails
           ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
 
-          const invitePlanets = spawnedPoints.concat(
-            outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
-          );
+          const invitePlanets = spawnedPoints
+            .concat(
+              outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
+            )
+            .filter((p: number) => !pendingSpawns.has(p));
 
           const newInvites: Invite[] = [];
           // Iterate over all of the stored invites, generating wallet info as necessary
@@ -351,22 +352,28 @@ export default function useRoller() {
           for (let i = 0; i < invitePlanets.length; i++) {
             setInviteGeneratingNum(i + 1);
             const planet = invitePlanets[i];
+            const storedInvite = storedInvites[planet];
             const invite =
-              storedInvites[planet] ||
-              (await generateInviteInfo(planet, _authToken));
+              storedInvite || (await generateInviteInfo(planet, _authToken));
 
             // TODO: check if the invite point's owner still matches the deterministic wallet address
             const planetInfo = await api.getPoint(planet);
-            if (invite.owner === planetInfo.ownership?.transferProxy?.address) {
+            setStoredInvite(ls, invite);
+
+            if (
+              invite.owner.toLowerCase() ===
+                planetInfo.ownership?.owner?.address ||
+              planetInfo.ownership?.transferProxy?.address !== ETH_ZERO_ADDR
+            ) {
               newInvites.push(invite);
-              updateInvite(invite);
+              updateInvite(curPoint, invite);
+            }
+
+            if (storedInvite) {
               setStoredInvite(ls, invite);
-            } else {
-              removeInvite(planet);
             }
           }
-          setStoredInvites(ls, newInvites);
-          setInvites(newInvites);
+          setInvites(curPoint, newInvites);
 
           return newInvites;
         }
@@ -381,64 +388,11 @@ export default function useRoller() {
       controlledPoints,
       getDetails,
       pointCursor,
-      invitePoints,
       ls,
-      removeInvite,
       setInvites,
       setInviteGeneratingNum,
-      updateInvite,
-    ]
-  );
-
-  const getNumInvites = useCallback(
-    async (isL2: boolean) => {
-      try {
-        const curPoint: number = Number(need.point(pointCursor));
-        const _authToken = authToken.getOrElse(null);
-        const _contracts = contracts.getOrElse(null);
-
-        if (_authToken && _contracts) {
-          let spawnedPoints = isL2 ? await api.getSpawned(curPoint) : [];
-
-          const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
-            _contracts,
-            curPoint
-          );
-
-          const newPending = await api.getPendingByShip(curPoint);
-          const pendingSpawns = getPendingSpawns(newPending);
-
-          const outgoingPoints = getOutgoingPoints(
-            controlledPoints,
-            getDetails
-          ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
-
-          const invitePoints = spawnedPoints
-            .concat(
-              outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
-            )
-            .filter((p: number) => !pendingSpawns.has(p));
-
-          setPendingTransactions(newPending);
-          setInvitePoints(invitePoints);
-
-          return invitePoints;
-        }
-      } catch (e) {
-        if (isDevelopment) {
-          console.warn(e);
-        }
-      }
-    },
-    [
-      api,
-      pointCursor,
-      authToken,
-      contracts,
-      controlledPoints,
-      getDetails,
-      setInvitePoints,
       setPendingTransactions,
+      updateInvite,
     ]
   );
 
@@ -851,7 +805,6 @@ export default function useRoller() {
       if (nextBatchTime - ONE_SECOND <= new Date().getTime()) {
         api.getRollerConfig().then(response => {
           setNextBatchTime(response.nextBatch);
-          getNumInvites(!!point?.isL2);
         });
       }
     }, 10000000);
@@ -866,7 +819,6 @@ export default function useRoller() {
     config,
     configureNetworkingKeys,
     getInvites,
-    getNumInvites,
     getPoints,
     getPointDetails,
     getPendingTransactions,

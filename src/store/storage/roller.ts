@@ -1,10 +1,10 @@
 import SecureLS from 'secure-ls';
-import { Invite, Invites } from 'lib/types/Invite';
+import { Invite, InviteTickets } from 'lib/types/Invite';
 
 const INVITES_KEY = 'invites';
 const HIDE_MIGRATION_MESSAGE_KEY = 'hide_migration_message';
 
-export const getStoredInvites = (ls: SecureLS): Invites => {
+export const getStoredInvites = (ls: SecureLS): InviteTickets => {
   let invites = {};
   try {
     invites = ls.get(INVITES_KEY);
@@ -13,7 +13,7 @@ export const getStoredInvites = (ls: SecureLS): Invites => {
 };
 
 export const setStoredInvites = (ls: SecureLS, newInvites: Invite[]) => {
-  let invites: Invites = {};
+  let invites: InviteTickets = {};
   try {
     invites = ls.get(INVITES_KEY) || {};
   } catch (e) {}
@@ -25,7 +25,7 @@ export const setStoredInvites = (ls: SecureLS, newInvites: Invite[]) => {
 };
 
 export const setStoredInvite = (ls: SecureLS, newInvite: Invite) => {
-  let invites: Invites = {};
+  let invites: InviteTickets = {};
   try {
     invites = ls.get(INVITES_KEY) || {};
   } catch (e) {}

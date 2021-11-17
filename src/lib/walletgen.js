@@ -83,7 +83,6 @@ export const generateWallet = async (point, ticket, boot) => {
 
   return new Promise(async resolve => {
     // Use a web worker to process the data
-    console.log(1, config)
     const processed = await worker.generateWallet(JSON.stringify(config));
 
     resolve(processed);
