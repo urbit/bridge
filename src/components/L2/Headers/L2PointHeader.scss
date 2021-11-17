@@ -8,6 +8,10 @@
   font-size: 14px;
   margin: 40px 0px 16px;
 
+  .home {
+    margin-right: 8px;
+  }
+
   .dropdown {
     border-radius: $medium-border-radius;
     background-color: $washed-gray;
@@ -37,6 +41,12 @@
 
       svg {
         margin-right: 4px;
+
+        &:nth-child(2) {
+          margin: 2px 0 0 4px;
+          width: 12px;
+          height: 12px;
+        }
       }
     }
 

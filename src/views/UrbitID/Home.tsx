@@ -1,6 +1,5 @@
-import React, { useCallback } from 'react';
-import { azimuth } from 'azimuth-js';
-import { Just } from 'folktale/maybe';
+import React, { useCallback, useState } from 'react';
+import { Just, Nothing } from 'folktale/maybe';
 import { Box, Button, Icon, Row } from '@tlon/indigo-react';
 
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -10,44 +9,46 @@ import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { convertToInt } from 'lib/convertToInt';
 import { ETH_ZERO_ADDR } from 'lib/constants';
 import { abbreviateAddress } from 'lib/utils/address';
+import { downloadWallet } from 'lib/invite';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
-import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';
-import { useRollerStore } from 'store/roller';
+import { useRollerStore } from 'store/rollerStore';
 
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
+import PaperBuilder from 'components/PaperBuilder';
 
 import './UrbitID.scss';
 
 export default function UrbitIDHome() {
   const { push, names }: any = useLocalRouter();
-  const { pointCursor }: any = usePointCursor();
   const { getDetails }: any = usePointCache();
   const { urbitWallet }: any = useWallet();
-  const { currentPoint } = useRollerStore();
+  const { point } = useRollerStore();
 
-  const goDownloadKeys = useCallback(() => push(names.DOWNLOAD_KEYS), [
-    push,
-    names,
-  ]);
+  const [keysDownloaded, setKeysDownloaded] = useState(false);
+
+  const _urbitWallet = need.wallet(urbitWallet);
+  const { keyfile, filename } = useKeyfileGenerator();
+  const [paper, setPaper] = useState(Nothing());
+
+  const downloadKeys = useCallback(() => {
+    downloadWallet(paper.value, keyfile, filename);
+    setKeysDownloaded(true);
+  }, [paper, keyfile, filename, setKeysDownloaded]);
 
   const goSigil = useCallback(() => push(names.SIGIL_GENERATOR), [push, names]);
 
   const goResetKeys = useCallback(() => push(names.RESET_KEYS), [push, names]);
 
   const isMasterTicket = Just.hasInstance(urbitWallet);
-  const point = need.point(pointCursor);
-  const details = need.details(getDetails(point));
-  const { isOwner } = useCurrentPermissions();
+  const details = need.details(getDetails(point.value));
+  const { isOwner, canManage } = useCurrentPermissions();
   const networkRevision = convertToInt(details.keyRevisionNumber, 10);
-
-  const pointSize = azimuth.getPointSize(point);
-  const isParent = pointSize !== azimuth.PointSize.Planet;
-  const isSenate = pointSize === azimuth.PointSize.Galaxy;
 
   const goSetProxy = useCallback(
     proxyType => push(names.SET_PROXY, { proxyType }),
@@ -58,8 +59,7 @@ export default function UrbitIDHome() {
 
   const noManagement = details.managementProxy === ETH_ZERO_ADDR;
   const noSpawn = details.spawnProxy === ETH_ZERO_ADDR;
-  const showSpawn = currentPoint?.dominion === 'l1';
-  const showManage = showSpawn || currentPoint?.dominion === 'spawn';
+  const showSpawn = point.isL1 && !point.isL2Spawn;
 
   return (
     <Window className="id-home">
@@ -67,8 +67,13 @@ export default function UrbitIDHome() {
         <Row className="header-row">
           <h5>ID</h5>
           {isMasterTicket && (
-            <Button onClick={goDownloadKeys} className="header-button">
-              Download Passport
+            <Button onClick={downloadKeys} className="header-button">
+              {keysDownloaded
+                ? 'Downloaded!'
+                : paper.matchWith({
+                    Nothing: () => 'Printing and folding...',
+                    Just: (_: any) => 'Download Passport',
+                  })}
             </Button>
           )}
         </Row>
@@ -94,7 +99,7 @@ export default function UrbitIDHome() {
           </Row>
         )}
 
-        {isOwner && showManage && (
+        {canManage && (
           <Row className="between-row management">
             <Box>
               <Box>Management Address</Box>
@@ -120,7 +125,7 @@ export default function UrbitIDHome() {
           </Row>
         )}
 
-        {isParent && networkRevision !== 0 && showSpawn && (
+        {point.isParent && networkRevision !== 0 && showSpawn && (
           <Row className="between-row management">
             <Box>
               <Box>Spawn Proxy Address</Box>
@@ -160,7 +165,7 @@ export default function UrbitIDHome() {
           </Row>
         )}
 
-        {isParent && networkRevision === 0 && (
+        {point.isParent && networkRevision === 0 && (
           <Row className="between-row management">
             <Box>
               <Box>Network Keys Required</Box>
@@ -179,7 +184,7 @@ export default function UrbitIDHome() {
           <Icon className="arrow-button" icon="ArrowEast" />
         </Row>
 
-        {isSenate && (
+        {point.isGalaxy && (
           <Row className="between-row management">
             <Box>
               <Box>Edit Voting Key</Box>
@@ -192,6 +197,13 @@ export default function UrbitIDHome() {
           </Row>
         )}
       </BodyPane>
+      <PaperBuilder
+        point={point.value}
+        wallets={[_urbitWallet]}
+        callback={(paper: any) => {
+          setPaper(Just(paper));
+        }}
+      />
     </Window>
   );
 }

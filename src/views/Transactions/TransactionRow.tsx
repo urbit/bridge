@@ -11,7 +11,7 @@ import {
 } from 'lib/constants';
 import { abbreviateAddress } from 'lib/utils/address';
 import { useMemo } from 'react';
-import { useRollerStore } from 'store/roller';
+import { useRollerStore } from 'store/rollerStore';
 import LayerIndicator from 'components/L2/LayerIndicator';
 import { isPlanet, isStar } from 'lib/utils/point';
 

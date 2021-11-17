@@ -121,7 +121,7 @@ export default function InlineEthereumTransaction({
     } else if (showBroadcastButton) {
       return (
         <Grid.Item
-          className="eth-tx-button"
+          className="ph4 eth-tx-button"
           full
           as={ForwardButton}
           solid
@@ -134,7 +134,7 @@ export default function InlineEthereumTransaction({
     } else if (showLoadingButton) {
       return (
         <Grid.Item
-          className="eth-tx-button"
+          className="ph4 eth-tx-button"
           full
           as={ProgressButton}
           success
@@ -146,7 +146,7 @@ export default function InlineEthereumTransaction({
     } else {
       return (
         <Grid.Item
-          className="eth-tx-button"
+          className="ph4 eth-tx-button"
           full
           as={GenerateButton}
           onClick={generateAndSign}

@@ -8,7 +8,7 @@ import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useStarReleaseCache } from 'store/starRelease';
-import { useRollerStore } from 'store/roller';
+import { useRollerStore } from 'store/rollerStore';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -50,7 +50,9 @@ export default function AdminTransfer() {
   const name = useCurrentPointName();
   const { pointCursor } = usePointCursor();
   const { starReleaseDetails } = useStarReleaseCache();
-  const { currentL2 } = useRollerStore();
+  const {
+    point: { isL2 },
+  } = useRollerStore();
   const { setProxyAddress, getPendingTransactions } = useRoller();
   const [owner, setNewOwner] = useState('');
 
@@ -77,7 +79,7 @@ export default function AdminTransfer() {
     []
   );
 
-  const onSignTx = useCallback(async () => {
+  const transferPoint = useCallback(async () => {
     // setLoading(true);
     if (owner === '') return;
     try {
@@ -157,7 +159,7 @@ export default function AdminTransfer() {
 
                 <Grid.Item full as={FormError} />
 
-                {currentL2 ? (
+                {isL2 ? (
                   <Grid.Item
                     as={Button}
                     full
@@ -165,8 +167,8 @@ export default function AdminTransfer() {
                     center
                     solid
                     disabled={values.unset}
-                    onClick={onSignTx}>
-                    {'Sign Transaction'}
+                    onClick={transferPoint}>
+                    {'Transfer'}
                   </Grid.Item>
                 ) : (
                   <Grid.Item

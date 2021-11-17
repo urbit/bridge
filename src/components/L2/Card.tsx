@@ -7,6 +7,7 @@ export interface CardProps {
   icon?: typeof Icon;
   title?: string;
   subtitle?: string;
+  warning?: string;
   onClick?: () => void;
   disabled?: boolean;
   children?: React.ReactNode;
@@ -16,6 +17,7 @@ export default function Card({
   icon,
   title,
   subtitle,
+  warning,
   onClick,
   children,
   disabled = false,
@@ -30,6 +32,12 @@ export default function Card({
       )}
       {!!subtitle && <Box className="card-subtitle">{subtitle}</Box>}
       {children}
+      {!!warning && (
+        <Row className="card-warning">
+          <Icon icon="ExclaimationMark" color="white" />
+          <Box>{warning}</Box>
+        </Row>
+      )}
     </Box>
   );
 }

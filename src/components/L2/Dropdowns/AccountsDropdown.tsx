@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import * as ob from 'urbit-ob';
-import { Icon, Row, Box, Button } from '@tlon/indigo-react';
+import { Icon, Row, Box } from '@tlon/indigo-react';
 import { Just } from 'folktale/maybe';
 
 import Sigil from 'components/Sigil';
@@ -11,18 +10,14 @@ import { TooltipPosition } from 'components/WithTooltip';
 import { useWallet } from 'store/wallet';
 import { useHistory } from 'store/history';
 import { usePointCursor } from 'store/pointCursor';
-import { usePointCache } from 'store/pointCache';
 import { clearInvitesStorage } from 'store/storage/roller';
+import { useRollerStore } from 'store/rollerStore';
 
-import { PointLayer } from 'lib/types/PointLayer';
 import { abbreviateAddress } from 'lib/utils/address';
+import useCurrentPermissions from 'lib/useCurrentPermissions';
 
 import Dropdown from './Dropdown';
 import './AccountsDropdown.scss';
-import Modal from '../Modal';
-import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
-import { useRollerStore } from 'store/roller';
-import useCurrentPermissions from 'lib/useCurrentPermissions';
 
 interface AccountsDropdownProps {
   showMigrate: boolean;
@@ -33,21 +28,9 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
   const walletInfo: any = useWallet();
   const { push, popTo, names, reset }: any = useHistory();
   const { setPointCursor }: any = usePointCursor();
-  const { controlledPoints }: any = usePointCache();
-  const { currentL2 }: any = useRollerStore();
-
-  const networkKeysSet = useHasNetworkKeysSet();
-  const showMigrateOption = useMemo(() => {
-    return showMigrate || (!currentL2 && networkKeysSet);
-  }, [currentL2, networkKeysSet, showMigrate]);
-
-  const [showModal, setShowModal] = useState(false);
+  const { point, pointList } = useRollerStore();
 
   const canBitcoin = Just.hasInstance(walletInfo.urbitWallet);
-
-  const points = (controlledPoints?.value?.value?.pointsWithLayers || []).sort(
-    (a: PointLayer, b: PointLayer) => a.point - b.point
-  );
 
   const currentAddress = walletInfo?.wallet?.value?.address || '';
   const displayAddress = abbreviateAddress(currentAddress);
@@ -86,11 +69,19 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
 
   const { canSpawn, isParent, isStar } = useCurrentPermissions();
 
+  const hasL1Points = Boolean(pointList.find(({ layer }) => layer === 1));
+  const showMigrateOption = useMemo(() => {
+    return showMigrate || hasL1Points;
+  }, [hasL1Points, showMigrate]);
+
+  const displayText =
+    point.value >= 0 ? point.patp : currentAddress.slice(0, 6);
+
   return (
     <Dropdown
       className="accounts-dropdown"
       open={open}
-      value={currentAddress.slice(0, 6)}
+      value={displayText}
       toggleOpen={() => setOpen(!open)}>
       <CopiableAddressWrap
         className="current-address"
@@ -100,28 +91,24 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
       </CopiableAddressWrap>
       <Box className="divider" />
       <Box className="points">
-        {points.map(({ point, layer }: PointLayer) => {
-          const patp = ob.patp(point);
-
-          return (
-            <Row
-              className="entry point"
-              onClick={selectPoint(point)}
-              key={`point-${point}`}>
-              <Box>{patp}</Box>
-              <Row>
-                <LayerIndicator layer={layer} size="md" />
-                <Box className="sigil">
-                  <Sigil patp={patp} size={1} colors={['#000000', '#FFFFFF']} />
-                </Box>
-              </Row>
+        {pointList.map(({ value, layer, patp }) => (
+          <Row
+            className="entry point"
+            onClick={selectPoint(value)}
+            key={`point-${value}`}>
+            <Box>{patp}</Box>
+            <Row>
+              <LayerIndicator layer={layer} size="md" />
+              <Box className="sigil">
+                <Sigil patp={patp} size={1} colors={['#000000', '#FFFFFF']} />
+              </Box>
             </Row>
-          );
-        })}
+          </Row>
+        ))}
       </Box>
       <Box className="divider" />
       {showMigrateOption && (
-        <Row className="entry" onClick={() => setShowModal(true)}>
+        <Row className="entry" onClick={goMigrate}>
           <Box>Migrate</Box>
           <Row className="layer-migration">
             <LayerIndicator layer={1} size="sm" />
@@ -146,27 +133,6 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
         <Box>Logout</Box>
         <Icon icon="LogOut" />
       </Row>
-      <Modal show={showModal} hide={() => setShowModal(false)}>
-        <Box className="migrate-modal">
-          <Box className="close" onClick={() => setShowModal(false)}>
-            &#215;
-          </Box>
-          <Box className="title">Migrating to Layer 2</Box>
-          <Box className="message">
-            We've upgraded Bridge to support Layer 2 transactions. If you don't
-            migrate now, you can always do it later.
-          </Box>
-          <Box className="warning">Migrating to Layer 2 is irreversible.</Box>
-          <Row className="buttons">
-            <Button className="cancel" onClick={() => setShowModal(false)}>
-              Cancel
-            </Button>
-            <Button className="migrate" onClick={goMigrate}>
-              Migrate
-            </Button>
-          </Row>
-        </Box>
-      </Modal>
     </Dropdown>
   );
 };

@@ -4,36 +4,43 @@ import * as need from 'lib/need';
 import SecureLS from 'secure-ls';
 
 import { Invite } from 'lib/types/Invite';
-import { convertToInt } from './convertToInt';
-import { isDevelopment, isRopsten } from './flags';
 import {
-  adopt,
-  detach,
-  generateInviteWallet,
-  getPendingSpawns,
-  reject,
-} from './utils/roller';
-import { ROLLER_HOSTS } from './constants';
+  deriveNetworkSeedFromUrbitWallet,
+  attemptNetworkSeedDerivation,
+} from 'lib/keys';
 
 import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
-import { useRollerStore } from 'store/roller';
+import { EMPTY_POINT, useRollerStore } from 'store/rollerStore';
 import { useWallet } from 'store/wallet';
-import { getStoredInvites, setStoredInvites } from 'store/storage/roller';
+import {
+  getStoredInvites,
+  setStoredInvite,
+  setStoredInvites,
+} from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints } from 'views/Points';
+
 import {
   getSpawnProxy,
   getManagerProxy,
   getAddressProxy,
   getTransferProxy,
 } from './utils/proxy';
-import { isPlanet } from './utils/point';
-
+import { isPlanet, toL1Details } from './utils/point';
+import { convertToInt } from './convertToInt';
+import { isDevelopment, isRopsten } from './flags';
 import {
-  deriveNetworkSeedFromUrbitWallet,
-  attemptNetworkSeedDerivation,
-} from 'lib/keys';
+  generateInviteWallet,
+  getPendingSpawns,
+  submitL2Transaction,
+  getTimeToNextBatch,
+  registerProxyAddress,
+  adopt,
+  detach,
+  reject,
+} from './utils/roller';
+import { ETH_ZERO_ADDR, ROLLER_HOSTS } from './constants';
 
 import {
   Config,
@@ -45,13 +52,9 @@ import {
   UnspawnedPoints,
 } from '@urbit/roller-api';
 
-import {
-  configureKeys,
-  getTimeToNextBatch,
-  spawn,
-  transferPointRequest,
-  registerProxyAddress,
-} from './utils/roller';
+import Point, { Points, Relationship } from './types/Point';
+import { useTimerStore } from 'store/timerStore';
+import { ReticketParams, SendL2Params } from './types/L2Transaction';
 
 const ONE_SECOND = 1000;
 
@@ -81,17 +84,17 @@ export default function useRoller() {
   const controlledPoints = allPoints?.controlledPoints;
   const getDetails = allPoints?.getDetails;
 
+  const { setNextRoll } = useTimerStore();
+
   const {
     nextBatchTime,
-    currentL2,
-    invitePoints,
-    invites,
+    point,
     setNextBatchTime,
-    setNextRoll,
     setPendingTransactions,
     setInvites,
-    setInvitePoints,
     setInviteGeneratingNum,
+    setPoints,
+    updateInvite,
   } = useRollerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
@@ -119,6 +122,15 @@ export default function useRoller() {
     return new RollerRPCAPI(options);
   }, [options]);
 
+  const ls = useMemo(
+    () =>
+      new SecureLS({
+        isCompression: false,
+        encryptionSecret: authToken.getOrElse('default'),
+      }),
+    [authToken]
+  );
+
   const fetchConfig = useCallback(async () => {
     api
       .getRollerConfig()
@@ -135,15 +147,6 @@ export default function useRoller() {
       });
   }, [api]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const ls = useMemo(
-    () =>
-      new SecureLS({
-        isCompression: false,
-        encryptionSecret: authToken.getOrElse('default'),
-      }),
-    [authToken]
-  );
-
   const generateInviteCodes = useCallback(
     async (numInvites: number) => {
       const _point = need.point(pointCursor);
@@ -158,6 +161,7 @@ export default function useRoller() {
         throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
       }
 
+      // TODO: remove when UI disables management proxy from spawning invites
       // if (Just.hasInstance(authMnemonic)) {
       //   throw new Error(
       //     "Auth key Error: A management mnemonic can't create invite codes"
@@ -173,7 +177,6 @@ export default function useRoller() {
 
       const starInfo = await api.getPoint(_point);
       const invites: Invite[] = [];
-      const requests: Promise<string>[] = [];
 
       const proxy = getSpawnProxy(starInfo.ownership!, _wallet.address);
 
@@ -195,33 +198,36 @@ export default function useRoller() {
           _authToken
         );
 
-        const spawnRequest = spawn(
+        await submitL2Transaction({
           api,
-          _wallet,
-          _point,
+          address: _wallet.address,
+          wallet: _wallet,
+          ship: _point,
           proxy,
-          nonceInc,
-          planet,
+          nonce: nonceInc,
+          pointToSpawn: planet,
+          type: 'spawn',
           walletType,
-          _web3
-        );
+          web3: _web3,
+        });
 
         const networkSeed = await deriveNetworkSeedFromUrbitWallet(
           inviteWallet,
           1
         );
-        const configureKeysRequest = configureKeys(
+        await submitL2Transaction({
           api,
-          _wallet,
-          planet,
-          'own',
-          0,
+          wallet: _wallet,
+          ship: planet,
+          proxy: 'own',
+          nonce: 0,
           networkSeed,
+          type: 'configureKeys',
           walletType,
-          _web3
-        );
+          web3: _web3,
+        });
 
-        const setManagementProxyRequest = registerProxyAddress(
+        await registerProxyAddress(
           api,
           _wallet,
           planet,
@@ -233,24 +239,17 @@ export default function useRoller() {
           _web3
         );
 
-        const transferRequest = transferPointRequest(
+        await submitL2Transaction({
           api,
-          _wallet,
-          planet,
-          'own',
-          2,
-          inviteWallet.ownership.keys.address,
+          wallet: _wallet,
+          ship: planet,
+          proxy: 'own',
+          type: 'transferPoint',
+          nonce: 2,
+          address: inviteWallet.ownership.keys.address,
           walletType,
-          _web3
-        );
-
-        requests.push(
-          spawnRequest,
-          configureKeysRequest,
-          setManagementProxyRequest,
-          transferRequest
-        );
-        await Promise.all(requests);
+          web3: _web3,
+        });
 
         invites.push({
           hash: '',
@@ -317,16 +316,18 @@ export default function useRoller() {
   };
 
   const getInvites = useCallback(
-    async (isL2: boolean, getAll = false) => {
+    async (isL2: boolean) => {
       try {
         const curPoint: number = Number(need.point(pointCursor));
-        setInvites(invitePoints.map(p => inviteTemplate(p)));
-
         const _authToken = authToken.getOrElse(null);
         const _contracts = contracts.getOrElse(null);
 
         if (_authToken && _contracts) {
           const spawnedPoints = isL2 ? await api.getSpawned(curPoint) : [];
+
+          const newPending = await api.getPendingByShip(curPoint);
+          setPendingTransactions(newPending);
+          const pendingSpawns = getPendingSpawns(newPending);
 
           const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
             _contracts,
@@ -338,9 +339,11 @@ export default function useRoller() {
             getDetails
           ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
 
-          const invitePlanets = spawnedPoints.concat(
-            outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
-          );
+          const invitePlanets = spawnedPoints
+            .concat(
+              outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
+            )
+            .filter((p: number) => !pendingSpawns.has(p));
 
           const newInvites: Invite[] = [];
           // Iterate over all of the stored invites, generating wallet info as necessary
@@ -349,23 +352,28 @@ export default function useRoller() {
           for (let i = 0; i < invitePlanets.length; i++) {
             setInviteGeneratingNum(i + 1);
             const planet = invitePlanets[i];
-            const invite = storedInvites[planet];
+            const storedInvite = storedInvites[planet];
+            const invite =
+              storedInvite || (await generateInviteInfo(planet, _authToken));
 
-            if (invite?.ticket) {
+            // TODO: check if the invite point's owner still matches the deterministic wallet address
+            const planetInfo = await api.getPoint(planet);
+            setStoredInvite(ls, invite);
+
+            if (
+              invite.owner.toLowerCase() ===
+                planetInfo.ownership?.owner?.address ||
+              planetInfo.ownership?.transferProxy?.address !== ETH_ZERO_ADDR
+            ) {
               newInvites.push(invite);
-            } else if (getAll) {
-              if (isDevelopment) {
-                console.log('MISSING INVITE INFO', planet);
-              }
-              const newInvite = await generateInviteInfo(planet, _authToken);
-              newInvites.push(newInvite);
-            } else {
-              newInvites.push(inviteTemplate(planet));
+              updateInvite(curPoint, invite);
+            }
+
+            if (storedInvite) {
+              setStoredInvite(ls, invite);
             }
           }
-
-          setStoredInvites(ls, newInvites);
-          setInvites(newInvites);
+          setInvites(curPoint, newInvites);
 
           return newInvites;
         }
@@ -380,78 +388,11 @@ export default function useRoller() {
       controlledPoints,
       getDetails,
       pointCursor,
-      invitePoints,
       ls,
       setInvites,
       setInviteGeneratingNum,
-    ]
-  );
-
-  const showInvite = useCallback(
-    async (planet: number) => {
-      const _authToken = authToken.getOrElse(null);
-
-      if (_authToken) {
-        const newInvite = await generateInviteInfo(planet, _authToken);
-        const newInvites = invites.map(invite =>
-          invite.planet === planet ? newInvite : invite
-        );
-        setInvites(newInvites);
-        setStoredInvites(ls, newInvites);
-      }
-    },
-    [authToken, invites, ls, setInvites]
-  );
-
-  const getNumInvites = useCallback(
-    async (isL2: boolean) => {
-      try {
-        const curPoint: number = Number(need.point(pointCursor));
-        const _authToken = authToken.getOrElse(null);
-        const _contracts = contracts.getOrElse(null);
-
-        if (_authToken && _contracts) {
-          let spawnedPoints = isL2 ? await api.getSpawned(curPoint) : [];
-
-          const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
-            _contracts,
-            curPoint
-          );
-
-          const newPending = await api.getPendingByShip(curPoint);
-          const pendingSpawns = getPendingSpawns(newPending);
-
-          const outgoingPoints = getOutgoingPoints(
-            controlledPoints,
-            getDetails
-          ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
-
-          const invitePoints = spawnedPoints
-            .concat(
-              outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
-            )
-            .filter((p: number) => !pendingSpawns.has(p));
-
-          setPendingTransactions(newPending);
-          setInvitePoints(invitePoints);
-
-          return invitePoints;
-        }
-      } catch (e) {
-        if (isDevelopment) {
-          console.warn(e);
-        }
-      }
-    },
-    [
-      api,
-      pointCursor,
-      authToken,
-      contracts,
-      controlledPoints,
-      getDetails,
-      setInvitePoints,
       setPendingTransactions,
+      updateInvite,
     ]
   );
 
@@ -497,29 +438,22 @@ export default function useRoller() {
           authToken,
           revision: nextRevision,
         });
-    const txHash = await configureKeys(
+    const txHash = await submitL2Transaction({
       api,
-      _wallet,
-      _point,
-      proxy!,
+      wallet: _wallet,
+      ship: _point,
+      proxy: proxy!,
       nonce,
       networkSeed,
+      type: 'configureKeys',
       walletType,
-      _web3,
-      breach
-    );
+      web3: _web3,
+      breach,
+    });
     const pendingTx = await api.getPendingTx(txHash);
 
     return pendingTx;
   };
-
-  interface ReticketParams {
-    point: Ship;
-    to: EthAddress;
-    manager: EthAddress;
-    fromWallet: any; // TODO: wallet type
-    toWallet: any; // TODO: wallet type
-  }
 
   const performL2Reticket = async ({
     point,
@@ -542,16 +476,17 @@ export default function useRoller() {
       toWallet,
       nextRevision
     );
-    const configureKeysRequest = await configureKeys(
+    const configureKeysRequest = await submitL2Transaction({
       api,
-      fromWallet,
-      point,
+      wallet: fromWallet,
+      ship: point,
       proxy,
       nonce,
       networkSeed,
       walletType,
-      _web3
-    );
+      type: 'configureKeys',
+      web3: _web3,
+    });
     nonce = nonce + 1;
     requests.push(configureKeysRequest);
 
@@ -587,16 +522,17 @@ export default function useRoller() {
       requests.push(registerSpawnRequest);
     }
     // 4. Transfer point
-    const transferTxRequest = await transferPointRequest(
+    const transferTxRequest = await submitL2Transaction({
       api,
-      fromWallet,
-      point,
-      proxy,
+      wallet: fromWallet,
+      ship: point,
+      proxy: 'own',
+      type: 'transferPoint',
       nonce,
-      to,
+      address: to,
       walletType,
-      _web3
-    );
+      web3: _web3,
+    });
     requests.push(transferTxRequest);
 
     const hashes = await Promise.all(requests);
@@ -724,22 +660,132 @@ export default function useRoller() {
 
       const nonce = await api.getNonce({ ship: _point, proxy });
 
-      const txHash = await transferPointRequest(
+      const txHash = await submitL2Transaction({
         api,
-        _wallet,
-        _point,
+        wallet: _wallet,
+        ship: _point,
         proxy,
         nonce,
         address,
+        type: 'transferPoint',
         walletType,
-        _web3,
-        reset || false
-      );
+        web3: _web3,
+        reset,
+      });
+
       const pendingTx = await api.getPendingTx(txHash);
 
       return pendingTx;
     },
     [api, pointCursor, wallet, web3, walletType]
+  );
+
+  const sendL2Transaction = useCallback(
+    async (params: SendL2Params) => {
+      const _point = need.point(pointCursor);
+      const _wallet = wallet.getOrElse(null);
+      const _web3 = web3.getOrElse(null);
+
+      if (!_wallet) {
+        // not using need because we want a custom error
+        throw new Error('Internal Error: Missing Wallet');
+      }
+
+      return submitL2Transaction({
+        ...params,
+        api,
+        wallet: _wallet,
+        walletType,
+        web3: _web3,
+        ship: _point,
+      });
+    },
+    [api, pointCursor, wallet, web3, walletType]
+  );
+
+  const changeSponsor = useCallback(
+    async (newSponsor: number) => {
+      const _wallet = wallet.getOrElse(null);
+      const _point = need.point(pointCursor);
+
+      if (!_wallet) {
+        // not using need because we want a custom error
+        throw new Error('Internal Error: Missing Wallet');
+      }
+
+      const pointDetails = await api.getPoint(_point);
+      const proxy = getManagerProxy(pointDetails.ownership!, _wallet.address);
+
+      if (proxy === undefined)
+        throw new Error("Error: Address doesn't match proxy");
+
+      const nonce = await api.getNonce({ ship: _point, proxy });
+
+      sendL2Transaction({
+        newSponsor,
+        nonce,
+        proxy,
+        type: 'escape',
+        ship: _point,
+      });
+    },
+    [api, sendL2Transaction, wallet, pointCursor]
+  );
+
+  const initPoint = useCallback(
+    (relationship: Relationship) => async (point: string | number) => {
+      const _wallet = wallet.getOrElse(null);
+
+      if (!_wallet) {
+        return EMPTY_POINT;
+      }
+      try {
+        const pointNum = Number(point);
+        const rawDetails = await api.getPoint(pointNum);
+        const details = toL1Details(rawDetails);
+
+        return new Point(pointNum, relationship, details, _wallet.address);
+      } catch (e) {
+        console.warn(e);
+      }
+    },
+    [api, wallet]
+  );
+
+  const getPointDetails = useCallback(
+    async (
+      ownedPoints: number[],
+      incomingPoints: number[],
+      managingPoints: number[],
+      votingPoints: number[],
+      spawningPoints: number[]
+    ) => {
+      try {
+        const allPoints = [
+          await Promise.all(ownedPoints.map(initPoint(Relationship.own))),
+          await Promise.all(
+            incomingPoints.map(initPoint(Relationship.transfer))
+          ),
+          await Promise.all(managingPoints.map(initPoint(Relationship.manage))),
+          await Promise.all(votingPoints.map(initPoint(Relationship.vote))),
+          await Promise.all(spawningPoints.map(initPoint(Relationship.spawn))),
+        ];
+
+        setPoints(
+          allPoints.reduce((acc: Points, cur: (Point | undefined)[]) => {
+            cur.forEach(p => {
+              if (p) {
+                acc[p.value] = p;
+              }
+            });
+            return acc;
+          }, {})
+        );
+      } catch (e) {
+        console.warn(e);
+      }
+    },
+    [setPoints, initPoint]
   );
 
   // On load, get initial config
@@ -759,30 +805,29 @@ export default function useRoller() {
       if (nextBatchTime - ONE_SECOND <= new Date().getTime()) {
         api.getRollerConfig().then(response => {
           setNextBatchTime(response.nextBatch);
-          getNumInvites(currentL2);
         });
       }
     }, 10000000);
 
     return () => clearInterval(interval);
-  }, [nextBatchTime, getPendingTransactions, currentL2]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [nextBatchTime, getPendingTransactions, point]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     adoptPoint,
     api,
-    performL2Reticket,
+    changeSponsor,
     config,
-    getPoints,
+    configureNetworkingKeys,
     getInvites,
+    getPoints,
+    getPointDetails,
     getPendingTransactions,
     generateInviteCodes,
     kickPoint,
     rejectPoint,
     transferPoint,
-    setProxyAddress,
-    configureNetworkingKeys,
-    getNumInvites,
-    showInvite,
     ls,
+    performL2Reticket,
+    setProxyAddress,
   };
 }

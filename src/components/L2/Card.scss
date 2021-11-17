@@ -7,6 +7,7 @@
   line-height: 24px;
   border: 1px solid rgba(0, 0, 0, 0.2);
   padding: 16px 13px;
+  position: relative;
 
   .card-title {
     font-weight: bold;
@@ -24,5 +25,22 @@
 
   &:hover {
     cursor: pointer;
+  }
+
+  .card-warning {
+    font-size: 12px;
+    font-weight: bold;
+    color: $warning-red;
+    position: absolute;
+    top: 4px;
+    right: 8px;
+
+    svg {
+      background-color: $warning-red;
+      border-radius: 7px;
+      width: 14px;
+      height: 14px;
+      margin: 4px 4px 0 0;
+    }
   }
 }

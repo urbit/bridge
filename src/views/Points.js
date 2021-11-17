@@ -317,7 +317,7 @@ export default function Points() {
       inset
       pop={pop}
       hideBack
-      header={<L2PointHeader hideTimer hideInvites showMigrate />}>
+      header={<L2PointHeader hideHome hideTimer hideInvites showMigrate />}>
       <NavHeader>
         <CopiableAddress
           text={address}
@@ -327,6 +327,7 @@ export default function Points() {
       </NavHeader>
       {incomingPoints.map(point => (
         <IncomingPoint
+          key={point}
           point={point}
           accept={() => {
             setPointCursor(Just(point));

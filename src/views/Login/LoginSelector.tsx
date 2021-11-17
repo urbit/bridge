@@ -21,7 +21,7 @@ import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 import Modal from 'components/L2/Modal';
-import L2BackButton from 'components/L2/Headers/L2BackButton';
+import HeaderButton from 'components/L2/Headers/HeaderButton';
 import './LoginSelector.scss';
 import { NAMES } from './Other';
 
@@ -147,21 +147,22 @@ export default function LoginSelector({
             <Box className="close" onClick={() => setShowModal(false)}>
               &#215;
             </Box>
-              <div className="fw-bold">Other Wallet Types</div>
-              <div className="mb5">All other wallet types are now supported via Metamask or
-              WalletConnect.</div>
-              <div className="mb5">
-                If you are you using a{' '}
-                <span className="fw-bold">
-                  Hardware Wallet, Ethereum Keystore, or Ethereum Private Key
-                </span>{' '}
-                please use Metamask going forward.
-              </div>
-              <div>
-              If you are using a{' '}
-              <span className="fw-bold">mobile wallet</span>, please use
-              WalletConnect going forward.
-              </div>
+            <div className="fw-bold">Other Wallet Types</div>
+            <div className="mb5">
+              All other wallet types are now supported via Metamask or
+              WalletConnect.
+            </div>
+            <div className="mb5">
+              If you are you using a{' '}
+              <span className="fw-bold">
+                Hardware Wallet, Ethereum Keystore, or Ethereum Private Key
+              </span>{' '}
+              please use Metamask going forward.
+            </div>
+            <div>
+              If you are using a <span className="fw-bold">mobile wallet</span>,
+              please use WalletConnect going forward.
+            </div>
           </Box>
         </Modal>
       </Grid>
@@ -173,7 +174,11 @@ export default function LoginSelector({
 
   return (
     <Box display="flex" flexDirection="column">
-      <L2BackButton className="mb4" onBack={() => setCurrentTab(undefined)} />
+      <HeaderButton
+        className="mb4"
+        icon="ChevronWest"
+        onClick={() => setCurrentTab(undefined)}
+      />
       <Window>
         <HeaderPane>
           <Row className="header-row">
