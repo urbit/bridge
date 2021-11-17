@@ -133,27 +133,6 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
         <Box>Logout</Box>
         <Icon icon="LogOut" />
       </Row>
-      {/* <Modal show={showModal} hide={() => setShowModal(false)}>
-        <Box className="migrate-modal">
-          <Box className="close" onClick={() => setShowModal(false)}>
-            &#215;
-          </Box>
-          <Box className="title">Migrating to Layer 2</Box>
-          <Box className="message">
-            We've upgraded Bridge to support Layer 2 transactions. If you don't
-            migrate now, you can always do it later.
-          </Box>
-          <Box className="warning">Migrating to Layer 2 is irreversible.</Box>
-          <Row className="buttons">
-            <Button className="cancel" onClick={() => setShowModal(false)}>
-              Cancel
-            </Button>
-            <Button className="migrate" onClick={goMigrate}>
-              Migrate
-            </Button>
-          </Row>
-        </Box>
-      </Modal> */}
     </Dropdown>
   );
 };
