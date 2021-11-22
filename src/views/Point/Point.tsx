@@ -44,8 +44,6 @@ export default function Point() {
 
   const pointRef = useRef<number | null>(null);
 
-  const invitePoints = invites[point.value] || [];
-
   const hideModal = useCallback(() => {
     if (hideMessage) {
       setSeenMissingKeys(true);

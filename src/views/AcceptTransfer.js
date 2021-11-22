@@ -1,6 +1,7 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import cn from 'classnames';
-import { Grid, Text, CheckboxInput } from 'indigo-react';
+import { Nothing } from 'folktale/maybe';
+import { Grid, Text, CheckboxInput, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 
 import { useNetwork } from 'store/network';
@@ -14,12 +15,18 @@ import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import { useLocalRouter } from 'lib/LocalRouter';
 
-import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
+import Window from 'components/L2/Window/Window';
+import HeaderPane from 'components/L2/Window/HeaderPane';
+import BodyPane from 'components/L2/Window/BodyPane';
+import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 
 import BridgeForm from 'form/BridgeForm';
 import { composeValidator, buildCheckboxValidator } from 'form/validators';
+import { Row } from '@tlon/indigo-react';
+import { useRollerStore } from 'store/rollerStore';
+import useRoller from 'lib/useRoller';
 
 function useAcceptTransfer() {
   const { contracts } = useNetwork();
@@ -51,8 +58,16 @@ function useAcceptTransfer() {
 
 export default function AcceptTransfer() {
   const { pop } = useLocalRouter();
+  const { setPointCursor } = usePointCursor();
+  const { point } = useRollerStore();
+  const { transferPoint } = useRoller();
+
+  const { wallet } = useWallet();
+  const _address = need.addressFromWallet(wallet);
 
   const name = useCurrentPointName();
+
+  const [reset, setReset] = useState(true);
 
   const { completed, bind, inputsLocked, construct } = useAcceptTransfer();
 
@@ -66,50 +81,82 @@ export default function AcceptTransfer() {
   const onValues = useCallback(
     ({ valid, values, form }) => {
       construct(!values.noReset);
+      setReset(!values.noReset);
     },
     [construct]
   );
+  const goBack = useCallback(() => {
+    setPointCursor(Nothing());
+    pop();
+  }, [pop, setPointCursor]);
+
+  const acceptTransfer = useCallback(async () => {
+    await transferPoint(_address, reset);
+    pop();
+  }, [transferPoint, pop, _address, reset]);
 
   return (
-    <View pop={pop} inset>
-      <Grid>
-        <Grid.Item full as={ViewHeader}>
-          Accept Transfer
-        </Grid.Item>
-
-        <Grid.Item
-          full
-          as={Text}
-          className={cn('f5 wrap', {
-            green3: completed,
-          })}>
-          {completed
-            ? `${name} has been accepted.`
-            : `Accept the incoming transfer of ${name}.`}
-        </Grid.Item>
-
-        <BridgeForm
-          validate={validate}
-          initialValues={initialValues}
-          onValues={onValues}>
-          {() => (
+    <View
+      pop={pop}
+      inset
+      className="cancel-transfer"
+      hideBack
+      header={<L2BackHeader hideBalance back={goBack} />}>
+      <Window>
+        <HeaderPane>
+          <Row className="header-row">
+            <h5>Accept Transfer</h5>
+          </Row>
+        </HeaderPane>
+        <BodyPane>
+          <Grid>
             <Grid.Item
               full
-              as={CheckboxInput}
-              name="noReset"
-              label="Retain proxies and key configuration, in case of transferring to self"
-              disabled={inputsLocked}
-            />
-          )}
-        </BridgeForm>
+              as={Text}
+              className={cn('f5 wrap', {
+                green3: completed,
+              })}>
+              {completed
+                ? `${name} has been accepted.`
+                : `Accept the incoming transfer of ${name}.`}
+            </Grid.Item>
 
-        <Grid.Item
-          full
-          as={InlineEthereumTransaction}
-          {...bind}
-          onReturn={() => pop()}
-        />
-      </Grid>
+            <BridgeForm
+              validate={validate}
+              initialValues={initialValues}
+              onValues={onValues}>
+              {() => (
+                <Grid.Item
+                  full
+                  as={CheckboxInput}
+                  name="noReset"
+                  label="Retain proxies and key configuration, in case of transferring to self"
+                  disabled={inputsLocked}
+                />
+              )}
+            </BridgeForm>
+
+            {point.isL2 ? (
+              <Grid.Item
+                as={Button}
+                full
+                className="set-proxy mt4"
+                center
+                solid
+                onClick={acceptTransfer}>
+                {'Accept Transfer'}
+              </Grid.Item>
+            ) : (
+              <Grid.Item
+                full
+                as={InlineEthereumTransaction}
+                {...bind}
+                onReturn={() => pop()}
+              />
+            )}
+          </Grid>
+        </BodyPane>
+      </Window>
     </View>
   );
 }

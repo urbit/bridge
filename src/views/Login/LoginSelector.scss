@@ -1,8 +1,13 @@
 @import 'style/shared/variables.scss';
 
 .login-selector {
-  width: 100%;
+  width: 482px;
   min-height: 300px;
+
+  .icon {
+    height: 14px;
+    width: 14px;
+  }
 
   .login-menu-item {
     padding: 16px 16px;
@@ -69,6 +74,20 @@
     padding: 24px;
     font-size: 14px;
     line-height: 24px;
+  }
 
+  .master-ticket {
+    .body-pane {
+      .input-form {
+        width: 100%;
+        min-height: 392px;
+
+        .ticket-input {
+          input {
+            height: 30px;
+          }
+        }
+      }
+    }
   }
 }

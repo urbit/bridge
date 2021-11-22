@@ -3,11 +3,10 @@ import { Just, Nothing } from 'folktale/maybe';
 import Result from 'folktale/result';
 import * as azimuth from 'azimuth-js';
 
-import { useNetwork } from '../network';
 import { useWallet } from 'store/wallet';
 import useRoller from 'lib/useRoller';
-
-const onlyUnique = (value, index, self) => self.indexOf(value) === index;
+import { onlyUnique } from 'lib/utils/array';
+import { useNetwork } from '../network';
 
 export default function useControlledPointsStore() {
   const { contracts } = useNetwork();
@@ -69,11 +68,19 @@ export default function useControlledPointsStore() {
         );
       } else {
         getPointDetails(
-          (ownedPointsL1 || []).concat(ownedPointsL2 || []),
-          (incomingPointsL1 || []).concat(incomingPointsL2 || []),
-          (managingPointsL1 || []).concat(managingPointsL2 || []),
-          (votingPointsL1 || []).concat(votingPointsL2 || []),
-          (spawningPointsL1 || []).concat(spawningPointsL2 || [])
+          (ownedPointsL1 || []).concat(ownedPointsL2 || []).filter(onlyUnique),
+          (incomingPointsL1 || [])
+            .concat(incomingPointsL2 || [])
+            .filter(onlyUnique),
+          (managingPointsL1 || [])
+            .concat(managingPointsL2 || [])
+            .filter(onlyUnique),
+          (votingPointsL1 || [])
+            .concat(votingPointsL2 || [])
+            .filter(onlyUnique),
+          (spawningPointsL1 || [])
+            .concat(spawningPointsL2 || [])
+            .filter(onlyUnique)
         );
 
         _setControlledPoints(

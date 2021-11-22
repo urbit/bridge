@@ -39,7 +39,7 @@ const TransactionHistory = () => {
   const filterByPoint = useMemo(() => {
     return data?.filterByPoint.matchWith({
       Nothing: () => null,
-      Just: (p: number) => ob.patp(p.value).replace('~', ''),
+      Just: (p: any) => ob.patp(p.value),
     });
   }, [data]);
 
@@ -112,7 +112,7 @@ const TransactionHistory = () => {
                 toggleOpen={() => setDropdownOpen(!dropdownOpen)}>
                 <Box className="divider" />
                 <Box className="points">
-                  <Row className="entry" onClick={() => selectPatp(null)}>
+                  <Row className="entry mono" onClick={() => selectPatp(null)}>
                     <Box>{shortAddress}</Box>
                     <Row>
                       <Box
@@ -125,10 +125,10 @@ const TransactionHistory = () => {
                   {txPatps.map(patp => {
                     return (
                       <Row
-                        className="entry"
+                        className="entry mono"
                         onClick={() => selectPatp(patp)}
                         key={patp}>
-                        <Box>{patp}</Box>
+                        <Box>~{patp}</Box>
                         <Row>
                           <Box className="sigil">
                             <Sigil

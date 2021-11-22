@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import { Box, LoadingSpinner, Row } from '@tlon/indigo-react';
-
-import { isStar } from 'lib/utils/point';
+import { Nothing } from 'folktale/maybe';
 
 import { useHistory } from 'store/history';
 import { useRollerStore } from 'store/rollerStore';
@@ -13,6 +12,7 @@ import { ReactComponent as InviteIcon } from 'assets/invite.svg';
 import HeaderButton from './HeaderButton';
 import AccountsDropdown from '../Dropdowns/AccountsDropdown';
 import './L2PointHeader.scss';
+import LayerIndicator from '../LayerIndicator';
 
 export interface L2PointHeaderProps {
   numInvites?: number;
@@ -23,18 +23,22 @@ export interface L2PointHeaderProps {
 }
 
 const L2PointHeader = ({
-  numInvites,
+  numInvites = 0,
   hideHome = false,
   hideTimer = false,
   hideInvites = false,
   showMigrate = false,
 }: L2PointHeaderProps) => {
-  const { point, pendingTransactions } = useRollerStore();
+  const { point, pendingTransactions, invitesLoading } = useRollerStore();
   const { nextRoll } = useTimerStore();
-  const { pointCursor }: any = usePointCursor();
+  const { pointCursor, setPointCursor }: any = usePointCursor();
 
   const { popTo, push, names }: any = useHistory();
 
+  const goToHome = useCallback(() => {
+    popTo(names.POINTS);
+    setPointCursor(Nothing());
+  }, [popTo, setPointCursor, names]);
   const goToInvites = useCallback(() => push(names.INVITE_COHORT), [
     push,
     names.INVITE_COHORT,
@@ -45,25 +49,25 @@ const L2PointHeader = ({
   );
 
   const showInvites =
-    !hideInvites && Boolean(pointCursor?.value && isStar(pointCursor.value));
+    !hideInvites &&
+    Boolean(pointCursor?.value && point.isStar && point.isL2Spawn);
 
   return (
     <Row className="l2-point-header">
       <Row>
         {!hideHome && (
-          <HeaderButton
-            className="home"
-            icon="Home"
-            onClick={() => popTo(names.POINTS)}
-          />
+          <HeaderButton className="home" icon="Home" onClick={goToHome} />
         )}
         <AccountsDropdown showMigrate={showMigrate} />
+        {point.value > -1 && (
+          <LayerIndicator size="lg" layer={point.layer} className="ml2" />
+        )}
       </Row>
       <Row className="info">
         {showInvites && point.showInvites && (
           <Row onClick={goToInvites} className="invites">
             <InviteIcon />
-            {numInvites === undefined ? (
+            {invitesLoading ? (
               <LoadingSpinner foreground="rgba(0,0,0,0.3)" background="white" />
             ) : (
               numInvites
