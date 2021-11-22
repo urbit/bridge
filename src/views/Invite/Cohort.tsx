@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { Grid, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 import {
@@ -89,7 +89,10 @@ export default function InviteCohort() {
   const [page, setPage] = useState(0);
 
   const { construct, unconstruct, completed, bind } = useIssueChild();
-  const invitePoints: Invite[] = invites[point.value] || [];
+  const invitePoints: Invite[] = useMemo(() => invites[point.value] || [], [
+    invites,
+    point,
+  ]);
 
   // Set up the invite spawn if on L1
   useEffect(() => {
@@ -233,14 +236,7 @@ export default function InviteCohort() {
       setInviteGeneratingNum(0);
     };
     generateAndDownload();
-  }, [
-    getInvites,
-    setError,
-    setLoading,
-    setInviteGeneratingNum,
-    currentL2,
-    point,
-  ]);
+  }, [getInvites, setError, setLoading, setInviteGeneratingNum, point]);
 
   const goNextPage = useCallback(() => {
     setPage(page + 1);
