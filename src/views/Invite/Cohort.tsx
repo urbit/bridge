@@ -207,7 +207,7 @@ export default function InviteCohort() {
   const downloadCsv = useCallback(() => {
     const generateAndDownload = async () => {
       setLoading(true);
-      const invites = await getInvites(currentL2);
+      const invites = await getInvites();
       if (invites) {
         const csv = invites.reduce(
           (csvData, { ticket, planet }, ind) =>
