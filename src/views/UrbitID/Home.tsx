@@ -7,7 +7,7 @@ import { PROXY_TYPE } from 'lib/proxy';
 import * as need from 'lib/need';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { convertToInt } from 'lib/convertToInt';
-import { ETH_ZERO_ADDR } from 'lib/constants';
+import { ETH_ZERO_ADDR, MASTER_TICKET_TOOLTIP } from 'lib/constants';
 import { abbreviateAddress } from 'lib/utils/address';
 import { downloadWallet } from 'lib/invite';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
@@ -23,6 +23,8 @@ import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
 import PaperBuilder from 'components/PaperBuilder';
 
 import './UrbitID.scss';
+import LayerIndicator from 'components/L2/LayerIndicator';
+import WithTooltip from 'components/WithTooltip';
 
 export default function UrbitIDHome() {
   const { push, names }: any = useLocalRouter();
@@ -59,7 +61,6 @@ export default function UrbitIDHome() {
 
   const noManagement = details.managementProxy === ETH_ZERO_ADDR;
   const noSpawn = details.spawnProxy === ETH_ZERO_ADDR;
-  const showSpawn = point.isL1 && !point.isL2Spawn;
 
   return (
     <Window className="id-home">
@@ -125,40 +126,50 @@ export default function UrbitIDHome() {
           </Row>
         )}
 
-        {point.isParent && networkRevision !== 0 && showSpawn && (
+        {point.isParent && networkRevision !== 0 && (
           <Row className="between-row management">
             <Box>
               <Box>Spawn Proxy Address</Box>
               <div className="mt1 mono black subtitle">
-                {noSpawn ? 'Unset' : abbreviateAddress(details.spawnProxy)}
+                {noSpawn
+                  ? point.isL2Spawn
+                    ? 'Layer 2'
+                    : 'Unset'
+                  : abbreviateAddress(details.spawnProxy)}
               </div>
             </Box>
-            <Row>
-              <Button
-                className="secondary"
-                onClick={() => goSetProxy(PROXY_TYPE.SPAWN)}>
-                {noSpawn ? 'Set' : 'Change'}
-              </Button>
-              {!noSpawn && (
-                <CopiableWithTooltip
-                  text={details.spawnProxy}
-                  className="copy-button"
-                />
-              )}
-            </Row>
+            {point.isL2Spawn ? (
+              <LayerIndicator size="lg" layer={2} />
+            ) : (
+              <Row>
+                <Button
+                  className="secondary"
+                  onClick={() => goSetProxy(PROXY_TYPE.SPAWN)}>
+                  {noSpawn ? 'Set' : 'Change'}
+                </Button>
+                {!noSpawn && (
+                  <CopiableWithTooltip
+                    text={details.spawnProxy}
+                    className="copy-button"
+                  />
+                )}
+              </Row>
+            )}
           </Row>
         )}
 
         {isOwner && (
           <Row className="between-row management">
-            <Box>
-              <Box>Master Ticket</Box>
-              <Box className="subtitle">
-                {isMasterTicket
-                  ? 'Reset Master Ticket and all other keys'
-                  : 'Transfer to Master Ticket, resetting all keys'}
+            <WithTooltip content={MASTER_TICKET_TOOLTIP}>
+              <Box>
+                <Box>Master Ticket</Box>
+                <Box className="subtitle">
+                  {isMasterTicket
+                    ? 'Reset Master Ticket and all other keys'
+                    : 'Transfer to Master Ticket, resetting all keys'}
+                </Box>
               </Box>
-            </Box>
+            </WithTooltip>
             <Button className="secondary" onClick={goResetKeys}>
               {isMasterTicket ? 'Reset' : 'Transfer'}
             </Button>

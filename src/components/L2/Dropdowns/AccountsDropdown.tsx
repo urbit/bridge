@@ -14,7 +14,6 @@ import { clearInvitesStorage } from 'store/storage/roller';
 import { useRollerStore } from 'store/rollerStore';
 
 import { abbreviateAddress } from 'lib/utils/address';
-import useCurrentPermissions from 'lib/useCurrentPermissions';
 
 import Dropdown from './Dropdown';
 import './AccountsDropdown.scss';
@@ -57,17 +56,18 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
     push,
   ]);
 
-  const goIssuePoint = useCallback(() => push(names.ISSUE_CHILD), [
-    names.ISSUE_CHILD,
-    push,
-  ]);
+  const goSpawn = useCallback(() => {
+    if (point.isL2Spawn && point.isStar) {
+      push(names.INVITE_COHORT);
+    } else {
+      push(names.ISSUE_CHILD);
+    }
+  }, [names, push, point]);
 
   const onLogout = () => {
     clearInvitesStorage();
     reset();
   };
-
-  const { canSpawn, isParent, isStar } = useCurrentPermissions();
 
   const hasL1Points = Boolean(pointList.find(({ layer }) => layer === 1));
   const showMigrateOption = useMemo(() => {
@@ -123,9 +123,15 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
           <Icon icon="Bitcoin" />
         </Row>
       )}
-      {isParent && canSpawn && (
-        <Row className="entry" onClick={goIssuePoint}>
-          <Box>{isStar ? 'Generate Invites' : 'Spawn Stars'}</Box>
+      {point.isParent && point.canSpawn && (
+        <Row className="entry" onClick={goSpawn}>
+          <Box>
+            {point.isStar
+              ? point.isL2Spawn
+                ? 'Generate Invites'
+                : 'Spawn Planets'
+              : 'Spawn Stars'}
+          </Box>
           <Icon icon="Plus" />
         </Row>
       )}

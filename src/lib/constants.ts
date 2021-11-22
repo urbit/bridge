@@ -167,6 +167,12 @@ const DUMMY_L2_ADDRESS = '0x1111111111111111111111111111111111111111';
 const ONE_SECOND = 1000;
 const TWO_SECONDS = 2000;
 
+const MASTER_TICKET_TOOLTIP =
+  'Your Master Ticket is your 4-word password for your Urbit';
+
+const PASSPORT_TOOLTIP =
+  'Your Passport contains all of the address information for your wallet';
+
 export {
   CHECK_BLOCK_EVERY_MS,
   DEFAULT_GAS_PRICE_GWEI,
@@ -208,4 +214,6 @@ export {
   DUMMY_L2_ADDRESS,
   ONE_SECOND,
   TWO_SECONDS,
+  MASTER_TICKET_TOOLTIP,
+  PASSPORT_TOOLTIP,
 };

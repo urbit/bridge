@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import cn from 'classnames';
 import { Grid } from 'indigo-react';
-import { Box, Button, Icon, Row, Text } from '@tlon/indigo-react';
+import { Box, Button, Icon, LoadingSpinner, Text } from '@tlon/indigo-react';
 import { useHistory } from 'store/history';
 import { Just, Nothing } from 'folktale/maybe';
 import { FORM_ERROR } from 'final-form';
@@ -17,9 +17,6 @@ import * as need from 'lib/need';
 import { useWalletConnect } from 'lib/useWalletConnect';
 import useLoginView from 'lib/useLoginView';
 
-import Window from 'components/L2/Window/Window';
-import HeaderPane from 'components/L2/Window/HeaderPane';
-import BodyPane from 'components/L2/Window/BodyPane';
 import Modal from 'components/L2/Modal';
 import HeaderButton from 'components/L2/Headers/HeaderButton';
 import './LoginSelector.scss';
@@ -53,6 +50,7 @@ export default function LoginSelector({
 
   const { push, names }: any = useHistory();
   const [showModal, setShowModal] = useState(false);
+  const [metamaskSelected, setMetamaskSelected] = useState(false);
 
   const {
     setWallet,
@@ -74,6 +72,7 @@ export default function LoginSelector({
 
   const connectMetamask = useCallback(async () => {
     try {
+      setMetamaskSelected(true);
       resetWallet();
       setWalletType(WALLET_TYPES.METAMASK);
       setPointCursor(Nothing());
@@ -94,6 +93,7 @@ export default function LoginSelector({
       setWalletType(WALLET_TYPES.METAMASK);
       goHome();
     } catch (e) {
+      setMetamaskSelected(false);
       console.error(e);
       return { [FORM_ERROR]: (e as any).message };
     }
@@ -104,6 +104,7 @@ export default function LoginSelector({
     setWalletType,
     resetWallet,
     setPointCursor,
+    setMetamaskSelected,
     goHome,
   ]);
 
@@ -118,6 +119,8 @@ export default function LoginSelector({
     }
   };
 
+  const loader = <LoadingSpinner background="#bce2ff" foreground="#219DFF" />;
+
   if (!currentTab) {
     return (
       <Grid className={className}>
@@ -128,7 +131,9 @@ export default function LoginSelector({
               className={cn('f5 pv3 rel pointer login-menu-item')}
               onClick={selectOption(option.value)}>
               {option.text}
-              {option.menuIcon}
+              {option.value === NAMES.METAMASK && metamaskSelected
+                ? loader
+                : option.menuIcon}
             </Grid.Item>
           </React.Fragment>
         ))}
@@ -170,32 +175,15 @@ export default function LoginSelector({
   }
 
   const Tab = views[currentTab];
-  const currentOption = options.find(({ value }) => value === currentTab);
 
   return (
-    <Box display="flex" flexDirection="column">
+    <Box className="flex-col login-selector">
       <HeaderButton
         className="mb4"
         icon="ChevronWest"
         onClick={() => setCurrentTab(undefined)}
       />
-      <Window>
-        <HeaderPane>
-          <Row className="header-row">
-            <h5>{currentOption?.text}</h5>
-            {currentOption?.headerIcon}
-          </Row>
-        </HeaderPane>
-        <BodyPane className="login-body-pane">
-          <Grid.Item
-            full
-            as={Tab}
-            {...rest}
-            goHome={goHome}
-            className="login-selector"
-          />
-        </BodyPane>
-      </Window>
+      <Grid.Item full as={Tab} {...rest} goHome={goHome} />
     </Box>
   );
 }

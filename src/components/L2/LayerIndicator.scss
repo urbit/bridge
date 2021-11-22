@@ -12,12 +12,15 @@
     background-color: black;
   }
 
+  &.sm, &.md, &.lg {
+    text-align: center;
+  }
+
   &.sm {
     height: 16px;
     padding: 2px 4px 0;
     font-size: 12px;
     width: 14px;
-    text-align: center;
   }
 
   &.md {
@@ -26,6 +29,14 @@
     font-size: 14px;
     margin-right: 4px;
     width: 18px;
-    text-align: center;
+  }
+
+  &.lg {
+    height: 24px;
+    padding: 7px 7px 0;
+    font-size: 14px;
+    margin-right: 4px;
+    width: 18px;
+    border-radius: $medium-border-radius;
   }
 }

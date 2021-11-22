@@ -24,7 +24,7 @@ const L2BackHeader = ({
   className = '',
   hideBalance = false,
 }: L2BackHeaderProps) => {
-  const { point } = useRollerStore(store => store);
+  const { point } = useRollerStore();
   const { nextRoll } = useTimerStore();
   const { pop }: any = useHistory();
   const { wallet }: any = useWallet();

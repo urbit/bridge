@@ -11,10 +11,10 @@ export const isStar = (point: number) =>
 export const isPlanet = (point: number) =>
   azimuth.getPointSize(point) === azimuth.PointSize.Planet;
 
-export const toL1Details = (point: L2Point): L1Point => {
+export const toL1Details = (point?: L2Point): L1Point => {
   return {
     layer: point?.dominion === 'l2' ? 2 : 1,
-    isL2Spawn: point.dominion === 'spawn' || point.dominion === 'l2',
+    isL2Spawn: point?.dominion === 'spawn' || point?.dominion === 'l2',
     active: true,
     authenticationKey: point?.network?.keys?.auth,
     continuityNumber: point?.network?.rift,

@@ -55,6 +55,7 @@ import {
 import Point, { Points, Relationship } from './types/Point';
 import { useTimerStore } from 'store/timerStore';
 import { ReticketParams, SendL2Params } from './types/L2Transaction';
+import { L1Point } from './types/L1Point';
 
 const ONE_SECOND = 1000;
 
@@ -89,10 +90,12 @@ export default function useRoller() {
   const {
     nextBatchTime,
     point,
+    removeInvite,
     setNextBatchTime,
     setPendingTransactions,
     setInvites,
     setInviteGeneratingNum,
+    setInvitesLoading,
     setPoints,
     updateInvite,
   } = useRollerStore();
@@ -135,6 +138,7 @@ export default function useRoller() {
     api
       .getRollerConfig()
       .then(response => {
+        // console.log('CONFIG', response)
         setConfig(response);
         setNextBatchTime(response.nextBatch);
       })
@@ -318,6 +322,7 @@ export default function useRoller() {
   const getInvites = useCallback(
     async (isL2: boolean) => {
       try {
+        setInvitesLoading(true);
         const curPoint: number = Number(need.point(pointCursor));
         const _authToken = authToken.getOrElse(null);
         const _contracts = contracts.getOrElse(null);
@@ -343,7 +348,13 @@ export default function useRoller() {
             .concat(
               outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
             )
-            .filter((p: number) => !pendingSpawns.has(p));
+            .filter((p: number) => !pendingSpawns.has(p))
+            .sort();
+
+          setInvites(
+            curPoint,
+            invitePlanets.map(p => inviteTemplate(p))
+          );
 
           const newInvites: Invite[] = [];
           // Iterate over all of the stored invites, generating wallet info as necessary
@@ -367,6 +378,8 @@ export default function useRoller() {
             ) {
               newInvites.push(invite);
               updateInvite(curPoint, invite);
+            } else {
+              removeInvite(curPoint, invite.planet);
             }
 
             if (storedInvite) {
@@ -374,7 +387,7 @@ export default function useRoller() {
             }
           }
           setInvites(curPoint, newInvites);
-
+          setInvitesLoading(false);
           return newInvites;
         }
       } catch (error) {
@@ -389,7 +402,9 @@ export default function useRoller() {
       getDetails,
       pointCursor,
       ls,
+      removeInvite,
       setInvites,
+      setInvitesLoading,
       setInviteGeneratingNum,
       setPendingTransactions,
       updateInvite,
@@ -739,17 +754,27 @@ export default function useRoller() {
       if (!_wallet) {
         return EMPTY_POINT;
       }
+
+      const pointNum = Number(point);
       try {
-        const pointNum = Number(point);
         const rawDetails = await api.getPoint(pointNum);
         const details = toL1Details(rawDetails);
 
         return new Point(pointNum, relationship, details, _wallet.address);
       } catch (e) {
         console.warn(e);
+
+        // try getting the details from L1
+        if (getDetails) {
+          const details: L1Point = getDetails(point);
+          return new Point(pointNum, relationship, details, _wallet.address);
+        } else {
+          const details: L1Point = toL1Details();
+          return new Point(pointNum, relationship, details, _wallet.address);
+        }
       }
     },
-    [api, wallet]
+    [api, wallet, getDetails]
   );
 
   const getPointDetails = useCallback(
@@ -798,6 +823,8 @@ export default function useRoller() {
   }, [config, fetchConfig]);
 
   useEffect(() => {
+    const time = isDevelopment ? 10000 : ONE_SECOND;
+
     const interval = setInterval(() => {
       const nextRoll = getTimeToNextBatch(nextBatchTime, new Date().getTime());
       setNextRoll(nextRoll);
@@ -807,7 +834,7 @@ export default function useRoller() {
           setNextBatchTime(response.nextBatch);
         });
       }
-    }, 10000000);
+    }, time);
 
     return () => clearInterval(interval);
   }, [nextBatchTime, getPendingTransactions, point]); // eslint-disable-line react-hooks/exhaustive-deps
