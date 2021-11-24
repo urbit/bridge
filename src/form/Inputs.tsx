@@ -33,7 +33,7 @@ const PLACEHOLDER_EMAIL = 'email@example.com';
 
 const formatPat = buildFormatter([downcase, ensurePatFormat]);
 
-export function TicketInput({ name, hidden, ...rest }) {
+export function TicketInput({ name, hidden, className, ...rest }) {
   const {
     meta: { valid, error, validating, touched, active },
   } = useField(name, {
@@ -48,6 +48,7 @@ export function TicketInput({ name, hidden, ...rest }) {
 
   return (
     <Input
+      className={className}
       type={hidden ? 'password' : 'text'}
       name={name}
       obscure={value => value.replace(/[^~-]+/g, '••••••')}

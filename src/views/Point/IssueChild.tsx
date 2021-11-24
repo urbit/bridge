@@ -202,7 +202,7 @@ export default function IssueChild() {
                             <Box className={'patp-badge-container'}>
                               <Box className="badges">
                                 {candidates.map(p => (
-                                  <PatpBadge className={'patp-badge'}>
+                                  <PatpBadge className={'patp-badge'} key={p}>
                                     {p}
                                   </PatpBadge>
                                 ))}

@@ -55,6 +55,7 @@ import {
 import Point, { Points, Relationship } from './types/Point';
 import { useTimerStore } from 'store/timerStore';
 import { ReticketParams, SendL2Params } from './types/L2Transaction';
+import { L1Point } from './types/L1Point';
 
 const ONE_SECOND = 1000;
 
@@ -89,10 +90,12 @@ export default function useRoller() {
   const {
     nextBatchTime,
     point,
+    removeInvite,
     setNextBatchTime,
     setPendingTransactions,
     setInvites,
     setInviteGeneratingNum,
+    setInvitesLoading,
     setPoints,
     updateInvite,
   } = useRollerStore();
@@ -135,6 +138,7 @@ export default function useRoller() {
     api
       .getRollerConfig()
       .then(response => {
+        // console.log('CONFIG', response)
         setConfig(response);
         setNextBatchTime(response.nextBatch);
       })
@@ -315,86 +319,97 @@ export default function useRoller() {
     return inviteTemplate(planet, ticket, inviteWallet.ownership.keys.address);
   };
 
-  const getInvites = useCallback(
-    async (isL2: boolean) => {
-      try {
-        const curPoint: number = Number(need.point(pointCursor));
-        const _authToken = authToken.getOrElse(null);
-        const _contracts = contracts.getOrElse(null);
+  const getInvites = useCallback(async () => {
+    try {
+      setInvitesLoading(true);
+      const curPoint: number = Number(need.point(pointCursor));
+      const _authToken = authToken.getOrElse(null);
+      const _contracts = contracts.getOrElse(null);
 
-        if (_authToken && _contracts) {
-          const spawnedPoints = isL2 ? await api.getSpawned(curPoint) : [];
+      if (_authToken && _contracts) {
+        const spawnedPoints = point.isL2Spawn
+          ? await api.getSpawned(curPoint)
+          : [];
 
-          const newPending = await api.getPendingByShip(curPoint);
-          setPendingTransactions(newPending);
-          const pendingSpawns = getPendingSpawns(newPending);
+        const newPending = await api.getPendingByShip(curPoint);
+        setPendingTransactions(newPending);
+        const pendingSpawns = getPendingSpawns(newPending);
 
-          const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
-            _contracts,
-            curPoint
-          );
+        const availablePoints = await azimuth.azimuth.getUnspawnedChildren(
+          _contracts,
+          curPoint
+        );
 
-          const outgoingPoints = getOutgoingPoints(
-            controlledPoints,
-            getDetails
-          ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
+        const outgoingPoints = getOutgoingPoints(
+          controlledPoints,
+          getDetails
+        ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
 
-          const invitePlanets = spawnedPoints
-            .concat(
-              outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
-            )
-            .filter((p: number) => !pendingSpawns.has(p));
+        const invitePlanets = spawnedPoints
+          .concat(
+            outgoingPoints.filter((p: number) => !spawnedPoints.includes(p))
+          )
+          .filter((p: number) => !pendingSpawns.has(p))
+          .sort();
 
-          const newInvites: Invite[] = [];
-          // Iterate over all of the stored invites, generating wallet info as necessary
-          const storedInvites = getStoredInvites(ls);
+        setInvites(
+          curPoint,
+          invitePlanets.map(p => inviteTemplate(p))
+        );
 
-          for (let i = 0; i < invitePlanets.length; i++) {
-            setInviteGeneratingNum(i + 1);
-            const planet = invitePlanets[i];
-            const storedInvite = storedInvites[planet];
-            const invite =
-              storedInvite || (await generateInviteInfo(planet, _authToken));
+        const newInvites: Invite[] = [];
+        // Iterate over all of the stored invites, generating wallet info as necessary
+        const storedInvites = getStoredInvites(ls);
 
-            // TODO: check if the invite point's owner still matches the deterministic wallet address
-            const planetInfo = await api.getPoint(planet);
-            setStoredInvite(ls, invite);
+        for (let i = 0; i < invitePlanets.length; i++) {
+          setInviteGeneratingNum(i + 1);
+          const planet = invitePlanets[i];
+          const storedInvite = storedInvites[planet];
+          const invite =
+            storedInvite || (await generateInviteInfo(planet, _authToken));
 
-            if (
-              invite.owner.toLowerCase() ===
-                planetInfo.ownership?.owner?.address ||
-              planetInfo.ownership?.transferProxy?.address !== ETH_ZERO_ADDR
-            ) {
-              newInvites.push(invite);
-              updateInvite(curPoint, invite);
-            }
+          // TODO: check if the invite point's owner still matches the deterministic wallet address
+          const planetInfo = await api.getPoint(planet);
+          setStoredInvite(ls, invite);
 
-            if (storedInvite) {
-              setStoredInvite(ls, invite);
-            }
+          if (
+            invite.owner.toLowerCase() ===
+              planetInfo.ownership?.owner?.address ||
+            planetInfo.ownership?.transferProxy?.address !== ETH_ZERO_ADDR
+          ) {
+            newInvites.push(invite);
+            updateInvite(curPoint, invite);
+          } else {
+            removeInvite(curPoint, invite.planet);
           }
-          setInvites(curPoint, newInvites);
 
-          return newInvites;
+          if (storedInvite) {
+            setStoredInvite(ls, invite);
+          }
         }
-      } catch (error) {
-        console.warn('ERROR GETTING INVITES', error);
+        setInvites(curPoint, newInvites);
+        setInvitesLoading(false);
+        return newInvites;
       }
-    },
-    [
-      api,
-      authToken,
-      contracts,
-      controlledPoints,
-      getDetails,
-      pointCursor,
-      ls,
-      setInvites,
-      setInviteGeneratingNum,
-      setPendingTransactions,
-      updateInvite,
-    ]
-  );
+    } catch (error) {
+      console.warn('ERROR GETTING INVITES', error);
+    }
+  }, [
+    api,
+    authToken,
+    contracts,
+    controlledPoints,
+    getDetails,
+    pointCursor,
+    ls,
+    point,
+    removeInvite,
+    setInvites,
+    setInvitesLoading,
+    setInviteGeneratingNum,
+    setPendingTransactions,
+    updateInvite,
+  ]);
 
   interface ConfigureKeysParams {
     breach: boolean;
@@ -739,17 +754,27 @@ export default function useRoller() {
       if (!_wallet) {
         return EMPTY_POINT;
       }
+
+      const pointNum = Number(point);
       try {
-        const pointNum = Number(point);
         const rawDetails = await api.getPoint(pointNum);
         const details = toL1Details(rawDetails);
 
         return new Point(pointNum, relationship, details, _wallet.address);
       } catch (e) {
         console.warn(e);
+
+        // try getting the details from L1
+        if (getDetails) {
+          const details: L1Point = getDetails(point);
+          return new Point(pointNum, relationship, details, _wallet.address);
+        } else {
+          const details: L1Point = toL1Details();
+          return new Point(pointNum, relationship, details, _wallet.address);
+        }
       }
     },
-    [api, wallet]
+    [api, wallet, getDetails]
   );
 
   const getPointDetails = useCallback(
@@ -798,6 +823,8 @@ export default function useRoller() {
   }, [config, fetchConfig]);
 
   useEffect(() => {
+    const time = isDevelopment ? 10000 : ONE_SECOND;
+
     const interval = setInterval(() => {
       const nextRoll = getTimeToNextBatch(nextBatchTime, new Date().getTime());
       setNextRoll(nextRoll);
@@ -807,7 +834,7 @@ export default function useRoller() {
           setNextBatchTime(response.nextBatch);
         });
       }
-    }, 10000000);
+    }, time);
 
     return () => clearInterval(interval);
   }, [nextBatchTime, getPendingTransactions, point]); // eslint-disable-line react-hooks/exhaustive-deps

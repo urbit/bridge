@@ -8,6 +8,17 @@
     font-family: "Source Code Pro", "Roboto mono", "Courier New", monospace;
   }
 
+  .points {
+    max-height: 160px;
+    overflow-y: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   .content-border {
     .dropdown-content {
       .entry, .current-address {

@@ -44,8 +44,6 @@ export default function Point() {
 
   const pointRef = useRef<number | null>(null);
 
-  const invitePoints = invites[point.value] || [];
-
   const hideModal = useCallback(() => {
     if (hideMessage) {
       setSeenMissingKeys(true);
@@ -69,12 +67,12 @@ export default function Point() {
     const getTransactions = async () => {
       setLoading(true);
       getPendingTransactions();
-      getInvites(point.isL2);
+      getInvites();
       setTimeout(() => setLoading(false), 100);
     };
 
     await getTransactions();
-  }, [point, getInvites, getPendingTransactions, setLoading]);
+  }, [getInvites, getPendingTransactions, setLoading]);
 
   useEffect(() => {
     loadL1Info();

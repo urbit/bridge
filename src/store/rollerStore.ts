@@ -17,6 +17,7 @@ export interface RollerStore {
   invites: Invites;
   recentlyCompleted: number;
   inviteGeneratingNum: number;
+  invitesLoading: boolean;
   setNextBatchTime: (nextBatchTime: number) => void;
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) => void;
   setPoint: (point: number) => void;
@@ -24,6 +25,8 @@ export interface RollerStore {
   setInvites: (points: number, invites: Invite[]) => void;
   setInviteGeneratingNum: (numGenerating: number) => void;
   updateInvite: (point: number, invite: Invite) => void;
+  removeInvite: (point: number, planet: number) => void;
+  setInvitesLoading: (invitesLoading: boolean) => void;
 }
 
 export const useRollerStore = create<RollerStore>(set => ({
@@ -35,6 +38,7 @@ export const useRollerStore = create<RollerStore>(set => ({
   invites: {},
   recentlyCompleted: 0,
   inviteGeneratingNum: 0,
+  invitesLoading: false,
   setNextBatchTime: (nextBatchTime: number) => set(() => ({ nextBatchTime })),
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) =>
     set(state => {
@@ -68,4 +72,14 @@ export const useRollerStore = create<RollerStore>(set => ({
       );
       return { invites: Object.assign(state.invites, newInvites) };
     }),
+  removeInvite: (point: number, planet: number) =>
+    set(state => {
+      const newInvites: Invites = {};
+      newInvites[point] = state.invites[point]?.filter(
+        i => i.planet !== planet
+      );
+      return { invites: Object.assign(state.invites, newInvites) };
+    }),
+  setInvitesLoading: (invitesLoading: boolean) =>
+    set(() => ({ invitesLoading })),
 }));

@@ -77,7 +77,7 @@ export default function ActiveView({ className, goPoint }) {
     .filter(p => 255 < p && p < 65536);
 
   return (
-    <Grid full className={cn('f5', className)}>
+    <Grid className={cn('f5', className)}>
       <Grid.Item className="pv3 " cols={[1, 6]} third={1}>
         Point
       </Grid.Item>

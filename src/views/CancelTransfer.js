@@ -1,11 +1,14 @@
 import React, { useCallback } from 'react';
 import cn from 'classnames';
-import { Grid, Text } from 'indigo-react';
+import { Grid, Text, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
+import { Nothing } from 'folktale/maybe';
+import { Row } from '@tlon/indigo-react';
 
 import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
+import { useRollerStore } from 'store/rollerStore';
 
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -13,10 +16,14 @@ import useCurrentPointName from 'lib/useCurrentPointName';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { ETH_ZERO_ADDR, GAS_LIMITS } from 'lib/constants';
 import useLifecycle from 'lib/useLifecycle';
+import useRoller from 'lib/useRoller';
 
-import ViewHeader from 'components/ViewHeader';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
-import View from 'components/ViewHeader';
+import View from 'components/View';
+import Window from 'components/L2/Window/Window';
+import HeaderPane from 'components/L2/Window/HeaderPane';
+import BodyPane from 'components/L2/Window/BodyPane';
+import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 
 function useCancelTransfer() {
   const { contracts } = useNetwork();
@@ -48,6 +55,8 @@ function useCancelTransfer() {
 function AdminCancelTransfer() {
   const { pop } = useLocalRouter();
   const { getDetails } = usePointCache();
+  const { point } = useRollerStore();
+  const { setProxyAddress } = useRoller();
   const { pointCursor } = usePointCursor();
   const _point = need.point(pointCursor);
 
@@ -56,38 +65,68 @@ function AdminCancelTransfer() {
 
   const { completed, bind } = useCancelTransfer();
 
+  const cancelTransfer = useCallback(async () => {
+    await setProxyAddress('transfer', ETH_ZERO_ADDR);
+    pop();
+  }, [setProxyAddress, pop]);
+
   return (
-    <Grid>
-      <Grid.Item full as={ViewHeader}>
-        Cancel Outgoing Transfer
-      </Grid.Item>
+    <Window>
+      <HeaderPane>
+        <Row className="header-row">
+          <h5>Cancel Outgoing Transfer</h5>
+        </Row>
+      </HeaderPane>
+      <BodyPane>
+        <Grid.Item
+          full
+          as={Text}
+          className={cn('f5 wrap', {
+            green3: completed,
+          })}>
+          {completed
+            ? `The outgoing transfer of ${name} has been cancelled.`
+            : `Cancel the outgoing transfer of ${name} to ${_details.transferProxy}.`}
+        </Grid.Item>
 
-      <Grid.Item
-        full
-        as={Text}
-        className={cn('f5 wrap', {
-          green3: completed,
-        })}>
-        {completed
-          ? `The outgoing transfer of ${name} has been cancelled.`
-          : `Cancel the outgoing transfer of ${name} to ${_details.transferProxy}.`}
-      </Grid.Item>
-
-      <Grid.Item
-        full
-        as={InlineEthereumTransaction}
-        {...bind}
-        onReturn={() => pop()}
-      />
-    </Grid>
+        {point.isL2 ? (
+          <Grid.Item
+            as={Button}
+            full
+            className="set-proxy mt4"
+            center
+            solid
+            onClick={cancelTransfer}>
+            {'Cancel'}
+          </Grid.Item>
+        ) : (
+          <Grid.Item
+            full
+            as={InlineEthereumTransaction}
+            {...bind}
+            onReturn={() => pop()}
+          />
+        )}
+      </BodyPane>
+    </Window>
   );
 }
 
 export default function CancelTransfer() {
   const { pop } = useLocalRouter();
+  const { setPointCursor } = usePointCursor();
+
+  const goBack = useCallback(() => {
+    setPointCursor(Nothing());
+    pop();
+  }, [pop, setPointCursor]);
 
   return (
-    <View pop={pop} inset>
+    <View
+      pop={pop}
+      className="cancel-transfer"
+      hideBack
+      header={<L2BackHeader hideBalance back={goBack} />}>
       <AdminCancelTransfer />
     </View>
   );

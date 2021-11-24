@@ -1,0 +1,54 @@
+@import 'style/shared/variables.scss';
+
+.advanced-options {
+  position: relative;
+
+  .toggle {
+    cursor: pointer;
+    padding: 0px 0px 0px 8px;
+  }
+
+  .options-border {
+    border: 3px solid $washed-gray;
+    position: absolute;
+    top: 28px;
+    right: 0px;
+    border-radius: $medium-border-radius;
+    z-index: 2;
+
+    .options {
+      border-radius: $medium-border-radius;
+      background-color: white;
+      border: 1px solid $light-gray;
+      padding: 8px 0px;
+  
+      .option {
+        padding: 8px 16px;
+
+        .checkbox {
+          border-radius: $medium-border-radius;
+          fill: green;
+
+          &.checked {
+            border-color: $activate-blue;
+            background-color: $activate-blue;
+          }
+        }
+
+        .text {
+          margin-left: 8px;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+
+  .close-background {
+    z-index: 1;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
+}

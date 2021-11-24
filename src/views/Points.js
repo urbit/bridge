@@ -27,6 +27,7 @@ import NavHeader from 'components/NavHeader';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import IncomingPoint from 'components/L2/Points/IncomingPoint';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
+import { onlyUnique } from 'lib/utils/array';
 
 export const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -242,7 +243,9 @@ export default function Points() {
     ...managingPoints,
     ...votingPoints,
     ...spawningPoints,
-  ].sort((a, b) => Number(a) - Number(b));
+  ]
+    .sort((a, b) => Number(a) - Number(b))
+    .filter(onlyUnique);
 
   const displayEmptyState =
     !loading && incomingPoints.length === 0 && allPoints.length === 0;

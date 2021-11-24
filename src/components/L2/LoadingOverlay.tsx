@@ -3,7 +3,7 @@ import { Box, LoadingSpinner } from '@tlon/indigo-react';
 import './LoadingOverlay.scss';
 
 const LoadingOverlay = ({
-  loading = false,
+  loading,
   text,
 }: {
   loading: boolean;
@@ -16,7 +16,7 @@ const LoadingOverlay = ({
   return (
     <Box className="loading-overlay">
       <Box className={`${text ? 'solid' : ''}`}>
-        {text && <Box className="loader-text">{text}</Box>}
+        {!!text && <Box className="loader-text">{text}</Box>}
         <LoadingSpinner foreground="white" background="rgba(0,0,0,0.3)" />
       </Box>
     </Box>

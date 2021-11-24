@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { Grid, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 import {
@@ -46,6 +46,7 @@ import {
 import { isPlanet } from 'lib/utils/point';
 import { generateInviteWallet } from 'lib/utils/roller';
 import { useTimerStore } from 'store/timerStore';
+import { Invite } from 'lib/types/Invite';
 
 interface L1Invite {
   ticket: string;
@@ -83,13 +84,15 @@ export default function InviteCohort() {
   );
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [downloadingCsv, setDownloadingCsv] = useState(false);
   const [error, setError] = useState('');
   const [l1Invite, setL1Invite] = useState<L1Invite | null>(null);
   const [page, setPage] = useState(0);
 
   const { construct, unconstruct, completed, bind } = useIssueChild();
-  const invitePoints = invites[point.value] || [];
+  const invitePoints: Invite[] = useMemo(() => invites[point.value] || [], [
+    invites,
+    point,
+  ]);
 
   // Set up the invite spawn if on L1
   useEffect(() => {
@@ -100,7 +103,7 @@ export default function InviteCohort() {
     }
 
     const setUpInvite = async () => {
-      setDownloadingCsv(true);
+      setLoading(true);
       const possiblePoints = await azimuth.azimuth.getUnspawnedChildren(
         _contracts,
         point
@@ -120,6 +123,7 @@ export default function InviteCohort() {
       }
 
       if (invitePoint) {
+        setInviteGeneratingNum(1);
         const { ticket, inviteWallet } = await generateInviteWallet(
           invitePoint,
           _authToken
@@ -131,7 +135,7 @@ export default function InviteCohort() {
         setError('No available planets');
       }
 
-      setDownloadingCsv(false);
+      setLoading(false);
     };
 
     if (!currentL2 && _contracts && point && _authToken && showInviteForm) {
@@ -148,6 +152,7 @@ export default function InviteCohort() {
     showInviteForm,
     unconstruct,
     invitePoints,
+    setInviteGeneratingNum,
   ]);
 
   useEffect(() => {
@@ -205,7 +210,7 @@ export default function InviteCohort() {
   const downloadCsv = useCallback(() => {
     const generateAndDownload = async () => {
       setLoading(true);
-      const invites = await getInvites(currentL2);
+      const invites = await getInvites();
       if (invites) {
         const csv = invites.reduce(
           (csvData, { ticket, planet }, ind) =>
@@ -231,14 +236,7 @@ export default function InviteCohort() {
       setInviteGeneratingNum(0);
     };
     generateAndDownload();
-  }, [
-    getInvites,
-    setError,
-    setLoading,
-    setInviteGeneratingNum,
-    currentL2,
-    point,
-  ]);
+  }, [getInvites, setError, setLoading, setInviteGeneratingNum, point]);
 
   const goNextPage = useCallback(() => {
     setPage(page + 1);
@@ -256,7 +254,7 @@ export default function InviteCohort() {
             Once a code has been claimed, the code will automatically disappear.
           </div>
           <div className="invites">
-            {invitesToDisplay.map(invite => (
+            {invitesToDisplay.map((invite: Invite) => (
               <div className="invite" key={invite.planet}>
                 <div
                   className={`invite-url ${invite.ticket ? '' : 'shortened'}`}>
@@ -393,7 +391,7 @@ export default function InviteCohort() {
 
   const showGenerateButton = !hasPending && !hasInvites && point.canSpawn;
   const showAddMoreButton = (hasInvites || hasPending) && point.canSpawn;
-  const downloadingCsvText = `Generating invite code ${inviteGeneratingNum} of ${invitePoints.length}...`;
+  const generatingCodesText = `Generating invite code ${inviteGeneratingNum} of ${invitePoints.length}...`;
 
   return (
     <View
@@ -447,10 +445,7 @@ export default function InviteCohort() {
           Add More
         </Button>
       )}
-      <LoadingOverlay
-        loading={downloadingCsv || loading}
-        text={downloadingCsv ? downloadingCsvText : undefined}
-      />
+      <LoadingOverlay loading={loading} text={generatingCodesText} />
     </View>
   );
 }
