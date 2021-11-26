@@ -142,7 +142,7 @@ const baseUrl = 'https://gas-tank.urbit.org:3011';
 3. Download the Passport file, then use the enclosed Master Ticket and ID to login to Bridge again
 ### Known Issues
 
-When testing the invite acceptance and login flow on Ropsten, some of the Azimuth API calls will fail (e.g., `getConditional`). 
+When testing the invite acceptance and login flow on Ropsten, some of the Azimuth API calls will fail (e.g., `getConditional`).
 
 ## Releases
 
@@ -157,11 +157,23 @@ verify the checksums on e.g. MacOS via `shasum -c checksums.txt`.
 To work with the L2 aggregator locally, set up the local environment like so:
 
 ```sh
-# Start Bridge with local blockchain preloaded with L1 and L2 points
-npm run pilot-l2
+# Start Bridge with local blockchain preloaded with L1 and L2 points, all owned by the address 0x6DEfFb0caFDB11D175F123F6891AA64F01c24F7d
 
-# Build urbit at naive/roller branch, start a local fake ship, then run these in the dojo:
-|cors-approve 'http://localhost:3000'
-:azimuth|watch 'http://0.0.0.0:8545' %local
-|rein %base [& %roller] [& %roller-rpc] [& %azimuth-rpc]
+npm run pilot-l2
+```
+
+```dojo
+:: Build urbit at naive/roller branch, start a local fake ship, then run these in the dojo:
+::
+> |mount /=base=
+> :azimuth %resub
+> :azimuth|watch 'http://0.0.0.0:8545' %local
+> |rein %base [& %roller] [& %roller-rpc] [& %azimuth-rpc]
+> :roller|local
+> :roller|setkey '58d62eb79797502bc0f66cd3e7a49d00287bff53a2734b799ef09cb746340ed0'
+> :roller|quota 9.999
+> |cors-approve 'http://localhost:3000'
+:: Once L2 txs have been sent via Bridge, this will manually commit and batch them, avoiding waiting for the timer
+::
+> :roller|commit
 ```
