@@ -162,8 +162,14 @@ To work with the L2 aggregator locally, set up the local environment like so:
 npm run pilot-l2
 ```
 
+Start a local fake ship from the master branch in the [urbit repo](https://github.com/urbit/urbit)
+
+```sh
+/path/to/urbit -F zod -B ./bin/solid.pill -A ./pkg/arvo zod
+```
+
 ```dojo
-:: Build urbit at naive/roller branch, start a local fake ship, then run these in the dojo:
+:: Run these in the dojo:
 ::
 > |mount /=base=
 > :azimuth %resub
