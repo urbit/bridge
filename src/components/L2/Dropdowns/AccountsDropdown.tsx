@@ -93,7 +93,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
       <Box className="points">
         {pointList.map(({ value, layer, patp }) => (
           <Row
-            className="entry point"
+            className={`entry point ${value === point.value ? 'selected' : ''}`}
             onClick={selectPoint(value)}
             key={`point-${value}`}>
             <Box>{patp}</Box>

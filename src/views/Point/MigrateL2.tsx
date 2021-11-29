@@ -155,9 +155,10 @@ export default function MigrateL2() {
       }
       setSelectedPoint(point);
       setShowDropdown(false);
+      bind.reset();
       construct(point.value, transfer);
     },
-    [setSelectedPoint, setShowDropdown, construct, transfer]
+    [setSelectedPoint, setShowDropdown, bind, construct, transfer]
   );
 
   const toggleTransfer = useCallback(() => {
@@ -207,7 +208,7 @@ export default function MigrateL2() {
                     selected={transfer}
                     name="transferType"
                   />
-                  Transfer Point
+                  Transfer Ship
                 </Row>
                 <Row onClick={toggleTransfer} className="transfer">
                   <RadioButton

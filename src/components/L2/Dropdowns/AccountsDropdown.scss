@@ -9,7 +9,7 @@
   }
 
   .points {
-    max-height: 160px;
+    max-height: 180px;
     overflow-y: scroll;
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -29,6 +29,10 @@
         cursor: pointer;
 
         padding: 8px 12px 8px 16px;
+
+        &.selected {
+          background-color: $light-blue;
+        }
 
         &:hover {
           opacity: 0.8;

@@ -18,6 +18,9 @@ import useHasDisclaimed from 'lib/useHasDisclaimed';
 import 'style/index.scss';
 import WithErrorBoundary from 'components/WithErrorBoundary';
 import GlobalErrorBoundary from 'components/GlobalErrorBoundary';
+import Modal from 'components/L2/Modal';
+import { useRollerStore } from 'store/rollerStore';
+import { Box } from '@tlon/indigo-react';
 
 const INITIAL_NETWORK_TYPE = isRopsten
   ? NETWORK_TYPES.ROPSTEN
@@ -67,6 +70,7 @@ function useInitialRoutes() {
 
 function Bridge() {
   const initialRoutes = useInitialRoutes();
+  const { modalText, setModalText } = useRollerStore();
 
   //  full reload if the user changes their selected network in Metamask
   //
@@ -91,6 +95,9 @@ function Bridge() {
         <IndigoApp>
           <Router />
         </IndigoApp>
+        <Modal show={modalText !== undefined} hide={() => setModalText()}>
+          <Box width="280px">{modalText}</Box>
+        </Modal>
       </Provider>
     </WithErrorBoundary>
   );

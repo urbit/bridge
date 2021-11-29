@@ -2,23 +2,61 @@ import * as ob from 'urbit-ob';
 import { isGalaxy, isPlanet, isStar } from 'lib/utils/point';
 import { eqAddr, isZeroAddress } from 'lib/utils/address';
 import { L1Point } from './L1Point';
+import { Proxy } from '@urbit/roller-api';
 
 export interface Points {
   [key: number]: Point;
 }
 
-export enum Relationship {
-  own,
-  transfer,
-  manage,
-  vote,
-  spawn,
+enum PointField {
+  value = 'value',
+  layer = 'layer',
+  active = 'active',
+  authenticationKey = 'authenticationKey',
+  continuityNumber = 'continuityNumber',
+  cryptoSuiteVersion = 'cryptoSuiteVersion',
+  encryptionKey = 'encryptionKey',
+  escapeRequested = 'escapeRequested',
+  escapeRequestedTo = 'escapeRequestedTo',
+  hasSponsor = 'hasSponsor',
+  keyRevisionNumber = 'keyRevisionNumber',
+  managementProxy = 'managementProxy',
+  owner = 'owner',
+  spawnProxy = 'spawnProxy',
+  sponsor = 'sponsor',
+  transferProxy = 'transferProxy',
+  votingProxy = 'votingProxy',
+  isL2 = 'isL2',
+  isL2Spawn = 'isL2Spawn',
+  isL1 = 'isL1',
+  isGalaxy = 'isGalaxy',
+  isStar = 'isStar',
+  isPlanet = 'isPlanet',
+  isParent = 'isParent',
+  canMigrate = 'canMigrate',
+  networkKeysSet = 'networkKeysSet',
+  isOwner = 'isOwner',
+  isActiveOwner = 'isActiveOwner',
+  isManagementProxy = 'isManagementProxy',
+  isSpawnProxy = 'isSpawnProxy',
+  isVotingProxy = 'isVotingProxy',
+  isTransferProxy = 'isTransferProxy',
+  isManagementProxySet = 'isManagementProxySet',
+  isSpawnProxySet = 'isSpawnProxySet',
+  isVotingProxySet = 'isVotingProxySet',
+  isTransferProxySet = 'isTransferProxySet',
+  canManage = 'canManage',
+  canSpawn = 'canSpawn',
+  canTransfer = 'canTransfer',
+  canVote = 'canVote',
+  showInvites = 'showInvites',
 }
 
 export default class Point {
   value: number;
   patp: string;
   layer: 1 | 2;
+  l2Quota: number;
   active: boolean;
   authenticationKey: string;
   continuityNumber: string;
@@ -34,7 +72,6 @@ export default class Point {
   sponsor: string;
   transferProxy: string;
   votingProxy: string;
-  relationship: Relationship;
   // Derived details
   isL2: boolean;
   isL2Spawn: boolean;
@@ -61,18 +98,14 @@ export default class Point {
   canTransfer: boolean;
   canVote: boolean;
   showInvites: boolean;
+  isDefault: boolean;
 
-  constructor(
-    value: number,
-    relationship: Relationship,
-    details: L1Point,
-    address: string
-  ) {
+  constructor(value: number, details: L1Point, address: string, l2Quota = 0) {
     this.value = value;
     this.patp = value < 0 ? 'null' : ob.patp(value);
-    this.relationship = relationship;
 
     this.layer = details.layer;
+    this.l2Quota = l2Quota;
     this.isL2Spawn = Boolean(details.isL2Spawn);
     this.active = details.active;
     this.authenticationKey = details.authenticationKey;
@@ -121,5 +154,33 @@ export default class Point {
       this.isL1 &&
       ((this.isGalaxy && !this.isL2Spawn) || this.isStar || this.isPlanet);
     this.showInvites = this.canManage || this.canSpawn;
+    this.isDefault = value === -1;
   }
+
+  equals = (point: Point) => {
+    return Object.values(PointField).reduce(
+      (acc, field) => acc && this[field] === point[field],
+      true
+    );
+  };
+
+  getAddressProxy = (proxyType: Proxy) =>
+    this.isOwner
+      ? 'own'
+      : proxyType === 'manage' && this.isManagementProxy
+      ? 'manage'
+      : proxyType === 'spawn' && this.isSpawnProxy
+      ? 'spawn'
+      : proxyType === 'transfer' && this.isTransferProxy
+      ? 'transfer'
+      : undefined;
+
+  getManagerProxy = () =>
+    this.isOwner ? 'own' : this.isManagementProxy ? 'manage' : undefined;
+
+  getSpawnProxy = () =>
+    this.isOwner ? 'own' : this.isSpawnProxy ? 'spawn' : undefined;
+
+  getTransferProxy = () =>
+    this.isOwner ? 'own' : this.isTransferProxy ? 'transfer' : undefined;
 }

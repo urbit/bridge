@@ -153,8 +153,8 @@ export default function Point() {
         </div>
       )}
       {!!otherPending.length &&
-        otherPending.map(pendingTx => (
-          <div className="transaction">
+        otherPending.map((pendingTx, ind) => (
+          <div className="transaction" key={`pending-${ind}`}>
             <Row className="title-row">
               <div className="title">
                 {pendingTx.rawTx?.tx?.type === 'set-management-proxy'
@@ -246,9 +246,6 @@ export default function Point() {
       </Grid>
       <Modal show={showModal} hide={hideModal}>
         <Box className="network-keys-modal">
-          <Box className="close" onClick={hideModal}>
-            &#215;
-          </Box>
           <Box className="title">No Network Keys Found</Box>
           <Box className="message">
             Network Keys are required to generate a Keyfile and use Landscape.

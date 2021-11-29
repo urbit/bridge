@@ -39,6 +39,10 @@
     .invites {
       margin-right: 4px;
 
+      &.create {
+        background-color: $rollup-yellow;
+      }
+
       svg {
         margin-right: 4px;
 

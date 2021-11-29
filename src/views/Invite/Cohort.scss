@@ -148,6 +148,10 @@
           font-weight: 800;
           font-family: "Inter", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
           text-align: center;
+
+          &.over-quota {
+            color: $warning-red;
+          }
         }
       }
   
@@ -187,7 +191,7 @@
         margin-top: 8px;
         padding: 8px;
 
-        &.loading {
+        &.disabled {
           background-color: $mid-gray;
         }
       }
