@@ -258,6 +258,16 @@ export default function Points() {
     syncStarReleaseDetails();
   }, [syncStarReleaseDetails]);
 
+  useEffect(() => {
+    if (
+      'Notification' in window &&
+      Notification.permission !== 'denied' &&
+      Notification.permission !== 'granted'
+    ) {
+      Notification.requestPermission();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // sync display details for known points
   useSyncDetails(ownedPoints);
 

@@ -4,10 +4,8 @@ import { Nothing } from 'folktale/maybe';
 
 import { useHistory } from 'store/history';
 import { useRollerStore } from 'store/rollerStore';
-import { useTimerStore } from 'store/timerStore';
 import { usePointCursor } from 'store/pointCursor';
 
-import { ReactComponent as HistoryIcon } from 'assets/history.svg';
 import { ReactComponent as InviteIcon } from 'assets/invite.svg';
 import HeaderButton from './HeaderButton';
 import AccountsDropdown from '../Dropdowns/AccountsDropdown';
@@ -29,8 +27,7 @@ const L2PointHeader = ({
   hideInvites = false,
   showMigrate = false,
 }: L2PointHeaderProps) => {
-  const { point, pendingTransactions, invitesLoading } = useRollerStore();
-  const { nextRoll } = useTimerStore();
+  const { point, invitesLoading } = useRollerStore();
   const { pointCursor, setPointCursor }: any = usePointCursor();
 
   const { popTo, push, names }: any = useHistory();
@@ -52,6 +49,31 @@ const L2PointHeader = ({
     !hideInvites &&
     Boolean(pointCursor?.value && point.isStar && point.isL2Spawn);
 
+  const renderInviteButton = () => {
+    if (!showInvites || !point.showInvites) {
+      return null;
+    } else if (invitesLoading) {
+      return (
+        <Row onClick={goToInvites} className="invites">
+          <InviteIcon />
+          <LoadingSpinner foreground="rgba(0,0,0,0.3)" background="white" />
+        </Row>
+      );
+    } else if (numInvites === 0) {
+      return (
+        <Row onClick={goToInvites} className="invites create">
+          Create Invites
+        </Row>
+      );
+    } else {
+      return (
+        <Row onClick={goToInvites} className="invites">
+          <InviteIcon /> {numInvites} Invites
+        </Row>
+      );
+    }
+  };
+
   return (
     <Row className="l2-point-header">
       <Row>
@@ -64,22 +86,10 @@ const L2PointHeader = ({
         )}
       </Row>
       <Row className="info">
-        {showInvites && point.showInvites && (
-          <Row onClick={goToInvites} className="invites">
-            <InviteIcon />
-            {invitesLoading ? (
-              <LoadingSpinner foreground="rgba(0,0,0,0.3)" background="white" />
-            ) : (
-              numInvites
-            )}
-          </Row>
-        )}
-        {!hideTimer && point.isL2Spawn && !pendingTransactions.length && (
-          <Box className="rollup-timer" onClick={goToHistory}>
-            {nextRoll}
-          </Box>
-        )}
-        <HistoryIcon className="history" onClick={goToHistory} />
+        {renderInviteButton()}
+        <Box className="history" onClick={goToHistory}>
+          History
+        </Box>
       </Row>
     </Row>
   );

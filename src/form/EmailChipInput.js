@@ -112,7 +112,7 @@ const EmailChipInput = ({ className, name, label, disabled }) => {
       </Flex.Item>
       {error && (
         <Flex.Item as={ErrorText} className="mv1">
-          {error}
+          {JSON.stringify(error)}
         </Flex.Item>
       )}
     </Flex>

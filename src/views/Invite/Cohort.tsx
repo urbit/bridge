@@ -47,6 +47,7 @@ import { isPlanet } from 'lib/utils/point';
 import { generateInviteWallet } from 'lib/utils/roller';
 import { useTimerStore } from 'store/timerStore';
 import { Invite } from 'lib/types/Invite';
+import { ddmmmYYYY } from 'lib/utils/date';
 
 interface L1Invite {
   ticket: string;
@@ -61,6 +62,7 @@ export default function InviteCohort() {
     pendingTransactions,
     invites,
     inviteGeneratingNum,
+    nextQuotaTime,
     setInviteGeneratingNum,
     setInvites,
   } = useRollerStore();
@@ -68,6 +70,7 @@ export default function InviteCohort() {
   const { nextRoll } = useTimerStore();
 
   const {
+    config,
     ls,
     generateInviteCodes,
     getPendingTransactions,
@@ -242,24 +245,26 @@ export default function InviteCohort() {
     setPage(page + 1);
   }, [page]);
 
+  const overQuota = numInvites > point.l2Quota && numInvites > 0;
+
   const getContent = () => {
     if (hasInvites) {
       return (
         <>
-          <div>
+          <Box>
             Be careful who you share these with. Each planet code can only be
             claimed once.
-          </div>
-          <div style={{ marginTop: 8 }}>
+          </Box>
+          <Box style={{ marginTop: 8 }}>
             Once a code has been claimed, the code will automatically disappear.
-          </div>
-          <div className="invites">
+          </Box>
+          <Box className="invites">
             {invitesToDisplay.map((invite: Invite) => (
-              <div className="invite" key={invite.planet}>
-                <div
+              <Box className="invite" key={invite.planet}>
+                <Box
                   className={`invite-url ${invite.ticket ? '' : 'shortened'}`}>
                   {generateUrlAbbreviation(invite.ticket, invite.planet)}
-                </div>
+                </Box>
                 {invite.ticket ? (
                   <CopiableWithTooltip
                     text={generateUrl(invite.ticket, invite.planet)}
@@ -273,9 +278,9 @@ export default function InviteCohort() {
                     />
                   </Box>
                 )}
-              </div>
+              </Box>
             ))}
-          </div>
+          </Box>
         </>
       );
     } else if (hasPending) {
@@ -314,6 +319,8 @@ export default function InviteCohort() {
   );
 
   if (showInviteForm) {
+    const generateDisabled = loading || overQuota;
+
     return (
       <View
         pop={() => setShowInviteForm(false)}
@@ -325,12 +332,12 @@ export default function InviteCohort() {
             <h5>Generate Planet Codes</h5>
           </HeaderPane>
           <BodyPane>
-            <div className="upper">
+            <Box className="upper">
               {currentL2 ? (
                 <Row className="points-input">
                   I want to generate
                   <StatelessTextInput
-                    className="input-box"
+                    className={`input-box ${overQuota ? 'over-quota' : ''}`}
                     value={numInvites}
                     maxLength={3}
                     onChange={e => {
@@ -341,18 +348,30 @@ export default function InviteCohort() {
                   planet invite code{numInvites > 1 ? 's' : ''}
                 </Row>
               ) : (
-                <div className="migration-prompt">
+                <Box className="migration-prompt">
                   ETH fees are very high currently. You can spawn invites for
                   free after{' '}
                   <span className="migrate" onClick={() => null}>
                     {/* TODO: change this to navigate to migration */}
                     migrating this star to L2.
                   </span>
-                </div>
+                </Box>
               )}
-            </div>
+              {currentL2 && (
+                <>
+                  <Box lineHeight="1.4em">
+                    You can generate up to
+                    <strong>{` ${point.l2Quota} `}</strong>
+                    invites. You will be able to generate another
+                    <strong>{` ${config?.rollerQuota}`}</strong> invites on
+                    <strong>{` ${ddmmmYYYY(nextQuotaTime)}`}</strong>.
+                  </Box>
+                  <br />
+                </>
+              )}
+            </Box>
             {/* <Inviter /> */}
-            <div className="lower">
+            <Box className="lower">
               {currentL2 && (
                 <Row className="next-roll">
                   <span>Next Roll in</span>
@@ -362,12 +381,16 @@ export default function InviteCohort() {
               {currentL2 ? (
                 <Button
                   as={'button'}
-                  className={`generate-codes ${loading ? 'loading' : ''}`}
-                  disabled={loading}
+                  className={`generate-codes ${
+                    generateDisabled ? 'disabled' : ''
+                  }`}
+                  disabled={generateDisabled}
                   center
                   onClick={createInvites}>
                   {loading
                     ? `Generating ${numInvites} invites...`
+                    : overQuota
+                    ? `You can only generate ${point.l2Quota} codes`
                     : `Generate Planet Code${
                         currentL2 ? `s (${numInvites})` : ''
                       }`}
@@ -381,7 +404,7 @@ export default function InviteCohort() {
                   onReturn={pop}
                 />
               )}
-            </div>
+            </Box>
           </BodyPane>
         </Window>
         <LoadingOverlay loading={loading} />
@@ -390,7 +413,8 @@ export default function InviteCohort() {
   }
 
   const showGenerateButton = !hasPending && !hasInvites && point.canSpawn;
-  const showAddMoreButton = (hasInvites || hasPending) && point.canSpawn;
+  const showAddMoreButton =
+    (hasInvites || hasPending) && point.canSpawn && point.l2Quota > 0;
   const generatingCodesText = `Generating invite code ${inviteGeneratingNum} of ${invitePoints.length}...`;
 
   return (
@@ -409,15 +433,15 @@ export default function InviteCohort() {
               {header}
               <Row className="download-csv" onClick={downloadCsv}>
                 <Icon icon="Download" />
-                <div>CSV</div>
+                <Box>CSV</Box>
               </Row>
             </Row>
           )}
         </HeaderPane>
         <BodyPane>
-          <div className={`content ${!hasInvites ? 'center' : ''}`}>
+          <Box className={`content ${!hasInvites ? 'center' : ''}`}>
             {getContent()}
-          </div>
+          </Box>
           {showGenerateButton && (
             <Button
               className="generate-button ph4"

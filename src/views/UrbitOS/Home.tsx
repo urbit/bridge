@@ -1,12 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Grid } from 'indigo-react';
 import * as ob from 'urbit-ob';
-import { azimuth } from 'azimuth-js';
-
-import { usePointCursor } from 'store/pointCursor';
-import { usePointCache } from 'store/pointCache';
-
-import * as need from 'lib/need';
 
 import NetworkingKeys from 'components/NetworkingKeys';
 import Window from 'components/L2/Window/Window';
@@ -15,32 +9,28 @@ import BodyPane from 'components/L2/Window/BodyPane';
 import { ReactComponent as KeyfileIcon } from 'assets/keyfile.svg';
 
 import { useLocalRouter } from 'lib/LocalRouter';
-import { L1Point } from 'lib/types/L1Point';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 import { Box, Button, Row } from '@tlon/indigo-react';
 import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
 
 import './UrbitOS.scss';
 import Modal from 'components/L2/Modal';
+import { useRollerStore } from 'store/rollerStore';
 
 export default function UrbitOSHome() {
-  const { pointCursor }: any = usePointCursor();
-  const { getDetails }: any = usePointCache();
+  const { point } = useRollerStore();
 
   const { push, names }: any = useLocalRouter();
 
-  const point = need.point(pointCursor);
-  const details: L1Point = need.details(getDetails(point));
-
-  const sponsor = ob.patp(details.sponsor);
+  const sponsor = ob.patp(point.sponsor);
 
   const [showKeys, setShowKeys] = useState(false);
 
-  const showSponsor = azimuth.getPointSize(point) !== azimuth.PointSize.Galaxy;
+  const showSponsor = !point.isGalaxy;
   const toggleShowKeys = useCallback(() => setShowKeys(s => !s), [setShowKeys]);
 
   // The initial key revision number is 0, and increments when set
-  const hasSetNetworkingKeys = details.keyRevisionNumber !== '0';
+  const hasSetNetworkingKeys = point.keyRevisionNumber !== '0';
 
   const goNetworkingKeys = useCallback(() => push(names.NETWORKING_KEYS), [
     names,
@@ -97,7 +87,7 @@ export default function UrbitOSHome() {
                 !hasSetNetworkingKeys ? 'error-text' : ''
               }`}>
               {hasSetNetworkingKeys
-                ? `Revision: ${details.keyRevisionNumber}`
+                ? `Revision: ${point.keyRevisionNumber}`
                 : 'No network keys found'}
             </Box>
           </Box>
@@ -128,12 +118,9 @@ export default function UrbitOSHome() {
         )}
       </BodyPane>
 
-      <Modal show={showKeys} hide={toggleShowKeys}>
+      <Modal show={showKeys} hide={() => setShowKeys(false)}>
         <Box className="show-keys-modal-content">
-          <Box className="close" onClick={toggleShowKeys}>
-            &#215;
-          </Box>
-          <Grid.Item full as={NetworkingKeys} point={point} />
+          <Grid.Item full as={NetworkingKeys} point={point.value} />
         </Box>
       </Modal>
     </Window>
