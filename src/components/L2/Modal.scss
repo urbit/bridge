@@ -20,4 +20,14 @@
     font-weight: 200;
     cursor: pointer;
   }
+
+  .content {
+    position: relative;
+    background-color: white;
+    border-radius: $large-border-radius;
+    font-family: $default-font;
+    padding: 24px;
+    font-size: 14px;
+    line-height: 24px;
+  }
 }

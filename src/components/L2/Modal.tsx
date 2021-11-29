@@ -20,7 +20,12 @@ export default function Modal({ show, hide, children }: ModalProps) {
 
   return (
     <Box className="modal" onClick={hide}>
-      <Box onClick={dontHide}>{children}</Box>
+      <Box className="content">
+        <Box className="close" onClick={hide}>
+          &#215;
+        </Box>
+        <Box onClick={dontHide}>{children}</Box>
+      </Box>
     </Box>
   );
 }

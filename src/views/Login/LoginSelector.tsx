@@ -149,9 +149,6 @@ export default function LoginSelector({
         </Grid.Item>
         <Modal show={showModal} hide={() => setShowModal(false)}>
           <Box className="info-modal-content">
-            <Box className="close" onClick={() => setShowModal(false)}>
-              &#215;
-            </Box>
             <div className="fw-bold">Other Wallet Types</div>
             <div className="mb5">
               All other wallet types are now supported via Metamask or

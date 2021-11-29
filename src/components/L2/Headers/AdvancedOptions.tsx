@@ -31,8 +31,8 @@ export default function AdvancedOptions({ options }: AdvancedOptionsProps) {
         <>
           <Box className="options-border">
             <Box className="options">
-              {options.map(option => (
-                <Row className="option">
+              {options.map((option, ind) => (
+                <Row className="option" key={`adv-opt-${ind}`}>
                   <Checkbox
                     className={`checkbox ${option.selected ? 'checked' : ''}`}
                     {...option}

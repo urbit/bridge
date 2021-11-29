@@ -4,7 +4,6 @@ import { Box, Button, Icon, Row } from '@tlon/indigo-react';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import { PROXY_TYPE } from 'lib/proxy';
-import * as need from 'lib/need';
 import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { convertToInt } from 'lib/convertToInt';
 import { ETH_ZERO_ADDR, MASTER_TICKET_TOOLTIP } from 'lib/constants';
@@ -12,7 +11,6 @@ import { abbreviateAddress } from 'lib/utils/address';
 import { downloadWallet } from 'lib/invite';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
-import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';
 import { useRollerStore } from 'store/rollerStore';
 
@@ -28,13 +26,12 @@ import WithTooltip from 'components/WithTooltip';
 
 export default function UrbitIDHome() {
   const { push, names }: any = useLocalRouter();
-  const { getDetails }: any = usePointCache();
   const { urbitWallet }: any = useWallet();
   const { point } = useRollerStore();
 
   const [keysDownloaded, setKeysDownloaded] = useState(false);
 
-  const _urbitWallet = need.wallet(urbitWallet);
+  const _urbitWallet = urbitWallet.getOrElse(null);
   const { keyfile, filename } = useKeyfileGenerator();
   const [paper, setPaper] = useState(Nothing());
 
@@ -48,9 +45,8 @@ export default function UrbitIDHome() {
   const goResetKeys = useCallback(() => push(names.RESET_KEYS), [push, names]);
 
   const isMasterTicket = Just.hasInstance(urbitWallet);
-  const details = need.details(getDetails(point.value));
   const { isOwner, canManage } = useCurrentPermissions();
-  const networkRevision = convertToInt(details.keyRevisionNumber, 10);
+  const networkRevision = convertToInt(point.keyRevisionNumber, 10);
 
   const goSetProxy = useCallback(
     proxyType => push(names.SET_PROXY, { proxyType }),
@@ -59,8 +55,8 @@ export default function UrbitIDHome() {
 
   const goTransfer = useCallback(() => push(names.TRANSFER), [names, push]);
 
-  const noManagement = details.managementProxy === ETH_ZERO_ADDR;
-  const noSpawn = details.spawnProxy === ETH_ZERO_ADDR;
+  const noManagement = point.managementProxy === ETH_ZERO_ADDR;
+  const noSpawn = point.spawnProxy === ETH_ZERO_ADDR;
 
   return (
     <Window className="id-home">
@@ -85,17 +81,14 @@ export default function UrbitIDHome() {
             <Box>
               <Box>Ownership Address</Box>
               <div className="mt1 mono black subtitle">
-                {abbreviateAddress(details.owner)}
+                {abbreviateAddress(point.owner)}
               </div>
             </Box>
             <Row>
               <Button className="secondary" onClick={goTransfer}>
                 Transfer
               </Button>
-              <CopiableWithTooltip
-                text={details.owner}
-                className="copy-button"
-              />
+              <CopiableWithTooltip text={point.owner} className="copy-button" />
             </Row>
           </Row>
         )}
@@ -107,7 +100,7 @@ export default function UrbitIDHome() {
               <div className="mt1 mono black subtitle">
                 {noManagement
                   ? 'Not set'
-                  : abbreviateAddress(details.managementProxy)}
+                  : abbreviateAddress(point.managementProxy)}
               </div>
             </Box>
             <Row>
@@ -118,7 +111,7 @@ export default function UrbitIDHome() {
               </Button>
               {!noManagement && (
                 <CopiableWithTooltip
-                  text={details.managementProxy}
+                  text={point.managementProxy}
                   className="copy-button"
                 />
               )}
@@ -135,7 +128,7 @@ export default function UrbitIDHome() {
                   ? point.isL2Spawn
                     ? 'Layer 2'
                     : 'Unset'
-                  : abbreviateAddress(details.spawnProxy)}
+                  : abbreviateAddress(point.spawnProxy)}
               </div>
             </Box>
             {point.isL2Spawn ? (
@@ -149,7 +142,7 @@ export default function UrbitIDHome() {
                 </Button>
                 {!noSpawn && (
                   <CopiableWithTooltip
-                    text={details.spawnProxy}
+                    text={point.spawnProxy}
                     className="copy-button"
                   />
                 )}
@@ -208,13 +201,15 @@ export default function UrbitIDHome() {
           </Row>
         )}
       </BodyPane>
-      <PaperBuilder
-        point={point.value}
-        wallets={[_urbitWallet]}
-        callback={(paper: any) => {
-          setPaper(Just(paper));
-        }}
-      />
+      {_urbitWallet && (
+        <PaperBuilder
+          point={point.value}
+          wallets={[_urbitWallet]}
+          callback={(paper: any) => {
+            setPaper(Just(paper));
+          }}
+        />
+      )}
     </Window>
   );
 }

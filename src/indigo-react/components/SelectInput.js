@@ -134,7 +134,7 @@ export default function SelectInput({
 
       {touched && !active && error && (
         <Flex.Item as={ErrorText} className="mv1">
-          {error}
+          {JSON.stringify(error)}
         </Flex.Item>
       )}
     </Flex>

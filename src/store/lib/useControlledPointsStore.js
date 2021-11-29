@@ -11,7 +11,7 @@ import { useNetwork } from '../network';
 export default function useControlledPointsStore() {
   const { contracts } = useNetwork();
   const { wallet } = useWallet();
-  const { getPoints, getPointDetails } = useRoller();
+  const { getPoints, getPointsDetails } = useRoller();
 
   const [controlledPoints, _setControlledPoints] = useState(Nothing());
 
@@ -67,7 +67,7 @@ export default function useControlledPointsStore() {
           Just(Result.Error('Failed to read the blockchain.'))
         );
       } else {
-        getPointDetails(
+        getPointsDetails(
           (ownedPointsL1 || []).concat(ownedPointsL2 || []).filter(onlyUnique),
           (incomingPointsL1 || [])
             .concat(incomingPointsL2 || [])
@@ -114,7 +114,7 @@ export default function useControlledPointsStore() {
       console.error('failed to fetch controlled points', error);
       _setControlledPoints(Just(Result.Error(error)));
     }
-  }, [contracts, wallet, getPoints, getPointDetails]);
+  }, [contracts, wallet, getPoints, getPointsDetails]);
 
   // sync controlled points whenever wallet or contracts changes
   useEffect(() => {

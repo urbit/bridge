@@ -3,34 +3,40 @@ import { PendingTransaction } from '@urbit/roller-api';
 
 import { HOUR } from 'lib/utils/roller';
 import { Invite, Invites } from 'lib/types/Invite';
-import Point, { Points, Relationship } from 'lib/types/Point';
+import Point, { Points } from 'lib/types/Point';
 import { toL1Details } from 'lib/utils/point';
 
-export const EMPTY_POINT = new Point(-1, Relationship.own, toL1Details({}), '');
+export const EMPTY_POINT = new Point(-1, toL1Details({}), '');
 
 export interface RollerStore {
   nextBatchTime: number;
+  nextQuotaTime: number;
   pendingTransactions: PendingTransaction[];
   point: Point;
   points: Points;
   pointList: Point[];
   invites: Invites;
+  modalText?: string;
   recentlyCompleted: number;
   inviteGeneratingNum: number;
   invitesLoading: boolean;
+  removeInvite: (point: number, planet: number) => void;
+  setInvites: (points: number, invites: Invite[]) => void;
+  setInviteGeneratingNum: (numGenerating: number) => void;
+  setInvitesLoading: (invitesLoading: boolean) => void;
+  setModalText: (modalText: string) => void;
   setNextBatchTime: (nextBatchTime: number) => void;
+  setNextQuotaTime: (nextQuotaTime: number) => void;
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) => void;
   setPoint: (point: number) => void;
   setPoints: (points: Points) => void;
-  setInvites: (points: number, invites: Invite[]) => void;
-  setInviteGeneratingNum: (numGenerating: number) => void;
   updateInvite: (point: number, invite: Invite) => void;
-  removeInvite: (point: number, planet: number) => void;
-  setInvitesLoading: (invitesLoading: boolean) => void;
+  updatePoint: (point: Point) => void;
 }
 
 export const useRollerStore = create<RollerStore>(set => ({
   nextBatchTime: new Date().getTime() + HOUR,
+  nextQuotaTime: new Date().getTime() + 24 * HOUR,
   pendingTransactions: [],
   point: EMPTY_POINT,
   pointList: [],
@@ -40,6 +46,7 @@ export const useRollerStore = create<RollerStore>(set => ({
   inviteGeneratingNum: 0,
   invitesLoading: false,
   setNextBatchTime: (nextBatchTime: number) => set(() => ({ nextBatchTime })),
+  setNextQuotaTime: (nextQuotaTime: number) => set(() => ({ nextQuotaTime })),
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) =>
     set(state => {
       const oldPending = state.pendingTransactions.length;
@@ -82,4 +89,11 @@ export const useRollerStore = create<RollerStore>(set => ({
     }),
   setInvitesLoading: (invitesLoading: boolean) =>
     set(() => ({ invitesLoading })),
+  updatePoint: (point: Point) =>
+    set(({ points }) => {
+      const newPoints: Points = {};
+      newPoints[point.value] = point;
+      return { points: Object.assign(points, newPoints) };
+    }),
+  setModalText: (modalText?: string) => set(() => ({ modalText })),
 }));

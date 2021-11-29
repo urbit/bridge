@@ -43,16 +43,16 @@ import useRoller from 'lib/useRoller';
 import { AddressButton } from './AddressButton';
 
 export function useIssueChild() {
-  const { contracts } = useNetwork();
-  const { syncDates } = usePointCache();
+  const { contracts }: any = useNetwork();
+  const { syncDates }: any = usePointCache();
 
   const _contracts = need.contracts(contracts);
 
-  const [spawnedPoint, setSpawnedPoint] = useState();
+  const [spawnedPoint, setSpawnedPoint] = useState<number | string | null>();
 
   return useEthereumTransaction(
     useCallback(
-      (spawnedPoint, owner) => {
+      (spawnedPoint: string | number, owner: string) => {
         setSpawnedPoint(spawnedPoint);
         return azimuth.ecliptic.spawn(_contracts, spawnedPoint, owner);
       },
@@ -64,9 +64,9 @@ export function useIssueChild() {
 }
 
 export default function IssueChild() {
-  const { pop } = useLocalRouter();
+  const { pop }: any = useLocalRouter();
   const { api } = useRoller();
-  const { pointCursor } = usePointCursor();
+  const { pointCursor }: any = usePointCursor();
 
   const _point = convertToInt(need.point(pointCursor), 10);
   const [availablePoints, setAvailablePoints] = useState<Set<number> | null>(
@@ -80,9 +80,18 @@ export default function IssueChild() {
   }, [_point, api]);
 
   const shuffle = useCallback(() => {
-    const newCandidates = Array.from({ length: 3 }, () => {
-      return ob.patp(getSpawnCandidate(_point));
-    });
+    const newCandidates: string[] = [];
+
+    // 20 tries to randomize
+    for (let i = 0; i < 20; i++) {
+      const candidate = ob.patp(getSpawnCandidate(_point));
+      if (!newCandidates.includes(candidate)) {
+        newCandidates.push(candidate);
+      }
+      if (newCandidates.length === 3) {
+        break;
+      }
+    }
 
     setCandidates(newCandidates);
   }, [_point]);
@@ -125,7 +134,7 @@ export default function IssueChild() {
         return errors;
       }
 
-      return validateFormAsync(values, errors);
+      return validateFormAsync(values);
     },
     [validateFormAsync]
   );
@@ -158,6 +167,7 @@ export default function IssueChild() {
       pop={pop}
       hideBack
       inset
+      className="issue-child"
       header={<L2BackHeader hideBalance={false} back={pop} />}>
       <Window className="id-issue-child">
         <HeaderPane>
@@ -171,7 +181,7 @@ export default function IssueChild() {
               style={{ width: '100%' }}
               validate={validate}
               onValues={onValues}>
-              {({ handleSubmit, values }) => (
+              {({ handleSubmit, values }: any) => (
                 <>
                   {completed && (
                     <Grid.Item
