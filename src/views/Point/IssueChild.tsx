@@ -42,6 +42,7 @@ import './IssueChild.scss';
 import { PatpBadge } from './PatpBadge';
 import useRoller from 'lib/useRoller';
 import { AddressButton } from './AddressButton';
+import { FORM_ERROR } from 'final-form';
 
 export function useIssueChild() {
   const { contracts }: any = useNetwork();
@@ -105,11 +106,12 @@ export default function IssueChild() {
   }, [shuffle]);
 
   useEffect(() => {
-    // load the availablePoints for validation
     fetchAvailablePoints();
-    // set the candidates
+  }, [fetchAvailablePoints]);
+
+  useEffect(() => {
     shuffle();
-  }, [fetchAvailablePoints, shuffle]);
+  }, [shuffle]);
 
   const spawnNewPoint = useCallback(async () => {
     if (pointToSpawn) {
@@ -129,33 +131,24 @@ export default function IssueChild() {
     bind,
   } = useIssueChild();
 
-  useEffect(() => {
-    if (completed && pointToSpawn) {
-      checkForUpdates(pointToSpawn);
-    }
-  }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const validateFormAsync = useCallback(
-    async values => {
-      const point = patp2dec(values.point);
-      const hasPoint = availablePoints && availablePoints.has(point);
-
-      if (!hasPoint) {
-        return { point: 'This point cannot be spawned.' };
-      }
-    },
-    [availablePoints]
-  );
-
   const validateForm = useCallback(
     (values, errors) => {
       if (hasErrors(errors)) {
         return errors;
       }
 
-      return validateFormAsync(values);
+      if (!availablePoints) {
+        return false;
+      }
+
+      const point = patp2dec(values.point);
+      const hasPoint = availablePoints.has(point);
+
+      if (!hasPoint) {
+        return { [FORM_ERROR]: 'This point cannot be spawned.' };
+      }
     },
-    [validateFormAsync]
+    [availablePoints]
   );
 
   const validate = useMemo(
@@ -183,6 +176,20 @@ export default function IssueChild() {
     [construct, unconstruct]
   );
 
+  const onSubmit = useCallback(args => {
+    console.log('onSubmit', args);
+
+    return {
+      [FORM_ERROR]: 'skip submit',
+    };
+  }, []);
+
+  useEffect(() => {
+    if (completed && pointToSpawn) {
+      checkForUpdates(pointToSpawn);
+    }
+  }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <View
       pop={pop}
@@ -201,8 +208,9 @@ export default function IssueChild() {
             <BridgeForm
               style={{ width: '100%' }}
               validate={validate}
+              onSubmit={onSubmit}
               onValues={onValues}>
-              {({ handleSubmit, values }: any) => (
+              {({ values }) => (
                 <>
                   {(completed || l2SpawnSent) && (
                     <Grid.Item

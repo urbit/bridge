@@ -9,14 +9,15 @@ interface PatpBadgeProps {
 }
 
 export const PatpBadge = ({ children, className, ...rest }: PatpBadgeProps) => {
-  const { change } = useForm();
+  const { change, focus } = useForm();
 
   const onClick = useCallback(
     (event: React.MouseEvent<HTMLSpanElement>) => {
       const patp = event.currentTarget.innerText;
+      focus('point');
       change('point', patp);
     },
-    [change]
+    [change, focus]
   );
 
   return (

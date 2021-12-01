@@ -10,15 +10,16 @@ interface AddressButtonProps {
 }
 
 export const AddressButton = ({ children, ...rest }: AddressButtonProps) => {
-  const { change } = useForm();
+  const { change, focus } = useForm();
   const { wallet }: any = useWallet();
   const address = need.addressFromWallet(wallet);
 
   const onClick = useCallback(
     (_event: React.MouseEvent<HTMLSpanElement>) => {
+      focus('owner');
       change('owner', address);
     },
-    [address, change]
+    [address, change, focus]
   );
 
   return (

@@ -23,6 +23,7 @@ export default function BridgeForm({
 }) {
   const _onSubmit = useCallback(
     async (...args) => {
+      console.log('form submit', args);
       const errors = await onSubmit(...args);
       if (errors) {
         return errors;
