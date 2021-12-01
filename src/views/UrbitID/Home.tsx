@@ -4,7 +4,6 @@ import { Box, Button, Icon, Row } from '@tlon/indigo-react';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import { PROXY_TYPE } from 'lib/proxy';
-import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { convertToInt } from 'lib/convertToInt';
 import { ETH_ZERO_ADDR, MASTER_TICKET_TOOLTIP } from 'lib/constants';
 import { abbreviateAddress } from 'lib/utils/address';
@@ -45,7 +44,7 @@ export default function UrbitIDHome() {
   const goResetKeys = useCallback(() => push(names.RESET_KEYS), [push, names]);
 
   const isMasterTicket = Just.hasInstance(urbitWallet);
-  const { isOwner, canManage } = useCurrentPermissions();
+  const { isOwner, canManage } = point;
   const networkRevision = convertToInt(point.keyRevisionNumber, 10);
 
   const goSetProxy = useCallback(

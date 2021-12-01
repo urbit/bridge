@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Just } from 'folktale/maybe';
 import { Grid, ToggleInput, CheckboxInput, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
@@ -144,23 +150,15 @@ export default function UrbitOSNetworkingKeys({
   setManualNetworkSeed,
 }) {
   const { pop } = useLocalRouter();
-  const { pointCursor } = usePointCursor();
-  const { getDetails } = usePointCache();
+  const { point, setLoading } = useRollerStore();
   const {
-    point: { isL2 },
-  } = useRollerStore();
-  const { configureNetworkingKeys, getPendingTransactions } = useRoller();
+    configureNetworkingKeys,
+    getPendingTransactions,
+    checkForUpdates,
+  } = useRoller();
   const [breach, setBreach] = useState(false);
 
-  const point = need.point(pointCursor);
-  const details = getDetails(point);
-
-  const hasKeys = details.matchWith({
-    Nothing: () => false,
-    Just: ({ value: details }) => parseInt(details.keyRevisionNumber, 10) > 0,
-    // we actually don't mind the default NaN behavior of parseInt here,
-    // since NaN > 0 === false and that's a reasonable result
-  });
+  const hasKeys = point.networkKeysSet;
 
   const {
     construct,
@@ -170,6 +168,15 @@ export default function UrbitOSNetworkingKeys({
     bind,
     keyfileBind,
   } = useSetKeys(manualNetworkSeed, setManualNetworkSeed);
+
+  useEffect(() => {
+    if (completed) {
+      checkForUpdates(
+        point.value,
+        `${point.patp}'s Networking Keys have been set!`
+      );
+    }
+  }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const validateForm = useCallback((values, errors) => {
     if (values.useNetworkSeed && errors.networkSeed) {
@@ -213,7 +220,7 @@ export default function UrbitOSNetworkingKeys({
   );
 
   const setNetworkingKeys = useCallback(async () => {
-    // setLoading(true);
+    setLoading(true);
     try {
       await configureNetworkingKeys({
         breach,
@@ -228,11 +235,15 @@ export default function UrbitOSNetworkingKeys({
       // set since they are in pending in the Roller...
       // we could inspect if there's a changeKeys in the local list of pending txs,...
       //
+      checkForUpdates(
+        point.value,
+        `${point.patp}'s Networking Keys have been set!`
+      );
       pop();
     } catch (error) {
       // setError(error);
     } finally {
-      // setLoading(false);
+      setLoading(false);
     }
   }, [
     breach,
@@ -241,6 +252,8 @@ export default function UrbitOSNetworkingKeys({
     point,
     pop,
     configureNetworkingKeys,
+    setLoading,
+    checkForUpdates,
   ]);
 
   const initialValues = useMemo(
@@ -330,7 +343,7 @@ export default function UrbitOSNetworkingKeys({
                 </>
               )}
 
-              {isL2 ? (
+              {point.isL2 ? (
                 <Grid.Item
                   as={Button}
                   full
@@ -346,7 +359,7 @@ export default function UrbitOSNetworkingKeys({
                   as={InlineEthereumTransaction}
                   {...bind}
                   label={`${hasKeys ? 'Reset' : 'Set'} Networking Keys`}
-                  onReturn={() => pop()}
+                  onReturn={pop}
                 />
               )}
             </Box>

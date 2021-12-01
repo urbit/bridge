@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
-import { Grid } from 'indigo-react';
+import { Button, Grid } from 'indigo-react';
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
@@ -11,6 +11,7 @@ import ob from 'urbit-ob';
 import { useNetwork } from 'store/network';
 import { usePointCache } from 'store/pointCache';
 import { usePointCursor } from 'store/pointCursor';
+import { useRollerStore } from 'store/rollerStore';
 
 import * as need from 'lib/need';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
@@ -65,14 +66,17 @@ export function useIssueChild() {
 
 export default function IssueChild() {
   const { pop }: any = useLocalRouter();
-  const { api } = useRoller();
+  const { api, checkForUpdates, spawnPoint } = useRoller();
   const { pointCursor }: any = usePointCursor();
+  const { point } = useRollerStore();
 
   const _point = convertToInt(need.point(pointCursor), 10);
   const [availablePoints, setAvailablePoints] = useState<Set<number> | null>(
     null
   );
   const [candidates, setCandidates] = useState<string[]>([]);
+  const [pointToSpawn, setPointToSpawn] = useState<number | null>();
+  const [l2SpawnSent, setL2SpawnSent] = useState(false);
 
   const fetchAvailablePoints = useCallback(async () => {
     const available = await api.getUnspawned(_point);
@@ -107,6 +111,15 @@ export default function IssueChild() {
     shuffle();
   }, [fetchAvailablePoints, shuffle]);
 
+  const spawnNewPoint = useCallback(async () => {
+    if (pointToSpawn) {
+      await spawnPoint(pointToSpawn);
+      checkForUpdates(pointToSpawn);
+      setPointToSpawn(null);
+      setL2SpawnSent(true);
+    }
+  }, [pointToSpawn, spawnPoint, checkForUpdates]);
+
   const {
     isDefaultState,
     construct,
@@ -115,6 +128,12 @@ export default function IssueChild() {
     inputsLocked,
     bind,
   } = useIssueChild();
+
+  useEffect(() => {
+    if (completed && pointToSpawn) {
+      checkForUpdates(pointToSpawn);
+    }
+  }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const validateFormAsync = useCallback(
     async values => {
@@ -154,7 +173,9 @@ export default function IssueChild() {
   const onValues = useCallback(
     ({ valid, values }) => {
       if (valid) {
-        construct(patp2dec(values.point), values.owner);
+        const pointDecimal = patp2dec(values.point);
+        construct(pointDecimal, values.owner);
+        setPointToSpawn(pointDecimal);
       } else {
         unconstruct();
       }
@@ -183,14 +204,16 @@ export default function IssueChild() {
               onValues={onValues}>
               {({ handleSubmit, values }: any) => (
                 <>
-                  {completed && (
+                  {(completed || l2SpawnSent) && (
                     <Grid.Item
                       full
-                      as={Text}
-                      className={cn('f5 wrap', {
+                      as={'div'}
+                      style={{ fontSize: 14 }}
+                      className={cn('f5 wrap mb5', {
                         green3: completed,
                       })}>
-                      {values.point} has been spawned and can be claimed by{' '}
+                      <span className="mono">{values.point}</span> has been
+                      spawned and can be claimed by{' '}
                       <CopiableAddress>{values.owner}</CopiableAddress>.
                     </Grid.Item>
                   )}
@@ -246,12 +269,27 @@ export default function IssueChild() {
 
                   <Grid.Item full as={FormError} />
 
-                  <Grid.Item
-                    full
-                    as={InlineEthereumTransaction}
-                    {...bind}
-                    onReturn={() => pop()}
-                  />
+                  {point.isL2Spawn ? (
+                    <Grid.Item
+                      as={Button}
+                      full
+                      className="mt4"
+                      center
+                      solid
+                      disabled={!pointToSpawn}
+                      onClick={spawnNewPoint}>
+                      {pointToSpawn
+                        ? `Spawn ${ob.patp(pointToSpawn)}`
+                        : `Please enter a ${point.isStar ? 'planet' : 'star'}`}
+                    </Grid.Item>
+                  ) : (
+                    <Grid.Item
+                      full
+                      as={InlineEthereumTransaction}
+                      {...bind}
+                      onReturn={pop}
+                    />
+                  )}
                 </>
               )}
             </BridgeForm>

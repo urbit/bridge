@@ -6,7 +6,17 @@ import { Invite, Invites } from 'lib/types/Invite';
 import Point, { Points } from 'lib/types/Point';
 import { toL1Details } from 'lib/utils/point';
 
-export const EMPTY_POINT = new Point(-1, toL1Details({}), '');
+const getPointsAndList = (points: Points, point: Point) => ({
+  points,
+  pointList: Object.values(points),
+  point: point.isDefault ? point : points[point.value],
+});
+
+export const EMPTY_POINT = new Point({
+  value: -1,
+  details: toL1Details({}),
+  address: '',
+});
 
 export interface RollerStore {
   nextBatchTime: number;
@@ -62,7 +72,7 @@ export const useRollerStore = create<RollerStore>(set => ({
   setPoint: (point: number) =>
     set(state => ({ point: state.points[point] || EMPTY_POINT })),
   setPoints: (points: Points) =>
-    set(() => ({ points, pointList: Object.values(points) })),
+    set(({ point }) => getPointsAndList(points, point)),
   setInvites: (point: number, invites: Invite[]) =>
     set(state => {
       const newInvites: Invites = {};
@@ -89,11 +99,11 @@ export const useRollerStore = create<RollerStore>(set => ({
     }),
   setInvitesLoading: (invitesLoading: boolean) =>
     set(() => ({ invitesLoading })),
-  updatePoint: (point: Point) =>
-    set(({ points }) => {
-      const newPoints: Points = {};
-      newPoints[point.value] = point;
-      return { points: Object.assign(points, newPoints) };
+  updatePoint: (newPoint: Point) =>
+    set(({ point, points }) => {
+      const newPoints: Points = Object.assign({}, points);
+      newPoints[newPoint.value] = newPoint;
+      return getPointsAndList(newPoints, point);
     }),
   setModalText: (modalText?: string) => set(() => ({ modalText })),
 }));

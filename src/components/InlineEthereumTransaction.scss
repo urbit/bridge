@@ -1,6 +1,8 @@
 @import 'style/shared/variables.scss';
 
 .inline-ethereum-tx {
+  width: 100%;
+
   span.eth-tx-button {
     border-radius: $medium-border-radius;
     font-size: 14px;

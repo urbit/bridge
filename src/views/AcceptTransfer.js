@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 import { Nothing } from 'folktale/maybe';
 import { Grid, Text, CheckboxInput, Button } from 'indigo-react';
@@ -60,7 +60,7 @@ export default function AcceptTransfer() {
   const { pop } = useLocalRouter();
   const { setPointCursor } = usePointCursor();
   const { point } = useRollerStore();
-  const { transferPoint } = useRoller();
+  const { transferPoint, checkForUpdates } = useRoller();
 
   const { wallet } = useWallet();
   const _address = need.addressFromWallet(wallet);
@@ -70,6 +70,15 @@ export default function AcceptTransfer() {
   const [reset, setReset] = useState(true);
 
   const { completed, bind, inputsLocked, construct } = useAcceptTransfer();
+
+  useEffect(() => {
+    if (completed) {
+      checkForUpdates(
+        point.value,
+        `${point.patp} has been transferred to you!`
+      );
+    }
+  }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const initialValues = useMemo(() => ({ noReset: false }), []);
 
@@ -92,8 +101,9 @@ export default function AcceptTransfer() {
 
   const acceptTransfer = useCallback(async () => {
     await transferPoint(_address, reset);
+    checkForUpdates(point.value, `${point.patp} has been transferred to you!`);
     pop();
-  }, [transferPoint, pop, _address, reset]);
+  }, [transferPoint, checkForUpdates, point, pop, _address, reset]);
 
   return (
     <View
@@ -151,7 +161,7 @@ export default function AcceptTransfer() {
                 full
                 as={InlineEthereumTransaction}
                 {...bind}
-                onReturn={() => pop()}
+                onReturn={pop}
               />
             )}
           </Grid>

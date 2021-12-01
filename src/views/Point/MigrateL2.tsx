@@ -36,7 +36,8 @@ import { isPlanet } from 'lib/utils/point';
 
 import './MigrateL2.scss';
 import { useRollerStore } from 'store/rollerStore';
-import Point from 'lib/types/Point';
+import Point, { PointField } from 'lib/types/Point';
+import useRoller from 'lib/useRoller';
 
 const PointEntry = ({
   point,
@@ -99,6 +100,7 @@ const useMigrate = () => {
 export default function MigrateL2() {
   const { pop }: any = useLocalRouter();
   const { point, pointList } = useRollerStore();
+  const { checkForUpdates } = useRoller();
   const l1Points = pointList.filter(({ canMigrate }) => canMigrate);
 
   const [proceed, setProceed] = useState(false);
@@ -126,9 +128,15 @@ export default function MigrateL2() {
 
   useEffect(() => {
     if (completed) {
+      checkForUpdates(
+        selectedPoint.value,
+        `${selectedPoint.patp} has been migrated to Layer 2!`,
+        true,
+        PointField.layer
+      );
       pop();
     }
-  }, [completed, pop]);
+  }, [completed, pop]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const goBack = useCallback(() => {
     if (proceed) {
@@ -241,7 +249,7 @@ export default function MigrateL2() {
             full
             as={InlineEthereumTransaction}
             label={`${
-              transfer ? 'Transfer point' : 'Set spawn proxy'
+              transfer ? 'Transfer ship' : 'Set spawn proxy'
             } to Layer 2`}
             {...bind}
             onReturn={pop}
