@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 import { Grid, Text, Flex, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
@@ -124,20 +124,21 @@ function useSetProxy(proxyType) {
 
 export default function SetProxy() {
   const { data, pop } = useLocalRouter();
-  const { getDetails } = usePointCache();
-  const { pointCursor } = usePointCursor();
   const { contracts } = useNetwork();
+  const { point, setLoading } = useRollerStore();
   const {
-    point: { isL2, isL2Spawn },
-  } = useRollerStore();
-  const { setProxyAddress, getPendingTransactions } = useRoller();
+    setProxyAddress,
+    getPendingTransactions,
+    checkForUpdates,
+  } = useRoller();
   const [newAddress, setNewAddress] = useState('');
 
-  const _point = need.point(pointCursor);
-  const _details = need.details(getDetails(_point));
   const _contracts = need.contracts(contracts);
 
-  const properProxyType = capitalize(proxyTypeToHuman(data.proxyType));
+  const humanProxyType = proxyTypeToHuman(data.proxyType);
+  const properProxyType = capitalize(humanProxyType);
+
+  const { isL2, isL2Spawn } = point;
 
   const isL2Tx =
     (data.proxyType === 'MANAGEMENT' && isL2) ||
@@ -154,26 +155,35 @@ export default function SetProxy() {
   } = useSetProxy(data.proxyType);
 
   const setProxy = useCallback(async () => {
-    // setLoading(true);
-    console.log(newAddress);
+    setLoading(true);
     if (newAddress === '') return;
     try {
       await setProxyAddress(getL2ProxyName(data.proxyType), newAddress);
-      getPendingTransactions(_point);
+      getPendingTransactions(point.value);
       pop();
     } catch (error) {
       // setError(error);
     } finally {
-      // setLoading(false);
+      setLoading(false);
     }
   }, [
     newAddress,
     getPendingTransactions,
-    _point,
+    point,
     pop,
     data.proxyType,
     setProxyAddress,
+    setLoading,
   ]);
+
+  useEffect(() => {
+    if (completed) {
+      checkForUpdates(
+        point.value,
+        `${point.patp}'s ${humanProxyType} proxy has been set!`
+      );
+    }
+  }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const validateForm = useCallback((values, errors) => {
     if (!values.unset && errors.address) {
@@ -213,7 +223,7 @@ export default function SetProxy() {
 
   const initialValues = useMemo(() => ({ unset: false }), []);
 
-  const proxyAddress = proxyFromDetails(_details, _contracts, data.proxyType);
+  const proxyAddress = proxyFromDetails(point, _contracts, data.proxyType);
   const isProxySet = !isZeroAddress(proxyAddress);
 
   const header = useMemo(() => {
@@ -296,7 +306,7 @@ export default function SetProxy() {
                     full
                     as={InlineEthereumTransaction}
                     {...bind}
-                    onReturn={() => pop()}
+                    onReturn={pop}
                   />
                 )}
               </>

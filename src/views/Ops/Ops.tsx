@@ -1,20 +1,24 @@
+import { useCallback } from 'react';
 import * as need from 'lib/need';
 import { Box, Row, Button, Icon } from '@tlon/indigo-react';
+
+import { useRollerStore } from 'store/rollerStore';
+import { usePointCursor } from 'store/pointCursor';
+
+import { useLocalRouter } from 'lib/LocalRouter';
+import { isGalaxy } from 'lib/utils/point';
 
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
-import { useCallback } from 'react';
-import { useLocalRouter } from 'lib/LocalRouter';
-import { isGalaxy } from 'lib/utils/point';
-import { usePointCursor } from 'store/pointCursor';
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 
 export const Ops = () => {
   const { pop, push, names }: any = useLocalRouter();
   const { pointCursor }: any = usePointCursor();
-  const point = need.point(pointCursor);
+  const { point } = useRollerStore();
+  const _point = need.point(pointCursor);
 
   const goSenate = useCallback(() => push(names.SENATE), [push, names]);
   const goResidents = useCallback(() => push(names.RESIDENTS), [push, names]);
@@ -34,11 +38,13 @@ export const Ops = () => {
       <Window className="id-ops">
         <HeaderPane>
           <Row className="header-row">
-            <h5>{isGalaxy(point) ? 'Galaxy' : 'Star'} Ops</h5>
-            <Button onClick={goIssuePoint} className="header-button">
-              <Icon icon="Node" /> &nbsp;Spawn&nbsp;
-              {isGalaxy(point) ? 'Stars' : 'Planets'}
-            </Button>
+            <h5>{isGalaxy(_point) ? 'Galaxy' : 'Star'} Ops</h5>
+            {point.networkKeysSet && (
+              <Button onClick={goIssuePoint} className="header-button">
+                <Icon icon="Node" /> &nbsp;Spawn&nbsp;
+                {isGalaxy(_point) ? 'Stars' : 'Planets'}
+              </Button>
+            )}
           </Row>
         </HeaderPane>
         <BodyPane>
@@ -62,7 +68,7 @@ export const Ops = () => {
               View
             </Button>
           </Row>
-          {isGalaxy(point) && (
+          {point.isGalaxy && (
             <Row className="between-row management">
               <Box>
                 <Box>Proposals</Box>

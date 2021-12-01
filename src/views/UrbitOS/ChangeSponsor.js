@@ -216,19 +216,13 @@ function CurrentEscape({ onDone }) {
 }
 
 export default function UrbitOSChangeSponsor() {
-  const { pointCursor } = usePointCursor();
+  const { point } = useRollerStore();
 
-  const point = need.point(pointCursor);
-
-  const { getDetails } = usePointCache();
-
-  const details = need.details(getDetails(point));
-
-  const [requested, setRequested] = useState(details.escapeRequested);
+  const [requested, setRequested] = useState(point.escapeRequested);
 
   const onDone = useCallback(() => {
-    setRequested(details.escapeRequested);
-  }, [details, setRequested]);
+    setRequested(point.escapeRequested);
+  }, [point, setRequested]);
 
   return requested ? (
     <CurrentEscape onDone={onDone} />

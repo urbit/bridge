@@ -148,7 +148,7 @@ export default function AcceptLockup() {
           full
           as={InlineEthereumTransaction}
           {...bind}
-          onReturn={() => pop()}
+          onReturn={pop}
         />
       </Grid>
     </View>

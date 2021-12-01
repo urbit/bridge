@@ -9,6 +9,7 @@ import { usePointCache } from 'store/pointCache';
 import { usePointCursor } from 'store/pointCursor';
 import { useStarReleaseCache } from 'store/starRelease';
 import { useNetwork } from 'store/network';
+import { useRollerStore } from 'store/rollerStore';
 
 import * as need from 'lib/need';
 import { isZeroAddress, abbreviateAddress } from 'lib/utils/address';
@@ -138,11 +139,21 @@ export default function Points() {
     rejectedPoints,
     addRejectedPoint,
   ] = useRejectedIncomingPointTransfers();
+  const { pointList } = useRollerStore();
   const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
 
   const outgoingPoints = useMemo(
-    () => getOutgoingPoints(controlledPoints, getDetails),
-    [getDetails, controlledPoints]
+    () => pointList.filter(({ isTransferProxySet }) => isTransferProxySet),
+    [pointList]
+  );
+
+  const incomingPoints = useMemo(
+    () =>
+      pointList.filter(
+        ({ isTransferProxy, value }) =>
+          isTransferProxy && !rejectedPoints.includes(value)
+      ),
+    [pointList, rejectedPoints]
   );
 
   const _contracts = need.contracts(contracts);
@@ -178,10 +189,7 @@ export default function Points() {
   // if there are any pending transfers, incoming or outgoing, stay on this
   // page, because those can only be completed/cancelled here.
   useEffect(() => {
-    if (
-      Nothing.hasInstance(outgoingPoints) ||
-      Nothing.hasInstance(starReleaseDetails)
-    ) {
+    if (Nothing.hasInstance(starReleaseDetails)) {
       return;
     }
     controlledPoints.matchWith({
@@ -196,12 +204,9 @@ export default function Points() {
               ...c.value.managingPoints,
               ...c.value.spawningPoints,
             ];
-            const incoming = c.value.incomingPoints.filter(
-              p => !rejectedPoints.includes(p)
-            );
             if (
               all.length === 1 &&
-              incoming.length === 0 &&
+              incomingPoints.length === 0 &&
               outgoingPoints.length === 0 &&
               (starReleaseDetails.value === null ||
                 starReleaseDetails.value.total === 0)
@@ -217,6 +222,7 @@ export default function Points() {
     controlledPoints,
     rejectedPoints,
     outgoingPoints,
+    incomingPoints,
     setPointCursor,
     popAndPush,
     names,
@@ -228,18 +234,15 @@ export default function Points() {
   const loading = Nothing.hasInstance(controlledPoints);
 
   const ownedPoints = maybeGetResult(controlledPoints, 'ownedPoints', []);
-  const incomingPoints = maybeGetResult(
-    controlledPoints,
-    'incomingPoints',
-    []
-  ).filter(point => !rejectedPoints.includes(point));
   const managingPoints = maybeGetResult(controlledPoints, 'managingPoints', []);
   const votingPoints = maybeGetResult(controlledPoints, 'votingPoints', []);
   const spawningPoints = maybeGetResult(controlledPoints, 'spawningPoints', []);
   const lockedPoints = maybeLockedPoints.getOrElse([]);
 
   const allPoints = [
-    ...ownedPoints.filter(p => !outgoingPoints.includes(p)),
+    ...ownedPoints.filter(
+      p => !outgoingPoints.find(({ value }) => value === p)
+    ),
     ...managingPoints,
     ...votingPoints,
     ...spawningPoints,
@@ -338,15 +341,15 @@ export default function Points() {
           {abbreviateAddress(address)}
         </CopiableAddress>
       </NavHeader>
-      {incomingPoints.map(point => (
+      {incomingPoints.map(({ value }) => (
         <IncomingPoint
-          key={point}
-          point={point}
+          key={value}
+          point={value}
           accept={() => {
-            setPointCursor(Just(point));
+            setPointCursor(Just(value));
             push(names.ACCEPT_TRANSFER);
           }}
-          reject={() => addRejectedPoint(point)}
+          reject={() => addRejectedPoint(value)}
         />
       ))}
       <Grid>
@@ -369,7 +372,7 @@ export default function Points() {
             <Grid.Item
               full
               as={PointList}
-              points={outgoingPoints}
+              points={outgoingPoints.map(({ value }) => value)}
               actions={(point, i) => (
                 <ActionButtons
                   actions={[
