@@ -18,7 +18,6 @@ import Card from 'components/L2/Card';
 
 import * as need from 'lib/need';
 import useInvites from 'lib/useInvites';
-import useCurrentPermissions from 'lib/useCurrentPermissions';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useRoller from 'lib/useRoller';
 import useSeenMissingKeys from 'lib/useSeenMissingKeys';
@@ -79,7 +78,7 @@ export default function Point() {
     loadL2Info();
   }, [point]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { isParent, canManage, isSpawnProxy } = useCurrentPermissions();
+  const { isParent, canManage, isSpawnProxy } = point;
 
   // L1 invites
   const l1Invites = useInvites(point.value);

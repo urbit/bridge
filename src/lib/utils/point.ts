@@ -1,6 +1,7 @@
 import { L2Point } from '@urbit/roller-api';
 import { azimuth } from 'azimuth-js';
 import { L1Point } from 'lib/types/L1Point';
+import Point from 'lib/types/Point';
 
 export const isGalaxy = (point: number) =>
   azimuth.getPointSize(point) === azimuth.PointSize.Galaxy;
@@ -31,4 +32,12 @@ export const toL1Details = (point?: L2Point): L1Point => {
     transferProxy: point?.ownership?.transferProxy?.address!,
     votingProxy: point?.ownership?.votingProxy?.address!,
   };
+};
+
+export const getUpdatedPointMessage = (point: Point, field: string) => {
+  if (field === 'newPoint') {
+    return `${point.patp} has been spawned!`;
+  }
+
+  return `${point.patp} has been updated!`;
 };

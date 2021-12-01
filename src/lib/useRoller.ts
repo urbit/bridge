@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as azimuth from 'azimuth-js';
 import * as need from 'lib/need';
-import * as ob from 'urbit-ob';
 import SecureLS from 'secure-ls';
 
 import { Invite } from 'lib/types/Invite';
@@ -22,7 +21,7 @@ import {
 import { usePointCache } from 'store/pointCache';
 import { getOutgoingPoints } from 'views/Points';
 
-import { isPlanet, toL1Details } from './utils/point';
+import { getUpdatedPointMessage, isPlanet, toL1Details } from './utils/point';
 import { convertToInt } from './convertToInt';
 import { isDevelopment, isRopsten } from './flags';
 import {
@@ -47,11 +46,12 @@ import {
   UnspawnedPoints,
 } from '@urbit/roller-api';
 
-import Point, { Points } from './types/Point';
+import Point, { PointField, Points } from './types/Point';
 import { useTimerStore } from 'store/timerStore';
 import { ReticketParams, SendL2Params } from './types/L2Transaction';
 import { L1Point } from './types/L1Point';
 import { ddmmmYYYY } from './utils/date';
+import { useWalletConnect } from './useWalletConnect';
 
 const ONE_SECOND = 1000;
 
@@ -75,6 +75,7 @@ export default function useRoller() {
     urbitWallet,
     walletType,
   }: any = useWallet();
+  const { connector } = useWalletConnect();
   const { pointCursor }: any = usePointCursor();
   const { web3, contracts }: any = useNetwork();
   const allPoints: any = usePointCache();
@@ -135,12 +136,28 @@ export default function useRoller() {
     [authToken]
   );
 
+  const getNextQuotaTime = useCallback(
+    (nextSlice: number) => {
+      setTimeout(() => {
+        api
+          .whenNextSlice()
+          .then(next => {
+            setNextQuotaTime(next);
+            getNextQuotaTime(next);
+          })
+          .catch(err => console.warn(err));
+      }, nextSlice - new Date().getTime());
+    },
+    [api, setNextQuotaTime]
+  );
+
   const fetchConfig = useCallback(async () => {
-    Promise.all([api.getRollerConfig(), api.whenNextSlice()])
-      .then(([config, nextSlice]) => {
+    getNextQuotaTime(1);
+    api
+      .getRollerConfig()
+      .then(config => {
         setConfig(config);
         setNextBatchTime(config.nextBatch);
-        setNextQuotaTime(nextSlice);
       })
       .catch(err => {
         // TODO: more elegant error handling
@@ -149,7 +166,7 @@ export default function useRoller() {
           err
         );
       });
-  }, [api]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [api, getNextQuotaTime, setNextBatchTime]);
 
   const quotaReached = useCallback(() => {
     if (point.l2Quota <= 0) {
@@ -172,13 +189,19 @@ export default function useRoller() {
 
       const pointNum = Number(point);
       try {
-        const [rawDetails, l2Quota] = await Promise.all([
-          api.getPoint(pointNum),
-          api.getRemainingQuota(pointNum),
-        ]);
+        const rawDetails = await api.getPoint(pointNum);
+        const l2Quota =
+          rawDetails?.dominion === 'l2'
+            ? await api.getRemainingQuota(pointNum)
+            : 0;
         const details = toL1Details(rawDetails);
 
-        return new Point(pointNum, details, _wallet.address, l2Quota);
+        return new Point({
+          value: pointNum,
+          details,
+          address: _wallet.address,
+          l2Quota,
+        });
       } catch (e) {
         console.warn(e);
 
@@ -186,12 +209,21 @@ export default function useRoller() {
         try {
           const _contracts = need.contracts(contracts);
           const details = await azimuth.azimuth.getPoint(_contracts, point);
-          return new Point(pointNum, details, _wallet.address);
+          return new Point({
+            value: pointNum,
+            details,
+            address: _wallet.address,
+          });
         } catch (e) {
           console.warn(e);
           // Just return a placeholder Point
           const details: L1Point = toL1Details();
-          return new Point(pointNum, details, _wallet.address);
+          return new Point({
+            value: pointNum,
+            details,
+            address: _wallet.address,
+            isPlaceholder: true,
+          });
         }
       }
     },
@@ -199,19 +231,25 @@ export default function useRoller() {
   );
 
   const checkForUpdates = useCallback(
-    async (point: number, message?: string) => {
+    async (
+      point: number,
+      message?: string,
+      notify = true,
+      field?: PointField
+    ) => {
       const interval = setInterval(async () => {
         const updatedPoint = await initPoint(point);
+        const changedField = !points[point]
+          ? 'newPoint'
+          : updatedPoint.getChangedField(points[point], field);
 
-        console.log('CHECK UPDATES', updatedPoint.equals(points[point]), updatedPoint)
-
-        if (!updatedPoint.equals(points[point])) {
-          console.log('UPDATED')
+        if (!updatedPoint.isPlaceholder && changedField) {
+          console.log('UPDATED', changedField, updatedPoint)
           updatePoint(updatedPoint);
           clearInterval(interval);
-          if (Notification?.permission === 'granted') {
+          if (Notification?.permission === 'granted' && notify) {
             new Notification(
-              `${message || `${updatedPoint.patp} has been updated!`}`
+              `${message || getUpdatedPointMessage(updatedPoint, changedField)}`
             );
           }
         }
@@ -220,35 +258,22 @@ export default function useRoller() {
     [points, initPoint, updatePoint]
   );
 
-  const generateInviteCodes = useCallback(
-    async (numInvites: number) => {
+  const spawnPoint = useCallback(
+    async (pointToSpawn: number) => {
+      if (quotaReached()) {
+        return;
+      }
+
       const _point = need.point(pointCursor);
       const _contracts = contracts.getOrElse(null);
       const _web3 = web3.getOrElse(null);
       const _wallet = wallet.getOrElse(null);
       const _authToken = authToken.getOrElse(null);
-      const _details = getDetails(_point);
 
-      if (!_contracts || !_web3 || !_wallet || !_authToken || !_details) {
+      if (!_contracts || !_web3 || !_wallet || !_authToken) {
         // not using need because we want a custom error
         throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
       }
-
-      // TODO: remove when UI disables management proxy from spawning invites
-      // if (Just.hasInstance(authMnemonic)) {
-      //   throw new Error(
-      //     "Auth key Error: A management mnemonic can't create invite codes"
-      //   );
-      // }
-      let planets: UnspawnedPoints = await api.getUnspawned(_point);
-
-      const pendingTxs = await api.getPendingByShip(_point);
-
-      const pendingSpawns = getPendingSpawns(pendingTxs);
-
-      planets = planets.filter((point: number) => !pendingSpawns.has(point));
-
-      const invites: Invite[] = [];
 
       const proxy = point.getSpawnProxy();
 
@@ -260,124 +285,33 @@ export default function useRoller() {
         proxy,
       });
 
-      for (let i = 0; i < numInvites && planets[i]; i++) {
-        setInviteGeneratingNum(i + 1);
-        const planet = planets[i];
-        const nonceInc = i + nonce;
-
-        const { ticket, inviteWallet } = await generateInviteWallet(
-          planet,
-          _authToken
-        );
-
-        await submitL2Transaction({
-          api,
-          address: _wallet.address,
-          wallet: _wallet,
-          ship: _point,
-          proxy,
-          nonce: nonceInc,
-          pointToSpawn: planet,
-          type: 'spawn',
-          walletType,
-          web3: _web3,
-        });
-
-        const networkSeed = await deriveNetworkSeedFromUrbitWallet(
-          inviteWallet,
-          1
-        );
-        await submitL2Transaction({
-          api,
-          wallet: _wallet,
-          ship: planet,
-          proxy: 'own',
-          nonce: 0,
-          networkSeed,
-          type: 'configureKeys',
-          walletType,
-          web3: _web3,
-        });
-
-        await registerProxyAddress(
-          api,
-          _wallet,
-          planet,
-          'own',
-          'manage',
-          1,
-          inviteWallet.management.keys.address,
-          walletType,
-          _web3
-        );
-
-        await submitL2Transaction({
-          api,
-          wallet: _wallet,
-          ship: planet,
-          proxy: 'own',
-          type: 'transferPoint',
-          nonce: 2,
-          address: inviteWallet.ownership.keys.address,
-          walletType,
-          web3: _web3,
-        });
-
-        invites.push({
-          hash: '',
-          ticket,
-          planet,
-          owner: inviteWallet.ownership.keys.address,
-        });
-      }
-
-      setStoredInvites(ls, invites);
+      await submitL2Transaction({
+        api,
+        address: _wallet.address,
+        wallet: _wallet,
+        ship: _point,
+        proxy,
+        nonce,
+        pointToSpawn,
+        type: 'spawn',
+        walletType,
+        web3: _web3,
+        connector,
+      });
     },
     [
       api,
       authToken,
+      connector,
       contracts,
       pointCursor,
       point,
       wallet,
       walletType,
       web3,
-      getDetails,
-      ls,
-      setInviteGeneratingNum,
+      quotaReached,
     ]
   );
-
-  const getPoints = useCallback(
-    async (proxy: Proxy, address: EthAddress) => {
-      const points: Ship[] =
-        proxy === 'own'
-          ? await api.getOwnedPoints(address)
-          : proxy === 'manage'
-          ? await api.getManagerFor(address)
-          : proxy === 'vote'
-          ? await api.getVotingFor(address)
-          : proxy === 'transfer'
-          ? await api.getTransferringFor(address)
-          : proxy === 'spawn'
-          ? await api.getSpawningFor(address)
-          : [];
-
-      return points;
-    },
-    [api]
-  );
-
-  const getPendingTransactions = useCallback(async () => {
-    try {
-      if (!point.isDefault) {
-        const newPending = await api.getPendingByShip(point.value);
-        setPendingTransactions(newPending);
-      }
-    } catch (error) {
-      console.warn('ERROR GETTING PENDING', error);
-    }
-  }, [api, setPendingTransactions, point]);
 
   const generateInviteInfo = async (planet: number, _authToken: string) => {
     const { ticket, inviteWallet } = await generateInviteWallet(
@@ -480,6 +414,172 @@ export default function useRoller() {
     updateInvite,
   ]);
 
+  const generateInviteCodes = useCallback(
+    async (numInvites: number) => {
+      const _point = need.point(pointCursor);
+      const _contracts = contracts.getOrElse(null);
+      const _web3 = web3.getOrElse(null);
+      const _wallet = wallet.getOrElse(null);
+      const _authToken = authToken.getOrElse(null);
+      const _details = getDetails(_point);
+
+      if (!_contracts || !_web3 || !_wallet || !_authToken || !_details) {
+        // not using need because we want a custom error
+        throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
+      }
+
+      // TODO: remove when UI disables management proxy from spawning invites
+      // if (Just.hasInstance(authMnemonic)) {
+      //   throw new Error(
+      //     "Auth key Error: A management mnemonic can't create invite codes"
+      //   );
+      // }
+      let planets: UnspawnedPoints = await api.getUnspawned(_point);
+
+      const pendingTxs = await api.getPendingByShip(_point);
+
+      const pendingSpawns = getPendingSpawns(pendingTxs);
+
+      planets = planets.filter((point: number) => !pendingSpawns.has(point));
+
+      const invites: Invite[] = [];
+
+      const proxy = point.getSpawnProxy();
+
+      if (proxy === undefined)
+        throw new Error("Error: Address doesn't match proxy");
+
+      const nonce = await api.getNonce({
+        ship: _point,
+        proxy,
+      });
+
+      for (let i = 0; i < numInvites && planets[i]; i++) {
+        setInviteGeneratingNum(i + 1);
+        const planet = planets[i];
+        const nonceInc = i + nonce;
+
+        const { ticket, inviteWallet } = await generateInviteWallet(
+          planet,
+          _authToken
+        );
+
+        await submitL2Transaction({
+          api,
+          address: _wallet.address,
+          wallet: _wallet,
+          ship: _point,
+          proxy,
+          nonce: nonceInc,
+          pointToSpawn: planet,
+          type: 'spawn',
+          walletType,
+          web3: _web3,
+          connector,
+        });
+
+        const networkSeed = await deriveNetworkSeedFromUrbitWallet(
+          inviteWallet,
+          1
+        );
+        await submitL2Transaction({
+          api,
+          wallet: _wallet,
+          ship: planet,
+          proxy: 'own',
+          nonce: 0,
+          networkSeed,
+          type: 'configureKeys',
+          walletType,
+          web3: _web3,
+          connector,
+        });
+
+        await registerProxyAddress(
+          api,
+          _wallet,
+          planet,
+          'own',
+          'manage',
+          1,
+          inviteWallet.management.keys.address,
+          walletType,
+          _web3,
+          connector
+        );
+
+        await submitL2Transaction({
+          api,
+          wallet: _wallet,
+          ship: planet,
+          proxy: 'own',
+          type: 'transferPoint',
+          nonce: 2,
+          address: inviteWallet.ownership.keys.address,
+          walletType,
+          web3: _web3,
+          connector,
+        });
+
+        invites.push({
+          hash: '',
+          ticket,
+          planet,
+          owner: inviteWallet.ownership.keys.address,
+        });
+      }
+
+      setStoredInvites(ls, invites);
+      getInvites();
+    },
+    [
+      api,
+      authToken,
+      connector,
+      contracts,
+      pointCursor,
+      point,
+      wallet,
+      walletType,
+      web3,
+      getDetails,
+      ls,
+      getInvites,
+      setInviteGeneratingNum,
+    ]
+  );
+
+  const getPoints = useCallback(
+    async (proxy: Proxy, address: EthAddress) => {
+      const points: Ship[] =
+        proxy === 'own'
+          ? await api.getOwnedPoints(address)
+          : proxy === 'manage'
+          ? await api.getManagerFor(address)
+          : proxy === 'vote'
+          ? await api.getVotingFor(address)
+          : proxy === 'transfer'
+          ? await api.getTransferringFor(address)
+          : proxy === 'spawn'
+          ? await api.getSpawningFor(address)
+          : [];
+
+      return points;
+    },
+    [api]
+  );
+
+  const getPendingTransactions = useCallback(async () => {
+    try {
+      if (!point.isDefault) {
+        const newPending = await api.getPendingByShip(point.value);
+        setPendingTransactions(newPending);
+      }
+    } catch (error) {
+      console.warn('ERROR GETTING PENDING', error);
+    }
+  }, [api, setPendingTransactions, point]);
+
   interface ConfigureKeysParams {
     breach: boolean;
     customNetworkSeed?: string;
@@ -530,13 +630,10 @@ export default function useRoller() {
         type: 'configureKeys',
         walletType,
         web3: _web3,
+        connector,
         breach,
       });
 
-      checkForUpdates(
-        point.value,
-        `${point.patp}'s network keys have been updated!`
-      );
       return api.getPendingTx(txHash);
     },
     [// eslint-disable-line
@@ -560,9 +657,6 @@ export default function useRoller() {
     fromWallet,
     toWallet,
   }: ReticketParams) => {
-    if (quotaReached()) {
-      return;
-    }
     const azimuthPoint = await api.getPoint(point);
     const proxy = 'own';
     const _web3 = web3.getOrElse(null);
@@ -587,6 +681,7 @@ export default function useRoller() {
       walletType,
       type: 'configureKeys',
       web3: _web3,
+      connector,
     });
     nonce = nonce + 1;
     requests.push(configureKeysRequest);
@@ -601,7 +696,8 @@ export default function useRoller() {
       nonce,
       manager,
       walletType,
-      _web3
+      _web3,
+      connector
     );
     nonce = nonce + 1;
     requests.push(registerMgmtRequest);
@@ -617,7 +713,8 @@ export default function useRoller() {
         nonce,
         toWallet.spawn.keys.address,
         walletType,
-        _web3
+        _web3,
+        connector
       );
       nonce = nonce + 1;
       requests.push(registerSpawnRequest);
@@ -633,6 +730,7 @@ export default function useRoller() {
       address: to,
       walletType,
       web3: _web3,
+      connector,
     });
     requests.push(transferTxRequest);
 
@@ -675,16 +773,13 @@ export default function useRoller() {
         nonce,
         address,
         walletType,
-        _web3
+        _web3,
+        connector
       );
 
-      checkForUpdates(
-        point.value,
-        `${point.patp}'s ${proxyType} proxy has been updated!`
-      );
       return api.getPendingTx(txHash);
     },
-    [api, point, wallet, web3, walletType, checkForUpdates, quotaReached]
+    [api, connector, point, wallet, web3, walletType, quotaReached]
   );
 
   const adoptPoint = useCallback(
@@ -703,13 +798,9 @@ export default function useRoller() {
       const nonce = await api.getNonce({ ship: point.value, proxy });
       const txHash = await adopt(api, _wallet, point.value, proxy, nonce, ship);
 
-      checkForUpdates(
-        point.value,
-        `${ob.patp(ship)} is now a resident of ${point.patp}`
-      );
       return api.getPendingTx(txHash);
     },
-    [api, point, wallet, checkForUpdates, quotaReached]
+    [api, point, wallet, quotaReached]
   );
 
   const kickPoint = useCallback(
@@ -732,13 +823,9 @@ export default function useRoller() {
       const nonce = await api.getNonce({ ship: sponsor, proxy });
       const txHash = await detach(api, _wallet, sponsor, proxy, nonce, ship);
 
-      checkForUpdates(
-        point.value,
-        `${ob.patp(ship)} is no longer a resident of ${point.patp}`
-      );
       return api.getPendingTx(txHash);
     },
-    [api, point, wallet, checkForUpdates, quotaReached]
+    [api, point, wallet, quotaReached]
   );
 
   const rejectPoint = useCallback(
@@ -761,13 +848,9 @@ export default function useRoller() {
       const nonce = await api.getNonce({ ship: sponsor, proxy });
       const txHash = await reject(api, _wallet, sponsor, proxy, nonce, ship);
 
-      checkForUpdates(
-        point.value,
-        `${ob.patp(ship)} has been rejected as a resident of ${point.patp}`
-      );
       return api.getPendingTx(txHash);
     },
-    [api, point, wallet, checkForUpdates, quotaReached]
+    [api, point, wallet, quotaReached]
   );
 
   const transferPoint = useCallback(
@@ -802,25 +885,13 @@ export default function useRoller() {
         type: 'transferPoint',
         walletType,
         web3: _web3,
+        connector,
         reset,
       });
 
-      checkForUpdates(
-        point.value,
-        `${point.patp} has been transferred to ${address}!`
-      );
       return api.getPendingTx(txHash);
     },
-    [
-      api,
-      point,
-      pointCursor,
-      wallet,
-      web3,
-      walletType,
-      checkForUpdates,
-      quotaReached,
-    ]
+    [api, connector, point, pointCursor, wallet, web3, walletType, quotaReached]
   );
 
   const sendL2Transaction = useCallback(
@@ -837,18 +908,17 @@ export default function useRoller() {
         throw new Error('Internal Error: Missing Wallet or Point Info');
       }
 
-      checkForUpdates(point.value);
-
       return submitL2Transaction({
         ...params,
         api,
         wallet: _wallet,
         walletType,
         web3: _web3,
+        connector,
         ship: point.value,
       });
     },
-    [api, point, wallet, web3, walletType, checkForUpdates, quotaReached]
+    [api, connector, point, wallet, web3, walletType, quotaReached]
   );
 
   const changeSponsor = useCallback(
@@ -939,28 +1009,38 @@ export default function useRoller() {
         });
 
         getPendingTransactions();
+
+        setTimeout(() => {
+          getPendingTransactions();
+
+          if (!point.isDefault) {
+            getInvites();
+          }
+        }, TEN_SECONDS); // Should this be more like a minute?
       }
     }, time);
 
     return () => clearInterval(interval);
-  }, [nextBatchTime, getPendingTransactions, point]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [point, nextBatchTime, getPendingTransactions, getInvites]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     adoptPoint,
     api,
     changeSponsor,
+    checkForUpdates,
     config,
     configureNetworkingKeys,
+    generateInviteCodes,
     getInvites,
     getPoints,
     getPointsDetails,
     getPendingTransactions,
-    generateInviteCodes,
     kickPoint,
-    rejectPoint,
-    transferPoint,
     ls,
     performL2Reticket,
+    rejectPoint,
     setProxyAddress,
+    spawnPoint,
+    transferPoint,
   };
 }

@@ -8,7 +8,7 @@ export interface Points {
   [key: number]: Point;
 }
 
-enum PointField {
+export enum PointField {
   value = 'value',
   layer = 'layer',
   active = 'active',
@@ -50,6 +50,14 @@ enum PointField {
   canTransfer = 'canTransfer',
   canVote = 'canVote',
   showInvites = 'showInvites',
+}
+
+interface PointConstructorParams {
+  value: number;
+  details: L1Point;
+  address: string;
+  l2Quota?: number;
+  isPlaceholder?: boolean;
 }
 
 export default class Point {
@@ -99,12 +107,19 @@ export default class Point {
   canVote: boolean;
   showInvites: boolean;
   isDefault: boolean;
+  isPlaceholder: boolean;
 
-  constructor(value: number, details: L1Point, address: string, l2Quota = 0) {
+  constructor({
+    value,
+    details,
+    address,
+    l2Quota = 0,
+    isPlaceholder = false,
+  }: PointConstructorParams) {
     this.value = value;
     this.patp = value < 0 ? 'null' : ob.patp(value);
 
-    this.layer = details.layer;
+    this.layer = details.layer || 1;
     this.l2Quota = l2Quota;
     this.isL2Spawn = Boolean(details.isL2Spawn);
     this.active = details.active;
@@ -155,6 +170,7 @@ export default class Point {
       ((this.isGalaxy && !this.isL2Spawn) || this.isStar || this.isPlanet);
     this.showInvites = this.canManage || this.canSpawn;
     this.isDefault = value === -1;
+    this.isPlaceholder = isPlaceholder;
   }
 
   equals = (point: Point) => {
@@ -163,6 +179,11 @@ export default class Point {
       true
     );
   };
+
+  getChangedField = (point: Point, targetField?: PointField) =>
+    targetField
+      ? this[targetField] !== point[targetField] && targetField
+      : Object.values(PointField).find(field => this[field] !== point[field]);
 
   getAddressProxy = (proxyType: Proxy) =>
     this.isOwner

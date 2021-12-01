@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import cn from 'classnames';
 import { Grid, Text, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
@@ -56,7 +56,7 @@ function AdminCancelTransfer() {
   const { pop } = useLocalRouter();
   const { getDetails } = usePointCache();
   const { point } = useRollerStore();
-  const { setProxyAddress } = useRoller();
+  const { setProxyAddress, checkForUpdates } = useRoller();
   const { pointCursor } = usePointCursor();
   const _point = need.point(pointCursor);
 
@@ -65,10 +65,20 @@ function AdminCancelTransfer() {
 
   const { completed, bind } = useCancelTransfer();
 
+  useEffect(() => {
+    if (completed) {
+      checkForUpdates(point.value, `${point.patp} transfer cancelled`);
+    }
+  }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const cancelTransfer = useCallback(async () => {
     await setProxyAddress('transfer', ETH_ZERO_ADDR);
+    checkForUpdates(point.value, `${point.patp} transfer cancelled`);
     pop();
-  }, [setProxyAddress, pop]);
+  }, [setProxyAddress, pop, checkForUpdates, point]);
+
+  const formattedName = <span className="mono">{name}</span>;
+  const formattedProxy = <span className="mono">{_details.transferProxy}</span>;
 
   return (
     <Window>
@@ -81,12 +91,17 @@ function AdminCancelTransfer() {
         <Grid.Item
           full
           as={Text}
-          className={cn('f5 wrap', {
+          className={cn('f5 wrap mb5', {
             green3: completed,
           })}>
-          {completed
-            ? `The outgoing transfer of ${name} has been cancelled.`
-            : `Cancel the outgoing transfer of ${name} to ${_details.transferProxy}.`}
+          {completed ? (
+            <>The outgoing transfer of {formattedName} has been cancelled.</>
+          ) : (
+            <>
+              Cancel the outgoing transfer of {formattedName} to{' '}
+              {formattedProxy}.
+            </>
+          )}
         </Grid.Item>
 
         {point.isL2 ? (
@@ -104,7 +119,7 @@ function AdminCancelTransfer() {
             full
             as={InlineEthereumTransaction}
             {...bind}
-            onReturn={() => pop()}
+            onReturn={pop}
           />
         )}
       </BodyPane>

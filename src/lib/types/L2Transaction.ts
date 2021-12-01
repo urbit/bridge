@@ -1,4 +1,5 @@
 import RollerRPCAPI, { EthAddress, Proxy, Ship } from '@urbit/roller-api';
+import WalletConnect from '@walletconnect/client';
 
 export type TransactionType =
   | 'transferPoint'
@@ -25,6 +26,7 @@ export interface L2TransactionArgs extends SendL2Params {
   wallet: any;
   walletType: symbol;
   web3: any;
+  connector: WalletConnect | null;
 }
 
 export interface TransactionData {

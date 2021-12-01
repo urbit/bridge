@@ -133,7 +133,7 @@ export default function AdminTransfer() {
                 {completed && (
                   <>
                     <Grid.Item full as={Text} className="wrap">
-                      Started transferring <span className="mono">{name}</span>
+                      Started transferring <span className="mono">{name}</span>{' '}
                       to{' '}
                     </Grid.Item>
                     <Grid.Item full as={Text}>
@@ -175,7 +175,7 @@ export default function AdminTransfer() {
                     full
                     as={InlineEthereumTransaction}
                     {...bind}
-                    onReturn={() => pop()}
+                    onReturn={pop}
                   />
                 )}
               </>
