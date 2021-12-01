@@ -244,7 +244,6 @@ export default function useRoller() {
           : updatedPoint.getChangedField(points[point], field);
 
         if (!updatedPoint.isPlaceholder && changedField) {
-          console.log('UPDATED', changedField, updatedPoint)
           updatePoint(updatedPoint);
           clearInterval(interval);
           if (Notification?.permission === 'granted' && notify) {
