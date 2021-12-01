@@ -14,6 +14,8 @@ import BodyPane from 'components/L2/Window/BodyPane';
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 
+import './Ops.scss';
+
 export const Ops = () => {
   const { pop, push, names }: any = useLocalRouter();
   const { pointCursor }: any = usePointCursor();
@@ -50,7 +52,7 @@ export const Ops = () => {
         <BodyPane>
           <Row className="between-row management">
             <Box>
-              <Box>Residents</Box>
+              <Box className="section-title">Residents</Box>
               <Box className="subtitle">Planets that you route packets for</Box>
             </Box>
             <Button className="secondary" onClick={goResidents}>
@@ -59,7 +61,7 @@ export const Ops = () => {
           </Row>
           <Row className="between-row management">
             <Box>
-              <Box>Requests</Box>
+              <Box className="section-title">Requests</Box>
               <Box className="subtitle">
                 Planets requesting your sponsorship
               </Box>
@@ -71,7 +73,7 @@ export const Ops = () => {
           {point.isGalaxy && (
             <Row className="between-row management">
               <Box>
-                <Box>Proposals</Box>
+                <Box className="section-title">Proposals</Box>
                 <Box className="subtitle">
                   View or vote on proposals in the Senate
                 </Box>
