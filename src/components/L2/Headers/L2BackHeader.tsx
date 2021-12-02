@@ -55,9 +55,7 @@ const L2BackHeader = ({
       }
     };
 
-    if (currentL2) {
-      getEthBalance();
-    }
+    getEthBalance();
   }, [currentL2, setEthBalance, wallet, web3]);
 
   const hasBalance = Number(ethBalance.toString()) !== 0;

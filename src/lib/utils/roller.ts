@@ -44,7 +44,7 @@ export const getTimeToNextBatch = (nextBatch: number, now: number) => {
 
 export const isL2 = (dom?: string) => dom === 'l2';
 
-export const isL2Spawn = (dom?: string) => dom === 'spawn';
+export const isL2Spawn = (dom?: string) => dom === 'l2' || dom === 'spawn';
 
 export const generateInviteWallet = async (point: number, seed: string) => {
   const ticket = makeDeterministicTicket(point, seed);

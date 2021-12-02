@@ -118,7 +118,7 @@ export default function UrbitIDHome() {
           </Row>
         )}
 
-        {point.isParent && networkRevision !== 0 && (
+        {point.isParent && (
           <Row className="between-row management">
             <Box>
               <Box>Spawn Proxy Address</Box>

@@ -33,6 +33,7 @@ import {
   adopt,
   detach,
   reject,
+  isL2Spawn,
 } from './utils/roller';
 import { ETH_ZERO_ADDR, ROLLER_HOSTS, TEN_SECONDS } from './constants';
 
@@ -51,6 +52,7 @@ import { useTimerStore } from 'store/timerStore';
 import { ReticketParams, SendL2Params } from './types/L2Transaction';
 import { L1Point } from './types/L1Point';
 import { ddmmmYYYY } from './utils/date';
+import { showNotification } from './utils/notifications';
 import { useWalletConnect } from './useWalletConnect';
 
 const ONE_SECOND = 1000;
@@ -190,10 +192,9 @@ export default function useRoller() {
       const pointNum = Number(point);
       try {
         const rawDetails = await api.getPoint(pointNum);
-        const l2Quota =
-          rawDetails?.dominion === 'l2'
-            ? await api.getRemainingQuota(pointNum)
-            : 0;
+        const l2Quota = isL2Spawn(rawDetails?.dominion)
+          ? await api.getRemainingQuota(pointNum)
+          : 0;
         const details = toL1Details(rawDetails);
 
         return new Point({
@@ -246,8 +247,8 @@ export default function useRoller() {
         if (!updatedPoint.isPlaceholder && changedField) {
           updatePoint(updatedPoint);
           clearInterval(interval);
-          if (Notification?.permission === 'granted' && notify) {
-            new Notification(
+          if (notify) {
+            showNotification(
               `${message || getUpdatedPointMessage(updatedPoint, changedField)}`
             );
           }
@@ -530,6 +531,9 @@ export default function useRoller() {
 
       setStoredInvites(ls, invites);
       getInvites();
+      showNotification(
+        `Your invite${invites.length > 1 ? 's have' : ' has'} been generated!`
+      );
     },
     [
       api,
@@ -996,7 +1000,7 @@ export default function useRoller() {
   }, [config, fetchConfig]);
 
   useEffect(() => {
-    const time = isDevelopment ? 10000 : ONE_SECOND;
+    const time = ONE_SECOND;
 
     const interval = setInterval(() => {
       const nextRoll = getTimeToNextBatch(nextBatchTime, new Date().getTime());
@@ -1010,10 +1014,8 @@ export default function useRoller() {
         getPendingTransactions();
 
         setTimeout(() => {
-          getPendingTransactions();
-
           if (!point.isDefault) {
-            getInvites();
+            getInvites(); // This will also get pending txns
           }
         }, TEN_SECONDS); // Should this be more like a minute?
       }

@@ -67,7 +67,7 @@ export default function useControlledPointsStore() {
           Just(Result.Error('Failed to read the blockchain.'))
         );
       } else {
-        getPointsDetails(
+        await getPointsDetails(
           (ownedPointsL1 || []).concat(ownedPointsL2 || []).filter(onlyUnique),
           (incomingPointsL1 || [])
             .concat(incomingPointsL2 || [])
