@@ -8,7 +8,7 @@ import { toL1Details } from 'lib/utils/point';
 
 const getPointsAndList = (points: Points, point: Point) => ({
   points,
-  pointList: Object.values(points),
+  pointList: Object.values(points).sort((a, b) => a.value - b.value),
   point: point.isDefault ? point : points[point.value],
 });
 

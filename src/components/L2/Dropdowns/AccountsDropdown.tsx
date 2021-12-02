@@ -123,15 +123,9 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
           <Icon icon="Bitcoin" />
         </Row>
       )}
-      {point.isParent && point.canSpawn && (
+      {point.isParent && point.canSpawn && point.isL1 && (
         <Row className="entry" onClick={goSpawn}>
-          <Box>
-            {point.isStar
-              ? point.isL2Spawn
-                ? 'Create Invites'
-                : 'Spawn Planets'
-              : 'Spawn Stars'}
-          </Box>
+          <Box>Spawn{point.isStar ? ' Planets' : ' Stars'}</Box>
           <Icon icon="Plus" />
         </Row>
       )}
