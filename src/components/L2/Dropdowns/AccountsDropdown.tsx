@@ -128,7 +128,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
           <Box>
             {point.isStar
               ? point.isL2Spawn
-                ? 'Generate Invites'
+                ? 'Create Invites'
                 : 'Spawn Planets'
               : 'Spawn Stars'}
           </Box>

@@ -119,7 +119,7 @@ function AdminCancelTransfer() {
             full
             as={InlineEthereumTransaction}
             {...bind}
-            onReturn={pop}
+            onReturn={() => pop()}
           />
         )}
       </BodyPane>

@@ -306,7 +306,7 @@ export default function SetProxy() {
                     full
                     as={InlineEthereumTransaction}
                     {...bind}
-                    onReturn={pop}
+                    onReturn={() => pop()}
                   />
                 )}
               </>
