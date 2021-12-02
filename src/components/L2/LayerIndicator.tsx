@@ -5,20 +5,22 @@ import './LayerIndicator.scss';
 
 export interface LayerIndicatorProps {
   layer: 1 | 2;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'smt' | 'md' | 'lg';
   className?: string;
+  selected?: boolean;
 }
 
 const LayerIndicator = ({
   layer,
   size = 'md',
   className = '',
+  selected = false,
 }: LayerIndicatorProps) => {
-  return (
-    <Box className={`layer-indicator ${size} l${layer} ${className}`}>
-      L{layer}
-    </Box>
-  );
+  const classes = `layer-indicator ${size} l${layer} ${className} ${
+    selected ? 'selected' : ''
+  }`;
+
+  return <Box className={classes}>L{layer}</Box>;
 };
 
 export default LayerIndicator;
