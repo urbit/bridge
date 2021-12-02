@@ -15,7 +15,7 @@ import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 
 export const Ops = () => {
-  const { pop, push, names }: any = useLocalRouter();
+  const { pop, push, popAndPush, names }: any = useLocalRouter();
   const { pointCursor }: any = usePointCursor();
   const { point } = useRollerStore();
   const _point = need.point(pointCursor);
@@ -27,6 +27,28 @@ export const Ops = () => {
     names.ISSUE_CHILD,
     push,
   ]);
+  const goUrbitOS = useCallback(() => popAndPush(names.URBIT_OS), [
+    names.URBIT_OS,
+    popAndPush,
+  ]);
+
+  const getButtonContent = () => {
+    if (!point.canSpawn) {
+      return null;
+    } else if (point.networkKeysSet) {
+      return (
+        <Button onClick={goIssuePoint} className="header-button">
+          <Icon icon="Node" /> &nbsp;Spawn&nbsp;
+          {isGalaxy(_point) ? 'Stars' : 'Planets'}
+        </Button>
+      );
+    }
+    return (
+      <Button onClick={goUrbitOS} className="header-button">
+        Set Network Keys
+      </Button>
+    );
+  };
 
   return (
     <View
@@ -39,12 +61,7 @@ export const Ops = () => {
         <HeaderPane>
           <Row className="header-row">
             <h5>{isGalaxy(_point) ? 'Galaxy' : 'Star'} Ops</h5>
-            {point.networkKeysSet && (
-              <Button onClick={goIssuePoint} className="header-button">
-                <Icon icon="Node" /> &nbsp;Spawn&nbsp;
-                {isGalaxy(_point) ? 'Stars' : 'Planets'}
-              </Button>
-            )}
+            {getButtonContent()}
           </Row>
         </HeaderPane>
         <BodyPane>

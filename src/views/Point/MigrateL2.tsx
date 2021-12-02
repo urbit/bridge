@@ -128,12 +128,10 @@ export default function MigrateL2() {
 
   useEffect(() => {
     if (completed) {
-      checkForUpdates(
-        selectedPoint.value,
-        `${selectedPoint.patp} has been migrated to Layer 2!`,
-        true,
-        PointField.layer
-      );
+      const message = transfer
+        ? `${selectedPoint.patp} has been migrated to Layer 2!`
+        : `${selectedPoint.patp}'s spawn proxy has been set to Layer 2!`;
+      checkForUpdates(selectedPoint.value, message, true, PointField.layer);
       pop();
     }
   }, [completed, pop]); // eslint-disable-line react-hooks/exhaustive-deps
