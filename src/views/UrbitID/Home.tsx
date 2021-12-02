@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Box, Button, Icon, Row } from '@tlon/indigo-react';
 
@@ -30,7 +30,9 @@ export default function UrbitIDHome() {
 
   const [keysDownloaded, setKeysDownloaded] = useState(false);
 
-  const _urbitWallet = urbitWallet.getOrElse(null);
+  const _urbitWallet = useMemo(() => urbitWallet.getOrElse(null), [
+    urbitWallet,
+  ]);
   const { keyfile, filename } = useKeyfileGenerator();
   const [paper, setPaper] = useState(Nothing());
 

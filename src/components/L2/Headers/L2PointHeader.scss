@@ -52,6 +52,13 @@
           height: 12px;
         }
       }
+
+      .count {
+        margin-right: 4px;
+        background-color: $rollup-yellow;
+        padding: 0 4px;
+        border-radius: $large-border-radius;
+      }
     }
 
     .rollup-timer {

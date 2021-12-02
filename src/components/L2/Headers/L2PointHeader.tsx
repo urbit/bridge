@@ -6,7 +6,6 @@ import { useHistory } from 'store/history';
 import { useRollerStore } from 'store/rollerStore';
 import { usePointCursor } from 'store/pointCursor';
 
-import { ReactComponent as InviteIcon } from 'assets/invite.svg';
 import HeaderButton from './HeaderButton';
 import AccountsDropdown from '../Dropdowns/AccountsDropdown';
 import './L2PointHeader.scss';
@@ -55,8 +54,8 @@ const L2PointHeader = ({
     } else if (invitesLoading) {
       return (
         <Row onClick={goToInvites} className="invites">
-          <InviteIcon />
           <LoadingSpinner foreground="rgba(0,0,0,0.3)" background="white" />
+          Invites
         </Row>
       );
     } else if (numInvites === 0) {
@@ -68,7 +67,7 @@ const L2PointHeader = ({
     } else {
       return (
         <Row onClick={goToInvites} className="invites">
-          <InviteIcon /> {numInvites} Invites
+          <Box className="count">{numInvites}</Box> Invites
         </Row>
       );
     }
@@ -82,7 +81,7 @@ const L2PointHeader = ({
         )}
         <AccountsDropdown showMigrate={showMigrate} />
         {point.value > -1 && (
-          <LayerIndicator size="lg" layer={point.layer} className="ml2" />
+          <LayerIndicator size="lg" layer={point.layer} className="header" />
         )}
       </Row>
       <Row className="info">

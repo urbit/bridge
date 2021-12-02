@@ -5,11 +5,16 @@
   color: white;
 
   &.l1 {
-    background-color: $mid-gray;
+    background-color: $dark-gray;
   }
 
   &.l2 {
     background-color: black;
+
+    &.selected {
+      background-color: white;
+      color: black;
+    }
   }
 
   &.sm, &.md, &.lg {
@@ -19,6 +24,13 @@
   &.sm {
     height: 16px;
     padding: 2px 4px 0;
+    font-size: 12px;
+    width: 14px;
+  }
+
+  &.smt {
+    height: 20px;
+    padding: 4px 4px 0;
     font-size: 12px;
     width: 14px;
   }
@@ -33,10 +45,15 @@
 
   &.lg {
     height: 24px;
-    padding: 7px 7px 0;
+    padding: 8px 7px 0;
     font-size: 14px;
     margin-right: 4px;
     width: 18px;
     border-radius: $medium-border-radius;
+  }
+
+  &.header {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 }
