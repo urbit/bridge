@@ -79,7 +79,7 @@ export default function ResetConfirm({ newWallet, setNewWallet }) {
         full
         as={ForwardButton}
         solid
-        className="mt4"
+        className="mt4 ph4"
         accessory={blinkIf(Nothing.hasInstance(newWallet))}
         disabled={Nothing.hasInstance(newWallet)}
         onClick={goDownload}>

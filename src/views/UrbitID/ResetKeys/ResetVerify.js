@@ -37,7 +37,7 @@ export default function ResetVerify({ newWallet }) {
   const goExecute = useCallback(() => push(names.EXECUTE), [push, names]);
 
   return (
-    <Grid className="mt4">
+    <Grid className="mt4" style={{ width: '100%' }}>
       <Grid.Item full as={Text}>
         Verify New Master Ticket
       </Grid.Item>

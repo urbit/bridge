@@ -287,7 +287,7 @@ export default function IssueChild() {
                       full
                       as={InlineEthereumTransaction}
                       {...bind}
-                      onReturn={pop}
+                      onReturn={() => pop()}
                     />
                   )}
                 </>

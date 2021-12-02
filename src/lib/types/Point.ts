@@ -102,6 +102,7 @@ export default class Point {
   isVotingProxySet: boolean;
   isTransferProxySet: boolean;
   canManage: boolean;
+  couldSpawn: boolean;
   canSpawn: boolean;
   canTransfer: boolean;
   canVote: boolean;
@@ -158,6 +159,7 @@ export default class Point {
     this.isTransferProxySet = !isZeroAddress(this.transferProxy);
     this.canManage = this.isOwner || this.isManagementProxy;
     this.canTransfer = this.isOwner || this.isTransferProxy;
+    this.couldSpawn = this.isParent && (this.isOwner || this.isSpawnProxy);
     this.canSpawn =
       this.isParent &&
       (this.isOwner || this.isSpawnProxy) &&

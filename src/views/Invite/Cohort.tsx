@@ -401,7 +401,7 @@ export default function InviteCohort() {
                   as={InlineEthereumTransaction}
                   label="Generate Planet Code"
                   {...bind}
-                  onReturn={pop}
+                  onReturn={() => pop()}
                 />
               )}
             </Box>

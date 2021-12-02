@@ -159,7 +159,7 @@ export default function Transfer({ className, goActive }) {
               as={InlineEthereumTransaction}
               {...bind}
               label="Approve Transfer"
-              onReturn={pop}
+              onReturn={() => pop()}
             />
           </>
         )}

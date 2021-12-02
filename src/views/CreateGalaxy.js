@@ -155,7 +155,7 @@ export default function CreateGalaxy() {
                 full
                 as={InlineEthereumTransaction}
                 {...bind}
-                onReturn={pop}
+                onReturn={() => pop()}
               />
             </>
           )}
