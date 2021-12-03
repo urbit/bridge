@@ -250,7 +250,7 @@ export default function MigrateL2() {
               transfer ? 'Transfer ship' : 'Set spawn proxy'
             } to Layer 2`}
             {...bind}
-            onReturn={pop}
+            onReturn={() => pop()}
           />
         </Box>
       );

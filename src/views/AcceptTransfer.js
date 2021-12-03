@@ -161,7 +161,7 @@ export default function AcceptTransfer() {
                 full
                 as={InlineEthereumTransaction}
                 {...bind}
-                onReturn={pop}
+                onReturn={() => pop()}
               />
             )}
           </Grid>

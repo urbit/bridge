@@ -80,7 +80,7 @@ export default function Adopt() {
           full
           {...bind}
           as={InlineEthereumTransaction}
-          onReturn={pop}
+          onReturn={() => pop()}
         />
       </Grid>
     </View>

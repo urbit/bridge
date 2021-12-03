@@ -359,7 +359,7 @@ export default function UrbitOSNetworkingKeys({
                   as={InlineEthereumTransaction}
                   {...bind}
                   label={`${hasKeys ? 'Reset' : 'Set'} Networking Keys`}
-                  onReturn={pop}
+                  onReturn={() => pop()}
                 />
               )}
             </Box>

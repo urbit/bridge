@@ -34,6 +34,11 @@
     }
   }
 
+  &.accounts-dropdown .selector {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
   .content-border {
     border: 3px solid $washed-gray;
     position: absolute;

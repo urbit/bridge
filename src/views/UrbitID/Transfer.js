@@ -175,7 +175,7 @@ export default function AdminTransfer() {
                     full
                     as={InlineEthereumTransaction}
                     {...bind}
-                    onReturn={pop}
+                    onReturn={() => pop()}
                   />
                 )}
               </>

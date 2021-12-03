@@ -64,7 +64,7 @@ export default function useControlledPointsStore() {
         spawningPointsL2 === null
       ) {
         _setControlledPoints(
-          Just(Result.Error('Failed to read the blockchain.'))
+          JSON.stringify(Just(Result.Error('Failed to read the blockchain.')))
         );
       } else {
         await getPointsDetails(
@@ -112,7 +112,7 @@ export default function useControlledPointsStore() {
       }
     } catch (error) {
       console.error('failed to fetch controlled points', error);
-      _setControlledPoints(Just(Result.Error(error)));
+      _setControlledPoints(JSON.stringify(Just(Result.Error(error))));
     }
   }, [contracts, wallet, getPoints, getPointsDetails]);
 

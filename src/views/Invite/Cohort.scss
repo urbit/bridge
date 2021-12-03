@@ -121,7 +121,7 @@
   }
 
   .migrate {
-    color: $mid-gray;
+    color: $dark-gray;
     text-decoration: underline;
     cursor: pointer;
   }
@@ -157,7 +157,7 @@
   
       .ship-or-address {
         margin: 6px 0;
-        color: $mid-gray;
+        color: $dark-gray;
       }
   
       .dropdown .address {
@@ -192,7 +192,7 @@
         padding: 8px;
 
         &.disabled {
-          background-color: $mid-gray;
+          background-color: $dark-gray;
         }
       }
     }

@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from 'react';
 import { Icon, Row, Box } from '@tlon/indigo-react';
 import { Just } from 'folktale/maybe';
 
-import Sigil from 'components/Sigil';
 import LayerIndicator from 'components/L2/LayerIndicator';
 import CopiableAddressWrap from 'components/copiable/CopiableAddressWrap';
 import { TooltipPosition } from 'components/WithTooltip';
@@ -98,10 +97,11 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
             key={`point-${value}`}>
             <Box>{patp}</Box>
             <Row>
-              <LayerIndicator layer={layer} size="md" />
-              <Box className="sigil">
-                <Sigil patp={patp} size={1} colors={['#000000', '#FFFFFF']} />
-              </Box>
+              <LayerIndicator
+                layer={layer}
+                size="smt"
+                selected={value === point.value}
+              />
             </Row>
           </Row>
         ))}
@@ -123,15 +123,9 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
           <Icon icon="Bitcoin" />
         </Row>
       )}
-      {point.isParent && point.canSpawn && (
+      {point.isParent && point.canSpawn && point.isL1 && (
         <Row className="entry" onClick={goSpawn}>
-          <Box>
-            {point.isStar
-              ? point.isL2Spawn
-                ? 'Generate Invites'
-                : 'Spawn Planets'
-              : 'Spawn Stars'}
-          </Box>
+          <Box>Spawn{point.isStar ? ' Planets' : ' Stars'}</Box>
           <Icon icon="Plus" />
         </Row>
       )}

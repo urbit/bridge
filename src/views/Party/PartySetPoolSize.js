@@ -174,7 +174,7 @@ export default function PartySetPoolSize() {
                 full
                 as={InlineEthereumTransaction}
                 {...bind}
-                onReturn={pop}
+                onReturn={() => pop()}
               />
             </>
           )}

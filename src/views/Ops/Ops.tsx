@@ -35,7 +35,7 @@ export const Ops = () => {
   ]);
 
   const getButtonContent = () => {
-    if (!point.canSpawn) {
+    if (!point.couldSpawn) {
       return null;
     } else if (point.networkKeysSet) {
       return (

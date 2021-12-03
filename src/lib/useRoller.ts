@@ -244,6 +244,10 @@ export default function useRoller() {
           ? 'newPoint'
           : updatedPoint.getChangedField(points[point], field);
 
+        if (isDevelopment) {
+          console.log(`CHECKING FOR ${changedField} UPDATES:`, updatedPoint);
+        }
+
         if (!updatedPoint.isPlaceholder && changedField) {
           updatePoint(updatedPoint);
           clearInterval(interval);

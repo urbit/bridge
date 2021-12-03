@@ -234,21 +234,11 @@ export default function Points() {
   const loading = Nothing.hasInstance(controlledPoints);
 
   const ownedPoints = maybeGetResult(controlledPoints, 'ownedPoints', []);
-  const managingPoints = maybeGetResult(controlledPoints, 'managingPoints', []);
-  const votingPoints = maybeGetResult(controlledPoints, 'votingPoints', []);
-  const spawningPoints = maybeGetResult(controlledPoints, 'spawningPoints', []);
   const lockedPoints = maybeLockedPoints.getOrElse([]);
 
-  const allPoints = [
-    ...ownedPoints.filter(
-      p => !outgoingPoints.find(({ value }) => value === p)
-    ),
-    ...managingPoints,
-    ...votingPoints,
-    ...spawningPoints,
-  ]
-    .sort((a, b) => Number(a) - Number(b))
-    .filter(onlyUnique);
+  const allPoints = pointList
+    .filter(({ isTransferProxySet }) => !isTransferProxySet)
+    .map(({ value }) => value);
 
   const displayEmptyState =
     !loading && incomingPoints.length === 0 && allPoints.length === 0;
