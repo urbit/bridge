@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useHistory } from 'store/history';
+import { useRollerStore } from 'store/rollerStore';
 
 import useRouter from 'lib/useRouter';
 import { LocalRouterProvider } from 'lib/LocalRouter';
@@ -35,6 +36,7 @@ const VIEWS = {
 
 export default function UrbitID() {
   const history = useHistory();
+  const { point } = useRollerStore();
 
   const { Route, ...router } = useRouter({
     names: NAMES,
@@ -50,12 +52,7 @@ export default function UrbitID() {
       pop={onBack}
       inset
       hideBack
-      header={
-        <L2BackHeader
-          hideBalance={router.peek().key === NAMES.HOME}
-          back={onBack}
-        />
-      }
+      header={<L2BackHeader hideBalance={point.isL2} back={onBack} />}
       className="urbit-id">
       <LocalRouterProvider value={router}>
         <Route />

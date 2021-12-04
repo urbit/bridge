@@ -17,7 +17,7 @@ const LoadingOverlay = ({
     <Box className="loading-overlay">
       <Box className={`${text ? 'solid' : ''}`}>
         {!!text && <Box className="loader-text">{text}</Box>}
-        <LoadingSpinner foreground="rgba(0,0,0,0.3)" background="white" />
+        <LoadingSpinner background="rgba(0,0,0,0.3)" foreground="white" />
       </Box>
     </Box>
   );
