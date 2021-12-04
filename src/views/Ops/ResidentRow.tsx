@@ -48,9 +48,15 @@ export const ResidentRow = ({ point, onKick }: ResidentRowProps) => {
           onClick={() => setShowDropdown(!showDropdown)}
         />
         {showDropdown && (
-          <Box className={'kick-dropdown'} onClick={handleKickClick}>
-            <Text>Kick</Text>
-          </Box>
+          <>
+            <Box
+              className="close-background"
+              onClick={() => setShowDropdown(false)}
+            />
+            <Box className="kick-dropdown" onClick={handleKickClick}>
+              <Text>Kick</Text>
+            </Box>
+          </>
         )}
       </Box>
     </li>

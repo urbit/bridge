@@ -2,33 +2,31 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Grid, Button } from 'indigo-react';
 import * as ob from 'urbit-ob';
 import { azimuth, ecliptic } from 'azimuth-js';
+import { Box, Row } from '@tlon/indigo-react';
 
 import { useNetwork } from 'store/network';
 import { usePointCache } from 'store/pointCache';
+import { usePointCursor } from 'store/pointCursor';
+import { useRollerStore } from 'store/rollerStore';
+import { useHistory } from 'store/history';
+
+import * as need from 'lib/need';
+import { validateMinimumPatpByteLength } from 'lib/validators';
+import useEthereumTransaction from 'lib/useEthereumTransaction';
+import useRoller from 'lib/useRoller';
 
 import { PointInput } from 'form/Inputs';
 import FormError from 'form/FormError';
 import BridgeForm from 'form/BridgeForm';
-
-import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
-import ViewHeader from 'components/ViewHeader';
 import {
   composeValidator,
   buildPointValidator,
   hasErrors,
 } from 'form/validators';
-
-import * as need from 'lib/need';
-import { validateMinimumPatpByteLength } from 'lib/validators';
-import { usePointCursor } from 'store/pointCursor';
-import useEthereumTransaction from 'lib/useEthereumTransaction';
-import { isStar } from 'lib/utils/point';
+import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
-import { Box, Row } from '@tlon/indigo-react';
 import BodyPane from 'components/L2/Window/BodyPane';
-import { useRollerStore } from 'store/rollerStore';
-import useRoller from 'lib/useRoller';
 
 function useChangeSponsor() {
   const { contracts } = useNetwork();
@@ -51,23 +49,27 @@ function useChangeSponsor() {
 
 function ChangeSponsor({ onDone }) {
   const { contracts } = useNetwork();
-  const { pointCursor } = usePointCursor();
-  const { changeSponsor } = useRoller();
-  const {
-    point: { isL2 },
-  } = useRollerStore();
+  const { pop } = useHistory();
+  const { changeSponsor, checkForUpdates } = useRoller();
+  const { point, setLoading } = useRollerStore();
 
   const _contracts = need.contracts(contracts);
-  const point = need.point(pointCursor);
   const { construct, unconstruct, inputsLocked, bind } = useChangeSponsor();
 
   const [newSponsor, setNewSponsor] = useState();
 
   const requestNewSponsor = useCallback(async () => {
     if (newSponsor !== undefined) {
-      changeSponsor(newSponsor);
+      setLoading(true);
+      await changeSponsor(newSponsor);
+      checkForUpdates(
+        point.value,
+        `${point.patp} has requested ${ob.patp(newSponsor)} as a sponsor`
+      );
+      setLoading(false);
+      pop();
     }
-  }, [newSponsor, changeSponsor]);
+  }, [point, newSponsor, changeSponsor, setLoading, checkForUpdates, pop]);
 
   const validateFormAsync = useCallback(
     async values => {
@@ -92,7 +94,7 @@ function ChangeSponsor({ onDone }) {
   );
 
   const validate = useMemo(() => {
-    const sponsorSize = isStar(point) ? 1 : 2;
+    const sponsorSize = point.isStar ? 1 : 2;
     return composeValidator(
       {
         sponsor: buildPointValidator(sponsorSize, [
@@ -117,6 +119,8 @@ function ChangeSponsor({ onDone }) {
     [construct, unconstruct]
   );
 
+  const buttonText = 'Request New Sponsor';
+
   return (
     <Window>
       <HeaderPane>
@@ -135,17 +139,17 @@ function ChangeSponsor({ onDone }) {
                 disabled={inputsLocked}
                 label="New sponsor"
                 className="mv4"
+                size={2}
               />
               <Grid.Item full as={FormError} />
-              {isL2 ? (
+              {point.isL2 ? (
                 <Grid.Item
                   as={Button}
                   full
-                  className=""
                   center
                   solid
                   onClick={requestNewSponsor}>
-                  {'Request New Sponsor'}
+                  {buttonText}
                 </Grid.Item>
               ) : (
                 <Grid.Item
@@ -153,7 +157,7 @@ function ChangeSponsor({ onDone }) {
                   as={InlineEthereumTransaction}
                   {...bind}
                   onReturn={onDone}
-                  label="Request"
+                  label={buttonText}
                 />
               )}
             </Box>
@@ -183,35 +187,66 @@ function useCancelEscape() {
 
 function CurrentEscape({ onDone }) {
   const { construct, bind } = useCancelEscape();
+  const { point } = useRollerStore();
 
-  const { pointCursor } = usePointCursor();
-  const { getDetails } = usePointCache();
+  const { pop } = useHistory();
+  const { cancelEscape, checkForUpdates } = useRoller();
+  const {
+    point: { isL2 },
+    setLoading,
+  } = useRollerStore();
 
-  const point = need.point(pointCursor);
-
-  const details = need.details(getDetails(point));
-
-  const newSponsor = useMemo(() => ob.patp(details.escapeRequestedTo), [
-    details,
-  ]);
+  const newSponsor = useMemo(() => ob.patp(point.escapeRequestedTo), [point]);
 
   useEffect(() => {
     construct();
   }, [construct]);
+
+  const cancelRequest = useCallback(async () => {
+    if (newSponsor !== undefined) {
+      setLoading(true);
+      await cancelEscape(newSponsor);
+      checkForUpdates(point.value, `${point.patp}'s sponsor change cancelled`);
+      setLoading(false);
+      pop();
+    }
+  }, [point, newSponsor, cancelEscape, setLoading, checkForUpdates, pop]);
+
+  const buttonText = 'Cancel Request';
+
   return (
-    <Grid>
-      <Grid.Item full as={ViewHeader}>
-        Currently requesting <span className="mono">{newSponsor}</span> as a new
-        sponsor
-      </Grid.Item>
-      <Grid.Item
-        full
-        as={InlineEthereumTransaction}
-        label="Cancel Request"
-        {...bind}
-        onReturn={onDone}
-      />
-    </Grid>
+    <Window>
+      <HeaderPane>
+        <Row className="header-row">
+          <h5>Change Sponsor</h5>
+        </Row>
+      </HeaderPane>
+      <BodyPane>
+        <Box width="100%" fontSize={14} className="mb4">
+          Currently requesting <span className="mono">{newSponsor}</span> as a
+          new sponsor
+        </Box>
+        {isL2 ? (
+          <Grid.Item
+            as={Button}
+            full
+            center
+            solid
+            style={{ width: '100%' }}
+            onClick={cancelRequest}>
+            {buttonText}
+          </Grid.Item>
+        ) : (
+          <Grid.Item
+            full
+            as={InlineEthereumTransaction}
+            label={buttonText}
+            {...bind}
+            onReturn={onDone}
+          />
+        )}
+      </BodyPane>
+    </Window>
   );
 }
 
