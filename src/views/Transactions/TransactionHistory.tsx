@@ -33,7 +33,7 @@ const TransactionHistory = () => {
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<RollerTransaction[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
-  const [selectedPatp, setSelectedPatp] = useState<string | null>(null);
+  const [selectedPatp, setSelectedPatp] = useState<string | null>();
 
   // Pre-filter the results if navigating from Point view
   const filterByPoint = useMemo(() => {
@@ -51,7 +51,7 @@ const TransactionHistory = () => {
     const txns = await api.getHistory(address);
     setTransactions(txns);
     if (filterByPoint) {
-      setSelectedPatp(filterByPoint);
+      setSelectedPatp(filterByPoint.slice(1));
     }
     setLoading(false);
   }, [address, api, filterByPoint]);
@@ -64,10 +64,10 @@ const TransactionHistory = () => {
   const txnsByPatp = useMemo(() => {
     return transactions.reduce((memo, tx) => {
       const patp = tx.ship;
-      if (Object.keys(memo).includes(patp)) {
+      if (patp && Object.keys(memo).includes(patp as string)) {
         memo[patp].push(tx);
       } else {
-        memo[patp] = [tx];
+        memo[patp || '~'] = [tx];
       }
       return memo;
     }, {} as GroupedTransactions);
@@ -90,8 +90,7 @@ const TransactionHistory = () => {
   useEffect(() => {
     fetchTransactions();
     // Load the TX history only once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <View
@@ -149,7 +148,10 @@ const TransactionHistory = () => {
           <BodyPane>
             {loading ? (
               <Box className={'loading'}>
-                <LoadingSpinner />
+                <LoadingSpinner
+                  foreground="rgba(0,0,0,0.3)"
+                  background="white"
+                />
               </Box>
             ) : (
               <Box className="transaction-container">
@@ -161,7 +163,7 @@ const TransactionHistory = () => {
                         <PatpRow patp={patp} />
                         {txnsByPatp[patp]
                           .sort((a, b) => {
-                            return b.time - a.time;
+                            return (b?.time || 0) - (a?.time || 0);
                           })
                           .map(tx => (
                             <TransactionRow key={tx.time} {...tx} />

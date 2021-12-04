@@ -120,7 +120,7 @@ export default function AdminTransfer() {
               <>
                 {!completed && (
                   <Grid.Item full as={Text} className={cn('f5 wrap')}>
-                    Transfer {name} to a new owner.
+                    Transfer <code>{name}</code> to a new owner.
                   </Grid.Item>
                 )}
                 {!completed && needLockupWarning && (

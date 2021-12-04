@@ -1,27 +1,25 @@
-import * as need from 'lib/need';
-import { Box, LoadingSpinner, Row } from '@tlon/indigo-react';
+import { useCallback, useEffect, useState } from 'react';
+import { Box, Row } from '@tlon/indigo-react';
+import { Ship } from '@urbit/roller-api';
+
+import { useRollerStore } from 'store/rollerStore';
+import useRoller from 'lib/useRoller';
+import { useLocalRouter } from 'lib/LocalRouter';
 
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
-import { useLocalRouter } from 'lib/LocalRouter';
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
-import { usePointCursor } from 'store/pointCursor';
-import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import './Residents.scss';
-import useRoller from 'lib/useRoller';
-import { Ship } from '@urbit/roller-api';
 import { ResidentRow } from './ResidentRow';
+import './Residents.scss';
 
 export const Residents = () => {
   const { pop }: any = useLocalRouter();
-  const { pointCursor } = usePointCursor();
-  const point = useMemo(() => need.point(pointCursor), [pointCursor]);
-  const { api, kickPoint } = useRoller();
+  const { point, setLoading } = useRollerStore();
+  const { api, changeSponsorship } = useRoller();
   const [sponsoredPoints, setSponsoredPoints] = useState<Ship[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
 
   const fetchResidents = useCallback(async () => {
     if (!point) {
@@ -30,18 +28,19 @@ export const Residents = () => {
 
     setLoading(true);
     // TODO: remove this hack once the API is updated
-    const { residentes, residents } = await api.getSponsoredPoints(point);
+    const { residentes, residents } = await api.getSponsoredPoints(point.value);
     setSponsoredPoints((residents || residentes || []).sort());
     setLoading(false);
-  }, [api, point]);
+  }, [api, point, setLoading]);
 
   const handleKick = useCallback(
     async (point: Ship) => {
       setLoading(true);
-      await kickPoint(point);
+      await changeSponsorship(point, 'detach');
       await fetchResidents();
+      setLoading(false);
     },
-    [fetchResidents, kickPoint]
+    [fetchResidents, changeSponsorship, setLoading]
   );
 
   useEffect(() => {
@@ -66,14 +65,10 @@ export const Residents = () => {
         </HeaderPane>
         <BodyPane>
           <Box className="content-container">
-            {loading ? (
-              <Box className={'loading'}>
-                <LoadingSpinner />
-              </Box>
-            ) : sponsoredPoints.length > 0 ? (
+            {sponsoredPoints.length > 0 ? (
               <ul className="residents-list">
                 {sponsoredPoints.map(sp => (
-                  <ResidentRow point={sp} onKick={handleKick} />
+                  <ResidentRow key={sp} point={sp} onKick={handleKick} />
                 ))}
               </ul>
             ) : (

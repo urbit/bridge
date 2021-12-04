@@ -125,7 +125,7 @@ export default function Input({
 
       {indicateError && (
         <Flex.Item as={ErrorText} className="mv1">
-          {error ? JSON.stringify(error) : submitError}
+          {error ? error : submitError}
         </Flex.Item>
       )}
     </Flex>

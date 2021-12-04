@@ -1,19 +1,20 @@
+import { useMemo } from 'react';
 import cn from 'classnames';
 import * as ob from 'urbit-ob';
 import { Box, Icon, Row } from '@tlon/indigo-react';
 import { RollerTransaction } from '@urbit/roller-api';
 import { format, fromUnixTime } from 'date-fns';
-import { titleize } from 'form/formatters';
+
+import { useTimerStore } from 'store/timerStore';
 import {
   TRANSACTION_STATUS_ICONS,
   TRANSACTION_TYPE_ICONS,
   TRANSACTION_TYPE_TITLES,
 } from 'lib/constants';
 import { abbreviateAddress } from 'lib/utils/address';
-import { useMemo } from 'react';
-import { useRollerStore } from 'store/rollerStore';
-import LayerIndicator from 'components/L2/LayerIndicator';
 import { isPlanet, isStar } from 'lib/utils/point';
+import { titleize } from 'form/formatters';
+import LayerIndicator from 'components/L2/LayerIndicator';
 
 export const TransactionRow = ({
   ship,
@@ -22,7 +23,7 @@ export const TransactionRow = ({
   status,
   time,
 }: RollerTransaction) => {
-  const { nextRoll } = useRollerStore();
+  const { nextRoll } = useTimerStore();
 
   // For spawn events (associated with the spawner), we want to show the spawnee tier;
   // For all other events we will show the event's ship's tier
@@ -40,15 +41,15 @@ export const TransactionRow = ({
   }, [ship, type]);
 
   const label = useMemo(() => {
-    return TRANSACTION_TYPE_TITLES[type].replace('Point', pointLabel) || type;
-  }, [pointLabel, type]);
+    return TRANSACTION_TYPE_TITLES[type] || type;
+  }, [type]);
 
   const icon = useMemo(() => {
     return <Icon icon={TRANSACTION_TYPE_ICONS[type] || 'Bug'} />;
   }, [type]);
 
   const shortHash = useMemo(() => {
-    return abbreviateAddress(hash);
+    return hash ? abbreviateAddress(hash) : '';
   }, [hash]);
 
   const parsedDate = useMemo(() => {

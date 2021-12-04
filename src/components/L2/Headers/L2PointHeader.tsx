@@ -26,7 +26,7 @@ const L2PointHeader = ({
   hideInvites = false,
   showMigrate = false,
 }: L2PointHeaderProps) => {
-  const { point, invitesLoading } = useRollerStore();
+  const { point, pointList, invitesLoading } = useRollerStore();
   const { pointCursor, setPointCursor }: any = usePointCursor();
 
   const { popTo, push, names }: any = useHistory();
@@ -76,7 +76,7 @@ const L2PointHeader = ({
   return (
     <Row className="l2-point-header">
       <Row>
-        {!hideHome && (
+        {!hideHome && pointList.length > 1 && (
           <HeaderButton className="home" icon="Home" onClick={goToHome} />
         )}
         <AccountsDropdown showMigrate={showMigrate} />
