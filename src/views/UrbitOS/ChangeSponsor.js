@@ -232,7 +232,7 @@ function CurrentEscape({ onDone }) {
             full
             center
             solid
-            style={{ width: '100%' }}
+            className="w-full"
             onClick={cancelRequest}>
             {buttonText}
           </Grid.Item>
@@ -251,13 +251,14 @@ function CurrentEscape({ onDone }) {
 }
 
 export default function UrbitOSChangeSponsor() {
+  const { pop } = useHistory();
   const { point } = useRollerStore();
 
   const [requested, setRequested] = useState(point.escapeRequested);
 
   const onDone = useCallback(() => {
-    setRequested(point.escapeRequested);
-  }, [point, setRequested]);
+    point.isL1 ? pop() : setRequested(!requested);
+  }, [point, pop, requested, setRequested]);
 
   return requested ? (
     <CurrentEscape onDone={onDone} />

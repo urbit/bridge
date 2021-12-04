@@ -109,6 +109,7 @@ export default class Point {
   showInvites: boolean;
   isDefault: boolean;
   isPlaceholder: boolean;
+  ownManageSpawn: boolean;
   shouldDisplay: boolean;
 
   constructor({
@@ -174,13 +175,11 @@ export default class Point {
     this.showInvites = this.canManage || this.canSpawn;
     this.isDefault = value === -1;
     this.isPlaceholder = isPlaceholder;
-    this.shouldDisplay =
+    this.ownManageSpawn =
       !this.isPlaceholder &&
       !this.isDefault &&
-      (this.isOwner ||
-        this.isSpawnProxy ||
-        this.isManagementProxy ||
-        this.isTransferProxy);
+      (this.isOwner || this.isSpawnProxy || this.isManagementProxy);
+    this.shouldDisplay = this.ownManageSpawn || this.isTransferProxy;
   }
 
   equals = (point: Point) => {

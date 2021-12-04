@@ -4,11 +4,11 @@ import { Ship } from '@urbit/roller-api';
 
 import { useRollerStore } from 'store/rollerStore';
 import useRoller from 'lib/useRoller';
+import { useLocalRouter } from 'lib/LocalRouter';
 
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
-import { useLocalRouter } from 'lib/LocalRouter';
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 
@@ -16,7 +16,7 @@ import { RequestRow } from './RequestRow';
 import './Requests.scss';
 
 export const Requests = () => {
-  const { pop }: any = useLocalRouter();
+  const { pop, push, names }: any = useLocalRouter();
   const { point, setLoading } = useRollerStore();
   const { api, changeSponsorship } = useRoller();
   const [requestingPoints, setRequestingPoints] = useState<Ship[]>([]);
@@ -32,24 +32,50 @@ export const Requests = () => {
     setLoading(false);
   }, [api, point, setLoading]);
 
+  const acceptL1 = useCallback(
+    adoptee =>
+      push(names.ADOPT, {
+        adoptee,
+        denied: false,
+      }),
+    [push, names]
+  );
+
+  const rejectL1 = useCallback(
+    adoptee =>
+      push(names.ADOPT, {
+        adoptee,
+        denied: true,
+      }),
+    [push, names]
+  );
+
   const handleAcceptClick = useCallback(
-    async (point: Ship) => {
-      setLoading(true);
-      await changeSponsorship(point, 'adopt');
-      await fetchRequests();
-      setLoading(false);
+    async (ship: Ship) => {
+      if (point.isL1) {
+        acceptL1(ship);
+      } else {
+        setLoading(true);
+        await changeSponsorship(ship, 'adopt');
+        await fetchRequests();
+        setLoading(false);
+      }
     },
-    [changeSponsorship, fetchRequests, setLoading]
+    [point, acceptL1, changeSponsorship, fetchRequests, setLoading]
   );
 
   const handleRejectClick = useCallback(
-    async (point: Ship) => {
-      setLoading(true);
-      await changeSponsorship(point, 'reject');
-      await fetchRequests();
-      setLoading(false);
+    async (ship: Ship) => {
+      if (point.isL1) {
+        rejectL1(ship);
+      } else {
+        setLoading(true);
+        await changeSponsorship(ship, 'reject');
+        await fetchRequests();
+        setLoading(false);
+      }
     },
-    [changeSponsorship, fetchRequests, setLoading]
+    [point, rejectL1, changeSponsorship, fetchRequests, setLoading]
   );
 
   useEffect(() => {

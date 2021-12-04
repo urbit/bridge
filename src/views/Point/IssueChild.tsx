@@ -178,7 +178,6 @@ export default function IssueChild() {
   const onValues = useCallback(
     ({ valid, values }) => {
       if (valid) {
-        console.log('VALID')
         construct(patp2dec(values.point), values.owner);
       } else {
         unconstruct();
@@ -225,7 +224,7 @@ export default function IssueChild() {
         <BodyPane>
           <Box className="inner-container">
             <BridgeForm
-              style={{ width: '100%' }}
+              className="w-full"
               validate={validate}
               onValues={onValues}>
               {({ handleSubmit, values }: any) => (

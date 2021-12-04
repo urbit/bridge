@@ -76,6 +76,11 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
   const displayText =
     point.value >= 0 ? point.patp : currentAddress.slice(0, 6);
 
+  const displayedPoints = useMemo(
+    () => pointList.filter(({ ownManageSpawn }) => ownManageSpawn),
+    [pointList]
+  );
+
   return (
     <Dropdown
       className="accounts-dropdown"
@@ -90,7 +95,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
       </CopiableAddressWrap>
       <Box className="divider" />
       <Box className="points">
-        {pointList.map(({ value, layer, patp }) => (
+        {displayedPoints.map(({ value, layer, patp }) => (
           <Row
             className={`entry point ${value === point.value ? 'selected' : ''}`}
             onClick={selectPoint(value)}
