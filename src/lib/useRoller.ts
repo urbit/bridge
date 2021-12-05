@@ -19,7 +19,6 @@ import {
   setStoredInvites,
 } from 'store/storage/roller';
 import { usePointCache } from 'store/pointCache';
-import { getOutgoingPoints } from 'views/Points';
 
 import { getUpdatedPointMessage, isPlanet, toL1Details } from './utils/point';
 import { convertToInt } from './convertToInt';
@@ -30,9 +29,6 @@ import {
   submitL2Transaction,
   getTimeToNextBatch,
   registerProxyAddress,
-  adopt,
-  detach,
-  reject,
   isL2Spawn,
 } from './utils/roller';
 import { ETH_ZERO_ADDR, ROLLER_HOSTS, TEN_SECONDS } from './constants';
@@ -81,7 +77,6 @@ export default function useRoller() {
   const { pointCursor }: any = usePointCursor();
   const { web3, contracts }: any = useNetwork();
   const allPoints: any = usePointCache();
-  const controlledPoints = allPoints?.controlledPoints;
   const getDetails = allPoints?.getDetails;
 
   const { setNextRoll } = useTimerStore();
@@ -90,6 +85,7 @@ export default function useRoller() {
     nextBatchTime,
     point,
     points,
+    pointList,
     nextQuotaTime,
     removeInvite,
     setNextBatchTime,
@@ -263,7 +259,7 @@ export default function useRoller() {
   );
 
   const spawnPoint = useCallback(
-    async (pointToSpawn: number) => {
+    async (pointToSpawn: number, destinationAddress: string) => {
       if (quotaReached()) {
         return;
       }
@@ -291,7 +287,7 @@ export default function useRoller() {
 
       await submitL2Transaction({
         api,
-        address: _wallet.address,
+        address: destinationAddress,
         wallet: _wallet,
         ship: _point,
         proxy,
@@ -347,10 +343,11 @@ export default function useRoller() {
           curPoint
         );
 
-        const outgoingPoints = getOutgoingPoints(
-          controlledPoints,
-          getDetails
-        ).filter((p: number) => isPlanet(p) && availablePoints.includes(p));
+        const outgoingPoints = pointList
+          .filter(
+            ({ value, isPlanet }) => isPlanet && availablePoints.includes(value)
+          )
+          .map(({ value }) => value);
 
         const invitePlanets = spawnedPoints
           .concat(
@@ -405,11 +402,10 @@ export default function useRoller() {
     api,
     authToken,
     contracts,
-    controlledPoints,
-    getDetails,
     pointCursor,
     ls,
     point,
+    pointList,
     removeInvite,
     setInvites,
     setInvitesLoading,
@@ -789,75 +785,40 @@ export default function useRoller() {
     [api, connector, point, wallet, web3, walletType, quotaReached]
   );
 
-  const adoptPoint = useCallback(
-    async (ship: Ship) => {
+  const changeSponsorship = useCallback(
+    async (sponsee: Ship, type: 'adopt' | 'detach' | 'reject') => {
       if (quotaReached()) {
         return;
       }
 
       const _wallet = wallet.getOrElse(null);
+      const _web3 = web3.getOrElse(null);
+      const ship = point.value;
 
       const proxy = point.getManagerProxy();
 
       if (proxy === undefined)
         throw new Error("Error: Address doesn't match expected proxy");
 
-      const nonce = await api.getNonce({ ship: point.value, proxy });
-      const txHash = await adopt(api, _wallet, point.value, proxy, nonce, ship);
+      const nonce = await api.getNonce({ ship, proxy });
+      // const txHash = await adopt(api, _wallet, point.value, proxy, nonce, ship);
+      const txHash = await submitL2Transaction({
+        api,
+        wallet: _wallet,
+        ship,
+        sponsee,
+        proxy,
+        nonce,
+        address: _wallet.address,
+        type,
+        walletType,
+        web3: _web3,
+        connector,
+      });
 
       return api.getPendingTx(txHash);
     },
-    [api, point, wallet, quotaReached]
-  );
-
-  const kickPoint = useCallback(
-    async (ship: Ship) => {
-      if (quotaReached()) {
-        return;
-      }
-
-      if (point.isDefault) {
-        throw new Error('Internal Error: point is default');
-      }
-
-      const sponsor = point.value;
-      const _wallet = wallet.getOrElse(null);
-      const proxy = point.getManagerProxy();
-
-      if (proxy === undefined)
-        throw new Error("Error: Address doesn't match expected proxy");
-
-      const nonce = await api.getNonce({ ship: sponsor, proxy });
-      const txHash = await detach(api, _wallet, sponsor, proxy, nonce, ship);
-
-      return api.getPendingTx(txHash);
-    },
-    [api, point, wallet, quotaReached]
-  );
-
-  const rejectPoint = useCallback(
-    async (ship: Ship) => {
-      if (quotaReached()) {
-        return;
-      }
-
-      if (point.isDefault) {
-        throw new Error('Internal Error: point is default');
-      }
-
-      const sponsor = point.value;
-      const _wallet = wallet.getOrElse(null);
-      const proxy = point.getManagerProxy();
-
-      if (proxy === undefined)
-        throw new Error("Error: Address doesn't match expected proxy");
-
-      const nonce = await api.getNonce({ ship: sponsor, proxy });
-      const txHash = await reject(api, _wallet, sponsor, proxy, nonce, ship);
-
-      return api.getPendingTx(txHash);
-    },
-    [api, point, wallet, quotaReached]
+    [api, point, wallet, walletType, web3, connector, quotaReached]
   );
 
   const transferPoint = useCallback(
@@ -960,6 +921,34 @@ export default function useRoller() {
     [api, point, sendL2Transaction, wallet]
   );
 
+  const cancelEscape = useCallback(async () => {
+    if (point.isDefault) {
+      throw new Error('Internal Error: point is default');
+    }
+
+    const curPoint = point.value;
+    const _wallet = wallet.getOrElse(null);
+
+    if (!_wallet) {
+      // not using need because we want a custom error
+      throw new Error('Internal Error: Missing Wallet');
+    }
+
+    const proxy = point.getManagerProxy();
+
+    if (proxy === undefined)
+      throw new Error("Error: Address doesn't match proxy");
+
+    const nonce = await api.getNonce({ ship: curPoint, proxy });
+
+    return sendL2Transaction({
+      nonce,
+      proxy,
+      type: 'cancelEscape',
+      ship: curPoint,
+    });
+  }, [api, point, sendL2Transaction, wallet]);
+
   const getPointsDetails = useCallback(
     async (
       ownedPoints: number[],
@@ -1029,9 +1018,10 @@ export default function useRoller() {
   }, [point, nextBatchTime, getPendingTransactions, getInvites]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
-    adoptPoint,
     api,
+    changeSponsorship,
     changeSponsor,
+    cancelEscape,
     checkForUpdates,
     config,
     configureNetworkingKeys,
@@ -1040,10 +1030,8 @@ export default function useRoller() {
     getPoints,
     getPointsDetails,
     getPendingTransactions,
-    kickPoint,
     ls,
     performL2Reticket,
-    rejectPoint,
     setProxyAddress,
     spawnPoint,
     transferPoint,

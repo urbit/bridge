@@ -211,7 +211,13 @@ const Cell = props => {
  * point is number
  *
  */
-function MiniPassport({ point, inverted, locked = false, ...rest }) {
+function MiniPassport({
+  point,
+  inverted,
+  locked = false,
+  processing = false,
+  ...rest
+}) {
   useSyncDetails([point]);
   // const { wallet } = useWallet();
   // const address = need.addressFromWallet(wallet);
@@ -226,9 +232,13 @@ function MiniPassport({ point, inverted, locked = false, ...rest }) {
       makeSigil(50, patp, inverted ? ['white', contrast] : [contrast, 'white']),
     [inverted, patp, contrast]
   );
+  const className = `sigil ${locked ? 'locked' : ''} ${
+    processing ? 'processing' : ''
+  }`;
+
   return (
     <div {...rest} className="sigil-mini">
-      <div className={`sigil ${locked ? 'locked' : ''}`}>{sigil}</div>
+      <div className={className}>{sigil}</div>
       <span className="patp">{patp}</span>
       {locked && <Icon color="white" icon="Locked" className="lock" />}
     </div>

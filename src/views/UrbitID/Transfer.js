@@ -114,13 +114,14 @@ export default function AdminTransfer() {
         </Row>
       </HeaderPane>
       <BodyPane>
-        <Grid style={{ width: '100%' }} full gap={1}>
+        <Grid className="w-full" full gap={1}>
           <BridgeForm validate={validate} onValues={onValues}>
             {({ handleSubmit, values }) => (
               <>
                 {!completed && (
                   <Grid.Item full as={Text} className={cn('f5 wrap')}>
-                    Transfer {name} to a new owner.
+                    Transfer <span className="mono">{name}</span> to a new
+                    owner.
                   </Grid.Item>
                 )}
                 {!completed && needLockupWarning && (

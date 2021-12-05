@@ -239,7 +239,7 @@ export default function SetProxy() {
         </Row>
       </HeaderPane>
       <BodyPane>
-        <Grid style={{ width: '100%' }}>
+        <Grid className="w-full">
           {!completed && (
             <>
               <Grid.Item full as={Text} className="mb4 f5 gray4">

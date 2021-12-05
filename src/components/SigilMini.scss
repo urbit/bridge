@@ -21,7 +21,11 @@
     border-radius: $large-border-radius;
 
     &.locked {
-      background-color: $dark-gray;
+      opacity: 0.6;
+    }
+
+    &.processing {
+      opacity: 0.6;
     }
   }
 

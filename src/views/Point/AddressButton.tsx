@@ -22,7 +22,7 @@ export const AddressButton = ({ children, ...rest }: AddressButtonProps) => {
   );
 
   return (
-    <Button onClick={onClick} {...rest} className={'secondary'}>
+    <Button onClick={onClick} {...rest} className={'secondary'} type="button">
       {children}
     </Button>
   );

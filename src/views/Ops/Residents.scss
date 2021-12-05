@@ -57,7 +57,7 @@
       }
 
       .kick-dropdown {
-        z-index: 9999;
+        z-index: 2;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
@@ -112,5 +112,14 @@
         align-self: center;
       }
     }
+  }
+
+  .close-background {
+    z-index: 1;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
   }
 }

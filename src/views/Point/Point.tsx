@@ -66,12 +66,14 @@ export default function Point() {
     const getTransactions = async () => {
       setLoading(true);
       getPendingTransactions();
-      getInvites();
+      if (point.isStar && (point.canSpawn || point.canManage)) {
+        getInvites();
+      }
       setTimeout(() => setLoading(false), 100);
     };
 
     await getTransactions();
-  }, [getInvites, getPendingTransactions, setLoading]);
+  }, [getInvites, getPendingTransactions, setLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     loadL1Info();
@@ -166,8 +168,16 @@ export default function Point() {
                   ? 'Transfer Proxy Changed'
                   : pendingTx.rawTx?.tx?.type === 'set-spawn-proxy'
                   ? 'Spawn Proxy Changed'
+                  : pendingTx.rawTx?.tx?.type === 'escape'
+                  ? 'Change Sponsor'
+                  : pendingTx.rawTx?.tx?.type === 'cancel-escape'
+                  ? 'Cancel Escape'
+                  : pendingTx.rawTx?.tx?.type === 'adopt'
+                  ? 'Accept Sponsorship'
+                  : pendingTx.rawTx?.tx?.type === 'reject'
+                  ? 'Reject Sponsorship'
                   : pendingTx.rawTx?.tx?.type === 'detach'
-                  ? 'Sponsee Detached'
+                  ? 'Detach Sponsee'
                   : ''}
               </div>
               <div className="rollup-timer">

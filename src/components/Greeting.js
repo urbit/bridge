@@ -24,7 +24,7 @@ export default function ActivateDisclaimer({ point }) {
     <Grid gap={4} className="mb10">
       <Grid.Item full>
         <Text className={cn(TEXT_STYLE, 'block mb4')}>
-          Welcome <code>{pointName}</code>,
+          Welcome <span className="mono">{pointName}</span>,
         </Text>
 
         <Text className={cn(TEXT_STYLE, 'block mb2')}>

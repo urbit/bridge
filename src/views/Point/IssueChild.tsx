@@ -7,6 +7,7 @@ import BodyPane from 'components/L2/Window/BodyPane';
 
 import * as azimuth from 'azimuth-js';
 import ob from 'urbit-ob';
+import { Box, Icon, Row, Text } from '@tlon/indigo-react';
 
 import { useNetwork } from 'store/network';
 import { usePointCache } from 'store/pointCache';
@@ -20,9 +21,15 @@ import { patp2dec } from 'lib/patp2dec';
 import { getSpawnCandidate } from 'lib/child';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { validateChild } from 'lib/validators';
+import { convertToInt } from 'lib/convertToInt';
+import { isGalaxy } from 'lib/utils/point';
+import useRoller from 'lib/useRoller';
 
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
+import CopiableAddress from 'components/copiable/CopiableAddress';
+import L2BackHeader from 'components/L2/Headers/L2BackHeader';
+import LoadingOverlay from 'components/L2/LoadingOverlay';
 import { PointInput, AddressInput } from 'form/Inputs';
 import {
   composeValidator,
@@ -32,16 +39,10 @@ import {
 } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
-import CopiableAddress from 'components/copiable/CopiableAddress';
-import { convertToInt } from 'lib/convertToInt';
-import { Box, Icon, Row, Text } from '@tlon/indigo-react';
-import { isGalaxy } from 'lib/utils/point';
-import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 
-import './IssueChild.scss';
 import { PatpBadge } from './PatpBadge';
-import useRoller from 'lib/useRoller';
 import { AddressButton } from './AddressButton';
+import './IssueChild.scss';
 
 export function useIssueChild() {
   const { contracts }: any = useNetwork();
@@ -76,7 +77,9 @@ export default function IssueChild() {
   );
   const [candidates, setCandidates] = useState<string[]>([]);
   const [pointToSpawn, setPointToSpawn] = useState<number | null>();
+  const [destinationAddress, setDestinationAddress] = useState<string | null>();
   const [l2SpawnSent, setL2SpawnSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchAvailablePoints = useCallback(async () => {
     const available = await api.getUnspawned(_point);
@@ -112,13 +115,15 @@ export default function IssueChild() {
   }, [fetchAvailablePoints, shuffle]);
 
   const spawnNewPoint = useCallback(async () => {
-    if (pointToSpawn) {
-      await spawnPoint(pointToSpawn);
+    if (pointToSpawn && destinationAddress) {
+      setLoading(true);
+      await spawnPoint(pointToSpawn, destinationAddress);
       checkForUpdates(pointToSpawn);
       setPointToSpawn(null);
       setL2SpawnSent(true);
+      setLoading(false);
     }
-  }, [pointToSpawn, spawnPoint, checkForUpdates]);
+  }, [pointToSpawn, destinationAddress, spawnPoint, checkForUpdates]);
 
   const {
     isDefaultState,
@@ -173,15 +178,35 @@ export default function IssueChild() {
   const onValues = useCallback(
     ({ valid, values }) => {
       if (valid) {
-        const pointDecimal = patp2dec(values.point);
-        construct(pointDecimal, values.owner);
-        setPointToSpawn(pointDecimal);
+        construct(patp2dec(values.point), values.owner);
       } else {
         unconstruct();
       }
+
+      try {
+        setPointToSpawn(patp2dec(values.point));
+      } catch (err) {
+        setPointToSpawn(null);
+      }
+
+      setDestinationAddress(values.owner);
     },
     [construct, unconstruct]
   );
+
+  const validPoint =
+    pointToSpawn && availablePoints && availablePoints.has(pointToSpawn);
+  const validAddress =
+    destinationAddress && !buildAddressValidator()(destinationAddress);
+
+  const getButtonText = () => {
+    if (!validPoint) {
+      return `Please enter a valid ${point.isStar ? 'planet' : 'star'}`;
+    } else if (!validAddress) {
+      return `Please enter a valid destination address`;
+    }
+    return `Spawn ${ob.patp(pointToSpawn)}`;
+  };
 
   return (
     <View
@@ -199,7 +224,7 @@ export default function IssueChild() {
         <BodyPane>
           <Box className="inner-container">
             <BridgeForm
-              style={{ width: '100%' }}
+              className="w-full"
               validate={validate}
               onValues={onValues}>
               {({ handleSubmit, values }: any) => (
@@ -276,11 +301,9 @@ export default function IssueChild() {
                       className="mt4"
                       center
                       solid
-                      disabled={!pointToSpawn}
+                      disabled={!validPoint || !validAddress}
                       onClick={spawnNewPoint}>
-                      {pointToSpawn
-                        ? `Spawn ${ob.patp(pointToSpawn)}`
-                        : `Please enter a ${point.isStar ? 'planet' : 'star'}`}
+                      {getButtonText()}
                     </Grid.Item>
                   ) : (
                     <Grid.Item
@@ -296,6 +319,7 @@ export default function IssueChild() {
           </Box>
         </BodyPane>
       </Window>
+      <LoadingOverlay loading={loading} />
     </View>
   );
 }

@@ -83,41 +83,6 @@ export const generateHashAndSign = async (
   }
 };
 
-export const spawn = async (
-  api: RollerRPCAPI,
-  wallet: any,
-  _point: number,
-  proxy: string,
-  nonce: number,
-  planet: number,
-  walletType: symbol,
-  web3: any,
-  connector: WalletConnect | null
-) => {
-  const from = {
-    ship: _point, //ship that is spawning the planet
-    proxy,
-  };
-
-  const data = {
-    address: wallet.address,
-    ship: planet, // ship to spawn
-  };
-
-  const sig = await generateHashAndSign(
-    api,
-    wallet,
-    nonce,
-    from,
-    'spawn',
-    data,
-    walletType,
-    web3,
-    connector
-  );
-  return api.spawn(sig, from, wallet.address, data);
-};
-
 export const configureKeys = async (
   api: RollerRPCAPI,
   wallet: any,
@@ -205,72 +170,6 @@ export const transferPointRequest = async (
   return api.transferPoint(sig, from, wallet.address, data);
 };
 
-export const adopt = async (
-  api: RollerRPCAPI,
-  _wallet: any,
-  sponsor: Ship,
-  proxy: string,
-  nonce: number,
-  ship: Ship
-) => {
-  const from = {
-    ship: sponsor, // ship that is adopting the planet
-    proxy,
-  };
-
-  const data = {
-    ship, // ship to adopt
-  };
-
-  const hash = await api.getUnsignedTx(nonce, from, 'detach', data);
-  const sSig = signTransactionHash(hash, _wallet.privateKey);
-  return api.adopt(sSig, from, _wallet.address, data);
-};
-
-export const detach = async (
-  api: RollerRPCAPI,
-  _wallet: any,
-  sponsor: Ship,
-  proxy: string,
-  nonce: number,
-  ship: Ship
-) => {
-  const from = {
-    ship: sponsor, // ship that is detaching the planet
-    proxy,
-  };
-
-  const data = {
-    ship, // ship to detach
-  };
-
-  const hash = await api.getUnsignedTx(nonce, from, 'detach', data);
-  const sSig = signTransactionHash(hash, _wallet.privateKey);
-  return api.detach(sSig, from, _wallet.address, data);
-};
-
-export const reject = async (
-  api: RollerRPCAPI,
-  _wallet: any,
-  sponsor: Ship,
-  proxy: string,
-  nonce: number,
-  ship: Ship
-) => {
-  const from = {
-    ship: sponsor, // ship that is rejecting the planet
-    proxy,
-  };
-
-  const data = {
-    ship, // ship to reject
-  };
-
-  const hash = await api.getUnsignedTx(nonce, from, 'detach', data);
-  const sSig = signTransactionHash(hash, _wallet.privateKey);
-  return api.reject(sSig, from, _wallet.address, data);
-};
-
 const proxyType = (proxy: Proxy) => {
   switch (proxy) {
     case 'manage':
@@ -346,6 +245,8 @@ const getDataAndMethod = (args: L2TransactionArgs) => {
     reset,
     pointToSpawn,
     newSponsor,
+    sponsee,
+    ship,
   } = args;
   const result: TransactionData = { data: { address }, method: () => null };
 
@@ -382,6 +283,26 @@ const getDataAndMethod = (args: L2TransactionArgs) => {
     case 'escape':
       result.method = api.escape;
       result.data.ship = newSponsor;
+      delete result.data.address;
+      return result;
+    case 'cancelEscape':
+      result.method = api.cancelEscape;
+      result.data.ship = ship;
+      delete result.data.address;
+      return result;
+    case 'adopt':
+      result.method = api.adopt;
+      result.data.ship = sponsee;
+      delete result.data.address;
+      return result;
+    case 'detach':
+      result.method = api.detach;
+      result.data.ship = sponsee;
+      delete result.data.address;
+      return result;
+    case 'reject':
+      result.method = api.reject;
+      result.data.ship = sponsee;
       delete result.data.address;
       return result;
   }

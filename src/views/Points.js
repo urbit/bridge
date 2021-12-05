@@ -28,7 +28,6 @@ import NavHeader from 'components/NavHeader';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import IncomingPoint from 'components/L2/Points/IncomingPoint';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
-import { onlyUnique } from 'lib/utils/array';
 
 export const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -43,31 +42,6 @@ export const maybeGetResult = (obj, key, defaultValue) =>
 export const hasTransferProxy = details =>
   !isZeroAddress(details.transferProxy);
 
-export const getOutgoingPoints = (controlledPoints, getDetails) => {
-  return controlledPoints
-    .chain(points =>
-      points.matchWith({
-        Error: () => Nothing(),
-        Ok: c => {
-          const points = c.value.ownedPoints.map(point =>
-            getDetails(point).chain(details =>
-              Just({ point: point, has: hasTransferProxy(details) })
-            )
-          );
-          if (points.every(p => Just.hasInstance(p))) {
-            const outgoing = points
-              .filter(p => p.value.has)
-              .map(p => p.value.point);
-            return Just(outgoing);
-          } else {
-            return Nothing();
-          }
-        },
-      })
-    )
-    .getOrElse([]);
-};
-
 export const isLocked = (details, contracts) =>
   details.owner === contracts.linearSR ||
   details.owner === contracts.conditionalSR;
@@ -77,6 +51,7 @@ const PointList = function({
   className,
   actions,
   locked = false,
+  processing = false,
   ...rest
 }) {
   const { setPointCursor } = usePointCursor();
@@ -91,9 +66,10 @@ const PointList = function({
           <Flex col>
             <Passport.Mini
               locked={locked}
+              processing={processing}
               point={point}
               onClick={
-                locked
+                locked || processing
                   ? undefined
                   : () => {
                       setPointCursor(Just(point));
@@ -143,7 +119,11 @@ export default function Points() {
   const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
 
   const outgoingPoints = useMemo(
-    () => pointList.filter(({ isTransferProxySet }) => isTransferProxySet),
+    () =>
+      pointList.filter(
+        ({ isTransferProxySet, isTransferProxy }) =>
+          isTransferProxySet && !isTransferProxy
+      ),
     [pointList]
   );
 
@@ -237,7 +217,14 @@ export default function Points() {
   const lockedPoints = maybeLockedPoints.getOrElse([]);
 
   const allPoints = pointList
-    .filter(({ isTransferProxySet }) => !isTransferProxySet)
+    .filter(
+      ({ isTransferProxySet, shouldDisplay }) =>
+        !isTransferProxySet && shouldDisplay
+    )
+    .map(({ value }) => value);
+
+  const processingPoints = pointList
+    .filter(({ shouldDisplay }) => !shouldDisplay)
     .map(({ value }) => value);
 
   const displayEmptyState =
@@ -390,6 +377,20 @@ export default function Points() {
         {lockedPoints.length > 0 && (
           <Grid.Item full as={Grid} gap={1}>
             <Grid.Item full as={PointList} locked points={allPoints} />
+          </Grid.Item>
+        )}
+
+        {processingPoints.length > 0 && (
+          <Grid.Item full as={Grid} gap={1} className="mv6">
+            <Grid.Item full as={H5}>
+              Awaiting L2 Rollup
+            </Grid.Item>
+            <Grid.Item
+              full
+              as={PointList}
+              points={processingPoints}
+              processing
+            />
           </Grid.Item>
         )}
 

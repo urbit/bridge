@@ -1,27 +1,25 @@
-import * as need from 'lib/need';
-import { Box, LoadingSpinner, Row } from '@tlon/indigo-react';
+import { useCallback, useEffect, useState } from 'react';
+import { Box, Row } from '@tlon/indigo-react';
+import { Ship } from '@urbit/roller-api';
+
+import { useRollerStore } from 'store/rollerStore';
+import useRoller from 'lib/useRoller';
+import { useLocalRouter } from 'lib/LocalRouter';
 
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
-import { useLocalRouter } from 'lib/LocalRouter';
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
-import { usePointCursor } from 'store/pointCursor';
-import { useCallback, useEffect, useState } from 'react';
 
-import './Requests.scss';
-import useRoller from 'lib/useRoller';
-import { Ship } from '@urbit/roller-api';
 import { RequestRow } from './RequestRow';
+import './Requests.scss';
 
 export const Requests = () => {
-  const { pop }: any = useLocalRouter();
-  const { pointCursor } = usePointCursor();
-  const point = need.point(pointCursor);
-  const { api, adoptPoint, rejectPoint } = useRoller();
+  const { pop, push, names }: any = useLocalRouter();
+  const { point, setLoading } = useRollerStore();
+  const { api, changeSponsorship } = useRoller();
   const [requestingPoints, setRequestingPoints] = useState<Ship[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
 
   const fetchRequests = useCallback(async () => {
     if (!point) {
@@ -29,28 +27,55 @@ export const Requests = () => {
     }
 
     setLoading(true);
-    const { requests } = await api.getSponsoredPoints(point);
-
+    const { requests } = await api.getSponsoredPoints(point.value);
     setRequestingPoints((requests || []).sort());
     setLoading(false);
-  }, [api, point]);
+  }, [api, point, setLoading]);
+
+  const acceptL1 = useCallback(
+    adoptee =>
+      push(names.ADOPT, {
+        adoptee,
+        denied: false,
+      }),
+    [push, names]
+  );
+
+  const rejectL1 = useCallback(
+    adoptee =>
+      push(names.ADOPT, {
+        adoptee,
+        denied: true,
+      }),
+    [push, names]
+  );
 
   const handleAcceptClick = useCallback(
-    async (point: Ship) => {
-      setLoading(true);
-      await adoptPoint(point);
-      await fetchRequests();
+    async (ship: Ship) => {
+      if (point.isL1) {
+        acceptL1(ship);
+      } else {
+        setLoading(true);
+        await changeSponsorship(ship, 'adopt');
+        await fetchRequests();
+        setLoading(false);
+      }
     },
-    [adoptPoint, fetchRequests]
+    [point, acceptL1, changeSponsorship, fetchRequests, setLoading]
   );
 
   const handleRejectClick = useCallback(
-    async (point: Ship) => {
-      setLoading(true);
-      await rejectPoint(point);
-      await fetchRequests();
+    async (ship: Ship) => {
+      if (point.isL1) {
+        rejectL1(ship);
+      } else {
+        setLoading(true);
+        await changeSponsorship(ship, 'reject');
+        await fetchRequests();
+        setLoading(false);
+      }
     },
-    [rejectPoint, fetchRequests]
+    [point, rejectL1, changeSponsorship, fetchRequests, setLoading]
   );
 
   useEffect(() => {
@@ -75,14 +100,11 @@ export const Requests = () => {
         </HeaderPane>
         <BodyPane>
           <Box className="content-container">
-            {loading ? (
-              <Box className={'loading'}>
-                <LoadingSpinner />
-              </Box>
-            ) : requestingPoints.length > 0 ? (
+            {requestingPoints.length > 0 ? (
               <ul className="requests-list">
                 {requestingPoints.map(sp => (
                   <RequestRow
+                    key={sp}
                     point={sp}
                     onAccept={handleAcceptClick}
                     onReject={handleRejectClick}

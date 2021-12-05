@@ -5,13 +5,18 @@ export type TransactionType =
   | 'transferPoint'
   | 'spawn'
   | 'configureKeys'
-  | 'escape';
+  | 'escape'
+  | 'cancelEscape'
+  | 'adopt'
+  | 'detach'
+  | 'reject';
 
 export interface SendL2Params {
   address?: string; // Destination address
   breach?: boolean;
   networkSeed?: any;
   newSponsor?: Ship;
+  sponsee?: Ship;
   nonce: number;
   pointToSpawn?: number;
   proxy: Proxy;

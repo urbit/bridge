@@ -150,17 +150,17 @@ const TRANSACTION_TYPE_ICONS = {
 };
 
 const TRANSACTION_TYPE_TITLES = {
-  adopt: 'Point Sponsored',
+  adopt: 'Ship Sponsored',
   'cancel-escape': 'Escape Canceled',
   'configure-keys': 'Network Keys Configured',
   detach: 'Sponsee Detached',
-  escape: 'Sponsor Escaped',
-  reject: 'Sponsorhip Rejected',
+  escape: 'Escaped Sponsor',
+  reject: 'Sponsorship Rejected',
   'set-management-proxy': 'Management Proxy Changed',
   'set-spawn-proxy': 'Spawn Proxy Changed',
   'set-transfer-proxy': 'Transfer Proxy Changed',
-  spawn: 'Point Spawned',
-  'transfer-point': 'Point Transferred',
+  spawn: 'Ship Spawned',
+  'transfer-point': 'Ship Transferred',
 };
 const DUMMY_L2_ADDRESS = '0x1111111111111111111111111111111111111111';
 

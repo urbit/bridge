@@ -19,6 +19,7 @@ export const EMPTY_POINT = new Point({
 });
 
 export interface RollerStore {
+  loading: boolean;
   nextBatchTime: number;
   nextQuotaTime: number;
   pendingTransactions: PendingTransaction[];
@@ -30,6 +31,7 @@ export interface RollerStore {
   recentlyCompleted: number;
   inviteGeneratingNum: number;
   invitesLoading: boolean;
+  setLoading: (loading: boolean) => void;
   removeInvite: (point: number, planet: number) => void;
   setInvites: (points: number, invites: Invite[]) => void;
   setInviteGeneratingNum: (numGenerating: number) => void;
@@ -45,6 +47,7 @@ export interface RollerStore {
 }
 
 export const useRollerStore = create<RollerStore>(set => ({
+  loading: false,
   nextBatchTime: new Date().getTime() + HOUR,
   nextQuotaTime: new Date().getTime() + 24 * HOUR,
   pendingTransactions: [],
@@ -55,6 +58,7 @@ export const useRollerStore = create<RollerStore>(set => ({
   recentlyCompleted: 0,
   inviteGeneratingNum: 0,
   invitesLoading: false,
+  setLoading: (loading: boolean) => set(() => ({ loading })),
   setNextBatchTime: (nextBatchTime: number) => set(() => ({ nextBatchTime })),
   setNextQuotaTime: (nextQuotaTime: number) => set(() => ({ nextQuotaTime })),
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) =>

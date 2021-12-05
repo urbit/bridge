@@ -19,7 +19,8 @@ import {
   StatelessTextInputProps,
 } from '@tlon/indigo-react';
 
-const PLACEHOLDER_POINT = '~sampel-ponnym';
+const PLACEHOLDER_STAR = '~sampel';
+const PLACEHOLDER_PLANET = '~sampel-ponnym';
 const PLACEHOLDER_HD_PATH = DEFAULT_HD_PATH;
 const PLACEHOLDER_MNEMONIC =
   'example crew supreme gesture quantum web media hazard theory mercy wing kitten';
@@ -122,7 +123,7 @@ export function PointInput({ name, size = 4, ...rest }) {
       type="text"
       label="Urbit ID"
       name={name}
-      placeholder={PLACEHOLDER_POINT}
+      placeholder={size === 4 ? PLACEHOLDER_PLANET : PLACEHOLDER_STAR}
       autoCapitalize="none"
       autoComplete="off"
       autoCorrect="off"

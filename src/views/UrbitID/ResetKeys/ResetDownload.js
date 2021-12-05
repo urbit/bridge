@@ -20,7 +20,7 @@ export default function ReticketDownload({ newWallet }) {
   const goVerify = useCallback(() => push(names.VERIFY), [push, names]);
 
   return (
-    <Grid className="mt4" style={{ width: '100%' }}>
+    <Grid className="mt4 w-full">
       <Grid.Item full as={Text}>
         Download the new passport, and keep it somewhere safe!
       </Grid.Item>
