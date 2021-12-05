@@ -144,6 +144,7 @@ const TRANSACTION_TYPE_ICONS = {
   escape: 'EscapeRequested',
   reject: 'EscapeRejected',
   'set-management-proxy': 'ArrowRefresh',
+  'set-spawn-proxy': 'ArrowRefresh',
   'set-transfer-proxy': 'ArrowRefresh',
   spawn: 'ShipSpawned',
   'transfer-point': 'Swap',
