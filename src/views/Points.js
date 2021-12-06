@@ -106,7 +106,7 @@ function ActionButtons({ actions = [] }) {
 
 export default function Points() {
   const { wallet } = useWallet();
-  const { pop, push, popAndPush, names } = useHistory();
+  const { pop, push, names } = useHistory();
   const { setPointCursor } = usePointCursor();
   const { controlledPoints, getDetails } = usePointCache();
   const { contracts } = useNetwork();
@@ -119,11 +119,7 @@ export default function Points() {
   const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
 
   const outgoingPoints = useMemo(
-    () =>
-      pointList.filter(
-        ({ isTransferProxySet, isTransferProxy }) =>
-          isTransferProxySet && !isTransferProxy
-      ),
+    () => pointList.filter(({ isOutgoing }) => isOutgoing),
     [pointList]
   );
 
@@ -164,47 +160,38 @@ export default function Points() {
       ),
     [getDetails, controlledPoints, _contracts]
   );
-  // if we can only interact with a single point, forget about the existence
-  // of this page and jump to the point page.
+
+  const allPoints = pointList
+    .filter(
+      ({ isTransferProxySet, shouldDisplay }) =>
+        !isTransferProxySet && shouldDisplay
+    )
+    .map(({ value }) => value);
+
+  // if we can only interact with a single point, jump to the point page.
   // if there are any pending transfers, incoming or outgoing, stay on this
   // page, because those can only be completed/cancelled here.
   useEffect(() => {
     if (Nothing.hasInstance(starReleaseDetails)) {
       return;
     }
-    controlledPoints.matchWith({
-      Nothing: () => null,
-      Just: r => {
-        r.value.matchWith({
-          Error: () => null,
-          Ok: c => {
-            let all = [
-              ...c.value.ownedPoints,
-              ...c.value.votingPoints,
-              ...c.value.managingPoints,
-              ...c.value.spawningPoints,
-            ];
-            if (
-              all.length === 1 &&
-              incomingPoints.length === 0 &&
-              outgoingPoints.length === 0 &&
-              (starReleaseDetails.value === null ||
-                starReleaseDetails.value.total === 0)
-            ) {
-              setPointCursor(Just(all[0]));
-              popAndPush(names.POINT);
-            }
-          },
-        });
-      },
-    });
+    if (
+      allPoints.length === 1 &&
+      incomingPoints.length === 0 &&
+      outgoingPoints.length === 0 &&
+      (starReleaseDetails.value === null ||
+        starReleaseDetails.value.total === 0)
+    ) {
+      setPointCursor(Just(allPoints[0]));
+      push(names.POINT);
+    }
   }, [
-    controlledPoints,
+    allPoints,
     rejectedPoints,
     outgoingPoints,
     incomingPoints,
     setPointCursor,
-    popAndPush,
+    push,
     names,
     starReleaseDetails,
   ]);
@@ -215,13 +202,6 @@ export default function Points() {
 
   const ownedPoints = maybeGetResult(controlledPoints, 'ownedPoints', []);
   const lockedPoints = maybeLockedPoints.getOrElse([]);
-
-  const allPoints = pointList
-    .filter(
-      ({ isTransferProxySet, shouldDisplay }) =>
-        !isTransferProxySet && shouldDisplay
-    )
-    .map(({ value }) => value);
 
   const processingPoints = pointList
     .filter(({ shouldDisplay }) => !shouldDisplay)
@@ -298,11 +278,7 @@ export default function Points() {
       outgoingPoints.length === 0 &&
       !starReleasing)
   ) {
-    return (
-      <View inset>
-        <LoadingOverlay loading />
-      </View>
-    );
+    return <LoadingOverlay loading />;
   }
 
   return (

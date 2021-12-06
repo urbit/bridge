@@ -111,6 +111,7 @@ export default class Point {
   isPlaceholder: boolean;
   ownManageSpawn: boolean;
   shouldDisplay: boolean;
+  isOutgoing: boolean;
 
   constructor({
     value,
@@ -180,6 +181,8 @@ export default class Point {
       !this.isDefault &&
       (this.isOwner || this.isSpawnProxy || this.isManagementProxy);
     this.shouldDisplay = this.ownManageSpawn || this.isTransferProxy;
+    this.isOutgoing =
+      this.isTransferProxySet && this.isTransferProxy && this.canManage;
   }
 
   equals = (point: Point) => {

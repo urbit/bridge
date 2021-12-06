@@ -22,7 +22,6 @@ import PartySetPoolSize from 'views/Party/PartySetPoolSize';
 import InviteCohort from 'views/Invite/Cohort';
 import AcceptTransfer from 'views/AcceptTransfer';
 import CancelTransfer from 'views/CancelTransfer';
-import Adopt from 'views/Ops/Adopt.tsx';
 import Bitcoin from 'views/Bitcoin/Bitcoin';
 import Xpub from 'views/Bitcoin/Xpub';
 import SignTransaction from 'views/Bitcoin/SignTransaction';
@@ -56,7 +55,6 @@ export const ROUTES = {
   [ROUTE_NAMES.URBIT_ID]: UrbitID,
   [ROUTE_NAMES.RESIDENTS]: Residents,
   [ROUTE_NAMES.REQUESTS]: Requests,
-  [ROUTE_NAMES.ADOPT]: Adopt,
   [ROUTE_NAMES.BITCOIN]: Bitcoin,
   [ROUTE_NAMES.BITCOIN_XPUB]: Xpub,
   [ROUTE_NAMES.BITCOIN_SIGN_TRANSACTION]: SignTransaction,
