@@ -145,14 +145,14 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
   };
 }
 
-export default function UrbitOSNetworkingKeys({
+export default function UrbitOSNetworkKeys({
   manualNetworkSeed,
   setManualNetworkSeed,
 }) {
   const { pop } = useLocalRouter();
   const { point, setLoading } = useRollerStore();
   const {
-    configureNetworkingKeys,
+    configureNetworkKeys,
     getPendingTransactions,
     checkForUpdates,
   } = useRoller();
@@ -173,7 +173,7 @@ export default function UrbitOSNetworkingKeys({
     if (completed) {
       checkForUpdates(
         point.value,
-        `${point.patp}'s Networking Keys have been set!`
+        `${point.patp}'s Network Keys have been set!`
       );
     }
   }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -219,10 +219,10 @@ export default function UrbitOSNetworkingKeys({
     [construct, unconstruct, setManualNetworkSeed, setBreach]
   );
 
-  const setNetworkingKeys = useCallback(async () => {
+  const setNetworkKeys = useCallback(async () => {
     setLoading(true);
     try {
-      await configureNetworkingKeys({
+      await configureNetworkKeys({
         breach,
         manualNetworkSeed,
       });
@@ -237,7 +237,7 @@ export default function UrbitOSNetworkingKeys({
       //
       checkForUpdates(
         point.value,
-        `${point.patp}'s Networking Keys have been set!`
+        `${point.patp}'s Network Keys have been set!`
       );
       pop();
     } catch (error) {
@@ -251,7 +251,7 @@ export default function UrbitOSNetworkingKeys({
     getPendingTransactions,
     point,
     pop,
-    configureNetworkingKeys,
+    configureNetworkKeys,
     setLoading,
     checkForUpdates,
   ]);
@@ -266,7 +266,7 @@ export default function UrbitOSNetworkingKeys({
 
   const viewTitle = completed
     ? 'Network Keys are now set'
-    : 'Set Networking Keys';
+    : 'Set Network Keys';
 
   const usageMessage =
     'You need this keyfile to authenticate with your OS. Please Download.';
@@ -350,15 +350,15 @@ export default function UrbitOSNetworkingKeys({
                   className=""
                   center
                   solid
-                  onClick={setNetworkingKeys}>
-                  {'Reset Networking Keys'}
+                  onClick={setNetworkKeys}>
+                  {'Reset Network Keys'}
                 </Grid.Item>
               ) : (
                 <Grid.Item
                   full
                   as={InlineEthereumTransaction}
                   {...bind}
-                  label={`${hasKeys ? 'Reset' : 'Set'} Networking Keys`}
+                  label={`${hasKeys ? 'Reset' : 'Set'} Network Keys`}
                   onReturn={() => pop()}
                 />
               )}

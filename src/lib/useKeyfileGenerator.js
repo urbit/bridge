@@ -14,7 +14,7 @@ import {
   attemptNetworkSeedDerivation,
   keysMatchChain,
   deriveNetworkKeys,
-  compileNetworkingKey,
+  compileNetworkKey,
 } from './keys';
 import useCurrentPermissions from './useCurrentPermissions';
 import { convertToInt } from './convertToInt';
@@ -40,14 +40,14 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
   });
   const { isOwner, isManagementProxy } = useCurrentPermissions();
 
-  const hasNetworkingKeys = networkRevision > 0;
+  const hasNetworkKeys = networkRevision > 0;
   const available =
-    (isOwner || isManagementProxy) && hasNetworkingKeys && !!keyfile;
+    (isOwner || isManagementProxy) && hasNetworkKeys && !!keyfile;
 
   const generate = useCallback(async () => {
-    if (!hasNetworkingKeys) {
+    if (!hasNetworkKeys) {
       setGenerating(false);
-      setNotice('Networking keys not yet set.');
+      setNotice('Network keys not yet set.');
       console.log(
         `no networking keys available for revision ${networkRevision}`
       );
@@ -90,11 +90,11 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
 
     setNotice();
     setCode(generateCode(pair));
-    setKeyfile(compileNetworkingKey(pair, _point, networkRevision));
+    setKeyfile(compileNetworkKey(pair, _point, networkRevision));
     setGenerating(false);
   }, [
     networkRevision,
-    hasNetworkingKeys,
+    hasNetworkKeys,
     manualNetworkSeed,
     urbitWallet,
     wallet,

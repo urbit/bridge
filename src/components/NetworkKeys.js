@@ -20,7 +20,7 @@ const renderNetworkKey = key => {
   return segments.join('\n');
 };
 
-export default function NetworkingKeys({ point }) {
+export default function NetworkKeys({ point }) {
   const { getDetails, getRekeyDate } = usePointCache();
 
   const details = getDetails(point);

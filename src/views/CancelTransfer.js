@@ -108,7 +108,7 @@ function AdminCancelTransfer() {
           <Grid.Item
             as={Button}
             full
-            className="set-proxy mt4"
+            className="set-proxy mt4 w-full"
             center
             solid
             onClick={cancelTransfer}>

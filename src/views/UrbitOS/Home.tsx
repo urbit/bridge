@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Grid } from 'indigo-react';
 import * as ob from 'urbit-ob';
 
-import NetworkingKeys from 'components/NetworkingKeys';
+import NetworkKeys from 'components/NetworkKeys';
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
@@ -30,9 +30,9 @@ export default function UrbitOSHome() {
   const toggleShowKeys = useCallback(() => setShowKeys(s => !s), [setShowKeys]);
 
   // The initial key revision number is 0, and increments when set
-  const hasSetNetworkingKeys = point.keyRevisionNumber !== '0';
+  const hasSetNetworkKeys = point.keyRevisionNumber !== '0';
 
-  const goNetworkingKeys = useCallback(() => push(names.NETWORKING_KEYS), [
+  const goNetworkKeys = useCallback(() => push(names.NETWORKING_KEYS), [
     names,
     push,
   ]);
@@ -49,10 +49,10 @@ export default function UrbitOSHome() {
       <HeaderPane>
         <Row className="header-row">
           <h5>OS</h5>
-          {hasSetNetworkingKeys && (
+          {hasSetNetworkKeys && (
             <Button
               className="header-button keyfile"
-              disabled={!hasSetNetworkingKeys}
+              disabled={!hasSetNetworkKeys}
               onClick={keyBind.download}>
               <KeyfileIcon />
               Download Keyfile
@@ -84,20 +84,20 @@ export default function UrbitOSHome() {
             <Box>Network Keys</Box>
             <Box
               className={`subtitle ${
-                !hasSetNetworkingKeys ? 'error-text' : ''
+                !hasSetNetworkKeys ? 'error-text' : ''
               }`}>
-              {hasSetNetworkingKeys
+              {hasSetNetworkKeys
                 ? `Revision: ${point.keyRevisionNumber}`
                 : 'No network keys found'}
             </Box>
           </Box>
           <Row>
             <Button
-              className={hasSetNetworkingKeys ? 'secondary' : 'primary'}
-              onClick={goNetworkingKeys}>
-              {hasSetNetworkingKeys ? 'Reset' : 'Initialize'}
+              className={hasSetNetworkKeys ? 'secondary' : 'primary'}
+              onClick={goNetworkKeys}>
+              {hasSetNetworkKeys ? 'Reset' : 'Initialize'}
             </Button>
-            {hasSetNetworkingKeys && (
+            {hasSetNetworkKeys && (
               <Button className="secondary" onClick={toggleShowKeys}>
                 View
               </Button>
@@ -120,7 +120,7 @@ export default function UrbitOSHome() {
 
       <Modal show={showKeys} hide={() => setShowKeys(false)}>
         <Box className="show-keys-modal-content">
-          <Grid.Item full as={NetworkingKeys} point={point.value} />
+          <Grid.Item full as={NetworkKeys} point={point.value} />
         </Box>
       </Modal>
     </Window>

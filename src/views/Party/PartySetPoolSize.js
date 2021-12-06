@@ -120,7 +120,7 @@ export default function PartySetPoolSize() {
 
         {!hasKeysSet && (
           <Grid.Item full as={WarningBox} className="mb4 f6">
-            Networking keys must be configured for invitations to be available
+            Network keys must be configured for invitations to be available
             for use.
           </Grid.Item>
         )}
