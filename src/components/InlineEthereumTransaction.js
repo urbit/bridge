@@ -99,6 +99,7 @@ export default function InlineEthereumTransaction({
           full
           as={RestartButton}
           solid
+          center
           onClick={() => reset()}>
           Reset Transaction
         </Grid.Item>
@@ -111,6 +112,7 @@ export default function InlineEthereumTransaction({
             className="eth-tx-button"
             full
             as={RestartButton}
+            center
             onClick={onReturn}>
             Return
           </Grid.Item>
@@ -141,6 +143,7 @@ export default function InlineEthereumTransaction({
           as={ForwardButton}
           solid
           success
+          center
           disabled={!canBroadcast}
           onClick={() => broadcast()}>
           Send Transaction
@@ -152,6 +155,7 @@ export default function InlineEthereumTransaction({
           className="ph4 eth-tx-button"
           full
           as={ProgressButton}
+          center
           success
           disabled
           progress={confirmationProgress}>
@@ -164,6 +168,7 @@ export default function InlineEthereumTransaction({
           className="ph4 eth-tx-button"
           full
           as={GenerateButton}
+          center
           onClick={generateAndSign}
           disabled={!canSign}
           loading={!canSign && initializing}>

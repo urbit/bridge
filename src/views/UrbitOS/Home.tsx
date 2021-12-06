@@ -83,9 +83,7 @@ export default function UrbitOSHome() {
           <Box>
             <Box>Network Keys</Box>
             <Box
-              className={`subtitle ${
-                !hasSetNetworkKeys ? 'error-text' : ''
-              }`}>
+              className={`subtitle ${!hasSetNetworkKeys ? 'error-text' : ''}`}>
               {hasSetNetworkKeys
                 ? `Revision: ${point.keyRevisionNumber}`
                 : 'No network keys found'}
