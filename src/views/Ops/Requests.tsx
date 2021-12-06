@@ -16,7 +16,7 @@ import { RequestRow } from './RequestRow';
 import './Requests.scss';
 
 export const Requests = () => {
-  const { pop, push, names }: any = useLocalRouter();
+  const { pop }: any = useLocalRouter();
   const { point, setLoading } = useRollerStore();
   const { api, changeSponsorship } = useRoller();
   const [requestingPoints, setRequestingPoints] = useState<Ship[]>([]);
@@ -32,50 +32,24 @@ export const Requests = () => {
     setLoading(false);
   }, [api, point, setLoading]);
 
-  const acceptL1 = useCallback(
-    adoptee =>
-      push(names.ADOPT, {
-        adoptee,
-        denied: false,
-      }),
-    [push, names]
-  );
-
-  const rejectL1 = useCallback(
-    adoptee =>
-      push(names.ADOPT, {
-        adoptee,
-        denied: true,
-      }),
-    [push, names]
-  );
-
   const handleAcceptClick = useCallback(
     async (ship: Ship) => {
-      if (point.isL1) {
-        acceptL1(ship);
-      } else {
-        setLoading(true);
-        await changeSponsorship(ship, 'adopt');
-        await fetchRequests();
-        setLoading(false);
-      }
+      setLoading(true);
+      await changeSponsorship(ship, 'adopt');
+      await fetchRequests();
+      setLoading(false);
     },
-    [point, acceptL1, changeSponsorship, fetchRequests, setLoading]
+    [changeSponsorship, fetchRequests, setLoading]
   );
 
   const handleRejectClick = useCallback(
     async (ship: Ship) => {
-      if (point.isL1) {
-        rejectL1(ship);
-      } else {
-        setLoading(true);
-        await changeSponsorship(ship, 'reject');
-        await fetchRequests();
-        setLoading(false);
-      }
+      setLoading(true);
+      await changeSponsorship(ship, 'reject');
+      await fetchRequests();
+      setLoading(false);
     },
-    [point, rejectL1, changeSponsorship, fetchRequests, setLoading]
+    [changeSponsorship, fetchRequests, setLoading]
   );
 
   useEffect(() => {

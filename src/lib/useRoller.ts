@@ -588,7 +588,7 @@ export default function useRoller() {
     customNetworkSeed?: string;
   }
 
-  const configureNetworkingKeys = useCallback(
+  const configureNetworkKeys = useCallback(
     async ({ breach, customNetworkSeed }: ConfigureKeysParams) => {
       if (quotaReached()) {
         return;
@@ -1024,7 +1024,7 @@ export default function useRoller() {
     cancelEscape,
     checkForUpdates,
     config,
-    configureNetworkingKeys,
+    configureNetworkKeys,
     generateInviteCodes,
     getInvites,
     getPoints,

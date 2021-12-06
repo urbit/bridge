@@ -69,7 +69,7 @@ export const createRing = pair =>
  * @param {number} revision
  * @return {string}
  */
-export const compileNetworkingKey = (pair, point, revision) => {
+export const compileNetworkKey = (pair, point, revision) => {
   const bnsec = new BN(createRing(pair), 'hex');
 
   const sed = noun.dwim(

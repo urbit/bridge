@@ -9,7 +9,7 @@ import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 
 import UrbitOSHome from '../UrbitOS/Home';
-import UrbitOSNetworkingKeys from '../UrbitOS/NetworkingKeys';
+import UrbitOSNetworkKeys from '../UrbitOS/NetworkKeys';
 import UrbitOSChangeSponsor from '../UrbitOS/ChangeSponsor';
 
 const NAMES = {
@@ -21,7 +21,7 @@ const NAMES = {
 const VIEWS = {
   [NAMES.HOME]: UrbitOSHome,
   [NAMES.CHANGE_SPONSOR]: UrbitOSChangeSponsor,
-  [NAMES.NETWORKING_KEYS]: UrbitOSNetworkingKeys,
+  [NAMES.NETWORKING_KEYS]: UrbitOSNetworkKeys,
 };
 
 export default function UrbitOS() {

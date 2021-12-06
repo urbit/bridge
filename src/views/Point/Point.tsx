@@ -229,7 +229,6 @@ export default function Point() {
             Invite Group <Blinky />
           </Grid.Item>
         )}
-        {/* {inviteButton} */}
         {(canManage || isSpawnProxy) && (
           <Grid.Item full as={Flex} justify="between">
             <Card
@@ -237,7 +236,7 @@ export default function Point() {
               subtitle="Master Key, Passport, Proxy Addresses, etc"
               icon={(<Icon icon="User" />) as any}
               onClick={goUrbitID}
-              disabled={!canManage}
+              disabled={!(canManage || isSpawnProxy)}
             />
           </Grid.Item>
         )}

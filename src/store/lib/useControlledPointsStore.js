@@ -7,6 +7,7 @@ import { useWallet } from 'store/wallet';
 import useRoller from 'lib/useRoller';
 import { onlyUnique } from 'lib/utils/array';
 import { useNetwork } from '../network';
+import { ONE_MINUTE } from 'lib/constants';
 
 export default function useControlledPointsStore() {
   const { contracts } = useNetwork();
@@ -120,6 +121,13 @@ export default function useControlledPointsStore() {
   useEffect(() => {
     syncControlledPoints();
   }, [syncControlledPoints]);
+
+  // Poll the roller every minute for changes to the points
+  useEffect(() => {
+    setInterval(() => {
+      syncControlledPoints();
+    }, ONE_MINUTE);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     controlledPoints,

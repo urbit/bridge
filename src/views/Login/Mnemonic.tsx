@@ -36,12 +36,11 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
 
   const { setWallet, setAuthMnemonic, setWalletHdPath }: any = useWallet();
 
-  const [anyMnemonic, setAnyMnemonic] = useState(false);
   const [skipValidation, setSkipValidation] = useState(false);
   const [phraseHdPath, setPhraseHdPath] = useState(false);
 
   const validate = useMemo(() => {
-    const mnemonicValidator = anyMnemonic
+    const mnemonicValidator = skipValidation
       ? buildAnyMnemonicValidator()
       : buildMnemonicValidator();
     return composeValidator({
@@ -50,12 +49,11 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
       passphrase: buildPassphraseValidator(),
       hdpath: buildHdPathValidator(),
     });
-  }, [anyMnemonic]);
+  }, [skipValidation]);
 
   // when the properties change, re-derive wallet and set global state
   const onValues = useCallback(
     ({ valid, values }) => {
-      setAnyMnemonic(values.anyMnemonic);
       if (valid) {
         setWalletHdPath(values.hdpath);
         setAuthMnemonic(Just(values.mnemonic));
@@ -64,7 +62,7 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
             values.mnemonic,
             values.hdpath,
             values.passphrase,
-            values.anyMnemonic
+            skipValidation
           )
         );
       } else {
@@ -72,7 +70,7 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
         setWallet(Nothing());
       }
     },
-    [setAuthMnemonic, setWallet, setWalletHdPath]
+    [setAuthMnemonic, setWallet, setWalletHdPath, skipValidation]
   );
 
   const initialValues = {
@@ -115,22 +113,21 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
                 <Grid.Item full>
                   <Grid.Item full as={MnemonicInput} name="mnemonic" />
 
-                  {skipValidation && (
-                    <Grid.Item
-                      full
-                      as={PassphraseInput}
-                      name="passphrase"
-                      label="Passphrase"
-                    />
-                  )}
-
                   {phraseHdPath && (
-                    <Grid.Item
-                      full
-                      as={HdPathInput}
-                      name="hdpath"
-                      label="HD Path"
-                    />
+                    <>
+                      <Grid.Item
+                        full
+                        as={PassphraseInput}
+                        name="passphrase"
+                        label="Passphrase"
+                      />
+                      <Grid.Item
+                        full
+                        as={HdPathInput}
+                        name="hdpath"
+                        label="HD Path"
+                      />
+                    </>
                   )}
 
                   <Grid.Item full as={FormError} />

@@ -4,7 +4,6 @@ import { Ship } from '@urbit/roller-api';
 import Sigil from 'components/Sigil';
 import { useCallback, useRef, useState } from 'react';
 import useOnClickOutside from 'lib/useOnClickOutside';
-import { useRollerStore } from 'store/rollerStore';
 
 interface ResidentRowProps {
   point: Ship;
@@ -12,9 +11,6 @@ interface ResidentRowProps {
 }
 
 export const ResidentRow = ({ point, onKick }: ResidentRowProps) => {
-  const {
-    point: { isL2 },
-  } = useRollerStore();
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -45,26 +41,24 @@ export const ResidentRow = ({ point, onKick }: ResidentRowProps) => {
         </Box>
         <Box className={'patp'}>{ob.patp(point)}</Box>
       </Box>
-      {isL2 && (
-        <Box className="button-wrapper" ref={dropdownRef}>
-          <Icon
-            icon="Ellipsis"
-            size="18px"
-            onClick={() => setShowDropdown(!showDropdown)}
-          />
-          {showDropdown && (
-            <>
-              <Box
-                className="close-background"
-                onClick={() => setShowDropdown(false)}
-              />
-              <Box className="kick-dropdown" onClick={handleKickClick}>
-                <Text>Kick</Text>
-              </Box>
-            </>
-          )}
-        </Box>
-      )}
+      <Box className="button-wrapper" ref={dropdownRef}>
+        <Icon
+          icon="Ellipsis"
+          size="18px"
+          onClick={() => setShowDropdown(!showDropdown)}
+        />
+        {showDropdown && (
+          <>
+            <Box
+              className="close-background"
+              onClick={() => setShowDropdown(false)}
+            />
+            <Box className="kick-dropdown" onClick={handleKickClick}>
+              <Text>Kick</Text>
+            </Box>
+          </>
+        )}
+      </Box>
     </li>
   );
 };
