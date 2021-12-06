@@ -215,7 +215,7 @@ export default function UrbitOSNetworkKeys({
         unconstruct();
       }
 
-      if (!values.useNetworkSeed && values.networkSeed) {
+      if (!useCustomSeed && values.networkSeed) {
         form.change('networkSeed', '');
         setBreach(false);
         setManualNetworkSeed('');
@@ -268,13 +268,7 @@ export default function UrbitOSNetworkKeys({
     checkForUpdates,
   ]);
 
-  const initialValues = useMemo(
-    () => ({
-      useNetworkSeed: false,
-      useDiscontinuity: false,
-    }),
-    []
-  );
+  const initialValues = useMemo(() => ({}), []);
 
   const viewTitle = completed ? 'Network Keys are now set' : 'Set Network Keys';
 
