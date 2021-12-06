@@ -120,7 +120,7 @@
     "pilot": "HTTPS=true npm-run-all pilot:setup start pilot:cleanup --continue-on-error",
     "pilot-invites": "WITH_TEST_STATE=INVITES npm run pilot",
     "pilot-mainnet": "REACT_APP_MAINNET=true HTTPS=true npm-run-all start --continue-on-error",
-    "pilot-release": "WITH_TEST_STATE=STAR_RELEASE npm run pilot",
+    "pilot-release": "BROWSER=NONE WITH_TEST_STATE=STAR_RELEASE NODE_ENV=development npm run pilot",
     "pilot-residents": "WITH_TEST_STATE=RESIDENTS npm run pilot",
     "pilot-l2": "BROWSER=NONE WITH_TEST_STATE=L2 HTTPS=false NODE_ENV=development npm-run-all pilot:setup start pilot:cleanup --continue-on-error",
     "pilot-l2-local": "BROWSER=NONE REACT_APP_L2=true HTTPS=false NODE_ENV=development npm run start --continue-on-error",
