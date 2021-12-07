@@ -95,15 +95,18 @@ export default function AcceptTransfer() {
     [construct]
   );
   const goBack = useCallback(() => {
-    setPointCursor(Nothing());
     pop();
+    setPointCursor(Nothing());
   }, [pop, setPointCursor]);
 
   const acceptTransfer = useCallback(async () => {
     await transferPoint(_address, reset);
-    checkForUpdates(point.value, `${point.patp} has been transferred to you!`);
-    pop();
-  }, [transferPoint, checkForUpdates, point, pop, _address, reset]);
+    await checkForUpdates(
+      point.value,
+      `${point.patp} has been transferred to you!`
+    );
+    goBack();
+  }, [goBack, transferPoint, checkForUpdates, point, _address, reset]);
 
   return (
     <View
@@ -161,7 +164,7 @@ export default function AcceptTransfer() {
                 full
                 as={InlineEthereumTransaction}
                 {...bind}
-                onReturn={() => pop()}
+                onReturn={() => goBack()}
               />
             )}
           </Grid>

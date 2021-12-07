@@ -113,7 +113,7 @@ export default function useControlledPointsStore() {
       }
     } catch (error) {
       console.error('failed to fetch controlled points', error);
-      _setControlledPoints(Just(Result.Error(error.toString())));
+      _setControlledPoints(Just(Result.Error(JSON.stringify(error))));
     }
   }, [contracts, wallet, getPoints, getPointsDetails]);
 

@@ -57,7 +57,7 @@ function AdminCancelTransfer() {
   const { getDetails } = usePointCache();
   const { point } = useRollerStore();
   const { setProxyAddress, checkForUpdates } = useRoller();
-  const { pointCursor } = usePointCursor();
+  const { pointCursor, setPointCursor } = usePointCursor();
   const _point = need.point(pointCursor);
 
   const name = useCurrentPointName();
@@ -71,11 +71,16 @@ function AdminCancelTransfer() {
     }
   }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const goBack = useCallback(() => {
+    pop();
+    setPointCursor(Nothing());
+  }, [pop, setPointCursor]);
+
   const cancelTransfer = useCallback(async () => {
     await setProxyAddress('transfer', ETH_ZERO_ADDR);
-    checkForUpdates(point.value, `${point.patp} transfer cancelled`);
-    pop();
-  }, [setProxyAddress, pop, checkForUpdates, point]);
+    await checkForUpdates(point.value, `${point.patp} transfer cancelled`);
+    goBack();
+  }, [setProxyAddress, goBack, checkForUpdates, point]);
 
   const formattedName = <span className="mono">{name}</span>;
   const formattedProxy = <span className="mono">{_details.transferProxy}</span>;
@@ -119,7 +124,7 @@ function AdminCancelTransfer() {
             full
             as={InlineEthereumTransaction}
             {...bind}
-            onReturn={() => pop()}
+            onReturn={() => goBack()}
           />
         )}
       </BodyPane>
