@@ -61,7 +61,7 @@ const PointEntry = ({
       <Box className="sigil">
         <Sigil patp={patp} size={1} colors={['#000000', '#FFFFFF']} />
       </Box>
-      <Box>{patp}</Box>
+      <Box className="mono">{patp}</Box>
     </Row>
   );
 };

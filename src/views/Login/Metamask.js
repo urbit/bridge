@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Grid, Text, LinkButton, H5 } from 'indigo-react';
 import { Just } from 'folktale/maybe';
 import { FORM_ERROR } from 'final-form';
@@ -24,11 +24,15 @@ export default function Metamask({ className, goHome }) {
   useLoginView(WALLET_TYPES.METAMASK);
   const { setWallet, setWalletType, setAuthToken } = useWallet();
 
-  const { web3 } = useNetwork();
-  const _web3 = need.web3(web3);
+  const { web3, setMetamask } = useNetwork();
+
+  useEffect(() => {
+    setMetamask(true);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSubmit = useCallback(async () => {
     try {
+      const _web3 = need.web3(web3);
       const accounts = await window.ethereum.send('eth_requestAccounts');
       const wallet = new MetamaskWallet(accounts.result[0]);
 
@@ -45,7 +49,7 @@ export default function Metamask({ className, goHome }) {
       console.error(e);
       return { [FORM_ERROR]: e.message };
     }
-  }, [_web3, setAuthToken, setWallet, setWalletType]);
+  }, [web3, setAuthToken, setWallet, setWalletType]);
 
   return (
     <Grid className={className}>

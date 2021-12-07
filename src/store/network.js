@@ -126,7 +126,7 @@ function _useNetwork(initialNetworkType = null) {
     })();
   }, [networkType, metamask]);
 
-  return { networkType, setNetworkType, web3, contracts };
+  return { networkType, setNetworkType, setMetamask, web3, contracts };
 }
 
 const NetworkContext = createContext(null);

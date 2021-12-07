@@ -218,7 +218,7 @@ function MiniPassport({
   processing = false,
   ...rest
 }) {
-  useSyncDetails([point]);
+  // useSyncDetails([point]);
   // const { wallet } = useWallet();
   // const address = need.addressFromWallet(wallet);
   // const permissions = usePermissionsForPoint(address, point);
@@ -239,7 +239,7 @@ function MiniPassport({
   return (
     <div {...rest} className="sigil-mini">
       <div className={className}>{sigil}</div>
-      <span className="patp">{patp}</span>
+      <span className="patp mono">{patp}</span>
       {locked && <Icon color="white" icon="Locked" className="lock" />}
     </div>
   );

@@ -120,6 +120,7 @@ export default function IssueChild() {
       await spawnPoint(pointToSpawn, destinationAddress);
       checkForUpdates(pointToSpawn);
       setPointToSpawn(null);
+      setDestinationAddress(null);
       setL2SpawnSent(true);
       setLoading(false);
     }
@@ -199,9 +200,11 @@ export default function IssueChild() {
   const validAddress =
     destinationAddress && !buildAddressValidator()(destinationAddress);
 
+  const pointType = point.isStar ? 'planet' : 'star';
+
   const getButtonText = () => {
     if (!validPoint) {
-      return `Please enter a valid ${point.isStar ? 'planet' : 'star'}`;
+      return `Please enter a valid ${pointType}`;
     } else if (!validAddress) {
       return `Please enter a valid destination address`;
     }
@@ -234,16 +237,25 @@ export default function IssueChild() {
                       full
                       as={'div'}
                       style={{ fontSize: 14 }}
-                      className={cn('f5 wrap mb5', {
+                      className={cn('f5 wrap', {
                         green3: completed,
                       })}>
                       <span className="mono">{values.point}</span> has been
                       spawned and can be claimed by{' '}
                       <CopiableAddress>{values.owner}</CopiableAddress>.
+                      <Grid.Item
+                        as={Button}
+                        full
+                        className="mt6"
+                        center
+                        solid
+                        onClick={() => pop()}>
+                        Go back
+                      </Grid.Item>
                     </Grid.Item>
                   )}
 
-                  {!completed && (
+                  {!(completed || l2SpawnSent) && (
                     <>
                       <Grid.Item
                         full
@@ -289,29 +301,28 @@ export default function IssueChild() {
                           <AddressButton>Use my address</AddressButton>
                         </Box>
                       )}
+                      <Grid.Item full as={FormError} />
+
+                      {point.isL2Spawn ? (
+                        <Grid.Item
+                          as={Button}
+                          full
+                          className="mt4"
+                          center
+                          solid
+                          disabled={!validPoint || !validAddress}
+                          onClick={spawnNewPoint}>
+                          {getButtonText()}
+                        </Grid.Item>
+                      ) : (
+                        <Grid.Item
+                          full
+                          as={InlineEthereumTransaction}
+                          {...bind}
+                          onReturn={() => pop()}
+                        />
+                      )}
                     </>
-                  )}
-
-                  <Grid.Item full as={FormError} />
-
-                  {point.isL2Spawn ? (
-                    <Grid.Item
-                      as={Button}
-                      full
-                      className="mt4"
-                      center
-                      solid
-                      disabled={!validPoint || !validAddress}
-                      onClick={spawnNewPoint}>
-                      {getButtonText()}
-                    </Grid.Item>
-                  ) : (
-                    <Grid.Item
-                      full
-                      as={InlineEthereumTransaction}
-                      {...bind}
-                      onReturn={() => pop()}
-                    />
                   )}
                 </>
               )}
