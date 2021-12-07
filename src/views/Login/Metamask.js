@@ -11,7 +11,6 @@ import { WALLET_TYPES } from 'lib/constants';
 import { MetamaskWallet } from 'lib/metamask';
 import { getAuthToken } from 'lib/authToken';
 import useLoginView from 'lib/useLoginView';
-import * as need from 'lib/need';
 
 import SubmitButton from 'form/SubmitButton';
 import BridgeForm from 'form/BridgeForm';
