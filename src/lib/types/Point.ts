@@ -184,6 +184,7 @@ export default class Point {
     this.shouldDisplay = this.ownManageSpawn || this.isTransferProxy;
     this.isOutgoing =
       this.isTransferProxySet &&
+      !this.isTransferProxy &&
       this.canManage &&
       this.transferProxy !== DUMMY_L2_ADDRESS;
   }
