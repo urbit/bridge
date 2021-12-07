@@ -9,7 +9,7 @@ import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 
 import UrbitOSHome from '../UrbitOS/Home';
-import UrbitOSNetworkKeys from '../UrbitOS/NetworkKeys';
+import UrbitOSNetworkKeys from '../UrbitOS/NetworkKeys.tsx';
 import UrbitOSChangeSponsor from '../UrbitOS/ChangeSponsor';
 
 const NAMES = {

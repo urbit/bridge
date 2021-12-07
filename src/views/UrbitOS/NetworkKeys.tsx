@@ -6,9 +6,10 @@ import React, {
   useState,
 } from 'react';
 import { Just } from 'folktale/maybe';
-import { Grid, ToggleInput, CheckboxInput, Button } from 'indigo-react';
+import { Grid, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 import { randomHex } from 'web3-utils';
+import { Box, Checkbox, Row } from '@tlon/indigo-react';
 
 import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
@@ -41,26 +42,29 @@ import {
   buildHexValidator,
 } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
-import Condition from 'form/Condition';
 import FormError from 'form/FormError';
 import { convertToInt } from 'lib/convertToInt';
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
-import { Box, Row } from '@tlon/indigo-react';
 
-function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
-  const { urbitWallet, wallet, authMnemonic, authToken } = useWallet();
-  const { pointCursor } = usePointCursor();
-  const { syncDetails, syncRekeyDate, getDetails } = usePointCache();
-  const { contracts } = useNetwork();
+import './NetworkKeys.scss';
+
+function useSetKeys(
+  manualNetworkSeed: string,
+  setManualNetworkSeed: (seed: string) => void
+) {
+  const { urbitWallet, wallet, authMnemonic, authToken }: any = useWallet();
+  const { pointCursor }: any = usePointCursor();
+  const { syncDetails, syncRekeyDate, getDetails }: any = usePointCache();
+  const { contracts }: any = useNetwork();
 
   const _point = need.point(pointCursor);
   const _contracts = need.contracts(contracts);
   const _details = need.details(getDetails(_point));
 
   const networkRevision = convertToInt(_details.keyRevisionNumber, 10);
-  const randomSeed = useRef();
+  const randomSeed = useRef<string | null>();
 
   const {
     available: keyfileAvailable,
@@ -112,7 +116,7 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
 
   const { completed: _completed, ...rest } = useEthereumTransaction(
     useCallback(
-      async (manualSeed, isDiscontinuity) => {
+      async (manualSeed: string, isDiscontinuity: boolean) => {
         const seed = await buildNetworkSeed(manualSeed);
         const pair = deriveNetworkKeys(seed);
 
@@ -148,8 +152,11 @@ function useSetKeys(manualNetworkSeed, setManualNetworkSeed) {
 export default function UrbitOSNetworkKeys({
   manualNetworkSeed,
   setManualNetworkSeed,
+}: {
+  manualNetworkSeed: string;
+  setManualNetworkSeed: (seed: string) => void;
 }) {
-  const { pop } = useLocalRouter();
+  const { pop }: any = useLocalRouter();
   const { point, setLoading } = useRollerStore();
   const {
     configureNetworkKeys,
@@ -157,6 +164,7 @@ export default function UrbitOSNetworkKeys({
     checkForUpdates,
   } = useRoller();
   const [breach, setBreach] = useState(false);
+  const [useCustomSeed, setUseCustomSeed] = useState(false);
 
   const hasKeys = point.networkKeysSet;
 
@@ -200,23 +208,27 @@ export default function UrbitOSNetworkKeys({
   const onValues = useCallback(
     ({ valid, values, form }) => {
       if (valid) {
-        construct(
-          values.useNetworkSeed ? values.networkSeed : undefined,
-          values.useDiscontinuity
-        );
-        setBreach(values.useDiscontinuity);
-        setManualNetworkSeed(values.useNetworkSeed);
+        const networkSeed = useCustomSeed ? values.networkSeed : undefined;
+        construct(networkSeed, breach);
+        setManualNetworkSeed(networkSeed);
       } else {
         unconstruct();
       }
 
-      if (!values.useNetworkSeed && values.networkSeed) {
+      if (!useCustomSeed && values.networkSeed) {
         form.change('networkSeed', '');
         setBreach(false);
         setManualNetworkSeed('');
       }
     },
-    [construct, unconstruct, setManualNetworkSeed, setBreach]
+    [
+      construct,
+      unconstruct,
+      breach,
+      setManualNetworkSeed,
+      setBreach,
+      useCustomSeed,
+    ]
   );
 
   const setNetworkKeys = useCallback(async () => {
@@ -224,10 +236,10 @@ export default function UrbitOSNetworkKeys({
     try {
       await configureNetworkKeys({
         breach,
-        manualNetworkSeed,
+        customNetworkSeed: manualNetworkSeed,
       });
       // TODO: just use the tx hash instead?
-      getPendingTransactions(point);
+      getPendingTransactions();
       // TODO: this is just so we get visual feedback that the tx has gone through
       // but this should be addressed with the new UI flow (-> download keyfile)
       //
@@ -256,34 +268,19 @@ export default function UrbitOSNetworkKeys({
     checkForUpdates,
   ]);
 
-  const initialValues = useMemo(
-    () => ({
-      useNetworkSeed: false,
-      useDiscontinuity: false,
-    }),
-    []
-  );
+  const initialValues = useMemo(() => ({}), []);
 
-  const viewTitle = completed
-    ? 'Network Keys are now set'
-    : 'Set Network Keys';
+  const viewTitle = completed ? 'Network Keys are now set' : 'Set Network Keys';
 
   const usageMessage =
     'You need this keyfile to authenticate with your OS. Please Download.';
 
   return (
-    <Window>
+    <Window className="network-keys">
       <HeaderPane>
-        <Row className="header-row">
-          <h5>{viewTitle}</h5>
-        </Row>
+        <h5>{viewTitle}</h5>
       </HeaderPane>
       <BodyPane>
-        {!completed && (
-          <Grid.Item className="gray4 f5 mv2 align-self-start" full>
-            Network Keys authenticate Urbit ID with Urbit OS.
-          </Grid.Item>
-        )}
         {completed && (
           <>
             <Grid.Item
@@ -304,43 +301,54 @@ export default function UrbitOSNetworkKeys({
           onValues={onValues}
           initialValues={initialValues}>
           {() => (
-            <Box width="100%">
+            <Box className="contents">
               {!completed && (
-                <>
-                  <Grid.Item
-                    full
-                    as={ToggleInput}
-                    name="useNetworkSeed"
-                    label="Use Custom Network Seed"
-                    inverseLabel="Back to Derived Network Seed"
-                    disabled={inputsLocked}
-                  />
-                  <Condition when="useNetworkSeed" is={true}>
-                    <Grid.Item full as={NoticeBox} className="mb2">
-                      When using a custom network seed, you'll need to download
-                      your Arvo keyfile immediately after this transaction as
-                      Bridge does not store your seed.
-                    </Grid.Item>
-                    <Grid.Item
-                      full
-                      as={HexInput}
-                      name="networkSeed"
-                      label="Network Seed (32 bytes)"
+                <Box>
+                  <Row className="check-row" onClick={() => setBreach(!breach)}>
+                    <Checkbox
+                      className="checkbox"
+                      selected={breach}
                       disabled={inputsLocked}
-                      className="mb6"
                     />
-                  </Condition>
-                  <Grid.Item
-                    full
-                    as={CheckboxInput}
-                    name="useDiscontinuity"
-                    label="Breach Continuity"
-                    disabled={inputsLocked}
-                    className="mb6"
-                  />
-
+                    Factory Reset
+                  </Row>
+                  <Box className="info-text">
+                    Use if your ship is corrupted, you lost your files, or
+                    <br />
+                    you want to erase your data
+                  </Box>
+                  <Row
+                    className="check-row"
+                    onClick={() => setUseCustomSeed(!useCustomSeed)}>
+                    <Checkbox
+                      className="checkbox"
+                      selected={useCustomSeed}
+                      disabled={inputsLocked}
+                    />
+                    Custom Network Seed
+                  </Row>
+                  <Box className="info-text">
+                    Enter your own custom network seed to derive from
+                  </Box>
+                  {useCustomSeed && (
+                    <>
+                      <Grid.Item full as={NoticeBox} className="mb2">
+                        When using a custom network seed, you'll need to
+                        download your Arvo keyfile immediately after this
+                        transaction as Bridge does not store your seed.
+                      </Grid.Item>
+                      <Grid.Item
+                        full
+                        as={HexInput}
+                        name="networkSeed"
+                        label="Network Seed (32 bytes)"
+                        disabled={inputsLocked}
+                        className="mb5"
+                      />
+                    </>
+                  )}
                   <Grid.Item full as={FormError} />
-                </>
+                </Box>
               )}
 
               {point.isL2 ? (
