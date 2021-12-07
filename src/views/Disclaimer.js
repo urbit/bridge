@@ -96,7 +96,11 @@ export default function ActivateDisclaimer() {
                 label="I acknowledge and understand these rights"
               />
 
-              <Grid.Item full as={SubmitButton} handleSubmit={handleSubmit}>
+              <Grid.Item
+                center
+                full
+                as={SubmitButton}
+                handleSubmit={handleSubmit}>
                 Continue
               </Grid.Item>
             </>
