@@ -19,12 +19,13 @@ import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 import { Row } from '@tlon/indigo-react';
+import Web3 from 'web3';
 
 export default function Metamask({ className, goHome }) {
   useLoginView(WALLET_TYPES.METAMASK);
   const { setWallet, setWalletType, setAuthToken } = useWallet();
 
-  const { web3, setMetamask } = useNetwork();
+  const { setMetamask } = useNetwork();
 
   useEffect(() => {
     setMetamask(true);
@@ -32,14 +33,15 @@ export default function Metamask({ className, goHome }) {
 
   const onSubmit = useCallback(async () => {
     try {
-      const _web3 = need.web3(web3);
+      setMetamask(true);
       const accounts = await window.ethereum.send('eth_requestAccounts');
       const wallet = new MetamaskWallet(accounts.result[0]);
 
+      const web3 = new Web3(window.ethereum);
       const authToken = await getAuthToken({
         address: wallet.address,
         walletType: WALLET_TYPES.METAMASK,
-        web3: _web3,
+        web3,
       });
 
       setAuthToken(Just(authToken));
@@ -49,7 +51,7 @@ export default function Metamask({ className, goHome }) {
       console.error(e);
       return { [FORM_ERROR]: e.message };
     }
-  }, [web3, setAuthToken, setWallet, setWalletType]);
+  }, [setAuthToken, setWallet, setWalletType, setMetamask]);
 
   return (
     <Grid className={className}>

@@ -162,10 +162,7 @@ export default function Points() {
   );
 
   const allPoints = pointList
-    .filter(
-      ({ isTransferProxySet, shouldDisplay }) =>
-        !isTransferProxySet && shouldDisplay
-    )
+    .filter(({ shouldDisplay }) => shouldDisplay)
     .map(({ value }) => value);
 
   // if we can only interact with a single point, jump to the point page.
