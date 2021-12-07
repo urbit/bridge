@@ -34,7 +34,7 @@ const OPTIONS = [
     headerIcon: settingsIcon,
   },
   {
-    text: 'Metamask',
+    text: 'Metamask Browser Extension',
     value: NAMES.METAMASK,
     menuIcon: <MetamaskIcon className="logo-icon" />,
     headerIcon: settingsIcon,

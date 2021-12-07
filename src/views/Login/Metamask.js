@@ -15,6 +15,10 @@ import * as need from 'lib/need';
 
 import SubmitButton from 'form/SubmitButton';
 import BridgeForm from 'form/BridgeForm';
+import Window from 'components/L2/Window/Window';
+import HeaderPane from 'components/L2/Window/HeaderPane';
+import BodyPane from 'components/L2/Window/BodyPane';
+import { Row } from '@tlon/indigo-react';
 
 export default function Metamask({ className, goHome }) {
   useLoginView(WALLET_TYPES.METAMASK);
@@ -67,26 +71,33 @@ function Unsupported() {
 }
 function Login({ onSubmit, goHome }) {
   return (
-    <>
-      <Grid.Item full as={Text} className="f6 gray4 mb3">
-        If you wish to login with a different wallet, please change it in the
-        Metamask extension
-      </Grid.Item>
-      <BridgeForm onSubmit={onSubmit} afterSubmit={goHome}>
-        {({ handleSubmit }) => (
-          <Grid.Item full className="flex-col justify-end">
-            <Grid.Item
-              center
-              full
-              as={SubmitButton}
-              handleSubmit={handleSubmit}>
-              Login
-              {window.ethereum.selectedAddress &&
-                ' as ' + abbreviateAddress(window.ethereum.selectedAddress)}
+    <Window className="master-ticket">
+      <HeaderPane>
+        <Row className="header-row">
+          <h5>Metamask</h5>
+        </Row>
+      </HeaderPane>
+      <BodyPane className="login-body-pane">
+        <Grid.Item full as={Text} className="f6 gray4 mb3">
+          If you wish to login with a different wallet, please change it in the
+          Metamask extension
+        </Grid.Item>
+        <BridgeForm onSubmit={onSubmit} afterSubmit={goHome}>
+          {({ handleSubmit }) => (
+            <Grid.Item full className="flex-col justify-end w-full">
+              <Grid.Item
+                center
+                full
+                as={SubmitButton}
+                handleSubmit={handleSubmit}>
+                Login
+                {window.ethereum.selectedAddress &&
+                  ' as ' + abbreviateAddress(window.ethereum.selectedAddress)}
+              </Grid.Item>
             </Grid.Item>
-          </Grid.Item>
-        )}
-      </BridgeForm>
-    </>
+          )}
+        </BridgeForm>
+      </BodyPane>
+    </Window>
   );
 }
