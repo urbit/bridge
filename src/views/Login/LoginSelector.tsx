@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import cn from 'classnames';
+import Web3 from 'web3';
 import { Grid } from 'indigo-react';
 import { Box, Button, Icon, LoadingSpinner, Text } from '@tlon/indigo-react';
 import { useHistory } from 'store/history';
@@ -7,13 +8,11 @@ import { Just, Nothing } from 'folktale/maybe';
 import { FORM_ERROR } from 'final-form';
 
 import { useWallet } from 'store/wallet';
-import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
 
 import { WALLET_TYPES } from 'lib/constants';
 import { MetamaskWallet } from 'lib/metamask';
 import { getAuthToken } from 'lib/authToken';
-import * as need from 'lib/need';
 import { useWalletConnect } from 'lib/useWalletConnect';
 import useLoginView from 'lib/useLoginView';
 
@@ -62,8 +61,6 @@ export default function LoginSelector({
   const { connect } = useWalletConnect();
 
   const { setPointCursor }: any = usePointCursor();
-  const { web3 }: any = useNetwork();
-  const _web3 = need.web3(web3);
 
   const goToActivate = useCallback(() => push(names.ACTIVATE), [
     push,
@@ -82,10 +79,11 @@ export default function LoginSelector({
       );
       const wallet = new MetamaskWallet(accounts.result[0]);
 
+      const web3 = new Web3((window as any).ethereum);
       const authToken = await getAuthToken({
         address: wallet.address,
         walletType: WALLET_TYPES.METAMASK,
-        web3: _web3,
+        web3,
       });
 
       setAuthToken(Just(authToken));
@@ -98,7 +96,6 @@ export default function LoginSelector({
       return { [FORM_ERROR]: (e as any).message };
     }
   }, [
-    _web3,
     setAuthToken,
     setWallet,
     setWalletType,

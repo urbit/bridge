@@ -45,7 +45,7 @@ const WalletConnectLogin = ({ className, goHome }: WalletConnectLoginProps) => {
           </Row>
         </HeaderPane>
         <BodyPane className="login-body-pane">
-          <Grid className={className}>
+          <Grid className={`${className} w-full`}>
             {!isConnected() && (
               <Grid.Item full as={LegacyText} className="f6 gray4 mb3">
                 Note that WalletConnect is a young protocol, not all wallets may
@@ -90,6 +90,7 @@ const WalletConnectLogin = ({ className, goHome }: WalletConnectLoginProps) => {
 
                       <Grid.Item
                         full
+                        center
                         as={SubmitButton}
                         handleSubmit={handleSubmit}>
                         {submitting
