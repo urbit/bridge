@@ -14,6 +14,7 @@ import { WALLET_TYPES } from 'lib/constants';
 import { MetamaskWallet } from 'lib/metamask';
 import { getAuthToken } from 'lib/authToken';
 import { useWalletConnect } from 'lib/useWalletConnect';
+import useLoginView from 'lib/useLoginView';
 
 import Modal from 'components/L2/Modal';
 import HeaderButton from 'components/L2/Headers/HeaderButton';
@@ -44,6 +45,8 @@ export default function LoginSelector({
   // Tab props
   ...rest
 }: LoginSelectorProps) {
+  useLoginView(WALLET_TYPES.WALLET_CONNECT);
+
   const { push, names }: any = useHistory();
   const [showModal, setShowModal] = useState(false);
   const [metamaskSelected, setMetamaskSelected] = useState(false);
