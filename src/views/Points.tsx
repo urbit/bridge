@@ -286,7 +286,14 @@ export default function Points() {
       inset
       pop={pop}
       hideBack
-      header={<L2PointHeader hideHome hideTimer hideInvites showMigrate />}>
+      header={
+        <L2PointHeader
+          hideHome
+          hideTimer
+          hideInvites
+          showMigrate={!displayEmptyState}
+        />
+      }>
       <NavHeader>
         <CopiableAddress
           text={address}
