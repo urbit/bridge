@@ -24,12 +24,12 @@ const NAMES = {
 };
 
 const VIEWS = {
-  [NAMES.ACTIVE]: Active,
+  // [NAMES.ACTIVE]: Active,
   [NAMES.LOCKED]: Locked,
   [NAMES.TRANSFER]: Transfer,
 };
 const OPTIONS = [
-  { text: 'Active', value: NAMES.ACTIVE },
+  // { text: 'Active', value: NAMES.ACTIVE },
   { text: 'Locked', value: NAMES.LOCKED },
   { text: 'Transfer', value: NAMES.TRANSFER },
 ];

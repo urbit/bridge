@@ -29,11 +29,25 @@ export default function useStarRelease() {
     const address = _wallet.address;
 
     try {
-      const [linear, conditional, kind] = await Promise.all([
-        getLinear(_contracts, address),
-        getConditional(_contracts, address),
-        getLockupKind(_contracts, address),
-      ]);
+      console.log('start');
+
+      const linear = await getLinear(_contracts, address);
+      console.log('1');
+
+      // const conditional = await getConditional(_contracts, address);
+      const conditional = { approvedTransferTo: '0x000' };
+      console.log('2');
+
+      const kind = await getLockupKind(_contracts, address);
+      console.log('3');
+
+      // const [linear, conditional, kind] = await Promise.all([
+      //   getLinear(_contracts, address),
+      //   getConditional(_contracts, address),
+      //   getLockupKind(_contracts, address),
+      // ]);
+
+      console.log('done querying');
 
       const keys = Object.keys(linear);
       const result = keys.reduce(
@@ -48,6 +62,7 @@ export default function useStarRelease() {
       setBatchLimits(conditional.batchLimits);
 
       _setDetails(Just(result));
+      console.log('done');
     } catch (e) {
       _setDetails(Just(null));
       console.error('error fetching star release details', e);

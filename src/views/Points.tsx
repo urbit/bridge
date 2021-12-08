@@ -31,6 +31,7 @@ import LoadingOverlay from 'components/L2/LoadingOverlay';
 import { Box, Text } from '@tlon/indigo-react';
 
 import './Points.scss';
+import { StarReleaseButton } from './Points/StarReleaseButton';
 
 export const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -378,7 +379,6 @@ export default function Points() {
 
         <Footer>
           <Grid>
-            <Grid.Divider />
             {isEclipticOwner && (
               <>
                 <Grid.Item
@@ -391,16 +391,12 @@ export default function Points() {
                 <Grid.Divider />
               </>
             )}
-            {starReleasing && (
+            {true && (
               <>
-                <Grid.Item
-                  full
-                  as={ForwardButton}
-                  detail="You have points being released"
-                  onClick={goStarRelease}>
-                  View Star Release
-                </Grid.Item>
-                <Grid.Divider />
+                <StarReleaseButton
+                  title={'Locked Stars'}
+                  subtitle={`X of Y available`}
+                  onClick={goStarRelease}></StarReleaseButton>
               </>
             )}
           </Grid>
