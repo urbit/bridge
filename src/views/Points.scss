@@ -1,0 +1,17 @@
+.empty-points-container {
+  border-width: 2px;
+  border-color:  rgba(0,0,0,0.1);
+  border-style: dashed;
+  border-radius: 5px;
+  min-height: 350px;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+
+  .empty-points-text {
+    font-size: 14px;
+    color: rgba(0,0,0,0.5);
+    font-family: 'Inter';
+  }
+}

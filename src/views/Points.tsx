@@ -28,6 +28,9 @@ import NavHeader from 'components/NavHeader';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import IncomingPoint from 'components/L2/Points/IncomingPoint';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
+import { Box, Text } from '@tlon/indigo-react';
+
+import './Points.scss';
 
 export const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -304,9 +307,8 @@ export default function Points() {
       ))}
       <Grid>
         {displayEmptyState && (
-          <Grid.Item full as={HelpText} className="mt8 t-center">
-            No points to display. This wallet is not the owner or proxy for any
-            points.
+          <Grid.Item full as={Box} className="empty-points-container">
+            <Text className="empty-points-text">No Urbit IDs here yet</Text>
           </Grid.Item>
         )}
 
