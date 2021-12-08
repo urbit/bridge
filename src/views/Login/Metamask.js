@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Grid, Text, LinkButton, H5 } from 'indigo-react';
 import { Just } from 'folktale/maybe';
 import { FORM_ERROR } from 'final-form';
@@ -11,7 +11,6 @@ import { WALLET_TYPES } from 'lib/constants';
 import { MetamaskWallet } from 'lib/metamask';
 import { getAuthToken } from 'lib/authToken';
 import useLoginView from 'lib/useLoginView';
-import * as need from 'lib/need';
 
 import SubmitButton from 'form/SubmitButton';
 import BridgeForm from 'form/BridgeForm';
@@ -19,23 +18,29 @@ import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 import { Row } from '@tlon/indigo-react';
+import Web3 from 'web3';
 
 export default function Metamask({ className, goHome }) {
   useLoginView(WALLET_TYPES.METAMASK);
   const { setWallet, setWalletType, setAuthToken } = useWallet();
 
-  const { web3 } = useNetwork();
-  const _web3 = need.web3(web3);
+  const { setMetamask } = useNetwork();
+
+  useEffect(() => {
+    setMetamask(true);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSubmit = useCallback(async () => {
     try {
+      setMetamask(true);
       const accounts = await window.ethereum.send('eth_requestAccounts');
       const wallet = new MetamaskWallet(accounts.result[0]);
 
+      const web3 = new Web3(window.ethereum);
       const authToken = await getAuthToken({
         address: wallet.address,
         walletType: WALLET_TYPES.METAMASK,
-        web3: _web3,
+        web3,
       });
 
       setAuthToken(Just(authToken));
@@ -45,7 +50,7 @@ export default function Metamask({ className, goHome }) {
       console.error(e);
       return { [FORM_ERROR]: e.message };
     }
-  }, [_web3, setAuthToken, setWallet, setWalletType]);
+  }, [setAuthToken, setWallet, setWalletType, setMetamask]);
 
   return (
     <Grid className={className}>

@@ -3,6 +3,7 @@ import { isGalaxy, isPlanet, isStar } from 'lib/utils/point';
 import { eqAddr, isZeroAddress } from 'lib/utils/address';
 import { L1Point } from './L1Point';
 import { Proxy } from '@urbit/roller-api';
+import { DUMMY_L2_ADDRESS } from 'lib/constants';
 
 export interface Points {
   [key: number]: Point;
@@ -182,7 +183,10 @@ export default class Point {
       (this.isOwner || this.isSpawnProxy || this.isManagementProxy);
     this.shouldDisplay = this.ownManageSpawn || this.isTransferProxy;
     this.isOutgoing =
-      this.isTransferProxySet && this.isTransferProxy && this.canManage;
+      this.isTransferProxySet &&
+      !this.isTransferProxy &&
+      this.canManage &&
+      this.transferProxy !== DUMMY_L2_ADDRESS;
   }
 
   equals = (point: Point) => {
