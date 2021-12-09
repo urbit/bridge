@@ -20,4 +20,8 @@
   .eth-tx-button.text > label > a {
     font-size: 14px;
   }
+
+  .insufficient-eth {
+    background-color: $activate-error-red;
+  }
 }

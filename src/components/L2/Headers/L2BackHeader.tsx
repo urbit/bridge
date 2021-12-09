@@ -1,7 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Row, Icon, Box } from '@tlon/indigo-react';
-import { toBN } from 'web3-utils';
-import BN from 'bn.js';
 
 import { useHistory } from 'store/history';
 import { useRollerStore } from 'store/rollerStore';
@@ -24,15 +22,13 @@ const L2BackHeader = ({
   className = '',
   hideBalance = false,
 }: L2BackHeaderProps) => {
-  const { point } = useRollerStore();
+  const { point, ethBalance, setEthBalance } = useRollerStore();
   const { nextRoll } = useTimerStore();
   const { pop }: any = useHistory();
   const { wallet }: any = useWallet();
   const { web3 }: any = useNetwork();
 
   const currentL2 = !!point?.isL2;
-
-  const [ethBalance, setEthBalance] = useState<BN>(toBN(0));
 
   const goBack = useCallback(() => {
     if (back) {
