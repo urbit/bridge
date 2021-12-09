@@ -145,21 +145,13 @@ export default function Point() {
       }>
       <Greeting point={point.value} />
       {!!spawnedPending && (
-        <div className="transaction">
-          <Row className="title-row">
-            <div className="title">
-              {spawnedPending} Planet{spawnedPending > 1 ? 's' : ''} Spawned
-            </div>
-            <div className="rollup-timer">
-              <Icon icon="Clock" />
-              {nextRoll}
-            </div>
-          </Row>
-          <Row className="info-row">
-            <LayerIndicator layer={2} size="sm" />
-            <div className="date"></div>
-          </Row>
-        </div>
+        <PendingTransaction
+          layer={2}
+          nextRoll={nextRoll}
+          title={`${spawnedPending} Planet${
+            spawnedPending > 1 ? 's' : ''
+          } Spawned`}
+        />
       )}
       {!!otherPending.length &&
         otherPending.map((pendingTx, ind) => (
