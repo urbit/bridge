@@ -7,6 +7,7 @@ import {
   Flex,
   LinkButton,
   H5,
+  Button,
 } from 'indigo-react';
 import { toBN } from 'web3-utils';
 
@@ -26,6 +27,7 @@ import FeeDropdown from './L2/Dropdowns/FeeDropdown';
 import CopyButton from './copiable/CopyButton';
 
 import './InlineEthereumTransaction.scss';
+import { useRollerStore } from 'store/rollerStore';
 
 export default function InlineEthereumTransaction({
   // from useEthereumTransaction.bind
@@ -58,6 +60,7 @@ export default function InlineEthereumTransaction({
   className,
   onReturn,
 }) {
+  const { ethBalance } = useRollerStore();
   // show receipt after successful broadcast
   const [showReceipt, setShowReceipt] = useState(false);
   const toggleShowReceipt = useCallback(() => setShowReceipt(!showReceipt), [
@@ -89,6 +92,35 @@ export default function InlineEthereumTransaction({
       }
     },
     [resetGasPrice]
+  );
+
+  const serializedTxsHex = useMemo(
+    () =>
+      signedTransactions &&
+      signedTransactions.map(stx => hexify(stx.serialize())),
+    [signedTransactions]
+  );
+
+  const numTxs = useMemo(() => (unsignedTransactions || []).length || 1, [
+    unsignedTransactions,
+  ]);
+  const maxCost = useMemo(
+    () =>
+      safeFromWei(
+        safeToWei(
+          toBN(gasLimit)
+            .mul(toBN(gasPrice))
+            .mul(toBN(numTxs)),
+          'gwei'
+        ),
+        'ether'
+      ),
+    [gasLimit, gasPrice, numTxs]
+  );
+
+  const insufficientEth = useMemo(
+    () => Number(maxCost) > Number(ethBalance.toString()),
+    [maxCost, ethBalance]
   );
 
   const renderPrimarySection = () => {
@@ -135,6 +167,18 @@ export default function InlineEthereumTransaction({
           )}
         </>
       );
+    } else if (insufficientEth) {
+      return (
+        <Grid.Item
+          className="ph4 eth-tx-button insufficient-eth"
+          full
+          as={Button}
+          solid
+          center
+          disabled>
+          Insufficient ETH
+        </Grid.Item>
+      );
     } else if (showBroadcastButton) {
       return (
         <Grid.Item
@@ -177,30 +221,6 @@ export default function InlineEthereumTransaction({
       );
     }
   };
-
-  const serializedTxsHex = useMemo(
-    () =>
-      signedTransactions &&
-      signedTransactions.map(stx => hexify(stx.serialize())),
-    [signedTransactions]
-  );
-
-  const numTxs = useMemo(() => (unsignedTransactions || []).length || 1, [
-    unsignedTransactions,
-  ]);
-  const maxCost = useMemo(
-    () =>
-      safeFromWei(
-        safeToWei(
-          toBN(gasLimit)
-            .mul(toBN(gasPrice))
-            .mul(toBN(numTxs)),
-          'gwei'
-        ),
-        'ether'
-      ),
-    [gasLimit, gasPrice, numTxs]
-  );
 
   return (
     <Grid className={cn(className, 'mt1', 'inline-ethereum-tx')}>

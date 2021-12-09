@@ -1,5 +1,7 @@
 import create from 'zustand';
 import { PendingTransaction } from '@urbit/roller-api';
+import { toBN } from 'web3-utils';
+import BN from 'bn.js';
 
 import { HOUR } from 'lib/utils/roller';
 import { Invite, Invites } from 'lib/types/Invite';
@@ -33,6 +35,7 @@ export interface RollerStore {
   recentlyCompleted: number;
   inviteGeneratingNum: number;
   invitesLoading: boolean;
+  ethBalance: BN;
   setLoading: (loading: boolean) => void;
   removeInvite: (point: number, planet: number) => void;
   setInvites: (points: number, invites: Invite[]) => void;
@@ -48,6 +51,7 @@ export interface RollerStore {
   updatePoint: (point: Point) => void;
   storePendingL1Txn: (txn: PendingL1Txn) => void;
   deletePendingL1Txn: (txn: PendingL1Txn) => void;
+  setEthBalance: (ethBalance: BN) => void;
 }
 
 export const useRollerStore = create<RollerStore>(set => ({
@@ -63,6 +67,7 @@ export const useRollerStore = create<RollerStore>(set => ({
   recentlyCompleted: 0,
   inviteGeneratingNum: 0,
   invitesLoading: false,
+  ethBalance: toBN(0),
   setLoading: (loading: boolean) => set(() => ({ loading })),
   setNextBatchTime: (nextBatchTime: number) => set(() => ({ nextBatchTime })),
   setNextQuotaTime: (nextQuotaTime: number) => set(() => ({ nextQuotaTime })),
@@ -128,4 +133,5 @@ export const useRollerStore = create<RollerStore>(set => ({
         pendingL1ByPoint[txn.point]?.filter(({ id }) => id !== txn.id) || [];
       return { pendingL1ByPoint: newPending };
     }),
+  setEthBalance: (ethBalance: BN) => set(() => ({ ethBalance })),
 }));
