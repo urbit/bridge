@@ -5,6 +5,7 @@ import { HOUR } from 'lib/utils/roller';
 import { Invite, Invites } from 'lib/types/Invite';
 import Point, { Points } from 'lib/types/Point';
 import { toL1Details } from 'lib/utils/point';
+import { PendingL1, PendingL1Txn } from 'lib/types/PendingL1Transaction';
 
 const getPointsAndList = (points: Points, point: Point) => ({
   points,
@@ -26,6 +27,7 @@ export interface RollerStore {
   point: Point;
   points: Points;
   pointList: Point[];
+  pendingL1ByPoint: PendingL1;
   invites: Invites;
   modalText?: string;
   recentlyCompleted: number;
@@ -44,6 +46,8 @@ export interface RollerStore {
   setPoints: (points: Points) => void;
   updateInvite: (point: number, invite: Invite) => void;
   updatePoint: (point: Point) => void;
+  storePendingL1Txn: (txn: PendingL1Txn) => void;
+  deletePendingL1Txn: (txn: PendingL1Txn) => void;
 }
 
 export const useRollerStore = create<RollerStore>(set => ({
@@ -54,6 +58,7 @@ export const useRollerStore = create<RollerStore>(set => ({
   point: EMPTY_POINT,
   pointList: [],
   points: {},
+  pendingL1ByPoint: {},
   invites: {},
   recentlyCompleted: 0,
   inviteGeneratingNum: 0,
@@ -110,4 +115,17 @@ export const useRollerStore = create<RollerStore>(set => ({
       return getPointsAndList(newPoints, point);
     }),
   setModalText: (modalText?: string) => set(() => ({ modalText })),
+  storePendingL1Txn: (txn: PendingL1Txn) =>
+    set(({ pendingL1ByPoint }) => {
+      const newPending = Object.assign({}, pendingL1ByPoint);
+      newPending[txn.point] = [...(pendingL1ByPoint[txn.point] || []), txn];
+      return { pendingL1ByPoint: newPending };
+    }),
+  deletePendingL1Txn: (txn: PendingL1Txn) =>
+    set(({ pendingL1ByPoint }) => {
+      const newPending = Object.assign({}, pendingL1ByPoint);
+      newPending[txn.point] =
+        pendingL1ByPoint[txn.point]?.filter(({ id }) => id !== txn.id) || [];
+      return { pendingL1ByPoint: newPending };
+    }),
 }));

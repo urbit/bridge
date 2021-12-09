@@ -29,10 +29,10 @@ import { useRollerStore } from 'store/rollerStore';
 import useRoller from 'lib/useRoller';
 
 function useAcceptTransfer() {
-  const { contracts } = useNetwork();
-  const { pointCursor } = usePointCursor();
-  const { syncExtras, syncControlledPoints } = usePointCache();
-  const { wallet } = useWallet();
+  const { contracts }: any = useNetwork();
+  const { pointCursor }: any = usePointCursor();
+  const { syncExtras, syncControlledPoints }: any = usePointCache();
+  const { wallet }: any = useWallet();
 
   const _contracts = need.contracts(contracts);
   const _point = need.point(pointCursor);
@@ -57,12 +57,12 @@ function useAcceptTransfer() {
 }
 
 export default function AcceptTransfer() {
-  const { pop } = useLocalRouter();
-  const { setPointCursor } = usePointCursor();
+  const { pop }: any = useLocalRouter();
+  const { setPointCursor }: any = usePointCursor();
   const { point } = useRollerStore();
   const { transferPoint, checkForUpdates } = useRoller();
 
-  const { wallet } = useWallet();
+  const { wallet }: any = useWallet();
   const _address = need.addressFromWallet(wallet);
 
   const name = useCurrentPointName();
@@ -73,10 +73,10 @@ export default function AcceptTransfer() {
 
   useEffect(() => {
     if (completed) {
-      checkForUpdates(
-        point.value,
-        `${point.patp} has been transferred to you!`
-      );
+      checkForUpdates({
+        point: point.value,
+        message: `${point.patp} has been transferred to you!`,
+      });
     }
   }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -101,10 +101,11 @@ export default function AcceptTransfer() {
 
   const acceptTransfer = useCallback(async () => {
     await transferPoint(_address, reset);
-    await checkForUpdates(
-      point.value,
-      `${point.patp} has been transferred to you!`
-    );
+    await checkForUpdates({
+      point: point.value,
+      message: `${point.patp} has been transferred to you!`,
+    });
+
     goBack();
   }, [goBack, transferPoint, checkForUpdates, point, _address, reset]);
 

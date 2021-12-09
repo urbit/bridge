@@ -23,17 +23,23 @@ import useRoller from 'lib/useRoller';
 import useSeenMissingKeys from 'lib/useSeenMissingKeys';
 import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
 
-import { InviteForm } from './InviteForm';
-import Modal from 'components/L2/Modal';
-import './Point.scss';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
+import PendingTransaction, { getPendingL1Title, getPendingTitle } from 'components/L2/PendingTransaction';
+import Modal from 'components/L2/Modal';
+import { InviteForm } from './InviteForm';
+import './Point.scss';
 
 export default function Point() {
   const { pop, push, names }: any = useLocalRouter();
   const { wallet }: any = useWallet();
   const { syncExtras }: any = usePointCache();
   const { getInvites, getPendingTransactions } = useRoller();
-  const { pendingTransactions, point, invites } = useRollerStore();
+  const {
+    pendingTransactions,
+    point,
+    invites,
+    pendingL1ByPoint,
+  } = useRollerStore();
   const { nextRoll } = useTimerStore();
   const networkKeysSet = useHasNetworkKeysSet();
   const [seenMissingKeys, setSeenMissingKeys] = useSeenMissingKeys();
@@ -42,6 +48,8 @@ export default function Point() {
   const [loading, setLoading] = useState(false);
 
   const pointRef = useRef<number | null>(null);
+
+  const pendingL1Transactions = pendingL1ByPoint[point.value] || [];
 
   const hideModal = useCallback(() => {
     if (hideMessage) {
@@ -155,41 +163,21 @@ export default function Point() {
       )}
       {!!otherPending.length &&
         otherPending.map((pendingTx, ind) => (
-          <div className="transaction" key={`pending-${ind}`}>
-            <Row className="title-row">
-              <div className="title">
-                {pendingTx.rawTx?.tx?.type === 'set-management-proxy'
-                  ? 'Management Address Changed'
-                  : pendingTx.rawTx?.tx?.type === 'configure-keys'
-                  ? 'Network Keys Configured'
-                  : pendingTx.rawTx?.tx?.type === 'transfer-point'
-                  ? 'Point Transfered'
-                  : pendingTx.rawTx?.tx?.type === 'set-transfer-proxy'
-                  ? 'Transfer Proxy Changed'
-                  : pendingTx.rawTx?.tx?.type === 'set-spawn-proxy'
-                  ? 'Spawn Proxy Changed'
-                  : pendingTx.rawTx?.tx?.type === 'escape'
-                  ? 'Change Sponsor'
-                  : pendingTx.rawTx?.tx?.type === 'cancel-escape'
-                  ? 'Cancel Escape'
-                  : pendingTx.rawTx?.tx?.type === 'adopt'
-                  ? 'Accept Sponsorship'
-                  : pendingTx.rawTx?.tx?.type === 'reject'
-                  ? 'Reject Sponsorship'
-                  : pendingTx.rawTx?.tx?.type === 'detach'
-                  ? 'Detach Sponsee'
-                  : ''}
-              </div>
-              <div className="rollup-timer">
-                <Icon icon="Clock" />
-                {nextRoll}
-              </div>
-            </Row>
-            <Row className="info-row">
-              <LayerIndicator layer={2} size="sm" />
-              <div className="date"></div>
-            </Row>
-          </div>
+          <PendingTransaction
+            key={`pending-tx-${ind}`}
+            layer={2}
+            nextRoll={nextRoll}
+            title={getPendingTitle(pendingTx.rawTx?.tx?.type)}
+          />
+        ))}
+      {!!pendingL1Transactions.length &&
+        pendingL1Transactions.map((pendingTx, ind) => (
+          <PendingTransaction
+            key={`pending-tx-${ind}`}
+            layer={1}
+            hash={pendingTx.hash}
+            title={getPendingL1Title(pendingTx.type)}
+          />
         ))}
       <Passport
         point={Just(point.value)}

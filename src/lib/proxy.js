@@ -1,3 +1,5 @@
+import { L1TxnType } from './types/PendingL1Transaction';
+
 export const PROXY_TYPE = {
   MANAGEMENT: 'MANAGEMENT',
   SPAWN: 'SPAWN',
@@ -15,6 +17,21 @@ export const proxyTypeToHuman = proxyType => {
       return 'transfer';
     case PROXY_TYPE.VOTING:
       return 'voting';
+    default:
+      throw new Error(`Unknown proxyType: ${proxyType}`);
+  }
+};
+
+export const proxyTypeToL1TxnType = proxyType => {
+  switch (proxyType) {
+    case PROXY_TYPE.MANAGEMENT:
+      return L1TxnType.managementProxy;
+    case PROXY_TYPE.SPAWN:
+      return L1TxnType.spawnProxy;
+    case PROXY_TYPE.TRANSFER:
+      return L1TxnType.transferProxy;
+    case PROXY_TYPE.VOTING:
+      return L1TxnType.votingProxy;
     default:
       throw new Error(`Unknown proxyType: ${proxyType}`);
   }

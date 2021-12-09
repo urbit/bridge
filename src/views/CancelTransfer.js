@@ -67,7 +67,10 @@ function AdminCancelTransfer() {
 
   useEffect(() => {
     if (completed) {
-      checkForUpdates(point.value, `${point.patp} transfer cancelled`);
+      checkForUpdates({
+        point: point.value,
+        message: `${point.patp} transfer cancelled`,
+      });
     }
   }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -78,7 +81,10 @@ function AdminCancelTransfer() {
 
   const cancelTransfer = useCallback(async () => {
     await setProxyAddress('transfer', ETH_ZERO_ADDR);
-    await checkForUpdates(point.value, `${point.patp} transfer cancelled`);
+    await checkForUpdates({
+      point: point.value,
+      message: `${point.patp} transfer cancelled`,
+    });
     goBack();
   }, [setProxyAddress, goBack, checkForUpdates, point]);
 

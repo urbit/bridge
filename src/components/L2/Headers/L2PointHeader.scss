@@ -12,6 +12,17 @@
     margin-right: 8px;
   }
 
+  .l2-spawn {
+    border-radius: $medium-border-radius;
+    color: white;
+    background-color: black;
+    text-align: center;
+    height: 24px;
+    padding: 8px 7px 0;
+    font-size: 14px;
+    margin-right: 4px;
+  }
+
   .dropdown {
     border-radius: $medium-border-radius;
     background-color: $washed-gray;

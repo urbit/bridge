@@ -20,7 +20,7 @@ import IssueChild from 'views/Point/IssueChild';
 
 import PartySetPoolSize from 'views/Party/PartySetPoolSize';
 import InviteCohort from 'views/Invite/Cohort';
-import AcceptTransfer from 'views/AcceptTransfer';
+import AcceptTransfer from 'views/AcceptTransfer.tsx';
 import CancelTransfer from 'views/CancelTransfer';
 import Bitcoin from 'views/Bitcoin/Bitcoin';
 import Xpub from 'views/Bitcoin/Xpub';

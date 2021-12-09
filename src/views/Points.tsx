@@ -12,15 +12,15 @@ import { useNetwork } from 'store/network';
 import { useRollerStore } from 'store/rollerStore';
 
 import * as need from 'lib/need';
-import { isZeroAddress, abbreviateAddress } from 'lib/utils/address';
+import { abbreviateAddress } from 'lib/utils/address';
 import useIsEclipticOwner from 'lib/useIsEclipticOwner';
 import { useSyncDetails } from 'lib/useSyncPoints';
 import useRejectedIncomingPointTransfers from 'lib/useRejectedIncomingPointTransfers';
 import { pluralize } from 'lib/pluralize';
+import Point from 'lib/types/Point';
 import newGithubIssueUrl from 'new-github-issue-url';
 
 import View from 'components/View';
-import Passport from 'components/Passport';
 import Footer from 'components/Footer';
 import { ForwardButton } from 'components/Buttons';
 import CopiableAddress from 'components/copiable/CopiableAddress';
@@ -28,6 +28,7 @@ import NavHeader from 'components/NavHeader';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import IncomingPoint from 'components/L2/Points/IncomingPoint';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
+import PointList from 'components/L2/PointList';
 import { Box, Text } from '@tlon/indigo-react';
 
 import './Points.scss';
@@ -42,56 +43,18 @@ export const maybeGetResult = (obj, key, defaultValue) =>
       }),
   });
 
-export const hasTransferProxy = details =>
-  !isZeroAddress(details.transferProxy);
-
-export const isLocked = (details, contracts) =>
+export const isLocked = (details: any, contracts: any) =>
   details.owner === contracts.linearSR ||
   details.owner === contracts.conditionalSR;
 
-const PointList = function({
-  points,
-  className,
-  actions,
-  locked = false,
-  processing = false,
-  ...rest
-}) {
-  const { setPointCursor } = usePointCursor();
-  const { push, names } = useHistory();
+interface ActionButtonProps {
+  actions?: {
+    text?: string;
+    onClick?: () => void;
+  }[];
+}
 
-  return (
-    <Grid gap={4} className={className}>
-      {points.map((point, i) => (
-        <Grid.Item
-          key={point}
-          className={`full fourth-${(i % 4) + 1}-md fourth-${(i % 4) + 1}-lg`}>
-          <Flex col>
-            <Passport.Mini
-              locked={locked}
-              processing={processing}
-              point={point}
-              onClick={
-                locked || processing
-                  ? undefined
-                  : () => {
-                      setPointCursor(Just(point));
-                      push(names.POINT);
-                    }
-              }
-              {...rest}
-            />
-            {actions && (
-              <Flex.Item className="mt2">{actions(point, i)}</Flex.Item>
-            )}
-          </Flex>
-        </Grid.Item>
-      ))}
-    </Grid>
-  );
-};
-
-function ActionButtons({ actions = [] }) {
+function ActionButtons({ actions = [] }: ActionButtonProps) {
   return (
     <Flex row>
       {actions.map(action => (
@@ -164,9 +127,7 @@ export default function Points() {
     [getDetails, controlledPoints, _contracts]
   );
 
-  const allPoints = pointList
-    .filter(({ shouldDisplay }) => shouldDisplay)
-    .map(({ value }) => value);
+  const allPoints = pointList.filter(({ shouldDisplay }) => shouldDisplay);
 
   // if we can only interact with a single point, jump to the point page.
   // if there are any pending transfers, incoming or outgoing, stay on this
@@ -182,7 +143,7 @@ export default function Points() {
       (starReleaseDetails.value === null ||
         starReleaseDetails.value.total === 0)
     ) {
-      setPointCursor(Just(allPoints[0]));
+      setPointCursor(Just(allPoints[0].value));
       push(names.POINT);
     }
   }, [
@@ -201,11 +162,13 @@ export default function Points() {
   const loading = Nothing.hasInstance(controlledPoints);
 
   const ownedPoints = maybeGetResult(controlledPoints, 'ownedPoints', []);
-  const lockedPoints = maybeLockedPoints.getOrElse([]);
+  const lockedPoints = maybeLockedPoints
+    .getOrElse([])
+    .map((value: number) => ({ value }));
 
-  const processingPoints = pointList
-    .filter(({ shouldDisplay }) => !shouldDisplay)
-    .map(({ value }) => value);
+  const processingPoints = pointList.filter(
+    ({ shouldDisplay }) => !shouldDisplay
+  );
 
   const displayEmptyState =
     !loading && incomingPoints.length === 0 && allPoints.length === 0;
@@ -331,14 +294,14 @@ export default function Points() {
             <Grid.Item
               full
               as={PointList}
-              points={outgoingPoints.map(({ value }) => value)}
-              actions={(point, i) => (
+              points={outgoingPoints}
+              actions={(point: Point, i: number) => (
                 <ActionButtons
                   actions={[
                     {
                       text: 'Cancel',
                       onClick: () => {
-                        setPointCursor(Just(point));
+                        setPointCursor(Just(point.value));
                         // TODO: deep linking to fix this duplicate route
                         push(names.CANCEL_TRANSFER);
                       },
@@ -358,11 +321,11 @@ export default function Points() {
 
         {lockedPoints.length > 0 && (
           <Grid.Item full as={Grid} gap={1}>
-            <Grid.Item full as={PointList} locked points={allPoints} />
+            <Grid.Item full as={PointList} locked points={lockedPoints} />
           </Grid.Item>
         )}
 
-        {processingPoints.length > 0 && (
+        {/* {processingPoints.length > 0 && (
           <Grid.Item full as={Grid} gap={1} className="mv6">
             <Grid.Item full as={H5}>
               Awaiting L2 Rollup
@@ -374,7 +337,7 @@ export default function Points() {
               processing
             />
           </Grid.Item>
-        )}
+        )} */}
 
         <Footer>
           <Grid>
