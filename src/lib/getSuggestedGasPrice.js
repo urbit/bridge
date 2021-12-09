@@ -31,7 +31,7 @@ export default async function getSuggestedGasPrice(networkType) {
     case NETWORK_TYPES.LOCAL:
     default:
       try {
-        const response = await fetch(
+        const etherscanGas = await fetch(
           'https://api.etherscan.io/api' +
             '?module=gastracker' +
             '&action=gasoracle' +
@@ -42,20 +42,30 @@ export default async function getSuggestedGasPrice(networkType) {
           }
         );
 
-        const json = await response.json();
+        const ethgasstationGas = await fetch(
+          'https://ethgasstation.info/json/ethgasAPI.json',
+          {
+            method: 'GET',
+            cache: 'no-cache',
+          }
+        );
+
+        const etherscanGasJson = await etherscanGas.json();
+
+        const ethgasstationGasJson = await ethgasstationGas.json();
 
         return {
           fast: {
-            price: minGas(json.fast),
-            wait: formatWait(json.fastWait),
+            price: minGas(etherscanGasJson.result.FastGasPrice),
+            wait: formatWait(ethgasstationGasJson.fastWait),
           },
           average: {
-            price: minGas(json.average),
-            wait: formatWait(json.avgWait),
+            price: minGas(etherscanGasJson.result.ProposeGasPrice),
+            wait: formatWait(ethgasstationGasJson.avgWait),
           },
           low: {
-            price: minGas(json.safeLow),
-            wait: formatWait(json.safeLowWait),
+            price: minGas(etherscanGasJson.result.SafeGasPrice),
+            wait: formatWait(ethgasstationGasJson.safeLowWait),
           },
         };
       } catch (e) {

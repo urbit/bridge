@@ -14,6 +14,7 @@ import {
   PROXY_TYPE,
   proxyTypeToHuman,
   proxyTypeToHumanDescription,
+  proxyTypeToL1TxnType,
 } from 'lib/proxy';
 import * as need from 'lib/need';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -152,6 +153,7 @@ export default function SetProxy() {
     inputsLocked,
     completed,
     bind,
+    txHashes,
   } = useSetProxy(data.proxyType);
 
   const setProxy = useCallback(async () => {
@@ -159,6 +161,12 @@ export default function SetProxy() {
     if (newAddress === '') return;
     try {
       await setProxyAddress(getL2ProxyName(data.proxyType), newAddress);
+
+      checkForUpdates({
+        point: point.value,
+        message: `${point.patp}'s ${humanProxyType} proxy has been set!`,
+      });
+
       getPendingTransactions(point.value);
       pop();
     } catch (error) {
@@ -174,14 +182,22 @@ export default function SetProxy() {
     data.proxyType,
     setProxyAddress,
     setLoading,
+    checkForUpdates,
+    humanProxyType,
   ]);
 
   useEffect(() => {
     if (completed) {
-      checkForUpdates(
-        point.value,
-        `${point.patp}'s ${humanProxyType} proxy has been set!`
-      );
+      checkForUpdates({
+        point: point.value,
+        message: `${point.patp}'s ${humanProxyType} proxy has been set!`,
+        l1Txn: {
+          id: `${newAddress}-${point.value}`,
+          point: point.value,
+          type: proxyTypeToL1TxnType(data.proxyType),
+          hash: txHashes[0],
+        },
+      });
     }
   }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
 

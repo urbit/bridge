@@ -9,6 +9,17 @@ export interface Points {
   [key: number]: Point;
 }
 
+export type PermissionLevel =
+  | 'own'
+  | 'manage'
+  | 'spawn'
+  | 'vote'
+  | 'transfer'
+  | null;
+
+export const shouldDisplayPermissionLevel = (level: PermissionLevel) =>
+  level === 'manage' || level === 'spawn' || level === 'vote';
+
 export enum PointField {
   value = 'value',
   layer = 'layer',
@@ -113,6 +124,8 @@ export default class Point {
   ownManageSpawn: boolean;
   shouldDisplay: boolean;
   isOutgoing: boolean;
+  permissionLevel: PermissionLevel;
+  displayPermission: boolean;
 
   constructor({
     value,
@@ -157,6 +170,18 @@ export default class Point {
     this.isSpawnProxy = eqAddr(address, this.spawnProxy);
     this.isVotingProxy = eqAddr(address, this.votingProxy);
     this.isTransferProxy = eqAddr(address, this.transferProxy);
+    this.permissionLevel = this.isOwner
+      ? 'own'
+      : this.isManagementProxy
+      ? 'manage'
+      : this.isSpawnProxy
+      ? 'spawn'
+      : this.isVotingProxy
+      ? 'vote'
+      : this.isTransferProxy
+      ? 'transfer'
+      : null;
+    this.displayPermission = shouldDisplayPermissionLevel(this.permissionLevel);
     this.isManagementProxySet = !isZeroAddress(this.managementProxy);
     this.isSpawnProxySet = !isZeroAddress(this.spawnProxy);
     this.isVotingProxySet = !isZeroAddress(this.votingProxy);

@@ -24,6 +24,7 @@ import { validateChild } from 'lib/validators';
 import { convertToInt } from 'lib/convertToInt';
 import { isGalaxy } from 'lib/utils/point';
 import useRoller from 'lib/useRoller';
+import { L1TxnType } from 'lib/types/PendingL1Transaction';
 
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
@@ -118,7 +119,7 @@ export default function IssueChild() {
     if (pointToSpawn && destinationAddress) {
       setLoading(true);
       await spawnPoint(pointToSpawn, destinationAddress);
-      checkForUpdates(pointToSpawn);
+      checkForUpdates({ point: pointToSpawn });
       setPointToSpawn(null);
       setDestinationAddress(null);
       setL2SpawnSent(true);
@@ -133,11 +134,20 @@ export default function IssueChild() {
     completed,
     inputsLocked,
     bind,
+    txHashes,
   } = useIssueChild();
 
   useEffect(() => {
     if (completed && pointToSpawn) {
-      checkForUpdates(pointToSpawn);
+      checkForUpdates({
+        point: pointToSpawn,
+        l1Txn: {
+          id: `${pointToSpawn}`,
+          point: point.value,
+          type: L1TxnType.spawnPoint,
+          hash: txHashes[0],
+        },
+      });
     }
   }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
 

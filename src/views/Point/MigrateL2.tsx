@@ -3,14 +3,31 @@ import { Grid } from 'indigo-react';
 import { ecliptic } from 'azimuth-js';
 import * as ob from 'urbit-ob';
 
+import {
+  getHideMigrationMessage,
+  storeHideMigrationMessage,
+} from 'store/storage/roller';
+import { useNetwork } from 'store/network';
+import { usePointCache } from 'store/pointCache';
+import { useRollerStore } from 'store/rollerStore';
+
 import { useLocalRouter } from 'lib/LocalRouter';
 import * as need from 'lib/need';
+import Point, { PointField } from 'lib/types/Point';
+import useRoller from 'lib/useRoller';
+import { L1TxnType } from 'lib/types/PendingL1Transaction';
+import useEthereumTransaction from 'lib/useEthereumTransaction';
+import { DUMMY_L2_ADDRESS, GAS_LIMITS } from 'lib/constants';
+import { isPlanet } from 'lib/utils/point';
 
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 import BodyPane from 'components/L2/Window/BodyPane';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import Window from 'components/L2/Window/Window';
+import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
+import Dropdown from 'components/L2/Dropdowns/Dropdown';
+import Sigil from 'components/Sigil';
 import { ReactComponent as StarIcon } from 'assets/star.svg';
 
 import {
@@ -21,23 +38,8 @@ import {
   RadioButton,
   Row,
 } from '@tlon/indigo-react';
-import {
-  getHideMigrationMessage,
-  storeHideMigrationMessage,
-} from 'store/storage/roller';
-import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
-import { useNetwork } from 'store/network';
-import { usePointCache } from 'store/pointCache';
-import useEthereumTransaction from 'lib/useEthereumTransaction';
-import { DUMMY_L2_ADDRESS, GAS_LIMITS } from 'lib/constants';
-import Dropdown from 'components/L2/Dropdowns/Dropdown';
-import Sigil from 'components/Sigil';
-import { isPlanet } from 'lib/utils/point';
 
 import './MigrateL2.scss';
-import { useRollerStore } from 'store/rollerStore';
-import Point, { PointField } from 'lib/types/Point';
-import useRoller from 'lib/useRoller';
 
 const PointEntry = ({
   point,
@@ -113,7 +115,7 @@ export default function MigrateL2() {
   );
   const hideInfo = getHideMigrationMessage();
 
-  const { construct, unconstruct, bind, completed } = useMigrate();
+  const { construct, unconstruct, bind, completed, txHashes } = useMigrate();
 
   useEffect(() => {
     if (point.isGalaxy && point.isL1) {
@@ -131,7 +133,20 @@ export default function MigrateL2() {
       const message = transfer
         ? `${selectedPoint.patp} has been migrated to Layer 2!`
         : `${selectedPoint.patp}'s spawn proxy has been set to Layer 2!`;
-      checkForUpdates(selectedPoint.value, message, true, PointField.layer);
+
+      checkForUpdates({
+        point: selectedPoint.value,
+        message,
+        notify: true,
+        field: PointField.layer,
+        l1Txn: {
+          id: `${DUMMY_L2_ADDRESS}-${selectedPoint.value}`,
+          point: selectedPoint.value,
+          type: transfer ? L1TxnType.migrate : L1TxnType.migrateSpawn,
+          hash: txHashes[0],
+        },
+      });
+
       pop();
     }
   }, [completed, pop]); // eslint-disable-line react-hooks/exhaustive-deps

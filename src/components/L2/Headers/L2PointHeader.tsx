@@ -83,6 +83,8 @@ const L2PointHeader = ({
         {point.value > -1 && (
           <LayerIndicator size="lg" layer={point.layer} className="header" />
         )}
+        {/* uncomment for L2 spawn badge */}
+        {/* {point.isL1 && point.isL2Spawn && <Box className="l2-spawn">L2 Spawn</Box>} */}
       </Row>
       <Row className="info">
         {renderInviteButton()}

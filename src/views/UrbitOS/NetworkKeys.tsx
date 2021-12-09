@@ -49,6 +49,7 @@ import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 
 import './NetworkKeys.scss';
+import { L1TxnType } from 'lib/types/PendingL1Transaction';
 
 function useSetKeys(
   manualNetworkSeed: string,
@@ -175,14 +176,21 @@ export default function UrbitOSNetworkKeys({
     inputsLocked,
     bind,
     keyfileBind,
+    txHashes,
   } = useSetKeys(manualNetworkSeed, setManualNetworkSeed);
 
   useEffect(() => {
     if (completed) {
-      checkForUpdates(
-        point.value,
-        `${point.patp}'s Network Keys have been set!`
-      );
+      checkForUpdates({
+        point: point.value,
+        message: `${point.patp}'s Network Keys have been set!`,
+        l1Txn: {
+          id: `${point.keyRevisionNumber}-network-keys-${point.value}`,
+          point: point.value,
+          type: L1TxnType.setNetworkKeys,
+          hash: txHashes[0],
+        },
+      });
     }
   }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -247,10 +255,10 @@ export default function UrbitOSNetworkKeys({
       // set since they are in pending in the Roller...
       // we could inspect if there's a changeKeys in the local list of pending txs,...
       //
-      checkForUpdates(
-        point.value,
-        `${point.patp}'s Network Keys have been set!`
-      );
+      checkForUpdates({
+        point: point.value,
+        message: `${point.patp}'s Network Keys have been set!`,
+      });
       pop();
     } catch (error) {
       // setError(error);

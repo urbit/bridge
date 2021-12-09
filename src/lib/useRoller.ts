@@ -50,8 +50,17 @@ import { L1Point } from './types/L1Point';
 import { ddmmmYYYY } from './utils/date';
 import { showNotification } from './utils/notifications';
 import { useWalletConnect } from './useWalletConnect';
+import { PendingL1Txn } from './types/PendingL1Transaction';
 
 const ONE_SECOND = 1000;
+
+interface UpdateParams {
+  point: number;
+  message?: string;
+  notify?: boolean;
+  field?: PointField;
+  l1Txn?: PendingL1Txn;
+}
 
 const inviteTemplate = (
   planet: number,
@@ -98,6 +107,8 @@ export default function useRoller() {
     setPoints,
     updateInvite,
     updatePoint,
+    storePendingL1Txn,
+    deletePendingL1Txn,
   } = useRollerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
@@ -228,12 +239,9 @@ export default function useRoller() {
   );
 
   const checkForUpdates = useCallback(
-    async (
-      point: number,
-      message?: string,
-      notify = true,
-      field?: PointField
-    ) => {
+    async ({ point, message, notify = true, field, l1Txn }: UpdateParams) => {
+      if (l1Txn) storePendingL1Txn(l1Txn);
+
       const interval = setInterval(async () => {
         const updatedPoint = await initPoint(point);
         const changedField = !points[point]
@@ -247,6 +255,7 @@ export default function useRoller() {
         if (!updatedPoint.isPlaceholder && changedField) {
           updatePoint(updatedPoint);
           clearInterval(interval);
+          if (l1Txn) deletePendingL1Txn(l1Txn);
           if (notify) {
             showNotification(
               `${message || getUpdatedPointMessage(updatedPoint, changedField)}`
@@ -255,7 +264,7 @@ export default function useRoller() {
         }
       }, TEN_SECONDS);
     },
-    [points, initPoint, updatePoint]
+    [points, initPoint, updatePoint, storePendingL1Txn, deletePendingL1Txn]
   );
 
   const spawnPoint = useCallback(

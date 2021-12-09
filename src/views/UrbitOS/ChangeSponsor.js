@@ -62,10 +62,12 @@ function ChangeSponsor({ onDone }) {
     if (newSponsor !== undefined) {
       setLoading(true);
       await changeSponsor(newSponsor);
-      checkForUpdates(
-        point.value,
-        `${point.patp} has requested ${ob.patp(newSponsor)} as a sponsor`
-      );
+      checkForUpdates({
+        point: point.value,
+        message: `${point.patp} has requested ${ob.patp(
+          newSponsor
+        )} as a sponsor`,
+      });
       setLoading(false);
       pop();
     }
