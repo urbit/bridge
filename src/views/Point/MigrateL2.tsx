@@ -220,7 +220,7 @@ export default function MigrateL2() {
                 />
               ))}
             </Dropdown>
-            {isStar && !point.isL2Spawn && (
+            {isStar && !selectedPoint?.isL2Spawn && (
               <Box className="transfer-spawn-selector">
                 <Row onClick={toggleTransfer} className="transfer">
                   <RadioButton
@@ -243,7 +243,7 @@ export default function MigrateL2() {
               </Box>
             )}
             {isStar && (
-              <Box>
+              <Box className="mt4">
                 Transferring this point will allow you to conduct all
                 transactions on Layer 2. Setting the spawn proxy of a star to
                 Layer 2 will allow you to create planet invites for free, but

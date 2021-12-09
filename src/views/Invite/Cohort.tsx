@@ -13,6 +13,7 @@ import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';
 import { useNetwork } from 'store/network';
 import { useRollerStore } from 'store/rollerStore';
+import { getStoredInvites } from 'store/storage/roller';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import * as need from 'lib/need';
@@ -23,6 +24,18 @@ import {
   generateCsvLine,
   generateCsvName,
 } from 'lib/utils/invite';
+import {
+  DEFAULT_NUM_INVITES,
+  ETH_ZERO_ADDR,
+  INVITES_PER_PAGE,
+  DEFAULT_CSV_NAME,
+} from 'lib/constants';
+import { isPlanet } from 'lib/utils/point';
+import { generateInviteWallet } from 'lib/utils/roller';
+import { useTimerStore } from 'store/timerStore';
+import { Invite } from 'lib/types/Invite';
+import { ddmmmYYYY } from 'lib/utils/date';
+import { isExternalWallet } from 'lib/utils/wallet';
 
 import { useIssueChild } from 'views/Point/IssueChild';
 import View from 'components/View';
@@ -36,18 +49,6 @@ import Paginator from 'components/L2/Paginator';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 
 import './Cohort.scss';
-import { getStoredInvites } from 'store/storage/roller';
-import {
-  DEFAULT_NUM_INVITES,
-  ETH_ZERO_ADDR,
-  INVITES_PER_PAGE,
-  DEFAULT_CSV_NAME,
-} from 'lib/constants';
-import { isPlanet } from 'lib/utils/point';
-import { generateInviteWallet } from 'lib/utils/roller';
-import { useTimerStore } from 'store/timerStore';
-import { Invite } from 'lib/types/Invite';
-import { ddmmmYYYY } from 'lib/utils/date';
 
 interface L1Invite {
   ticket: string;
@@ -56,7 +57,7 @@ interface L1Invite {
 
 export default function InviteCohort() {
   const { pop }: any = useLocalRouter();
-  const { authToken }: any = useWallet();
+  const { authToken, walletType }: any = useWallet();
   const {
     point,
     pendingTransactions,
@@ -320,6 +321,7 @@ export default function InviteCohort() {
 
   if (showInviteForm) {
     const generateDisabled = loading || overQuota;
+    const showTxnNote = isExternalWallet(walletType);
 
     return (
       <View
@@ -358,16 +360,20 @@ export default function InviteCohort() {
                 </Box>
               )}
               {currentL2 && (
-                <>
-                  <Box lineHeight="1.4em">
-                    You can generate up to
-                    <strong>{` ${point.l2Quota} `}</strong>
-                    invites. You will be able to generate another
-                    <strong>{` ${config?.rollerQuota}`}</strong> invites on
-                    <strong>{` ${ddmmmYYYY(nextQuotaTime)}`}</strong>.
-                  </Box>
-                  <br />
-                </>
+                <Box className="mb4" lineHeight="1.4em">
+                  You can generate up to
+                  <strong>{` ${point.l2Quota} `}</strong>
+                  invites. You will be able to generate another
+                  <strong>{` ${config?.rollerQuota}`}</strong> invites on
+                  <strong>{` ${ddmmmYYYY(nextQuotaTime)}`}</strong>.
+                </Box>
+              )}
+              {showTxnNote && (
+                <Box className="mb6" lineHeight="1.4em">
+                  Note: you will have to sign <strong>4</strong> transactions
+                  per invite, for a total of <strong>{4 * numInvites}</strong>{' '}
+                  signatures
+                </Box>
               )}
             </Box>
             {/* <Inviter /> */}
