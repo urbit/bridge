@@ -54,8 +54,6 @@ const L2BackHeader = ({
     getEthBalance();
   }, [currentL2, setEthBalance, wallet, web3]);
 
-  const hasBalance = Number(ethBalance.toString()) !== 0;
-
   return (
     <Row className={`l2-back-header ${className}`}>
       <HeaderButton icon="ChevronWest" onClick={goBack} />
@@ -65,8 +63,7 @@ const L2BackHeader = ({
           {nextRoll}
         </Row>
       ) : (
-        !hideBalance &&
-        hasBalance && (
+        !hideBalance && (
           <Row className="eth-balance">
             <Wallet className="wallet-icon" />
             <Box>{ethBalance.toString()} ETH</Box>

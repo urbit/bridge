@@ -429,7 +429,7 @@ export default function InviteCohort() {
       inset
       className="cohort"
       hideBack
-      header={<L2BackHeader hideBalance />}>
+      header={<L2BackHeader hideBalance={point.isL2Spawn} />}>
       <Window>
         <HeaderPane>
           {!hasInvites ? (
