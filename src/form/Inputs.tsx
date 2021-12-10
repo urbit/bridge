@@ -125,11 +125,11 @@ export function PointInput({ name, size = 4, ...rest }) {
       label="Urbit ID"
       name={name}
       placeholder={
-        size === 4
-          ? PLACEHOLDER_PLANET
+        size === 1
+          ? PLACEHOLDER_GALAXY
           : size === 2
           ? PLACEHOLDER_STAR
-          : PLACEHOLDER_GALAXY
+          : PLACEHOLDER_PLANET
       }
       autoCapitalize="none"
       autoComplete="off"
