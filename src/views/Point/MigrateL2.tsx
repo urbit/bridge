@@ -281,7 +281,7 @@ export default function MigrateL2() {
             className="bold"
             target="_blank"
             rel="noreferrer"
-            href="https://urbit-org-9l0a6849p-urbit.vercel.app/docs/azimuth/l2/layer2">
+            href="https://urbit.org/docs/azimuth/l2/layer2">
             Learn More
           </a>
         </Box>

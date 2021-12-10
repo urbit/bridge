@@ -6,7 +6,7 @@ import { Box, Button, Icon, Row } from '@tlon/indigo-react';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { PROXY_TYPE } from 'lib/proxy';
 import { convertToInt } from 'lib/convertToInt';
-import { ETH_ZERO_ADDR, MASTER_TICKET_TOOLTIP } from 'lib/constants';
+import { DUMMY_L2_ADDRESS, ETH_ZERO_ADDR, MASTER_TICKET_TOOLTIP } from 'lib/constants';
 import { abbreviateAddress } from 'lib/utils/address';
 import { downloadWallet } from 'lib/invite';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';
@@ -63,7 +63,8 @@ export default function UrbitIDHome() {
   const goTransfer = useCallback(() => push(names.TRANSFER), [names, push]);
 
   const noManagement = point.managementProxy === ETH_ZERO_ADDR;
-  const noSpawn = point.spawnProxy === ETH_ZERO_ADDR;
+  const noSpawn =
+    point.spawnProxy === ETH_ZERO_ADDR || point.spawnProxy === DUMMY_L2_ADDRESS;
 
   return (
     <Window className="id-home">
@@ -131,30 +132,23 @@ export default function UrbitIDHome() {
             <Box>
               <Box>Spawn Proxy Address</Box>
               <div className="mt1 mono black subtitle">
-                {noSpawn
-                  ? point.isL2Spawn
-                    ? 'Layer 2'
-                    : 'Unset'
-                  : abbreviateAddress(point.spawnProxy)}
+                {noSpawn ? 'Unset' : abbreviateAddress(point.spawnProxy)}
               </div>
             </Box>
-            {point.isL2Spawn ? (
-              <LayerIndicator size="lg" layer={2} />
-            ) : (
-              <Row>
-                <Button
-                  className="secondary"
-                  onClick={() => goSetProxy(PROXY_TYPE.SPAWN)}>
-                  {noSpawn ? 'Set' : 'Change'}
-                </Button>
-                {!noSpawn && (
-                  <CopiableWithTooltip
-                    text={point.spawnProxy}
-                    className="copy-button"
-                  />
-                )}
-              </Row>
-            )}
+            <Row>
+              {point.isL2Spawn && <LayerIndicator size="lg" layer={2} />}
+              <Button
+                className="secondary"
+                onClick={() => goSetProxy(PROXY_TYPE.SPAWN)}>
+                {noSpawn ? 'Set' : 'Change'}
+              </Button>
+              {!noSpawn && (
+                <CopiableWithTooltip
+                  text={point.spawnProxy}
+                  className="copy-button"
+                />
+              )}
+            </Row>
           </Row>
         )}
 

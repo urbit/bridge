@@ -115,7 +115,7 @@ export default function AcceptTransfer() {
       inset
       className="cancel-transfer"
       hideBack
-      header={<L2BackHeader hideBalance back={goBack} />}>
+      header={<L2BackHeader hideBalance={point.isL2} back={goBack} />}>
       <Window>
         <HeaderPane>
           <Row className="header-row">

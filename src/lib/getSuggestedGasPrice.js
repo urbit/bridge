@@ -5,7 +5,7 @@ import { formatWait } from 'components/L2/Dropdowns/FeeDropdown';
 // ethgasstation returns values in floating point, one order of magitude
 // more than gwei. see: https://docs.ethgasstation.info
 // we don't want to charge users more than the gas tank funds
-const minGas = gas => Math.min(Math.ceil(gas / 10), MAX_GAS_PRICE_GWEI);
+const minGas = gas => Math.min(Math.ceil(gas), MAX_GAS_PRICE_GWEI);
 
 export const defaultGasValues = value => ({
   fast: {

@@ -40,9 +40,9 @@ export const proxyTypeToL1TxnType = proxyType => {
 export const proxyTypeToHumanDescription = proxyType => {
   switch (proxyType) {
     case PROXY_TYPE.MANAGEMENT:
-      return 'Your management key can configure networking settings (network keys and sponsorship)';
+      return 'Your management key can configure networking settings (network keys and sponsorship).';
     case PROXY_TYPE.SPAWN:
-      return 'Your spawn key can spawn points.';
+      return 'Your spawn key can spawn points on your behalf.';
     case PROXY_TYPE.TRANSFER:
       return 'Your transfer key can transfer this point.';
     case PROXY_TYPE.VOTING:

@@ -227,7 +227,7 @@ export default function IssueChild() {
       hideBack
       inset
       className="issue-child"
-      header={<L2BackHeader hideBalance={false} back={pop} />}>
+      header={<L2BackHeader hideBalance={point.isL2Spawn} back={pop} />}>
       <Window className="id-issue-child">
         <HeaderPane>
           <Row>
