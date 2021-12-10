@@ -54,8 +54,6 @@ export default async function getSuggestedGasPrice(networkType) {
 
         const ethgasstationGasJson = await ethgasstationGas.json();
 
-        console.log(etherscanGasJson)
-
         return {
           fast: {
             price: minGas(etherscanGasJson.result.FastGasPrice),
