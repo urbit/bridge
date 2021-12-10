@@ -19,6 +19,7 @@ import {
   StatelessTextInputProps,
 } from '@tlon/indigo-react';
 
+const PLACEHOLDER_GALAXY = '~pel';
 const PLACEHOLDER_STAR = '~sampel';
 const PLACEHOLDER_PLANET = '~sampel-ponnym';
 const PLACEHOLDER_HD_PATH = DEFAULT_HD_PATH;
@@ -123,7 +124,13 @@ export function PointInput({ name, size = 4, ...rest }) {
       type="text"
       label="Urbit ID"
       name={name}
-      placeholder={size === 4 ? PLACEHOLDER_PLANET : PLACEHOLDER_STAR}
+      placeholder={
+        size === 4
+          ? PLACEHOLDER_PLANET
+          : size === 2
+          ? PLACEHOLDER_STAR
+          : PLACEHOLDER_GALAXY
+      }
       autoCapitalize="none"
       autoComplete="off"
       autoCorrect="off"

@@ -372,7 +372,7 @@ export default function InviteCohort() {
                 <Box className="mb6" lineHeight="1.4em">
                   Note: you will have to sign <strong>4</strong> transactions
                   per invite, for a total of <strong>{4 * numInvites}</strong>{' '}
-                  signatures
+                  signatures.
                 </Box>
               )}
             </Box>

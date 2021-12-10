@@ -38,6 +38,8 @@ import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 import { Row } from '@tlon/indigo-react';
 
+import './SetProxy.scss';
+
 const getL2ProxyName = proxy =>
   proxy === PROXY_TYPE.MANAGEMENT
     ? 'manage'
@@ -248,7 +250,7 @@ export default function SetProxy() {
   }, [completed, properProxyType]);
 
   return (
-    <Window>
+    <Window className="set-proxy">
       <HeaderPane>
         <Row className="header-row">
           <h5>{header}</h5>
@@ -258,13 +260,13 @@ export default function SetProxy() {
         <Grid className="w-full">
           {!completed && (
             <>
-              <Grid.Item full as={Text} className="mb4 f5 gray4">
+              <Grid.Item full as={Text} className="mb4 f5">
                 {proxyTypeToHumanDescription(data.proxyType)}
               </Grid.Item>
               <Grid.Item
                 full
                 as={Text}
-                className={cn('f6', {
+                className={cn('f5', {
                   green3: completed,
                 })}>
                 Current

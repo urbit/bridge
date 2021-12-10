@@ -29,39 +29,39 @@ import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 
 function useChangeSponsor() {
-  const { contracts } = useNetwork();
-  const { pointCursor } = usePointCursor();
-  const { syncExtras } = usePointCache();
+  const { contracts }: any = useNetwork();
+  const { pointCursor }: any = usePointCursor();
+  const { syncExtras }: any = usePointCache();
 
   const _contracts = need.contracts(contracts);
   const point = need.point(pointCursor);
 
   return useEthereumTransaction(
-    useCallback(sponsor => ecliptic.escape(_contracts, point, sponsor), [
-      point,
-      _contracts,
-    ]),
+    useCallback(
+      (sponsor: number) => ecliptic.escape(_contracts, point, sponsor),
+      [point, _contracts]
+    ),
     useCallback(() => {
       syncExtras(point);
     }, [syncExtras, point])
   );
 }
 
-function ChangeSponsor({ onDone }) {
-  const { contracts } = useNetwork();
-  const { pop } = useHistory();
+function ChangeSponsor({ onDone }: { onDone: Function }) {
+  const { contracts }: any = useNetwork();
+  const { pop }: any = useHistory();
   const { changeSponsor, checkForUpdates } = useRoller();
   const { point, setLoading } = useRollerStore();
 
   const _contracts = need.contracts(contracts);
   const { construct, unconstruct, inputsLocked, bind } = useChangeSponsor();
 
-  const [newSponsor, setNewSponsor] = useState();
+  const [newSponsor, setNewSponsor] = useState<number | undefined>();
 
   const requestNewSponsor = useCallback(async () => {
     if (newSponsor !== undefined) {
       setLoading(true);
-      await changeSponsor(newSponsor);
+      await changeSponsor(newSponsor!);
       checkForUpdates({
         point: point.value,
         message: `${point.patp} has requested ${ob.patp(
@@ -123,6 +123,8 @@ function ChangeSponsor({ onDone }) {
 
   const buttonText = 'Request New Sponsor';
 
+  const size = point.isStar ? 1 : 2;
+
   return (
     <Window>
       <HeaderPane>
@@ -141,7 +143,7 @@ function ChangeSponsor({ onDone }) {
                 disabled={inputsLocked}
                 label="New sponsor"
                 className="mv4"
-                size={2}
+                size={size}
               />
               <Grid.Item full as={FormError} />
               {point.isL2 ? (
@@ -171,9 +173,9 @@ function ChangeSponsor({ onDone }) {
 }
 
 function useCancelEscape() {
-  const { contracts } = useNetwork();
-  const { pointCursor } = usePointCursor();
-  const { syncExtras } = usePointCache();
+  const { contracts }: any = useNetwork();
+  const { pointCursor }: any = usePointCursor();
+  const { syncExtras }: any = usePointCache();
 
   const _contracts = need.contracts(contracts);
   const point = need.point(pointCursor);
@@ -187,11 +189,11 @@ function useCancelEscape() {
   );
 }
 
-function CurrentEscape({ onDone }) {
+function CurrentEscape({ onDone }: { onDone: Function }) {
   const { construct, bind } = useCancelEscape();
   const { point } = useRollerStore();
 
-  const { pop } = useHistory();
+  const { pop }: any = useHistory();
   const { cancelEscape, checkForUpdates } = useRoller();
   const {
     point: { isL2 },
@@ -205,14 +207,15 @@ function CurrentEscape({ onDone }) {
   }, [construct]);
 
   const cancelRequest = useCallback(async () => {
-    if (newSponsor !== undefined) {
-      setLoading(true);
-      await cancelEscape(newSponsor);
-      checkForUpdates(point.value, `${point.patp}'s sponsor change cancelled`);
-      setLoading(false);
-      pop();
-    }
-  }, [point, newSponsor, cancelEscape, setLoading, checkForUpdates, pop]);
+    setLoading(true);
+    await cancelEscape();
+    checkForUpdates({
+      point: point.value,
+      message: `${point.patp}'s sponsor change cancelled`,
+    });
+    setLoading(false);
+    pop();
+  }, [point, cancelEscape, setLoading, checkForUpdates, pop]);
 
   const buttonText = 'Cancel Request';
 
@@ -253,7 +256,7 @@ function CurrentEscape({ onDone }) {
 }
 
 export default function UrbitOSChangeSponsor() {
-  const { pop } = useHistory();
+  const { pop }: any = useHistory();
   const { point } = useRollerStore();
 
   const [requested, setRequested] = useState(point.escapeRequested);
