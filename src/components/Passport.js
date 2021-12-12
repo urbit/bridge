@@ -7,7 +7,6 @@ import { sigil, reactRenderer } from 'urbit-sigil-js';
 import { Icon } from '@tlon/indigo-react';
 
 import { chunkStr, Matrix, walk, rand } from 'lib/card';
-import { useSyncDetails } from 'lib/useSyncPoints';
 
 import './SigilMini.scss';
 
