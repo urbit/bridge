@@ -6,7 +6,11 @@ import { Box, Button, Icon, Row } from '@tlon/indigo-react';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { PROXY_TYPE } from 'lib/proxy';
 import { convertToInt } from 'lib/convertToInt';
-import { DUMMY_L2_ADDRESS, ETH_ZERO_ADDR, MASTER_TICKET_TOOLTIP } from 'lib/constants';
+import {
+  DUMMY_L2_ADDRESS,
+  ETH_ZERO_ADDR,
+  MASTER_TICKET_TOOLTIP,
+} from 'lib/constants';
 import { abbreviateAddress } from 'lib/utils/address';
 import { downloadWallet } from 'lib/invite';
 import useKeyfileGenerator from 'lib/useKeyfileGenerator';

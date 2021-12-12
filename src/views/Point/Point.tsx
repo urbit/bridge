@@ -11,22 +11,21 @@ import { useTimerStore } from 'store/timerStore';
 import View from 'components/View';
 import Greeting from 'components/Greeting';
 import Passport from 'components/Passport';
-import Blinky from 'components/Blinky';
 import L2PointHeader from 'components/L2/Headers/L2PointHeader';
-import LayerIndicator from 'components/L2/LayerIndicator';
 import Card from 'components/L2/Card';
 
 import * as need from 'lib/need';
-import useInvites from 'lib/useInvites';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useRoller from 'lib/useRoller';
 import useSeenMissingKeys from 'lib/useSeenMissingKeys';
 import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
 
 import LoadingOverlay from 'components/L2/LoadingOverlay';
-import PendingTransaction, { getPendingL1Title, getPendingTitle } from 'components/L2/PendingTransaction';
+import PendingTransaction, {
+  getPendingL1Title,
+  getPendingTitle,
+} from 'components/L2/PendingTransaction';
 import Modal from 'components/L2/Modal';
-import { InviteForm } from './InviteForm';
 import './Point.scss';
 
 export default function Point() {
@@ -90,26 +89,6 @@ export default function Point() {
 
   const { isParent, canManage, isSpawnProxy } = point;
 
-  // L1 invites
-  const l1Invites = useInvites(point.value);
-  const {
-    availableInvites,
-    sentInvites,
-    acceptedInvites,
-    pendingPoints,
-    acceptedPoints,
-  } = l1Invites;
-
-  const showInvites = !(
-    acceptedInvites.getOrElse(0) === 0 && sentInvites.getOrElse(0) === 0
-  );
-
-  const hasInvites = showInvites || availableInvites.getOrElse(0) !== 0;
-
-  const loadedInvites = Just.hasInstance(availableInvites);
-
-  const goCohort = useCallback(() => push(names.INVITE_COHORT), [push, names]);
-
   const goUrbitOS = useCallback(() => {
     if (hideMessage) setSeenMissingKeys(hideMessage);
 
@@ -119,8 +98,6 @@ export default function Point() {
   const goUrbitID = useCallback(() => push(names.URBIT_ID), [push, names]);
 
   const goOps = useCallback(() => push(names.OPS), [push, names]);
-
-  const [showInviteForm, setShowInviteForm] = useState(false);
 
   const address = need.addressFromWallet(wallet);
   const spawnedPending = pendingTransactions.filter(
@@ -189,24 +166,6 @@ export default function Point() {
               }
               onClick={goOps}
             />
-          </Grid.Item>
-        )}
-        {point.isPlanet && hasInvites && (
-          <InviteForm
-            showInviteForm={showInviteForm}
-            setShowInviteForm={setShowInviteForm}
-            acceptedInvites={acceptedInvites}
-            acceptedPoints={acceptedPoints}
-            availableInvites={availableInvites}
-            goCohort={goCohort}
-            pendingPoints={pendingPoints}
-            sentInvites={sentInvites}
-            showInvites={showInvites}
-          />
-        )}
-        {!loadedInvites && point.isPlanet && (
-          <Grid.Item className="mv2" full>
-            Invite Group <Blinky />
           </Grid.Item>
         )}
         {(canManage || isSpawnProxy) && (
