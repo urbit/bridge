@@ -42,7 +42,7 @@ import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 
 import { PatpBadge } from './PatpBadge';
-import { AddressButton } from './AddressButton';
+import { AddressButton } from '../../components/AddressButton';
 import './IssueChild.scss';
 
 export function useIssueChild() {
@@ -309,7 +309,9 @@ export default function IssueChild() {
                       />
                       {isDefaultState && (
                         <Box>
-                          <AddressButton>Use my address</AddressButton>
+                          <AddressButton inputName="owner">
+                            Use my address
+                          </AddressButton>
                         </Box>
                       )}
                       <Grid.Item full as={FormError} />

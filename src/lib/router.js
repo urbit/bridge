@@ -5,11 +5,11 @@ import Senate from 'views/Point/Senate';
 import Documents from 'views/Senate/Documents';
 import Upgrades from 'views/Senate/Upgrades';
 import CreateGalaxy from 'views/CreateGalaxy';
-import StarRelease from 'views/Release';
 import AcceptLockup from 'views/AcceptLockup';
 
 import Points from 'views/Points';
 import Activate from 'views/Activate';
+import StarRelease from 'views/Release/StarRelease';
 
 import Point from 'views/Point/Point';
 import UrbitOS from 'views/Point/UrbitOS';
