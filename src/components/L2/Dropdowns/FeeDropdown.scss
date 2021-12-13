@@ -4,6 +4,31 @@
   font-size: 14px;
   position: relative;
 
+  &.custom {
+    background-color: $washed-gray;
+    padding: 4px;
+    border-radius: $medium-border-radius;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+
+    .custom-input {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
+      height: 24px;
+      width: 134px;
+      border: none;
+      background-color: $washed-gray;
+    }
+
+    svg {
+      width: 16px;
+      height: 14px;
+      margin-right: 6px;
+    }
+  }
+
   .selector {
     min-width: 150px;
   }
@@ -16,7 +41,6 @@
         .price {
           display: flex;
           flex-direction: row;
-          justify-content: space-between;
           align-items: center;
           cursor: pointer;
           line-height: 20px;
@@ -27,14 +51,14 @@
             opacity: 0.8;
           }
 
-          .label {
-            margin-right: 8px;
+          .speed {
+            font-weight: 600;
+            margin-right: 4px;
           }
 
-          .custom-input {
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
-            text-align: right;
-            height: 24px;
+          .time {
+            color: $dark-gray;
+            font-weight: 600;
           }
 
           .unit {

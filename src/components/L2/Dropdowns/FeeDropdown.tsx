@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState, FormEvent } from 'react';
-import { Box, Row, StatelessTextInput } from '@tlon/indigo-react';
+import { Box, Row, Icon, StatelessTextInput } from '@tlon/indigo-react';
 import { DEFAULT_GAS_PRICE_GWEI } from 'lib/constants';
 import useGasPrice from 'lib/useGasPrice';
 
 import Dropdown from './Dropdown';
 import './FeeDropdown.scss';
 
-const PRICE_LABELS = ['Fast', 'Average', 'Slow'];
+const PRICE_LABELS = ['Fast', 'Normal', 'Slow'];
 
 export interface GasPrice {
   price: number;
@@ -25,7 +25,8 @@ export default function FeeDropdown({
   const { suggestedGasPrices } = useGasPrice(DEFAULT_GAS_PRICE_GWEI);
 
   const [open, setOpen] = useState(false);
-  const [custom, setCustom] = useState<string>('0');
+  const [useCustom, setUseCustom] = useState(false);
+  const [custom, setCustom] = useState<string | undefined>();
   const [selected, setSelected] = useState<GasPrice>(
     suggestedGasPrices.average
   );
@@ -66,6 +67,27 @@ export default function FeeDropdown({
     [setGasPrice, setSelected, setOpen]
   );
 
+  if (useCustom) {
+    return (
+      <Row className="fee-dropdown custom">
+        <StatelessTextInput
+          value={custom}
+          className="custom-input"
+          placeholder="Custom gwei"
+          onChange={handleCustom}
+        />
+        <Icon
+          icon="ChevronSouth"
+          onClick={() => {
+            setOpen(true);
+            setUseCustom(false);
+            setCustom('');
+          }}
+        />
+      </Row>
+    );
+  }
+
   return (
     <Dropdown
       className="fee-dropdown"
@@ -79,19 +101,13 @@ export default function FeeDropdown({
               className="price"
               onClick={selectPrice(value)}
               key={`gas-price-${ind}`}>
-              {PRICE_LABELS[ind]}: {formatDisplay(value)}
+              <Box className="speed">{PRICE_LABELS[ind]}</Box>
+              <Box className="time">{formatDisplay(value)}</Box>
             </Row>
           )
         )}
-        <Row className="price">
-          <Box className="label">Custom:</Box>
-          <StatelessTextInput
-            value={custom}
-            className="custom-input"
-            placeholder="0"
-            onChange={handleCustom}
-          />
-          <Box className="unit">gwei</Box>
+        <Row className="price" onClick={() => setUseCustom(true)}>
+          <Box className="time">Custom...</Box>
         </Row>
       </Box>
     </Dropdown>
