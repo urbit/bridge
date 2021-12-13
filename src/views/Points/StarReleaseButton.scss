@@ -1,0 +1,27 @@
+.star-release-button {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+  height: 35px;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: rgba(0,0,0,0.04);
+  cursor: pointer;
+  
+  .title-container {
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
+  .button-title {
+    font-family: 'Inter';
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .button-subtitle {
+    font-family: 'Inter';
+    font-size: 14px;
+  }
+}

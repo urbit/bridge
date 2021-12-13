@@ -1,0 +1,65 @@
+.info-row {
+  padding: 10px;
+
+  background-color: rgba(0,0,0,0.02);
+
+  &.available {
+    background-color: #b3e2d0;
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 600;
+    font-family: Inter;
+  }
+
+  &:nth-child(1) {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+  }
+
+  &:nth-child(2) {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+}
+
+.star-release-dropdown {
+  .selector {
+    font-weight: 600;
+    width: min-content;
+    background-color: white;
+    svg {
+      margin-left: 10px;
+    }
+  }
+
+  .content-border {
+    z-index: 3;
+    
+    .dropdown-content {
+      width: 120px;
+
+      .options {
+        .option {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+          line-height: 20px;
+
+          padding: 8px 12px 8px 16px;
+
+          &:hover {
+            opacity: 0.8;
+          }
+
+          .label {
+            margin-right: 8px;
+          }
+        }
+      }
+    }
+  }
+}

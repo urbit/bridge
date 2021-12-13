@@ -32,6 +32,7 @@ import PointList from 'components/L2/PointList';
 import { Box, Text } from '@tlon/indigo-react';
 
 import './Points.scss';
+import { StarReleaseButton } from './Points/StarReleaseButton';
 
 export const maybeGetResult = (obj, key, defaultValue) =>
   obj.matchWith({
@@ -165,10 +166,6 @@ export default function Points() {
   const lockedPoints = maybeLockedPoints
     .getOrElse([])
     .map((value: number) => ({ value }));
-
-  const processingPoints = pointList.filter(
-    ({ shouldDisplay }) => !shouldDisplay
-  );
 
   const displayEmptyState =
     !loading && incomingPoints.length === 0 && allPoints.length === 0;
@@ -341,7 +338,6 @@ export default function Points() {
 
         <Footer>
           <Grid>
-            <Grid.Divider />
             {isEclipticOwner && (
               <>
                 <Grid.Item
@@ -356,14 +352,10 @@ export default function Points() {
             )}
             {starReleasing && (
               <>
-                <Grid.Item
-                  full
-                  as={ForwardButton}
-                  detail="You have points being released"
-                  onClick={goStarRelease}>
-                  View Star Release
-                </Grid.Item>
-                <Grid.Divider />
+                <StarReleaseButton
+                  title={'Locked Stars'}
+                  subtitle={`${starReleaseDetails.value.withdrawn} of ${starReleaseDetails.value.total} available`}
+                  onClick={goStarRelease}></StarReleaseButton>
               </>
             )}
           </Grid>
