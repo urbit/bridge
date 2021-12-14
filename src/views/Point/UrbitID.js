@@ -14,7 +14,7 @@ import SigilGenerator from '../UrbitID/SigilGenerator';
 import DownloadKeys from '../UrbitID/DownloadKeys';
 import SetProxy from '../UrbitID/SetProxy';
 import ResetKeys from '../UrbitID/ResetKeys';
-import Transfer from '../UrbitID/Transfer';
+import Transfer from '../UrbitID/Transfer.tsx';
 
 const NAMES = {
   HOME: 'HOME',

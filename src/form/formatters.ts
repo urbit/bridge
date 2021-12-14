@@ -12,14 +12,14 @@ export const buildFormatter = (formatters = []) =>
 /**
  * inserts a ~ or - before every pat block
  */
-export const ensurePatFormat = s => {
+export const ensurePatFormat = (s?: string) => {
   // bail if falsy or empty string, nothing to do
   if (!s || s.length === 0) {
     return s || '';
   }
 
   // ensure there's a dash every 6 + 1 characters
-  const dashAt = i => i * (PAT_BLOCK_CHAR_LENGTH + 1);
+  const dashAt = (i: number) => i * (PAT_BLOCK_CHAR_LENGTH + 1);
   const maxBlocks = TICKET_MAX_BYTE_LEN / 2;
 
   // for every index that may need a separator
@@ -41,7 +41,7 @@ export const ensurePatFormat = s => {
   return s;
 };
 
-export const ensureHexPrefix = s => {
+export const ensureHexPrefix = (s?: string) => {
   if (!s || s.length < HEX_PREFIX.length) {
     return s || '';
   }
@@ -49,7 +49,7 @@ export const ensureHexPrefix = s => {
   return s.indexOf(HEX_PREFIX) !== 0 ? `${HEX_PREFIX}${s}` : s;
 };
 
-export const convertToNumber = s => {
+export const convertToNumber = (s?: string) => {
   if (!s) {
     return s || '';
   }
@@ -61,7 +61,7 @@ export const convertToNumber = s => {
   }
 };
 
-export const downcase = s => {
+export const downcase = (s?: string) => {
   if (!s) {
     return s;
   }
@@ -69,7 +69,7 @@ export const downcase = s => {
   return s.toLowerCase();
 };
 
-export const stripHexPrefix = s => {
+export const stripHexPrefix = (s?: string) => {
   if (!s) {
     return s;
   }
@@ -79,7 +79,7 @@ export const stripHexPrefix = s => {
     : s;
 };
 
-export const ensureSigPrefix = s => {
+export const ensureSigPrefix = (s?: string) => {
   if (!s || s.length < SIG_PREFIX.length) {
     return s || '';
   }
@@ -87,7 +87,7 @@ export const ensureSigPrefix = s => {
   return s.indexOf(SIG_PREFIX) !== 0 ? `${SIG_PREFIX}${s}` : s;
 };
 
-export const stripSigPrefix = s => {
+export const stripSigPrefix = (s: string) => {
   if (!s) {
     return s;
   }
@@ -113,9 +113,11 @@ export const capitalize = (s: string) => {
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
-export const titleize = (s: string): string => {
+export const titleize = (s?: string): string => {
   return s
-    .split(' ')
-    .map(_s => capitalize(_s))
-    .join(' ');
+    ? s
+        .split(' ')
+        .map(_s => capitalize(_s))
+        .join(' ')
+    : '';
 };

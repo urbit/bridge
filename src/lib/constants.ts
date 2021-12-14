@@ -128,7 +128,14 @@ const INVITES_PER_PAGE = 7;
 const DEFAULT_NUM_INVITES = 5;
 const DEFAULT_CSV_NAME = 'urbit_invites.csv';
 
-const TRANSACTION_STATUS_ICONS = {
+const TRANSACTION_STATUS_ICONS: {
+  [key: string]:
+    | 'Checkmark'
+    | 'ArrowNorth'
+    | 'Clock'
+    | 'ExclaimationMark'
+    | 'NullIcon';
+} = {
   confirmed: 'Checkmark',
   pending: 'Clock',
   sending: 'ArrowNorth',
@@ -136,30 +143,63 @@ const TRANSACTION_STATUS_ICONS = {
   unknown: 'NullIcon',
 };
 
-const TRANSACTION_TYPE_ICONS = {
+const TRANSACTION_TYPE_ICONS: {
+  [key: string]:
+    | 'ArrowRefresh'
+    | 'BootNode'
+    | 'Delete'
+    | 'EjectedSponsor'
+    | 'EscapeApproved'
+    | 'EscapeRejected'
+    | 'EscapeRequested'
+    | 'ShipSpawned'
+    | 'Swap';
+} = {
   adopt: 'EscapeApproved',
   'cancel-escape': 'EscapeRejected',
+  'cancel-transfer': 'Delete',
   'configure-keys': 'BootNode',
   detach: 'EjectedSponsor',
   escape: 'EscapeRequested',
+  migrate: 'Swap',
   reject: 'EscapeRejected',
   'set-management-proxy': 'ArrowRefresh',
   'set-spawn-proxy': 'ArrowRefresh',
   'set-transfer-proxy': 'ArrowRefresh',
+  'set-voting-proxy': 'ArrowRefresh',
   spawn: 'ShipSpawned',
   'transfer-point': 'Swap',
 };
 
-const TRANSACTION_TYPE_TITLES = {
+const TRANSACTION_TYPE_TITLES: {
+  [key: string]:
+    | 'Ship Sponsored'
+    | 'Escape Canceled'
+    | 'Transfer Canceled'
+    | 'Network Keys Configured'
+    | 'Sponsee Detached'
+    | 'Escaped Sponsor'
+    | 'Migrating to Layer 2'
+    | 'Sponsorship Rejected'
+    | 'Management Proxy Changed'
+    | 'Spawn Proxy Changed'
+    | 'Transfer Proxy Changed'
+    | 'Voting Proxy Changed'
+    | 'Ship Spawned'
+    | 'Ship Transferred';
+} = {
   adopt: 'Ship Sponsored',
   'cancel-escape': 'Escape Canceled',
+  'cancel-transfer': 'Transfer Canceled',
   'configure-keys': 'Network Keys Configured',
   detach: 'Sponsee Detached',
   escape: 'Escaped Sponsor',
+  migrate: 'Migrating to Layer 2',
   reject: 'Sponsorship Rejected',
   'set-management-proxy': 'Management Proxy Changed',
   'set-spawn-proxy': 'Spawn Proxy Changed',
   'set-transfer-proxy': 'Transfer Proxy Changed',
+  'set-voting-proxy': 'Voting Proxy Changed',
   spawn: 'Ship Spawned',
   'transfer-point': 'Ship Transferred',
 };

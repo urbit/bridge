@@ -136,7 +136,7 @@ export default function UrbitIDHome() {
             <Box>
               <Box>Spawn Proxy Address</Box>
               <div className="mt1 mono black subtitle">
-                {noSpawn ? 'Unset' : abbreviateAddress(point.spawnProxy)}
+                {noSpawn ? 'Not set' : abbreviateAddress(point.spawnProxy)}
               </div>
             </Box>
             <Row>

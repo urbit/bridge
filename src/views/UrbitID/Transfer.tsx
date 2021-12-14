@@ -1,8 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import cn from 'classnames';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Grid, Text, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
-import { Row } from '@tlon/indigo-react';
 
 import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
@@ -26,18 +24,20 @@ import FormError from 'form/FormError';
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
+import { L1TxnType } from 'lib/types/PendingL1Transaction';
 
 function useTransfer() {
-  const { contracts } = useNetwork();
-  const { pointCursor } = usePointCursor();
-  const { syncDetails } = usePointCache();
+  const { contracts }: any = useNetwork();
+  const { pointCursor }: any = usePointCursor();
+  const { syncDetails }: any = usePointCache();
 
   const _contracts = need.contracts(contracts);
   const _point = need.point(pointCursor);
 
   return useEthereumTransaction(
     useCallback(
-      address => azimuth.ecliptic.setTransferProxy(_contracts, _point, address),
+      (address: string) =>
+        azimuth.ecliptic.setTransferProxy(_contracts, _point, address),
       [_contracts, _point]
     ),
     useCallback(() => syncDetails(_point), [_point, syncDetails]),
@@ -46,14 +46,15 @@ function useTransfer() {
 }
 
 export default function AdminTransfer() {
-  const { pop } = useLocalRouter();
+  const { pop }: any = useLocalRouter();
   const name = useCurrentPointName();
-  const { pointCursor } = usePointCursor();
-  const { starReleaseDetails } = useStarReleaseCache();
+  const { starReleaseDetails }: any = useStarReleaseCache();
+  const { point } = useRollerStore();
   const {
-    point: { isL2 },
-  } = useRollerStore();
-  const { setProxyAddress, getPendingTransactions } = useRoller();
+    setProxyAddress,
+    getPendingTransactions,
+    checkForUpdates,
+  } = useRoller();
   const [owner, setNewOwner] = useState('');
 
   const {
@@ -62,17 +63,33 @@ export default function AdminTransfer() {
     completed,
     inputsLocked,
     bind,
+    txHashes,
   } = useTransfer();
-
-  const point = need.point(pointCursor);
 
   const needLockupWarning = useMemo(() => {
     const az = azimuth.azimuth;
     return (
-      az.getPointSize(point) === az.PointSize.Galaxy &&
-      starReleaseDetails.map(a => a.kind).getOrElse('none') !== 'none'
+      az.getPointSize(point.value) === az.PointSize.Galaxy &&
+      starReleaseDetails.map((a: any) => a.kind).getOrElse('none') !== 'none'
     );
   }, [starReleaseDetails, point]);
+
+  useEffect(() => {
+    // Update this one
+    if (completed) {
+      checkForUpdates({
+        point: point.value,
+        message: `${point.patp}'s transfer proxy has been set!`,
+        l1Txn: {
+          id: `set-transfer-proxy-${point.value}`,
+          point: point.value,
+          type: L1TxnType.transferProxy,
+          hash: txHashes[0],
+          time: new Date().getTime(),
+        },
+      });
+    }
+  }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const validate = useMemo(
     () => composeValidator({ address: buildAddressValidator() }),
@@ -84,14 +101,25 @@ export default function AdminTransfer() {
     if (owner === '') return;
     try {
       await setProxyAddress('transfer', owner);
-      getPendingTransactions(point);
+      getPendingTransactions();
+      checkForUpdates({
+        point: point.value,
+        message: `${point.patp}'s transfer proxy has been set!`,
+      });
       pop();
     } catch (error) {
       // setError(error);
     } finally {
       // setLoading(false);
     }
-  }, [owner, getPendingTransactions, point, pop, setProxyAddress]);
+  }, [
+    point,
+    owner,
+    getPendingTransactions,
+    pop,
+    setProxyAddress,
+    checkForUpdates,
+  ]);
 
   const onValues = useCallback(
     ({ valid, values }) => {
@@ -109,9 +137,7 @@ export default function AdminTransfer() {
   return (
     <Window>
       <HeaderPane>
-        <Row className="header-row">
-          <h5>Transfer Point</h5>
-        </Row>
+        <h5>Transfer Point</h5>
       </HeaderPane>
       <BodyPane>
         <Grid className="w-full" full gap={1}>
@@ -119,7 +145,7 @@ export default function AdminTransfer() {
             {({ handleSubmit, values }) => (
               <>
                 {!completed && (
-                  <Grid.Item full as={Text} className={cn('f5 wrap')}>
+                  <Grid.Item full as={Text} style={{ fontSize: 14 }}>
                     Transfer <span className="mono">{name}</span> to a new
                     owner.
                   </Grid.Item>
@@ -160,7 +186,7 @@ export default function AdminTransfer() {
 
                 <Grid.Item full as={FormError} />
 
-                {isL2 ? (
+                {point.isL2 ? (
                   <Grid.Item
                     as={Button}
                     full

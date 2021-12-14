@@ -144,8 +144,9 @@ export default function IssueChild() {
         l1Txn: {
           id: `${pointToSpawn}`,
           point: point.value,
-          type: L1TxnType.spawnPoint,
+          type: L1TxnType.spawn,
           hash: txHashes[0],
+          time: new Date().getTime(),
         },
       });
     }

@@ -14,6 +14,7 @@ import useCurrentPointName from 'lib/useCurrentPointName';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import { useLocalRouter } from 'lib/LocalRouter';
+import { L1TxnType } from 'lib/types/PendingL1Transaction';
 
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import View from 'components/View';
@@ -40,7 +41,7 @@ function useAcceptTransfer() {
 
   const transaction = useEthereumTransaction(
     useCallback(
-      reset =>
+      (reset: boolean) =>
         azimuth.ecliptic.transferPoint(_contracts, _point, _address, reset),
       [_contracts, _point, _address]
     ),
@@ -69,13 +70,27 @@ export default function AcceptTransfer() {
 
   const [reset, setReset] = useState(true);
 
-  const { completed, bind, inputsLocked, construct } = useAcceptTransfer();
+  const {
+    completed,
+    bind,
+    inputsLocked,
+    construct,
+    txHashes,
+  } = useAcceptTransfer();
 
   useEffect(() => {
+    // Update this one
     if (completed) {
       checkForUpdates({
         point: point.value,
         message: `${point.patp} has been transferred to you!`,
+        l1Txn: {
+          id: `accept-transfer-${point.value}`,
+          point: point.value,
+          type: L1TxnType.cancelTransfer,
+          hash: txHashes[0],
+          time: new Date().getTime(),
+        },
       });
     }
   }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps

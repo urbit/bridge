@@ -15,14 +15,22 @@ import { abbreviateAddress } from 'lib/utils/address';
 import { isPlanet, isStar } from 'lib/utils/point';
 import { titleize } from 'form/formatters';
 import LayerIndicator from 'components/L2/LayerIndicator';
+import { useExploreTxUrl } from 'lib/explorer';
+
+interface TransactionRowProps extends RollerTransaction {
+  className?: string;
+  layer?: 1 | 2;
+}
 
 export const TransactionRow = ({
+  className = '',
   ship,
-  type,
+  type = '',
   hash,
-  status,
+  status = 'pending',
   time,
-}: RollerTransaction) => {
+  layer = 2,
+}: TransactionRowProps) => {
   const { nextRoll } = useTimerStore();
 
   // For spawn events (associated with the spawner), we want to show the spawnee tier;
@@ -70,7 +78,7 @@ export const TransactionRow = ({
 
   const longDate = useMemo(() => {
     if (!parsedDate) {
-      return null;
+      return;
     }
 
     return parsedDate.toISOString();
@@ -82,13 +90,17 @@ export const TransactionRow = ({
         <span className={'icon-wrapper'}>
           <Icon icon={TRANSACTION_STATUS_ICONS[status] || 'Bug'} />
         </span>
-        <span>{status === 'pending' ? nextRoll : titleize(status)}</span>
+        <span>
+          {status === 'pending' && layer === 2 ? nextRoll : titleize(status)}
+        </span>
       </div>
     );
-  }, [nextRoll, status]);
+  }, [nextRoll, status, layer]);
+
+  const txHash = useExploreTxUrl(hash);
 
   return (
-    <Box className="transaction-row">
+    <Box className={`transaction-row ${className}`}>
       <Box className="icon">{icon}</Box>
       <Box className="info">
         <Row className="title-row">
@@ -97,8 +109,19 @@ export const TransactionRow = ({
         </Row>
         <Row className="info-row">
           <Box className="hash-container">
-            <Box className="hash">{shortHash}</Box>
-            <LayerIndicator layer={2} size={'sm'} />
+            {layer === 1 ? (
+              <a
+                className="etherscan"
+                href={txHash}
+                rel="noreferrer"
+                target="_blank">
+                Etherscan
+                <Icon className="arrow" icon="ArrowEast" />
+              </a>
+            ) : (
+              !!hash && <Box className="hash">{shortHash}</Box>
+            )}
+            <LayerIndicator layer={layer} size={'sm'} />
           </Box>
           <Box className="date" title={longDate}>
             {shortDate}

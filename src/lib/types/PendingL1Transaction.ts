@@ -1,13 +1,14 @@
 export enum L1TxnType {
   migrate = 'migrate',
-  migrateSpawn = 'migrateSpawn',
-  spawnProxy = 'spawnProxy',
-  managementProxy = 'managementProxy',
-  transferProxy = 'transferProxy',
-  votingProxy = 'votingProxy',
-  acceptTransfer = 'acceptTransfer',
-  spawnPoint = 'spawnPoint',
-  setNetworkKeys = 'setNetworkKeys',
+  migrateSpawn = 'migrate-spawn',
+  spawnProxy = 'set-spawn-proxy',
+  managementProxy = 'set-management-proxy',
+  transferProxy = 'set-transfer-proxy',
+  votingProxy = 'set-voting-proxy',
+  acceptTransfer = 'transfer-point',
+  cancelTransfer = 'cancel-transfer',
+  spawn = 'spawn',
+  setNetworkKeys = 'configure-keys',
 }
 
 export interface PendingL1Txn {
@@ -15,6 +16,7 @@ export interface PendingL1Txn {
   point: number;
   type: L1TxnType;
   hash: string;
+  time: number;
 }
 
 export interface PendingL1 {

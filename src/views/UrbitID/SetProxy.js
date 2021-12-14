@@ -198,6 +198,7 @@ export default function SetProxy() {
           point: point.value,
           type: proxyTypeToL1TxnType(data.proxyType),
           hash: txHashes[0],
+          time: new Date().getTime(),
         },
       });
     }
@@ -289,7 +290,7 @@ export default function SetProxy() {
                       gray4: !completed && !isProxySet,
                       green3: completed,
                     })}>
-                    {isProxySet ? proxyAddress : 'Unset'}
+                    {isProxySet ? proxyAddress : 'Not set'}
                   </Flex.Item>
                 </Grid.Item>
 
