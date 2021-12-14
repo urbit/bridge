@@ -315,7 +315,7 @@ export default function InviteCohort() {
     <h5>
       You have
       <span className="number-emphasis"> {invitePoints.length} </span>
-      Planet Code{invitePoints.length === 1 ? '' : 's'}
+      Invite Code{invitePoints.length === 1 ? '' : 's'}
     </h5>
   );
 
@@ -331,7 +331,7 @@ export default function InviteCohort() {
         header={<L2BackHeader back={() => setShowInviteForm(false)} />}>
         <Window>
           <HeaderPane>
-            <h5>Generate Planet Codes</h5>
+            <h5>Generate Invite Codes</h5>
           </HeaderPane>
           <BodyPane>
             <Box className="upper">
@@ -397,7 +397,7 @@ export default function InviteCohort() {
                     ? `Generating ${numInvites} invites...`
                     : overQuota
                     ? `You can only generate ${point.l2Quota} codes`
-                    : `Generate Planet Code${
+                    : `Generate Invite Code${
                         currentL2 ? `s (${numInvites})` : ''
                       }`}
                 </Button>
@@ -405,7 +405,7 @@ export default function InviteCohort() {
                 <Grid.Item
                   full
                   as={InlineEthereumTransaction}
-                  label="Generate Planet Code"
+                  label="Generate Invite Code"
                   {...bind}
                   onReturn={() => pop()}
                 />
