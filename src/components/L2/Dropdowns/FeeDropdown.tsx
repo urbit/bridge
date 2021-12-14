@@ -75,6 +75,7 @@ export default function FeeDropdown({
           className="custom-input"
           placeholder="Custom gwei"
           onChange={handleCustom}
+          autoFocus
         />
         <Icon
           icon="ChevronSouth"
