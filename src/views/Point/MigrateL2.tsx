@@ -144,6 +144,7 @@ export default function MigrateL2() {
           point: selectedPoint.value,
           type: transfer ? L1TxnType.migrate : L1TxnType.migrateSpawn,
           hash: txHashes[0],
+          time: new Date().getTime(),
         },
       });
 

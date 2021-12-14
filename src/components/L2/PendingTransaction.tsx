@@ -5,29 +5,6 @@ import LayerIndicator from './LayerIndicator';
 
 import './PendingTransaction.scss';
 
-export const getPendingTitle = (type?: string) =>
-  type === 'set-management-proxy'
-    ? 'Management Address Changed'
-    : type === 'configure-keys'
-    ? 'Network Keys Configured'
-    : type === 'transfer-point'
-    ? 'Point Transfered'
-    : type === 'set-transfer-proxy'
-    ? 'Transfer Proxy Changed'
-    : type === 'set-spawn-proxy'
-    ? 'Spawn Proxy Changed'
-    : type === 'escape'
-    ? 'Change Sponsor'
-    : type === 'cancel-escape'
-    ? 'Cancel Escape'
-    : type === 'adopt'
-    ? 'Accept Sponsorship'
-    : type === 'reject'
-    ? 'Reject Sponsorship'
-    : type === 'detach'
-    ? 'Detach Sponsee'
-    : '';
-
 export const getPendingL1Title = (type?: L1TxnType) =>
   type === L1TxnType.setNetworkKeys
     ? 'Network Keys Configured'

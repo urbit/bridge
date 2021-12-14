@@ -91,216 +91,243 @@
       display: none; /* Chrome */
     }
   }
+}
 
-  .address-row {
-    @include tx-row();
+.address-row {
+  @include tx-row();
 
-    .icon {
-      grid-area: icon;      
+  .icon {
+    grid-area: icon;      
+    background-color: black;
+    border-radius: 2px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .info {
+    grid-area: info;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+
+    .address {
+      font-family: Source Code Pro;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 16px;
+      letter-spacing: 0em;
+    }
+  }
+}
+
+.patp-row {
+  @include tx-row();
+
+  .icon {
+    grid-area: icon;
+    
+    .sigil {
       background-color: black;
       border-radius: 2px;
-      width: 24px;
-      height: 24px;
-    }
-
-    .info {
-      grid-area: info;
-      display: flex;
-      flex-flow: column nowrap;
-      justify-content: center;
-
-      .address {
-        font-family: Source Code Pro;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: 16px;
-        letter-spacing: 0em;
-      }
+      padding: 6px;
     }
   }
 
-  .patp-row {
-    @include tx-row();
+  .info {
+    grid-area: info;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
 
-    .icon {
-      grid-area: icon;
+    .patp {
+      font-family: Source Code Pro;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 16px;
+      letter-spacing: 0em;
+    }
+  }
+}
+
+.transaction-row {
+  @include tx-row();
+
+  &.point-view {
+    padding: 8px;
+    border: 1px solid $light-gray;
+    border-radius: $large-border-radius;
+    margin-bottom: 16px;
+  }
+
+  .icon {
+    grid-area: icon;
+    padding-top: 6px;
+
+    svg {
+      height: 16px;
+      width: 16px;
+    }
+  }
+
+  .info {
+    grid-area: info;
+  }
+
+  .title-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
       
-      .sigil {
+    .title {
+      font-family: Inter;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 24px;
+      letter-spacing: -0.011em;
+    }
+
+    .status {
+      .badge {
+        align-items: center;
         background-color: black;
         border-radius: 2px;
-        padding: 6px;
-      }
-    }
-
-    .info {
-      grid-area: info;
-      display: flex;
-      flex-flow: column nowrap;
-      justify-content: center;
-
-      .patp {
-        font-family: Source Code Pro;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: 16px;
-        letter-spacing: 0em;
-      }
-    }
-  }
-
-  .transaction-row {
-    @include tx-row();
-
-    .icon {
-      grid-area: icon;
-      padding-top: 6px;
-
-      svg {
-        height: 16px;
-        width: 16px;
-      }
-    }
-
-    .info {
-      grid-area: info;
-    }
-
-    .title-row {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-        
-      .title {
+        color: white;
+        display: flex;
+        flex-flow: row nowrap;
         font-family: Inter;
         font-size: 14px;
         font-style: normal;
-        font-weight: 400;
-        line-height: 24px;
-        letter-spacing: -0.011em;
-      }
+        font-weight: 500;
+        justify-content: space-between;
+        letter-spacing: 0em;
+        line-height: 18px;
+        padding: 4px 8px;
+        text-align: center;
+        width: 78px;
 
-      .status {
-        .badge {
-          align-items: center;
-          background-color: black;
-          border-radius: 2px;
-          color: white;
-          display: flex;
-          flex-flow: row nowrap;
-          font-family: Inter;
-          font-size: 14px;
-          font-style: normal;
-          font-weight: 500;
-          justify-content: space-between;
-          letter-spacing: 0em;
-          line-height: 18px;
-          padding: 4px 8px;
-          text-align: center;
-          width: 78px;
+        svg {
+          height: 14px;
+          width: 14px;
+          padding-top: 4px;
+          path {
+            fill: white;
+          }
+        }
+
+        &.confirmed {
+          width: 92px;
+          background: #009F65;
+        }
+
+        &.sending {
+          width: 74px;
+          background: #00000033;
+          color: black;
 
           svg {
-            height: 14px;
-            width: 14px;
-            padding-top: 4px;
+            path {
+              fill: black;
+            }
+          }
+        }
+
+        &.failed {
+          background-color: rgb(246,200,196);
+          color: rgb(236,81,66);
+          width: 62px;
+
+          span.icon-wrapper {
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background-color: #FF4136;
+          }
+
+          svg {
+            padding-top: 1px;
+            
             path {
               fill: white;
             }
           }
+        }
 
-          &.confirmed {
-            width: 92px;
-            background: #009F65;
-          }
-
-          &.sending {
-            width: 74px;
-            background: #00000033;
-            color: black;
-
-            svg {
-              path {
-                fill: black;
-              }
+        &.pending {
+          background-color: $rollup-yellow;
+          color: #000;
+          width: 100px;
+          width: 105px;
+    
+          svg {
+            path {
+              fill: #000;
             }
           }
+        }
 
-          &.failed {
-            background-color: rgb(246,200,196);
-            color: rgb(236,81,66);
-            width: 62px;
+        &.unknown {
+          width: 82px;
+        }
+      }
+    }
+  }
 
-            span.icon-wrapper {
-              height: 16px;
-              width: 16px;
-              border-radius: 50%;
-              background-color: #FF4136;
-            }
+  .info-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 
-            svg {
-              padding-top: 1px;
-              
-              path {
-                fill: white;
-              }
-            }
-          }
+    .hash-container {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+      align-items: center;
+      width: 31%;
 
-          &.pending {
-            background-color: $rollup-yellow;
-            color: #000;
-            width: 100px;
-            width: 105px;
-      
-            svg {
-              path {
-                fill: #000;
-              }
-            }
-          }
-
-          &.unknown {
-            width: 82px;
+      .etherscan {
+        font-size: 14px;
+        color: $dark-gray;
+        
+        svg {
+          height: 18px;
+          width: 18px;
+          margin-bottom: -4px;
+          -ms-transform:rotate(315deg); /* IE9 */
+          -moz-transform: rotate(315deg);  /* FF3.5/3.6 */
+          -o-transform: rotate(315deg);  /* Opera 10.5 */
+          -webkit-transform: rotate(315deg);  /* Saf3.1+ */
+          transform: rotate(315deg);  /* Newer browsers */
+  
+          path {
+            fill: $dark-gray;
           }
         }
       }
     }
-  
-    .info-row {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
 
-      .hash-container {
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-        align-items: center;
-        width: 31%;
-      }
-  
-      .hash {
-        font-family: Source Code Pro;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: 16px;
-        letter-spacing: -0.011em;
-        color: rgba(0,0,0,0.6);
-      }
-
-      .date {
-        font-family: Inter;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: 16px;
-        letter-spacing: -0.011em;
-      }
+    .hash {
+      font-family: Source Code Pro;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 16px;
+      letter-spacing: -0.011em;
+      color: rgba(0,0,0,0.6);
     }
-  }  
-}
+
+    .date {
+      font-family: Inter;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 16px;
+      letter-spacing: -0.011em;
+    }
+  }
+}  

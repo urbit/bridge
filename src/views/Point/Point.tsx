@@ -23,10 +23,10 @@ import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
 import PendingTransaction, {
   getPendingL1Title,
-  getPendingTitle,
 } from 'components/L2/PendingTransaction';
 import Modal from 'components/L2/Modal';
 import './Point.scss';
+import { TransactionRow } from 'views/Transactions/TransactionRow';
 
 export default function Point() {
   const { pop, push, names }: any = useLocalRouter();
@@ -131,21 +131,27 @@ export default function Point() {
         />
       )}
       {!!otherPending.length &&
-        otherPending.map((pendingTx, ind) => (
-          <PendingTransaction
-            key={`pending-tx-${ind}`}
-            layer={2}
-            nextRoll={nextRoll}
-            title={getPendingTitle(pendingTx.rawTx?.tx?.type)}
+        otherPending.map(pendingTx => (
+          <TransactionRow
+            className="point-view"
+            key={pendingTx.time}
+            ship={point.patp}
+            type={pendingTx.rawTx?.tx?.type}
+            status="pending"
+            time={pendingTx.time}
           />
         ))}
       {!!pendingL1Transactions.length &&
         pendingL1Transactions.map((pendingTx, ind) => (
-          <PendingTransaction
-            key={`pending-tx-${ind}`}
-            layer={1}
+          <TransactionRow
+            className="point-view"
+            key={pendingTx.time}
+            ship={point.patp}
+            type={pendingTx.type as string}
+            status="pending"
+            time={pendingTx.time}
             hash={pendingTx.hash}
-            title={getPendingL1Title(pendingTx.type)}
+            layer={1}
           />
         ))}
       <Passport

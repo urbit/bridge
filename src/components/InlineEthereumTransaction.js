@@ -144,7 +144,6 @@ export default function InlineEthereumTransaction({
             className="eth-tx-button"
             full
             as={RestartButton}
-            center
             onClick={onReturn}>
             Return
           </Grid.Item>

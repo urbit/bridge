@@ -189,6 +189,7 @@ export default function UrbitOSNetworkKeys({
           point: point.value,
           type: L1TxnType.setNetworkKeys,
           hash: txHashes[0],
+          time: new Date().getTime(),
         },
       });
     }

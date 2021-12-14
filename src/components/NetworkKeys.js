@@ -14,7 +14,7 @@ const renderNetworkKey = key => {
   const segments = segmentNetworkKey(key);
 
   if (!segments) {
-    return 'Unset';
+    return 'Not set';
   }
 
   return segments.join('\n');
@@ -40,7 +40,7 @@ export default function NetworkKeys({ point }) {
       {key.matchWith({
         Nothing: () => (
           <Grid.Item full as="code" className="f5 mono gray4">
-            Unset
+            Not set
           </Grid.Item>
         ),
         Just: ({ value: key }) => (
@@ -65,7 +65,7 @@ export default function NetworkKeys({ point }) {
       {value.matchWith({
         Nothing: () => (
           <Flex.Item as={H5} className="f5 gray4">
-            Unset
+            Not set
           </Flex.Item>
         ),
         Just: ({ value }) => <Flex.Item as={H5}>{value}</Flex.Item>,
