@@ -234,7 +234,7 @@ export const compileMultikey = (point, pair1, pair2, revision1, revision2) => {
   const bnsec1 = new BN(createRing(pair1), 'hex');
   const bnsec2 = new BN(createRing(pair2), 'hex');
 
-  const tag = noun.dwim(noun.Atom.fromString('1'), noun.Atom.yes);
+  const tag = noun.dwim(noun.Atom.fromInt(1), noun.Atom.yes);
   const ship = noun.Atom.fromInt(point);
   const key1 = noun.dwim(
     noun.Atom.fromInt(revision1),

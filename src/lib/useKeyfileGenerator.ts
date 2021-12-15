@@ -28,6 +28,10 @@ interface useKeyfileGeneratorArgs {
   point?: number;
 }
 
+/**
+ * @deprecated
+ * Use `useMultikeyFileGenerator` instead
+ */
 export default function useKeyfileGenerator({
   seed,
   point,
