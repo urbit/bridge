@@ -18,7 +18,7 @@ import PaperBuilder from 'components/PaperBuilder';
 import { DEFAULT_FADE_TIMEOUT, MASTER_KEY_DURATION } from 'lib/constants';
 import { timeout } from 'lib/timeout';
 import View from 'components/View';
-import useKeyfileGenerator from 'lib/useKeyfileGenerator';
+import useMultikeyFileGenerator from 'lib/useMultikeyFileGenerator';
 
 const MasterKeyDownload = () => {
   const {
@@ -45,7 +45,10 @@ const MasterKeyDownload = () => {
     Just: p => p.value.toFixed(),
   });
 
-  const { download } = useKeyfileGenerator({ point });
+  const { download } = useMultikeyFileGenerator({
+    point,
+    seedWallet: derivedWallet,
+  });
 
   // sync paper value to activation state
   useEffect(

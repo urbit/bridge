@@ -28,7 +28,7 @@ import {
 import useEthereumTransaction from 'lib/useEthereumTransaction';
 import { GAS_LIMITS } from 'lib/constants';
 import { addHexPrefix } from 'lib/utils/address';
-import useKeyfileGenerator from 'lib/useKeyfileGenerator';
+import useMultikeyFileGenerator from 'lib/useMultikeyFileGenerator';
 
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
@@ -72,7 +72,7 @@ function useSetKeys(
     generating: keyfileGenerating,
     filename,
     bind: keyfileBind,
-  } = useKeyfileGenerator({ seed: manualNetworkSeed });
+  } = useMultikeyFileGenerator({ seed: manualNetworkSeed });
 
   const buildNetworkSeed = useCallback(
     async manualSeed => {
