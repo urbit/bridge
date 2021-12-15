@@ -42,7 +42,7 @@ export default function UrbitOSHome() {
     names,
   ]);
 
-  const { bind: keyBind, code } = useKeyfileGenerator();
+  const { bind: keyBind, code } = useKeyfileGenerator({});
 
   return (
     <Window className="os-home">

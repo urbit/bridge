@@ -26,7 +26,7 @@ export default function AdminRedownload() {
   const _urbitWallet = need.wallet(urbitWallet);
   const point = need.point(pointCursor);
 
-  const { keyfile, filename } = useKeyfileGenerator();
+  const { keyfile, filename } = useKeyfileGenerator({});
 
   const [paper, setPaper] = useState(Nothing());
   const [downloaded, setDownloaded] = useState(false);

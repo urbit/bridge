@@ -43,7 +43,7 @@ export default function UrbitIDHome() {
       return null;
     }
   }, [urbitWallet]);
-  const { keyfile, filename } = useKeyfileGenerator();
+  const { keyfile, filename } = useKeyfileGenerator({});
   const [paper, setPaper] = useState(Nothing());
 
   const downloadKeys = useCallback(() => {

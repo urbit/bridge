@@ -14,12 +14,11 @@ import { FadeableMasterKeyPresenter as MasterKeyPresenter } from './MasterKeyPre
 import { useActivateFlow } from './ActivateFlow';
 import ActivateView from './ActivateView';
 import { useLocalRouter } from 'lib/LocalRouter';
-import { compileNetworkKey } from 'lib/keys';
-import { downloadWallet } from 'lib/invite';
 import PaperBuilder from 'components/PaperBuilder';
 import { DEFAULT_FADE_TIMEOUT, MASTER_KEY_DURATION } from 'lib/constants';
 import { timeout } from 'lib/timeout';
 import View from 'components/View';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 const MasterKeyDownload = () => {
   const {
@@ -46,12 +45,7 @@ const MasterKeyDownload = () => {
     Just: p => p.value.toFixed(),
   });
 
-  const download = useCallback(async () => {
-    const netkey = compileNetworkKey(wallet.network.keys, point, 1);
-    //TODO  could be deduplicated with useKeyfileGenerator's logic
-    const filename = ob.patp(point).slice(1) + '-1.key';
-    await downloadWallet(paper.getOrElse([]), netkey, filename);
-  }, [paper, wallet, point]);
+  const { download } = useKeyfileGenerator({ point });
 
   // sync paper value to activation state
   useEffect(

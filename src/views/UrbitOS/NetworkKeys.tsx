@@ -72,7 +72,7 @@ function useSetKeys(
     generating: keyfileGenerating,
     filename,
     bind: keyfileBind,
-  } = useKeyfileGenerator(manualNetworkSeed);
+  } = useKeyfileGenerator({ seed: manualNetworkSeed });
 
   const buildNetworkSeed = useCallback(
     async manualSeed => {
