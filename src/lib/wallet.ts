@@ -12,7 +12,11 @@ export function EthereumWallet(privateKey) {
   this.address = publicToAddress(this.publicKey);
 }
 
-export const urbitWalletFromTicket = async (ticket, point, passphrase) => {
+export const urbitWalletFromTicket = async (
+  ticket: string,
+  point: number,
+  passphrase?: string
+) => {
   return await kg.generateWallet({
     ticket: ticket,
     ship: point,

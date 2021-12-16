@@ -246,30 +246,3 @@ export const segmentNetworkKey = hex => {
 
   return [rowFrom(2), rowFrom(18), rowFrom(34), rowFrom(50)];
 };
-
-// ctsy @yosoyubik
-/**
- * @param {object} pair
- * @param {number} point
- * @param {number} revision
- * @return {string}
- */
-export const compileMultikey = (point, pair1, pair2, revision1, revision2) => {
-  const bnsec1 = new BN(createRing(pair1), 'hex');
-  const bnsec2 = new BN(createRing(pair2), 'hex');
-
-  const tag = noun.dwim(noun.Atom.fromInt(1), noun.Atom.yes);
-  const ship = noun.Atom.fromInt(point);
-  const key1 = noun.dwim(
-    noun.Atom.fromInt(revision1),
-    noun.Atom.fromString(bnsec1.toString())
-  );
-  const key2 = noun.dwim(
-    noun.Atom.fromInt(revision2),
-    noun.Atom.fromString(bnsec2.toString())
-  );
-
-  const sed = noun.dwim(tag, ship, key1, key2, noun.Atom.yes);
-
-  return b64(jam(sed));
-};

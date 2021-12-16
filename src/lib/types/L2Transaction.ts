@@ -43,6 +43,6 @@ export interface ReticketParams {
   point: Ship;
   to: EthAddress;
   manager: EthAddress;
-  fromWallet: any; // TODO: wallet type
+  fromWallet: UrbitWallet;
   toWallet: any; // TODO: wallet type
 }

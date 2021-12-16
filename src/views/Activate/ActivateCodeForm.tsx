@@ -18,10 +18,9 @@ import { useActivateFlow } from './ActivateFlow';
 import WarningBox from 'components/WarningBox';
 import useRoller from 'lib/useRoller';
 import useImpliedTicket from 'lib/useImpliedTicket';
-import { generateOwnershipWallet } from 'lib/walletgen';
-import { generateWallet } from 'lib/invite';
-import { walletFromMnemonic } from 'lib/wallet';
-import { DEFAULT_HD_PATH, POINT_PROXIES } from 'lib/constants';
+import { generateWallet } from 'lib/walletgen';
+import { urbitWalletFromTicket } from 'lib/wallet';
+import { POINT_PROXIES } from 'lib/constants';
 import useBreakpoints from 'lib/useBreakpoints';
 import { Ship } from '@urbit/roller-api';
 import { convertToInt } from 'lib/convertToInt';
@@ -109,11 +108,11 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
       const { ticket, point } = getTicketAndPoint(
         impliedTicket || values.ticket
       );
-      const { seed } = await generateOwnershipWallet(point, ticket);
-      const inviteWallet = walletFromMnemonic(seed, DEFAULT_HD_PATH);
+
+      const inviteWallet = Just(await urbitWalletFromTicket(ticket, point));
       setInviteWallet(inviteWallet);
-      const _inviteWallet = need.wallet(inviteWallet);
-      const inviteAddress = _inviteWallet.address;
+      const _inviteWallet: UrbitWallet = need.wallet(inviteWallet);
+      const inviteAddress = _inviteWallet.ownership.keys.address;
 
       let incoming = await loadPoints(inviteAddress);
 
@@ -136,7 +135,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
         setDerivedPatp(Just(ob.patp(point)));
         setDerivedPoint(Just(point));
         setDerivedPointDominion(Just(rollerPoint.dominion));
-        setDerivedWallet(Just(await generateWallet(point, true)));
+        setDerivedWallet(Just(await generateWallet(point, ticket, true)));
         setIsIn(false);
         await timeout(100);
       } else {

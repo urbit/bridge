@@ -11,7 +11,7 @@ import { deriveNetworkKeys } from 'urbit-key-generation';
 import { convertToInt } from './convertToInt';
 import {
   attemptNetworkSeedDerivation,
-  compileMultikey,
+  compileMultiKey,
   keysMatchChain,
 } from './keys';
 import { generateCode } from './networkCode';
@@ -80,7 +80,7 @@ export default function useMultikeyFileGenerator({
         ? Just(seed)
         : await attemptNetworkSeedDerivation({
             urbitWallet: seedWallet || urbitWallet,
-            wallet,
+            wallet: wallet,
             authMnemonic,
             details: _details,
             authToken,
@@ -127,38 +127,40 @@ export default function useMultikeyFileGenerator({
       return;
     }
 
-    // TODO: Do we still need this? The legacy implementation in useKeyfileGenerator
-    // performed this guard statement
+    const currentPair = await pairFromRevision(currentRevision);
 
-    // const currentPair = await pairFromRevision(currentRevision);
+    if (!currentPair || !keysMatchChain(currentPair, _details || {})) {
+      setGenerating(false);
+      setNotice('Derived networking keys do not match on-chain details.');
+      console.log(`keys do not match details for revision ${currentRevision}`);
+      return;
+    }
 
-    // if (!currentPair || !keysMatchChain(currentPair, _details)) {
-    //   setGenerating(false);
-    //   setNotice('Derived networking keys do not match on-chain details.');
-    //   console.log(`keys do not match details for revision ${currentRevision}`);
-    //   return;
-    // }
-
-    // const nextPair = await pairFromRevision(nextRevision);
-
-    const [currentPair, nextPair] = await Promise.all([
-      pairFromRevision(currentRevision),
-      pairFromRevision(nextRevision),
-    ]);
+    const nextPair = await pairFromRevision(nextRevision);
 
     setNotice('');
     setCode(generateCode(currentPair));
     setKeyfile(
-      compileMultikey(
-        _point,
-        currentPair,
-        nextPair,
-        currentRevision,
-        nextRevision
-      )
+      compileMultiKey(_point, [
+        {
+          revision: currentRevision,
+          pair: currentPair,
+        },
+        {
+          revision: nextRevision,
+          pair: nextPair,
+        },
+      ])
     );
     setGenerating(false);
-  }, [_point, currentRevision, hasNetworkKeys, nextRevision, pairFromRevision]);
+  }, [
+    _details,
+    _point,
+    currentRevision,
+    hasNetworkKeys,
+    nextRevision,
+    pairFromRevision,
+  ]);
 
   const filename = useMemo(() => {
     return `${stripSigPrefix(ob.patp(_point))}-${currentRevision}.key`;

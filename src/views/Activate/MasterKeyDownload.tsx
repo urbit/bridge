@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import * as need from 'lib/need';
-import * as ob from 'urbit-ob';
 
 import { ActivateSteps } from './ActivateSteps';
 import { Box } from '@tlon/indigo-react';
@@ -24,6 +23,7 @@ const MasterKeyDownload = () => {
   const {
     derivedPoint,
     derivedWallet,
+    inviteWallet,
     isIn,
     setGenerated,
     setIsIn,
@@ -47,7 +47,7 @@ const MasterKeyDownload = () => {
 
   const { download } = useMultikeyFileGenerator({
     point,
-    seedWallet: derivedWallet,
+    seedWallet: inviteWallet,
   });
 
   // sync paper value to activation state
