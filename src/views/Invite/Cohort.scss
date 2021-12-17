@@ -211,4 +211,13 @@
       width: 12px;
     }
   }
+
+  .invite-limit-message {
+    border: 1px solid $light-gray;
+    border-radius: $medium-border-radius;
+    margin-top: 16px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.4em;
+  }
 }

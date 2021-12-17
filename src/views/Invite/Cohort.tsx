@@ -76,6 +76,7 @@ export default function InviteCohort() {
     generateInviteCodes,
     getPendingTransactions,
     getInvites,
+    getAndUpdatePoint,
   } = useRoller();
   const { contracts }: any = useNetwork();
   const { syncControlledPoints }: any = usePointCache();
@@ -195,6 +196,7 @@ export default function InviteCohort() {
     try {
       await generateInviteCodes(numInvites);
       getPendingTransactions();
+      getAndUpdatePoint(point.value);
       pop();
     } catch (error) {
       // TODO: error is not used anywhere on the UI
@@ -209,6 +211,8 @@ export default function InviteCohort() {
     getPendingTransactions,
     pop,
     setInviteGeneratingNum,
+    getAndUpdatePoint,
+    point,
   ]);
 
   const downloadCsv = useCallback(() => {
@@ -467,14 +471,21 @@ export default function InviteCohort() {
           )}
         </BodyPane>
       </Window>
-      {showAddMoreButton && (
+      {showAddMoreButton ? (
         <Button
           onClick={() => setShowInviteForm(true)}
           className="add-more"
           accessory={<Icon icon="ChevronEast" />}>
           Add More
         </Button>
-      )}
+      ) : point.l2Quota < 1 ? (
+        <Box className="invite-limit-message">
+          You have hit your weekly invite limit. You will be able to generate
+          another
+          <strong>{` ${config?.rollerQuota}`}</strong> invites on
+          <strong>{` ${ddmmmYYYY(nextQuotaTime)}`}</strong>.
+        </Box>
+      ) : null}
       <LoadingOverlay loading={loading} text={generatingCodesText} />
     </View>
   );
