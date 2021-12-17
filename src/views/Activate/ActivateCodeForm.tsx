@@ -19,8 +19,8 @@ import WarningBox from 'components/WarningBox';
 import useRoller from 'lib/useRoller';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import { generateWallet } from 'lib/walletgen';
-import { urbitWalletFromTicket } from 'lib/wallet';
-import { POINT_PROXIES } from 'lib/constants';
+import { urbitWalletFromTicket, walletFromMnemonic } from 'lib/wallet';
+import { DEFAULT_HD_PATH, POINT_PROXIES } from 'lib/constants';
 import useBreakpoints from 'lib/useBreakpoints';
 import { Ship } from '@urbit/roller-api';
 import { convertToInt } from 'lib/convertToInt';
@@ -45,6 +45,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
     setDerivedWallet,
     setInviteWallet,
     setIsIn,
+    setSendWallet,
   } = useActivateFlow();
 
   // this is a pretty naive way to detect if we're on a mobile device
@@ -113,6 +114,12 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
       setInviteWallet(inviteWallet);
       const _inviteWallet: UrbitWallet = need.wallet(inviteWallet);
       const inviteAddress = _inviteWallet.ownership.keys.address;
+
+      const sendWallet = await walletFromMnemonic(
+        _inviteWallet.ownership.seed,
+        DEFAULT_HD_PATH
+      );
+      setSendWallet(sendWallet);
 
       let incoming = await loadPoints(inviteAddress);
 
