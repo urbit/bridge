@@ -18,20 +18,39 @@ import {
 } from './keys';
 import useCurrentPermissions from './useCurrentPermissions';
 import { convertToInt } from './convertToInt';
+import { stripSigPrefix } from 'form/formatters';
 
-export default function useKeyfileGenerator(manualNetworkSeed) {
-  const { urbitWallet, wallet, authMnemonic, authToken } = useWallet();
-  const { pointCursor } = usePointCursor();
-  const { getDetails } = usePointCache();
+// overrideable defaults:
+// seed - derived from wallet, mnemonic, or token (if posisble)
+// point - the current pointCursor
+interface useKeyfileGeneratorArgs {
+  seed?: string;
+  point?: number;
+}
+
+/**
+ * @deprecated
+ * Use `useMultikeyFileGenerator` instead
+ */
+export default function useKeyfileGenerator({
+  seed,
+  point,
+}: useKeyfileGeneratorArgs) {
+  const { urbitWallet, wallet, authMnemonic, authToken }: any = useWallet();
+  const { pointCursor }: any = usePointCursor();
+  const { syncDetails, getDetails }: any = usePointCache();
 
   const [notice, setNotice] = useState('Deriving networking keys...');
   const [downloaded, setDownloaded] = useState(false);
   const [generating, setGenerating] = useState(true);
-  const [keyfile, setKeyfile] = useState(false);
-
+  const [keyfile, setKeyfile] = useState<boolean | string>(false);
   const [code, setCode] = useState(false);
 
-  const _point = need.point(pointCursor);
+  const _point = point || need.point(pointCursor);
+  useEffect(() => {
+    syncDetails(_point);
+  }, [_point, syncDetails]);
+
   const details = getDetails(_point);
 
   const networkRevision = details.matchWith({
@@ -56,8 +75,8 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
 
     const _details = need.details(details);
 
-    const networkSeed = manualNetworkSeed
-      ? Just(manualNetworkSeed)
+    const networkSeed = seed
+      ? Just(seed)
       : await attemptNetworkSeedDerivation({
           urbitWallet,
           wallet,
@@ -88,14 +107,14 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
       return;
     }
 
-    setNotice();
+    setNotice('');
     setCode(generateCode(pair));
     setKeyfile(compileNetworkKey(pair, _point, networkRevision));
     setGenerating(false);
   }, [
     networkRevision,
     hasNetworkKeys,
-    manualNetworkSeed,
+    seed,
     urbitWallet,
     wallet,
     authMnemonic,
@@ -106,11 +125,14 @@ export default function useKeyfileGenerator(manualNetworkSeed) {
   ]);
 
   const filename = useMemo(() => {
-    return `${ob.patp(_point).slice(1)}-${networkRevision}.key`;
-    // TODO: ^ unifiy "remove tilde" calls
+    return `${stripSigPrefix(ob.patp(_point))}-${networkRevision}.key`;
   }, [_point, networkRevision]);
 
   const download = useCallback(() => {
+    if (typeof keyfile !== 'string') {
+      return;
+    }
+
     saveAs(
       new Blob([keyfile], {
         type: 'text/plain;charset=utf-8',

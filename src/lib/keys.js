@@ -76,10 +76,34 @@ export const compileNetworkKey = (pair, point, revision) => {
     noun.Atom.fromInt(point),
     noun.Atom.fromInt(revision),
     noun.Atom.fromString(bnsec.toString()),
-    noun.Atom.yes
+    noun.Atom.fromInt(0)
   );
 
   return b64(jam(sed));
+};
+
+/**
+ * @param {number} point
+ * @param {array<{revision: number, pair: object}>} keys
+ * @return {string}
+ */
+export const compileMultiKey = (point, keys) => {
+  const kyz = keys.map(k => {
+    const bnsec = new BN(createRing(k.pair), 'hex');
+    return noun.dwim(
+      noun.Atom.fromInt(k.revision),
+      noun.Atom.fromString(bnsec.toString())
+    );
+  });
+  kyz.push(noun.Atom.fromInt(0));
+
+  const fed = noun.dwim(
+    noun.dwim(noun.Atom.fromInt(1), noun.Atom.fromInt(0)), // version
+    noun.Atom.fromInt(point), // ship
+    noun.dwim(kyz) // keys
+  );
+
+  return b64(jam(fed));
 };
 
 /**
@@ -198,8 +222,8 @@ export const attemptNetworkSeedDerivation = async ({
 
 /**
  *
- * @param {object} pair
- * @param {object} details
+ * @param {object} pair - type NetworkKeys
+ * @param {object} details - type L1Point
  * @return {boolean}
  */
 export const keysMatchChain = (pair, details) => {

@@ -4,7 +4,7 @@ import { B } from 'indigo-react';
 import { DownloadButton } from 'components/Buttons';
 
 export default function DownloadKeyfileButton({
-  // useKeyfileGenerator.bind
+  // useMultikeyFileGenerator.bind
   generating,
   available,
   downloaded,

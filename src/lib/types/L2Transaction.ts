@@ -1,5 +1,6 @@
 import RollerRPCAPI, { EthAddress, Proxy, Ship } from '@urbit/roller-api';
 import WalletConnect from '@walletconnect/client';
+import BridgeWallet from './BridgeWallet';
 
 export type TransactionType =
   | 'transferPoint'
@@ -43,6 +44,6 @@ export interface ReticketParams {
   point: Ship;
   to: EthAddress;
   manager: EthAddress;
-  fromWallet: any; // TODO: wallet type
-  toWallet: any; // TODO: wallet type
+  fromWallet: BridgeWallet;
+  toWallet: UrbitWallet;
 }

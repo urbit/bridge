@@ -22,7 +22,7 @@ import { usePointCache } from 'store/pointCache';
 
 import { getUpdatedPointMessage, isPlanet, toL1Details } from './utils/point';
 import { convertToInt } from './convertToInt';
-import { isDevelopment, isRopsten } from './flags';
+import { isDevelopment, isMainnet, isRopsten } from './flags';
 import {
   generateInviteWallet,
   getPendingSpawns,
@@ -113,13 +113,13 @@ export default function useRoller() {
   const [config, setConfig] = useState<Config | null>(null);
 
   const options: Options = useMemo(() => {
-    const type = isRopsten || !isDevelopment ? 'https' : 'http';
-    const host = isRopsten
+    const type = isMainnet || isRopsten ? 'https' : 'http';
+    const host = isMainnet
+      ? ROLLER_HOSTS.MAINNET
+      : isRopsten
       ? ROLLER_HOSTS.ROPSTEN
-      : isDevelopment
-      ? ROLLER_HOSTS.LOCAL
-      : ROLLER_HOSTS.MAINNET;
-    const port = isDevelopment && !isRopsten ? 8080 : 443;
+      : ROLLER_HOSTS.LOCAL;
+    const port = isMainnet || isRopsten ? 443 : 8080;
     const path = '/v1/roller';
 
     return {

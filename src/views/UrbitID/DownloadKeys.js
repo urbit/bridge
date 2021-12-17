@@ -9,7 +9,7 @@ import { DownloadButton, RestartButton } from 'components/Buttons';
 import PaperBuilder from 'components/PaperBuilder';
 
 import { downloadWallet } from 'lib/invite';
-import useKeyfileGenerator from 'lib/useKeyfileGenerator';
+import useMultikeyFileGenerator from 'lib/useMultikeyFileGenerator';
 
 import { useWallet } from 'store/wallet';
 import { Grid, P } from 'indigo-react';
@@ -26,7 +26,7 @@ export default function AdminRedownload() {
   const _urbitWallet = need.wallet(urbitWallet);
   const point = need.point(pointCursor);
 
-  const { keyfile, filename } = useKeyfileGenerator();
+  const { keyfile, filename } = useMultikeyFileGenerator({});
 
   const [paper, setPaper] = useState(Nothing());
   const [downloaded, setDownloaded] = useState(false);

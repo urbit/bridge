@@ -9,7 +9,7 @@ import BodyPane from 'components/L2/Window/BodyPane';
 import { ReactComponent as KeyfileIcon } from 'assets/keyfile.svg';
 
 import { useLocalRouter } from 'lib/LocalRouter';
-import useKeyfileGenerator from 'lib/useKeyfileGenerator';
+import useMultikeyFileGenerator from 'lib/useMultikeyFileGenerator';
 import { Box, Button, Row } from '@tlon/indigo-react';
 import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
 
@@ -42,7 +42,7 @@ export default function UrbitOSHome() {
     names,
   ]);
 
-  const { bind: keyBind, code } = useKeyfileGenerator();
+  const { code, download } = useMultikeyFileGenerator({});
 
   return (
     <Window className="os-home">
@@ -53,7 +53,7 @@ export default function UrbitOSHome() {
             <Button
               className="header-button keyfile"
               disabled={!hasSetNetworkKeys}
-              onClick={keyBind.download}>
+              onClick={download}>
               <KeyfileIcon />
               Download Keyfile
             </Button>
