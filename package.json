@@ -108,6 +108,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:mainnet": "REACT_APP_MAINNET=true react-scripts build",
     "build:ropsten": "REACT_APP_ROPSTEN=true react-scripts build",
     "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!@tlon/indigo-react)/\" --env=jsdom",
     "eject": "react-scripts eject",
