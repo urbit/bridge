@@ -85,7 +85,7 @@ export default class Point {
   escapeRequested: boolean;
   escapeRequestedTo: string;
   hasSponsor: boolean;
-  keyRevisionNumber: string;
+  keyRevisionNumber: number;
   managementProxy: string;
   owner: string;
   spawnProxy: string;
@@ -148,7 +148,7 @@ export default class Point {
     this.escapeRequested = details.escapeRequested;
     this.escapeRequestedTo = details.escapeRequestedTo;
     this.hasSponsor = details.hasSponsor;
-    this.keyRevisionNumber = details.keyRevisionNumber;
+    this.keyRevisionNumber = Number(details.keyRevisionNumber);
     this.managementProxy = details.managementProxy;
     this.owner = details.owner;
     this.spawnProxy = details.spawnProxy;

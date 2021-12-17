@@ -13,7 +13,7 @@ export default function DownloadKeyfileButton({
 
   // from caller
   className,
-  children = 'Download Arvo Keyfile',
+  children = 'Download Keyfile',
   ...rest
 }) {
   return (

@@ -1,14 +1,11 @@
 import React from 'react';
 import { Grid, Flex, H5 } from 'indigo-react';
-import { Just, Nothing } from 'folktale/maybe';
 
 import { formatDotsWithTime } from 'lib/dateFormat';
-import { segmentNetworkKey, CURVE_ZERO_ADDR } from 'lib/keys';
+import { segmentNetworkKey } from 'lib/keys';
 
 import { usePointCache } from 'store/pointCache';
-
-const chainKeyProp = name => d =>
-  d[name] === CURVE_ZERO_ADDR ? Nothing() : Just(d[name]);
+import { useRollerStore } from 'store/rollerStore';
 
 const renderNetworkKey = key => {
   const segments = segmentNetworkKey(key);
@@ -20,40 +17,38 @@ const renderNetworkKey = key => {
   return segments.join('\n');
 };
 
-export default function NetworkKeys({ point }) {
-  const { getDetails, getRekeyDate } = usePointCache();
+export default function NetworkKeys() {
+  const { getRekeyDate } = usePointCache();
+  const { point } = useRollerStore();
 
-  const details = getDetails(point);
-
-  const hasKeys = details.matchWith({
-    Nothing: () => false,
-    Just: ({ value: details }) => parseInt(details.keyRevisionNumber, 10) > 0,
-    // we actually don't mind the default NaN behavior of parseInt here,
-    // since NaN > 0 === false and that's a reasonable result
-  });
+  const {
+    networkKeysSet,
+    keyRevisionNumber,
+    continuityNumber,
+    cryptoSuiteVersion,
+    authenticationKey,
+    encryptionKey,
+  } = point;
 
   const renderNetworkKeySection = (title, key) => (
     <>
       <Grid.Item full as={H5} className="mt3 gray4">
         {title}
       </Grid.Item>
-      {key.matchWith({
-        Nothing: () => (
-          <Grid.Item full as="code" className="f5 mono gray4">
-            Not set
+      {key ? (
+        <>
+          <Grid.Item full as="div" className="f5 mono">
+            0x
           </Grid.Item>
-        ),
-        Just: ({ value: key }) => (
-          <>
-            <Grid.Item full as="div" className="f5 mono">
-              0x
-            </Grid.Item>
-            <Grid.Item full as="code" className="f5 mono wrap">
-              {renderNetworkKey(key)}
-            </Grid.Item>
-          </>
-        ),
-      })}
+          <Grid.Item full as="code" className="f5 mono wrap">
+            {renderNetworkKey(key)}
+          </Grid.Item>
+        </>
+      ) : (
+        <Grid.Item full as="code" className="f5 mono gray4">
+          Not set
+        </Grid.Item>
+      )}
     </>
   );
 
@@ -62,26 +57,18 @@ export default function NetworkKeys({ point }) {
       <Flex.Item style={{ minWidth: 192, marginBottom: 8 }} as={H5}>
         {title}
       </Flex.Item>
-      {value.matchWith({
-        Nothing: () => (
-          <Flex.Item as={H5} className="f5 gray4">
-            Not set
-          </Flex.Item>
-        ),
-        Just: ({ value }) => <Flex.Item as={H5}>{value}</Flex.Item>,
-      })}
+      {value === 'Not set' ? (
+        <Flex.Item as={H5} className="f5 gray4">
+          Not set
+        </Flex.Item>
+      ) : (
+        <Flex.Item as={H5}>{value}</Flex.Item>
+      )}
     </Flex.Item>
   );
 
-  const revisionNumber = details
-    .map(d => d.keyRevisionNumber)
-    .matchWith({
-      Nothing: () => 0,
-      Just: ({ value }) => value,
-    });
-
-  const revisionTime = hasKeys
-    ? ` at ${getRekeyDate(point)
+  const revisionTime = networkKeysSet
+    ? ` at ${getRekeyDate(point.value)
         .map(date =>
           date.matchWith({
             Ok: r => formatDotsWithTime(r.value),
@@ -98,25 +85,13 @@ export default function NetworkKeys({ point }) {
     <>
       <h5 className="fw-bold">Network Keys</h5>
       <h5 className="gray4">
-        Revision {revisionNumber} {revisionTime}
+        Revision {keyRevisionNumber} {revisionTime}
       </h5>
-      {renderNetworkKeySection(
-        'Authentication Key',
-        details.chain(chainKeyProp('authenticationKey'))
-      )}
-      {renderNetworkKeySection(
-        'Encryption Key',
-        details.chain(chainKeyProp('encryptionKey'))
-      )}
+      {renderNetworkKeySection('Authentication Key', authenticationKey)}
+      {renderNetworkKeySection('Encryption Key', encryptionKey)}
       <Grid.Item full as={Flex} col justify="between" className="mt3">
-        {renderDetail(
-          'Continuity Era',
-          details.map(d => d.continuityNumber)
-        )}
-        {renderDetail(
-          'Crypto Suite Version',
-          details.map(d => d.cryptoSuiteVersion)
-        )}
+        {renderDetail('Continuity Era', continuityNumber)}
+        {renderDetail('Crypto Suite Version', cryptoSuiteVersion)}
       </Grid.Item>
     </>
   );

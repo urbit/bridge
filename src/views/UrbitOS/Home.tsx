@@ -30,7 +30,7 @@ export default function UrbitOSHome() {
   const toggleShowKeys = useCallback(() => setShowKeys(s => !s), [setShowKeys]);
 
   // The initial key revision number is 0, and increments when set
-  const hasSetNetworkKeys = point.keyRevisionNumber !== '0';
+  const hasSetNetworkKeys = Number(point.keyRevisionNumber) > 0;
 
   const goNetworkKeys = useCallback(() => push(names.NETWORKING_KEYS), [
     names,
@@ -118,7 +118,7 @@ export default function UrbitOSHome() {
 
       <Modal show={showKeys} hide={() => setShowKeys(false)}>
         <Box className="show-keys-modal-content">
-          <Grid.Item full as={NetworkKeys} point={point.value} />
+          <Grid.Item full as={NetworkKeys} />
         </Box>
       </Modal>
     </Window>

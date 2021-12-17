@@ -30,6 +30,7 @@ import {
   getTimeToNextBatch,
   registerProxyAddress,
   isL2Spawn,
+  isL2,
 } from './utils/roller';
 import { ETH_ZERO_ADDR, ROLLER_HOSTS, TEN_SECONDS } from './constants';
 
@@ -60,6 +61,7 @@ interface UpdateParams {
   notify?: boolean;
   field?: PointField;
   l1Txn?: PendingL1Txn;
+  intervalTime?: number;
 }
 
 const inviteTemplate = (
@@ -191,8 +193,9 @@ export default function useRoller() {
   const initPoint = useCallback(
     async (point: string | number) => {
       const _wallet = wallet.getOrElse(null);
+      const _contracts = contracts.getOrElse(null);
 
-      if (!_wallet) {
+      if (!_wallet || !_contracts) {
         return EMPTY_POINT;
       }
 
@@ -202,7 +205,10 @@ export default function useRoller() {
         const l2Quota = isL2Spawn(rawDetails?.dominion)
           ? await api.getRemainingQuota(pointNum)
           : 0;
-        const details = toL1Details(rawDetails);
+
+        const details = isL2(rawDetails?.dominion)
+          ? toL1Details(rawDetails)
+          : await azimuth.azimuth.getPoint(_contracts, point);
 
         return new Point({
           value: pointNum,
@@ -239,7 +245,14 @@ export default function useRoller() {
   );
 
   const checkForUpdates = useCallback(
-    async ({ point, message, notify = true, field, l1Txn }: UpdateParams) => {
+    async ({
+      point,
+      message,
+      notify = true,
+      field,
+      l1Txn,
+      intervalTime = TEN_SECONDS,
+    }: UpdateParams) => {
       if (l1Txn) storePendingL1Txn(l1Txn);
 
       const interval = setInterval(async () => {
@@ -262,7 +275,7 @@ export default function useRoller() {
             );
           }
         }
-      }, TEN_SECONDS);
+      }, intervalTime);
     },
     [points, initPoint, updatePoint, storePendingL1Txn, deletePendingL1Txn]
   );
@@ -604,8 +617,7 @@ export default function useRoller() {
       }
       const _wallet = wallet.getOrElse(null);
       const _web3 = web3.getOrElse(null);
-      const _details = getDetails(point.value);
-      if (!_wallet || !_web3 || !_details || point.isDefault) {
+      if (!_wallet || !_web3 || point.isDefault) {
         // not using need because we want a custom error
         throw new Error('Internal Error: Missing Wallet/Details');
       }
@@ -627,9 +639,9 @@ export default function useRoller() {
             urbitWallet,
             wallet,
             authMnemonic,
-            details: _details,
-            point: point.value,
+            details: point,
             authToken,
+            point: point.value,
             revision: nextRevision,
           });
       const txHash = await submitL2Transaction({

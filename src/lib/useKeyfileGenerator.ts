@@ -1,13 +1,10 @@
 import { useCallback, useMemo, useEffect, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import saveAs from 'file-saver';
-import ob from 'urbit-ob';
 
-import { usePointCache } from 'store/pointCache';
 import { useWallet } from 'store/wallet';
-import { usePointCursor } from 'store/pointCursor';
+import { useRollerStore } from 'store/rollerStore';
 
-import * as need from 'lib/need';
 import { generateCode } from 'lib/networkCode';
 
 import {
@@ -16,8 +13,6 @@ import {
   deriveNetworkKeys,
   compileNetworkKey,
 } from './keys';
-import useCurrentPermissions from './useCurrentPermissions';
-import { convertToInt } from './convertToInt';
 import { stripSigPrefix } from 'form/formatters';
 
 // overrideable defaults:
@@ -32,13 +27,9 @@ interface useKeyfileGeneratorArgs {
  * @deprecated
  * Use `useMultikeyFileGenerator` instead
  */
-export default function useKeyfileGenerator({
-  seed,
-  point,
-}: useKeyfileGeneratorArgs) {
+export default function useKeyfileGenerator({ seed }: useKeyfileGeneratorArgs) {
   const { urbitWallet, wallet, authMnemonic, authToken }: any = useWallet();
-  const { pointCursor }: any = usePointCursor();
-  const { syncDetails, getDetails }: any = usePointCache();
+  const { point } = useRollerStore();
 
   const [notice, setNotice] = useState('Deriving networking keys...');
   const [downloaded, setDownloaded] = useState(false);
@@ -46,22 +37,11 @@ export default function useKeyfileGenerator({
   const [keyfile, setKeyfile] = useState<boolean | string>(false);
   const [code, setCode] = useState(false);
 
-  const _point = point || need.point(pointCursor);
-  useEffect(() => {
-    syncDetails(_point);
-  }, [_point, syncDetails]);
-
-  const details = getDetails(_point);
-
-  const networkRevision = details.matchWith({
-    Just: ({ value }) => convertToInt(value.keyRevisionNumber, 10),
-    Nothing: () => 0,
-  });
-  const { isOwner, isManagementProxy } = useCurrentPermissions();
+  const networkRevision = Number(point.keyRevisionNumber);
+  const canManage = point.isOwner || point.isManagementProxy;
 
   const hasNetworkKeys = networkRevision > 0;
-  const available =
-    (isOwner || isManagementProxy) && hasNetworkKeys && !!keyfile;
+  const available = canManage && hasNetworkKeys && !!keyfile;
 
   const generate = useCallback(async () => {
     if (!hasNetworkKeys) {
@@ -73,17 +53,15 @@ export default function useKeyfileGenerator({
       return;
     }
 
-    const _details = need.details(details);
-
     const networkSeed = seed
       ? Just(seed)
       : await attemptNetworkSeedDerivation({
           urbitWallet,
           wallet,
           authMnemonic,
-          details: _details,
+          details: point,
           authToken,
-          point: _point,
+          point: point.value,
           revision: networkRevision,
         });
 
@@ -100,7 +78,7 @@ export default function useKeyfileGenerator({
 
     const pair = deriveNetworkKeys(_networkSeed);
 
-    if (!keysMatchChain(pair, _details)) {
+    if (!keysMatchChain(pair, point)) {
       setGenerating(false);
       setNotice('Derived networking keys do not match on-chain details.');
       console.log(`keys do not match details for revision ${networkRevision}`);
@@ -109,7 +87,7 @@ export default function useKeyfileGenerator({
 
     setNotice('');
     setCode(generateCode(pair));
-    setKeyfile(compileNetworkKey(pair, _point, networkRevision));
+    setKeyfile(compileNetworkKey(pair, point.value, networkRevision));
     setGenerating(false);
   }, [
     networkRevision,
@@ -119,14 +97,13 @@ export default function useKeyfileGenerator({
     wallet,
     authMnemonic,
     setCode,
-    details,
-    _point,
+    point,
     authToken,
   ]);
 
   const filename = useMemo(() => {
-    return `${stripSigPrefix(ob.patp(_point))}-${networkRevision}.key`;
-  }, [_point, networkRevision]);
+    return `${stripSigPrefix(point.patp)}-${networkRevision}.key`;
+  }, [point, networkRevision]);
 
   const download = useCallback(() => {
     if (typeof keyfile !== 'string') {
