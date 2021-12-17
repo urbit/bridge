@@ -80,7 +80,7 @@ export default function useMultikeyFileGenerator({
         ? Just(seed)
         : await attemptNetworkSeedDerivation({
             urbitWallet: seedWallet || urbitWallet,
-            wallet: wallet,
+            wallet,
             authMnemonic,
             details: _details,
             authToken,
