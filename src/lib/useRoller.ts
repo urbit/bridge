@@ -244,6 +244,14 @@ export default function useRoller() {
     [api, wallet, contracts]
   );
 
+  const getAndUpdatePoint = useCallback(
+    async (point: number) => {
+      const updatedPoint = await initPoint(point);
+      updatePoint(updatedPoint);
+    },
+    [initPoint, updatePoint]
+  );
+
   const checkForUpdates = useCallback(
     async ({
       point,
@@ -735,7 +743,7 @@ export default function useRoller() {
         proxy,
         'spawn',
         nonce,
-        toWallet.spawn.keys.address,
+        toWallet?.spawn?.keys?.address || to,
         walletType,
         _web3,
         connector
@@ -1047,6 +1055,7 @@ export default function useRoller() {
     config,
     configureNetworkKeys,
     generateInviteCodes,
+    getAndUpdatePoint,
     getInvites,
     getPoints,
     getPointsDetails,
