@@ -18,6 +18,7 @@ import { DEFAULT_FADE_TIMEOUT, MASTER_KEY_DURATION } from 'lib/constants';
 import { timeout } from 'lib/timeout';
 import View from 'components/View';
 import useMultikeyFileGenerator from 'lib/useMultikeyFileGenerator';
+import { downloadWallet } from 'lib/invite';
 
 const MasterKeyDownload = () => {
   const {
@@ -45,7 +46,7 @@ const MasterKeyDownload = () => {
     Just: p => p.value.toFixed(),
   });
 
-  const { download } = useMultikeyFileGenerator({
+  const { keyfile, filename } = useMultikeyFileGenerator({
     point,
     seedWallet: inviteWallet,
   });
@@ -61,6 +62,10 @@ const MasterKeyDownload = () => {
       ),
     [paper, setGenerated]
   );
+
+  const download = useCallback(async () => {
+    await downloadWallet(paper.getOrElse([]), keyfile, filename);
+  }, [paper, keyfile, filename]);
 
   const onDownloadClick = useCallback(async () => {
     await download();
