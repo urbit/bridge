@@ -1,28 +1,8 @@
 import { Box, Row, Icon } from '@tlon/indigo-react';
-import { L1TxnType } from 'lib/types/PendingL1Transaction';
 import { useExploreTxUrl } from 'lib/explorer';
 import LayerIndicator from './LayerIndicator';
 
 import './PendingTransaction.scss';
-
-export const getPendingL1Title = (type?: L1TxnType) =>
-  type === L1TxnType.setNetworkKeys
-    ? 'Network Keys Configured'
-    : type === L1TxnType.managementProxy
-    ? 'Management Address Changed'
-    : type === L1TxnType.transferProxy
-    ? 'Transfer Proxy Changed'
-    : type === L1TxnType.spawnProxy
-    ? 'Spawn Proxy Changed'
-    : type === L1TxnType.spawnPoint
-    ? 'Spawn Point'
-    : type === L1TxnType.acceptTransfer
-    ? 'Accept Transfer'
-    : type === L1TxnType.migrate
-    ? 'Migrate to Layer 2'
-    : type === L1TxnType.migrateSpawn
-    ? 'Set Spawn Proxy to Layer 2'
-    : '';
 
 interface Props {
   title: string;

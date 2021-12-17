@@ -18,6 +18,7 @@ import { generateCode } from './networkCode';
 import { L1Point } from './types/L1Point';
 import useCurrentPermissions from './useCurrentPermissions';
 import { stripSigPrefix } from 'form/formatters';
+import { useRollerStore } from 'store/rollerStore';
 
 interface useMultikeyFileGeneratorArgs {
   seed?: string;
@@ -39,6 +40,7 @@ export default function useMultikeyFileGenerator({
   const { pointCursor }: any = usePointCursor();
   const { syncDetails, getDetails }: any = usePointCache();
   const { isOwner, isManagementProxy } = useCurrentPermissions();
+  const rollerStore = useRollerStore();
 
   const [notice, setNotice] = useState('Deriving networking keys...');
   const [downloaded, setDownloaded] = useState(false);
@@ -53,20 +55,18 @@ export default function useMultikeyFileGenerator({
   const details = getDetails(_point);
   const _details: L1Point | null = useMemo(
     () =>
-      details.matchWith({
-        Just: d => need.details(d),
-        Nothing: () => null,
-      }),
-    [details]
+      rollerStore?.point?.isL2
+        ? rollerStore.point
+        : details.matchWith({
+            Just: (d: any) => need.details(d),
+            Nothing: () => null,
+          }),
+    [details, rollerStore.point]
   );
 
   const currentRevision: number = useMemo(
-    () =>
-      details.matchWith({
-        Just: ({ value }) => convertToInt(value.keyRevisionNumber, 10),
-        Nothing: () => 0,
-      }),
-    [details]
+    () => convertToInt(_details?.keyRevisionNumber || 0, 10),
+    [_details]
   );
   const nextRevision = useMemo(() => currentRevision + 1, [currentRevision]);
 

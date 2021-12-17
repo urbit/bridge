@@ -21,9 +21,7 @@ import useSeenMissingKeys from 'lib/useSeenMissingKeys';
 import { useHasNetworkKeysSet } from 'lib/useHasNetworkKeysSet';
 
 import LoadingOverlay from 'components/L2/LoadingOverlay';
-import PendingTransaction, {
-  getPendingL1Title,
-} from 'components/L2/PendingTransaction';
+import PendingTransaction from 'components/L2/PendingTransaction';
 import Modal from 'components/L2/Modal';
 import './Point.scss';
 import { TransactionRow } from 'views/Transactions/TransactionRow';

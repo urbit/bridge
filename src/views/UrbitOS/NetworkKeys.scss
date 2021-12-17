@@ -4,6 +4,25 @@
   font-size: 14px;
 
   .body-pane {
+    height: 360px;
+
+    .download-message {
+      align-items: center;
+      width: 350px;
+      //styleName: Sans/UI + Control;
+      font-family: Inter;
+      line-height: 16px;
+      letter-spacing: 0em;
+      text-align: center;
+      margin: 90px auto 40px;
+
+      .download {
+        height: 24px;
+        width: 24px;
+        margin-bottom: 22px;
+      }
+    }
+
     .contents {
       height: 448px;
       width: 100%;

@@ -9,9 +9,8 @@ import { Just } from 'folktale/maybe';
 import { Grid, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 import { randomHex } from 'web3-utils';
-import { Box, Checkbox, Row } from '@tlon/indigo-react';
+import { Box, Checkbox, Icon, Row } from '@tlon/indigo-react';
 
-import { usePointCursor } from 'store/pointCursor';
 import { usePointCache } from 'store/pointCache';
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
@@ -26,14 +25,13 @@ import {
   CRYPTO_SUITE_VERSION,
 } from 'lib/keys';
 import useEthereumTransaction from 'lib/useEthereumTransaction';
-import { GAS_LIMITS } from 'lib/constants';
+import { GAS_LIMITS, ONE_SECOND } from 'lib/constants';
 import { addHexPrefix } from 'lib/utils/address';
 import useMultikeyFileGenerator from 'lib/useMultikeyFileGenerator';
 
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import NoticeBox from 'components/NoticeBox';
-import AlertBox from 'components/AlertBox';
 
 import { HexInput } from 'form/Inputs';
 import {
@@ -43,7 +41,6 @@ import {
 } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
-import { convertToInt } from 'lib/convertToInt';
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
@@ -56,19 +53,16 @@ function useSetKeys(
   setManualNetworkSeed: (seed: string) => void
 ) {
   const { urbitWallet, wallet, authMnemonic, authToken }: any = useWallet();
-  const { pointCursor }: any = usePointCursor();
-  const { syncDetails, syncRekeyDate, getDetails }: any = usePointCache();
+  const { point } = useRollerStore();
+  const { syncDetails, syncRekeyDate }: any = usePointCache();
   const { contracts }: any = useNetwork();
 
-  const _point = need.point(pointCursor);
   const _contracts = need.contracts(contracts);
-  const _details = need.details(getDetails(_point));
 
-  const networkRevision = convertToInt(_details.keyRevisionNumber, 10);
+  const networkRevision = Number(point.keyRevisionNumber);
   const randomSeed = useRef<string | null>();
 
   const {
-    available: keyfileAvailable,
     generating: keyfileGenerating,
     filename,
     bind: keyfileBind,
@@ -87,8 +81,8 @@ function useSetKeys(
           urbitWallet,
           wallet,
           authMnemonic,
-          details: _details,
-          point: _point,
+          details: point,
+          point: point.value,
           authToken,
           revision: newNetworkRevision,
         });
@@ -104,13 +98,12 @@ function useSetKeys(
       }
     },
     [
-      _details,
       authMnemonic,
       setManualNetworkSeed,
       networkRevision,
       urbitWallet,
       wallet,
-      _point,
+      point,
       authToken,
     ]
   );
@@ -123,24 +116,24 @@ function useSetKeys(
 
         return azimuth.ecliptic.configureKeys(
           _contracts,
-          _point,
+          point.value,
           addHexPrefix(pair.crypt.public),
           addHexPrefix(pair.auth.public),
           CRYPTO_SUITE_VERSION,
           isDiscontinuity
         );
       },
-      [_contracts, _point, buildNetworkSeed]
+      [_contracts, point, buildNetworkSeed]
     ),
     useCallback(
-      () => Promise.all([syncDetails(_point), syncRekeyDate(_point)]),
-      [_point, syncDetails, syncRekeyDate]
+      () => Promise.all([syncDetails(point.value), syncRekeyDate(point.value)]),
+      [point, syncDetails, syncRekeyDate]
     ),
     GAS_LIMITS.CONFIGURE_KEYS
   );
 
   // only treat the transaction as completed once we also have keys to download
-  const completed = _completed && keyfileAvailable && !keyfileGenerating;
+  const completed = _completed && !keyfileGenerating;
 
   return {
     completed,
@@ -166,6 +159,7 @@ export default function UrbitOSNetworkKeys({
   } = useRoller();
   const [breach, setBreach] = useState(false);
   const [useCustomSeed, setUseCustomSeed] = useState(false);
+  const [l2Completed, setL2Completed] = useState(false);
 
   const hasKeys = point.networkKeysSet;
 
@@ -191,6 +185,7 @@ export default function UrbitOSNetworkKeys({
           hash: txHashes[0],
           time: new Date().getTime(),
         },
+        intervalTime: ONE_SECOND,
       });
     }
   }, [completed]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -259,8 +254,9 @@ export default function UrbitOSNetworkKeys({
       checkForUpdates({
         point: point.value,
         message: `${point.patp}'s Network Keys have been set!`,
+        intervalTime: ONE_SECOND,
       });
-      pop();
+      setTimeout(() => setL2Completed(true), ONE_SECOND);
     } catch (error) {
       // setError(error);
     } finally {
@@ -271,7 +267,6 @@ export default function UrbitOSNetworkKeys({
     manualNetworkSeed,
     getPendingTransactions,
     point,
-    pop,
     configureNetworkKeys,
     setLoading,
     checkForUpdates,
@@ -279,10 +274,18 @@ export default function UrbitOSNetworkKeys({
 
   const initialValues = useMemo(() => ({}), []);
 
-  const viewTitle = completed ? 'Network Keys are now set' : 'Set Network Keys';
+  const viewTitle = completed
+    ? 'Network Keys have been set'
+    : hasKeys
+    ? 'Set Network Keys'
+    : 'Initiate Network Keys';
 
   const usageMessage =
-    'You need this keyfile to authenticate with your OS. Please Download.';
+    'With your new network keys, you also have a new keyfile. Download your new keyfile to boot your OS.';
+
+  const buttonText = `${hasKeys ? 'Reset' : 'Set'} Network Keys`;
+
+  const isComplete = completed || l2Completed;
 
   return (
     <Window className="network-keys">
@@ -290,98 +293,114 @@ export default function UrbitOSNetworkKeys({
         <h5>{viewTitle}</h5>
       </HeaderPane>
       <BodyPane>
-        {completed && (
-          <>
-            <Grid.Item
-              full
-              className="mb3"
-              as={DownloadKeyfileButton}
-              solid
-              left
-              {...keyfileBind}
-            />
-            <Grid.Item full as={AlertBox} className="mb8">
-              {usageMessage}
-            </Grid.Item>
-          </>
-        )}
-        <BridgeForm
-          validate={validate}
-          onValues={onValues}
-          initialValues={initialValues}>
-          {() => (
-            <Box className="contents">
-              {!completed && (
-                <Box>
-                  <Row className="check-row" onClick={() => setBreach(!breach)}>
-                    <Checkbox
-                      className="checkbox"
-                      selected={breach}
-                      disabled={inputsLocked}
-                    />
-                    Factory Reset
-                  </Row>
-                  <Box className="info-text">
-                    Use if your ship is corrupted, you lost your files, or
-                    <br />
-                    you want to erase your data
-                  </Box>
-                  <Row
-                    className="check-row"
-                    onClick={() => setUseCustomSeed(!useCustomSeed)}>
-                    <Checkbox
-                      className="checkbox"
-                      selected={useCustomSeed}
-                      disabled={inputsLocked}
-                    />
-                    Custom Network Seed
-                  </Row>
-                  <Box className="info-text">
-                    Enter your own custom network seed to derive from
-                  </Box>
-                  {useCustomSeed && (
-                    <>
-                      <Grid.Item full as={NoticeBox} className="mb2">
-                        When using a custom network seed, you'll need to
-                        download your Arvo keyfile immediately after this
-                        transaction as Bridge does not store your seed.
-                      </Grid.Item>
-                      <Grid.Item
-                        full
-                        as={HexInput}
-                        name="networkSeed"
-                        label="Network Seed (32 bytes)"
-                        disabled={inputsLocked}
-                        className="mb5"
-                      />
-                    </>
-                  )}
-                  <Grid.Item full as={FormError} />
-                </Box>
-              )}
-
-              {point.isL2 ? (
-                <Grid.Item
-                  as={Button}
-                  full
-                  className=""
-                  center
-                  solid
-                  onClick={setNetworkKeys}>
-                  {'Reset Network Keys'}
-                </Grid.Item>
-              ) : (
-                <Grid.Item
-                  full
-                  as={InlineEthereumTransaction}
-                  {...bind}
-                  label={`${hasKeys ? 'Reset' : 'Set'} Network Keys`}
-                  onReturn={() => pop()}
-                />
-              )}
+        {isComplete && (
+          <Box className="flex-col col justify-between h-full">
+            <Box className="flex-col download-message">
+              <Icon icon="Download" className="download" />
+              <Box>{usageMessage}</Box>
             </Box>
-          )}
-        </BridgeForm>
+            {point.isL2 ? (
+              <Grid.Item
+                full
+                as={Button}
+                solid
+                center
+                onClick={keyfileBind.download}>
+                Download Keyfile
+              </Grid.Item>
+            ) : (
+              <Grid.Item
+                full
+                as={DownloadKeyfileButton}
+                solid
+                center
+                {...keyfileBind}
+              />
+            )}
+          </Box>
+        )}
+
+        {!isComplete && (
+          <BridgeForm
+            validate={validate}
+            onValues={onValues}
+            initialValues={initialValues}>
+            {() => (
+              <Box className="contents">
+                {!isComplete && (
+                  <Box>
+                    <Row
+                      className="check-row"
+                      onClick={() => setBreach(!breach)}>
+                      <Checkbox
+                        className="checkbox"
+                        selected={breach}
+                        disabled={inputsLocked}
+                      />
+                      Factory Reset
+                    </Row>
+                    <Box className="info-text">
+                      Use if your ship is corrupted, you lost your files, or
+                      <br />
+                      you want to erase your data
+                    </Box>
+                    <Row
+                      className="check-row"
+                      onClick={() => setUseCustomSeed(!useCustomSeed)}>
+                      <Checkbox
+                        className="checkbox"
+                        selected={useCustomSeed}
+                        disabled={inputsLocked}
+                      />
+                      Custom Network Seed
+                    </Row>
+                    <Box className="info-text">
+                      Enter your own custom network seed to derive from
+                    </Box>
+                    {useCustomSeed && (
+                      <>
+                        <Grid.Item full as={NoticeBox} className="mb2">
+                          When using a custom network seed, you'll need to
+                          download your Arvo keyfile immediately after this
+                          transaction as Bridge does not store your seed.
+                        </Grid.Item>
+                        <Grid.Item
+                          full
+                          as={HexInput}
+                          name="networkSeed"
+                          label="Network Seed (32 bytes)"
+                          disabled={inputsLocked}
+                          className="mb5"
+                        />
+                      </>
+                    )}
+                    <Grid.Item full as={FormError} />
+                  </Box>
+                )}
+
+                {point.isL2 ? (
+                  <Grid.Item
+                    as={Button}
+                    full
+                    className=""
+                    center
+                    solid
+                    onClick={setNetworkKeys}>
+                    {buttonText}
+                  </Grid.Item>
+                ) : (
+                  <Grid.Item
+                    full
+                    as={InlineEthereumTransaction}
+                    {...bind}
+                    label={buttonText}
+                    onReturn={() => pop()}
+                  />
+                )}
+              </Box>
+            )}
+          </BridgeForm>
+        )}
       </BodyPane>
     </Window>
   );
