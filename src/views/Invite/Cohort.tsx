@@ -49,6 +49,7 @@ import Paginator from 'components/L2/Paginator';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 
 import './Cohort.scss';
+import Modal from 'components/L2/Modal';
 
 interface L1Invite {
   ticket: string;
@@ -89,6 +90,8 @@ export default function InviteCohort() {
   );
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showCsvModal, setShowCsvModal] = useState(false);
+  const [csvElement, setCsvElement] = useState<HTMLAnchorElement | null>();
   const [error, setError] = useState('');
   const [l1Invite, setL1Invite] = useState<L1Invite | null>(null);
   const [page, setPage] = useState(0);
@@ -215,9 +218,10 @@ export default function InviteCohort() {
     point,
   ]);
 
-  const downloadCsv = useCallback(() => {
-    const generateAndDownload = async () => {
+  const generateCsv = useCallback(() => {
+    const generateCsvElement = async () => {
       setLoading(true);
+      setShowCsvModal(true);
       const invites = await getInvites();
       if (invites) {
         const csv = invites.reduce(
@@ -225,26 +229,35 @@ export default function InviteCohort() {
             (csvData += generateCsvLine(ind, ticket, planet)),
           'Number,Planet,Invite URL,Point,Ticket\n'
         );
+        document.getElementById('csv')?.remove();
         const hiddenElement = document.createElement('a');
         hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURIComponent(
           csv
         )}`;
         hiddenElement.target = '_blank';
+        hiddenElement.id = 'csv';
 
         //provide the name for the CSV file to be downloaded
         hiddenElement.download = generateCsvName(
           DEFAULT_CSV_NAME,
           point.patp?.slice(1) || 'bridge'
         );
-        hiddenElement.click();
+        setCsvElement(hiddenElement);
       } else {
         setError('There was an error creating the CSV');
       }
       setLoading(false);
       setInviteGeneratingNum(0);
     };
-    generateAndDownload();
-  }, [getInvites, setError, setLoading, setInviteGeneratingNum, point]);
+    generateCsvElement();
+  }, [
+    getInvites,
+    setError,
+    setLoading,
+    setInviteGeneratingNum,
+    setShowCsvModal,
+    point,
+  ]);
 
   const goNextPage = useCallback(() => {
     setPage(page + 1);
@@ -425,7 +438,7 @@ export default function InviteCohort() {
   const showGenerateButton = !hasPending && !hasInvites && point.canSpawn;
   const showAddMoreButton =
     (hasInvites || hasPending) && point.canSpawn && point.l2Quota > 0;
-  const generatingCodesText = `Generating invite code ${inviteGeneratingNum} of ${invitePoints.length}...`;
+  const generatingCodesText = `Generating ${inviteGeneratingNum} of ${invitePoints.length} codes...`;
 
   return (
     <View
@@ -441,7 +454,7 @@ export default function InviteCohort() {
           ) : (
             <Row className="has-invites-header">
               {header}
-              <Row className="download-csv" onClick={downloadCsv}>
+              <Row className="download-csv" onClick={generateCsv}>
                 <Icon icon="Download" />
                 <Box>CSV</Box>
               </Row>
@@ -486,7 +499,36 @@ export default function InviteCohort() {
           <strong>{` ${ddmmmYYYY(nextQuotaTime)}`}</strong>.
         </Box>
       ) : null}
-      <LoadingOverlay loading={loading} text={generatingCodesText} />
+      <Modal show={showCsvModal} hide={() => setShowCsvModal(false)} hideClose>
+        <Box className="download-csv-modal">
+          <Box>
+            <Box>Download CSV</Box>
+            {loading && <Box>{generatingCodesText}</Box>}
+          </Box>
+          <Row className="download-buttons">
+            <Button
+              center
+              className="ph4 close-button"
+              solid
+              onClick={() => setShowCsvModal(false)}>
+              Close
+            </Button>
+            <Button
+              center
+              className="ph4 download-button"
+              disabled={loading}
+              solid
+              onClick={() => csvElement?.click()}>
+              Download CSV
+            </Button>
+          </Row>
+        </Box>
+        {loading && (
+          <Box className="csv-loading">
+            <LoadingSpinner background="#BCDCFF" foreground="#219DFF" />
+          </Box>
+        )}
+      </Modal>
     </View>
   );
 }
