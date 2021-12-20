@@ -4,12 +4,12 @@ import { useNetwork } from 'store/network';
 import * as need from 'lib/need';
 import { conditionalSR, linearSR } from 'azimuth-js';
 
-export function useTransferLockup(kind) {
-  const { contracts } = useNetwork();
+export function useTransferLockup(kind: any) {
+  const { contracts }: any = useNetwork();
 
   return useEthereumTransaction(
     useCallback(
-      to => {
+      (to: string) => {
         const _contracts = need.contracts(contracts);
         if (kind === 'conditional') {
           return conditionalSR.approveCommitmentTransfer(_contracts, to);

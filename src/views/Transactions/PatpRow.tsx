@@ -1,7 +1,11 @@
 import { Box } from '@tlon/indigo-react';
 import Sigil from 'components/Sigil';
 
-export const PatpRow = ({ patp }) => {
+interface PatpRowProps {
+  patp: string;
+}
+
+export const PatpRow = ({ patp }: PatpRowProps) => {
   return (
     <>
       <Box className="patp-row">

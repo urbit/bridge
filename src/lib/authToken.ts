@@ -102,7 +102,7 @@ const getWalletConnectAuthToken = ({
 };
 
 const getDefaultAuthToken = ({ wallet }: DefaultAuthTokenArgs) => {
-  const signature = signMessage(wallet.privateKey);
+  const signature = signMessage(wallet.privateKey!);
 
   const token = `0x${Buffer.from(signature).toString('hex')}`;
 
@@ -115,14 +115,14 @@ export const getAuthToken = async ({
 }: GetAuthTokenArgs) => {
   switch (walletType) {
     case WALLET_TYPES.METAMASK:
-      return getMetamaskAuthToken(args);
+      return getMetamaskAuthToken(args as MetamaskAuthTokenArgs);
     case WALLET_TYPES.LEDGER:
-      return getLedgerAuthToken(args);
+      return getLedgerAuthToken(args as LedgerAuthTokenArgs);
     case WALLET_TYPES.TREZOR:
-      return getTrezorAuthToken(args);
+      return getTrezorAuthToken(args as TrezorAuthTokenArgs);
     case WALLET_TYPES.WALLET_CONNECT:
-      return getWalletConnectAuthToken(args);
+      return getWalletConnectAuthToken(args as WalletConnectAuthTokenArgs);
     default:
-      return getDefaultAuthToken(args);
+      return getDefaultAuthToken(args as DefaultAuthTokenArgs);
   }
 };

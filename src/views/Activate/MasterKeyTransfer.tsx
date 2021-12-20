@@ -21,8 +21,8 @@ const MasterKeyTransfer = () => {
     derivedPoint,
     derivedWallet,
     sendWallet,
-  } = useActivateFlow();
-  const [error, setError] = useState();
+  }: any = useActivateFlow();
+  const [error, setError] = useState<any>();
 
   const claimPoint = useCallback(async () => {
     setError(undefined);

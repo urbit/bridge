@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, FormEvent } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Box, Row, Icon, StatelessTextInput } from '@tlon/indigo-react';
 import { DEFAULT_GAS_PRICE_GWEI } from 'lib/constants';
 import useGasPrice from 'lib/useGasPrice';
@@ -31,7 +31,7 @@ export default function FeeDropdown({
     suggestedGasPrices.average
   );
 
-  const handleCustom = (e: FormEvent) => {
+  const handleCustom = (e: React.ChangeEvent<HTMLInputElement>) => {
     const cleanedValue = e.target.value.replace(/[^0-9]/g, '');
     const cleanedNum = Number(cleanedValue);
     setCustom(cleanedValue);
@@ -51,7 +51,7 @@ export default function FeeDropdown({
       customWait = `< ${fast.wait}`;
     }
 
-    setSelected({ price: cleanedValue, wait: customWait });
+    setSelected({ price: cleanedNum, wait: customWait });
   };
 
   useEffect(() => {

@@ -6,8 +6,8 @@ import { usePointCursor } from 'store/pointCursor';
 import { convertToInt } from 'lib/convertToInt';
 
 export const useHasNetworkKeysSet = () => {
-  const { pointCursor } = usePointCursor();
-  const { getDetails } = usePointCache();
+  const { pointCursor }: any = usePointCursor();
+  const { getDetails }: any = usePointCache();
   const point = pointCursor.getOrElse(null);
   const [networkKeysSet, setNetworkKeysSet] = useState<boolean>(true);
 

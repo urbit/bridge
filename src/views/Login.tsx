@@ -5,7 +5,7 @@ import { versionLabel } from 'lib/flags';
 
 import { useHistory } from 'store/history';
 
-import { COMMANDS, useFlowCommand } from 'lib/flowCommand';
+import { COMMANDS, FlowType, useFlowCommand } from 'lib/flowCommand';
 
 import View from 'components/View';
 import Footer from 'components/Footer';
@@ -42,7 +42,11 @@ export default function Login() {
     }
   }, [flow, push, names]);
 
-  const flowDescription = command => {
+  const flowDescription = (command: FlowType) => {
+    if (!command) {
+      return null;
+    }
+
     switch (command.kind) {
       case COMMANDS.TAKE_LOCKUP:
         //TODO  kind of want "sign in as 0xabc.." here...

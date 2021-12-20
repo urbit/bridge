@@ -12,22 +12,24 @@ export class MetamaskWallet {
 
 // Cheat a bit and pretend to sign transaction
 // Sign it actually when sending
-export const metamaskSignTransaction = async (
-  txn: FakeSignableTx,
-  from: string
-) => {
-  txn.from = from;
+export const metamaskSignTransaction = async (txn: FakeSignableTx) => {
   return FakeSignResult(txn, metamaskSendTransaction);
 };
 
 const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
+  const { data, gasLimit, gasPrice, nonce, to, from } = txn;
+  if (!(data && gasLimit && gasPrice && nonce && to && from)) {
+    throw new Error('Unable to send Metamask TX, something is missing');
+  }
+
+  // web3-eth/TransactionConfig type
   const metamaskFormattedTxn = {
-    data: txn.data,
-    gasLimit: txn.gasLimit,
-    gasPrice: txn.gasPrice,
-    nonce: txn.nonce,
-    to: toHex(txn.to),
-    from: toHex(txn.from),
+    data: data.toString(),
+    gasLimit,
+    gasPrice,
+    nonce: Number(nonce),
+    to: to.toString(),
+    from: toHex(from),
   };
 
   let txHash;
@@ -46,7 +48,7 @@ const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
     //      signed tx, it makes us wait for confirmation outside of our own
     //      waitForTransactionConfirm. because of this the progress bar loses
     //      its progressiveness for metamask users.
-    let receipt = await await web3.eth.sendTransaction(metamaskFormattedTxn);
+    let receipt = await web3.eth.sendTransaction(metamaskFormattedTxn);
     txHash = receipt.transactionHash;
   }
   return txHash;

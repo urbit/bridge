@@ -32,11 +32,16 @@ const ACCOUNT_OPTIONS = times(20, i => ({
   value: i,
 }));
 
+interface TrezorProps {
+  className: string;
+  goHome: VoidFunction;
+}
+
 // see Ledger.js for context — Trezor is basicaly Ledger with less complexity
-export default function Trezor({ className, goHome }) {
+export default function Trezor({ className, goHome }: TrezorProps) {
   useLoginView(WALLET_TYPES.TREZOR);
 
-  const { setWallet, setWalletHdPath, setAuthToken } = useWallet();
+  const { setWallet, setWalletHdPath, setAuthToken }: any = useWallet();
 
   const validate = useMemo(
     () =>
@@ -78,7 +83,6 @@ export default function Trezor({ className, goHome }) {
       const hd = bip32.fromPublicKey(pub, chainCode);
 
       const authToken = await getAuthToken({
-        wallet: hd,
         walletType: WALLET_TYPES.TREZOR,
         walletHdPath: values.hdPath,
       });
@@ -103,7 +107,7 @@ export default function Trezor({ className, goHome }) {
   const initialValues = useMemo(
     () => ({
       useCustomPath: false,
-      hdPath: TREZOR_PATH.replace(/x/g, ACCOUNT_OPTIONS[0].value),
+      hdPath: TREZOR_PATH.replace(/x/g, ACCOUNT_OPTIONS[0].value.toString()),
       account: ACCOUNT_OPTIONS[0].value,
     }),
     []
@@ -124,7 +128,7 @@ export default function Trezor({ className, goHome }) {
         onSubmit={onSubmit}
         afterSubmit={goHome}
         initialValues={initialValues}>
-        {({ handleSubmit, submitting }) => (
+        {({ handleSubmit, submitting }: any) => (
           <>
             <Condition when="useCustomPath" is={true}>
               <Grid.Item full as={HdPathInput} name="hdPath" label="HD Path" />

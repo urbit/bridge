@@ -2,11 +2,25 @@ import React, { useCallback } from 'react';
 import cn from 'classnames';
 import { Flex } from 'indigo-react';
 
-import Footer from './Footer';
-import useBreakpoints from 'lib/useBreakpoints.tsx';
+import { FooterTarget } from './Footer';
+import useBreakpoints from 'lib/useBreakpoints';
 import { MiniBackButton } from './MiniBackButton';
 import { useHistory } from 'store/history';
-import NavHeader from './NavHeader';
+import { NavHeaderTarget } from './NavHeader';
+import { noop } from 'lodash';
+
+interface ViewProps {
+  className?: string;
+  children: React.ReactNode;
+  inset?: boolean;
+  full?: boolean;
+  hideBack?: boolean;
+  pop?: VoidFunction;
+  header?: React.ReactNode;
+  centered?: boolean;
+  id?: string;
+  rest?: React.HTMLAttributes<HTMLDivElement>;
+}
 
 // View is a top-level component that all Views must render to inherit styling
 function View({
@@ -15,13 +29,15 @@ function View({
   inset = false,
   full = false,
   hideBack = false,
-  pop,
+  pop = noop,
   header,
+  id,
   centered = false,
   ...rest
-}) {
-  const { reset } = useHistory();
-  const isMobile = useBreakpoints([true, false, false]);
+}: ViewProps) {
+  const { reset }: any = useHistory();
+  // @ts-ignore
+  const isMobile: boolean = useBreakpoints([true, false, false]);
   const shouldInset = inset && !isMobile;
 
   const insetPadding = cn({
@@ -50,10 +66,10 @@ function View({
             className="f5 gray4 underline mr2 pointer">
             Logout
           </Flex.Item>
-          <Flex.Item as={NavHeader.Target} />
+          <Flex.Item as={NavHeaderTarget} />
         </Flex.Item>
       ) : (
-        <Flex.Item className={insetPadding} as={NavHeader.Target} />
+        <Flex.Item className={insetPadding} as={NavHeaderTarget} />
       );
     },
     [goLogout, insetPadding, showBackButton]
@@ -64,6 +80,7 @@ function View({
       row={!isMobile}
       col={isMobile}
       justify="between"
+      id={id}
       className={cn(
         'minh-100 ph4',
         {
@@ -100,7 +117,7 @@ function View({
           {header || <Header logout={goBack} />}
           {children}
         </Flex.Item>
-        <Flex.Item as={Footer.Target} />
+        <Flex.Item as={FooterTarget} />
       </Flex.Item>
 
       <Flex.Item style={{ width: '48px' }} />
@@ -109,7 +126,7 @@ function View({
 }
 
 // View.Full is sugar for <View full /> to help with readability
-View.Full = function FullView(props) {
+View.Full = function FullView(props: ViewProps) {
   return <View full {...props} />;
 };
 

@@ -58,6 +58,7 @@ interface UrbitWallet {
 }
 
 declare module 'urbit-key-generation' {
+  function combine(shards: string[]): string;
   function deriveNetworkKeys(hex: string): NetworkKeys;
   function generateWallet({
     ticket,

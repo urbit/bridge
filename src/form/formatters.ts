@@ -6,7 +6,11 @@ const SIG_PREFIX = '~';
 const TICKET_MAX_BYTE_LEN = 32; // tickets can be as large as 32 bytes
 const PAT_BLOCK_CHAR_LENGTH = 6; // pat{p,q} blocks are 6 characters long
 
-export const buildFormatter = (formatters = []) =>
+interface Formatter {
+  (s?: string | undefined): string | undefined;
+}
+
+export const buildFormatter = (formatters: Array<Formatter> = []) =>
   compose(...formatters.reverse());
 
 /**

@@ -66,7 +66,7 @@ export default function Ticket({ className, goHome }: TicketProps) {
       }
       const empty = ['shard1', 'shard2', 'shard3'].filter(s => !values[s]);
       if (empty.length > 1) {
-        let errors = {};
+        let errors: Record<string, string> = {};
         empty.forEach(s => {
           errors[s] = 'Please provide at least two out of three shards.';
         });
@@ -195,7 +195,7 @@ export default function Ticket({ className, goHome }: TicketProps) {
             className="flex-col justify-between"
             onValues={() => null}
             initialValues={initialValues}>
-            {({ handleSubmit, values, submitting }) => (
+            {({ handleSubmit, values, submitting }: any) => (
               <Grid.Item full className="flex-col justify-between">
                 <Grid.Item full>
                   <Grid.Item

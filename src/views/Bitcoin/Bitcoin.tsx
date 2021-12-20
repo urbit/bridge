@@ -77,7 +77,7 @@ export default function Bitcoin() {
 
   const [doCopy, didCopy] = useCopiable(xpub);
 
-  const onSubmit = values => {
+  const onSubmit = (values: any) => {
     const newPsbt = bitcoin.Psbt.fromBase64(values.unsignedTransaction);
 
     const isTestnet = newPsbt.data.inputs[0].bip32Derivation[0].path.startsWith(
@@ -146,7 +146,7 @@ export default function Bitcoin() {
               validate={validate}
               initialValues={initialValues}
               onSubmit={onSubmit}>
-              {({ handleSubmit }) => (
+              {({ handleSubmit }: any) => (
                 <Grid.Item full className="h-full flex-col justify-between">
                   <Box className="full">
                     <Box className="label full">Unsigned Transaction</Box>

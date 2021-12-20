@@ -35,7 +35,18 @@ const PLACEHOLDER_EMAIL = 'email@example.com';
 
 const formatPat = buildFormatter([downcase, ensurePatFormat]);
 
-export function TicketInput({ name, hidden, className, ...rest }) {
+type TicketInputProps = React.HTMLProps<HTMLInputElement> & {
+  name: string;
+  hidden: boolean;
+  className: string;
+};
+
+export function TicketInput({
+  name,
+  hidden,
+  className,
+  ...rest
+}: TicketInputProps) {
   const {
     meta: { valid, error, validating, touched, active },
   } = useField(name, {
@@ -49,11 +60,14 @@ export function TicketInput({ name, hidden, className, ...rest }) {
   });
 
   return (
+    // This Input component is from the legacy `indigo-react` library, and is no longer being maintained.
+    // Ignoring the tsc compiler warning regarding unrecognized attributes from spreading `rest`
+    //@ts-ignore
     <Input
       className={className}
       type={hidden ? 'password' : 'text'}
       name={name}
-      obscure={value => value.replace(/[^~-]+/g, '••••••')}
+      obscure={(value: string) => value.replace(/[^~-]+/g, '••••••')}
       placeholder={hidden ? PLACEHOLDER_PASSWORD : PLACEHOLDER_TICKET}
       autoCapitalize="none"
       autoCorrect="off"
@@ -75,6 +89,7 @@ export function TicketInput({ name, hidden, className, ...rest }) {
 
 export function MnemonicInput({ ...rest }) {
   return (
+    // @ts-ignore
     <Input
       type="textarea"
       placeholder={PLACEHOLDER_MNEMONIC}
@@ -88,6 +103,7 @@ export function MnemonicInput({ ...rest }) {
 
 export function HdPathInput({ ...rest }) {
   return (
+    // @ts-ignore
     <Input
       type="text"
       placeholder={PLACEHOLDER_HD_PATH}
@@ -101,6 +117,7 @@ export function HdPathInput({ ...rest }) {
 
 export function PassphraseInput({ ...rest }) {
   return (
+    // @ts-ignore
     <Input
       type="password"
       placeholder="Passphrase"
@@ -111,7 +128,12 @@ export function PassphraseInput({ ...rest }) {
   );
 }
 
-export function PointInput({ name, size = 4, ...rest }) {
+type PointInputProps = React.HTMLProps<HTMLInputElement> & {
+  name: string;
+  size?: number;
+};
+
+export function PointInput({ name, size = 4, ...rest }: PointInputProps) {
   const {
     input: { value },
     meta: { active, valid, error },
@@ -120,6 +142,7 @@ export function PointInput({ name, size = 4, ...rest }) {
   });
 
   return (
+    // @ts-ignore
     <Input
       type="text"
       label="Urbit ID"
@@ -154,6 +177,7 @@ export function PointInput({ name, size = 4, ...rest }) {
 
 export function HexInput({ type = 'text', ...rest }) {
   return (
+    // @ts-ignore
     <Input
       type={type}
       placeholder={PLACEHOLDER_HEX}
@@ -191,6 +215,7 @@ export function PsbtInput({ ...rest }) {
 
 export function AddressInput({ ...rest }) {
   return (
+    // @ts-ignore
     <Input
       type="text"
       placeholder={PLACEHOLDER_ADDRESS}
@@ -204,6 +229,7 @@ export function AddressInput({ ...rest }) {
 
 export function NumberInput({ ...rest }) {
   return (
+    // @ts-ignore
     <Input
       type="number"
       label="Number"
@@ -215,6 +241,7 @@ export function NumberInput({ ...rest }) {
 
 export function EmailInput({ ...rest }) {
   return (
+    // @ts-ignore
     <Input
       type="email"
       placeholder={PLACEHOLDER_EMAIL}
@@ -227,7 +254,8 @@ export function EmailInput({ ...rest }) {
 type TicketSegmentInputProps = {
   className?: string;
   name: string;
-  rest: StatelessTextInputProps;
+  autoFocus?: boolean;
+  rest?: StatelessTextInputProps;
 };
 
 export function TicketSegmentInput({
@@ -266,7 +294,7 @@ export function TicketSegmentInput({
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const currentIndex = Number(name.replace('ticket', ''));
       if (currentIndex < 3 && event.target.value.length === 6) {
-        const nextField = document.querySelector(
+        const nextField: HTMLElement | null = document.querySelector(
           `input[name=ticket${currentIndex + 1}]`
         );
 
@@ -282,7 +310,7 @@ export function TicketSegmentInput({
   // and our own custom one to advance the form cursor
   const mergedInput = {
     ...input,
-    onChange: e => {
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
       input.onChange(e);
       onChange(e);
     },
@@ -295,7 +323,7 @@ export function TicketSegmentInput({
       autoCapitalize="none"
       autoCorrect="off"
       type="text"
-      maxLength="6"
+      maxLength={6}
       onPaste={onPaste}
       {...rest}
     />

@@ -10,7 +10,7 @@ interface withFadeableProps {
 const withFadeable = <P extends object>(
   Component: React.ComponentType<P>
 ): React.FC<P & withFadeableProps> => (props: withFadeableProps) => {
-  const { isIn } = useActivateFlow();
+  const { isIn }: any = useActivateFlow();
 
   // Allow one-off overrides, otherwise fallback to shared fade-in state
   const _in = props?.overrideFadeIn ? props.overrideFadeIn : isIn;
