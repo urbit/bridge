@@ -4,11 +4,13 @@ import { usePointCache } from 'store/pointCache';
 import { useStarReleaseCache } from 'store/starRelease';
 
 export function useWithdrawStars() {
-  const { syncControlledPoints } = usePointCache();
+  const { syncControlledPoints }: any = usePointCache();
 
-  const { syncStarReleaseDetails, withdraw } = useStarReleaseCache();
+  const { syncStarReleaseDetails, withdraw }: any = useStarReleaseCache();
   return useEthereumTransaction(
-    useCallback((to, amount) => withdraw(amount, to), [withdraw]),
+    useCallback((to: string, amount: number) => withdraw(amount, to), [
+      withdraw,
+    ]),
     useCallback(
       () => Promise.all([syncControlledPoints(), syncStarReleaseDetails()]),
       [syncStarReleaseDetails, syncControlledPoints]

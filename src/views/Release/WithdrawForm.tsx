@@ -27,7 +27,10 @@ export const WithdrawForm = ({ afterSubmit }: WithdrawFormProps) => {
     reset,
   } = useWithdrawStars();
 
-  const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
+  const {
+    syncStarReleaseDetails,
+    starReleaseDetails,
+  }: any = useStarReleaseCache();
 
   useEffect(() => {
     syncStarReleaseDetails();
@@ -44,8 +47,8 @@ export const WithdrawForm = ({ afterSubmit }: WithdrawFormProps) => {
     [construct, unconstruct]
   );
 
-  const canWithdraw = starReleaseDetails.map(b => b.available);
-  const total = starReleaseDetails.map(b => b.total);
+  const canWithdraw = starReleaseDetails.map((b: any) => b.available);
+  const total = starReleaseDetails.map((b: any) => b.total);
 
   const validate = useMemo(
     () =>
@@ -67,11 +70,14 @@ export const WithdrawForm = ({ afterSubmit }: WithdrawFormProps) => {
         onValues={onValues}
         validate={validate}
         afterSubmit={afterSubmit}>
-        {({ values, form }) => (
+        {({ values, form }: any) => (
           <>
             {!completed && (
               <>
-                <Box className={cn("info-row", { available: canWithdraw.value > 0})}>
+                <Box
+                  className={cn('info-row', {
+                    available: canWithdraw.value > 0,
+                  })}>
                   <Text>{`${canWithdraw.value} of ${total.value} available`}</Text>
                 </Box>
                 <Box className="info-row">

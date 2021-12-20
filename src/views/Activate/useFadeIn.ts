@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useActivateFlow } from './ActivateFlow';
 
 const useFadeIn = () => {
-  const { setIsIn } = useActivateFlow();
+  const { setIsIn }: any = useActivateFlow();
 
   useEffect(() => {
     setIsIn(true);

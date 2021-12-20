@@ -111,7 +111,7 @@ const MasterKeyConfirm = () => {
             afterSubmit={goToTransfer}
             onValues={onValues}
             initialValues={initialValues}>
-            {({ handleSubmit, valid }) => (
+            {({ handleSubmit, valid }: any) => (
               <Box className="form-inner">
                 <Box className="inputs-outer">
                   {showError && (

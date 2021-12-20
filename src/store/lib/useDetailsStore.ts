@@ -6,11 +6,14 @@ import { isDevelopment } from 'lib/flags';
 import { toL1Details } from 'lib/utils/point';
 import useRoller from 'lib/useRoller';
 import { useNetwork } from '../network';
+import { L1Point } from 'lib/types/L1Point';
 
 export default function useDetailsStore() {
-  const { contracts } = useNetwork();
+  const { contracts }: any = useNetwork();
   const { api } = useRoller();
-  const [detailsCache, _setDetailsCache] = useState({});
+  const [detailsCache, _setDetailsCache] = useState<Record<number, L1Point>>(
+    {}
+  );
 
   const addToDetails = useCallback(
     entry =>

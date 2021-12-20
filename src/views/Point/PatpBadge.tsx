@@ -20,6 +20,7 @@ export const PatpBadge = ({ children, className, ...rest }: PatpBadgeProps) => {
   );
 
   return (
+    //@ts-ignore
     <Badge onClick={onClick} {...rest} className={className}>
       {children}
     </Badge>

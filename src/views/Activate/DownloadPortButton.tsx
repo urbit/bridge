@@ -2,7 +2,11 @@ import { useMemo } from 'react';
 import { isMacOs, isWindows } from 'react-device-detect';
 import ActivateButton from './ActivateButton';
 
-export const DownloadPortButton = ({ error }) => {
+interface DownloadPortButtonProps {
+  error: any;
+}
+
+export const DownloadPortButton = ({ error }: DownloadPortButtonProps) => {
   const downloadButtonLabel = useMemo(() => {
     return isMacOs
       ? 'Download the Client for Mac'

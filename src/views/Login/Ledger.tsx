@@ -18,7 +18,7 @@ import {
 } from 'lib/ledger';
 import { WALLET_TYPES } from 'lib/constants';
 import useLoginView from 'lib/useLoginView';
-import useBreakpoints from 'lib/useBreakpoints.tsx';
+import useBreakpoints from 'lib/useBreakpoints';
 
 import {
   composeValidator,
@@ -44,10 +44,15 @@ const ACCOUNT_OPTIONS = times(20, i => ({
   value: i,
 }));
 
-export default function Ledger({ className, goHome }) {
+interface LedgerProps {
+  className: string;
+  goHome: VoidFunction;
+}
+
+export default function Ledger({ className, goHome }: LedgerProps) {
   useLoginView(WALLET_TYPES.LEDGER);
 
-  const { setWallet, setWalletHdPath, setAuthToken } = useWallet();
+  const { setWallet, setWalletHdPath, setAuthToken }: any = useWallet();
 
   const validate = useMemo(
     () =>
@@ -73,7 +78,6 @@ export default function Ledger({ className, goHome }) {
         const pub = Buffer.from(publicKeyConvert(publicKey, true));
         const hd = bip32.fromPublicKey(pub, chainCode);
         const authToken = await getAuthToken({
-          wallet: hd,
           walletType: WALLET_TYPES.LEDGER,
           walletHdPath: addHdPrefix(values.hdpath),
         });
@@ -107,14 +111,19 @@ export default function Ledger({ className, goHome }) {
   const initialValues = useMemo(
     () => ({
       useCustomPath: false,
-      hdpath: PATH_OPTIONS[0].value.replace(/x/g, ACCOUNT_OPTIONS[0].value),
+      hdpath: PATH_OPTIONS[0].value.replace(
+        /x/g,
+        ACCOUNT_OPTIONS[0].value.toString()
+      ),
       derivationpath: PATH_OPTIONS[0].value,
       account: ACCOUNT_OPTIONS[0].value,
     }),
     []
   );
 
+  //@ts-ignore
   const full = useBreakpoints([true, true, false]);
+  //@ts-ignore
   const half = useBreakpoints([false, false, true]);
   const isHTTPS = document.location.protocol === 'https:';
 
@@ -180,7 +189,7 @@ export default function Ledger({ className, goHome }) {
         onSubmit={onSubmit}
         afterSubmit={goHome}
         initialValues={initialValues}>
-        {({ handleSubmit, submitting }) => (
+        {({ handleSubmit, submitting }: any) => (
           <>
             <Condition when="useCustomPath" is={true}>
               <Grid.Item full as={HdPathInput} name="hdpath" label="HD Path" />

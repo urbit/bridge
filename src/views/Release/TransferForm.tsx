@@ -17,25 +17,28 @@ import { useTransferLockup } from './useTransferLockup';
 import { isValidAddress } from 'ethereumjs-util';
 import { getLockupKind } from 'lib/starRelease';
 
-
 interface TransferFormProps {
   afterSubmit: VoidFunction;
 }
 
 export const TransferForm = ({ afterSubmit }: TransferFormProps) => {
-  const { wallet } = useWallet();
-  const { contracts } = useNetwork();
-  const { pop } = useHistory();
+  const { wallet }: any = useWallet();
+  const { contracts }: any = useNetwork();
+  const { pop }: any = useHistory();
   const address = need.addressFromWallet(wallet);
 
-  const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
+  const {
+    syncStarReleaseDetails,
+    starReleaseDetails,
+  }: any = useStarReleaseCache();
 
   useEffect(() => {
     syncStarReleaseDetails();
   }, [syncStarReleaseDetails]);
 
   const kind = useMemo(() => {
-    return starReleaseDetails.map(a => a.kind).getOrElse('') === 'conditional'
+    return starReleaseDetails.map((a: any) => a.kind).getOrElse('') ===
+      'conditional'
       ? 'conditional'
       : 'linear';
   }, [starReleaseDetails]);
@@ -43,9 +46,13 @@ export const TransferForm = ({ afterSubmit }: TransferFormProps) => {
   const approvedFor = useMemo(() => {
     let approved;
     if (kind === 'conditional') {
-      approved = starReleaseDetails.map(a => a.conditional.approvedTransferTo);
+      approved = starReleaseDetails.map(
+        (a: any) => a.conditional.approvedTransferTo
+      );
     } else {
-      approved = starReleaseDetails.map(a => a.linear.approvedTransferTo);
+      approved = starReleaseDetails.map(
+        (a: any) => a.linear.approvedTransferTo
+      );
     }
     approved = approved.getOrElse('0x0');
     if (isZeroAddress(approved) || eqAddr(approved, address)) {
@@ -77,7 +84,7 @@ export const TransferForm = ({ afterSubmit }: TransferFormProps) => {
   const validate = useMemo(
     () =>
       composeValidator({
-        to: async to => {
+        to: async (to: string) => {
           if (!isValidAddress(to)) {
             return 'This is not a valid Ethereum address.';
           }
@@ -93,7 +100,7 @@ export const TransferForm = ({ afterSubmit }: TransferFormProps) => {
   return (
     <>
       <BridgeForm onValues={onValues} validate={validate}>
-        {({ values }) => (
+        {({ values }: any) => (
           <>
             {!completed && (
               <>

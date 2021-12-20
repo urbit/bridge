@@ -1,8 +1,8 @@
-import { Image, Row } from '@tlon/indigo-react';
+import { Image, Row, Text } from '@tlon/indigo-react';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
 import SubmitButton from 'form/SubmitButton';
-import { Grid, Text as LegacyText } from 'indigo-react';
+import { Grid } from 'indigo-react';
 import { WALLET_TYPES } from 'lib/constants';
 import useLoginView from 'lib/useLoginView';
 import { useWalletConnect } from 'lib/useWalletConnect';
@@ -47,7 +47,7 @@ const WalletConnectLogin = ({ className, goHome }: WalletConnectLoginProps) => {
         <BodyPane className="login-body-pane">
           <Grid className={`${className} w-full`}>
             {!isConnected() && (
-              <Grid.Item full as={LegacyText} className="f6 gray4 mb3">
+              <Grid.Item full as={Text} className="f6 gray4 mb3">
                 Note that WalletConnect is a young protocol, not all wallets may
                 work fully
               </Grid.Item>
@@ -60,16 +60,16 @@ const WalletConnectLogin = ({ className, goHome }: WalletConnectLoginProps) => {
                     {peerIcon ? (
                       <Image src={peerIcon} />
                     ) : (
-                      <LegacyText>Icon Unavailable</LegacyText>
+                      <Text>Icon Unavailable</Text>
                     )}
                   </Grid.Item>
                   <Grid.Item
                     className={'flex-col align-center justify-center'}
                     style={{ gridArea: 'auto / 6 / auto / 11' }}>
-                    <LegacyText as="div">{peerMeta.name}</LegacyText>
-                    <LegacyText as="div">
+                    <Text as={'div'}>{peerMeta.name}</Text>
+                    <Text as={'div'}>
                       {address ? abbreviateAddress(address) : null}
-                    </LegacyText>
+                    </Text>
                     <RestartButton
                       as="a"
                       className={'gray3'}
@@ -82,7 +82,7 @@ const WalletConnectLogin = ({ className, goHome }: WalletConnectLoginProps) => {
             )}
 
             <BridgeForm onSubmit={onSubmit} afterSubmit={goHome}>
-              {({ handleSubmit, submitting }) => (
+              {({ handleSubmit, submitting }: any) => (
                 <Grid.Item full className="flex-col justify-end">
                   {isConnected() ? (
                     <>

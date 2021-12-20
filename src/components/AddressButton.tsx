@@ -5,7 +5,7 @@ import { useForm } from 'react-final-form';
 import { useWallet } from 'store/wallet';
 
 interface AddressButtonProps {
-  inputName: string,
+  inputName: string;
   children?: React.ReactNode;
   rest?: ButtonProps;
 }

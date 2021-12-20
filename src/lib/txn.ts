@@ -12,8 +12,9 @@ import { walletConnectSignTransaction } from './WalletConnect';
 import { metamaskSignTransaction } from './metamask';
 import { addHexPrefix } from './utils/address';
 import { CHECK_BLOCK_EVERY_MS, WALLET_TYPES } from './constants';
-import { patp2dec } from './patp2dec';
 import Web3 from 'web3';
+import { TransactionReceipt } from 'web3-core';
+import BridgeWallet from './types/BridgeWallet';
 
 const RETRY_OPTIONS = {
   retries: 99999,
@@ -22,10 +23,19 @@ const RETRY_OPTIONS = {
   randomize: false,
 };
 
+type SignableTx = Transaction & {
+  nonce: string;
+  chainId: string;
+  gasPrice: string;
+  gasLimit: string;
+  from: string;
+};
+
 // catch-all type: Metamask passes an obj shaped like ITxData, WC passes JsonTx + from
 export type FakeSignableTx =
   | ITxData
-  | (JsonTx & { from: string; to: string; gas: string });
+  | (JsonTx & { from: string; to: string; gas: string })
+  | SignableTx;
 
 type TxSender = (txn: FakeSignableTx, web3: Web3) => Promise<string>; // Metamask requires Web3 (txhash)
 
@@ -33,7 +43,7 @@ type SignedTx = {
   serialize: () => string;
 };
 
-type FakeSignedTx = SignedTx & {
+export type FakeSignedTx = SignedTx & {
   txn: FakeSignableTx;
   send: TxSender;
 };
@@ -48,6 +58,20 @@ const FakeSignResult = (txn: FakeSignableTx, send: TxSender): FakeSignedTx => {
   };
 };
 
+interface signTransactionProps {
+  wallet: BridgeWallet;
+  walletType: symbol;
+  walletHdPath: string;
+  networkType: symbol;
+  txn: Transaction;
+  nonce: number | string;
+  chainId: number | string;
+  gasPrice: string;
+  gasLimit: string;
+  txnSigner?: (args: ITxData) => Promise<string>;
+  txnSender?: (args: ITxData) => Promise<string>;
+}
+
 const signTransaction = async ({
   wallet,
   walletType,
@@ -60,7 +84,7 @@ const signTransaction = async ({
   gasLimit, // string | number
   txnSigner, // optionally inject a transaction signing function,
   txnSender, // and a sending function, for wallets that need these passed in.
-}) => {
+}: signTransactionProps) => {
   // TODO: require these in txn object
   nonce = toHex(nonce);
   chainId = toHex(chainId);
@@ -113,7 +137,7 @@ const signTransaction = async ({
     ? Object.assign(txParams, eip155Params)
     : txParams;
 
-  const utx = Object.assign(txn, signingParams);
+  const utx: SignableTx = Object.assign(txn, signingParams);
 
   const txConfig: any = { freeze: false };
   //  we must specify the chain *either* in the Common object,
@@ -128,7 +152,7 @@ const signTransaction = async ({
     });
   }
 
-  let stx = Transaction.fromTxData(utx, txConfig);
+  let stx: Transaction | FakeSignedTx = Transaction.fromTxData(utx, txConfig);
 
   //TODO should try-catch and display error message to user,
   //     ie ledger's "pls enable contract data"
@@ -138,8 +162,12 @@ const signTransaction = async ({
   } else if (walletType === WALLET_TYPES.TREZOR) {
     await trezorSignTransaction(stx, walletHdPath);
   } else if (walletType === WALLET_TYPES.METAMASK) {
-    return metamaskSignTransaction(utx, wallet.address);
+    return metamaskSignTransaction(utx);
   } else if (walletType === WALLET_TYPES.WALLET_CONNECT) {
+    if (!(txnSender && txnSigner)) {
+      throw Error('WalletConnect TX signer unavailable');
+    }
+
     stx = await walletConnectSignTransaction({
       from,
       txn: stx,
@@ -147,7 +175,8 @@ const signTransaction = async ({
       txnSender,
     });
   } else {
-    stx = stx.sign(wallet.privateKey);
+    // BridgeWallet case
+    stx = stx.sign(wallet.privateKey!);
   }
 
   return stx;
@@ -204,7 +233,7 @@ const sendSignedTransaction = (
 };
 
 // returns a Promise<void>, throwing on tx failure
-const waitForTransactionConfirm = (web3, txHash) => {
+const waitForTransactionConfirm = (web3: Web3, txHash: string) => {
   return retry(async (bail, n) => {
     const receipt = await web3.eth.getTransactionReceipt(txHash);
     const confirmed = receipt !== null;
@@ -221,7 +250,11 @@ const waitForTransactionConfirm = (web3, txHash) => {
 };
 
 // returns a Promise that resolves when all stxs have been sent & confirmed
-const sendAndAwaitAll = (web3, stxs, doubtNonceError) => {
+const sendAndAwaitAll = (
+  web3: Web3,
+  stxs: Transaction[] | FakeSignedTx[],
+  doubtNonceError: boolean
+) => {
   return Promise.all(
     stxs.map(async tx => {
       const txHash = await sendSignedTransaction(web3, tx, doubtNonceError);
@@ -230,9 +263,15 @@ const sendAndAwaitAll = (web3, stxs, doubtNonceError) => {
   );
 };
 
-const sendAndAwaitAllSerial = (web3, stxs, doubtNonceError) => {
+const sendAndAwaitAllSerial = (
+  web3: Web3,
+  stxs: Array<Transaction> | Array<FakeSignedTx>,
+  doubtNonceError: boolean
+) => {
+  // tsc complains that stxs.reduce() is not callable
+  //@ts-ignore
   return stxs.reduce(
-    (promise, stx) =>
+    (promise: Promise<TransactionReceipt[]>, stx: Transaction | FakeSignedTx) =>
       promise.then(async (receipts = []) => {
         const txHash = await sendSignedTransaction(web3, stx, doubtNonceError);
         return [...receipts, await waitForTransactionConfirm(web3, txHash)];
@@ -241,20 +280,16 @@ const sendAndAwaitAllSerial = (web3, stxs, doubtNonceError) => {
   );
 };
 
-const sendTransactionsAndAwaitConfirm = async (web3, signedTxs, usedTank) =>
+const sendTransactionsAndAwaitConfirm = async (
+  web3: Web3,
+  signedTxs: Array<Transaction> | Array<FakeSignedTx>,
+  usedTank: boolean
+) =>
   Promise.all(signedTxs.map(tx => sendSignedTransaction(web3, tx, usedTank)));
 
-const hexify = val => addHexPrefix(val.toString('hex'));
+const hexify = (val: string | Buffer) => addHexPrefix(val.toString('hex'));
 
-const renderSignedTx = stx => ({
-  messageHash: hexify(stx.hash()),
-  v: hexify(stx.v),
-  s: hexify(stx.s),
-  r: hexify(stx.r),
-  rawTransaction: hexify(stx.serialize()),
-});
-
-const getTxnInfo = async (web3, addr) => {
+const getTxnInfo = async (web3: Web3, addr: string) => {
   let nonce = await web3.eth.getTransactionCount(addr);
   let chainId = await web3.eth.net.getId();
   let gasPrice = await web3.eth.getGasPrice();
@@ -264,16 +299,6 @@ const getTxnInfo = async (web3, addr) => {
     chainId: chainId,
     gasPrice: safeFromWei(gasPrice, 'gwei'),
   };
-};
-
-// TODO(shrugs): deprecate, unifiy with other callsites
-const canDecodePatp = p => {
-  try {
-    patp2dec(p);
-    return true;
-  } catch (_) {
-    return false;
-  }
 };
 
 export {
@@ -287,6 +312,4 @@ export {
   sendAndAwaitAllSerial,
   getTxnInfo,
   hexify,
-  renderSignedTx,
-  canDecodePatp,
 };

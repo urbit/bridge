@@ -35,7 +35,7 @@ export const validateHdPath = (v: string) =>
   !isHdPath.test(v) && 'Invalid HD derivation path.';
 
 // Checks an empty field
-export const validateNotEmpty = (v: string) =>
+export const validateNotEmpty = (v?: Array<unknown> | string) =>
   (v === undefined || v.length === 0) && 'This field is required.';
 
 // Checks if a patp is a valid galaxy
@@ -91,7 +91,7 @@ export const validateShard = (v: string) => {
   }
 };
 
-export const validateOneOf = (options = []) => (v: string) =>
+export const validateOneOf = (options: unknown[] = []) => (v: unknown) =>
   !includes(options, v) && 'Is not a valid option.';
 
 export const validateHexString = (v: string) =>
@@ -106,34 +106,41 @@ export const validateEthereumAddress = (v: string) =>
 export const validateEmail = (v: string) =>
   !emailRegExp.test(v) && 'This is not a valid email address.';
 
-export const validateExactly = (value, error) => v => v !== value && error;
+export function validateExactly<T>(value: T, error: string) {
+  return (v: T) => v !== value && error;
+}
 
-export const validateNotAny = (values = []) => v =>
+export const validateNotAny = (values: unknown[] = []) => (v: unknown) =>
   values.includes(v) && `Cannot be ${v}.`;
 
-export const validateLength = l => v =>
+type Lengthable = string | Array<unknown> | Buffer;
+
+export const validateLength = (l: number) => (v: Lengthable) =>
   v.length !== l && `Must be exactly ${l} characters.`;
 
-export const validateHexLength = l => v =>
+export const validateHexLength = (l: number) => (v: Lengthable) =>
   v.length !== l + 2 && `Must be exactly ${l} hex characters.`;
 
-export const validateMaximumLength = l => v =>
+export const validateMaximumLength = (l: number) => (v: Lengthable) =>
   v.length > l && `Must be ${l} characters or fewer.`;
 
-export const validateMinimumLength = l => v =>
+export const validateMinimumLength = (l: number) => (v: Lengthable) =>
   v.length < l && `Must be ${l} characters or more.`;
 
-export const validateGreaterThan = l => v =>
+export const validateGreaterThan = (l: number) => (v: number) =>
   !(v > l) && `Must be greater than ${l}.`;
 
-export const validateLessThan = l => v => !(v < l) && `Must be less than ${l}`;
+export const validateLessThan = (l: number) => (v: number) =>
+  !(v < l) && `Must be less than ${l}`;
 
-export const validateInSet = (set, error) => v => !set.has(v) && error;
+export const validateInSet = (set: Set<unknown>, error: string) => (
+  v: unknown
+) => !set.has(v) && error;
 
-export const validateMaximumPatpByteLength = byteLength =>
+export const validateMaximumPatpByteLength = (byteLength: number) =>
   validateMaximumLength(patpStringLength(byteLength));
 
-export const validateMinimumPatpByteLength = byteLength =>
+export const validateMinimumPatpByteLength = (byteLength: number) =>
   validateMinimumLength(patpStringLength(byteLength));
 
 export const validateNotNullAddress = validateNotAny([
@@ -141,15 +148,16 @@ export const validateNotNullAddress = validateNotAny([
   ETH_ZERO_ADDR_SHORT,
 ]);
 
-export const validateUnique = arr => {
-  const res = [...new Set(arr)].length !== arr.length && 'Must be unique';
+export const validateUnique = (arr: unknown[]) => {
+  const res =
+    [...Array.from(new Set(arr))].length !== arr.length && 'Must be unique';
   return res;
 };
 
-export const validateChild = ourShip => ship =>
+export const validateChild = (ourShip: string) => (ship: string) =>
   ourShip !== ob.sein(ship) && `This point is not a child of ${ourShip}.`;
 
-export const validatePsbt = base64 => {
+export const validatePsbt = (base64: string) => {
   try {
     bitcoin.Psbt.fromBase64(base64);
   } catch (e) {

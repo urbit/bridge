@@ -16,9 +16,6 @@ export default function Input({
   mono = false,
   obscure,
 
-  // callbacks
-  onEnter,
-
   // state
   config,
 
@@ -43,14 +40,6 @@ export default function Input({
 
   // choose the base dom component
   const BaseComponent = type === 'textarea' ? 'textarea' : 'input';
-
-  // notify parent of enter keypress iff not disabled and passing
-  // TODO: integrate this into react-final-form submission
-  // const onKeyPress = useCallback(
-  //   e => !disabled && valid && e.key === 'Enter' && onEnter && onEnter(),
-  //   [disabled, valid] // eslint-disable-line react-hooks/exhaustive-deps
-  // );
-
   const showError = !!error;
   const showSubmitError = !!submitError && !dirtySinceLastSubmit;
   const indicateError = touched && !active && (showError || showSubmitError);
