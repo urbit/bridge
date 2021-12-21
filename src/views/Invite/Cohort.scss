@@ -220,4 +220,42 @@
     font-size: 14px;
     line-height: 1.4em;
   }
+
+  .download-csv-modal {
+    height: 167px;
+    width: 333px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-weight: 500;
+
+    .download-buttons {
+      justify-content: flex-end;
+
+      .close-button, .download-button {
+        padding: 4px 16px;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
+      .close-button {
+        color: black;
+        background-color: $washed-gray;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .csv-loading {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
 }
