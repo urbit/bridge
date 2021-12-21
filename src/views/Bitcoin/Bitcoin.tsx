@@ -122,7 +122,7 @@ export default function Bitcoin() {
       className="bitcoin"
       pop={pop}
       inset
-      header={<L2BackHeader />}
+      header={<L2BackHeader hideBalance />}
       hideBack>
       <Window className="os-home">
         <HeaderPane>
