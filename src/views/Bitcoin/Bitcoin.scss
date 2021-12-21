@@ -1,0 +1,29 @@
+@import 'style/shared/variables.scss';
+
+.bitcoin {
+  font-size: 14px;
+
+  .copy-button {
+    color: white;
+    background-color: black;
+    cursor: pointer;
+    border: none;
+    border-radius: $medium-border-radius;
+    font-family: inherit;
+    font-size: inherit;
+    height: 32px;
+    width: 128px;
+
+    svg {
+      margin-right: 4px;
+    }
+  }
+
+  .body-pane {
+    height: 300px;
+
+    .label {
+      font-weight: 500;
+    }
+  }
+}

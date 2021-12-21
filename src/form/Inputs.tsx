@@ -152,10 +152,10 @@ export function PointInput({ name, size = 4, ...rest }) {
   );
 }
 
-export function HexInput({ ...rest }) {
+export function HexInput({ type = 'text', ...rest }) {
   return (
     <Input
-      type="text"
+      type={type}
       placeholder={PLACEHOLDER_HEX}
       autoCapitalize="none"
       autoComplete="off"
@@ -181,7 +181,7 @@ export function PrivateKeyInput({ ...rest }) {
 export function PsbtInput({ ...rest }) {
   return (
     <HexInput
-      type="text"
+      type="textarea"
       placeholder=""
       config={{ parse: stripHexPrefix }}
       {...rest}
