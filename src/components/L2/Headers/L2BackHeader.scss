@@ -8,6 +8,10 @@
   font-size: 14px;
   margin: 48px 0px 8px;
 
+  @media only screen and (max-width: 500px) {
+    margin-top: 0px;
+  }
+
   .login-margins {
     margin: 0px 0px 16px;
   }

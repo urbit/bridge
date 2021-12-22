@@ -65,7 +65,7 @@ function View({
       col={isMobile}
       justify="between"
       className={cn(
-        'minh-100 ph5',
+        'minh-100 ph4',
         {
           mw1: !full,
           'mw2 ph9-md ph10-lg': full,

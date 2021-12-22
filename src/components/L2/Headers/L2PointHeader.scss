@@ -8,6 +8,10 @@
   font-size: 14px;
   margin: 40px 0px 16px;
 
+  @media only screen and (max-width: 500px) {
+    margin-top: 0px;
+  }
+
   .home {
     margin-right: 8px;
   }

@@ -30,8 +30,7 @@ export default function ActivateView({
         padding={'10px'}
         width={'512px'}
         height={'512px'}
-        max-width={'512px'}
-        max-height={'512px'}
+        maxWidth={'calc(100vw - 48px)'}
         className={cn(className)}
         mb={3}>
         <Box gridArea="header">{header}</Box>

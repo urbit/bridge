@@ -12,6 +12,8 @@ import Footer from 'components/Footer';
 
 import Other from './Login/Other';
 
+import './Login.scss';
+
 export default function Login() {
   // globals
   const { push, names }: any = useHistory();
@@ -60,7 +62,10 @@ export default function Login() {
   return (
     <View inset>
       <Grid>
-        <Grid.Item full as={Text} className="flex justify-center mt9 mb7">
+        <Grid.Item
+          full
+          as={Text}
+          className="flex justify-center mt9 mb7 w-max-mobile">
           <Grid.Item as={Text}>Bridge /&nbsp;</Grid.Item>
           <Grid.Item className="fw-bold" as={Text}>
             Log In
@@ -71,7 +76,12 @@ export default function Login() {
             {flowDescription(flow)}
           </Grid.Item>
         )}
-        <Grid.Item full as={Other} goHome={goHome} className="login-selector" />
+        <Grid.Item
+          full
+          as={Other}
+          goHome={goHome}
+          className="login-selector w-max-mobile"
+        />
       </Grid>
 
       <Footer>

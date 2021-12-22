@@ -94,7 +94,7 @@ function Passport({
         borderRadius: '20px',
         marginBottom: '16px',
         width: `${16 + 16 + cols * tile}px`,
-        minWidth: `${16 + 16 + cols * tile}px`,
+        maxWidth: '100%',
         display: 'flex',
         flexDirection: 'column',
       }}>

@@ -285,6 +285,7 @@ export default function SetProxy() {
                   <Flex.Item
                     flex
                     as={Text}
+                    style={{ overflowWrap: 'anywhere' }}
                     className={cn('mono mv3 gray4', {
                       black: !completed && isProxySet,
                       gray4: !completed && !isProxySet,
