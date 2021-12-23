@@ -29,11 +29,11 @@ const PointList: React.FC<PointListProps> = function({
   const { push, names }: any = useHistory();
 
   return (
-    <Grid gap={4} className={className}>
+    <Grid asFlex gap={4} className={`${className} flex-row flex-wrap`}>
       {points.map((point, i) => (
         <Grid.Item
           key={point.value}
-          className={`full fourth-${(i % 4) + 1}-md fourth-${(i % 4) + 1}-lg`}>
+          className={`fourth-${(i % 4) + 1}-md fourth-${(i % 4) + 1}-lg`}>
           <Flex col className="rel">
             <Passport.Mini
               locked={locked}

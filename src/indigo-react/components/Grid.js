@@ -2,14 +2,22 @@ import React from 'react';
 import cn from 'classnames';
 
 const Grid = React.forwardRef(function Grid(
-  { as: As = 'div', gap = 0, align, justify, className, ...rest },
+  {
+    as: As = 'div',
+    gap = 0,
+    asFlex = false,
+    align,
+    justify,
+    className,
+    ...rest
+  },
   ref
 ) {
   return (
     <As
       ref={ref}
       className={cn(
-        'grid12',
+        asFlex ? 'flex' : 'grid12',
         gap && `gap${gap}`,
         {
           [`justify-${justify}`]: justify,
