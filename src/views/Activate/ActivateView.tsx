@@ -1,5 +1,11 @@
 import { Box } from '@tlon/indigo-react';
 import cn from 'classnames';
+import View from 'components/View';
+import { Grid, Text } from 'indigo-react';
+import HeaderButton from 'components/L2/Headers/HeaderButton';
+import { useHistory } from 'store/history';
+import Window from 'components/L2/Window/Window';
+import BodyPane from 'components/L2/Window/BodyPane';
 
 interface ActivateViewProps {
   className?: string;
@@ -8,6 +14,8 @@ interface ActivateViewProps {
   footer?: React.ReactNode;
   gridRows?: string;
   gridAreas?: string;
+  hideBack?: boolean;
+  onBack?: () => void;
 }
 
 export default function ActivateView({
@@ -17,37 +25,66 @@ export default function ActivateView({
   footer,
   gridRows,
   gridAreas,
+  onBack,
+  hideBack = false,
 }: ActivateViewProps) {
+  const { pop }: any = useHistory();
+
   return (
-    <>
-      <Box
-        display="grid"
-        gridTemplateColumns="1fr"
-        gridTemplateRows={gridRows || '20% 60% 20%'}
-        gridTemplateAreas={gridAreas || "'header' 'content' 'footer'"}
-        border={'1px solid rgb(204, 204, 204)'}
-        borderRadius={'8px'}
-        padding={'10px'}
-        width={'512px'}
-        height={'512px'}
-        maxWidth={'calc(100vw - 48px)'}
-        className={cn(className)}
-        mb={3}>
-        <Box gridArea="header">{header}</Box>
-        <Box gridArea="content">{children}</Box>
-        <Box gridArea="footer">
-          {footer ? (
-            <Box
-              display="flex"
-              flexDirection="column"
-              flexWrap="nowrap"
-              height={'100%'}
-              justifyContent="flex-end">
-              {footer}
+    <Grid>
+      <Grid.Item
+        full
+        as={Text}
+        className="flex justify-center mt9 mb7 w-max-mobile">
+        <Grid.Item as={Text}>Bridge /&nbsp;</Grid.Item>
+        <Grid.Item className="fw-bold" as={Text}>
+          Activate
+        </Grid.Item>
+      </Grid.Item>
+      <Grid.Item>
+        {!hideBack && (
+          <HeaderButton
+            className="mb4"
+            icon="ChevronWest"
+            onClick={onBack || (() => pop())}
+          />
+        )}
+        <Window>
+          <BodyPane>
+            <Box className="w-full" gridArea="header">
+              {header}
             </Box>
-          ) : null}
-        </Box>
-      </Box>
-    </>
+            <Box className="w-full" gridArea="content">
+              {children}
+            </Box>
+            <Box className="w-full" gridArea="footer">
+              {footer ? (
+                <Box
+                  className="h-full flex-col"
+                  flexWrap="nowrap"
+                  justifyContent="flex-end">
+                  {footer}
+                </Box>
+              ) : null}
+            </Box>
+          </BodyPane>
+        </Window>
+      </Grid.Item>
+    </Grid>
+    // <Box
+    //   display="grid"
+    //   gridTemplateColumns="1fr"
+    //   gridTemplateRows={gridRows || '20% 60% 20%'}
+    //   gridTemplateAreas={gridAreas || "'header' 'content' 'footer'"}
+    //   border={'1px solid rgb(204, 204, 204)'}
+    //   borderRadius={'8px'}
+    //   padding={'10px'}
+    //   width={'512px'}
+    //   height={'512px'}
+    //   maxWidth={'calc(100vw - 48px)'}
+    //   className={cn(className)}
+    //   mb={3}>
+      
+    // </Box>
   );
 }

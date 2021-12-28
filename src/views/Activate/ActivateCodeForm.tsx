@@ -4,7 +4,7 @@ import { WARNING } from 'form/helpers';
 import { FORM_ERROR } from 'final-form';
 import { Just } from 'folktale/maybe';
 import BridgeForm from 'form/BridgeForm';
-import { TicketInput } from 'form/Inputs';
+import { PLACEHOLDER_PLANET, PLACEHOLDER_TICKET, TicketInput } from 'form/Inputs';
 import {
   composeValidator,
   buildPatqValidator,
@@ -12,7 +12,7 @@ import {
   buildCheckboxValidator,
 } from 'form/validators';
 import FormError from 'form/FormError';
-import { CheckboxInput, Grid } from 'indigo-react';
+import { Grid } from 'indigo-react';
 import { useCallback, useMemo, useRef } from 'react';
 import { useActivateFlow } from './ActivateFlow';
 import WarningBox from 'components/WarningBox';
@@ -21,13 +21,15 @@ import useImpliedTicket from 'lib/useImpliedTicket';
 import { generateWallet } from 'lib/walletgen';
 import { urbitWalletFromTicket, walletFromMnemonic } from 'lib/wallet';
 import { DEFAULT_HD_PATH, POINT_PROXIES } from 'lib/constants';
-import useBreakpoints from 'lib/useBreakpoints';
+import useBreakpoints from 'lib/useBreakpoints.tsx';
 import { Ship } from '@urbit/roller-api';
 import { convertToInt } from 'lib/convertToInt';
 import { Box } from '@tlon/indigo-react';
 import { timeout } from 'lib/timeout';
 import withFadeable from './withFadeable';
 import ActivateButton from './ActivateButton';
+import TicketInputAccessory from 'components/form/TicketInputAccessory';
+import { validateActivationTicket } from 'lib/validators';
 
 interface ActivateCodeFormProps {
   afterSubmit: VoidFunction;
@@ -46,7 +48,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
     setInviteWallet,
     setIsIn,
     setSendWallet,
-  } = useActivateFlow();
+  }: any = useActivateFlow();
 
   // this is a pretty naive way to detect if we're on a mobile device
   // (i.e. we're checking the width of the screen)
@@ -69,7 +71,10 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
   const validate = useMemo(
     () =>
       composeValidator(
-        { ticket: buildPatqValidator(), showTicket: buildCheckboxValidator() },
+        {
+          ticket: buildPatqValidator([validateActivationTicket]),
+          showTicket: buildCheckboxValidator(),
+        },
         validateForm
       ),
     [validateForm]
@@ -164,6 +169,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
       setDerivedWallet,
       setInviteWallet,
       setIsIn,
+      setSendWallet,
     ]
   );
 
@@ -174,10 +180,8 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
 
   return (
     <Box
-      display="flex"
-      flexDirection="column"
+      className="w-full h-full flex-col"
       flexWrap="nowrap"
-      height={'100%'}
       justifyContent="flex-end">
       <BridgeForm
         validate={validate}
@@ -187,40 +191,27 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
         {({ valid, validating, values, submitting, handleSubmit }) => (
           <>
             {!impliedTicket && (
-              <>
-                <Grid.Item
-                  full
-                  as={TicketInput}
-                  type={values.showTicket ? 'text' : 'password'}
-                  name="ticket"
-                  label="Activation Code"
-                  disabled={!activationAllowed}
-                />
-
-                <Grid.Item
-                  full
-                  as={CheckboxInput}
-                  name="showTicket"
-                  label="Show"
-                />
-              </>
+              <Grid.Item
+                full
+                className="mb2"
+                as={TicketInput}
+                accessory={<TicketInputAccessory name="showTicket" />}
+                type={values.showTicket ? 'text' : 'password'}
+                name="ticket"
+                disabled={!activationAllowed}
+                placeholder={`${PLACEHOLDER_TICKET}-${PLACEHOLDER_PLANET.slice(
+                  1
+                )}`}
+              />
             )}
 
-            <Grid.Item full as={FormError} />
+            <Grid.Item full as={FormError} className="mb2" />
 
-            <Box
-              display="flex"
-              flexDirection="column"
-              flexWrap="nowrap"
-              height={'100%'}
-              width={'100%'}
-              justifyContent="flex-end">
-              <ActivateButton
-                disabled={!valid || submitting}
-                onClick={handleSubmit}>
-                {submitting ? 'Generating...' : 'Claim'}
-              </ActivateButton>
-            </Box>
+            <ActivateButton
+              disabled={!valid || submitting}
+              onClick={handleSubmit}>
+              {submitting ? 'Activating...' : 'Activate'}
+            </ActivateButton>
 
             {!activationAllowed && (
               <Grid.Item full as={WarningBox} className="mt4">

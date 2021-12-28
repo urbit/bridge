@@ -150,20 +150,22 @@ export default function AcceptTransfer() {
                 : `Accept the incoming transfer of ${name}.`}
             </Grid.Item>
 
-            <BridgeForm
-              validate={validate}
-              initialValues={initialValues}
-              onValues={onValues}>
-              {() => (
-                <Grid.Item
-                  full
-                  as={CheckboxInput}
-                  name="noReset"
-                  label="Retain proxies and key configuration, in case of transferring to self"
-                  disabled={inputsLocked}
-                />
-              )}
-            </BridgeForm>
+            {!completed && (
+              <BridgeForm
+                validate={validate}
+                initialValues={initialValues}
+                onValues={onValues}>
+                {() => (
+                  <Grid.Item
+                    full
+                    as={CheckboxInput}
+                    name="noReset"
+                    label="Retain proxies and key configuration, in case of transferring to self"
+                    disabled={inputsLocked}
+                  />
+                )}
+              </BridgeForm>
+            )}
 
             {point.isL2 ? (
               <Grid.Item

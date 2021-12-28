@@ -7,7 +7,7 @@ export interface WindowProps {
   className?: string;
 }
 
-const Window = ({ children, className }: WindowProps) => {
+const Window = ({ children, className = '' }: WindowProps) => {
   return <Box className={`window ${className}`}>{children}</Box>;
 };
 

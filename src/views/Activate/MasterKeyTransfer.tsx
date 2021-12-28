@@ -110,8 +110,8 @@ const MasterKeyTransfer = () => {
   }, [error]);
 
   return (
-    <View centered={true}>
-      <ActivateView header={header} footer={footer}>
+    <View inset>
+      <ActivateView hideBack header={header} footer={footer}>
         <Box
           alignItems={'center'}
           display={'flex'}

@@ -27,19 +27,19 @@ const isHexString = /[0-9A-Fa-f]/;
 const isHexPrefixed = /^0x/;
 
 // Validates a bip39 mnemonic
-export const validateMnemonic = v =>
+export const validateMnemonic = (v: string) =>
   !bip39.validateMnemonic(v) && 'This is not a valid mnemonic.';
 
 const isHdPath = /^m(\/[0-9]+'?)*$/;
-export const validateHdPath = v =>
+export const validateHdPath = (v: string) =>
   !isHdPath.test(v) && 'Invalid HD derivation path.';
 
 // Checks an empty field
-export const validateNotEmpty = v =>
+export const validateNotEmpty = (v: string) =>
   (v === undefined || v.length === 0) && 'This field is required.';
 
 // Checks if a patp is a valid galaxy
-export const validateGalaxy = v => {
+export const validateGalaxy = (v: string) => {
   try {
     const point = patp2dec(v);
     const isValidGalaxy = point >= MIN_GALAXY && point <= MAX_GALAXY;
@@ -51,7 +51,7 @@ export const validateGalaxy = v => {
   }
 };
 
-export const validatePoint = v => {
+export const validatePoint = (v: string) => {
   try {
     if (!ob.isValidPatp(v)) {
       throw new Error();
@@ -61,7 +61,7 @@ export const validatePoint = v => {
   }
 };
 
-export const validatePatq = v => {
+export const validatePatq = (v: string) => {
   try {
     if (!ob.isValidPatq(v)) {
       throw new Error();
@@ -71,7 +71,17 @@ export const validatePatq = v => {
   }
 };
 
-export const validateShard = v => {
+export const validateActivationTicket = (v: string) => {
+  try {
+    if (v.length < 42) {
+      throw new Error();
+    }
+  } catch {
+    return 'This is not a valid activation ticket.';
+  }
+};
+
+export const validateShard = (v: string) => {
   try {
     if (v !== undefined && v !== '' && !ob.isValidPatq(v)) {
       throw new Error();
@@ -81,19 +91,19 @@ export const validateShard = v => {
   }
 };
 
-export const validateOneOf = (options = []) => v =>
+export const validateOneOf = (options = []) => (v: string) =>
   !includes(options, v) && 'Is not a valid option.';
 
-export const validateHexString = v =>
+export const validateHexString = (v: string) =>
   !isHexString.test(v) && 'This is not a valid hex string.';
 
-export const validateHexPrefix = v =>
+export const validateHexPrefix = (v: string) =>
   !isHexPrefixed.test(v) && 'Must include 0x prefix.';
 
-export const validateEthereumAddress = v =>
+export const validateEthereumAddress = (v: string) =>
   !isValidAddress(v) && 'This is not a valid Ethereum address.';
 
-export const validateEmail = v =>
+export const validateEmail = (v: string) =>
   !emailRegExp.test(v) && 'This is not a valid email address.';
 
 export const validateExactly = (value, error) => v => v !== value && error;
