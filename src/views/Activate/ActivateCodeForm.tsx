@@ -80,6 +80,11 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
     [validateForm]
   );
 
+  const hasInitialValues = useMemo(() => impliedTicket && impliedPatp, [
+    impliedTicket,
+    impliedPatp,
+  ]);
+
   const getTicketAndPoint = useCallback(
     (invite: string) => {
       const segments = invite.split('-');
@@ -174,11 +179,14 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
   );
 
   const initialValues = useMemo(
-    () => ({ ticket: impliedTicket || '', showTicket: true }),
-    [impliedTicket]
+    () => ({
+      ticket: hasInitialValues
+        ? `${impliedTicket}-${impliedPatp?.slice(1)}`
+        : '',
+      showTicket: true,
+    }),
+    [impliedTicket, impliedPatp, hasInitialValues]
   );
-
-  const hasInitialValues = impliedTicket && impliedPatp;
 
   return (
     <Box
@@ -192,7 +200,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
         initialValues={initialValues}>
         {({ valid, validating, values, submitting, handleSubmit }) => (
           <>
-            {!impliedTicket && (
+            {!hasInitialValues && (
               <Grid.Item
                 full
                 className="mb2"

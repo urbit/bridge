@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import View from 'components/View';
 import ActivateView from './ActivateView';
@@ -30,14 +30,19 @@ export default function ActivateCode() {
   // Fade in on load
   useFadeIn();
 
+  const hasInitialValues = useMemo(() => impliedTicket && impliedPatp, [
+    impliedTicket,
+    impliedPatp,
+  ]);
+
   return (
     <View inset>
       <ActivateView
-        hideBack={Boolean(impliedTicket)}
+        hideBack={hasInitialValues}
         header={<ActivateHeader content={'Planet Code'} />}
         footer={<ActivateCodeForm afterSubmit={goToMasterKey} />}>
         <Box className="flex-col align-center justify-center w-full h-full">
-          {!impliedTicket && (
+          {!hasInitialValues && (
             <Box className="mb2 sans gray5" fontSize={14}>
               Enter your planet code below
             </Box>
