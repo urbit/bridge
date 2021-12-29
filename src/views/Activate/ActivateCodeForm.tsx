@@ -178,6 +178,8 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
     [impliedTicket]
   );
 
+  const hasInitialValues = impliedTicket && impliedPatp;
+
   return (
     <Box
       className="w-full h-full flex-col"
@@ -208,7 +210,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
             <Grid.Item full as={FormError} className="mb2" />
 
             <ActivateButton
-              disabled={!valid || submitting}
+              disabled={(!valid && !hasInitialValues) || submitting}
               onClick={handleSubmit}>
               {submitting ? 'Activating...' : 'Activate'}
             </ActivateButton>
