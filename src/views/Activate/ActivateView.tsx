@@ -1,11 +1,11 @@
 import { Box } from '@tlon/indigo-react';
-import cn from 'classnames';
-import View from 'components/View';
 import { Grid, Text } from 'indigo-react';
 import HeaderButton from 'components/L2/Headers/HeaderButton';
 import { useHistory } from 'store/history';
 import Window from 'components/L2/Window/Window';
 import BodyPane from 'components/L2/Window/BodyPane';
+
+import './ActivateView.scss';
 
 interface ActivateViewProps {
   className?: string;
@@ -49,7 +49,7 @@ export default function ActivateView({
             onClick={onBack || (() => pop())}
           />
         )}
-        <Window>
+        <Window className="activate-view">
           <BodyPane>
             <Box className="w-full" gridArea="header">
               {header}

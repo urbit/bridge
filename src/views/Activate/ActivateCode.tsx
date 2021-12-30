@@ -48,9 +48,9 @@ export default function ActivateCode() {
             </Box>
           )}
           {impliedPatp ? (
-            <PointPresenter patp={impliedPatp} />
+            <PointPresenter patp={impliedPatp} className="mb6 mt7" />
           ) : (
-            <PlaceholderSigil className="mt9 mb8" />
+            <PlaceholderSigil className="mv9" style={{ marginTop: 78 }} />
           )}
         </Box>
       </ActivateView>

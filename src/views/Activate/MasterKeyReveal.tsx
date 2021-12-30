@@ -87,6 +87,7 @@ const MasterKeyReveal = () => {
           height={'100%'}
           justifyContent={'center'}>
           <Box
+            margin={triggerAnimation ? '0' : '75px 0'}
             display={'flex'}
             flexDirection={'row'}
             flexWrap={'nowrap'}

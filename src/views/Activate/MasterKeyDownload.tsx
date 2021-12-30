@@ -133,7 +133,7 @@ const MasterKeyDownload = () => {
           justifyContent={'space-evenly'}>
           <DangerBox
             overrideFadeIn={triggerAnimation && isIn}
-            className={`mv7 ${!isIn ? 'hidden' : ''}`}>
+            className={`mv8 ${!isIn ? 'hidden' : ''}`}>
             Do not share this with anyone else!
           </DangerBox>
           {ticket && (
@@ -142,7 +142,7 @@ const MasterKeyDownload = () => {
           <MasterKeyCopy
             text={ticket}
             overrideFadeIn={triggerAnimation && isIn}
-            className={`mv2 ${!isIn ? 'hidden' : ''}`}
+            className={`mv5 ${!isIn ? 'hidden' : ''}`}
           />
         </Box>
       </ActivateView>
