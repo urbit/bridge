@@ -21,14 +21,42 @@ const COMMANDS = {
   XPUB: 'xpub',
 };
 
-export type FlowType = { [k: string]: string | boolean } | null;
+interface LockupFlowKind {
+  kind: 'takeLockup';
+  lock: 'linear' | 'conditional';
+  from: string;
+  [k: string]: string | boolean;
+}
+
+interface BitcoinFlowKind {
+  kind: 'btc';
+  utx: string;
+  [k: string]: string | boolean;
+}
+
+interface XpubFlowKind {
+  kind: 'xpub';
+  [k: string]: string | boolean;
+}
+
+interface DefaultFlowKind {
+  kind?: string;
+  [k: string]: string | boolean | undefined;
+}
+
+export type FlowType =
+  | LockupFlowKind
+  | BitcoinFlowKind
+  | XpubFlowKind
+  | DefaultFlowKind
+  | null;
 
 const useFlowCommand = () => {
   const flow = useMemo(() => {
     let flow: FlowType = {};
 
     window.location.search
-      .substr(1)
+      .substring(1)
       .split('&')
       .forEach(arg => {
         if ('' === arg) return;
@@ -38,7 +66,7 @@ const useFlowCommand = () => {
         }
       });
 
-    if (typeof flow === 'object') {
+    if (flow && typeof flow === 'object') {
       switch (flow.kind) {
         case COMMANDS.TAKE_LOCKUP:
           flow.lock = flow.lock || 'linear';

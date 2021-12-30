@@ -30,13 +30,12 @@ function View({
   full = false,
   hideBack = false,
   pop = noop,
-  header,
+  header = React.Fragment,
   id,
   centered = false,
   ...rest
 }: ViewProps) {
   const { reset }: any = useHistory();
-  // @ts-ignore
   const isMobile: boolean = useBreakpoints([true, false, false]);
   const shouldInset = inset && !isMobile;
 

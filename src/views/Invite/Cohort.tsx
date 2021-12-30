@@ -512,6 +512,8 @@ export default function InviteCohort() {
             {loading && <Box>{generatingCodesText}</Box>}
           </Box>
           <Row className="download-buttons">
+            {/*
+            // @ts-ignore */}
             <Button
               center
               className="ph4 close-button"
@@ -519,6 +521,8 @@ export default function InviteCohort() {
               onClick={() => setShowCsvModal(false)}>
               Close
             </Button>
+            {/*
+            // @ts-ignore */}
             <Button
               center
               className="ph4 download-button"
