@@ -64,7 +64,7 @@ export default function Login() {
   };
 
   return (
-    <View inset>
+    <View inset hideBack={true}>
       <Grid>
         <Grid.Item
           full
