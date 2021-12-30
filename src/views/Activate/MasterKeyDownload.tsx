@@ -16,9 +16,9 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import PaperBuilder from 'components/PaperBuilder';
 import { DEFAULT_FADE_TIMEOUT, MASTER_KEY_DURATION } from 'lib/constants';
 import { timeout } from 'lib/timeout';
-import View from 'components/View';
 import useMultikeyFileGenerator from 'lib/useMultikeyFileGenerator';
 import { downloadWallet } from 'lib/invite';
+import View from 'components/View';
 
 const MasterKeyDownload = () => {
   const {
@@ -28,8 +28,8 @@ const MasterKeyDownload = () => {
     isIn,
     setGenerated,
     setIsIn,
-  } = useActivateFlow();
-  const { data, push, names } = useLocalRouter();
+  }: any = useActivateFlow();
+  const { data, push, names }: any = useLocalRouter();
   const point = need.point(derivedPoint);
   const wallet = need.wallet(derivedWallet);
   const ticket = wallet.ticket.replace('~', '');
@@ -119,8 +119,9 @@ const MasterKeyDownload = () => {
   }, [delayedFadeIn, fadeIn, setIsIn, skipAnimationDelay]);
 
   return (
-    <View centered={true}>
+    <View inset>
       <ActivateView
+        hideBack
         header={triggerAnimation && header}
         footer={triggerAnimation && footer}>
         <Box
@@ -132,7 +133,7 @@ const MasterKeyDownload = () => {
           justifyContent={'space-evenly'}>
           <DangerBox
             overrideFadeIn={triggerAnimation && isIn}
-            className={!isIn ? 'hidden' : ''}>
+            className={`mv8 ${!isIn ? 'hidden' : ''}`}>
             Do not share this with anyone else!
           </DangerBox>
           {ticket && (
@@ -141,7 +142,7 @@ const MasterKeyDownload = () => {
           <MasterKeyCopy
             text={ticket}
             overrideFadeIn={triggerAnimation && isIn}
-            className={!isIn ? 'hidden' : ''}
+            className={`mv5 ${!isIn ? 'hidden' : ''}`}
           />
         </Box>
       </ActivateView>

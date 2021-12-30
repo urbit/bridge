@@ -1,7 +1,5 @@
 import { LocalRouterProvider, useLocalRouter } from 'lib/LocalRouter';
 
-import View from 'components/View';
-
 import useRouter from 'lib/useRouter';
 
 import MasterKeyDownload from './MasterKeyDownload';
@@ -33,10 +31,8 @@ export default function ActivateMasterKey() {
   });
 
   return (
-    <View inset>
-      <LocalRouterProvider value={router}>
-        <Route resetActivateRouter={resetActivateRouter} />
-      </LocalRouterProvider>
-    </View>
+    <LocalRouterProvider value={router}>
+      <Route resetActivateRouter={resetActivateRouter} />
+    </LocalRouterProvider>
   );
 }

@@ -15,7 +15,7 @@ import View from 'components/View';
 
 const MasterKeyReveal = () => {
   const { setIsIn }: any = useActivateFlow();
-  const { pop, push, names }: any = useLocalRouter();
+  const { push, names }: any = useLocalRouter();
   const [triggerAnimation, setTriggerAnimation] = useState<boolean>(false);
   const [fadeOutKey, setFadeOutKey] = useState<boolean>(false);
 
@@ -74,8 +74,9 @@ const MasterKeyReveal = () => {
   }, [delayedFadeIn, setIsIn]);
 
   return (
-    <View centered={true} pop={pop} header={null} className="">
+    <View inset>
       <ActivateView
+        hideBack
         header={triggerAnimation && header}
         footer={triggerAnimation && footer}>
         <Box
@@ -86,6 +87,7 @@ const MasterKeyReveal = () => {
           height={'100%'}
           justifyContent={'center'}>
           <Box
+            margin={triggerAnimation ? '0' : '75px 0'}
             display={'flex'}
             flexDirection={'row'}
             flexWrap={'nowrap'}

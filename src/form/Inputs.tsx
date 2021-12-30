@@ -21,7 +21,7 @@ import {
 
 const PLACEHOLDER_GALAXY = '~pel';
 const PLACEHOLDER_STAR = '~sampel';
-const PLACEHOLDER_PLANET = '~sampel-ponnym';
+export const PLACEHOLDER_PLANET = '~sampel-ponnym';
 const PLACEHOLDER_HD_PATH = DEFAULT_HD_PATH;
 const PLACEHOLDER_MNEMONIC =
   'example crew supreme gesture quantum web media hazard theory mercy wing kitten';

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import View from 'components/View';
 import ActivateView from './ActivateView';
@@ -7,14 +7,15 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
 
+import { ReactComponent as PlaceholderSigil } from 'assets/blank-planet-sigil.svg';
 import { FadeablePointPresenter as PointPresenter } from './PointPresenter';
-import { Box, Text } from '@tlon/indigo-react';
+import { Box } from '@tlon/indigo-react';
 import { FadeableActivateHeader as ActivateHeader } from './ActivateHeader';
 import { FadeableActivateCodeForm as ActivateCodeForm } from './ActivateCodeForm';
 import useFadeIn from './useFadeIn';
 
 export default function ActivateCode() {
-  const { names, push } = useLocalRouter();
+  const { names, push }: any = useLocalRouter();
   const { impliedPatp, impliedTicket } = useImpliedTicket();
   const [hasDisclaimed] = useHasDisclaimed();
 
@@ -29,22 +30,28 @@ export default function ActivateCode() {
   // Fade in on load
   useFadeIn();
 
+  const hasInitialValues = useMemo(
+    () => Boolean(impliedTicket && impliedPatp),
+    [impliedTicket, impliedPatp]
+  );
+
   return (
-    <View centered={true}>
+    <View inset>
       <ActivateView
-        header={<ActivateHeader content={'Welcome. This is your Urbit.'} />}
+        hideBack={hasInitialValues}
+        header={<ActivateHeader content={'Planet Code'} />}
         footer={<ActivateCodeForm afterSubmit={goToMasterKey} />}>
-        <Box
-          alignItems={'center'}
-          display={'flex'}
-          flexDirection={'column'}
-          flexWrap={'nowrap'}
-          height={'100%'}
-          justifyContent={'center'}>
-          {!impliedTicket && (
-            <Text className="mb2">Enter your activation code to continue.</Text>
+        <Box className="flex-col align-center justify-center w-full h-full">
+          {!hasInitialValues && (
+            <Box className="mb2 sans gray5" fontSize={14}>
+              Enter your planet code below
+            </Box>
           )}
-          {impliedPatp && <PointPresenter patp={impliedPatp} />}
+          {impliedPatp ? (
+            <PointPresenter patp={impliedPatp} className="mb6 mt7" />
+          ) : (
+            <PlaceholderSigil className="mv9" style={{ marginTop: 78 }} />
+          )}
         </Box>
       </ActivateView>
     </View>

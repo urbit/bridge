@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 
-import useBreakpoints from 'lib/useBreakpoints';
+import useBreakpoints from 'lib/useBreakpoints.tsx';
 
 import Accordion from 'components/Accordion';
 

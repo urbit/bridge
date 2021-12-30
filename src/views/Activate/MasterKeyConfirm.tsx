@@ -21,15 +21,13 @@ import FormError from 'form/FormError';
 import useFadeIn from './useFadeIn';
 import { HiddenInput, TicketSegmentInput } from 'form/Inputs';
 import View from 'components/View';
-import NavHeader from 'components/NavHeader';
-import { MiniBackButton } from 'components/MiniBackButton';
 
 import './MasterKeyConfirm.scss';
 
 const MasterKeyConfirm = () => {
-  const { derivedWallet, setIsIn } = useActivateFlow();
+  const { derivedWallet, setIsIn }: any = useActivateFlow();
   const { ticket } = need.wallet(derivedWallet);
-  const { push, names } = useLocalRouter();
+  const { push, names }: any = useLocalRouter();
   const STUB_VERIFY_TICKET = isDevelopment;
   const ticketSegments = useMemo(() => ticketToSegments(ticket), [ticket]);
   const [showError, setShowError] = useState<boolean>(false);
@@ -93,18 +91,9 @@ const MasterKeyConfirm = () => {
   useFadeIn();
 
   return (
-    <View centered={true} id={'master-key-confirm'}>
-      <NavHeader>
-        <Box marginBottom={'10px'}>
-          <MiniBackButton
-            hpadding={true}
-            vpadding={true}
-            onClick={goBack}
-            className=""
-          />
-        </Box>
-      </NavHeader>
+    <View inset id={'master-key-confirm'}>
       <ActivateView
+        onBack={goBack}
         header={header}
         gridRows={'20% 80%'}
         gridAreas={"'header' 'content'"}>

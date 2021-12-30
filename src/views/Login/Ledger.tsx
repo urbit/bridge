@@ -18,7 +18,7 @@ import {
 } from 'lib/ledger';
 import { WALLET_TYPES } from 'lib/constants';
 import useLoginView from 'lib/useLoginView';
-import useBreakpoints from 'lib/useBreakpoints';
+import useBreakpoints from 'lib/useBreakpoints.tsx';
 
 import {
   composeValidator,

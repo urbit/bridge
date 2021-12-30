@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Just } from 'folktale/maybe';
 import * as kg from 'urbit-key-generation';
-import { Grid, ToggleInput, AccessoryIcon } from 'indigo-react';
+import { Grid } from 'indigo-react';
 import { FORM_ERROR } from 'final-form';
-import { Icon, Row } from '@tlon/indigo-react';
+import { Row } from '@tlon/indigo-react';
 
 import { useWallet } from 'store/wallet';
 import { usePointCursor } from 'store/pointCursor';
@@ -34,19 +34,7 @@ import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 import AdvancedOptions from 'components/L2/Headers/AdvancedOptions';
-
-function TicketInputAccessory({ name }: { name: any }) {
-  return (
-    <AccessoryIcon>
-      <ToggleInput
-        name={name}
-        className="mt1"
-        inverseLabel={<Icon className="icon" icon="Visible" />}
-        label={<Icon className="icon" icon="Hidden" />}
-      />
-    </AccessoryIcon>
-  );
-}
+import TicketInputAccessory from 'components/form/TicketInputAccessory';
 
 interface TicketProps {
   className?: string;
