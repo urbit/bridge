@@ -30,10 +30,10 @@ export default function ActivateCode() {
   // Fade in on load
   useFadeIn();
 
-  const hasInitialValues = useMemo(() => impliedTicket && impliedPatp, [
-    impliedTicket,
-    impliedPatp,
-  ]);
+  const hasInitialValues = useMemo(
+    () => Boolean(impliedTicket && impliedPatp),
+    [impliedTicket, impliedPatp]
+  );
 
   return (
     <View inset>

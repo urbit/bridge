@@ -80,10 +80,10 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
     [validateForm]
   );
 
-  const hasInitialValues = useMemo(() => impliedTicket && impliedPatp, [
-    impliedTicket,
-    impliedPatp,
-  ]);
+  const hasInitialValues = useMemo(
+    () => Boolean(impliedTicket && impliedPatp),
+    [impliedTicket, impliedPatp]
+  );
 
   const getTicketAndPoint = useCallback(
     (invite: string) => {
