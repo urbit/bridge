@@ -147,6 +147,7 @@ function AdminCancelTransfer() {
 export default function CancelTransfer() {
   const { pop }: any = useLocalRouter();
   const { setPointCursor }: any = usePointCursor();
+  const { point } = useRollerStore();
 
   const goBack = useCallback(() => {
     setPointCursor(Nothing());
@@ -158,7 +159,7 @@ export default function CancelTransfer() {
       pop={pop}
       className="cancel-transfer"
       hideBack
-      header={<L2BackHeader hideBalance back={goBack} />}>
+      header={<L2BackHeader hideBalance={point.isL2} back={goBack} />}>
       <AdminCancelTransfer />
     </View>
   );

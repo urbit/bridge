@@ -80,4 +80,29 @@
       }
     }
   }
+
+  .wc-info, .wc-buttons {
+    .cancel, .check {
+      height: 16px;
+      width: 16px;
+      padding: 8px;
+      border-radius: $medium-border-radius;
+      margin: -4px 0;
+    }
+
+    .wallet-icon {
+      margin-right: 6px;
+      height: 24px;
+      width: 24px;
+    }
+
+    .cancel {
+      margin-right: 6px;
+      background-color: $activate-error-red;
+    }
+
+    .check {
+      background-color: $washed-gray;
+    }
+  }
 }
