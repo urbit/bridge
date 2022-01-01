@@ -216,6 +216,9 @@ const MASTER_TICKET_TOOLTIP =
 const PASSPORT_TOOLTIP =
   'Your Passport contains all of the address information for your wallet';
 
+const LOCKUP_TOOLTIP =
+  'Stars in a lockup schedule can be withdrawn after a set time duration. The duration is predetermined by the issuer';
+
 export {
   CHECK_BLOCK_EVERY_MS,
   DEFAULT_GAS_PRICE_GWEI,
@@ -261,4 +264,5 @@ export {
   ONE_MINUTE,
   MASTER_TICKET_TOOLTIP,
   PASSPORT_TOOLTIP,
+  LOCKUP_TOOLTIP,
 };

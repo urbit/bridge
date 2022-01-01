@@ -142,7 +142,7 @@ export default function AdminTransfer() {
       <BodyPane>
         <Grid className="w-full" full gap={1}>
           <BridgeForm validate={validate} onValues={onValues}>
-            {({ handleSubmit, values }) => (
+            {({ values }: any) => (
               <>
                 {!completed && (
                   <Grid.Item full as={Text} style={{ fontSize: 14 }}>

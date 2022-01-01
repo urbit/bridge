@@ -41,6 +41,7 @@ export default function LoginSelector({
 
   const { push, names }: any = useHistory();
   const [showModal, setShowModal] = useState(false);
+  // TODO: do we still need this? currently not being set
   const [metamaskSelected, setMetamaskSelected] = useState(false);
 
   const { connect } = useWalletConnect();

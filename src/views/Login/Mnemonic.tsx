@@ -108,7 +108,7 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
             onValues={onValues}
             afterSubmit={goHome}
             initialValues={initialValues}>
-            {({ handleSubmit }) => (
+            {({ handleSubmit }: any) => (
               <Grid.Item full className="flex-col justify-between">
                 <Grid.Item full>
                   <Grid.Item full as={MnemonicInput} name="mnemonic" />

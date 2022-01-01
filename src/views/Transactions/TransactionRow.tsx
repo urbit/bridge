@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import cn from 'classnames';
-import * as ob from 'urbit-ob';
 import { Box, Icon, Row } from '@tlon/indigo-react';
 import { RollerTransaction } from '@urbit/roller-api';
 import { format, fromUnixTime } from 'date-fns';
@@ -12,7 +11,6 @@ import {
   TRANSACTION_TYPE_TITLES,
 } from 'lib/constants';
 import { abbreviateAddress } from 'lib/utils/address';
-import { isPlanet, isStar } from 'lib/utils/point';
 import { titleize } from 'form/formatters';
 import LayerIndicator from 'components/L2/LayerIndicator';
 import { useExploreTxUrl } from 'lib/explorer';
@@ -32,21 +30,6 @@ export const TransactionRow = ({
   layer = 2,
 }: TransactionRowProps) => {
   const { nextRoll } = useTimerStore();
-
-  // For spawn events (associated with the spawner), we want to show the spawnee tier;
-  // For all other events we will show the event's ship's tier
-  const pointLabel = useMemo(() => {
-    const azimuthIndex = ob.patp2dec(`~${ship}`);
-    if (type === 'spawn') {
-      return isStar(azimuthIndex) ? 'Planet' : 'Star';
-    } else {
-      return isStar(azimuthIndex)
-        ? 'Star'
-        : isPlanet(azimuthIndex)
-        ? 'Planet'
-        : 'Galaxy';
-    }
-  }, [ship, type]);
 
   const label = useMemo(() => {
     return TRANSACTION_TYPE_TITLES[type] || type;

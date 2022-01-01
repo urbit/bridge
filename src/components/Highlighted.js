@@ -3,7 +3,7 @@ import cn from 'classnames';
 
 export default function Highlighted({
   as: As = 'span',
-  className,
+  className = '',
   warning = false,
   ...rest
 }) {

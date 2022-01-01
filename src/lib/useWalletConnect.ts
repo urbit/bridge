@@ -30,7 +30,7 @@ type ConnectEvent = {
 };
 
 export const useWalletConnect = () => {
-  const { setWallet, setAuthToken, resetWallet } = useWallet();
+  const { setWallet, setAuthToken, resetWallet }: any = useWallet();
   const [connector, setConnector] = useState<WalletConnect | null>(null);
   const [address, setAddress] = useState<string | null>(null);
   const [peerMeta, setPeerMeta] = useState<PeerMeta | null>(null);

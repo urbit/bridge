@@ -15,8 +15,18 @@ const emptyCacheEntry = {
   requests: Nothing(),
 };
 
+// any because wrapped in Just / Nothing
+interface ResidentDetail {
+  residentCount: any;
+  requestCount: any;
+  requests: any;
+  residents: any;
+}
+
 export default function useResidents() {
-  const [residentCache, _setResidentCache] = useState({});
+  const [residentCache, _setResidentCache] = useState<
+    Record<number, ResidentDetail>
+  >({});
 
   const addToResidentCache = useCallback(
     (point, entry) =>
@@ -29,7 +39,7 @@ export default function useResidents() {
     [residentCache]
   );
 
-  const { contracts } = useNetwork();
+  const { contracts }: any = useNetwork();
   const _contracts = need.contracts(contracts);
 
   const syncResidentCount = useCallback(
@@ -88,7 +98,7 @@ export default function useResidents() {
       ]);
 
       // Galaxies sponsor themselves
-      const _residents = residents.filter(r => r !== point);
+      const _residents = residents.filter((r: number) => r !== point);
 
       addToResidentCache(point, {
         residentCount: Just(_residents.length),

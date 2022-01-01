@@ -43,7 +43,7 @@ const MasterKeyDownload = () => {
 
   const pointAsString = derivedPoint.matchWith({
     Nothing: () => '',
-    Just: p => p.value.toFixed(),
+    Just: (p: any) => p.value.toFixed(),
   });
 
   const { keyfile, filename } = useMultikeyFileGenerator({
@@ -150,7 +150,7 @@ const MasterKeyDownload = () => {
       <PaperBuilder
         point={pointAsString}
         wallets={[wallet]}
-        callback={data => {
+        callback={(data: any) => {
           setPaper(Just(data));
         }}
       />

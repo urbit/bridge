@@ -1,6 +1,10 @@
 import { Box } from '@tlon/indigo-react';
 
-export const AddressRow = ({ address }) => {
+interface AddressRowProps {
+  address: string;
+}
+
+export const AddressRow = ({ address }: AddressRowProps) => {
   return (
     <>
       <Box className="address-row">

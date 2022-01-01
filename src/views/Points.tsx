@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { Grid, H5, HelpText, LinkButton, Flex } from 'indigo-react';
-import { get } from 'lodash';
 
 import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
@@ -32,16 +31,8 @@ import PointList from 'components/L2/PointList';
 import { Box, Text } from '@tlon/indigo-react';
 
 import './Points.scss';
-
-export const maybeGetResult = (obj, key, defaultValue) =>
-  obj.matchWith({
-    Nothing: () => defaultValue,
-    Just: p =>
-      p.value.matchWith({
-        Ok: r => get(r.value, key, defaultValue),
-        Error: e => defaultValue,
-      }),
-  });
+import { StarReleaseButton } from './Points/StarReleaseButton';
+import { maybeGetResult } from 'lib/maybeGetResult';
 
 export const isLocked = (details: any, contracts: any) =>
   details.owner === contracts.linearSR ||
@@ -71,18 +62,21 @@ function ActionButtons({ actions = [] }: ActionButtonProps) {
 }
 
 export default function Points() {
-  const { wallet } = useWallet();
-  const { pop, push, names } = useHistory();
-  const { setPointCursor } = usePointCursor();
-  const { controlledPoints, getDetails } = usePointCache();
-  const { contracts } = useNetwork();
+  const { wallet }: any = useWallet();
+  const { pop, push, names }: any = useHistory();
+  const { setPointCursor }: any = usePointCursor();
+  const { controlledPoints, getDetails }: any = usePointCache();
+  const { contracts }: any = useNetwork();
   const isEclipticOwner = useIsEclipticOwner();
   const [
     rejectedPoints,
     addRejectedPoint,
   ] = useRejectedIncomingPointTransfers();
   const { pointList } = useRollerStore();
-  const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
+  const {
+    syncStarReleaseDetails,
+    starReleaseDetails,
+  }: any = useStarReleaseCache();
 
   const outgoingPoints = useMemo(
     () => pointList.filter(({ isOutgoing }) => isOutgoing),
@@ -102,21 +96,21 @@ export default function Points() {
 
   const maybeLockedPoints = useMemo(
     () =>
-      controlledPoints.chain(points =>
+      controlledPoints.chain((points: any) =>
         points.matchWith({
           Error: () => Nothing(),
-          Ok: c => {
-            const points = c.value.ownedPoints.map(point =>
-              getDetails(point).chain(details =>
+          Ok: (c: any) => {
+            const points = c.value.ownedPoints.map((point: number) =>
+              getDetails(point).chain((details: any) =>
                 Just({ point, has: isLocked(details, _contracts) })
               )
             );
             // if we have details for every point,
             // return the array of pending transfers.
-            if (points.every(p => Just.hasInstance(p))) {
+            if (points.every((p: any) => Just.hasInstance(p))) {
               const locked = points
-                .filter(p => p.value.has)
-                .map(p => p.value.point);
+                .filter((p: any) => p.value.has)
+                .map((p: any) => p.value.point);
               return Just(locked);
             } else {
               return Nothing();
@@ -166,15 +160,11 @@ export default function Points() {
     .getOrElse([])
     .map((value: number) => ({ value }));
 
-  const processingPoints = pointList.filter(
-    ({ shouldDisplay }) => !shouldDisplay
-  );
-
   const displayEmptyState =
     !loading && incomingPoints.length === 0 && allPoints.length === 0;
 
   const starReleasing = starReleaseDetails
-    .map(s => (s ? s.total > 0 : false))
+    .map((s: any) => (s ? s.total > 0 : false))
     .getOrElse(false);
 
   useEffect(() => {
@@ -210,8 +200,8 @@ export default function Points() {
   if (
     Just.hasInstance(controlledPoints) &&
     controlledPoints.value.matchWith({
-      Error: e => true,
-      Ok: v => false,
+      Error: (e: any) => true,
+      Ok: (v: any) => false,
     })
   ) {
     const url = newGithubIssueUrl({
@@ -341,7 +331,6 @@ export default function Points() {
 
         <Footer>
           <Grid>
-            <Grid.Divider />
             {isEclipticOwner && (
               <>
                 <Grid.Item
@@ -356,14 +345,10 @@ export default function Points() {
             )}
             {starReleasing && (
               <>
-                <Grid.Item
-                  full
-                  as={ForwardButton}
-                  detail="You have points being released"
-                  onClick={goStarRelease}>
-                  View Star Release
-                </Grid.Item>
-                <Grid.Divider />
+                <StarReleaseButton
+                  title={'Locked Stars'}
+                  subtitle={`${starReleaseDetails.value.withdrawn} of ${starReleaseDetails.value.total} available`}
+                  onClick={goStarRelease}></StarReleaseButton>
               </>
             )}
           </Grid>

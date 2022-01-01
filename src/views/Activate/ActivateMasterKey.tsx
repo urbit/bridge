@@ -23,8 +23,8 @@ const VIEWS = {
 
 export default function ActivateMasterKey() {
   // pull the reset function out of the 'activate' router
-  const { reset: resetActivateRouter } = useLocalRouter();
-  const { Route, ...router } = useRouter({
+  const { reset: resetActivateRouter }: any = useLocalRouter();
+  const { Route, ...router }: any = useRouter({
     names: NAMES,
     views: VIEWS,
     initialRoutes: [{ key: NAMES.REVEAL }],

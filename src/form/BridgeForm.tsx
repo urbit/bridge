@@ -1,10 +1,12 @@
 import React, { useCallback } from 'react';
-import { Form } from 'react-final-form';
+import { Form, FormRenderProps } from 'react-final-form';
 import arrayMutators from 'final-form-arrays';
 import { noop } from 'lodash';
 
 import ValuesHandler from './ValuesHandler';
 import ValidationPauser from './ValidationPauser';
+import { CSSProperties } from 'styled-components';
+import { FormState } from 'final-form';
 
 /**
  * BridgeForm adds nice-to-haves for every form in bridge.
@@ -14,13 +16,28 @@ import ValidationPauser from './ValidationPauser';
  * + `onValues` handler for reactive changes
  * + automatically includes array and field data mutators
  */
+interface BridgeFormProps {
+  // children: React.ReactNode;
+  children?: any;
+  // onValues?: (values: { [k: string]: string }, valid: boolean, form: any) => void | typeof noop;
+  onValues?: any;
+  // onSubmit?: (values: { [k: string]: string }) => void | typeof noop;
+  onSubmit?: any;
+  validate?: any;
+  initialValues?: any;
+  style?: any;
+  className?: string;
+  afterSubmit?: VoidFunction;
+  rest?: React.HTMLProps<HTMLFormElement>;
+}
+
 export default function BridgeForm({
   children,
   onValues,
   onSubmit = noop,
   afterSubmit = noop,
   ...rest
-}) {
+}: BridgeFormProps) {
   const _onSubmit = useCallback(
     async (...args) => {
       const errors = await onSubmit(...args);
@@ -35,7 +52,11 @@ export default function BridgeForm({
 
   return (
     <Form mutators={{ ...arrayMutators }} onSubmit={_onSubmit} {...rest}>
-      {formProps => (
+      {(
+        formProps: FormRenderProps<any, Partial<any>> & {
+          style: CSSProperties;
+        } & FormState<any>
+      ) => (
         <form
           style={formProps?.style || { display: 'contents' }}
           onSubmit={formProps.handleSubmit}>

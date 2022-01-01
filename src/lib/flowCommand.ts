@@ -21,20 +21,52 @@ const COMMANDS = {
   XPUB: 'xpub',
 };
 
+interface LockupFlowKind {
+  kind: 'takeLockup';
+  lock: 'linear' | 'conditional';
+  from: string;
+  [k: string]: string | boolean;
+}
+
+interface BitcoinFlowKind {
+  kind: 'btc';
+  utx: string;
+  [k: string]: string | boolean;
+}
+
+interface XpubFlowKind {
+  kind: 'xpub';
+  [k: string]: string | boolean;
+}
+
+interface DefaultFlowKind {
+  kind?: string;
+  [k: string]: string | boolean | undefined;
+}
+
+export type FlowType =
+  | LockupFlowKind
+  | BitcoinFlowKind
+  | XpubFlowKind
+  | DefaultFlowKind
+  | null;
+
 const useFlowCommand = () => {
   const flow = useMemo(() => {
-    let flow = {};
+    let flow: FlowType = {};
 
     window.location.search
-      .substr(1)
+      .substring(1)
       .split('&')
       .forEach(arg => {
         if ('' === arg) return;
         const pam = arg.split('=');
-        flow[pam[0]] = pam.length <= 1 ? true : decodeURIComponent(pam[1]);
+        if (flow) {
+          flow[pam[0]] = pam.length <= 1 ? true : decodeURIComponent(pam[1]);
+        }
       });
 
-    if (typeof flow === 'object') {
+    if (flow && typeof flow === 'object') {
       switch (flow.kind) {
         case COMMANDS.TAKE_LOCKUP:
           flow.lock = flow.lock || 'linear';
@@ -48,7 +80,11 @@ const useFlowCommand = () => {
         //
         case COMMANDS.BITCOIN:
           try {
-            atob(flow.utx);
+            if (flow.utx && typeof flow.utx === 'string') {
+              atob(flow.utx);
+            } else {
+              throw Error();
+            }
           } catch (e) {
             flow = null;
           }
@@ -57,12 +93,12 @@ const useFlowCommand = () => {
         case COMMANDS.XPUB:
           break;
         //
-        default:
-          console.log('unrecognized kind of flow:', flow.kind);
-        // eslint-disable-next-line no-fallthrough
         case undefined:
           flow = null;
           break;
+        default:
+          console.log('unrecognized kind of flow:', flow.kind);
+          flow = null;
       }
     } else {
       flow = null;

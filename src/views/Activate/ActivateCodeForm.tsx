@@ -21,7 +21,7 @@ import useImpliedTicket from 'lib/useImpliedTicket';
 import { generateWallet } from 'lib/walletgen';
 import { urbitWalletFromTicket, walletFromMnemonic } from 'lib/wallet';
 import { DEFAULT_HD_PATH, POINT_PROXIES } from 'lib/constants';
-import useBreakpoints from 'lib/useBreakpoints.tsx';
+import useBreakpoints from 'lib/useBreakpoints';
 import { Ship } from '@urbit/roller-api';
 import { convertToInt } from 'lib/convertToInt';
 import { Box } from '@tlon/indigo-react';
@@ -55,6 +55,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
   // but it will suffice for the 99% case and if someone wants to get around it
   // well by golly they're allowed to turn their phone into landscape mode
   // for this screen
+  // @ts-ignore
   const activationAllowed = useBreakpoints([false, true, true]);
 
   const validateForm = useCallback(
@@ -164,15 +165,16 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
       }
     },
     [
-      api,
-      impliedTicket,
       getTicketAndPoint,
+      impliedTicket,
+      setInviteWallet,
+      setSendWallet,
       loadPoints,
+      api,
       setDerivedPatp,
       setDerivedPoint,
       setDerivedPointDominion,
       setDerivedWallet,
-      setInviteWallet,
       setIsIn,
       setSendWallet,
     ]
@@ -198,7 +200,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
         onSubmit={onSubmit}
         afterSubmit={afterSubmit}
         initialValues={initialValues}>
-        {({ valid, validating, values, submitting, handleSubmit }) => (
+        {({ values, valid, submitting, handleSubmit }: any) => (
           <>
             {!hasInitialValues && (
               <Grid.Item

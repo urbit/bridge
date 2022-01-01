@@ -1,61 +1,44 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
-import cn from 'classnames';
-import { Grid, Flex } from 'indigo-react';
-import { conditionalSR, linearSR } from 'azimuth-js';
-
 import * as need from 'lib/need';
-import useEthereumTransaction from 'lib/useEthereumTransaction';
-import { getLockupKind } from 'lib/starRelease';
-import { eqAddr, isZeroAddress } from 'lib/utils/address';
-
-import { useNetwork } from 'store/network';
-import { useWallet } from 'store/wallet';
-import { useHistory } from 'store/history';
-import { useStarReleaseCache } from 'store/starRelease';
-
-import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import CopiableAddress from 'components/copiable/CopiableAddress';
+import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import NoticeBox from 'components/NoticeBox';
-
-import { AddressInput } from 'form/Inputs';
 import BridgeForm from 'form/BridgeForm';
 import FormError from 'form/FormError';
+import { AddressInput } from 'form/Inputs';
 import { composeValidator } from 'form/validators';
+import { Grid, Flex } from 'indigo-react';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useHistory } from 'store/history';
+import { useNetwork } from 'store/network';
+import { useStarReleaseCache } from 'store/starRelease';
+import { useWallet } from 'store/wallet';
+import { eqAddr, isZeroAddress } from 'lib/utils/address';
+import { useTransferLockup } from './useTransferLockup';
 import { isValidAddress } from 'ethereumjs-util';
+import { getLockupKind } from 'lib/starRelease';
 
-function useTransferLockup(kind) {
-  const { contracts } = useNetwork();
-
-  return useEthereumTransaction(
-    useCallback(
-      to => {
-        const _contracts = need.contracts(contracts);
-        if (kind === 'conditional') {
-          return conditionalSR.approveCommitmentTransfer(_contracts, to);
-        } else {
-          return linearSR.approveBatchTransfer(_contracts, to);
-        }
-      },
-      [kind, contracts]
-    ),
-    () => {}
-  );
+interface TransferFormProps {
+  afterSubmit: VoidFunction;
 }
 
-export default function Transfer({ className, goActive }) {
-  const { wallet } = useWallet();
-  const { contracts } = useNetwork();
-  const { pop } = useHistory();
+export const TransferForm = ({ afterSubmit }: TransferFormProps) => {
+  const { wallet }: any = useWallet();
+  const { contracts }: any = useNetwork();
+  const { pop }: any = useHistory();
   const address = need.addressFromWallet(wallet);
 
-  const { syncStarReleaseDetails, starReleaseDetails } = useStarReleaseCache();
+  const {
+    syncStarReleaseDetails,
+    starReleaseDetails,
+  }: any = useStarReleaseCache();
 
   useEffect(() => {
     syncStarReleaseDetails();
   }, [syncStarReleaseDetails]);
 
   const kind = useMemo(() => {
-    return starReleaseDetails.map(a => a.kind).getOrElse('') === 'conditional'
+    return starReleaseDetails.map((a: any) => a.kind).getOrElse('') ===
+      'conditional'
       ? 'conditional'
       : 'linear';
   }, [starReleaseDetails]);
@@ -63,9 +46,13 @@ export default function Transfer({ className, goActive }) {
   const approvedFor = useMemo(() => {
     let approved;
     if (kind === 'conditional') {
-      approved = starReleaseDetails.map(a => a.conditional.approvedTransferTo);
+      approved = starReleaseDetails.map(
+        (a: any) => a.conditional.approvedTransferTo
+      );
     } else {
-      approved = starReleaseDetails.map(a => a.linear.approvedTransferTo);
+      approved = starReleaseDetails.map(
+        (a: any) => a.linear.approvedTransferTo
+      );
     }
     approved = approved.getOrElse('0x0');
     if (isZeroAddress(approved) || eqAddr(approved, address)) {
@@ -97,7 +84,7 @@ export default function Transfer({ className, goActive }) {
   const validate = useMemo(
     () =>
       composeValidator({
-        to: async to => {
+        to: async (to: string) => {
           if (!isValidAddress(to)) {
             return 'This is not a valid Ethereum address.';
           }
@@ -111,9 +98,9 @@ export default function Transfer({ className, goActive }) {
   );
 
   return (
-    <Grid gap={completed ? 0 : 6} className={cn('mt4', className)} full>
+    <>
       <BridgeForm onValues={onValues} validate={validate}>
-        {({ values, form }) => (
+        {({ values }: any) => (
           <>
             {!completed && (
               <>
@@ -164,6 +151,6 @@ export default function Transfer({ className, goActive }) {
           </>
         )}
       </BridgeForm>
-    </Grid>
+    </>
   );
-}
+};

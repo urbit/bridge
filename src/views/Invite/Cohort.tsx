@@ -92,6 +92,7 @@ export default function InviteCohort() {
   const [loading, setLoading] = useState(false);
   const [showCsvModal, setShowCsvModal] = useState(false);
   const [csvElement, setCsvElement] = useState<HTMLAnchorElement | null>();
+  // TODO: do we need to read this error? currently unused
   const [error, setError] = useState('');
   const [l1Invite, setL1Invite] = useState<L1Invite | null>(null);
   const [page, setPage] = useState(0);
@@ -402,6 +403,8 @@ export default function InviteCohort() {
                 </Row>
               )}
               {currentL2 ? (
+                // Ignoring for deprecated `indigo-react` component
+                //@ts-ignore
                 <Button
                   as={'button'}
                   className={`generate-codes ${
@@ -466,6 +469,8 @@ export default function InviteCohort() {
             {getContent()}
           </Box>
           {showGenerateButton && (
+            // Ignoring deprecated component
+            //@ts-ignore
             <Button
               className="generate-button ph4"
               center
@@ -488,6 +493,7 @@ export default function InviteCohort() {
         <Button
           onClick={() => setShowInviteForm(true)}
           className="add-more"
+          //@ts-ignore
           accessory={<Icon icon="ChevronEast" />}>
           Add More
         </Button>
@@ -506,6 +512,8 @@ export default function InviteCohort() {
             {loading && <Box>{generatingCodesText}</Box>}
           </Box>
           <Row className="download-buttons">
+            {/*
+            // @ts-ignore */}
             <Button
               center
               className="ph4 close-button"
@@ -513,6 +521,8 @@ export default function InviteCohort() {
               onClick={() => setShowCsvModal(false)}>
               Close
             </Button>
+            {/*
+            // @ts-ignore */}
             <Button
               center
               className="ph4 download-button"

@@ -3,7 +3,17 @@ import { CopyButton as BaseCopyButton } from 'components/Buttons';
 import useCopiable from 'lib/useCopiable';
 import WithTooltip, { TooltipPosition } from '../WithTooltip';
 
-export function CopyButtonWide({ text, children, ...rest }) {
+interface CopyButtonWideProps {
+  text: string;
+  children?: React.ReactNode;
+  rest?: React.HTMLProps<HTMLButtonElement>;
+}
+
+export function CopyButtonWide({
+  text,
+  children,
+  ...rest
+}: CopyButtonWideProps) {
   const [doCopy, didCopy] = useCopiable(text);
   return (
     <WithTooltip

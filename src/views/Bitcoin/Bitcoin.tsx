@@ -6,12 +6,12 @@ import { useWallet } from 'store/wallet';
 
 import * as bitcoin from 'bitcoinjs-lib';
 import { useLocalRouter } from 'lib/LocalRouter';
-import { COMMANDS, useFlowCommand } from 'lib/flowCommand';
+import { COMMANDS, FlowType, useFlowCommand } from 'lib/flowCommand';
 import * as need from 'lib/need';
 import useCopiable from 'lib/useCopiable';
 
 import View from 'components/View';
-import L2BackHeader from 'components/L2/Headers/L2BackHeader'; 
+import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
@@ -52,10 +52,12 @@ const BITCOIN_TESTNET_INFO = {
 export default function Bitcoin() {
   const { pop }: any = useLocalRouter();
   const { urbitWallet }: any = useWallet();
-  const flow = useFlowCommand();
+  const flow: FlowType = useFlowCommand();
 
   const [signedTx, setSignedTx] = useState('');
-  const [psbt, setPsbt] = useState({});
+  const [psbt, setPsbt] = useState<ReturnType<
+    typeof bitcoin.Psbt.fromBase64
+  > | null>(null);
 
   // set to false for BTC testnet
   const isMainnet = true;
@@ -77,13 +79,14 @@ export default function Bitcoin() {
 
   const [doCopy, didCopy] = useCopiable(xpub);
 
-  const onSubmit = values => {
+  const onSubmit = (values: { unsignedTransaction: string }) => {
     const newPsbt = bitcoin.Psbt.fromBase64(values.unsignedTransaction);
-
-    const isTestnet = newPsbt.data.inputs[0].bip32Derivation[0].path.startsWith(
-      "m/84'/1'/0'/"
-    );
-
+    const derivations = newPsbt.data.inputs[0]?.bip32Derivation;
+    const firstDerivation =
+      derivations && derivations.length > 0 ? derivations[0] : null;
+    const firstDerivationPath = firstDerivation ? firstDerivation.path : null;
+    const isTestnet =
+      firstDerivationPath && firstDerivationPath.startsWith("m/84'/1'/0'/");
     const derivationPrefix = isTestnet ? "m/84'/1'/0'/" : "m/84'/0'/0'/";
 
     const btcWallet = isTestnet
@@ -91,13 +94,17 @@ export default function Bitcoin() {
       : bitcoin.bip32.fromBase58(zprv, BITCOIN_MAINNET_INFO);
 
     try {
+      if (!firstDerivationPath) {
+        throw new Error('No derivation path available');
+      }
       const hex = newPsbt.data.inputs
         .reduce((psbt, input, idx) => {
           //  removing already derived part, eg m/84'/0'/0'/0/0 becomes 0/0
-          const path = input.bip32Derivation[0].path
-            .split(derivationPrefix)
-            .join('');
+          const path = firstDerivationPath.split(derivationPrefix).join('');
           const prv = btcWallet.derivePath(path).privateKey;
+          if (!prv) {
+            throw new Error('Private key unavailable');
+          }
           return psbt.signInput(idx, bitcoin.ECPair.fromPrivateKey(prv));
         }, newPsbt)
         .finalizeAllInputs()
@@ -112,9 +119,11 @@ export default function Bitcoin() {
     }
   };
 
-  const initialValues = {};
+  let initialValues = {
+    unsignedTransaction: '',
+  };
   if (flow && COMMANDS.BITCOIN === flow.kind) {
-    initialValues.unsignedTransaction = flow.utx;
+    initialValues.unsignedTransaction = flow.utx as string;
   }
 
   return (
@@ -146,7 +155,7 @@ export default function Bitcoin() {
               validate={validate}
               initialValues={initialValues}
               onSubmit={onSubmit}>
-              {({ handleSubmit }) => (
+              {({ handleSubmit }: any) => (
                 <Grid.Item full className="h-full flex-col justify-between">
                   <Box className="full">
                     <Box className="label full">Unsigned Transaction</Box>
@@ -177,6 +186,7 @@ export default function Bitcoin() {
               </Grid.Item>
             )}
             {signedTx &&
+              psbt &&
               psbt.txOutputs.map(e => (
                 <Grid.Item full className="mt4" key={e.address}>
                   <span>{e.address}</span>

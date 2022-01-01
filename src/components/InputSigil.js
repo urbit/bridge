@@ -20,7 +20,6 @@ const selectColorway = (valid, error, active) => {
 };
 
 export default function InputSigil({
-  className,
   patp,
   size,
   valid,

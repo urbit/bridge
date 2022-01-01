@@ -5,20 +5,27 @@ import { useForm } from 'react-final-form';
 import { useWallet } from 'store/wallet';
 
 interface AddressButtonProps {
+  inputName: string;
   children?: React.ReactNode;
   rest?: ButtonProps;
 }
 
-export const AddressButton = ({ children, ...rest }: AddressButtonProps) => {
-  const { change } = useForm();
+export const AddressButton = ({
+  inputName,
+  children,
+  ...rest
+}: AddressButtonProps) => {
+  const { change, focus } = useForm();
   const { wallet }: any = useWallet();
   const address = need.addressFromWallet(wallet);
 
   const onClick = useCallback(
-    (_event: React.MouseEvent<HTMLSpanElement>) => {
-      change('owner', address);
+    (event: React.MouseEvent<HTMLSpanElement>) => {
+      event.stopPropagation();
+      change(inputName, address);
+      focus(inputName);
     },
-    [address, change]
+    [address, change, focus, inputName]
   );
 
   return (

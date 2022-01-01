@@ -3,7 +3,12 @@ import cn from 'classnames';
 import { Flex, Text } from 'indigo-react';
 import { Icon } from '@tlon/indigo-react';
 
-export default function AlertBox({ className, children }) {
+interface AlertBoxProps {
+  className?: string;
+  children?: string;
+}
+
+export default function AlertBox({ className, children }: AlertBoxProps) {
   return (
     <Flex className={cn('bg-red5 pv3 ph4', className)} align="center">
       <span className="circular-icon-bg bg-red6">
