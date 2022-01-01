@@ -72,6 +72,7 @@ export const validatePatq = (v: string) => {
 };
 
 export const validateActivationTicket = (v: string) => {
+  console.log('HERE', v.length)
   try {
     if (v.length < 42) {
       throw new Error();
