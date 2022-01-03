@@ -110,7 +110,7 @@ const MasterKeyTransfer = () => {
   }, [error]);
 
   return (
-    <View inset>
+    <View inset hideBack>
       <ActivateView hideBack header={header} footer={footer}>
         <Box
           alignItems={'center'}

@@ -119,7 +119,7 @@ const MasterKeyDownload = () => {
   }, [delayedFadeIn, fadeIn, setIsIn, skipAnimationDelay]);
 
   return (
-    <View inset>
+    <View inset hideBack>
       <ActivateView
         hideBack
         header={triggerAnimation && header}

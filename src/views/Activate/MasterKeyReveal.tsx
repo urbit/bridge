@@ -74,7 +74,7 @@ const MasterKeyReveal = () => {
   }, [delayedFadeIn, setIsIn]);
 
   return (
-    <View inset>
+    <View inset hideBack>
       <ActivateView
         hideBack
         header={triggerAnimation && header}

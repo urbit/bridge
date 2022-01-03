@@ -91,7 +91,7 @@ const MasterKeyConfirm = () => {
   useFadeIn();
 
   return (
-    <View inset id={'master-key-confirm'}>
+    <View inset id={'master-key-confirm'} hideBack>
       <ActivateView
         onBack={goBack}
         header={header}
