@@ -36,7 +36,7 @@ export default function ActivateCode() {
   );
 
   return (
-    <View inset>
+    <View inset hideBack>
       <ActivateView
         hideBack={hasInitialValues}
         header={<ActivateHeader content={'Planet Code'} />}

@@ -71,20 +71,5 @@ export default function ActivateView({
         </Window>
       </Grid.Item>
     </Grid>
-    // <Box
-    //   display="grid"
-    //   gridTemplateColumns="1fr"
-    //   gridTemplateRows={gridRows || '20% 60% 20%'}
-    //   gridTemplateAreas={gridAreas || "'header' 'content' 'footer'"}
-    //   border={'1px solid rgb(204, 204, 204)'}
-    //   borderRadius={'8px'}
-    //   padding={'10px'}
-    //   width={'512px'}
-    //   height={'512px'}
-    //   maxWidth={'calc(100vw - 48px)'}
-    //   className={cn(className)}
-    //   mb={3}>
-      
-    // </Box>
   );
 }
