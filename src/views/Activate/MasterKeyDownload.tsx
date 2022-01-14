@@ -23,7 +23,7 @@ import View from 'components/View';
 const MasterKeyDownload = () => {
   const {
     derivedPoint,
-    derivedWallet,
+    inviteMasterTicketWallet,
     inviteWallet,
     isIn,
     setGenerated,
@@ -31,7 +31,7 @@ const MasterKeyDownload = () => {
   }: any = useActivateFlow();
   const { data, push, names }: any = useLocalRouter();
   const point = need.point(derivedPoint);
-  const wallet = need.wallet(derivedWallet);
+  const wallet = need.wallet(inviteMasterTicketWallet);
   const ticket = wallet.ticket.replace('~', '');
 
   const [paper, setPaper] = useState(Nothing());
@@ -49,6 +49,7 @@ const MasterKeyDownload = () => {
   const { keyfile, filename } = useMultikeyFileGenerator({
     point,
     seedWallet: inviteWallet,
+    inviteMasterTicketWallet,
   });
 
   // sync paper value to activation state

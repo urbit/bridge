@@ -44,7 +44,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
     setDerivedPatp,
     setDerivedPoint,
     setDerivedPointDominion,
-    setDerivedWallet,
+    setInviteMasterTicketWallet,
     setInviteWallet,
     setIsIn,
     setSendWallet,
@@ -153,7 +153,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
         setDerivedPatp(Just(ob.patp(point)));
         setDerivedPoint(Just(point));
         setDerivedPointDominion(Just(rollerPoint.dominion));
-        setDerivedWallet(Just(await generateWallet(point, ticket, true)));
+        setInviteMasterTicketWallet(Just(await generateWallet(point, ticket, true)));
         setIsIn(false);
         await timeout(100);
       } else {
@@ -174,7 +174,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
       setDerivedPatp,
       setDerivedPoint,
       setDerivedPointDominion,
-      setDerivedWallet,
+      setInviteMasterTicketWallet,
       setIsIn,
       setSendWallet,
     ]

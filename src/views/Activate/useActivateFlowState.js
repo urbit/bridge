@@ -12,11 +12,11 @@ export default function useActivateFlowState() {
   // A new wallet generated after confirming that the invite ticket is valid
   // and the point is available for activation.
   // At the end of the Activate flow, the point will be transferred
-  // from the invite wallet to the derived wallet. When the user confirms
+  // from the invite wallet to this wallet. When the user confirms
   // the Master Key (ticket) and downloads the passport / mnemonic,
-  // it is for the derived wallet
+  // it is for this wallet
   // type UrbitWallet
-  const [derivedWallet, setDerivedWallet] = useState(Nothing());
+  const [inviteMasterTicketWallet, setInviteMasterTicketWallet] = useState(Nothing());
   // The wallet generated deterministically during the invite flow;
   // it is re-generated when the user starts the Activate flow. It is used
   // to derive and confirm a shareable ticket that a user can activate a point with.
@@ -32,7 +32,7 @@ export default function useActivateFlowState() {
     setDerivedPatp(Nothing());
     setDerivedPoint(Nothing());
     setDerivedPointDominion(Nothing());
-    setDerivedWallet(Nothing());
+    setInviteMasterTicketWallet(Nothing());
     setGenerated(false);
     setIncomingPoints(Nothing());
     setInviteWallet(Nothing());
@@ -41,7 +41,7 @@ export default function useActivateFlowState() {
     setDerivedPatp,
     setDerivedPoint,
     setDerivedPointDominion,
-    setDerivedWallet,
+    setInviteMasterTicketWallet,
     setGenerated,
     setIncomingPoints,
     setInviteWallet,
@@ -52,7 +52,7 @@ export default function useActivateFlowState() {
     derivedPatp,
     derivedPoint,
     derivedPointDominion,
-    derivedWallet,
+    inviteMasterTicketWallet,
     generated,
     incomingPoints,
     inviteWallet,
@@ -62,7 +62,7 @@ export default function useActivateFlowState() {
     setDerivedPatp,
     setDerivedPoint,
     setDerivedPointDominion,
-    setDerivedWallet,
+    setInviteMasterTicketWallet,
     setGenerated,
     setIncomingPoints,
     setInviteWallet,

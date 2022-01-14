@@ -25,8 +25,8 @@ import View from 'components/View';
 import './MasterKeyConfirm.scss';
 
 const MasterKeyConfirm = () => {
-  const { derivedWallet, setIsIn }: any = useActivateFlow();
-  const { ticket } = need.wallet(derivedWallet);
+  const { inviteMasterTicketWallet, setIsIn }: any = useActivateFlow();
+  const { ticket } = need.wallet(inviteMasterTicketWallet);
   const { push, names }: any = useLocalRouter();
   const STUB_VERIFY_TICKET = isDevelopment;
   const ticketSegments = useMemo(() => ticketToSegments(ticket), [ticket]);
