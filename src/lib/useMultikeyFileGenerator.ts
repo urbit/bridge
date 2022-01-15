@@ -24,6 +24,7 @@ interface useMultikeyFileGeneratorArgs {
   seed?: string;
   point?: number;
   seedWallet?: any;
+  inviteMasterTicketWallet?: any;
 }
 
 /**
@@ -35,6 +36,7 @@ export default function useMultikeyFileGenerator({
   seed,
   point,
   seedWallet,
+  inviteMasterTicketWallet,
 }: useMultikeyFileGeneratorArgs) {
   const { urbitWallet, wallet, authMnemonic, authToken }: any = useWallet();
   const { pointCursor }: any = usePointCursor();
@@ -71,15 +73,22 @@ export default function useMultikeyFileGenerator({
   const nextRevision = useMemo(() => currentRevision + 1, [currentRevision]);
 
   const pairFromRevision = useCallback(
-    async (revision: number) => {
+    async (revision: number, useInviteMasterTicketWallet = false) => {
       if (!_details) {
         return;
       }
 
+      // During the activation flow, we pass in the
+      // inviteMasterTicketWallet to derive the multikey
+      const derivationWallet =
+        useInviteMasterTicketWallet && inviteMasterTicketWallet
+          ? inviteMasterTicketWallet
+          : seedWallet || urbitWallet;
+
       const networkSeed = seed
         ? Just(seed)
         : await attemptNetworkSeedDerivation({
-            urbitWallet: seedWallet || urbitWallet,
+            urbitWallet: derivationWallet,
             wallet,
             authMnemonic,
             details: _details,
@@ -103,13 +112,14 @@ export default function useMultikeyFileGenerator({
     },
     [
       _details,
-      _point,
+      inviteMasterTicketWallet,
+      seedWallet,
+      urbitWallet,
+      seed,
+      wallet,
       authMnemonic,
       authToken,
-      seed,
-      urbitWallet,
-      wallet,
-      seedWallet,
+      _point,
     ]
   );
 
@@ -136,7 +146,8 @@ export default function useMultikeyFileGenerator({
       return;
     }
 
-    const nextPair = await pairFromRevision(nextRevision);
+    // During the activation flow, we want to use the invite wallet for the next pair
+    const nextPair = await pairFromRevision(nextRevision, true);
 
     setNotice('');
     setCode(generateCode(currentPair));

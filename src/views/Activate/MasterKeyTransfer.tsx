@@ -19,7 +19,7 @@ const MasterKeyTransfer = () => {
   const {
     derivedPatp,
     derivedPoint,
-    derivedWallet,
+    inviteMasterTicketWallet,
     sendWallet,
   }: any = useActivateFlow();
   const [error, setError] = useState<any>();
@@ -30,16 +30,16 @@ const MasterKeyTransfer = () => {
     try {
       await performL2Reticket({
         point: derivedPoint.value,
-        to: derivedWallet.value.ownership.keys.address,
-        manager: derivedWallet.value.management.keys.address,
-        toWallet: derivedWallet.value,
+        to: inviteMasterTicketWallet.value.ownership.keys.address,
+        manager: inviteMasterTicketWallet.value.management.keys.address,
+        toWallet: inviteMasterTicketWallet.value,
         fromWallet: sendWallet.value,
       });
     } catch (e) {
       console.error(e);
       setError(e);
     }
-  }, [derivedWallet, performL2Reticket, derivedPoint.value, sendWallet.value]);
+  }, [inviteMasterTicketWallet, performL2Reticket, derivedPoint.value, sendWallet.value]);
 
   useFadeIn();
 
