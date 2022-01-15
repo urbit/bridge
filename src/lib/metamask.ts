@@ -27,7 +27,7 @@ const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
     data: data.toString(),
     gasLimit,
     gasPrice,
-    nonce: Number(nonce),
+    nonce: Number(nonce).toString(),
     to: to.toString(),
     from: toHex(from),
   };
@@ -48,6 +48,12 @@ const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
     //      signed tx, it makes us wait for confirmation outside of our own
     //      waitForTransactionConfirm. because of this the progress bar loses
     //      its progressiveness for metamask users.
+
+    // Per the web3 lib's Typescript declarations, sendTransaction
+    // expects a Transaction nonce of type number to be passed in.
+    // However, at runtime, Metamask throws an error indicating that 
+    // nonce should be a string.
+    //@ts-ignore
     let receipt = await web3.eth.sendTransaction(metamaskFormattedTxn);
     txHash = receipt.transactionHash;
   }
