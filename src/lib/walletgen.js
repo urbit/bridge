@@ -67,13 +67,13 @@ export const makeDeterministicTicket = (point, seed) => {
 };
 
 // return a wallet object
-export const generateWallet = async (point, ticket, boot) => {
+export const generateWallet = async (point, ticket, boot, revision = 0) => {
   const config = {
     ticket: ticket,
     seedSize: SEED_LENGTH_BYTES,
     ship: point,
     password: '',
-    revisions: {},
+    revision,
     boot: boot,
   };
 

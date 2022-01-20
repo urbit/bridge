@@ -4,7 +4,11 @@ import { WARNING } from 'form/helpers';
 import { FORM_ERROR } from 'final-form';
 import { Just } from 'folktale/maybe';
 import BridgeForm from 'form/BridgeForm';
-import { PLACEHOLDER_PLANET, PLACEHOLDER_TICKET, TicketInput } from 'form/Inputs';
+import {
+  PLACEHOLDER_PLANET,
+  PLACEHOLDER_TICKET,
+  TicketInput,
+} from 'form/Inputs';
 import {
   composeValidator,
   buildPatqValidator,
@@ -18,7 +22,7 @@ import { useActivateFlow } from './ActivateFlow';
 import WarningBox from 'components/WarningBox';
 import useRoller from 'lib/useRoller';
 import useImpliedTicket from 'lib/useImpliedTicket';
-import { generateWallet } from 'lib/walletgen';
+import { generateWallet, makeTicket } from 'lib/walletgen';
 import { urbitWalletFromTicket, walletFromMnemonic } from 'lib/wallet';
 import { DEFAULT_HD_PATH, POINT_PROXIES } from 'lib/constants';
 import useBreakpoints from 'lib/useBreakpoints';
@@ -153,7 +157,11 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
         setDerivedPatp(Just(ob.patp(point)));
         setDerivedPoint(Just(point));
         setDerivedPointDominion(Just(rollerPoint.dominion));
-        setInviteMasterTicketWallet(Just(await generateWallet(point, ticket, true)));
+
+        const newMasterTicket = await makeTicket(point);
+        setInviteMasterTicketWallet(
+          Just(await generateWallet(point, newMasterTicket, true))
+        );
         setIsIn(false);
         await timeout(100);
       } else {
@@ -176,7 +184,6 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
       setDerivedPointDominion,
       setInviteMasterTicketWallet,
       setIsIn,
-      setSendWallet,
     ]
   );
 
