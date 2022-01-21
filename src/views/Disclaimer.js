@@ -41,13 +41,12 @@ export default function ActivateDisclaimer() {
         </Grid.Item>
         <Grid.Item full>
           <Text className={cn(TEXT_STYLE, 'block mb4')}>
-            Welcome to Bridge. Please read this information. Your assets could
-            be stolen if you do not pay attention to these warnings.
+            Welcome to Bridge. Please read this information. Your Urbit ID is considered a digital asset. You must secure it.  If you do not pay attention to these warnings, your digital assets could be stolen or compromised.
           </Text>
 
           <Text className={cn(TEXT_STYLE, 'block mb4')}>
             <B>You own and control your assets. We do not.</B> If you send your
-            assets to another address, we can’t get them back for you.
+            assets to another address, we canot get them back for you.
           </Text>
 
           <B className={TEXT_STYLE}>Please understand that nobody can:</B>
@@ -59,17 +58,17 @@ export default function ActivateDisclaimer() {
           </Text>
 
           <B className={TEXT_STYLE}>
-            You’re responsible for keeping your information safe. This includes:
+            You are responsible for keeping your information safe. This includes:
           </B>
           <Text className={cn(TEXT_STYLE, 'block mb4')}>
             1. Private Keys/Mnemonic Phrases and passwords <br />
             2. JSON files <br />
             3. Hardware wallet PINs; <br />
             4. Downloading this software from a reliable site, and ensuring it
-            has not been tampered with.
+            has not been tampered with
           </Text>
 
-          <B className={TEXT_STYLE}>To be clear</B>
+          <B className={TEXT_STYLE}>To be clear:</B>
           <Text className={cn(TEXT_STYLE, 'block')}>
             This software is provided “as is” without warranties of any kind and
             our liability to you in connection with the same is limited;
@@ -79,9 +78,6 @@ export default function ActivateDisclaimer() {
             may experience, including any loss or theft of your keys or any
             problems that may arise in connection with your wallet.
           </Text>
-        </Grid.Item>
-        <Grid.Item full as={WarningBox}>
-          Warning: Nobody but you can restore or reset your Master Ticket
         </Grid.Item>
         <BridgeForm
           validate={validate}

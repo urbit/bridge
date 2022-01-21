@@ -39,7 +39,12 @@ const MasterKeyTransfer = () => {
       console.error(e);
       setError(e);
     }
-  }, [inviteMasterTicketWallet, performL2Reticket, derivedPoint.value, sendWallet.value]);
+  }, [
+    inviteMasterTicketWallet,
+    performL2Reticket,
+    derivedPoint.value,
+    sendWallet.value,
+  ]);
 
   useFadeIn();
 
@@ -59,7 +64,7 @@ const MasterKeyTransfer = () => {
               fontWeight={'600'}
               fontSize={'16px'}
               lineHeight={'24px'}>
-              Congratulations
+              Congratulations,
             </Text>
             <Text
               fontFamily="Source Code Pro"
@@ -74,7 +79,7 @@ const MasterKeyTransfer = () => {
               fontWeight={'600'}
               fontSize={'16px'}
               lineHeight={'24px'}>
-              is now yours
+              is now yours.
             </Text>
           </>
         }
@@ -105,6 +110,13 @@ const MasterKeyTransfer = () => {
           rel={'nofollow noopener'}>
           or setup via command line
         </Anchor>
+        <p
+          className="mb2 sans gray5"
+          style={{ fontSize: 14, textAlign: 'center' }}>
+          You need your bootkey to boot your Urbit ID. You can find your bootkey
+          inside the Passport you downloaded. A computer running on the Urbit
+          network is called a ship.
+        </p>
       </Box>
     );
   }, [error]);

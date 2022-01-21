@@ -39,12 +39,45 @@ export default function ActivateCode() {
     <View inset hideBack>
       <ActivateView
         hideBack={hasInitialValues}
-        header={<ActivateHeader content={'Planet Code'} />}
+        header={
+          <ActivateHeader
+            content={
+              hasInitialValues
+                ? 'Welcome. This is your Urbit ID.'
+                : 'Activate a Planet'
+            }
+          />
+        }
         footer={<ActivateCodeForm afterSubmit={goToMasterKey} />}>
         <Box className="flex-col align-center justify-center w-full h-full">
-          {!hasInitialValues && (
+          {hasInitialValues ? (
+            <Box>
+              <p
+                className="mb2 sans gray5"
+                style={{
+                  fontSize: 14,
+                  textAlign: 'center',
+                  maxWidth: '38ch',
+                  marginLeft: 'auto',
+                }}>
+                An Urbit ID is your unique identity that you use to communicate
+                on Urbit. You own it forever.
+              </p>
+              <p
+                className="mb2 sans gray5"
+                style={{
+                  fontSize: 14,
+                  textAlign: 'center',
+                  maxWidth: '38ch',
+                  marginLeft: 'auto',
+                }}>
+                To activate your Urbit ID, begin by claiming it via the link
+                below.
+              </p>
+            </Box>
+          ) : (
             <Box className="mb2 sans gray5" fontSize={14}>
-              Enter your planet code below
+              Enter your planet activation code below.
             </Box>
           )}
           {impliedPatp ? (

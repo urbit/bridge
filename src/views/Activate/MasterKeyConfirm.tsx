@@ -81,7 +81,7 @@ const MasterKeyConfirm = () => {
         <ActivateHeader content={'Confirm Backup'} />
         <ActivateParagraph
           copy={
-            'Confirm that you have stored your Master Ticket somewhere safe by entering it below'
+            'To confirm that you stored your Master Ticket somewhere safe, enter it below.'
           }
         />
       </Box>
@@ -150,7 +150,7 @@ const MasterKeyConfirm = () => {
                   {showError && (
                     <Box>
                       <Text className="error-message">
-                        The Master Ticket you entered is incorrect
+                        The Master Ticket you entered is incorrect.
                       </Text>
                     </Box>
                   )}
