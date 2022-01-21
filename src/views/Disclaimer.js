@@ -46,7 +46,7 @@ export default function ActivateDisclaimer() {
 
           <Text className={cn(TEXT_STYLE, 'block mb4')}>
             <B>You own and control your assets. We do not.</B> If you send your
-            assets to another address, we canot get them back for you.
+            assets to another address, we cannot get them back for you.
           </Text>
 
           <B className={TEXT_STYLE}>Please understand that nobody can:</B>
