@@ -200,7 +200,7 @@ export default function LoginSelector({
             <div className="mb5">
               If you are you using a{' '}
               <span className="fw-bold">
-                Hardware Wallet, Ethereum Keystore, or Ethereum Private Key
+                Hardware Wallet, Ethereum Keystore, or Ethereum Private Key,
               </span>{' '}
               please use Metamask going forward.
             </div>
