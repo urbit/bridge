@@ -45,8 +45,9 @@ export default function CheckboxInput({
         as="label"
         className={cn(
           { mr3: !inline },
-          'f6 lh-tall us-none pointer flex-row align-center'
+          'lh-tall us-none pointer flex-row align-center'
         )}
+        style={{fontSize: '14px'}}
         htmlFor={name}>
         <Flex
           justify="center"

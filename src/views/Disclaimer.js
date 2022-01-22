@@ -11,7 +11,11 @@ import BridgeForm from 'form/BridgeForm';
 import SubmitButton from 'form/SubmitButton';
 import { composeValidator, buildCheckboxValidator } from 'form/validators';
 
-const TEXT_STYLE = 'f5';
+const textProps = {
+  fontFamily: "Inter",
+  fontSize: '14px',
+  lineHeight: '20px'
+}
 
 export default function ActivateDisclaimer() {
   const { pop, popAndPush, data } = useLocalRouter();
@@ -36,44 +40,46 @@ export default function ActivateDisclaimer() {
   return (
     <View>
       <Grid gap={2} className="mt8 mb10">
-        <Grid.Item as={H3} full>
-          Disclaimer
+        <Grid.Item full>
+          <Text as='h3' style={{...textProps, fontSize: '16px', fontWeight: 'bold'}}>Disclaimer</Text>
         </Grid.Item>
         <Grid.Item full>
-          <Text className={cn(TEXT_STYLE, 'block mb4')}>
+          <Text as='p' style={textProps}>
             Welcome to Bridge. Please read this information. Your Urbit ID is considered a digital asset. You must secure it.  If you do not pay attention to these warnings, your digital assets could be stolen or compromised.
           </Text>
 
-          <Text className={cn(TEXT_STYLE, 'block mb4')}>
-            <B>You own and control your assets. We do not.</B> If you send your
-            assets to another address, we cannot get them back for you.
+          <Text as='p' style={textProps}>
+            <strong>You own and control your assets. We do not.</strong> If you send your assets to another address, we cannot get them back for you.
           </Text>
 
-          <B className={TEXT_STYLE}>Please understand that nobody can:</B>
-          <Text className={cn(TEXT_STYLE, 'block mb4')}>
-            1. Access your assets for you <br />
-            2. Recover, reset, or modify ANY of your information <br />
-            3. Reverse, cancel, or refund transactions <br />
-            4. Hold, back-up, or access your keys
+          <Text as='p' style={textProps}>Please understand that nobody can:</Text>
+
+          <Text as={'ol'} style={{paddingLeft: '1em'}}>
+            <Text as='li' style={textProps}>Access your assets for you;</Text>
+            <Text as='li' style={textProps}>Recover, reset, or modify ANY of your information;</Text>
+            <Text as='li' style={textProps}>Reverse, cancel, or refund transactions;</Text>
+            <Text as='li' style={textProps}>Hold, back-up, or access your keys</Text>
           </Text>
 
-          <B className={TEXT_STYLE}>
+          <Text as='p' style={{...textProps, fontWeight: 'bold'}}>
             You are responsible for keeping your information safe. This includes:
-          </B>
-          <Text className={cn(TEXT_STYLE, 'block mb4')}>
-            1. Private Keys/Mnemonic Phrases and passwords <br />
-            2. JSON files <br />
-            3. Hardware wallet PINs; <br />
-            4. Downloading this software from a reliable site, and ensuring it
-            has not been tampered with
           </Text>
 
-          <B className={TEXT_STYLE}>To be clear:</B>
-          <Text className={cn(TEXT_STYLE, 'block')}>
+          <Text as={'ol'} style={{paddingLeft: '1em'}}>
+            <Text as='li' style={textProps}>Private Keys/Mnemonic Phrases and passwords;</Text>
+            <Text as='li' style={textProps}>JSON files; </Text>
+            <Text as='li' style={textProps}>Hardware wallet PINs; </Text>
+            <Text as='li' style={textProps}>Downloading this software from a reliable site, and ensuring it has not been tampered with</Text>
+          </Text>
+
+          <Text as='p' style={{...textProps, fontWeight: 'bold'}}>To be clear:</Text>
+
+          <Text as='p' style={textProps}>
             This software is provided “as is” without warranties of any kind and
             our liability to you in connection with the same is limited;
           </Text>
-          <Text className={cn(TEXT_STYLE, 'block')}>
+          
+          <Text as='p' style={textProps}>
             We have no liability for any security problems or incidents that you
             may experience, including any loss or theft of your keys or any
             problems that may arise in connection with your wallet.
