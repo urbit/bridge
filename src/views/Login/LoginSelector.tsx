@@ -204,7 +204,7 @@ export default function LoginSelector({
               </span>{' '}
               please use Metamask going forward.
             </div>
-            <div className="mb5">
+            {/* <div className="mb5">
               Refer to{' '}
               <Text
                 as="a"
@@ -214,10 +214,18 @@ export default function LoginSelector({
                 Metamask's guide
               </Text>{' '}
               on how to connect these wallets with Metamask.
-            </div>
-            <div>
+            </div> */}
+            <div className="mb5">
               If you are using a <span className="fw-bold">mobile wallet</span>,
               please use WalletConnect going forward.
+            </div>
+            <div>
+              The{' '}
+              <span style={{ textDecoration: 'underline' }}>
+                previous version of Bridge
+              </span>{' '}
+              will remain active and unmaintained until{' '}
+              <Text mono>~2022.X.XX</Text>.
             </div>
           </Box>
         </Modal>

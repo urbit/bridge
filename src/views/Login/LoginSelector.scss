@@ -16,7 +16,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-  
+
     &:first-of-type {
       margin-top: 48px;
     }
@@ -63,7 +63,7 @@
   .info-modal-content {
     position: relative;
     background-color: white;
-    width: 280px;
+    width: 290px;
     border-radius: $large-border-radius;
     font-family: $default-font;
     padding: 24px;
@@ -81,8 +81,10 @@
     }
   }
 
-  .wc-info, .wc-buttons {
-    .cancel, .check {
+  .wc-info,
+  .wc-buttons {
+    .cancel,
+    .check {
       height: 16px;
       width: 16px;
       padding: 8px;
