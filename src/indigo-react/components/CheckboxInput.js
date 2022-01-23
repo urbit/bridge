@@ -1,7 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
 
-import Flex from './Flex';
 import { useField } from 'react-final-form';
 import { Checkbox } from '@tlon/indigo-react';
 
@@ -24,9 +23,7 @@ export default function CheckboxInput({
   disabled = disabled || submitting || submitSucceeded;
 
   return (
-    <Flex
-      row
-      align="center"
+    <div
       className={cn(className, {
         mv2: !inline,
         black: !disabled,
@@ -39,22 +36,19 @@ export default function CheckboxInput({
         }),
       }}>
       {/* we totally hide the checkbox itself */}
-      <Flex.Item as="input" className="super-hidden" id={name} {...input} />
+      <input checkbox className="super-hidden" id={name} {...input} />
       {/* and then display a prettier one in its stead */}
-      <Flex.Item
-        flex
-        as="label"
-        className={cn(
-          { mr3: !inline },
-          'lh-tall us-none pointer flex-row align-center'
-        )}
-        style={{ fontSize: '14px' }}
+      <label
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          cursor: 'pointer',
+          fontSize: '14px',
+        }}
         htmlFor={name}>
-        <Flex style={{ marginRight: '8px' }}>
-          <Checkbox selected={input.checked} />
-        </Flex>
+        <Checkbox selected={input.checked} style={{ marginRight: '8px' }} />
         {label}
-      </Flex.Item>
-    </Flex>
+      </label>
+    </div>
   );
 }
