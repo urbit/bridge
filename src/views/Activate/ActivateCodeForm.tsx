@@ -229,7 +229,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
             <ActivateButton
               disabled={(!valid && !hasInitialValues) || submitting}
               onClick={handleSubmit}>
-              {submitting ? 'Activating...' : 'Activate'}
+              {submitting ? 'Claiming...' : 'Claim'}
             </ActivateButton>
 
             {!activationAllowed && (

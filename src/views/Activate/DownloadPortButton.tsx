@@ -9,10 +9,10 @@ interface DownloadPortButtonProps {
 export const DownloadPortButton = ({ error }: DownloadPortButtonProps) => {
   const downloadButtonLabel = useMemo(() => {
     return isMacOs
-      ? 'Download the Client for Mac'
+      ? 'To use it, download Port for Mac'
       : isWindows
-      ? 'Download the Client for Windows'
-      : 'Download the Client for Your OS';
+      ? 'To use it, download Port for Windows'
+      : 'To use it, download Port for your OS';
   }, []);
 
   const downloadUrl = useMemo(() => {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Checkbox, Icon, Row } from '@tlon/indigo-react';
+import { Text, Box, Checkbox, Icon, Row } from '@tlon/indigo-react';
 import './AdvancedOptions.scss';
 
 interface AdvancedOptionsProps {
@@ -39,7 +39,9 @@ export default function AdvancedOptions({ options }: AdvancedOptionsProps) {
                     height="16px"
                     width="16px"
                   />
-                  <Box className="text">{option.label}</Box>
+                  <Box className="text">
+                    <Text style={{ fontSize: '14px' }}>{option.label}</Text>
+                  </Box>
                 </Row>
               ))}
             </Box>

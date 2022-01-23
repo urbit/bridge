@@ -78,10 +78,10 @@ const MasterKeyDownload = () => {
   const header = useMemo(() => {
     return (
       <Box>
-        <ActivateHeader content={'Backup your Master Ticket.'} />
+        <ActivateHeader content={'Back up your Master Ticket.'} />
         <ActivateParagraph
           copy={
-            'Download your backup and store it somewhere safe, e.g. your security deposit box or password manager.'
+            'Download and store your backup somewhere safe, like a security deposit box or password manager.'
           }
         />
       </Box>
@@ -135,7 +135,7 @@ const MasterKeyDownload = () => {
           <DangerBox
             overrideFadeIn={triggerAnimation && isIn}
             className={`mv8 ${!isIn ? 'hidden' : ''}`}>
-            Do not share this with anyone else!
+            Never share your Master Ticket with anyone.
           </DangerBox>
           {ticket && (
             <MasterKeyPresenter ticket={ticket} overrideFadeIn={true} />

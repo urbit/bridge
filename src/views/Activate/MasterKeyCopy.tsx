@@ -26,10 +26,9 @@ const MasterKeyCopy = ({ text, className }: MasterKeyCopyProps) => {
         <Icon
           color={color}
           icon={icon as 'Checkmark' | 'Copy'}
-          size="18px"
-          mx="2px"
+          size="16px"
         />
-        <Text color={color} fontSize={'18px'} mx="2px" fontFamily={'Inter'}>
+        <Text color={color} fontSize={'14px'} ml="4px" fontFamily={'Inter'}>
           {label}
         </Text>
       </Box>

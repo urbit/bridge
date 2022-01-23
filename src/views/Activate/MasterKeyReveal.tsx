@@ -34,10 +34,10 @@ const MasterKeyReveal = () => {
   const header = useMemo(() => {
     return (
       <Box>
-        <ActivateHeader content={'Here is your Master Ticket.'} />
+        <ActivateHeader content={'This is your Master Ticket.'} />
         <ActivateParagraph
           copy={
-            "Your Master Ticket is your 4-word password for your Urbit. Make sure you're in a private place before you reveal it."
+            "Your Master Ticket is your 4-word password for your Urbit ID. If your Master Ticket is compromised, your Urbit ID is compromised. Before you reveal it, make sure you're somewhere private."
           }
         />
       </Box>

@@ -1,8 +1,8 @@
 import React from 'react';
 import cn from 'classnames';
 
-import Flex from './Flex';
 import { useField } from 'react-final-form';
+import { Checkbox } from '@tlon/indigo-react';
 
 export default function CheckboxInput({
   // visuals
@@ -23,9 +23,7 @@ export default function CheckboxInput({
   disabled = disabled || submitting || submitSucceeded;
 
   return (
-    <Flex
-      row
-      align="center"
+    <div
       className={cn(className, {
         mv2: !inline,
         black: !disabled,
@@ -38,35 +36,19 @@ export default function CheckboxInput({
         }),
       }}>
       {/* we totally hide the checkbox itself */}
-      <Flex.Item as="input" className="super-hidden" id={name} {...input} />
+      <input checkbox className="super-hidden" id={name} {...input} />
       {/* and then display a prettier one in its stead */}
-      <Flex.Item
-        flex
-        as="label"
-        className={cn(
-          { mr3: !inline },
-          'f6 lh-tall us-none pointer flex-row align-center'
-        )}
+      <label
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          cursor: 'pointer',
+          fontSize: '14px',
+        }}
         htmlFor={name}>
-        <Flex
-          justify="center"
-          align="center"
-          className={cn('b1 p1', {
-            mr3: !inline,
-            mr1: inline,
-            'bg-gray1': disabled,
-            'bg-black white b-black': !disabled && (input.checked || white),
-            'bg-white black b-black': !disabled && !input.checked,
-          })}
-          style={{
-            height: '14px',
-            width: '14px',
-            ...style,
-          }}>
-          {input.checked && '✓'}
-        </Flex>
+        <Checkbox selected={input.checked} style={{ marginRight: '8px' }} />
         {label}
-      </Flex.Item>
-    </Flex>
+      </label>
+    </div>
   );
 }
