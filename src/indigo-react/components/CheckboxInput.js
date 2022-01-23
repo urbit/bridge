@@ -3,6 +3,7 @@ import cn from 'classnames';
 
 import Flex from './Flex';
 import { useField } from 'react-final-form';
+import { Checkbox } from '@tlon/indigo-react';
 
 export default function CheckboxInput({
   // visuals
@@ -47,24 +48,10 @@ export default function CheckboxInput({
           { mr3: !inline },
           'lh-tall us-none pointer flex-row align-center'
         )}
-        style={{fontSize: '14px'}}
+        style={{ fontSize: '14px' }}
         htmlFor={name}>
-        <Flex
-          justify="center"
-          align="center"
-          className={cn('b1 p1', {
-            mr3: !inline,
-            mr1: inline,
-            'bg-gray1': disabled,
-            'bg-black white b-black': !disabled && (input.checked || white),
-            'bg-white black b-black': !disabled && !input.checked,
-          })}
-          style={{
-            height: '14px',
-            width: '14px',
-            ...style,
-          }}>
-          {input.checked && '✓'}
+        <Flex style={{ marginRight: '8px' }}>
+          <Checkbox selected={input.checked} />
         </Flex>
         {label}
       </Flex.Item>

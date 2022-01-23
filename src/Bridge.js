@@ -16,6 +16,9 @@ import useImpliedTicket from 'lib/useImpliedTicket';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
 
 import 'style/index.scss';
+import { ThemeProvider } from 'styled-components';
+import light from '@tlon/indigo-light';
+
 import WithErrorBoundary from 'components/WithErrorBoundary';
 import GlobalErrorBoundary from 'components/GlobalErrorBoundary';
 import Modal from 'components/L2/Modal';
@@ -94,7 +97,9 @@ function Bridge() {
         initialMnemonic={INITIAL_MNEMONIC}
         initialPointCursor={INITIAL_POINT_CURSOR}>
         <IndigoApp>
-          <Router />
+          <ThemeProvider theme={light}>
+            <Router />
+          </ThemeProvider>
         </IndigoApp>
         <Modal show={modalText !== undefined} hide={() => setModalText()}>
           <Box width="280px">{modalText}</Box>
