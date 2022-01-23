@@ -271,8 +271,8 @@ export default function InviteCohort() {
       return (
         <>
           <Box>
-            Be careful who you share these with. Each planet code can only be
-            claimed once.
+            Be careful who you share these with. Each invite code can only be
+            claimed once. Each invite code contains one planet.
           </Box>
           <Box style={{ marginTop: 8 }}>
             Once a code has been claimed, the code will automatically disappear.
