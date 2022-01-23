@@ -192,7 +192,7 @@ export default function LoginSelector({
         </Grid.Item>
         <Modal show={showModal} hide={() => setShowModal(false)}>
           <Box className="info-modal-content">
-            <div className="fw-bold">Other Wallet Types</div>
+            <div className="fw-bold mb5">Other Wallet Types</div>
             <div className="mb5">
               All other wallet types are now supported via Metamask or
               WalletConnect.
@@ -203,6 +203,17 @@ export default function LoginSelector({
                 Hardware Wallet, Ethereum Keystore, or Ethereum Private Key,
               </span>{' '}
               please use Metamask going forward.
+            </div>
+            <div className="mb5">
+              Refer to{' '}
+              <Text
+                as="a"
+                style={{ textDecoration: 'underline' }}
+                href="https://metamask.zendesk.com/hc/en-us/articles/360020394612-How-to-connect-a-Trezor-or-Ledger-Hardware-Wallet"
+                target="_blank">
+                Metamask's guide
+              </Text>{' '}
+              on how to connect these wallets with Metamask.
             </div>
             <div>
               If you are using a <span className="fw-bold">mobile wallet</span>,
