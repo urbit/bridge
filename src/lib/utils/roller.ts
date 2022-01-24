@@ -42,7 +42,7 @@ export const getTimeToNextBatch = (nextBatch: number, now: number) => {
   return `${padZero(hours)}h ${padZero(minutes)}m ${padZero(seconds)}s`;
 };
 
-export const isL2 = (dom?: string) => dom === 'l2';
+export const isL2 = (dom?: string) => dom === 'l2' || dom === 'spawn';
 
 export const isL2Spawn = (dom?: string) => dom === 'l2' || dom === 'spawn';
 
