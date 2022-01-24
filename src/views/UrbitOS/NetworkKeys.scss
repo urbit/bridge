@@ -6,6 +6,12 @@
   .body-pane {
     height: 360px;
 
+    .download {
+      height: 24px;
+      width: 24px;
+      margin: 0 auto 22px;
+    }
+
     .download-message {
       align-items: center;
       width: 350px;
@@ -15,12 +21,6 @@
       letter-spacing: 0em;
       text-align: center;
       margin: 90px auto 40px;
-
-      .download {
-        height: 24px;
-        width: 24px;
-        margin-bottom: 22px;
-      }
     }
 
     .contents {
@@ -29,24 +29,24 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      
+
       .check-row {
         margin-top: 8px;
         font-weight: 500;
-    
+
         .checkbox {
           border-radius: $medium-border-radius;
           height: 16px;
           width: 16px;
           margin-right: 14px;
-    
+
           svg {
             height: 18px;
             width: 18px;
           }
         }
       }
-    
+
       .info-text {
         color: $dark-gray;
         margin: 8px 0px 24px 32px;
