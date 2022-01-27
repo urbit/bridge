@@ -23,14 +23,18 @@ import { useRollerStore } from 'store/rollerStore';
 interface useMultikeyFileGeneratorArgs {
   seed?: string;
   point?: number;
-  seedWallet?: any;
-  inviteMasterTicketWallet?: any;
+  seedWallet?: UrbitWallet;
+  inviteMasterTicketWallet?: UrbitWallet;
 }
 
 /**
  * defaults:
  * - seed: derived from wallet, mnemonic, or token (if posisble)
  * - point: the current pointCursor
+ * - seedWallet: (optional) by default, the generator sources a wallet via useWallet;
+ *   this allows the consumer to override with a different wallet
+ * - inviteMasterTicketWallet: (optional) during the Activation flow,
+ *   this allows a second wallet to be passed in (the user's receiving wallet)
  */
 export default function useMultikeyFileGenerator({
   seed,
@@ -66,8 +70,8 @@ export default function useMultikeyFileGenerator({
     [details, rollerStore.point]
   );
 
-  const currentRevision: number = useMemo(
-    () => convertToInt(_details?.keyRevisionNumber || 0, 10),
+  const currentRevision = useMemo(
+    () => convertToInt(_details ? _details.keyRevisionNumber : 0, 10),
     [_details]
   );
   const nextRevision = useMemo(() => currentRevision + 1, [currentRevision]);
@@ -152,13 +156,23 @@ export default function useMultikeyFileGenerator({
     setNotice('');
     setCode(generateCode(currentPair));
     setKeyfile(
+      //
+      // We need to account for the decrement happening in
+      // lib/keys.js#deriveNetworkSeedFromMnemonic
+      //
+      // Per this Note regarding urbit-key-generation (see: keys.js):
+      //
+      //  NOTE revision is the point's on-chain revision number. since common uhdw
+      //     usage derives the first key at revision/index 0, we need to decrement
+      //     the on-chain revision number by one to get the number to derive with.
+      //
       compileMultiKey(_point, [
         {
-          revision: currentRevision,
+          revision: currentRevision + 1,
           pair: currentPair,
         },
         {
-          revision: nextRevision,
+          revision: nextRevision + 1,
           pair: nextPair,
         },
       ])
