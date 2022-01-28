@@ -206,7 +206,7 @@ export default function useRoller() {
           ? await api.getRemainingQuota(pointNum)
           : 0;
 
-        const details = isL2(rawDetails?.dominion)
+        const details = isL2Spawn(rawDetails?.dominion)
           ? toL1Details(rawDetails)
           : await azimuth.azimuth.getPoint(_contracts, point);
 
