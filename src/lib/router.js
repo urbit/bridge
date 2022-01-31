@@ -28,6 +28,7 @@ import TransactionHistory from 'views/Transactions/TransactionHistory';
 import { ROUTE_NAMES } from './routeNames';
 import { Ops } from 'views/Ops/Ops';
 import { Requests } from 'views/Ops/Requests';
+import { L1Sponsorship } from 'views/Ops/L1Sponsorship';
 
 export const ROUTES = {
   [ROUTE_NAMES.DISCLAIMER]: Disclaimer,
@@ -52,6 +53,7 @@ export const ROUTES = {
   [ROUTE_NAMES.URBIT_OS]: UrbitOS,
   [ROUTE_NAMES.URBIT_ID]: UrbitID,
   [ROUTE_NAMES.RESIDENTS]: Residents,
+  [ROUTE_NAMES.L1_SPONSORSHIP]: L1Sponsorship,
   [ROUTE_NAMES.REQUESTS]: Requests,
   [ROUTE_NAMES.BITCOIN]: Bitcoin,
   [ROUTE_NAMES.TRANSACTION_HISTORY]: TransactionHistory,

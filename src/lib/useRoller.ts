@@ -1060,6 +1060,7 @@ export default function useRoller() {
     getPoints,
     getPointsDetails,
     getPendingTransactions,
+    initPoint,
     ls,
     performL2Reticket,
     setProxyAddress,

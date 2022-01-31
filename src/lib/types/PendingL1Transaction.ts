@@ -9,6 +9,8 @@ export enum L1TxnType {
   cancelTransfer = 'cancel-transfer',
   spawn = 'spawn',
   setNetworkKeys = 'configure-keys',
+  adopt = 'adopt',
+  reject = 'reject',
 }
 
 export interface PendingL1Txn {

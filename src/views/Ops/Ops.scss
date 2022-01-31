@@ -5,3 +5,13 @@
     }
   }
 }
+
+.ops-l1-request {
+  .loading-container {
+    min-height: 200px;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+  }
+}
