@@ -34,13 +34,13 @@ export const Residents = () => {
   }, [api, point, setLoading]);
 
   const handleKick = useCallback(
-    async (point: Ship) => {
+    async (ship: Ship) => {
       setLoading(true);
-      await changeSponsorship(point, 'detach');
+      await changeSponsorship(ship, 'detach', point.isL1);
       await fetchResidents();
       setLoading(false);
     },
-    [fetchResidents, changeSponsorship, setLoading]
+    [setLoading, changeSponsorship, point.isL1, fetchResidents]
   );
 
   useEffect(() => {

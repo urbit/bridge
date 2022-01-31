@@ -815,8 +815,12 @@ export default function useRoller() {
   );
 
   const changeSponsorship = useCallback(
-    async (sponsee: Ship, type: 'adopt' | 'detach' | 'reject') => {
-      if (quotaReached()) {
+    async (
+      sponsee: Ship,
+      type: 'adopt' | 'detach' | 'reject',
+      skipQuotaCheck = false
+    ) => {
+      if (!skipQuotaCheck && quotaReached()) {
         return;
       }
 

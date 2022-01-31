@@ -35,21 +35,21 @@ export const Requests = () => {
   const handleAcceptClick = useCallback(
     async (ship: Ship) => {
       setLoading(true);
-      await changeSponsorship(ship, 'adopt');
+      await changeSponsorship(ship, 'adopt', point.isL1);
       await fetchRequests();
       setLoading(false);
     },
-    [changeSponsorship, fetchRequests, setLoading]
+    [changeSponsorship, fetchRequests, point.isL1, setLoading]
   );
 
   const handleRejectClick = useCallback(
     async (ship: Ship) => {
       setLoading(true);
-      await changeSponsorship(ship, 'reject');
+      await changeSponsorship(ship, 'reject', point.isL1);
       await fetchRequests();
       setLoading(false);
     },
-    [changeSponsorship, fetchRequests, setLoading]
+    [changeSponsorship, fetchRequests, point.isL1, setLoading]
   );
 
   useEffect(() => {
