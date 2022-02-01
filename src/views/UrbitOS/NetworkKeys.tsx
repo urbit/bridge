@@ -282,18 +282,15 @@ export default function UrbitOSNetworkKeys({
 
   const bootMessage = () => (
     <Text as="p" textAlign={'center'}>
-      With your new network keys, you also have a new bootkey. Download your new
-      bootkey to boot your ship. Be sure to delete your old pier before booting
-      with this new bootkey.
+      Download your new Network Key to boot your ship. Be sure to delete your
+      old pier before booting with this new key.
     </Text>
   );
 
   const resetMessage = () => (
     <>
       <Text as="p" textAlign={'center'}>
-        With your new network keys, you also have a new bootkey.
-        <br />
-        Copy the contents of your new bootkey and run
+        Copy the contents of the Network Key file and run
       </Text>
       <Text
         as="code"
@@ -302,7 +299,7 @@ export default function UrbitOSNetworkKeys({
         padding={2}
         borderRadius={2}
         textAlign={'center'}>
-        |rekey 'bootkey_contents'
+        |rekey 'keyfile_contents'
       </Text>
       <Text as="p" textAlign={'center'}>
         using the dojo on your running ship.
@@ -343,7 +340,7 @@ export default function UrbitOSNetworkKeys({
                 solid
                 center
                 onClick={keyfileBind.download}>
-                Download Bootkey
+                Download Network Key
               </Grid.Item>
             ) : (
               <Grid.Item

@@ -113,9 +113,9 @@ const MasterKeyTransfer = () => {
         <p
           className="mb2 sans gray5"
           style={{ fontSize: 14, textAlign: 'center' }}>
-          You need your bootkey to boot your Urbit ID. You can find your bootkey
-          inside the Passport you downloaded. A computer running on the Urbit
-          network is called a ship.
+          You need your Network Key to boot your Urbit ID. You can find your
+          Network Key file inside the Passport you downloaded. A computer
+          running on the Urbit network is called a ship.
         </p>
       </Box>
     );
