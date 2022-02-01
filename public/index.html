@@ -1,26 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="theme-color" content="#fff">
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="theme-color" content="#fff" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
     <title>Bridge</title>
+    <style type="text/css">
+      .hidden {
+        position: absolute;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        width: 1px;
+        margin: -1px;
+        padding: 0;
+        border: 0;
+      }
+    </style>
   </head>
   <body>
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
     <div id="root"></div>
     <!-- Force load all fonts  -->
-    <div style="position:fixed;left=-9999px;top=-9999px;opacity:0;user-select:none;">
-        <p style="font-family:Inter;font-weight:400">Aa</p>
-        <p style="font-family:Inter;font-weight:500">Aa</p>
-        <p style="font-family:Inter;font-weight:600">Aa</p>
-        <p style="font-family:Source Code Pro;font-weight:400">Aa</p>
-        <p style="font-family:Source Code Pro;font-weight:500">Aa</p>
-        <p style="font-family:Source Code Pro;font-weight:600">Aa</p>
+    <div
+      aria-visibility="hidden"
+      class="hidden"
+      style="font-family:Inter; font-weight:400"
+    >
+      &nbsp;
+    </div>
+    <div
+      aria-visibility="hidden"
+      class="hidden"
+      style="font-family:Inter; font-weight:500"
+    >
+      &nbsp;
+    </div>
+    <div
+      aria-visibility="hidden"
+      class="hidden"
+      style="font-family:Inter; font-weight:600"
+    >
+      &nbsp;
+    </div>
+    <div
+      aria-visibility="hidden"
+      class="hidden"
+      style="font-family:Source Code Pro; font-weight:400"
+    >
+      &nbsp;
+    </div>
+    <div
+      aria-visibility="hidden"
+      class="hidden"
+      style="font-family:Source Code Pro; font-weight:500"
+    >
+      &nbsp;
+    </div>
+    <div
+      aria-visibility="hidden"
+      class="hidden"
+      style="font-family:Source Code Pro; font-weight:600"
+    >
+      &nbsp;
     </div>
   </body>
 </html>
