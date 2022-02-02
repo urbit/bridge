@@ -70,7 +70,10 @@ export const Ops = () => {
           <Row className="between-row management">
             <Box>
               <Box className="section-title">Residents</Box>
-              <Box className="subtitle">Planets that you route packets for</Box>
+              <Box className="subtitle">
+                {isGalaxy(_point) ? 'Stars' : 'Planets'} that you route packets
+                for
+              </Box>
             </Box>
             <Button className="secondary" onClick={goResidents}>
               View
@@ -80,7 +83,8 @@ export const Ops = () => {
             <Box>
               <Box className="section-title">Requests</Box>
               <Box className="subtitle">
-                Planets requesting your sponsorship
+                {isGalaxy(_point) ? 'Stars' : 'Planets'} requesting your
+                sponsorship
               </Box>
             </Box>
             <Button className="secondary" onClick={goRequests}>
