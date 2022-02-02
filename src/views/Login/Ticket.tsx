@@ -205,20 +205,7 @@ export default function Ticket({ className, goHome }: TicketProps) {
                     className={ticketInputClass}
                   />
 
-                  <Condition when="useShards" is={false}>
-                    <Grid.Item
-                      className={ticketInputClass}
-                      full
-                      as={TicketInput}
-                      hidden={values.ticketHidden}
-                      accessory={<TicketInputAccessory name="ticketHidden" />}
-                      name="ticket"
-                      label="Master Ticket"
-                      style={{ height: 40 }}
-                    />
-                  </Condition>
-
-                  {useShards && (
+                  {useShards ? (
                     <>
                       <Grid.Item
                         className={ticketInputClass}
@@ -248,6 +235,17 @@ export default function Ticket({ className, goHome }: TicketProps) {
                         label="Shard 3"
                       />
                     </>
+                  ) : (
+                    <Grid.Item
+                      className={ticketInputClass}
+                      full
+                      as={TicketInput}
+                      hidden={values.ticketHidden}
+                      accessory={<TicketInputAccessory name="ticketHidden" />}
+                      name="ticket"
+                      label="Master Ticket"
+                      style={{ height: 40 }}
+                    />
                   )}
 
                   {usePassphrase && (
