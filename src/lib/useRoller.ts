@@ -426,15 +426,13 @@ export default function useRoller() {
             );
             console.log(
               `invite unclaimed: ${invite.owner.toLowerCase() ===
-                planetInfo.ownership?.owner?.address ||
-                planetInfo.ownership?.transferProxy?.address !== ETH_ZERO_ADDR}`
+                planetInfo.ownership?.owner?.address}`
             );
           }
 
           if (
-            (invite.owner.toLowerCase() ===
-              planetInfo.ownership?.owner?.address ||
-              planetInfo.ownership?.transferProxy?.address !== ETH_ZERO_ADDR) &&
+            invite.owner.toLowerCase() ===
+              planetInfo.ownership?.owner?.address &&
             planetInfo.dominion === POINT_DOMINIONS.L2
           ) {
             newInvites.push(invite);
