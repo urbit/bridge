@@ -311,8 +311,7 @@ export default function UrbitOSNetworkKeys({
     <Text as="p" textAlign={'center'}>
       <strong>Important:</strong> you will need to wait until the next L2 batch
       is submitted to the roller to boot your ship. If you do not wait, then you
-      will run into a key mismatch error and will not be able to communicate
-      with other ships on the network.
+      will not be able to boot your ship.
     </Text>
   );
 
