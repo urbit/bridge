@@ -9,7 +9,7 @@ import { Just } from 'folktale/maybe';
 import { Grid, Button } from 'indigo-react';
 import * as azimuth from 'azimuth-js';
 import { randomHex } from 'web3-utils';
-import { Box, Checkbox, Icon, Row } from '@tlon/indigo-react';
+import { Box, Checkbox, Icon, Row, Text } from '@tlon/indigo-react';
 
 import { usePointCache } from 'store/pointCache';
 import { useNetwork } from 'store/network';
@@ -280,8 +280,40 @@ export default function UrbitOSNetworkKeys({
     ? 'Set Network Keys'
     : 'Initiate Network Keys';
 
-  const usageMessage =
-    'With your new network keys, you also have a new keyfile. Download your new keyfile to boot your OS.';
+  const bootMessage = () => (
+    <Text as="p" textAlign={'center'}>
+      Download your new Network Key to boot your ship. Be sure to delete your
+      old pier before booting with this new key.
+    </Text>
+  );
+
+  const resetMessage = () => (
+    <>
+      <Text as="p" textAlign={'center'}>
+        Copy the contents of the Network Key file and run
+      </Text>
+      <Text
+        as="code"
+        mono
+        bg={'washedGray'}
+        padding={2}
+        borderRadius={2}
+        textAlign={'center'}>
+        |rekey 'keyfile_contents'
+      </Text>
+      <Text as="p" textAlign={'center'}>
+        using the dojo on your running ship.
+      </Text>
+    </>
+  );
+
+  const waitMessage = () => (
+    <Text as="p" textAlign={'center'}>
+      <strong>Important:</strong> you will need to wait until the next L2 batch
+      is submitted to the roller to boot your ship. If you do not wait, then you
+      will not be able to boot your ship.
+    </Text>
+  );
 
   const buttonText = `${hasKeys ? 'Reset' : 'Set'} Network Keys`;
 
@@ -295,9 +327,10 @@ export default function UrbitOSNetworkKeys({
       <BodyPane>
         {isComplete && (
           <Box className="flex-col col justify-between h-full">
-            <Box className="flex-col download-message">
+            <Box className="flex-col h-full justify-center">
               <Icon icon="Download" className="download" />
-              <Box>{usageMessage}</Box>
+              {breach ? bootMessage() : resetMessage()}
+              {breach && point.isL2 ? waitMessage() : null}
             </Box>
             {point.isL2 ? (
               <Grid.Item
@@ -306,7 +339,7 @@ export default function UrbitOSNetworkKeys({
                 solid
                 center
                 onClick={keyfileBind.download}>
-                Download Keyfile
+                Download Network Key
               </Grid.Item>
             ) : (
               <Grid.Item

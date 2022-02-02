@@ -32,16 +32,7 @@ export default function ActivateView({
 
   return (
     <Grid>
-      <Grid.Item
-        full
-        as={Text}
-        className="flex justify-center mt9 mb7 w-max-mobile">
-        <Grid.Item as={Text}>Bridge /&nbsp;</Grid.Item>
-        <Grid.Item className="fw-bold" as={Text}>
-          Activate
-        </Grid.Item>
-      </Grid.Item>
-      <Grid.Item>
+      <Grid.Item className="mt10">
         {!hideBack && (
           <HeaderButton
             className="mb4"
