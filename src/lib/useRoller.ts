@@ -30,9 +30,13 @@ import {
   getTimeToNextBatch,
   registerProxyAddress,
   isL2Spawn,
-  isL2,
 } from './utils/roller';
-import { ETH_ZERO_ADDR, ROLLER_HOSTS, TEN_SECONDS } from './constants';
+import {
+  ETH_ZERO_ADDR,
+  POINT_DOMINIONS,
+  ROLLER_HOSTS,
+  TEN_SECONDS,
+} from './constants';
 
 import {
   Config,
@@ -408,8 +412,8 @@ export default function useRoller() {
 
           if (
             invite.owner.toLowerCase() ===
-              planetInfo.ownership?.owner?.address ||
-            planetInfo.ownership?.transferProxy?.address !== ETH_ZERO_ADDR
+              planetInfo.ownership?.owner?.address &&
+            planetInfo.dominion === POINT_DOMINIONS.L2
           ) {
             newInvites.push(invite);
             updateInvite(curPoint, invite);
@@ -1064,6 +1068,7 @@ export default function useRoller() {
     getPoints,
     getPointsDetails,
     getPendingTransactions,
+    initPoint,
     ls,
     performL2Reticket,
     setProxyAddress,
