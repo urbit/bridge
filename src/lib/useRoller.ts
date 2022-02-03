@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as azimuth from 'azimuth-js';
 import * as need from 'lib/need';
-import * as ob from 'urbit-ob';
 import SecureLS from 'secure-ls';
 
 import { Invite } from 'lib/types/Invite';
@@ -410,25 +409,6 @@ export default function useRoller() {
           // TODO: check if the invite point's owner still matches the deterministic wallet address
           const planetInfo = await api.getPoint(planet);
           setStoredInvite(ls, invite);
-
-          if (isDevelopment) {
-            console.log(
-              `planet: ${planet} dominion: ${planetInfo.dominion} (${ob.patp(
-                planet
-              )})`
-            );
-            console.log(`invite owner: ${invite.owner.toLowerCase()}`);
-            console.log(
-              `planetInfo owner: ${planetInfo.ownership?.owner?.address}`
-            );
-            console.log(
-              `planetInfo transfer: ${planetInfo.ownership?.transferProxy?.address}`
-            );
-            console.log(
-              `invite unclaimed: ${invite.owner.toLowerCase() ===
-                planetInfo.ownership?.owner?.address}`
-            );
-          }
 
           if (
             invite.owner.toLowerCase() ===
