@@ -17,14 +17,13 @@ export default function useActivateFlowState() {
   // it is for this wallet
   // type UrbitWallet
   const [inviteMasterTicketWallet, setInviteMasterTicketWallet] = useState(Nothing());
-  // The wallet generated deterministically during the invite flow;
+  // The wallet generated deterministically during the invite creation flow;
   // it is re-generated when the user starts the Activate flow. It is used
   // to derive and confirm a shareable ticket that a user can activate a point with.
   // type UrbitWallet
   const [inviteWallet, setInviteWallet] = useState(Nothing());
   // This wallet is generated from the invite wallet's seed phrase.
   // It is used during the transfer phase of the invite flow to send transactions.
-  // useMultiKeyFileGenerator.
   // type bip32.BIP32Interface
   const [sendWallet, setSendWallet] = useState(Nothing());
 

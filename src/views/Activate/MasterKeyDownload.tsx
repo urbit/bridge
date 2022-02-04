@@ -16,9 +16,9 @@ import { useLocalRouter } from 'lib/LocalRouter';
 import PaperBuilder from 'components/PaperBuilder';
 import { DEFAULT_FADE_TIMEOUT, MASTER_KEY_DURATION } from 'lib/constants';
 import { timeout } from 'lib/timeout';
-import useMultikeyFileGenerator from 'lib/useMultikeyFileGenerator';
 import { downloadWallet } from 'lib/invite';
 import View from 'components/View';
+import useMultiKeyfileGenerator from 'lib/useMultiKeyfileGenerator';
 
 const MasterKeyDownload = () => {
   const {
@@ -46,9 +46,9 @@ const MasterKeyDownload = () => {
     Just: (p: any) => p.value.toFixed(),
   });
 
-  const { keyfile, filename } = useMultikeyFileGenerator({
+  const { keyfile, filename } = useMultiKeyfileGenerator({
     point,
-    seedWallet: inviteWallet,
+    inviteWallet,
     inviteMasterTicketWallet,
   });
 

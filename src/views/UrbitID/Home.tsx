@@ -13,7 +13,7 @@ import {
 } from 'lib/constants';
 import { abbreviateAddress } from 'lib/utils/address';
 import { downloadWallet } from 'lib/invite';
-import useMultikeyFileGenerator from 'lib/useMultikeyFileGenerator';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 
 import { useWallet } from 'store/wallet';
 import { useRollerStore } from 'store/rollerStore';
@@ -43,7 +43,7 @@ export default function UrbitIDHome() {
       return null;
     }
   }, [urbitWallet]);
-  const { keyfile, filename } = useMultikeyFileGenerator({});
+  const { keyfile, filename } = useKeyfileGenerator({});
   const [paper, setPaper] = useState(Nothing());
 
   const downloadKeys = useCallback(() => {

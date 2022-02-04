@@ -9,7 +9,7 @@ import BodyPane from 'components/L2/Window/BodyPane';
 import { ReactComponent as KeyfileIcon } from 'assets/keyfile.svg';
 
 import { useLocalRouter } from 'lib/LocalRouter';
-import useMultikeyFileGenerator from 'lib/useMultikeyFileGenerator';
+import useKeyfileGenerator from 'lib/useKeyfileGenerator';
 import { Box, Button, Row } from '@tlon/indigo-react';
 import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
 
@@ -42,7 +42,7 @@ export default function UrbitOSHome() {
     names,
   ]);
 
-  const { code, download } = useMultikeyFileGenerator({});
+  const { code, download } = useKeyfileGenerator({});
 
   return (
     <Window className="os-home">

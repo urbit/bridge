@@ -11,21 +11,16 @@ import {
   attemptNetworkSeedDerivation,
   keysMatchChain,
   deriveNetworkKeys,
-  compileNetworkKey,
+  compileMultiKey,
 } from './keys';
 import { stripSigPrefix } from 'form/formatters';
 
-// overrideable defaults:
-// seed - derived from wallet, mnemonic, or token (if posisble)
-// point - the current pointCursor
 interface useKeyfileGeneratorArgs {
   seed?: string;
-  point?: number;
 }
 
 /**
- * @deprecated
- * Use `useMultikeyFileGenerator` instead
+ * seed - (optional) derived from wallet, mnemonic, or token by default (if possible)
  */
 export default function useKeyfileGenerator({ seed }: useKeyfileGeneratorArgs) {
   const { urbitWallet, wallet, authMnemonic, authToken }: any = useWallet();
@@ -87,7 +82,14 @@ export default function useKeyfileGenerator({ seed }: useKeyfileGeneratorArgs) {
 
     setNotice('');
     setCode(generateCode(pair));
-    setKeyfile(compileNetworkKey(pair, point.value, networkRevision));
+    setKeyfile(
+      compileMultiKey(point.value, [
+        {
+          revision: networkRevision,
+          pair: pair,
+        },
+      ])
+    );
     setGenerating(false);
   }, [
     networkRevision,
