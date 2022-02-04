@@ -70,7 +70,9 @@ export default function AdminTransfer() {
     const az = azimuth.azimuth;
     return (
       az.getPointSize(point.value) === az.PointSize.Galaxy &&
-      starReleaseDetails.map((a: any) => a.kind).getOrElse('none') !== 'none'
+      starReleaseDetails
+        .map((a: any) => a?.kind || 'none')
+        .getOrElse('none') !== 'none'
     );
   }, [starReleaseDetails, point]);
 
