@@ -122,7 +122,7 @@ const ActivateCodeForm = ({ afterSubmit }: ActivateCodeFormProps) => {
 
       // Derive wallet
       const { ticket, point } = getTicketAndPoint(
-        impliedTicket || values.ticket
+        values.ticket || impliedTicket
       );
 
       const inviteWallet = Just(await urbitWalletFromTicket(ticket, point));
