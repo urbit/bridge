@@ -18,7 +18,7 @@ import { DEFAULT_FADE_TIMEOUT, MASTER_KEY_DURATION } from 'lib/constants';
 import { timeout } from 'lib/timeout';
 import { downloadWallet } from 'lib/invite';
 import View from 'components/View';
-import useMultiKeyfileGenerator from 'lib/useMultiKeyfileGenerator';
+import { useActivationKeyfileGenerator } from 'lib/useKeyfileGenerator';
 
 const MasterKeyDownload = () => {
   const {
@@ -46,10 +46,9 @@ const MasterKeyDownload = () => {
     Just: (p: any) => p.value.toFixed(),
   });
 
-  const { keyfile, filename } = useMultiKeyfileGenerator({
-    point,
-    inviteWallet,
-    inviteMasterTicketWallet,
+  const { keyfile, filename } = useActivationKeyfileGenerator({
+    pointId: point,
+    wallets: [inviteWallet.value, inviteMasterTicketWallet.value],
   });
 
   // sync paper value to activation state
