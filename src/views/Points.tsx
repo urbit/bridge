@@ -121,7 +121,14 @@ export default function Points() {
     [getDetails, controlledPoints, _contracts]
   );
 
-  const allPoints = pointList.filter(({ shouldDisplay }) => shouldDisplay);
+  const allPoints = useMemo(
+    () =>
+      pointList.filter(
+        ({ isTransferProxy, shouldDisplay, value }) =>
+          shouldDisplay && !isTransferProxy && !rejectedPoints.includes(value)
+      ),
+    [pointList, rejectedPoints]
+  );
 
   // if we can only interact with a single point, jump to the point page.
   // if there are any pending transfers, incoming or outgoing, stay on this
