@@ -48,8 +48,17 @@ export default function useDetailsStore() {
         addToDetails({
           [point]: details,
         });
-      } catch (e) {
+      } catch (error) {
         if (isDevelopment) {
+          console.warn(error);
+        }
+
+        try {
+          const details = await azimuth.azimuth.getPoint(_contracts, point);
+          addToDetails({
+            [point]: details,
+          });
+        } catch (e) {
           console.warn(e);
         }
       }

@@ -672,7 +672,8 @@ export default function useRoller() {
 
       return api.getPendingTx(txHash);
     },
-    [// eslint-disable-line
+    [
+      // eslint-disable-line
       api,
       authMnemonic,
       authToken,
