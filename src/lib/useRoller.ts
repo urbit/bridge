@@ -97,6 +97,7 @@ export default function useRoller() {
   const { setNextRoll } = useTimerStore();
 
   const {
+    invitesLoading,
     nextBatchTime,
     point,
     points,
@@ -357,6 +358,10 @@ export default function useRoller() {
   };
 
   const getInvites = useCallback(async () => {
+    if (invitesLoading) {
+      return;
+    }
+
     try {
       setInvitesLoading(true);
       const curPoint: number = Number(need.point(pointCursor));
@@ -672,7 +677,8 @@ export default function useRoller() {
 
       return api.getPendingTx(txHash);
     },
-    [// eslint-disable-line
+    [
+      // eslint-disable-line
       api,
       authMnemonic,
       authToken,
