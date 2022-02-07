@@ -24,7 +24,8 @@ interface useKeyfileGeneratorArgs {
 
 /**
  * The default Keyfile Generator. Can be used by itself, or composed with
- * other hooks (see `useActivationKeyfileGenerator` and `useHomeKeyfileGenerator`).
+ * other hooks (see `useActivationKeyfileGenerator` and 
+ * `useSingleKeyfileGenerator`).
  *
  * @param point Point - (optional) the Point for which to generate keys
  * @param seeds string[] - (required) one or more seeds consumed by deriveNetworkKeys
@@ -57,7 +58,6 @@ function useKeyfileGenerator({ point, seeds }: useKeyfileGeneratorArgs) {
   const generate = useCallback(async () => {
     // Point still loading ...
     if (resolvedPoint.value === EMPTY_POINT.value) {
-      console.log('Loading point data ...');
       return;
     }
 
@@ -101,7 +101,6 @@ function useKeyfileGenerator({ point, seeds }: useKeyfileGeneratorArgs) {
         })
       )
     );
-    console.log(`keyfile generated for revision ${networkRevision}`);
     setGenerating(false);
   }, [hasNetworkKeys, seeds, resolvedPoint, networkRevision]);
 
@@ -208,17 +207,20 @@ export const useActivationKeyfileGenerator = ({
   return useKeyfileGenerator({ point, seeds });
 };
 
-interface HomeKeyfileGeneratorArgs {
+interface SingleKeyfileGeneratorArgs {
   seed?: string;
 }
 
 /**
- * This Home Keyfile Generator is used to derive a multikey in multiple views
- * in the Bridge dashboard (Set Network Keys, Home > ID, Home > OS views).
+ * This Single Keyfile Generator is used to derive network keys in multiple
+ * views in the Bridge dashboard (Set Network Keys, Home > ID, Home > OS).
+ * By default, it uses the logged in wallet's seed phrase.
  *
  * * @param seed string - (optional) default: provided by the logged in wallet
  */
-export const useHomeKeyfileGenerator = ({ seed }: HomeKeyfileGeneratorArgs) => {
+export const useSingleKeyfileGenerator = ({
+  seed,
+}: SingleKeyfileGeneratorArgs) => {
   // use provided seed, or fallback to deriving from logged in wallet
   const { point } = useRollerStore();
   const { authMnemonic, authToken, urbitWallet, wallet }: any = useWallet();
