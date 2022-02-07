@@ -31,12 +31,7 @@ import {
   registerProxyAddress,
   isL2Spawn,
 } from './utils/roller';
-import {
-  ETH_ZERO_ADDR,
-  POINT_DOMINIONS,
-  ROLLER_HOSTS,
-  TEN_SECONDS,
-} from './constants';
+import { POINT_DOMINIONS, ROLLER_HOSTS, TEN_SECONDS } from './constants';
 
 import {
   Config,

@@ -4,7 +4,7 @@ import AccessCode from './AccessCode';
 
 describe('AccessCode', () => {
   describe('when code is not available', () => {
-    // Value is initialized as `false` in `useMultikeyFileGenerator`
+    // Value is initialized as `false` in `useKeyfileGenerator`
     const testCode = false;
 
     it('does not render the component', () => {
@@ -15,7 +15,7 @@ describe('AccessCode', () => {
   });
 
   describe('when code is available', () => {
-    // Value has been loaded from `useMultikeyFileGenerator`
+    // Value has been loaded from `useKeyfileGenerator`
     const testCode = 'foo-bar';
 
     it('renders the component', () => {
