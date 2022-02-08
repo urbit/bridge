@@ -121,7 +121,6 @@ export default function Points() {
     [getDetails, controlledPoints, _contracts]
   );
 
-  debugger;
   const allPoints = useMemo(
     () =>
       pointList.filter(

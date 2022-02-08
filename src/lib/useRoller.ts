@@ -1008,7 +1008,6 @@ export default function useRoller() {
       spawningPoints: number[]
     ) => {
       try {
-        debugger;
         const allPoints = [
           await Promise.all(ownedPoints.map(initPoint)),
           await Promise.all(incomingPoints.map(initPoint)),
@@ -1017,7 +1016,6 @@ export default function useRoller() {
           await Promise.all(spawningPoints.map(initPoint)),
         ];
 
-        debugger;
         setPoints(
           allPoints.reduce((acc: Points, cur: (Point | undefined)[]) => {
             cur.forEach(p => {
