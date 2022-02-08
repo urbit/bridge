@@ -268,7 +268,8 @@ export default function useRoller() {
     }: UpdateParams) => {
       if (l1Txn) storePendingL1Txn(l1Txn);
 
-      const interval = setInterval(async () => {
+      let interval: any;
+      const check = async () => {
         const updatedPoint = await initPoint(point);
         const changedField = !points[point]
           ? 'newPoint'
@@ -280,7 +281,10 @@ export default function useRoller() {
 
         if (!updatedPoint.isPlaceholder && changedField) {
           updatePoint(updatedPoint);
-          clearInterval(interval);
+          if (interval) {
+            clearInterval(interval);
+          }
+
           if (l1Txn) deletePendingL1Txn(l1Txn);
           if (notify) {
             showNotification(
@@ -288,7 +292,10 @@ export default function useRoller() {
             );
           }
         }
-      }, intervalTime);
+      };
+
+      interval = setInterval(check, intervalTime);
+      check();
     },
     [points, initPoint, updatePoint, storePendingL1Txn, deletePendingL1Txn]
   );
@@ -1001,6 +1008,7 @@ export default function useRoller() {
       spawningPoints: number[]
     ) => {
       try {
+        debugger;
         const allPoints = [
           await Promise.all(ownedPoints.map(initPoint)),
           await Promise.all(incomingPoints.map(initPoint)),
@@ -1009,6 +1017,7 @@ export default function useRoller() {
           await Promise.all(spawningPoints.map(initPoint)),
         ];
 
+        debugger;
         setPoints(
           allPoints.reduce((acc: Points, cur: (Point | undefined)[]) => {
             cur.forEach(p => {
