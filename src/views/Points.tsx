@@ -121,11 +121,14 @@ export default function Points() {
     [getDetails, controlledPoints, _contracts]
   );
 
+  debugger;
   const allPoints = useMemo(
     () =>
       pointList.filter(
-        ({ isTransferProxy, shouldDisplay, value }) =>
-          shouldDisplay && !isTransferProxy && !rejectedPoints.includes(value)
+        ({ isTransferProxy, isTransferProxySet, shouldDisplay, value }) =>
+          shouldDisplay &&
+          !(isTransferProxy || isTransferProxySet) &&
+          !rejectedPoints.includes(value)
       ),
     [pointList, rejectedPoints]
   );
