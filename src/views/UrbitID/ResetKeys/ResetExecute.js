@@ -57,7 +57,7 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
   } = useWallet();
   const { performL2Reticket } = useRoller();
   const {
-    point: { isL2 },
+    point: { isL2Spawn },
   } = useRollerStore();
   const { pointCursor } = usePointCursor();
   const { getDetails } = usePointCache();
@@ -73,68 +73,6 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
   const isDone = progress >= 1.0;
 
   useBlockWindowClose();
-
-  // start reticketing transactions on mount
-  useEffect(() => {
-    (async () => {
-      // due to react shenanigans we may need to wait for the connector
-      if (
-        walletType === WALLET_TYPES.WALLET_CONNECT &&
-        (!connector || !connector.connected)
-      ) {
-        setGeneralError(new Error('Awaiting WalletConnect connection...'));
-        return;
-      }
-      setGeneralError();
-
-      const point = need.point(pointCursor);
-      const details = need.details(getDetails(point));
-      const networkRevision = convertToInt(details.keyRevisionNumber, 10);
-
-      // see also comment in useEthereumTransaction
-      const txnSigner =
-        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSign : undefined;
-      const txnSender =
-        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSend : undefined;
-
-      try {
-        if (isL2) {
-          console.log(newWallet.value);
-          // FIXME: the useEffect is called twice, which is fine since the duplicate
-          // L2 txs will be discarded
-          //
-          await performL2Reticket({
-            point,
-            to: newWallet.value.wallet.ownership.keys.address,
-            manager: newWallet.value.wallet.management.keys.address,
-            toWallet: newWallet.value.wallet,
-            fromWallet: need.wallet(wallet),
-          });
-        } else
-          await reticketPointBetweenWallets({
-            fromWallet: need.wallet(wallet),
-            fromWalletType: walletType,
-            fromWalletHdPath: walletHdPath,
-            toWallet: newWallet.value.wallet,
-            point: point,
-            web3: need.web3(web3),
-            contracts: need.contracts(contracts),
-            networkType,
-            onUpdate: handleUpdate,
-            nextRevision: networkRevision + 1,
-            txnSigner,
-            txnSender,
-          });
-      } catch (err) {
-        console.error(err);
-        setGeneralError(err);
-      }
-    })();
-    //NOTE  this was using useLifecycle previously (which is useEffect without
-    //      dependencies) and worked fine, but in the wc case we might need to
-    //      wait for the connector to get set due to react state shenanigans.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connector]);
 
   const goToRestart = useCallback(() => {
     reset();
@@ -166,6 +104,87 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
     },
     [setProgress, setNeedFunds]
   );
+
+  const performReticket = useCallback(async () => {
+    (async () => {
+      // due to react shenanigans we may need to wait for the connector
+      if (
+        walletType === WALLET_TYPES.WALLET_CONNECT &&
+        (!connector || !connector.connected)
+      ) {
+        setGeneralError(new Error('Awaiting WalletConnect connection...'));
+        return;
+      }
+      setGeneralError();
+
+      const point = need.point(pointCursor);
+      const details = need.details(getDetails(point));
+      const networkRevision = convertToInt(details.keyRevisionNumber, 10);
+
+      // see also comment in useEthereumTransaction
+      const txnSigner =
+        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSign : undefined;
+      const txnSender =
+        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSend : undefined;
+
+      try {
+        if (isL2Spawn) {
+          // FIXME: the useEffect is called twice, which is fine since the duplicate
+          // L2 txs will be discarded
+          await performL2Reticket({
+            point,
+            to: newWallet.value.wallet.ownership.keys.address,
+            manager: newWallet.value.wallet.management.keys.address,
+            toWallet: newWallet.value.wallet,
+            fromWallet: need.wallet(wallet),
+            onUpdate: handleUpdate,
+          });
+        } else
+          await reticketPointBetweenWallets({
+            fromWallet: need.wallet(wallet),
+            fromWalletType: walletType,
+            fromWalletHdPath: walletHdPath,
+            toWallet: newWallet.value.wallet,
+            point: point,
+            web3: need.web3(web3),
+            contracts: need.contracts(contracts),
+            networkType,
+            onUpdate: handleUpdate,
+            nextRevision: networkRevision + 1,
+            txnSigner,
+            txnSender,
+          });
+      } catch (err) {
+        console.error(err);
+        setGeneralError(err);
+      }
+    })();
+  }, [
+    connector,
+    contracts,
+    getDetails,
+    handleUpdate,
+    isL2Spawn,
+    networkType,
+    newWallet.value.wallet,
+    performL2Reticket,
+    pointCursor,
+    wallet,
+    walletHdPath,
+    walletType,
+    wcSend,
+    wcSign,
+    web3,
+  ]);
+
+  // start reticketing transactions on mount
+  useEffect(() => {
+    performReticket();
+    //NOTE  this was using useLifecycle previously (which is useEffect without
+    //      dependencies) and worked fine, but in the wc case we might need to
+    //      wait for the connector to get set due to react state shenanigans.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connector]);
 
   const renderAdditionalInfo = () => {
     if (generalError) {

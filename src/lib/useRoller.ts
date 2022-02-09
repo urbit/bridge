@@ -51,6 +51,7 @@ import { ddmmmYYYY } from './utils/date';
 import { showNotification } from './utils/notifications';
 import { useWalletConnect } from './useWalletConnect';
 import { PendingL1Txn } from './types/PendingL1Transaction';
+import { TRANSACTION_PROGRESS } from './reticket';
 
 const ONE_SECOND = 1000;
 
@@ -700,15 +701,20 @@ export default function useRoller() {
     manager,
     fromWallet,
     toWallet,
+    onUpdate,
   }: ReticketParams) => {
     const azimuthPoint = await api.getPoint(point);
     const proxy = 'own';
     const _web3 = web3.getOrElse(null);
     let nonce = await api.getNonce({ ship: point, proxy });
+    const progress = onUpdate
+      ? (state: number) => onUpdate({ type: 'progress', state })
+      : () => {};
 
     let requests = [];
 
     // 1. Update networking keys
+    progress(TRANSACTION_PROGRESS.GENERATING);
     const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
     const nextRevision = networkRevision + 1;
     const networkSeed = await deriveNetworkSeedFromUrbitWallet(
@@ -731,6 +737,7 @@ export default function useRoller() {
     requests.push(configureKeysRequest);
 
     // 2. Set Management Proxy
+    progress(TRANSACTION_PROGRESS.SIGNING);
     const registerMgmtRequest = await registerProxyAddress(
       api,
       fromWallet,
@@ -747,6 +754,7 @@ export default function useRoller() {
     requests.push(registerMgmtRequest);
 
     // 3. Set Spawn Proxy
+    progress(TRANSACTION_PROGRESS.FUNDING);
     if (!isPlanet(Number(point))) {
       const registerSpawnRequest = await registerProxyAddress(
         api,
@@ -764,6 +772,7 @@ export default function useRoller() {
       requests.push(registerSpawnRequest);
     }
     // 4. Transfer point
+    progress(TRANSACTION_PROGRESS.TRANSFERRING);
     const transferTxRequest = await submitL2Transaction({
       api,
       wallet: fromWallet,
@@ -778,7 +787,10 @@ export default function useRoller() {
     });
     requests.push(transferTxRequest);
 
+    progress(TRANSACTION_PROGRESS.CLEANING);
     const hashes = await Promise.all(requests);
+
+    progress(TRANSACTION_PROGRESS.DONE);
     return hashes;
   };
 

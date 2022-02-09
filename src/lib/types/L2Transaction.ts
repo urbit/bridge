@@ -40,10 +40,23 @@ export interface TransactionData {
   method: Function;
 }
 
+interface ReticketProgressCallback {
+  ({
+    type,
+    state,
+    value,
+  }: {
+    type: string;
+    state: number;
+    value?: string;
+  }): void;
+}
+
 export interface ReticketParams {
   point: Ship;
   to: EthAddress;
   manager: EthAddress;
   fromWallet: BridgeWallet;
   toWallet: UrbitWallet;
+  onUpdate?: ReticketProgressCallback;
 }
