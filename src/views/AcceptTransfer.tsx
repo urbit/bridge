@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import { Nothing } from 'folktale/maybe';
 import { Grid, Text, CheckboxInput, Button } from 'indigo-react';
@@ -68,6 +74,7 @@ export default function AcceptTransfer() {
 
   const name = useCurrentPointName();
 
+  const transferring = useRef(false);
   const [reset, setReset] = useState(true);
 
   const {
@@ -115,6 +122,11 @@ export default function AcceptTransfer() {
   }, [pop, setPointCursor]);
 
   const acceptTransfer = useCallback(async () => {
+    if (transferring.current) {
+      return;
+    }
+
+    transferring.current = true;
     await transferPoint(_address, reset);
     await checkForUpdates({
       point: point.value,

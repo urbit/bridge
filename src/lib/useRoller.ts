@@ -92,6 +92,7 @@ export default function useRoller() {
   const { setNextRoll } = useTimerStore();
 
   const {
+    invitesLoading,
     nextBatchTime,
     point,
     points,
@@ -262,7 +263,8 @@ export default function useRoller() {
     }: UpdateParams) => {
       if (l1Txn) storePendingL1Txn(l1Txn);
 
-      const interval = setInterval(async () => {
+      let interval: any;
+      const check = async () => {
         const updatedPoint = await initPoint(point);
         const changedField = !points[point]
           ? 'newPoint'
@@ -274,7 +276,10 @@ export default function useRoller() {
 
         if (!updatedPoint.isPlaceholder && changedField) {
           updatePoint(updatedPoint);
-          clearInterval(interval);
+          if (interval) {
+            clearInterval(interval);
+          }
+
           if (l1Txn) deletePendingL1Txn(l1Txn);
           if (notify) {
             showNotification(
@@ -282,7 +287,10 @@ export default function useRoller() {
             );
           }
         }
-      }, intervalTime);
+      };
+
+      interval = setInterval(check, intervalTime);
+      check();
     },
     [points, initPoint, updatePoint, storePendingL1Txn, deletePendingL1Txn]
   );
@@ -352,6 +360,10 @@ export default function useRoller() {
   };
 
   const getInvites = useCallback(async () => {
+    if (invitesLoading) {
+      return;
+    }
+
     try {
       setInvitesLoading(true);
       const curPoint: number = Number(need.point(pointCursor));
