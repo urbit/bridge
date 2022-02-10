@@ -33,7 +33,9 @@ export default function Metamask({ className, goHome }) {
   const onSubmit = useCallback(async () => {
     try {
       setMetamask(true);
-      const accounts = await window.ethereum.send('eth_requestAccounts');
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts',
+      });
       const wallet = new MetamaskWallet(accounts.result[0]);
 
       const web3 = new Web3(window.ethereum);
