@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 
 import useDetailsStore from './useDetailsStore';
-import useBirthdaysStore from './useBirthdaysStore';
 import useRekeyDateStore from './useRekeyDateStore';
 import useInvitesStore from './useInvitesStore';
 import useControlledPointsStore from './useControlledPointsStore';
@@ -10,7 +9,6 @@ import useResidents from './useResidentsStore';
 
 export default function usePointStore() {
   const { syncDetails, ...details } = useDetailsStore();
-  const { syncBirthday, ...birthdays } = useBirthdaysStore();
   const { syncRekeyDate, ...rekeyDates } = useRekeyDateStore();
   const { syncInvites, ...invites } = useInvitesStore();
   const {
@@ -21,8 +19,8 @@ export default function usePointStore() {
   const ecliptic = useEclipticOwnerStore();
 
   const syncDates = useCallback(
-    async point => Promise.all([syncBirthday(point), syncRekeyDate(point)]),
-    [syncBirthday, syncRekeyDate]
+    async point => Promise.all([syncRekeyDate(point)]),
+    [syncRekeyDate]
   );
 
   const syncExtras = useCallback(
@@ -39,7 +37,6 @@ export default function usePointStore() {
 
   return {
     ...details,
-    ...birthdays,
     ...rekeyDates,
     ...invites,
     ...controlledPoints,
