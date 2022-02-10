@@ -40,7 +40,7 @@ export interface TransactionData {
   method: Function;
 }
 
-interface ReticketProgressCallback {
+export interface ReticketProgressCallback {
   ({
     type,
     state,

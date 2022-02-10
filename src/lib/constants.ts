@@ -219,6 +219,9 @@ const PASSPORT_TOOLTIP =
 const LOCKUP_TOOLTIP =
   'Stars in a lockup schedule can be withdrawn after a set time duration. The duration is predetermined by the issuer';
 
+// the initial network key revision is always 1
+const INITIAL_NETWORK_KEY_REVISION = 1;
+
 export {
   CHECK_BLOCK_EVERY_MS,
   DEFAULT_GAS_PRICE_GWEI,
@@ -265,4 +268,5 @@ export {
   MASTER_TICKET_TOOLTIP,
   PASSPORT_TOOLTIP,
   LOCKUP_TOOLTIP,
+  INITIAL_NETWORK_KEY_REVISION,
 };

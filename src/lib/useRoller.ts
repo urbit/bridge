@@ -771,6 +771,7 @@ export default function useRoller() {
       nonce = nonce + 1;
       requests.push(registerSpawnRequest);
     }
+
     // 4. Transfer point
     progress(TRANSACTION_PROGRESS.TRANSFERRING);
     const transferTxRequest = await submitL2Transaction({
