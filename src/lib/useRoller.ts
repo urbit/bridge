@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as azimuth from 'azimuth-js';
 import * as need from 'lib/need';
 import SecureLS from 'secure-ls';
@@ -92,13 +92,12 @@ export default function useRoller() {
   const { setNextRoll } = useTimerStore();
 
   const {
-    invitesLoading,
     nextBatchTime,
     point,
     points,
     pointList,
     nextQuotaTime,
-    removeInvite,
+    addInvite,
     setNextBatchTime,
     setNextQuotaTime,
     setPendingTransactions,
@@ -107,11 +106,11 @@ export default function useRoller() {
     setInvitesLoading,
     setModalText,
     setPoints,
-    updateInvite,
     updatePoint,
     storePendingL1Txn,
     deletePendingL1Txn,
   } = useRollerStore();
+  const generatingInvites = useRef(false);
   const [config, setConfig] = useState<Config | null>(null);
 
   const options: Options = useMemo(() => {
@@ -360,10 +359,11 @@ export default function useRoller() {
   };
 
   const getInvites = useCallback(async () => {
-    if (invitesLoading) {
+    if (generatingInvites.current) {
       return;
     }
 
+    generatingInvites.current = true;
     try {
       setInvitesLoading(true);
       const curPoint: number = Number(need.point(pointCursor));
@@ -397,10 +397,7 @@ export default function useRoller() {
           .filter((p: number) => !pendingSpawns.has(p))
           .sort();
 
-        setInvites(
-          curPoint,
-          invitePlanets.map(p => inviteTemplate(p))
-        );
+        setInvites(curPoint, []);
 
         const newInvites: Invite[] = [];
         // Iterate over all of the stored invites, generating wallet info as necessary
@@ -422,23 +419,23 @@ export default function useRoller() {
               planetInfo.ownership?.owner?.address &&
             planetInfo.dominion === POINT_DOMINIONS.L2
           ) {
+            addInvite(curPoint, invite);
             newInvites.push(invite);
-            updateInvite(curPoint, invite);
-          } else {
-            removeInvite(curPoint, invite.planet);
           }
 
           if (storedInvite) {
             setStoredInvite(ls, invite);
           }
         }
-        setInvites(curPoint, newInvites);
+
         setInvitesLoading(false);
         return newInvites;
       }
     } catch (error) {
       console.warn('ERROR GETTING INVITES', error);
     }
+
+    generatingInvites.current = false;
   }, [
     api,
     authToken,
@@ -447,12 +444,11 @@ export default function useRoller() {
     ls,
     point,
     pointList,
-    removeInvite,
+    addInvite,
     setInvites,
     setInvitesLoading,
     setInviteGeneratingNum,
     setPendingTransactions,
-    updateInvite,
   ]);
 
   const generateInviteCodes = useCallback(
@@ -571,6 +567,7 @@ export default function useRoller() {
       }
 
       setStoredInvites(ls, invites);
+      console.log('getting invites from code generation');
       getInvites();
       showNotification(
         `Your invite${invites.length > 1 ? 's have' : ' has'} been generated!`
@@ -1053,6 +1050,7 @@ export default function useRoller() {
 
         setTimeout(() => {
           if (!point.isDefault) {
+            console.log('getting invites from batch time');
             getInvites(); // This will also get pending txns
           }
         }, TEN_SECONDS); // Should this be more like a minute?

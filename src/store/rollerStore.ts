@@ -36,6 +36,7 @@ export interface RollerStore {
   inviteGeneratingNum: number;
   invitesLoading: boolean;
   ethBalance: BN;
+  addInvite: (point: number, invite: Invite) => void;
   setLoading: (loading: boolean) => void;
   removeInvite: (point: number, planet: number) => void;
   setInvites: (points: number, invites: Invite[]) => void;
@@ -95,6 +96,17 @@ export const useRollerStore = create<RollerStore>(set => ({
     }),
   setInviteGeneratingNum: (inviteGeneratingNum: number) =>
     set(() => ({ inviteGeneratingNum })),
+  addInvite: (point: number, invite: Invite) => {
+    set(state => {
+      const newInvites: Invites = {};
+      const invites = state.invites[point];
+
+      if (!invites.find(inv => inv.planet === invite.planet)) {
+        newInvites[point] = [...invites, invite];
+      }
+      return { invites: Object.assign(state.invites, newInvites) };
+    });
+  },
   updateInvite: (point: number, invite: Invite) =>
     set(state => {
       const newInvites: Invites = {};

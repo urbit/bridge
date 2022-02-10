@@ -98,10 +98,7 @@ export default function InviteCohort() {
   const [page, setPage] = useState(0);
 
   const { construct, unconstruct, completed, bind } = useIssueChild();
-  const invitePoints: Invite[] = useMemo(() => invites[point.value] || [], [
-    invites,
-    point,
-  ]);
+  const invitePoints = invites[point.value];
 
   // Set up the invite spawn if on L1
   useEffect(() => {
