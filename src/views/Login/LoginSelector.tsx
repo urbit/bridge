@@ -79,14 +79,19 @@ export default function LoginSelector({
 
   const selectMetamask = useCallback(async () => {
     try {
+      if (!window.ethereum) {
+        throw new Error(
+          'Device does not have an Ethereum provider available (is Metamask or Brave Wallet installed?)'
+        );
+      }
       setMetamask(true);
       setMetamaskSelected(true);
-      const accounts = await (window as any).ethereum.send(
-        'eth_requestAccounts'
-      );
-      const wallet = new MetamaskWallet(accounts.result[0]);
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts',
+      });
+      const wallet = new MetamaskWallet(accounts[0]);
 
-      const web3 = new Web3((window as any).ethereum);
+      const web3 = new Web3(window.ethereum);
       const authToken = await getAuthToken({
         address: wallet.address,
         walletType: WALLET_TYPES.METAMASK,
