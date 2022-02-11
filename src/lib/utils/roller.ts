@@ -208,7 +208,7 @@ const setProxy = async (
 
 export const registerProxyAddress = async (
   api: RollerRPCAPI,
-  wallet: any,
+  wallet: any, // BridgeWallet
   _point: Ship,
   proxy: string,
   proxyAddressType: string,

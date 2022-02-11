@@ -97,12 +97,23 @@ export const useReticketL2Spawn = () => {
       });
 
       // instead, set spawn proxy on L2
+      // In most TX sending cases, we would use the fromWallet to sign and send
+      // the TX. However, because we are transferring this point during the
+      // reticket, we will instead sign the final set spawn proxy TX with the
+      // receiving wallet's private key.
+
+      // `registerProxyAddress` expects a toWallet object shaped like a
+      // BridgeWallet with `address` and `privateKey` properties.
+      const toWalletStub = {
+        address: toWallet.ownership.keys.address,
+        privateKey: Buffer.from(toWallet.ownership.keys.private, 'hex'),
+      };
       const proxy = 'own';
       const nonce = await api.getNonce({ ship: point, proxy });
 
       await registerProxyAddress(
         api,
-        fromWallet,
+        toWalletStub,
         point,
         proxy,
         'spawn',
