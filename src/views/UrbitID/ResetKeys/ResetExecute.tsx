@@ -26,7 +26,6 @@ import { RestartButton, ForwardButton } from 'components/Buttons';
 import WarningBox from 'components/WarningBox';
 import LoadingBar from 'components/LoadingBar';
 import NeedFundsNotice from 'components/NeedFundsNotice';
-import { debugLog } from 'lib/utils/debug';
 import { ReticketProgressCallback } from 'lib/types/L2Transaction';
 
 const labelForProgress = (progress: number) => {
@@ -100,8 +99,6 @@ export default function ResetExecute({
     setWalletType(WALLET_TYPES.TICKET);
     setUrbitWallet(Just(newWallet.value.wallet));
     // (implicit) pointCursor stays the same
-    // TODO: do we need to update the point?
-    // await getAndUpdatePoint(point);
     // redirect to point
     popTo(names.POINT);
   }, [
@@ -154,7 +151,6 @@ export default function ResetExecute({
     try {
       // if L1 point with migrated spawn proxy (dominion = 'spawn')
       if (l2point.dominion === POINT_DOMINIONS.SPAWN) {
-        debugLog('reticketing L1 point with dominion spawn...');
         await performL2SpawnReticket({
           fromWallet: need.wallet(wallet),
           fromWalletType: walletType,
@@ -170,10 +166,8 @@ export default function ResetExecute({
           txnSigner,
           txnSender,
         });
-        debugLog('done');
         // If L2 point
       } else if (isL2) {
-        debugLog('reticketing L2 point ...');
         await performL2Reticket({
           point,
           to: newWallet.value.wallet.ownership.keys.address,
@@ -182,24 +176,23 @@ export default function ResetExecute({
           fromWallet: need.wallet(wallet),
           onUpdate: handleUpdate,
         });
-        debugLog('done');
         // Fallback to L1 point flow
-      } else debugLog('reticketing L1 point ...');
-      await reticketPointBetweenWallets({
-        fromWallet: need.wallet(wallet),
-        fromWalletType: walletType,
-        fromWalletHdPath: walletHdPath,
-        toWallet: newWallet.value.wallet,
-        point: point,
-        web3: need.web3(web3),
-        contracts: need.contracts(contracts),
-        networkType,
-        onUpdate: handleUpdate,
-        nextRevision: networkRevision + 1,
-        txnSigner,
-        txnSender,
-      });
-      debugLog('done');
+      } else {
+        await reticketPointBetweenWallets({
+          fromWallet: need.wallet(wallet),
+          fromWalletType: walletType,
+          fromWalletHdPath: walletHdPath,
+          toWallet: newWallet.value.wallet,
+          point: point,
+          web3: need.web3(web3),
+          contracts: need.contracts(contracts),
+          networkType,
+          onUpdate: handleUpdate,
+          nextRevision: networkRevision + 1,
+          txnSigner,
+          txnSender,
+        });
+      }
     } catch (err) {
       console.error(err);
       setGeneralError(err);

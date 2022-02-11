@@ -110,7 +110,8 @@ export const useReticketL2Spawn = () => {
         toWallet?.spawn?.keys?.address || to,
         walletType,
         web3,
-        connector
+        connector,
+        true
       );
     },
     [api, connector, walletType]
