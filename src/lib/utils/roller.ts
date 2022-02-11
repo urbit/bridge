@@ -66,7 +66,19 @@ export const generateHashAndSign = async (
 ) => {
   if (walletType === WALLET_TYPES.METAMASK) {
     const hash = await api.prepareForSigning(nonce, from, type, data);
-    const sig = await web3.eth.personal.sign(hash, wallet.address, '');
+    let sig;
+
+    // same issue as seen in getMetamaskAuthToken
+    if (window.ethereum) {
+      sig = window.ethereum.request({
+        method: 'personal_sign',
+        params: [hash, wallet.address],
+        from: wallet.address,
+      });
+    } else {
+      sig = await web3.eth.personal.sign(hash, wallet.address, '');
+    }
+
     return sig;
   } else if (walletType === WALLET_TYPES.WALLET_CONNECT) {
     if (!connector || !connector.connected) {
