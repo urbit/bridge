@@ -10,7 +10,7 @@ import { useNetwork } from '../network';
 import { ONE_MINUTE } from 'lib/constants';
 
 export default function useControlledPointsStore() {
-  const { contracts } = useNetwork();
+  const { contracts, web3 } = useNetwork();
   const { wallet } = useWallet();
   const { getPoints, getPointsDetails } = useRoller();
 
@@ -19,7 +19,7 @@ export default function useControlledPointsStore() {
   const syncControlledPoints = useCallback(async () => {
     const _contracts = contracts.getOrElse(null);
     const _wallet = wallet.getOrElse(null);
-    if (!_contracts || !_wallet) {
+    if ((!web3 && Nothing.HasInstance(web3)) || !_contracts || !_wallet) {
       return;
     }
 
@@ -115,7 +115,7 @@ export default function useControlledPointsStore() {
       console.error('failed to fetch controlled points', error);
       _setControlledPoints(Just(Result.Error(JSON.stringify(error))));
     }
-  }, [contracts, wallet, getPoints, getPointsDetails]);
+  }, [web3, contracts, wallet, getPoints, getPointsDetails]);
 
   // sync controlled points whenever wallet or contracts changes
   useEffect(() => {
