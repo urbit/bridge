@@ -19,7 +19,7 @@ export default function useControlledPointsStore() {
   const syncControlledPoints = useCallback(async () => {
     const _contracts = contracts.getOrElse(null);
     const _wallet = wallet.getOrElse(null);
-    if ((!web3 && Nothing.HasInstance(web3)) || !_contracts || !_wallet) {
+    if (!web3 || Nothing.hasInstance(web3) || !_contracts || !_wallet) {
       return;
     }
 
