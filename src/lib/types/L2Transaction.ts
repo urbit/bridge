@@ -1,4 +1,16 @@
-import RollerRPCAPI, { EthAddress, Proxy, Ship } from '@urbit/roller-api';
+import RollerRPCAPI, {
+  Adopt,
+  CancelEscape,
+  ConfigureKeys,
+  Detach,
+  Escape,
+  EthAddress,
+  Proxy,
+  Reject,
+  Ship,
+  Spawn,
+  TransferPoint,
+} from '@urbit/roller-api';
 import WalletConnect from '@walletconnect/client';
 import BridgeWallet from './BridgeWallet';
 
@@ -37,7 +49,16 @@ export interface L2TransactionArgs extends SendL2Params {
 
 export interface TransactionData {
   data: any;
-  method: Function;
+  method:
+    | Spawn
+    | TransferPoint
+    | ConfigureKeys
+    | Escape
+    | CancelEscape
+    | Adopt
+    | Detach
+    | Reject
+    | (() => Promise<string>);
 }
 
 export interface ReticketProgressCallback {
