@@ -272,7 +272,7 @@ const getDataAndMethod = (args: L2TransactionArgs) => {
     sponsee,
     ship,
   } = args;
-  const result: TransactionData = { data: { address }, method: () => null };
+  const result: TransactionData = { data: { address }, method: async () => '' };
 
   switch (args.type) {
     case 'transferPoint':
@@ -360,7 +360,7 @@ export const submitL2Transaction = async (args: L2TransactionArgs) => {
     connector
   );
 
-  return method(sig, from, wallet.address, data);
+  return method(sig, false, from, wallet.address, data);
 };
 
 export const reticketL2Point = async () => {};
