@@ -93,7 +93,8 @@ export const configureKeys = async (
   walletType: symbol,
   web3: any,
   connector: WalletConnect | null,
-  breach?: boolean
+  breach?: boolean,
+  force: boolean = false
 ) => {
   const from = {
     ship: point, //ship to configure keys
@@ -130,7 +131,7 @@ export const configureKeys = async (
     web3,
     connector
   );
-  return api.configureKeys(sig, from, wallet.address, data);
+  return api.configureKeys(sig, force, from, wallet.address, data);
 };
 
 export const transferPointRequest = async (
@@ -143,7 +144,8 @@ export const transferPointRequest = async (
   walletType: symbol,
   web3: any,
   connector: WalletConnect | null,
-  reset?: boolean
+  reset?: boolean,
+  force: boolean = false
 ) => {
   const from = {
     ship: pointToTransfer,
@@ -167,7 +169,7 @@ export const transferPointRequest = async (
     connector
   );
 
-  return api.transferPoint(sig, from, wallet.address, data);
+  return api.transferPoint(sig, force, from, wallet.address, data);
 };
 
 const proxyType = (proxy: Proxy) => {
@@ -189,15 +191,16 @@ const setProxy = async (
   sig: Signature,
   from: From,
   address: EthAddress,
-  data: AddressParams
+  data: AddressParams,
+  force: boolean = false
 ) => {
   switch (proxyAddressType) {
     case 'manage':
-      return await api.setManagementProxy(sig, from, address, data);
+      return await api.setManagementProxy(sig, force, from, address, data);
     case 'spawn':
-      return await api.setSpawnProxy(sig, from, address, data);
+      return await api.setSpawnProxy(sig, force, from, address, data);
     case 'transfer':
-      return await api.setTransferProxy(sig, from, address, data);
+      return await api.setTransferProxy(sig, force, from, address, data);
     default:
       throw new Error(`Unknown proxyType ${proxyAddressType}`);
   }
@@ -205,7 +208,7 @@ const setProxy = async (
 
 export const registerProxyAddress = async (
   api: RollerRPCAPI,
-  wallet: any,
+  wallet: any, // BridgeWallet
   _point: Ship,
   proxy: string,
   proxyAddressType: string,
@@ -213,7 +216,8 @@ export const registerProxyAddress = async (
   address: string,
   walletType: symbol,
   web3: any,
-  connector: WalletConnect | null
+  connector: WalletConnect | null,
+  force?: boolean
 ) => {
   const from = {
     ship: _point,
@@ -233,7 +237,15 @@ export const registerProxyAddress = async (
     connector
   );
 
-  return setProxy(api, proxyAddressType, sig, from, wallet.address, data);
+  return setProxy(
+    api,
+    proxyAddressType,
+    sig,
+    from,
+    wallet.address,
+    data,
+    force
+  );
 };
 
 const getDataAndMethod = (args: L2TransactionArgs) => {

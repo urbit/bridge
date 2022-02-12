@@ -14,13 +14,10 @@ import {
   sendSignedTransaction,
 } from './txn';
 import getSuggestedGasPrice from './getSuggestedGasPrice';
-import { GAS_LIMITS } from './constants';
+import { GAS_LIMITS, INITIAL_NETWORK_KEY_REVISION } from './constants';
 import { toBN } from 'web3-utils';
 import { safeToWei } from './lib';
-import { isPlanet } from './utils/point';
-
-// the initial network key revision is always 1
-const INITIAL_NETWORK_KEY_REVISION = 1;
+import { isGalaxy, isPlanet } from './utils/point';
 
 export const TRANSACTION_PROGRESS = {
   GENERATING: 0.01,
@@ -45,6 +42,7 @@ export async function reticketPointBetweenWallets({
   nextRevision = INITIAL_NETWORK_KEY_REVISION,
   txnSigner,
   txnSender,
+  doSetSpawnProxy = true,
 }) {
   const askForFunding = (address, minBalance, balance) =>
     onUpdate({
@@ -109,8 +107,9 @@ export async function reticketPointBetweenWallets({
 
   // set spawn & voting proxies situationally
 
+  // skip this step if reticketing an L1 point with L2-migrated spawn proxy
   let txs = [transferTmpTx, keysTx, managementTx];
-  if (!isPlanet(point)) {
+  if (!isPlanet(point) && doSetSpawnProxy) {
     const spawnTx = azimuth.ecliptic.setSpawnProxy(
       contracts,
       point,
@@ -118,18 +117,16 @@ export async function reticketPointBetweenWallets({
     );
     spawnTx.gas = GAS_LIMITS.SET_PROXY;
     txs.push(spawnTx);
+  }
 
-    if (
-      azimuth.azimuth.getPointSize(point) === azimuth.azimuth.PointSize.Galaxy
-    ) {
-      const votingTx = azimuth.ecliptic.setVotingProxy(
-        contracts,
-        point,
-        toWallet.voting.keys.address
-      );
-      votingTx.gas = GAS_LIMITS.SET_PROXY;
-      txs.push(votingTx);
-    }
+  if (isGalaxy(point)) {
+    const votingTx = azimuth.ecliptic.setVotingProxy(
+      contracts,
+      point,
+      toWallet.voting.keys.address
+    );
+    votingTx.gas = GAS_LIMITS.SET_PROXY;
+    txs.push(votingTx);
   }
 
   // transfer configured point to user's new wallet
