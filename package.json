@@ -18,6 +18,7 @@
     "@ethereumjs/tx": "^3.3.0",
     "@ledgerhq/hw-app-eth": "^6.5.0",
     "@ledgerhq/hw-transport-u2f": "^5.36.0-deprecated",
+    "@metamask/detect-provider": "^1.2.0",
     "@reach/disclosure": "^0.15.0",
     "@reach/menu-button": "^0.15.1",
     "@reach/tabs": "^0.15.0",

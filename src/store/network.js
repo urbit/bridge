@@ -16,6 +16,7 @@ import { isDevelopment } from '../lib/flags';
 import { Grid } from 'indigo-react';
 import View from 'components/View';
 import Blinky from 'components/Blinky';
+import detectEthereumProvider from '@metamask/detect-provider';
 
 function _useNetwork(initialNetworkType = null) {
   const [networkType, setNetworkType] = useState(initialNetworkType);
@@ -26,7 +27,8 @@ function _useNetwork(initialNetworkType = null) {
 
   useEffect(() => {
     (async () => {
-      if (window.ethereum) {
+      const provider = await detectEthereumProvider();
+      if (provider) {
         try {
           setMetamask(true);
           setNetworkType(chainIdToNetworkType(window.ethereum.chainId));
