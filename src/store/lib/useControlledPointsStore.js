@@ -8,6 +8,7 @@ import useRoller from 'lib/useRoller';
 import { onlyUnique } from 'lib/utils/array';
 import { useNetwork } from '../network';
 import { ONE_MINUTE } from 'lib/constants';
+import useLocalStorageState from 'lib/useLocalStorageState';
 
 export default function useControlledPointsStore() {
   const { contracts, web3 } = useNetwork();
@@ -15,6 +16,10 @@ export default function useControlledPointsStore() {
   const { getPoints, getPointsDetails } = useRoller();
 
   const [controlledPoints, _setControlledPoints] = useState(Nothing());
+  const [migratingPoints, setMigratingPoints] = useLocalStorageState(
+    'migratingPoints',
+    []
+  );
 
   const syncControlledPoints = useCallback(async () => {
     const _contracts = contracts.getOrElse(null);
@@ -62,14 +67,17 @@ export default function useControlledPointsStore() {
         incomingPointsL2 === null &&
         managingPointsL2 === null &&
         votingPointsL2 === null &&
-        spawningPointsL2 === null
+        spawningPointsL2 === null &&
+        migratingPoints === null
       ) {
         _setControlledPoints(
           Just(Result.Error('Failed to read the blockchain.'))
         );
       } else {
         await getPointsDetails(
-          (ownedPointsL1 || []).concat(ownedPointsL2 || []).filter(onlyUnique),
+          (ownedPointsL1 || [])
+            .concat(ownedPointsL2 || [], migratingPoints || [])
+            .filter(onlyUnique),
           (incomingPointsL1 || [])
             .concat(incomingPointsL2 || [])
             .filter(onlyUnique),
@@ -84,11 +92,23 @@ export default function useControlledPointsStore() {
             .filter(onlyUnique)
         );
 
+        const keepMigrating = [];
+
+        migratingPoints.forEach(point => {
+          if (!ownedPointsL2.includes(point)) {
+            keepMigrating.push(point);
+          }
+        });
+
+        if (migratingPoints.length !== keepMigrating.length) {
+          setMigratingPoints(keepMigrating);
+        }
+
         _setControlledPoints(
           Just(
             Result.Ok({
               ownedPoints: ownedPointsL2
-                .concat(ownedPointsL1)
+                .concat(ownedPointsL1, migratingPoints)
                 .map(Number)
                 .filter(onlyUnique),
               incomingPoints: incomingPointsL2
@@ -115,7 +135,7 @@ export default function useControlledPointsStore() {
       console.error('failed to fetch controlled points', error);
       _setControlledPoints(Just(Result.Error(JSON.stringify(error))));
     }
-  }, [web3, contracts, wallet, getPoints, getPointsDetails]);
+  }, [web3, contracts, wallet, migratingPoints, getPoints, getPointsDetails]);
 
   // sync controlled points whenever wallet or contracts changes
   useEffect(() => {
@@ -130,6 +150,8 @@ export default function useControlledPointsStore() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
+    migratingPoints,
+    setMigratingPoints,
     controlledPoints,
     syncControlledPoints,
   };

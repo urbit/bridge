@@ -103,6 +103,7 @@ export default function MigrateL2() {
   const { pop }: any = useLocalRouter();
   const { point, pointList } = useRollerStore();
   const { checkForUpdates } = useRoller();
+  const { migratingPoints, setMigratingPoints }: any = usePointCache();
   const l1Points = pointList.filter(({ canMigrate }) => canMigrate);
 
   const [proceed, setProceed] = useState(false);
@@ -133,6 +134,8 @@ export default function MigrateL2() {
       const message = transfer
         ? `${selectedPoint.patp} has been migrated to Layer 2!`
         : `${selectedPoint.patp}'s spawn proxy has been set to Layer 2!`;
+
+      setMigratingPoints([...migratingPoints, selectedPoint.value]);
 
       checkForUpdates({
         point: selectedPoint.value,

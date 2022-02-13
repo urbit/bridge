@@ -65,7 +65,11 @@ export default function Points() {
   const { wallet }: any = useWallet();
   const { pop, push, names }: any = useHistory();
   const { setPointCursor }: any = usePointCursor();
-  const { controlledPoints, getDetails }: any = usePointCache();
+  const {
+    controlledPoints,
+    getDetails,
+    migratingPoints,
+  }: any = usePointCache();
   const { contracts }: any = useNetwork();
   const isEclipticOwner = useIsEclipticOwner();
   const [
@@ -125,11 +129,11 @@ export default function Points() {
     () =>
       pointList.filter(
         ({ isTransferProxy, isTransferProxySet, shouldDisplay, value }) =>
-          shouldDisplay &&
+          (shouldDisplay || migratingPoints.includes(value)) &&
           !(isTransferProxy || isTransferProxySet) &&
           !rejectedPoints.includes(value)
       ),
-    [pointList, rejectedPoints]
+    [pointList, rejectedPoints, migratingPoints]
   );
 
   // if we can only interact with a single point, jump to the point page.
