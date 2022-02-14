@@ -164,7 +164,7 @@ export default function useRoller() {
   );
 
   const fetchConfig = useCallback(async () => {
-    getNextQuotaTime(1);
+    getNextQuotaTime(Date.now() + 1000);
     api
       .getRollerConfig()
       .then(config => {
@@ -184,12 +184,12 @@ export default function useRoller() {
     if (point.l2Quota <= 0) {
       setModalText(
         `You have reached your weekly L2 transaction limit. You will get another
-        ${config?.rollerQuota} transactions on ${ddmmmYYYY(nextQuotaTime)}.`
+        ${point.l2Allowance} transactions on ${ddmmmYYYY(nextQuotaTime)}.`
       );
     }
 
     return point.l2Quota <= 0;
-  }, [config, nextQuotaTime, point, setModalText]);
+  }, [nextQuotaTime, point, setModalText]);
 
   const initPoint = useCallback(
     async (point: string | number) => {
@@ -203,9 +203,9 @@ export default function useRoller() {
       const pointNum = Number(point);
       try {
         const rawDetails = await api.getPoint(pointNum);
-        const l2Quota = isL2Spawn(rawDetails?.dominion)
-          ? await api.getRemainingQuota(pointNum)
-          : 0;
+        const isL2 = isL2Spawn(rawDetails?.dominion);
+        const l2Quota = isL2 ? await api.getRemainingQuota(pointNum) : 0;
+        const l2Allowance = isL2 ? await api.getAllowance(pointNum) : 0;
 
         const details = isL2Spawn(rawDetails?.dominion)
           ? toL1Details(rawDetails)
@@ -216,6 +216,7 @@ export default function useRoller() {
           details,
           address: _wallet.address,
           l2Quota,
+          l2Allowance,
         });
       } catch (e) {
         console.warn(e);
