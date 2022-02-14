@@ -69,6 +69,7 @@ interface PointConstructorParams {
   details: L1Point;
   address: string;
   l2Quota?: number;
+  l2Allowance?: number;
   isPlaceholder?: boolean;
 }
 
@@ -77,6 +78,7 @@ export default class Point {
   patp: string;
   layer: 1 | 2;
   l2Quota: number;
+  l2Allowance: number;
   active: boolean;
   authenticationKey: string;
   continuityNumber: string;
@@ -132,6 +134,7 @@ export default class Point {
     details,
     address,
     l2Quota = 0,
+    l2Allowance = 0,
     isPlaceholder = false,
   }: PointConstructorParams) {
     this.value = value;
@@ -139,6 +142,7 @@ export default class Point {
 
     this.layer = details.layer || 1;
     this.l2Quota = l2Quota;
+    this.l2Allowance = l2Allowance;
     this.isL2Spawn = Boolean(details.isL2Spawn);
     this.active = details.active;
     this.authenticationKey = details.authenticationKey;
