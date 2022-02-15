@@ -27,7 +27,6 @@ import {
   generateInviteWallet,
   getPendingSpawns,
   submitL2Transaction,
-  getTimeToNextBatch,
   registerProxyAddress,
   isL2Spawn,
 } from './utils/roller';
@@ -44,7 +43,6 @@ import {
 } from '@urbit/roller-api';
 
 import Point, { PointField, Points } from './types/Point';
-import { useTimerStore } from 'store/timerStore';
 import { ReticketParams, SendL2Params } from './types/L2Transaction';
 import { L1Point } from './types/L1Point';
 import { ddmmmYYYY } from './utils/date';
@@ -52,8 +50,6 @@ import { showNotification } from './utils/notifications';
 import { useWalletConnect } from './useWalletConnect';
 import { PendingL1Txn } from './types/PendingL1Transaction';
 import { TRANSACTION_PROGRESS } from './reticket';
-
-const ONE_SECOND = 1000;
 
 interface UpdateParams {
   point: number;
@@ -90,11 +86,8 @@ export default function useRoller() {
   const allPoints: any = usePointCache();
   const getDetails = allPoints?.getDetails;
 
-  const { setNextRoll } = useTimerStore();
-
   const {
     invitesLoading,
-    nextBatchTime,
     point,
     points,
     pointList,
@@ -1049,31 +1042,6 @@ export default function useRoller() {
 
     fetchConfig();
   }, [config, fetchConfig]);
-
-  useEffect(() => {
-    const time = ONE_SECOND;
-
-    const interval = setInterval(() => {
-      const nextRoll = getTimeToNextBatch(nextBatchTime, new Date().getTime());
-      setNextRoll(nextRoll);
-
-      if (nextBatchTime - ONE_SECOND <= new Date().getTime()) {
-        api.getRollerConfig().then(response => {
-          setNextBatchTime(response.nextBatch);
-        });
-
-        getPendingTransactions();
-
-        setTimeout(() => {
-          if (!point.isDefault) {
-            getInvites(); // This will also get pending txns
-          }
-        }, TEN_SECONDS); // Should this be more like a minute?
-      }
-    }, time);
-
-    return () => clearInterval(interval);
-  }, [point, nextBatchTime, getPendingTransactions, getInvites]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     api,

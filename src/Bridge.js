@@ -25,6 +25,7 @@ import Modal from 'components/L2/Modal';
 import { useRollerStore } from 'store/rollerStore';
 import { Box } from '@tlon/indigo-react';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
+import { useRollerPoller } from 'lib/useRollerPoller';
 
 const INITIAL_NETWORK_TYPE = isRopsten
   ? NETWORK_TYPES.ROPSTEN
@@ -72,6 +73,12 @@ function useInitialRoutes() {
   return [{ key: ROUTE_NAMES.LOGIN }];
 }
 
+function Poller() {
+  useRollerPoller();
+
+  return null;
+}
+
 function Bridge() {
   const initialRoutes = useInitialRoutes();
   const { loading, modalText, setModalText } = useRollerStore();
@@ -105,6 +112,7 @@ function Bridge() {
           <Box width="280px">{modalText}</Box>
         </Modal>
         <LoadingOverlay loading={loading} />
+        <Poller />
       </Provider>
     </WithErrorBoundary>
   );
