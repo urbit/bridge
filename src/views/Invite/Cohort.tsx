@@ -72,7 +72,6 @@ export default function InviteCohort() {
   const { nextRoll } = useTimerStore();
 
   const {
-    config,
     ls,
     generateInviteCodes,
     getPendingTransactions,
@@ -379,7 +378,7 @@ export default function InviteCohort() {
                   You can generate up to
                   <strong>{` ${point.l2Quota} `}</strong>
                   invites. You will be able to generate another
-                  <strong>{` ${config?.rollerQuota}`}</strong> invites on
+                  <strong>{` ${point.l2Allowance}`}</strong> invites on
                   <strong>{` ${ddmmmYYYY(nextQuotaTime)}`}</strong>.
                 </Box>
               )}
@@ -498,7 +497,7 @@ export default function InviteCohort() {
         <Box className="invite-limit-message">
           You have hit your weekly invite limit. You will be able to generate
           another
-          <strong>{` ${config?.rollerQuota}`}</strong> invites on
+          <strong>{` ${point.l2Allowance}`}</strong> invites on
           <strong>{` ${ddmmmYYYY(nextQuotaTime)}`}</strong>.
         </Box>
       ) : null}

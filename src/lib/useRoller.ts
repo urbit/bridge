@@ -27,7 +27,6 @@ import {
   generateInviteWallet,
   getPendingSpawns,
   submitL2Transaction,
-  getTimeToNextBatch,
   registerProxyAddress,
   isL2Spawn,
 } from './utils/roller';
@@ -44,15 +43,13 @@ import {
 } from '@urbit/roller-api';
 
 import Point, { PointField, Points } from './types/Point';
-import { useTimerStore } from 'store/timerStore';
 import { ReticketParams, SendL2Params } from './types/L2Transaction';
 import { L1Point } from './types/L1Point';
 import { ddmmmYYYY } from './utils/date';
 import { showNotification } from './utils/notifications';
 import { useWalletConnect } from './useWalletConnect';
 import { PendingL1Txn } from './types/PendingL1Transaction';
-
-const ONE_SECOND = 1000;
+import { TRANSACTION_PROGRESS } from './reticket';
 
 interface UpdateParams {
   point: number;
@@ -89,10 +86,7 @@ export default function useRoller() {
   const allPoints: any = usePointCache();
   const getDetails = allPoints?.getDetails;
 
-  const { setNextRoll } = useTimerStore();
-
   const {
-    nextBatchTime,
     point,
     points,
     pointList,
@@ -162,7 +156,7 @@ export default function useRoller() {
   );
 
   const fetchConfig = useCallback(async () => {
-    getNextQuotaTime(1);
+    getNextQuotaTime(Date.now() + 1000);
     api
       .getRollerConfig()
       .then(config => {
@@ -182,12 +176,12 @@ export default function useRoller() {
     if (point.l2Quota <= 0) {
       setModalText(
         `You have reached your weekly L2 transaction limit. You will get another
-        ${config?.rollerQuota} transactions on ${ddmmmYYYY(nextQuotaTime)}.`
+        ${point.l2Allowance} transactions on ${ddmmmYYYY(nextQuotaTime)}.`
       );
     }
 
     return point.l2Quota <= 0;
-  }, [config, nextQuotaTime, point, setModalText]);
+  }, [nextQuotaTime, point, setModalText]);
 
   const initPoint = useCallback(
     async (point: string | number) => {
@@ -201,9 +195,9 @@ export default function useRoller() {
       const pointNum = Number(point);
       try {
         const rawDetails = await api.getPoint(pointNum);
-        const l2Quota = isL2Spawn(rawDetails?.dominion)
-          ? await api.getRemainingQuota(pointNum)
-          : 0;
+        const isL2 = isL2Spawn(rawDetails?.dominion);
+        const l2Quota = isL2 ? await api.getRemainingQuota(pointNum) : 0;
+        const l2Allowance = isL2 ? await api.getAllowance(pointNum) : 0;
 
         const details = isL2Spawn(rawDetails?.dominion)
           ? toL1Details(rawDetails)
@@ -214,6 +208,7 @@ export default function useRoller() {
           details,
           address: _wallet.address,
           l2Quota,
+          l2Allowance,
         });
       } catch (e) {
         console.warn(e);
@@ -697,15 +692,20 @@ export default function useRoller() {
     manager,
     fromWallet,
     toWallet,
+    onUpdate,
   }: ReticketParams) => {
     const azimuthPoint = await api.getPoint(point);
     const proxy = 'own';
     const _web3 = web3.getOrElse(null);
     let nonce = await api.getNonce({ ship: point, proxy });
+    const progress = onUpdate
+      ? (state: number) => onUpdate({ type: 'progress', state })
+      : () => {};
 
     let requests = [];
 
     // 1. Update networking keys
+    progress(TRANSACTION_PROGRESS.GENERATING);
     const networkRevision = convertToInt(azimuthPoint.network.keys.life, 10);
     const nextRevision = networkRevision + 1;
     const networkSeed = await deriveNetworkSeedFromUrbitWallet(
@@ -728,6 +728,7 @@ export default function useRoller() {
     requests.push(configureKeysRequest);
 
     // 2. Set Management Proxy
+    progress(TRANSACTION_PROGRESS.SIGNING);
     const registerMgmtRequest = await registerProxyAddress(
       api,
       fromWallet,
@@ -744,6 +745,7 @@ export default function useRoller() {
     requests.push(registerMgmtRequest);
 
     // 3. Set Spawn Proxy
+    progress(TRANSACTION_PROGRESS.FUNDING);
     if (!isPlanet(Number(point))) {
       const registerSpawnRequest = await registerProxyAddress(
         api,
@@ -760,7 +762,9 @@ export default function useRoller() {
       nonce = nonce + 1;
       requests.push(registerSpawnRequest);
     }
+
     // 4. Transfer point
+    progress(TRANSACTION_PROGRESS.TRANSFERRING);
     const transferTxRequest = await submitL2Transaction({
       api,
       wallet: fromWallet,
@@ -775,7 +779,10 @@ export default function useRoller() {
     });
     requests.push(transferTxRequest);
 
+    progress(TRANSACTION_PROGRESS.CLEANING);
     const hashes = await Promise.all(requests);
+
+    progress(TRANSACTION_PROGRESS.DONE);
     return hashes;
   };
 
@@ -1033,32 +1040,6 @@ export default function useRoller() {
 
     fetchConfig();
   }, [config, fetchConfig]);
-
-  useEffect(() => {
-    const time = ONE_SECOND;
-
-    const interval = setInterval(() => {
-      const nextRoll = getTimeToNextBatch(nextBatchTime, new Date().getTime());
-      setNextRoll(nextRoll);
-
-      if (nextBatchTime - ONE_SECOND <= new Date().getTime()) {
-        api.getRollerConfig().then(response => {
-          setNextBatchTime(response.nextBatch);
-        });
-
-        getPendingTransactions();
-
-        setTimeout(() => {
-          if (!point.isDefault) {
-            console.log('getting invites from batch time');
-            getInvites(); // This will also get pending txns
-          }
-        }, TEN_SECONDS); // Should this be more like a minute?
-      }
-    }, time);
-
-    return () => clearInterval(interval);
-  }, [point, nextBatchTime, getPendingTransactions, getInvites]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     api,

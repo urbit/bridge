@@ -7,9 +7,10 @@ import {
   TRANSACTION_PROGRESS,
 } from 'lib/reticket';
 import * as need from 'lib/need';
-import { WALLET_TYPES } from 'lib/constants';
+import { POINT_DOMINIONS, WALLET_TYPES } from 'lib/constants';
 import { convertToInt } from 'lib/convertToInt';
 import useBlockWindowClose from 'lib/useBlockWindowClose';
+import { useReticketL2Spawn } from 'lib/useReticketL2Spawn';
 
 import { useNetwork } from 'store/network';
 import { useWallet } from 'store/wallet';
@@ -25,8 +26,9 @@ import { RestartButton, ForwardButton } from 'components/Buttons';
 import WarningBox from 'components/WarningBox';
 import LoadingBar from 'components/LoadingBar';
 import NeedFundsNotice from 'components/NeedFundsNotice';
+import { ReticketProgressCallback } from 'lib/types/L2Transaction';
 
-const labelForProgress = progress => {
+const labelForProgress = (progress: number) => {
   if (progress <= 0) {
     return 'Starting...';
   } else if (progress <= TRANSACTION_PROGRESS.GENERATING) {
@@ -44,9 +46,19 @@ const labelForProgress = progress => {
   }
 };
 
-export default function ResetExecute({ newWallet, setNewWallet }) {
-  const { popTo, names, reset } = useHistory();
-  const { web3, contracts, networkType } = useNetwork();
+interface ResetExecuteProps {
+  // a Maybe<UrbitWallet>
+  newWallet: any;
+  // a useState setter, accepts Maybe<UrbitWallet>
+  setNewWallet: (args: any) => {};
+}
+
+export default function ResetExecute({
+  newWallet,
+  setNewWallet,
+}: ResetExecuteProps) {
+  const { popTo, names, reset }: any = useHistory();
+  const { web3, contracts, networkType }: any = useNetwork();
   const {
     wallet,
     setWalletType,
@@ -54,94 +66,34 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
     setUrbitWallet,
     walletType,
     walletHdPath,
-  } = useWallet();
-  const { performL2Reticket } = useRoller();
+  }: any = useWallet();
+  const { api, performL2Reticket } = useRoller();
   const {
     point: { isL2 },
   } = useRollerStore();
-  const { pointCursor } = usePointCursor();
-  const { getDetails } = usePointCache();
+  const { pointCursor }: any = usePointCursor();
+  const { getDetails }: any = usePointCache();
   const {
     signTransaction: wcSign,
     sendTransaction: wcSend,
     connector,
   } = useWalletConnect();
+  const { performL2SpawnReticket } = useReticketL2Spawn();
 
-  const [generalError, setGeneralError] = useState();
+  const [generalError, setGeneralError] = useState<Error | undefined>();
   const [progress, setProgress] = useState(0);
-  const [needFunds, setNeedFunds] = useState();
+  const [needFunds, setNeedFunds] = useState<string | boolean | undefined>();
   const isDone = progress >= 1.0;
+  const point = need.point(pointCursor);
 
   useBlockWindowClose();
-
-  // start reticketing transactions on mount
-  useEffect(() => {
-    (async () => {
-      // due to react shenanigans we may need to wait for the connector
-      if (
-        walletType === WALLET_TYPES.WALLET_CONNECT &&
-        (!connector || !connector.connected)
-      ) {
-        setGeneralError(new Error('Awaiting WalletConnect connection...'));
-        return;
-      }
-      setGeneralError();
-
-      const point = need.point(pointCursor);
-      const details = need.details(getDetails(point));
-      const networkRevision = convertToInt(details.keyRevisionNumber, 10);
-
-      // see also comment in useEthereumTransaction
-      const txnSigner =
-        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSign : undefined;
-      const txnSender =
-        walletType === WALLET_TYPES.WALLET_CONNECT ? wcSend : undefined;
-
-      try {
-        if (isL2) {
-          console.log(newWallet.value);
-          // FIXME: the useEffect is called twice, which is fine since the duplicate
-          // L2 txs will be discarded
-          //
-          await performL2Reticket({
-            point,
-            to: newWallet.value.wallet.ownership.keys.address,
-            manager: newWallet.value.wallet.management.keys.address,
-            toWallet: newWallet.value.wallet,
-            fromWallet: need.wallet(wallet),
-          });
-        } else
-          await reticketPointBetweenWallets({
-            fromWallet: need.wallet(wallet),
-            fromWalletType: walletType,
-            fromWalletHdPath: walletHdPath,
-            toWallet: newWallet.value.wallet,
-            point: point,
-            web3: need.web3(web3),
-            contracts: need.contracts(contracts),
-            networkType,
-            onUpdate: handleUpdate,
-            nextRevision: networkRevision + 1,
-            txnSigner,
-            txnSender,
-          });
-      } catch (err) {
-        console.error(err);
-        setGeneralError(err);
-      }
-    })();
-    //NOTE  this was using useLifecycle previously (which is useEffect without
-    //      dependencies) and worked fine, but in the wc case we might need to
-    //      wait for the connector to get set due to react state shenanigans.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connector]);
 
   const goToRestart = useCallback(() => {
     reset();
     setNewWallet(Nothing());
   }, [reset, setNewWallet]);
 
-  const loginAndGoHome = useCallback(() => {
+  const loginAndGoHome = useCallback(async () => {
     // set wallet state
     resetWallet();
     setWalletType(WALLET_TYPES.TICKET);
@@ -149,9 +101,16 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
     // (implicit) pointCursor stays the same
     // redirect to point
     popTo(names.POINT);
-  }, [resetWallet, setWalletType, setUrbitWallet, newWallet, popTo, names]);
+  }, [
+    resetWallet,
+    setWalletType,
+    setUrbitWallet,
+    newWallet.value.wallet,
+    popTo,
+    names.POINT,
+  ]);
 
-  const handleUpdate = useCallback(
+  const handleUpdate: ReticketProgressCallback = useCallback(
     ({ type, state, value }) => {
       switch (type) {
         case 'progress':
@@ -167,6 +126,108 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
     [setProgress, setNeedFunds]
   );
 
+  const performReticket = useCallback(async () => {
+    // due to react shenanigans we may need to wait for the connector
+    if (
+      walletType === WALLET_TYPES.WALLET_CONNECT &&
+      (!connector || !connector.connected)
+    ) {
+      setGeneralError(new Error('Awaiting WalletConnect connection...'));
+      return;
+    }
+
+    setGeneralError(undefined);
+
+    const l2point = await api.getPoint(point);
+    const details = need.details(getDetails(point));
+    const networkRevision = convertToInt(details.keyRevisionNumber, 10);
+
+    // see also comment in useEthereumTransaction
+    const txnSigner =
+      walletType === WALLET_TYPES.WALLET_CONNECT ? wcSign : undefined;
+    const txnSender =
+      walletType === WALLET_TYPES.WALLET_CONNECT ? wcSend : undefined;
+
+    try {
+      // if L1 point with migrated spawn proxy (dominion = 'spawn')
+      if (l2point.dominion === POINT_DOMINIONS.SPAWN) {
+        await performL2SpawnReticket({
+          fromWallet: need.wallet(wallet),
+          fromWalletType: walletType,
+          fromWalletHdPath: walletHdPath,
+          toWallet: newWallet.value.wallet,
+          to: newWallet.value.wallet.ownership.keys.address,
+          point: point,
+          web3: need.web3(web3),
+          contracts: need.contracts(contracts),
+          networkType,
+          onUpdate: handleUpdate,
+          nextRevision: networkRevision + 1,
+          txnSigner,
+          txnSender,
+        });
+        // If L2 point
+      } else if (isL2) {
+        await performL2Reticket({
+          point,
+          to: newWallet.value.wallet.ownership.keys.address,
+          manager: newWallet.value.wallet.management.keys.address,
+          toWallet: newWallet.value.wallet,
+          fromWallet: need.wallet(wallet),
+          onUpdate: handleUpdate,
+        });
+        // Fallback to L1 point flow
+      } else {
+        await reticketPointBetweenWallets({
+          fromWallet: need.wallet(wallet),
+          fromWalletType: walletType,
+          fromWalletHdPath: walletHdPath,
+          toWallet: newWallet.value.wallet,
+          point: point,
+          web3: need.web3(web3),
+          contracts: need.contracts(contracts),
+          networkType,
+          onUpdate: handleUpdate,
+          nextRevision: networkRevision + 1,
+          txnSigner,
+          txnSender,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setGeneralError(err);
+    }
+  }, [
+    api,
+    connector,
+    contracts,
+    getDetails,
+    handleUpdate,
+    isL2,
+    networkType,
+    newWallet.value.wallet,
+    performL2Reticket,
+    performL2SpawnReticket,
+    point,
+    wallet,
+    walletHdPath,
+    walletType,
+    wcSend,
+    wcSign,
+    web3,
+  ]);
+
+  useEffect(() => {
+    if (!connector) {
+      return;
+    }
+
+    performReticket();
+    // We want to perform the reticket only once, after the WalletConnect
+    // connector has finished instantiating and setting up a websocket
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connector]);
+
   const renderAdditionalInfo = () => {
     if (generalError) {
       console.log(generalError);
@@ -174,7 +235,9 @@ export default function ResetExecute({ newWallet, setNewWallet }) {
       return (
         <>
           <Grid.Item full className="mt4">
-            <ErrorText>{generalError.message.toString()}</ErrorText>
+            <ErrorText className={''}>
+              {generalError.message.toString()}
+            </ErrorText>
           </Grid.Item>
           <Grid.Item
             full

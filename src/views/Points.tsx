@@ -28,11 +28,12 @@ import L2PointHeader from 'components/L2/Headers/L2PointHeader';
 import IncomingPoint from 'components/L2/Points/IncomingPoint';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
 import PointList from 'components/L2/PointList';
-import { Box, Text } from '@tlon/indigo-react';
+import { Box, Icon, Text } from '@tlon/indigo-react';
 
 import './Points.scss';
 import { StarReleaseButton } from './Points/StarReleaseButton';
 import { maybeGetResult } from 'lib/maybeGetResult';
+import { isGalaxy, isStar } from 'lib/utils/point';
 
 export const isLocked = (details: any, contracts: any) =>
   details.owner === contracts.linearSR ||
@@ -171,6 +172,11 @@ export default function Points() {
 
   const displayEmptyState =
     !loading && incomingPoints.length === 0 && allPoints.length === 0;
+
+  // If the user has any stars or galaxies, give a polite heads up that
+  // it can take some time for the roller be aware of L1 TXs
+  const showMigrateNotice = !displayEmptyState &&
+    allPoints.some(p => isStar(p.value) || isGalaxy(p.value));
 
   const starReleasing = starReleaseDetails
     .map((s: any) => (s ? s.total > 0 : false))
@@ -324,19 +330,17 @@ export default function Points() {
           </Grid.Item>
         )}
 
-        {/* {processingPoints.length > 0 && (
-          <Grid.Item full as={Grid} gap={1} className="mv6">
-            <Grid.Item full as={H5}>
-              Awaiting L2 Rollup
-            </Grid.Item>
-            <Grid.Item
-              full
-              as={PointList}
-              points={processingPoints}
-              processing
-            />
+        {showMigrateNotice && (
+          <Grid.Item full as={Box} className={'migrated-info-box'}>
+            <span className={'icon'}>
+              <Icon icon="Info" />
+            </span>
+            <span className={'message'}>
+              Not seeing a recently-migrated Layer 2 point? It may take a few
+              minutes for the public roller to be aware of the transaction.
+            </span>
           </Grid.Item>
-        )} */}
+        )}
 
         <Footer>
           <Grid>
