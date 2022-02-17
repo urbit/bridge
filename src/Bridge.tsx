@@ -1,4 +1,3 @@
-import React from 'react';
 import { useEffect } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { IndigoApp } from 'indigo-react';
@@ -26,6 +25,8 @@ import { useRollerStore } from 'store/rollerStore';
 import { Box } from '@tlon/indigo-react';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
 import { useRollerPoller } from 'lib/useRollerPoller';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import InviteCohort from 'views/Invite/Cohort';
 
 const INITIAL_NETWORK_TYPE = isRopsten
   ? NETWORK_TYPES.ROPSTEN
@@ -39,8 +40,8 @@ const IS_STUBBED = isDevelopment && SHOULD_STUB_LOCAL;
 
 const INITIAL_WALLET = IS_STUBBED
   ? walletFromMnemonic(
-      process.env.REACT_APP_DEV_MNEMONIC,
-      process.env.REACT_APP_HD_PATH
+      process.env.REACT_APP_DEV_MNEMONIC as string,
+      process.env.REACT_APP_HD_PATH as string
     )
   : undefined;
 const INITIAL_MNEMONIC = IS_STUBBED
@@ -94,7 +95,8 @@ function Bridge() {
   }, []);
 
   return (
-    <WithErrorBoundary render={error => <GlobalErrorBoundary error={error} />}>
+    <WithErrorBoundary
+      render={(error: Error) => <GlobalErrorBoundary error={error} />}>
       <Provider
         views={ROUTES}
         names={ROUTE_NAMES}
@@ -103,16 +105,24 @@ function Bridge() {
         initialWallet={INITIAL_WALLET}
         initialMnemonic={INITIAL_MNEMONIC}
         initialPointCursor={INITIAL_POINT_CURSOR}>
-        <IndigoApp>
-          <ThemeProvider theme={light}>
-            <Router />
-          </ThemeProvider>
-        </IndigoApp>
-        <Modal show={modalText !== undefined} hide={() => setModalText()}>
-          <Box width="280px">{modalText}</Box>
-        </Modal>
-        <LoadingOverlay loading={loading} />
-        <Poller />
+        <BrowserRouter>
+          <IndigoApp>
+            <ThemeProvider theme={light}>
+              <Router />
+              <Routes>
+                <Route path="/" element={null} />
+                <Route path="/point/:point">
+                  <Route path="invites" element={<InviteCohort />} />
+                </Route>
+              </Routes>
+            </ThemeProvider>
+          </IndigoApp>
+          <Modal show={modalText !== undefined} hide={() => setModalText('')}>
+            <Box width="280px">{modalText}</Box>
+          </Modal>
+          <LoadingOverlay loading={loading} />
+          <Poller />
+        </BrowserRouter>
       </Provider>
     </WithErrorBoundary>
   );
