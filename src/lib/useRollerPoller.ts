@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRollerStore } from 'store/rollerStore';
 import { useTimerStore } from 'store/timerStore';
+import { useInvites } from 'views/Invite/useInvites';
 import { ONE_SECOND, TEN_SECONDS } from './constants';
 import useRoller from './useRoller';
 import { getTimeToNextBatch } from './utils/roller';
@@ -8,7 +9,8 @@ import { getTimeToNextBatch } from './utils/roller';
 export function useRollerPoller() {
   const { nextBatchTime, setNextBatchTime, setNextRoll } = useTimerStore();
   const { point } = useRollerStore();
-  const { api, getInvites, getPendingTransactions } = useRoller();
+  const { api, getPendingTransactions } = useRoller();
+  const { getInvites } = useInvites();
   const [time, setTime] = useState(ONE_SECOND);
 
   useEffect(() => {

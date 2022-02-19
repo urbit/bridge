@@ -50,6 +50,12 @@ import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 
 import './Cohort.scss';
 import Modal from 'components/L2/Modal';
+import {
+  InviteGeneratingStatus,
+  useInvites,
+  useInviteStore,
+} from './useInvites';
+import { GeneratingModal } from './GeneratingModal';
 
 interface L1Invite {
   ticket: string;
@@ -59,27 +65,16 @@ interface L1Invite {
 export default function InviteCohort() {
   const { pop }: any = useLocalRouter();
   const { authToken, walletType }: any = useWallet();
-  const {
-    point,
-    pendingTransactions,
-    invites,
-    inviteGeneratingNum,
-    nextQuotaTime,
-    setInviteGeneratingNum,
-    setInvites,
-  } = useRollerStore();
+  const { point, pendingTransactions, nextQuotaTime } = useRollerStore();
 
   const { nextRoll } = useTimerStore();
 
-  const {
-    ls,
-    generateInviteCodes,
-    getPendingTransactions,
-    getInvites,
-    getAndUpdatePoint,
-  } = useRoller();
+  const { ls, getPendingTransactions, getAndUpdatePoint } = useRoller();
   const { contracts }: any = useNetwork();
   const { syncControlledPoints }: any = usePointCache();
+
+  const { invites, generatingNum, setInvites } = useInviteStore();
+  const { getInvites, generateInviteCodes } = useInvites();
   const currentL2 = Boolean(point.isL2Spawn);
 
   const _contracts = need.contracts(contracts);
@@ -88,6 +83,9 @@ export default function InviteCohort() {
     currentL2 ? DEFAULT_NUM_INVITES : 1
   );
   const [showInviteForm, setShowInviteForm] = useState(false);
+  const [generatingStatus, setGeneratingStatus] = useState<
+    InviteGeneratingStatus
+  >('initial');
   const [loading, setLoading] = useState(false);
   const [showCsvModal, setShowCsvModal] = useState(false);
   const [csvElement, setCsvElement] = useState<HTMLAnchorElement | null>();
@@ -128,7 +126,7 @@ export default function InviteCohort() {
       }
 
       if (invitePoint) {
-        setInviteGeneratingNum(1);
+        useInviteStore.setState({ generatingNum: 1 });
         const { ticket, inviteWallet } = await generateInviteWallet(
           invitePoint,
           _authToken
@@ -157,7 +155,6 @@ export default function InviteCohort() {
     showInviteForm,
     unconstruct,
     invitePoints,
-    setInviteGeneratingNum,
   ]);
 
   useEffect(() => {
@@ -192,27 +189,29 @@ export default function InviteCohort() {
   const hasInvites = Boolean(invitePoints.length);
 
   const createInvites = useCallback(async () => {
-    setLoading(true);
+    setGeneratingStatus('generating');
     try {
       await generateInviteCodes(numInvites);
       getPendingTransactions();
       getAndUpdatePoint(point.value);
-      pop();
+      setGeneratingStatus('finished');
     } catch (error) {
-      // TODO: error is not used anywhere on the UI
-      setError(error as string);
-    } finally {
-      setLoading(false);
-      setInviteGeneratingNum(0);
+      if (typeof error === 'object' && (error as Error)?.message) {
+        setError((error as Error).message);
+      } else if (typeof error === 'string') {
+        setError(error);
+      } else {
+        setError('Generating invites failed');
+      }
+      setGeneratingStatus('errored');
     }
   }, [
     generateInviteCodes,
     numInvites,
     getPendingTransactions,
-    pop,
-    setInviteGeneratingNum,
     getAndUpdatePoint,
     point,
+    setGeneratingStatus,
   ]);
 
   const generateCsv = useCallback(() => {
@@ -244,17 +243,10 @@ export default function InviteCohort() {
         setError('There was an error creating the CSV');
       }
       setLoading(false);
-      setInviteGeneratingNum(0);
+      useInviteStore.setState({ generatingNum: 0 });
     };
     generateCsvElement();
-  }, [
-    getInvites,
-    setError,
-    setLoading,
-    setInviteGeneratingNum,
-    setShowCsvModal,
-    point,
-  ]);
+  }, [getInvites, setError, setLoading, setShowCsvModal, point]);
 
   const goNextPage = useCallback(() => {
     setPage(page + 1);
@@ -429,7 +421,18 @@ export default function InviteCohort() {
             </Box>
           </BodyPane>
         </Window>
-        <LoadingOverlay loading={loading} />
+        <GeneratingModal
+          status={generatingStatus}
+          current={generatingNum}
+          total={numInvites}
+          error={error}
+          hide={() => {
+            setGeneratingStatus('initial');
+            if (generatingStatus !== 'errored') {
+              pop();
+            }
+          }}
+        />
       </View>
     );
   }
@@ -437,7 +440,7 @@ export default function InviteCohort() {
   const showGenerateButton = !hasPending && !hasInvites && point.canSpawn;
   const showAddMoreButton =
     (hasInvites || hasPending) && point.canSpawn && point.l2Quota > 0;
-  const generatingCodesText = `Generating ${inviteGeneratingNum} of ${invitePoints.length} codes...`;
+  const generatingCodesText = `Generating ${generatingNum} of ${invitePoints.length} codes...`;
 
   return (
     <View

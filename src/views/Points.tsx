@@ -175,7 +175,8 @@ export default function Points() {
 
   // If the user has any stars or galaxies, give a polite heads up that
   // it can take some time for the roller be aware of L1 TXs
-  const showMigrateNotice = !displayEmptyState &&
+  const showMigrateNotice =
+    !displayEmptyState &&
     allPoints.some(p => isStar(p.value) || isGalaxy(p.value));
 
   const starReleasing = starReleaseDetails
@@ -255,12 +256,7 @@ export default function Points() {
       pop={pop}
       hideBack
       header={
-        <L2PointHeader
-          hideHome
-          hideTimer
-          hideInvites
-          showMigrate={!displayEmptyState}
-        />
+        <L2PointHeader hideHome hideInvites showMigrate={!displayEmptyState} />
       }>
       <NavHeader>
         <CopiableAddress
