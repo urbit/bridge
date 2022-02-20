@@ -106,6 +106,8 @@ const ROLLER_HOSTS = {
   MAINNET: 'roller.urbit.org',
 };
 
+const ROLLER_PATH = '/v1/roller';
+
 const POINT_DOMINIONS = {
   L1: 'l1',
   L2: 'l2',
@@ -250,6 +252,7 @@ export {
   ZOD,
   PROGRESS_ANIMATION_DELAY_MS,
   ROLLER_HOSTS,
+  ROLLER_PATH,
   POINT_DOMINIONS,
   POINT_PROXIES,
   DEFAULT_FADE_TIMEOUT,
