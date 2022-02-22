@@ -22,7 +22,7 @@ import { usePointCache } from 'store/pointCache';
 
 import { getUpdatedPointMessage, isPlanet, toL1Details } from './utils/point';
 import { convertToInt } from './convertToInt';
-import { isDevelopment, isMainnet, isRopsten } from './flags';
+import { isDevelopment } from './flags';
 import {
   generateInviteWallet,
   getPendingSpawns,
@@ -30,14 +30,13 @@ import {
   registerProxyAddress,
   isL2Spawn,
 } from './utils/roller';
-import { POINT_DOMINIONS, ROLLER_HOSTS, TEN_SECONDS } from './constants';
+import { POINT_DOMINIONS, TEN_SECONDS } from './constants';
 
 import {
   Config,
   Ship,
   Proxy,
   RollerRPCAPI,
-  Options,
   EthAddress,
   UnspawnedPoints,
 } from '@urbit/roller-api';
@@ -50,6 +49,7 @@ import { showNotification } from './utils/notifications';
 import { useWalletConnect } from './useWalletConnect';
 import { PendingL1Txn } from './types/PendingL1Transaction';
 import { TRANSACTION_PROGRESS } from './reticket';
+import { useRollerOptions } from './useRollerOptions';
 
 interface UpdateParams {
   point: number;
@@ -108,25 +108,7 @@ export default function useRoller() {
   } = useRollerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
-  const options: Options = useMemo(() => {
-    const type = isMainnet || isRopsten ? 'https' : 'http';
-    const host = isMainnet
-      ? ROLLER_HOSTS.MAINNET
-      : isRopsten
-      ? ROLLER_HOSTS.ROPSTEN
-      : ROLLER_HOSTS.LOCAL;
-    const port = isMainnet || isRopsten ? 443 : 8080;
-    const path = '/v1/roller';
-
-    return {
-      transport: {
-        type,
-        host,
-        port,
-        path,
-      },
-    };
-  }, []);
+  const { options } = useRollerOptions();
 
   const api = useMemo(() => {
     return new RollerRPCAPI(options);

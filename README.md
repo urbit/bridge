@@ -54,3 +54,19 @@ A proper "offline mode" for the latest iteration of Bridge is still being worked
 ## Development
 
 See [development.md](DEVELOPMENT.md).
+
+
+## Configurable Roller Endpoint
+
+By default, Bridge uses Tlon's L2 Roller, but can also be configured to use your own.
+
+For example:
+
+```sh
+REACT_APP_ROLLER_HOST=my-personal-roller.net npm run pilot-mainnet
+```
+
+The following are configurable, and will otherwise fallback to the defaults in `constants`:
+- `REACT_APP_ROLLER_HOST` - host
+- `REACT_APP_ROLLER_PORT` - port
+- `REACT_APP_ROLLER_TRANSPORT_TYPE` - transport type (e.g., `http` or `https`)
