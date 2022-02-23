@@ -1,3 +1,4 @@
+import { crypto } from 'bitcoinjs-lib';
 import { ecdsaSign } from 'secp256k1';
 import Web3 from 'web3';
 import { hexToBytes } from 'web3-utils';
@@ -12,9 +13,11 @@ import { keccak256 } from 'ethereumjs-util';
 
 const MESSAGE = 'Bridge Authentication Token';
 
-function signMessage(privateKey: Buffer) {
+function signMessage(privateKey: Buffer, useLegacyTokenSigning = false) {
   const msg = '\x19Ethereum Signed Message:\n' + MESSAGE.length + MESSAGE;
-  const hashed = keccak256(Buffer.from(msg));
+  const hashed = useLegacyTokenSigning
+    ? crypto.sha256(Buffer.from(msg))
+    : keccak256(Buffer.from(msg));
   const { signature } = ecdsaSign(Buffer.from(hashed), privateKey);
 
   // add key recovery parameter
@@ -60,6 +63,7 @@ type WalletConnectAuthTokenArgs = {
 type DefaultAuthTokenArgs = {
   wallet: BridgeWallet;
   walletType?: symbol;
+  useLegacyTokenSigning?: boolean;
 };
 
 type GetAuthTokenArgs =
@@ -100,8 +104,11 @@ const getWalletConnectAuthToken = ({
   return connector.signPersonalMessage([MESSAGE, address]);
 };
 
-const getDefaultAuthToken = ({ wallet }: DefaultAuthTokenArgs) => {
-  const signature = signMessage(wallet.privateKey!);
+const getDefaultAuthToken = ({
+  wallet,
+  useLegacyTokenSigning = false,
+}: DefaultAuthTokenArgs) => {
+  const signature = signMessage(wallet.privateKey!, useLegacyTokenSigning);
 
   const token = `0x${Buffer.from(signature).toString('hex')}`;
 

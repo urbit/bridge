@@ -53,6 +53,11 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
 
   const [authToken, setAuthToken] = useState(Nothing());
 
+  // See: https://github.com/urbit/bridge/issues/549#issuecomment-1048359617
+  // This is used for legacy compatibility; this flow should eventually be
+  // be removed after ~1 year.
+  const [useLegacyTokenSigning, setUseLegacyTokenSigning] = useState(false);
+
   const { web3 } = useNetwork();
 
   useEffect(() => {
@@ -72,11 +77,12 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
         walletType,
         walletHdPath,
         web3: _web3,
+        useLegacyTokenSigning,
       });
 
       setAuthToken(Just(token));
     })();
-  }, [wallet, walletType, walletHdPath, web3]);
+  }, [wallet, walletType, walletHdPath, web3, useLegacyTokenSigning]);
 
   const setWalletType = useCallback(
     walletType => {
@@ -132,6 +138,7 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
     setAuthMnemonic(Nothing());
     setNetworkSeed(Nothing());
     setNetworkRevision(Nothing());
+    setUseLegacyTokenSigning(false);
   }, [
     _setWalletType,
     setWalletHdPath,
@@ -167,6 +174,8 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
     //
     authToken,
     setAuthToken,
+    useLegacyTokenSigning,
+    setUseLegacyTokenSigning,
   };
 }
 

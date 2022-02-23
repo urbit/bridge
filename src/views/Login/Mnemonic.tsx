@@ -35,7 +35,13 @@ interface MnemonicProps {
 export default function Mnemonic({ className, goHome }: MnemonicProps) {
   useLoginView(WALLET_TYPES.MNEMONIC);
 
-  const { setWallet, setAuthMnemonic, setWalletHdPath }: any = useWallet();
+  const {
+    setWallet,
+    setAuthMnemonic,
+    setWalletHdPath,
+    setUseLegacyTokenSigning,
+    useLegacyTokenSigning,
+  }: any = useWallet();
 
   const [skipValidation, setSkipValidation] = useState(false);
   const [phraseHdPath, setPhraseHdPath] = useState(false);
@@ -95,6 +101,12 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
       key: 'phraseHdPath',
       label: 'Passphrase & HD Path',
       onClick: () => setPhraseHdPath(!phraseHdPath),
+    },
+    {
+      selected: useLegacyTokenSigning,
+      key: 'useLegacyTokenSigning',
+      label: 'Use Legacy Compatibility',
+      onClick: () => setUseLegacyTokenSigning(!useLegacyTokenSigning),
     },
   ];
 
