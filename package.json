@@ -50,7 +50,7 @@
     "copy-to-clipboard": "^3.2.0",
     "date-fns": "^2.25.0",
     "ethereum-blockies-base64": "^1.0.2",
-    "ethereumjs-util": "^7.0.10",
+    "ethereumjs-util": "^7.1.4",
     "file-saver": "^2.0.0",
     "final-form": "^4.18.4",
     "final-form-arrays": "^3.0.1",
