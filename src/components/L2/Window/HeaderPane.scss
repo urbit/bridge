@@ -33,6 +33,11 @@
       padding: 8px 16px;
       font-family: $default-font;
 
+      &.keyfile-unavailable {
+        height: unset;
+        background-color: rgba(0, 0, 0, 0.6);
+      }
+
       &:hover {
         opacity: 0.8;
       }
