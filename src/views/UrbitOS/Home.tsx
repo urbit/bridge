@@ -16,6 +16,7 @@ import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
 import './UrbitOS.scss';
 import Modal from 'components/L2/Modal';
 import { useRollerStore } from 'store/rollerStore';
+import WithTooltip from 'components/WithTooltip';
 
 export default function UrbitOSHome() {
   const { point } = useRollerStore();
@@ -42,22 +43,40 @@ export default function UrbitOSHome() {
     names,
   ]);
 
-  const { code, download } = useSingleKeyfileGenerator({});
+  const { available, code, download, generating } = useSingleKeyfileGenerator(
+    {}
+  );
+  const keyfileAvailable = available && !generating;
+
+  const headerButton = () => {
+    if (!hasSetNetworkKeys) {
+      return null;
+    }
+
+    if (generating) {
+      return <Box className="header-button keyfile">Generating...</Box>;
+    }
+
+    return keyfileAvailable ? (
+      <Button className="header-button keyfile" onClick={download}>
+        <KeyfileIcon />
+        Download Keyfile
+      </Button>
+    ) : (
+      <WithTooltip content="Either the key was derived non-deterministically, or try Login > Use Legacy Compatibility">
+        <Box className="header-button keyfile-unavailable">
+          Keyfile Unavailable
+        </Box>
+      </WithTooltip>
+    );
+  };
 
   return (
     <Window className="os-home">
       <HeaderPane>
         <Row className="header-row">
           <h5>OS</h5>
-          {hasSetNetworkKeys && (
-            <Button
-              className="header-button keyfile"
-              disabled={!hasSetNetworkKeys}
-              onClick={download}>
-              <KeyfileIcon />
-              Download Keyfile
-            </Button>
-          )}
+          {headerButton()}
         </Row>
       </HeaderPane>
       <BodyPane>
