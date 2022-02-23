@@ -86,11 +86,15 @@ export default function LoginSelector({
       }
       setMetamask(true);
       setMetamaskSelected(true);
+
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts',
       });
-      const wallet = new MetamaskWallet(accounts[0]);
+      if (accounts.length === 0) {
+        throw new Error('No accounts approved');
+      }
 
+      const wallet = new MetamaskWallet(accounts[0]);
       const web3 = new Web3(window.ethereum);
       const authToken = await getAuthToken({
         address: wallet.address,
