@@ -17,7 +17,6 @@ import { timeout } from 'lib/timeout';
 import useRoller from 'lib/useRoller';
 
 import BridgeForm from 'form/BridgeForm';
-import Condition from 'form/Condition';
 import { TicketInput, PassphraseInput, PointInput } from 'form/Inputs';
 import {
   composeValidator,
@@ -44,7 +43,11 @@ interface TicketProps {
 export default function Ticket({ className, goHome }: TicketProps) {
   useLoginView(WALLET_TYPES.TICKET);
 
-  const { setUrbitWallet }: any = useWallet();
+  const {
+    setUrbitWallet,
+    setUseLegacyTokenSigning,
+    useLegacyTokenSigning,
+  }: any = useWallet();
   const { setPointCursor }: any = usePointCursor();
   const impliedPoint = useImpliedPoint();
   const didWarn = useRef(false);
@@ -173,6 +176,12 @@ export default function Ticket({ className, goHome }: TicketProps) {
       key: 'useShards',
       label: 'Shards',
       onClick: () => setUseShards(!useShards),
+    },
+    {
+      selected: useLegacyTokenSigning,
+      key: 'useLegacyTokenSigning',
+      label: 'Use Legacy Compatibility',
+      onClick: () => setUseLegacyTokenSigning(!useLegacyTokenSigning),
     },
   ];
 
