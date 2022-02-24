@@ -105,7 +105,7 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
     {
       selected: useLegacyTokenSigning,
       key: 'useLegacyTokenSigning',
-      label: 'Use Legacy Compatibility',
+      label: 'Use Legacy Keyfile',
       onClick: () => setUseLegacyTokenSigning(!useLegacyTokenSigning),
     },
   ];

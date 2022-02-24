@@ -7,6 +7,7 @@ import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 import { ReactComponent as KeyfileIcon } from 'assets/keyfile.svg';
+import { ReactComponent as InfoIcon } from 'assets/info.svg';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import { useSingleKeyfileGenerator } from 'lib/useKeyfileGenerator';
@@ -16,7 +17,6 @@ import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
 import './UrbitOS.scss';
 import Modal from 'components/L2/Modal';
 import { useRollerStore } from 'store/rollerStore';
-import WithTooltip from 'components/WithTooltip';
 
 export default function UrbitOSHome() {
   const { point } = useRollerStore();
@@ -47,6 +47,9 @@ export default function UrbitOSHome() {
     {}
   );
   const keyfileAvailable = available && !generating;
+  const [showKeysUnavailableModal, setShowKeysUnavailableModal] = useState(
+    false
+  );
 
   const headerButton = () => {
     if (!hasSetNetworkKeys) {
@@ -63,11 +66,25 @@ export default function UrbitOSHome() {
         Download Keyfile
       </Button>
     ) : (
-      <WithTooltip content="Either the key was derived non-deterministically, or try Login > Use Legacy Compatibility">
-        <Box className="header-button keyfile-unavailable">
-          Keyfile Unavailable
-        </Box>
-      </WithTooltip>
+      <>
+        <Button
+          className="header-button keyfile-unavailable"
+          onClick={() => setShowKeysUnavailableModal(true)}>
+          <InfoIcon />
+          &nbsp;Keyfile Unavailable
+        </Button>
+        <Modal
+          show={showKeysUnavailableModal}
+          hide={() => setShowKeysUnavailableModal(false)}>
+          <Box className="info-modal-content">
+            <div className="fw-bold mb5">Keyfile Unavailable</div>
+            <div className="mb5">
+              Keys generated between 2021-05 and 2022-02 used a different
+              algorithm. Please login again with 'Use Legacy Keyfile' selected.
+            </div>
+          </Box>
+        </Modal>
+      </>
     );
   };
 
