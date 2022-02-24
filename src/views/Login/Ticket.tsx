@@ -180,7 +180,7 @@ export default function Ticket({ className, goHome }: TicketProps) {
     {
       selected: useLegacyTokenSigning,
       key: 'useLegacyTokenSigning',
-      label: 'Use Legacy Compatibility',
+      label: 'Use Legacy Keyfile',
       onClick: () => setUseLegacyTokenSigning(!useLegacyTokenSigning),
     },
   ];
