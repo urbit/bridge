@@ -1,184 +1,50 @@
-import React, { useEffect, useCallback, useMemo, useState } from 'react';
-import { Grid, Button } from 'indigo-react';
-import * as azimuth from 'azimuth-js';
-import {
-  Icon,
-  Row,
-  StatelessTextInput,
-  Box,
-  LoadingSpinner,
-} from '@tlon/indigo-react';
+import { useCallback, useState } from 'react';
+import { Button } from 'indigo-react';
+import { Icon, Row, Box, LoadingSpinner } from '@tlon/indigo-react';
 
-import { usePointCache } from 'store/pointCache';
-import { useWallet } from 'store/wallet';
-import { useNetwork } from 'store/network';
 import { useRollerStore } from 'store/rollerStore';
-import { getStoredInvites } from 'store/storage/roller';
-
 import { useLocalRouter } from 'lib/LocalRouter';
-import * as need from 'lib/need';
-import useRoller from 'lib/useRoller';
 import {
   generateUrl,
   generateUrlAbbreviation,
   generateCsvLine,
   generateCsvName,
 } from 'lib/utils/invite';
-import {
-  DEFAULT_NUM_INVITES,
-  ETH_ZERO_ADDR,
-  INVITES_PER_PAGE,
-  DEFAULT_CSV_NAME,
-} from 'lib/constants';
-import { isPlanet } from 'lib/utils/point';
-import { generateInviteWallet } from 'lib/utils/roller';
+import { INVITES_PER_PAGE, DEFAULT_CSV_NAME } from 'lib/constants';
 import { useTimerStore } from 'store/timerStore';
 import { Invite } from 'lib/types/Invite';
 import { ddmmmYYYY } from 'lib/utils/date';
-import { isExternalWallet } from 'lib/utils/wallet';
 
-import { useIssueChild } from 'views/Point/IssueChild';
 import View from 'components/View';
 import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
-import LoadingOverlay from 'components/L2/LoadingOverlay';
 import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
 import Paginator from 'components/L2/Paginator';
-import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 
 import './Cohort.scss';
 import Modal from 'components/L2/Modal';
-import {
-  InviteGeneratingStatus,
-  useInvites,
-  useInviteStore,
-} from './useInvites';
-import { GeneratingModal } from './GeneratingModal';
-
-interface L1Invite {
-  ticket: string;
-  planet: number;
-}
+import { useInvites, useInviteStore } from './useInvites';
 
 export default function InviteCohort() {
-  const { pop }: any = useLocalRouter();
-  const { authToken, walletType }: any = useWallet();
+  const { names, pop, push } = useLocalRouter();
   const { point, pendingTransactions, nextQuotaTime } = useRollerStore();
 
   const { nextRoll } = useTimerStore();
 
-  const { ls, getPendingTransactions, getAndUpdatePoint } = useRoller();
-  const { contracts }: any = useNetwork();
-  const { syncControlledPoints }: any = usePointCache();
-
-  const { invites, generatingNum, setInvites } = useInviteStore();
-  const { getInvites, generateInviteCodes } = useInvites();
+  const { invites, generatingNum } = useInviteStore();
+  const { getInvites } = useInvites();
   const currentL2 = Boolean(point.isL2Spawn);
 
-  const _contracts = need.contracts(contracts);
-
-  const [numInvites, setNumInvites] = useState(
-    currentL2 ? DEFAULT_NUM_INVITES : 1
-  );
-  const [showInviteForm, setShowInviteForm] = useState(false);
-  const [generatingStatus, setGeneratingStatus] = useState<
-    InviteGeneratingStatus
-  >('initial');
   const [loading, setLoading] = useState(false);
   const [showCsvModal, setShowCsvModal] = useState(false);
   const [csvElement, setCsvElement] = useState<HTMLAnchorElement | null>();
   // TODO: do we need to read this error? currently unused
   const [error, setError] = useState('');
-  const [l1Invite, setL1Invite] = useState<L1Invite | null>(null);
   const [page, setPage] = useState(0);
 
-  const { construct, unconstruct, completed, bind } = useIssueChild();
   const invitePoints = invites[point.value];
-
-  // Set up the invite spawn if on L1
-  useEffect(() => {
-    const _authToken = authToken.getOrElse(null);
-
-    if (!_authToken) {
-      return;
-    }
-
-    const setUpInvite = async () => {
-      setLoading(true);
-      const possiblePoints = await azimuth.azimuth.getUnspawnedChildren(
-        _contracts,
-        point
-      );
-
-      let invitePoint;
-      for (let i = 0; i < possiblePoints.length; i++) {
-        const p = possiblePoints[i];
-        if (
-          !invitePoints.find(({ planet }) => planet === p) &&
-          isPlanet(p) &&
-          (await azimuth.azimuth.getOwner(_contracts, p)) === ETH_ZERO_ADDR
-        ) {
-          invitePoint = p;
-          break;
-        }
-      }
-
-      if (invitePoint) {
-        useInviteStore.setState({ generatingNum: 1 });
-        const { ticket, inviteWallet } = await generateInviteWallet(
-          invitePoint,
-          _authToken
-        );
-
-        construct(invitePoint, inviteWallet.ownership.keys.address);
-        setL1Invite({ ticket, planet: invitePoint });
-      } else {
-        setError('No available planets');
-      }
-
-      setLoading(false);
-    };
-
-    if (!currentL2 && _contracts && point && _authToken && showInviteForm) {
-      setUpInvite();
-    } else if (!currentL2 && !showInviteForm) {
-      unconstruct();
-    }
-  }, [
-    currentL2,
-    point,
-    _contracts,
-    authToken,
-    construct,
-    showInviteForm,
-    unconstruct,
-    invitePoints,
-  ]);
-
-  useEffect(() => {
-    const storedInvites = getStoredInvites(ls);
-
-    if (
-      !currentL2 ||
-      !completed ||
-      !l1Invite ||
-      storedInvites[l1Invite.planet]
-    ) {
-      return;
-    }
-
-    syncControlledPoints();
-    setInvites(point.value, [
-      ...invitePoints,
-      { ...l1Invite, hash: '', owner: '' },
-    ]);
-    setShowInviteForm(false);
-    setL1Invite(null);
-    unconstruct();
-    pop();
-  }, [completed, currentL2, point]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const invitesToDisplay = invitePoints.slice(
     page * INVITES_PER_PAGE,
@@ -187,32 +53,6 @@ export default function InviteCohort() {
 
   const hasPending = Boolean(pendingTransactions.length);
   const hasInvites = Boolean(invitePoints.length);
-
-  const createInvites = useCallback(async () => {
-    setGeneratingStatus('generating');
-    try {
-      await generateInviteCodes(numInvites);
-      getPendingTransactions();
-      getAndUpdatePoint(point.value);
-      setGeneratingStatus('finished');
-    } catch (error) {
-      if (typeof error === 'object' && (error as Error)?.message) {
-        setError((error as Error).message);
-      } else if (typeof error === 'string') {
-        setError(error);
-      } else {
-        setError('Generating invites failed');
-      }
-      setGeneratingStatus('errored');
-    }
-  }, [
-    generateInviteCodes,
-    numInvites,
-    getPendingTransactions,
-    getAndUpdatePoint,
-    point,
-    setGeneratingStatus,
-  ]);
 
   const generateCsv = useCallback(() => {
     const generateCsvElement = async () => {
@@ -251,8 +91,6 @@ export default function InviteCohort() {
   const goNextPage = useCallback(() => {
     setPage(page + 1);
   }, [page]);
-
-  const overQuota = numInvites > point.l2Quota && numInvites > 0;
 
   const getContent = () => {
     if (hasInvites) {
@@ -325,118 +163,6 @@ export default function InviteCohort() {
     </h5>
   );
 
-  if (showInviteForm) {
-    const generateDisabled = loading || overQuota;
-    const showTxnNote = isExternalWallet(walletType);
-
-    return (
-      <View
-        pop={() => setShowInviteForm(false)}
-        className="cohort show-invite-form"
-        hideBack
-        header={<L2BackHeader back={() => setShowInviteForm(false)} />}>
-        <Window>
-          <HeaderPane>
-            <h5>Generate Invite Codes</h5>
-          </HeaderPane>
-          <BodyPane>
-            <Box className="upper">
-              {currentL2 ? (
-                <Row className="points-input">
-                  I want to generate
-                  <StatelessTextInput
-                    className={`input-box ${overQuota ? 'over-quota' : ''}`}
-                    value={numInvites}
-                    maxLength={3}
-                    onChange={e => {
-                      const target = e.target as HTMLInputElement;
-                      setNumInvites(Number(target.value.replace(/\D/g, '')));
-                    }}
-                  />
-                  planet invite code{numInvites > 1 ? 's' : ''}
-                </Row>
-              ) : (
-                <Box className="migration-prompt">
-                  ETH fees are very high currently. You can spawn invites for
-                  free after{' '}
-                  <span className="migrate" onClick={() => null}>
-                    {/* TODO: change this to navigate to migration */}
-                    migrating this star to L2.
-                  </span>
-                </Box>
-              )}
-              {currentL2 && (
-                <Box className="mb4" lineHeight="1.4em">
-                  You can generate up to
-                  <strong>{` ${point.l2Quota} `}</strong>
-                  invites. You will be able to generate another
-                  <strong>{` ${point.l2Allowance}`}</strong> invites on
-                  <strong>{` ${ddmmmYYYY(nextQuotaTime)}`}</strong>.
-                </Box>
-              )}
-              {showTxnNote && (
-                <Box className="mb6" lineHeight="1.4em">
-                  Note: you will have to sign <strong>4</strong> transactions
-                  per invite, for a total of <strong>{4 * numInvites}</strong>{' '}
-                  signatures.
-                </Box>
-              )}
-            </Box>
-            {/* <Inviter /> */}
-            <Box className="lower">
-              {currentL2 && (
-                <Row className="next-roll">
-                  <span>Next Roll in</span>
-                  <span className="timer">{nextRoll}</span>
-                </Row>
-              )}
-              {currentL2 ? (
-                // Ignoring for deprecated `indigo-react` component
-                //@ts-ignore
-                <Button
-                  as={'button'}
-                  className={`generate-codes ${
-                    generateDisabled ? 'disabled' : ''
-                  }`}
-                  disabled={generateDisabled}
-                  center
-                  onClick={createInvites}>
-                  {loading
-                    ? `Generating ${numInvites} invites...`
-                    : overQuota
-                    ? `You can only generate ${point.l2Quota} codes`
-                    : `Generate Invite Code${
-                        currentL2 ? `s (${numInvites})` : ''
-                      }`}
-                </Button>
-              ) : (
-                <Grid.Item
-                  full
-                  as={InlineEthereumTransaction}
-                  label="Generate Invite Code"
-                  {...bind}
-                  onReturn={() => pop()}
-                />
-              )}
-            </Box>
-          </BodyPane>
-        </Window>
-        <GeneratingModal
-          status={generatingStatus}
-          current={generatingNum}
-          total={numInvites}
-          error={error}
-          hide={() => {
-            setGeneratingStatus('initial');
-            if (generatingStatus !== 'errored') {
-              pop();
-            }
-          }}
-        />
-      </View>
-    );
-  }
-
   const showGenerateButton = !hasPending && !hasInvites && point.canSpawn;
   const showAddMoreButton =
     (hasInvites || hasPending) && point.canSpawn && point.l2Quota > 0;
@@ -473,7 +199,7 @@ export default function InviteCohort() {
             <Button
               className="generate-button ph4"
               center
-              onClick={() => setShowInviteForm(true)}>
+              onClick={() => push(names.GENERATE_INVITES)}>
               Generate Codes
             </Button>
           )}
@@ -490,7 +216,7 @@ export default function InviteCohort() {
       </Window>
       {showAddMoreButton ? (
         <Button
-          onClick={() => setShowInviteForm(true)}
+          onClick={() => push(names.GENERATE_INVITES)}
           className="add-more"
           //@ts-ignore
           accessory={<Icon icon="ChevronEast" />}>

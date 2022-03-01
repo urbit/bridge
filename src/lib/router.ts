@@ -15,19 +15,20 @@ import Point from 'views/Point/Point';
 import UrbitOS from 'views/Point/UrbitOS';
 import UrbitID from 'views/Point/UrbitID';
 import { Residents } from 'views/Ops/Residents';
-import MigrateL2 from 'views/Point/MigrateL2.tsx';
+import MigrateL2 from 'views/Point/MigrateL2';
 import IssueChild from 'views/Point/IssueChild';
 
 import PartySetPoolSize from 'views/Party/PartySetPoolSize';
 import InviteCohort from 'views/Invite/Cohort';
-import AcceptTransfer from 'views/AcceptTransfer.tsx';
-import CancelTransfer from 'views/CancelTransfer.tsx';
-import Bitcoin from 'views/Bitcoin/Bitcoin.tsx';
+import AcceptTransfer from 'views/AcceptTransfer';
+import CancelTransfer from 'views/CancelTransfer';
+import Bitcoin from 'views/Bitcoin/Bitcoin';
 import TransactionHistory from 'views/Transactions/TransactionHistory';
 
 import { ROUTE_NAMES } from './routeNames';
 import { Ops } from 'views/Ops/Ops';
 import { Requests } from 'views/Ops/Requests';
+import { GenerateInvites } from 'views/Invite/GenerateInvites';
 
 export const ROUTES = {
   [ROUTE_NAMES.DISCLAIMER]: Disclaimer,
@@ -47,6 +48,7 @@ export const ROUTES = {
   // TODO: replace this with deep link to AdminCancelTransfer
   [ROUTE_NAMES.CANCEL_TRANSFER]: CancelTransfer,
   [ROUTE_NAMES.INVITE_COHORT]: InviteCohort,
+  [ROUTE_NAMES.GENERATE_INVITES]: GenerateInvites,
   [ROUTE_NAMES.STAR_RELEASE]: StarRelease,
   [ROUTE_NAMES.ACCEPT_LOCKUP]: AcceptLockup,
   [ROUTE_NAMES.URBIT_OS]: UrbitOS,
