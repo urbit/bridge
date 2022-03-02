@@ -27,7 +27,6 @@ const L2PointHeader = ({
   const { invites, loading: invitesLoading } = useInviteStore();
   const { pointCursor, setPointCursor }: any = usePointCursor();
   const numInvites = invites[point.value]?.length;
-  debugger;
 
   const { popTo, push, names }: any = useHistory();
 

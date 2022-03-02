@@ -1,5 +1,5 @@
 import { UnspawnedPoints } from '@urbit/roller-api';
-import { POINT_DOMINIONS } from 'lib/constants';
+import { DEFAULT_CSV_NAME, POINT_DOMINIONS } from 'lib/constants';
 import { deriveNetworkSeedFromUrbitWallet } from 'lib/keys';
 import * as need from 'lib/need';
 import * as azimuth from 'azimuth-js';
@@ -25,6 +25,7 @@ import {
 import { useWallet } from 'store/wallet';
 import { usePointCache } from 'store/pointCache';
 import create from 'zustand';
+import { generateCsvLine, generateCsvName } from 'lib/utils/invite';
 
 const inviteTemplate = (
   planet: number,
@@ -87,7 +88,7 @@ export function useInvites() {
   const { api, ls } = useRoller();
   const { point, pointList, setPendingTransactions } = useRollerStore();
   const { addInvite, setInvites } = useInviteStore();
-  const updatingInvites = useRef(false);
+  const updatingInvites = useRef<number[]>([]);
 
   const generateInviteInfo = async (planet: number, _authToken: string) => {
     const { ticket, inviteWallet } = await generateInviteWallet(
@@ -99,11 +100,11 @@ export function useInvites() {
   };
 
   const getInvites = useCallback(async () => {
-    if (updatingInvites.current) {
+    if (updatingInvites.current.includes(point.value)) {
       return;
     }
 
-    updatingInvites.current = true;
+    updatingInvites.current.push(point.value);
     try {
       useInviteStore.setState({ loading: true });
       const curPoint: number = Number(need.point(pointCursor));
@@ -176,7 +177,8 @@ export function useInvites() {
       useInviteStore.setState({ loading: false, generatingNum: 0 });
     }
 
-    updatingInvites.current = false;
+    const pointIndex = updatingInvites.current.indexOf(point.value);
+    updatingInvites.current.splice(pointIndex, 1);
   }, [
     api,
     authToken,
@@ -328,8 +330,39 @@ export function useInvites() {
     ]
   );
 
+  const generateCsv = useCallback(async () => {
+    const invites = await getInvites();
+
+    if (!invites) {
+      throw new Error('There was an error creating the CSV');
+    }
+
+    const csv = invites.reduce(
+      (csvData, { ticket, planet }, ind) =>
+        (csvData += generateCsvLine(ind, ticket, planet)),
+      'Number,Planet,Invite URL,Point,Ticket\n'
+    );
+
+    document.getElementById('csv')?.remove();
+    const hiddenElement = document.createElement('a');
+    hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURIComponent(
+      csv
+    )}`;
+    hiddenElement.target = '_blank';
+    hiddenElement.id = 'csv';
+
+    //provide the name for the CSV file to be downloaded
+    hiddenElement.download = generateCsvName(
+      DEFAULT_CSV_NAME,
+      point.patp?.slice(1) || 'bridge'
+    );
+
+    return hiddenElement;
+  }, [getInvites, point]);
+
   return {
     getInvites,
+    generateCsv,
     generateInviteCodes,
   };
 }

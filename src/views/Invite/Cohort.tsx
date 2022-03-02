@@ -1,16 +1,11 @@
 import { useCallback, useState } from 'react';
 import { Button } from 'indigo-react';
-import { Icon, Row, Box, LoadingSpinner } from '@tlon/indigo-react';
+import { Icon, Row, Box, LoadingSpinner, Text, H3 } from '@tlon/indigo-react';
 
 import { useRollerStore } from 'store/rollerStore';
 import { useLocalRouter } from 'lib/LocalRouter';
-import {
-  generateUrl,
-  generateUrlAbbreviation,
-  generateCsvLine,
-  generateCsvName,
-} from 'lib/utils/invite';
-import { INVITES_PER_PAGE, DEFAULT_CSV_NAME } from 'lib/constants';
+import { generateUrl, generateUrlAbbreviation } from 'lib/utils/invite';
+import { INVITES_PER_PAGE } from 'lib/constants';
 import { useTimerStore } from 'store/timerStore';
 import { Invite } from 'lib/types/Invite';
 import { ddmmmYYYY } from 'lib/utils/date';
@@ -24,8 +19,8 @@ import CopiableWithTooltip from 'components/copiable/CopiableWithTooltip';
 import Paginator from 'components/L2/Paginator';
 
 import './Cohort.scss';
-import Modal from 'components/L2/Modal';
-import { useInvites, useInviteStore } from './useInvites';
+import { useInviteStore } from './useInvites';
+import { CSVModal } from './CSVModal';
 
 export default function InviteCohort() {
   const { names, pop, push } = useLocalRouter();
@@ -33,15 +28,11 @@ export default function InviteCohort() {
 
   const { nextRoll } = useTimerStore();
 
-  const { invites, generatingNum } = useInviteStore();
-  const { getInvites } = useInvites();
+  const { invites, loading } = useInviteStore();
   const currentL2 = Boolean(point.isL2Spawn);
 
-  const [loading, setLoading] = useState(false);
   const [showCsvModal, setShowCsvModal] = useState(false);
-  const [csvElement, setCsvElement] = useState<HTMLAnchorElement | null>();
   // TODO: do we need to read this error? currently unused
-  const [error, setError] = useState('');
   const [page, setPage] = useState(0);
 
   const invitePoints = invites[point.value];
@@ -53,40 +44,6 @@ export default function InviteCohort() {
 
   const hasPending = Boolean(pendingTransactions.length);
   const hasInvites = Boolean(invitePoints.length);
-
-  const generateCsv = useCallback(() => {
-    const generateCsvElement = async () => {
-      setLoading(true);
-      setShowCsvModal(true);
-      const invites = await getInvites();
-      if (invites) {
-        const csv = invites.reduce(
-          (csvData, { ticket, planet }, ind) =>
-            (csvData += generateCsvLine(ind, ticket, planet)),
-          'Number,Planet,Invite URL,Point,Ticket\n'
-        );
-        document.getElementById('csv')?.remove();
-        const hiddenElement = document.createElement('a');
-        hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURIComponent(
-          csv
-        )}`;
-        hiddenElement.target = '_blank';
-        hiddenElement.id = 'csv';
-
-        //provide the name for the CSV file to be downloaded
-        hiddenElement.download = generateCsvName(
-          DEFAULT_CSV_NAME,
-          point.patp?.slice(1) || 'bridge'
-        );
-        setCsvElement(hiddenElement);
-      } else {
-        setError('There was an error creating the CSV');
-      }
-      setLoading(false);
-      useInviteStore.setState({ generatingNum: 0 });
-    };
-    generateCsvElement();
-  }, [getInvites, setError, setLoading, setShowCsvModal, point]);
 
   const goNextPage = useCallback(() => {
     setPage(page + 1);
@@ -155,18 +112,28 @@ export default function InviteCohort() {
     );
   };
 
-  const header = (
-    <h5>
-      You have
-      <span className="number-emphasis"> {invitePoints.length} </span>
-      Invite Code{invitePoints.length === 1 ? '' : 's'}
-    </h5>
-  );
+  const header = () => {
+    if (loading) {
+      return (
+        <Row alignItems="center">
+          <LoadingSpinner dark />
+          <H3 ml={2}>Checking and Updating Invites...</H3>
+        </Row>
+      );
+    }
+
+    return (
+      <h5>
+        You have
+        <span className="number-emphasis"> {invitePoints.length} </span>
+        Invite Code{invitePoints.length === 1 ? '' : 's'}
+      </h5>
+    );
+  };
 
   const showGenerateButton = !hasPending && !hasInvites && point.canSpawn;
   const showAddMoreButton =
     (hasInvites || hasPending) && point.canSpawn && point.l2Quota > 0;
-  const generatingCodesText = `Generating ${generatingNum} of ${invitePoints.length} codes...`;
 
   return (
     <View
@@ -178,11 +145,13 @@ export default function InviteCohort() {
       <Window>
         <HeaderPane>
           {!hasInvites ? (
-            header
+            header()
           ) : (
             <Row className="has-invites-header">
-              {header}
-              <Row className="download-csv" onClick={generateCsv}>
+              {header()}
+              <Row
+                className="download-csv"
+                onClick={() => setShowCsvModal(true)}>
                 <Icon icon="Download" />
                 <Box>CSV</Box>
               </Row>
@@ -230,40 +199,12 @@ export default function InviteCohort() {
           <strong>{` ${ddmmmYYYY(nextQuotaTime)}`}</strong>.
         </Box>
       ) : null}
-      <Modal show={showCsvModal} hide={() => setShowCsvModal(false)} hideClose>
-        <Box className="download-csv-modal">
-          <Box>
-            <Box>Download CSV</Box>
-            {loading && <Box>{generatingCodesText}</Box>}
-          </Box>
-          <Row className="download-buttons">
-            {/*
-            // @ts-ignore */}
-            <Button
-              center
-              className="ph4 close-button"
-              solid
-              onClick={() => setShowCsvModal(false)}>
-              Close
-            </Button>
-            {/*
-            // @ts-ignore */}
-            <Button
-              center
-              className="ph4 download-button"
-              disabled={loading}
-              solid
-              onClick={() => csvElement?.click()}>
-              Download CSV
-            </Button>
-          </Row>
-        </Box>
-        {loading && (
-          <Box className="csv-loading">
-            <LoadingSpinner background="#BCDCFF" foreground="#219DFF" />
-          </Box>
-        )}
-      </Modal>
+      <CSVModal
+        point={point.value}
+        show={showCsvModal}
+        hide={() => setShowCsvModal(false)}
+        hideClose
+      />
     </View>
   );
 }
