@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Button } from 'indigo-react';
-import { Icon, Row, Box, LoadingSpinner, Text, H3 } from '@tlon/indigo-react';
+import { Icon, Row, Box, LoadingSpinner, H3 } from '@tlon/indigo-react';
 
 import { useRollerStore } from 'store/rollerStore';
 import { useLocalRouter } from 'lib/LocalRouter';
@@ -20,7 +20,7 @@ import Paginator from 'components/L2/Paginator';
 
 import './Cohort.scss';
 import { useInviteStore } from './useInvites';
-import { CSVModal } from './CSVModal';
+import { CSVButton } from './CSVButton';
 
 export default function InviteCohort() {
   const { names, pop, push } = useLocalRouter();
@@ -28,14 +28,14 @@ export default function InviteCohort() {
 
   const { nextRoll } = useTimerStore();
 
-  const { invites, loading } = useInviteStore();
+  const { invites, inviteJobs } = useInviteStore();
   const currentL2 = Boolean(point.isL2Spawn);
 
-  const [showCsvModal, setShowCsvModal] = useState(false);
   // TODO: do we need to read this error? currently unused
   const [page, setPage] = useState(0);
 
   const invitePoints = invites[point.value];
+  const inviteJob = inviteJobs[point.value];
 
   const invitesToDisplay = invitePoints.slice(
     page * INVITES_PER_PAGE,
@@ -113,11 +113,13 @@ export default function InviteCohort() {
   };
 
   const header = () => {
-    if (loading) {
+    if (inviteJob?.status === 'generating') {
       return (
         <Row alignItems="center">
           <LoadingSpinner dark />
-          <H3 ml={2}>Checking and Updating Invites...</H3>
+          <H3 ml={2}>
+            Checking and Updating Invite #{inviteJob.generatingNum}...
+          </H3>
         </Row>
       );
     }
@@ -149,12 +151,10 @@ export default function InviteCohort() {
           ) : (
             <Row className="has-invites-header">
               {header()}
-              <Row
-                className="download-csv"
-                onClick={() => setShowCsvModal(true)}>
-                <Icon icon="Download" />
-                <Box>CSV</Box>
-              </Row>
+              <CSVButton
+                point={point}
+                invitesUpdating={inviteJob?.status === 'generating'}
+              />
             </Row>
           )}
         </HeaderPane>
@@ -199,12 +199,6 @@ export default function InviteCohort() {
           <strong>{` ${ddmmmYYYY(nextQuotaTime)}`}</strong>.
         </Box>
       ) : null}
-      <CSVModal
-        point={point.value}
-        show={showCsvModal}
-        hide={() => setShowCsvModal(false)}
-        hideClose
-      />
     </View>
   );
 }

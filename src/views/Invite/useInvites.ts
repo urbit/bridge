@@ -1,5 +1,5 @@
 import { UnspawnedPoints } from '@urbit/roller-api';
-import { DEFAULT_CSV_NAME, POINT_DOMINIONS } from 'lib/constants';
+import { POINT_DOMINIONS } from 'lib/constants';
 import { deriveNetworkSeedFromUrbitWallet } from 'lib/keys';
 import * as need from 'lib/need';
 import * as azimuth from 'azimuth-js';
@@ -25,7 +25,7 @@ import {
 import { useWallet } from 'store/wallet';
 import { usePointCache } from 'store/pointCache';
 import create from 'zustand';
-import { generateCsvLine, generateCsvName } from 'lib/utils/invite';
+import { generateCsvLine } from 'lib/utils/invite';
 
 const inviteTemplate = (
   planet: number,
@@ -45,20 +45,24 @@ export type InviteGeneratingStatus =
   | 'finished'
   | 'errored';
 
+interface InviteJob {
+  generatingNum: number;
+  status: InviteGeneratingStatus;
+}
+
 interface InviteStore {
   invites: Invites;
-  generatingStatus: InviteGeneratingStatus;
-  generatingNum: number;
-  loading: boolean;
+  inviteJobs: {
+    [point: number]: InviteJob;
+  };
   addInvite: (point: number, invite: Invite) => void;
   setInvites: (points: number, invites: Invite[]) => void;
+  updateJob: (point: number, updates: Partial<InviteJob>) => void;
 }
 
 export const useInviteStore = create<InviteStore>((set, get) => ({
   invites: {},
-  generatingStatus: 'initial',
-  generatingNum: 0,
-  loading: false,
+  inviteJobs: {},
   addInvite: (point: number, invite: Invite) => {
     set(state => {
       const newInvites: Invites = {};
@@ -76,6 +80,17 @@ export const useInviteStore = create<InviteStore>((set, get) => ({
       newInvites[point] = invites;
       return { invites: Object.assign(state.invites, newInvites) };
     }),
+  updateJob: (point: number, updates: Partial<InviteJob>) => {
+    debugger;
+    const jobs = get().inviteJobs;
+    const job = jobs[point] || { status: 'initial', generatingNum: 0 };
+    const newJob = Object.assign({}, job, updates);
+    jobs[point] = newJob;
+
+    //console.log({ point, oldJob: job, updates, newJob });
+
+    set({ inviteJobs: jobs });
+  },
 }));
 
 export function useInvites() {
@@ -87,8 +102,13 @@ export function useInvites() {
   const getDetails = allPoints?.getDetails;
   const { api, ls } = useRoller();
   const { point, pointList, setPendingTransactions } = useRollerStore();
-  const { addInvite, setInvites } = useInviteStore();
-  const updatingInvites = useRef<number[]>([]);
+  const {
+    invites,
+    inviteJobs,
+    addInvite,
+    setInvites,
+    updateJob,
+  } = useInviteStore();
 
   const generateInviteInfo = async (planet: number, _authToken: string) => {
     const { ticket, inviteWallet } = await generateInviteWallet(
@@ -100,13 +120,14 @@ export function useInvites() {
   };
 
   const getInvites = useCallback(async () => {
-    if (updatingInvites.current.includes(point.value)) {
+    const inviteJob = inviteJobs[point.value];
+    if (inviteJob?.status === 'generating') {
       return;
     }
 
-    updatingInvites.current.push(point.value);
     try {
-      useInviteStore.setState({ loading: true });
+      updateJob(point.value, { status: 'generating' });
+
       const curPoint: number = Number(need.point(pointCursor));
       const _authToken = authToken.getOrElse(null);
       const _contracts = contracts.getOrElse(null);
@@ -145,7 +166,7 @@ export function useInvites() {
         const storedInvites = getStoredInvites(ls);
 
         for (let i = 0; i < invitePlanets.length; i++) {
-          useInviteStore.setState({ generatingNum: i + 1 });
+          updateJob(point.value, { generatingNum: i + 1 });
           const planet = invitePlanets[i];
           const storedInvite = storedInvites[planet];
           const invite =
@@ -169,16 +190,13 @@ export function useInvites() {
           }
         }
 
-        useInviteStore.setState({ loading: false, generatingNum: 0 });
+        updateJob(point.value, { status: 'finished', generatingNum: 0 });
         return newInvites;
       }
     } catch (error) {
       console.warn('ERROR GETTING INVITES', error);
-      useInviteStore.setState({ loading: false, generatingNum: 0 });
+      updateJob(point.value, { status: 'errored', generatingNum: 0 });
     }
-
-    const pointIndex = updatingInvites.current.indexOf(point.value);
-    updatingInvites.current.splice(pointIndex, 1);
   }, [
     api,
     authToken,
@@ -190,6 +208,7 @@ export function useInvites() {
     addInvite,
     setInvites,
     setPendingTransactions,
+    updateJob,
   ]);
 
   const generateInviteCodes = useCallback(
@@ -233,7 +252,7 @@ export function useInvites() {
       });
 
       for (let i = 0; i < numInvites && planets[i]; i++) {
-        useInviteStore.setState({ generatingNum: i + 1 });
+        updateJob(point.value, { generatingNum: i + 1 });
         const planet = planets[i];
         const nonceInc = i + nonce;
 
@@ -327,38 +346,23 @@ export function useInvites() {
       getDetails,
       ls,
       getInvites,
+      updateJob,
     ]
   );
 
-  const generateCsv = useCallback(async () => {
-    const invites = await getInvites();
+  const generateCsv = useCallback(() => {
+    const pointInvites = invites[point.value];
 
-    if (!invites) {
+    if (!pointInvites) {
       throw new Error('There was an error creating the CSV');
     }
 
-    const csv = invites.reduce(
+    return pointInvites.reduce(
       (csvData, { ticket, planet }, ind) =>
         (csvData += generateCsvLine(ind, ticket, planet)),
       'Number,Planet,Invite URL,Point,Ticket\n'
     );
-
-    document.getElementById('csv')?.remove();
-    const hiddenElement = document.createElement('a');
-    hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURIComponent(
-      csv
-    )}`;
-    hiddenElement.target = '_blank';
-    hiddenElement.id = 'csv';
-
-    //provide the name for the CSV file to be downloaded
-    hiddenElement.download = generateCsvName(
-      DEFAULT_CSV_NAME,
-      point.patp?.slice(1) || 'bridge'
-    );
-
-    return hiddenElement;
-  }, [getInvites, point]);
+  }, [invites, point]);
 
   return {
     getInvites,

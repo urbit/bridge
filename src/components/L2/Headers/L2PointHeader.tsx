@@ -24,9 +24,10 @@ const L2PointHeader = ({
   showMigrate = false,
 }: L2PointHeaderProps) => {
   const { point, pointList } = useRollerStore();
-  const { invites, loading: invitesLoading } = useInviteStore();
+  const { invites, inviteJobs } = useInviteStore();
   const { pointCursor, setPointCursor }: any = usePointCursor();
   const numInvites = invites[point.value]?.length;
+  const loading = inviteJobs[point.value]?.status === 'generating';
 
   const { popTo, push, names }: any = useHistory();
 
@@ -50,7 +51,7 @@ const L2PointHeader = ({
   const renderInviteButton = () => {
     if (!showInvites || !point.showInvites) {
       return null;
-    } else if (invitesLoading) {
+    } else if (loading) {
       return (
         <Row onClick={goToInvites} className="invites">
           <LoadingSpinner foreground="rgba(0,0,0,0.3)" background="white" />

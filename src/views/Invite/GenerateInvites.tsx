@@ -27,7 +27,7 @@ export const GenerateInvites = () => {
   const { point, nextQuotaTime } = useRollerStore();
   const { getPendingTransactions, getAndUpdatePoint } = useRoller();
   const { nextRoll } = useTimerStore();
-  const { generatingNum } = useInviteStore();
+  const { inviteJobs } = useInviteStore();
   const { generateInviteCodes } = useInvites();
   const [generatingStatus, setGeneratingStatus] = useState<
     InviteGeneratingStatus
@@ -152,7 +152,7 @@ export const GenerateInvites = () => {
       </Window>
       <GeneratingModal
         status={generatingStatus}
-        current={generatingNum}
+        current={inviteJobs[point.value]?.generatingNum || 0}
         total={numInvites}
         error={error}
         hide={() => {
