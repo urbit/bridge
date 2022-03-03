@@ -81,7 +81,6 @@ export const useInviteStore = create<InviteStore>((set, get) => ({
       return { invites: Object.assign(state.invites, newInvites) };
     }),
   updateJob: (point: number, updates: Partial<InviteJob>) => {
-    debugger;
     const jobs = get().inviteJobs;
     const job = jobs[point] || { status: 'initial', generatingNum: 0 };
     const newJob = Object.assign({}, job, updates);
