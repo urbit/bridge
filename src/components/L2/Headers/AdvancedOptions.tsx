@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Text, Box, Checkbox, Icon, Row } from '@tlon/indigo-react';
 import './AdvancedOptions.scss';
+import styled from 'styled-components';
 
 interface AdvancedOptionsProps {
   options: {
@@ -10,6 +11,15 @@ interface AdvancedOptionsProps {
     onClick: () => void;
   }[];
 }
+
+// Hide this input completely
+const HiddenInput = styled.input`
+  position: absolute;
+  opacity: 0;
+  height: 0;
+  width: 0;
+  margin: 0px;
+`;
 
 export default function AdvancedOptions({ options }: AdvancedOptionsProps) {
   const showingAny = options.reduce(
@@ -33,6 +43,13 @@ export default function AdvancedOptions({ options }: AdvancedOptionsProps) {
             <Box className="options">
               {options.map((option, ind) => (
                 <Row className="option" key={`adv-opt-${ind}`}>
+                  <HiddenInput
+                    checked={option.selected}
+                    name={option.key}
+                    id={option.key}
+                    type="checkbox"
+                    readOnly
+                  />
                   <Checkbox
                     className={`checkbox ${option.selected ? 'checked' : ''}`}
                     {...option}

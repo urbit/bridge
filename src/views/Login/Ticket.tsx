@@ -61,7 +61,10 @@ export default function Ticket({ className, goHome }: TicketProps) {
     }
 
     if (values.useShards) {
+      errors.ticket = undefined;
+
       if (errors.shard1 || errors.shard2 || errors.shard3) {
+        console.log(errors);
         return errors;
       }
       const empty = ['shard1', 'shard2', 'shard3'].filter(s => !values[s]);
@@ -70,6 +73,7 @@ export default function Ticket({ className, goHome }: TicketProps) {
         empty.forEach(s => {
           errors[s] = 'Please provide at least two out of three shards.';
         });
+        console.log(errors);
         return errors;
       }
     } else {
@@ -153,7 +157,7 @@ export default function Ticket({ className, goHome }: TicketProps) {
   const initialValues = useMemo(
     () => ({
       point: impliedPoint || '',
-      usePasshrase: false,
+      usePassphrase: false,
       useShards: false,
       ticketHidden: true,
       useAdvanced: false,
