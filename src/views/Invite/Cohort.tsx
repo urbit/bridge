@@ -29,7 +29,6 @@ export default function InviteCohort() {
   const { nextRoll } = useTimerStore();
 
   const { invites, inviteJobs } = useInviteStore();
-  const currentL2 = Boolean(point.isL2Spawn);
 
   // TODO: do we need to read this error? currently unused
   const [page, setPage] = useState(0);
@@ -99,7 +98,7 @@ export default function InviteCohort() {
       <>
         You have no planet codes available.
         <br />
-        {currentL2 && point.canSpawn && (
+        {point.canSpawn && (
           <>
             Generate your codes in
             <br />

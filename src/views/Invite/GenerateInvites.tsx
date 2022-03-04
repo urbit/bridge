@@ -33,10 +33,7 @@ export const GenerateInvites = () => {
     InviteGeneratingStatus
   >('initial');
   const [error, setError] = useState('');
-  const currentL2 = Boolean(point.isL2Spawn);
-  const [numInvites, setNumInvites] = useState(
-    currentL2 ? DEFAULT_NUM_INVITES : 1
-  );
+  const [numInvites, setNumInvites] = useState(DEFAULT_NUM_INVITES);
 
   const createInvites = useCallback(async () => {
     setGeneratingStatus('generating');
@@ -80,39 +77,26 @@ export const GenerateInvites = () => {
         </HeaderPane>
         <BodyPane>
           <Box className="upper">
-            {currentL2 ? (
-              <Row className="points-input">
-                I want to generate
-                <StatelessTextInput
-                  className={`input-box ${overQuota ? 'over-quota' : ''}`}
-                  value={numInvites}
-                  maxLength={3}
-                  onChange={e => {
-                    const target = e.target as HTMLInputElement;
-                    setNumInvites(Number(target.value.replace(/\D/g, '')));
-                  }}
-                />
-                planet invite code{numInvites > 1 ? 's' : ''}
-              </Row>
-            ) : (
-              <Box className="migration-prompt">
-                ETH fees are very high currently. You can spawn invites for free
-                after{' '}
-                <span className="migrate" onClick={() => null}>
-                  {/* TODO: change this to navigate to migration */}
-                  migrating this star to L2.
-                </span>
-              </Box>
-            )}
-            {currentL2 && (
-              <Box className="mb4" lineHeight="1.4em">
-                You can generate up to
-                <strong>{` ${point.l2Quota} `}</strong>
-                invites. You will be able to generate another
-                <strong>{` ${point.l2Allowance}`}</strong> invites on
-                <strong>{` ${ddmmmYYYY(nextQuotaTime)}`}</strong>.
-              </Box>
-            )}
+            <Row className="points-input">
+              I want to generate
+              <StatelessTextInput
+                className={`input-box ${overQuota ? 'over-quota' : ''}`}
+                value={numInvites}
+                maxLength={3}
+                onChange={e => {
+                  const target = e.target as HTMLInputElement;
+                  setNumInvites(Number(target.value.replace(/\D/g, '')));
+                }}
+              />
+              planet invite code{numInvites > 1 ? 's' : ''}
+            </Row>
+            <Box className="mb4" lineHeight="1.4em">
+              You can generate up to
+              <strong>{` ${point.l2Quota} `}</strong>
+              invites. You will be able to generate another
+              <strong>{` ${point.l2Allowance}`}</strong> invites on
+              <strong>{` ${ddmmmYYYY(nextQuotaTime)}`}</strong>.
+            </Box>
             {showTxnNote && (
               <Box className="mb6" lineHeight="1.4em">
                 Note: you will have to sign <strong>4</strong> transactions per
@@ -121,32 +105,23 @@ export const GenerateInvites = () => {
               </Box>
             )}
           </Box>
-          {/* <Inviter /> */}
           <Box className="lower">
-            {currentL2 && (
-              <Row className="next-roll">
-                <span>Next Roll in</span>
-                <span className="timer">{nextRoll}</span>
-              </Row>
-            )}
-            {currentL2 ? (
-              // Ignoring for deprecated `indigo-react` component
-              //@ts-ignore
-              <Button
-                as={'button'}
-                className={`generate-codes ${
-                  generateDisabled ? 'disabled' : ''
-                }`}
-                disabled={generateDisabled}
-                center
-                onClick={createInvites}>
-                {overQuota
-                  ? `You can only generate ${point.l2Quota} codes`
-                  : `Generate Invite Code${
-                      currentL2 ? `s (${numInvites})` : ''
-                    }`}
-              </Button>
-            ) : null}
+            <Row className="next-roll">
+              <span>Next Roll in</span>
+              <span className="timer">{nextRoll}</span>
+            </Row>
+            {/*
+            // @ts-ignore */}
+            <Button
+              as={'button'}
+              className={`generate-codes ${generateDisabled ? 'disabled' : ''}`}
+              disabled={generateDisabled}
+              center
+              onClick={createInvites}>
+              {overQuota
+                ? `You can only generate ${point.l2Quota} codes`
+                : `Generate Invite Codes (${numInvites})`}
+            </Button>
           </Box>
         </BodyPane>
       </Window>
