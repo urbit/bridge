@@ -86,8 +86,6 @@ export const useInviteStore = create<InviteStore>((set, get) => ({
     const newJob = Object.assign({}, job, updates);
     jobs[point] = newJob;
 
-    //console.log({ point, oldJob: job, updates, newJob });
-
     set({ inviteJobs: jobs });
   },
 }));

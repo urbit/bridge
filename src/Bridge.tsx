@@ -25,8 +25,6 @@ import { useRollerStore } from 'store/rollerStore';
 import { Box } from '@tlon/indigo-react';
 import LoadingOverlay from 'components/L2/LoadingOverlay';
 import { useRollerPoller } from 'lib/useRollerPoller';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import InviteCohort from 'views/Invite/Cohort';
 
 const INITIAL_NETWORK_TYPE = isRopsten
   ? NETWORK_TYPES.ROPSTEN
@@ -105,24 +103,16 @@ function Bridge() {
         initialWallet={INITIAL_WALLET}
         initialMnemonic={INITIAL_MNEMONIC}
         initialPointCursor={INITIAL_POINT_CURSOR}>
-        <BrowserRouter>
-          <IndigoApp>
-            <ThemeProvider theme={light}>
-              <Router />
-              <Routes>
-                <Route path="/" element={null} />
-                <Route path="/point/:point">
-                  <Route path="invites" element={<InviteCohort />} />
-                </Route>
-              </Routes>
-            </ThemeProvider>
-          </IndigoApp>
-          <Modal show={modalText !== undefined} hide={() => setModalText('')}>
-            <Box width="280px">{modalText}</Box>
-          </Modal>
-          <LoadingOverlay loading={loading} />
-          <Poller />
-        </BrowserRouter>
+        <IndigoApp>
+          <ThemeProvider theme={light}>
+            <Router />
+          </ThemeProvider>
+        </IndigoApp>
+        <Modal show={modalText !== undefined} hide={() => setModalText('')}>
+          <Box width="280px">{modalText}</Box>
+        </Modal>
+        <LoadingOverlay loading={loading} />
+        <Poller />
       </Provider>
     </WithErrorBoundary>
   );
