@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react';
+import { Router } from './useRouter';
 
-export const LocalRouterContext = createContext(null);
+export const LocalRouterContext = createContext<Router>({} as Router);
 export const LocalRouterProvider = LocalRouterContext.Provider;
 
 // Hook version

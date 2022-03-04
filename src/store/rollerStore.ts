@@ -4,7 +4,6 @@ import { toBN } from 'web3-utils';
 import BN from 'bn.js';
 
 import { HOUR } from 'lib/utils/roller';
-import { Invite, Invites } from 'lib/types/Invite';
 import Point, { Points } from 'lib/types/Point';
 import { toL1Details } from 'lib/utils/point';
 import { PendingL1, PendingL1Txn } from 'lib/types/PendingL1Transaction';
@@ -30,24 +29,16 @@ export interface RollerStore {
   points: Points;
   pointList: Point[];
   pendingL1ByPoint: PendingL1;
-  invites: Invites;
   modalText?: string;
   recentlyCompleted: number;
-  inviteGeneratingNum: number;
-  invitesLoading: boolean;
   ethBalance: BN;
   setLoading: (loading: boolean) => void;
-  removeInvite: (point: number, planet: number) => void;
-  setInvites: (points: number, invites: Invite[]) => void;
-  setInviteGeneratingNum: (numGenerating: number) => void;
-  setInvitesLoading: (invitesLoading: boolean) => void;
   setModalText: (modalText: string) => void;
   setNextBatchTime: (nextBatchTime: number) => void;
   setNextQuotaTime: (nextQuotaTime: number) => void;
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) => void;
   setPoint: (point: number) => void;
   setPoints: (points: Points) => void;
-  updateInvite: (point: number, invite: Invite) => void;
   updatePoint: (point: Point) => void;
   storePendingL1Txn: (txn: PendingL1Txn) => void;
   deletePendingL1Txn: (txn: PendingL1Txn) => void;
@@ -63,10 +54,7 @@ export const useRollerStore = create<RollerStore>(set => ({
   pointList: [],
   points: {},
   pendingL1ByPoint: {},
-  invites: {},
   recentlyCompleted: 0,
-  inviteGeneratingNum: 0,
-  invitesLoading: false,
   ethBalance: toBN(0),
   setLoading: (loading: boolean) => set(() => ({ loading })),
   setNextBatchTime: (nextBatchTime: number) => set(() => ({ nextBatchTime })),
@@ -87,32 +75,6 @@ export const useRollerStore = create<RollerStore>(set => ({
     set(state => ({ point: state.points[point] || EMPTY_POINT })),
   setPoints: (points: Points) =>
     set(({ point }) => getPointsAndList(points, point)),
-  setInvites: (point: number, invites: Invite[]) =>
-    set(state => {
-      const newInvites: Invites = {};
-      newInvites[point] = invites;
-      return { invites: Object.assign(state.invites, newInvites) };
-    }),
-  setInviteGeneratingNum: (inviteGeneratingNum: number) =>
-    set(() => ({ inviteGeneratingNum })),
-  updateInvite: (point: number, invite: Invite) =>
-    set(state => {
-      const newInvites: Invites = {};
-      newInvites[point] = state.invites[point]?.map(i =>
-        i.planet === invite.planet ? invite : i
-      );
-      return { invites: Object.assign(state.invites, newInvites) };
-    }),
-  removeInvite: (point: number, planet: number) =>
-    set(state => {
-      const newInvites: Invites = {};
-      newInvites[point] = state.invites[point]?.filter(
-        i => i.planet !== planet
-      );
-      return { invites: Object.assign(state.invites, newInvites) };
-    }),
-  setInvitesLoading: (invitesLoading: boolean) =>
-    set(() => ({ invitesLoading })),
   updatePoint: (newPoint: Point) =>
     set(({ point, points }) => {
       const newPoints: Points = Object.assign({}, points);

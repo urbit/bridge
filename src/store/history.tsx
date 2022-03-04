@@ -1,7 +1,13 @@
-import React, { createContext, forwardRef, useContext } from 'react';
+import React, {
+  createContext,
+  forwardRef,
+  FunctionComponent,
+  useContext,
+} from 'react';
 
-import useRouter from 'lib/useRouter';
+import useRouter, { Route, Router } from 'lib/useRouter';
 import { LocalRouterProvider } from 'lib/LocalRouter';
+import { ROUTE_NAMES } from 'lib/routeNames';
 
 /**
  * `useHistory` is just a global `useRouter`
@@ -9,9 +15,20 @@ import { LocalRouterProvider } from 'lib/LocalRouter';
  * (see Invite.js for an example)
  */
 
-export const HistoryContext = createContext(null);
+export const HistoryContext = createContext<Router>({} as Router);
 
-export function HistoryProvider({ names, views, initialRoutes, children }) {
+interface HistoryProviderProps {
+  names: typeof ROUTE_NAMES;
+  views: any;
+  initialRoutes: Route[];
+}
+
+export const HistoryProvider: FunctionComponent<HistoryProviderProps> = ({
+  names,
+  views,
+  initialRoutes,
+  children,
+}) => {
   const router = useRouter({ names, views, initialRoutes });
 
   return (
@@ -19,7 +36,7 @@ export function HistoryProvider({ names, views, initialRoutes, children }) {
       <LocalRouterProvider value={router}>{children}</LocalRouterProvider>
     </HistoryContext.Provider>
   );
-}
+};
 
 // Hook version
 export function useHistory() {
@@ -27,7 +44,7 @@ export function useHistory() {
 }
 
 // HOC version
-export const withHistory = Component =>
+export const withHistory = (Component: any) =>
   forwardRef((props, ref) => (
     <HistoryContext.Consumer>
       {router => <Component ref={ref} history={router} {...props} />}

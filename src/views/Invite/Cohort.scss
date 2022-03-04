@@ -20,6 +20,15 @@
       align-items: center;
       cursor: pointer;
 
+      &:disabled {
+        cursor: not-allowed;
+        color: $light-gray;
+
+        svg * {
+          fill: $light-gray;
+        }
+      }
+
       svg {
         height: 14px;
         width: 20px;
@@ -50,7 +59,7 @@
       width: 100%;
       font-size: 14px;
       line-height: 24px;
-      
+
       &.center {
         text-align: center;
         margin-top: 20px;
@@ -83,7 +92,8 @@
           }
         }
 
-        .copy-invite, .ticket-loader {
+        .copy-invite,
+        .ticket-loader {
           background-color: $washed-gray;
           border-radius: $medium-border-radius;
           width: 32px;
@@ -128,7 +138,8 @@
 
   &.show-invite-form {
     .body-pane {
-      .upper, .lower {
+      .upper,
+      .lower {
         width: 100%;
       }
 
@@ -139,14 +150,15 @@
       .points-input {
         line-height: 28px;
         margin-bottom: 24px;
-  
+
         .input-box {
           margin: 0 6px;
           height: 28px;
           width: 40px;
           padding: 2px 6px;
           font-weight: 800;
-          font-family: "Inter", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, Roboto,
+            Helvetica, Arial, sans-serif, 'Apple Color Emoji';
           text-align: center;
 
           &.over-quota {
@@ -154,22 +166,22 @@
           }
         }
       }
-  
+
       .ship-or-address {
         margin: 6px 0;
         color: $dark-gray;
       }
-  
+
       .dropdown .address {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
         cursor: pointer;
-  
+
         padding: 8px 12px 8px 16px;
       }
-  
+
       .next-roll {
         width: 100%;
         display: flex;
@@ -178,7 +190,7 @@
         align-items: center;
         font-weight: 500;
       }
-  
+
       .generate-codes {
         border-radius: $medium-border-radius;
         width: 100%;
@@ -186,7 +198,8 @@
         font-size: 14px;
         background-color: black;
         color: white;
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, Roboto,
+          Helvetica, Arial, sans-serif, 'Apple Color Emoji';
         border: none;
         margin-top: 8px;
         padding: 8px;
@@ -219,44 +232,5 @@
     padding: 16px;
     font-size: 14px;
     line-height: 1.4em;
-  }
-
-  .download-csv-modal {
-    height: 167px;
-    width: 333px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    font-weight: 500;
-    max-width: 100%;
-
-    .download-buttons {
-      justify-content: flex-end;
-
-      .close-button, .download-button {
-        padding: 4px 16px;
-
-        &:hover {
-          opacity: 0.8;
-        }
-      }
-
-      .close-button {
-        color: black;
-        background-color: $washed-gray;
-        margin-right: 8px;
-      }
-    }
-  }
-
-  .csv-loading {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-
-    svg {
-      width: 16px;
-      height: 16px;
-    }
   }
 }

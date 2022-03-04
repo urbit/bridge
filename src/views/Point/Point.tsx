@@ -25,18 +25,15 @@ import PendingTransaction from 'components/L2/PendingTransaction';
 import Modal from 'components/L2/Modal';
 import './Point.scss';
 import { TransactionRow } from 'views/Transactions/TransactionRow';
+import { useInvites } from 'views/Invite/useInvites';
 
 export default function Point() {
   const { pop, push, names }: any = useLocalRouter();
   const { wallet }: any = useWallet();
   const { syncExtras }: any = usePointCache();
-  const { getInvites, getPendingTransactions } = useRoller();
-  const {
-    pendingTransactions,
-    point,
-    invites,
-    pendingL1ByPoint,
-  } = useRollerStore();
+  const { getPendingTransactions } = useRoller();
+  const { getInvites } = useInvites();
+  const { pendingTransactions, point, pendingL1ByPoint } = useRollerStore();
   const { nextRoll } = useTimerStore();
   const networkKeysSet = useHasNetworkKeysSet();
   const [seenMissingKeys, setSeenMissingKeys] = useSeenMissingKeys();
@@ -111,13 +108,7 @@ export default function Point() {
       inset
       className="point"
       hideBack
-      header={
-        <L2PointHeader
-          hideTimer={!!spawnedPending}
-          numInvites={invites[point.value]?.length}
-          hideInvites={!networkKeysSet}
-        />
-      }>
+      header={<L2PointHeader hideInvites={!networkKeysSet} />}>
       <Greeting point={point.value} />
       {!!spawnedPending && (
         <PendingTransaction

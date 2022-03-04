@@ -10,24 +10,24 @@ import HeaderButton from './HeaderButton';
 import AccountsDropdown from '../Dropdowns/AccountsDropdown';
 import './L2PointHeader.scss';
 import LayerIndicator from '../LayerIndicator';
+import { useInviteStore } from 'views/Invite/useInvites';
 
 export interface L2PointHeaderProps {
-  numInvites?: number;
   hideHome?: boolean;
-  hideTimer?: boolean;
   hideInvites?: boolean;
   showMigrate?: boolean;
 }
 
 const L2PointHeader = ({
-  numInvites = 0,
   hideHome = false,
-  hideTimer = false,
   hideInvites = false,
   showMigrate = false,
 }: L2PointHeaderProps) => {
-  const { point, pointList, invitesLoading } = useRollerStore();
+  const { point, pointList } = useRollerStore();
+  const { invites, inviteJobs } = useInviteStore();
   const { pointCursor, setPointCursor }: any = usePointCursor();
+  const numInvites = invites[point.value]?.length;
+  const loading = inviteJobs[point.value]?.status === 'generating';
 
   const { popTo, push, names }: any = useHistory();
 
@@ -51,7 +51,7 @@ const L2PointHeader = ({
   const renderInviteButton = () => {
     if (!showInvites || !point.showInvites) {
       return null;
-    } else if (invitesLoading) {
+    } else if (loading) {
       return (
         <Row onClick={goToInvites} className="invites">
           <LoadingSpinner foreground="rgba(0,0,0,0.3)" background="white" />

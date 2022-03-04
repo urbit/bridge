@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import newGithubIssueUrl from 'new-github-issue-url';
 import { OutButton, RestartButton } from './Buttons';
 import { versionLabel } from 'lib/flags';
 
-const buildTitle = error => `Error Report: ${error.message}`;
+const buildTitle = (error: Error) => `Error Report: ${error.message}`;
 
-const buildBody = error => `\n
+const buildBody = (error: Error) => `\n
 <!-- Thanks for submitting this error! Can you help us identify the issue by providing additional context? -->
 \n
 ## Context
@@ -27,7 +27,14 @@ In Bridge version ${versionLabel}.\n
  * error might have originated from within those components, making this
  * whole error boundary useless.
  */
-export default function GlobalErrorBoundary({ error }) {
+
+interface GlobalErrorBoundaryProps {
+  error: Error;
+}
+
+export default function GlobalErrorBoundary({
+  error,
+}: GlobalErrorBoundaryProps) {
   const url = useMemo(
     () =>
       newGithubIssueUrl({

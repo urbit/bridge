@@ -1,4 +1,3 @@
-import React from 'react';
 import { useEffect } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { IndigoApp } from 'indigo-react';
@@ -39,8 +38,8 @@ const IS_STUBBED = isDevelopment && SHOULD_STUB_LOCAL;
 
 const INITIAL_WALLET = IS_STUBBED
   ? walletFromMnemonic(
-      process.env.REACT_APP_DEV_MNEMONIC,
-      process.env.REACT_APP_HD_PATH
+      process.env.REACT_APP_DEV_MNEMONIC as string,
+      process.env.REACT_APP_HD_PATH as string
     )
   : undefined;
 const INITIAL_MNEMONIC = IS_STUBBED
@@ -94,7 +93,8 @@ function Bridge() {
   }, []);
 
   return (
-    <WithErrorBoundary render={error => <GlobalErrorBoundary error={error} />}>
+    <WithErrorBoundary
+      render={(error: Error) => <GlobalErrorBoundary error={error} />}>
       <Provider
         views={ROUTES}
         names={ROUTE_NAMES}
@@ -108,7 +108,7 @@ function Bridge() {
             <Router />
           </ThemeProvider>
         </IndigoApp>
-        <Modal show={modalText !== undefined} hide={() => setModalText()}>
+        <Modal show={modalText !== undefined} hide={() => setModalText('')}>
           <Box width="280px">{modalText}</Box>
         </Modal>
         <LoadingOverlay loading={loading} />
