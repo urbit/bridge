@@ -59,7 +59,7 @@ export const makeDeterministicTicket = (point, seed) => {
     Buffer.from(point.toString()),
     Buffer.from('invites'),
   ]);
-  const entropy = shas(Buffer.from(seed, 'hex'), pointSalt);
+  const entropy = shas(Buffer.from(seed.slice(2), 'hex'), pointSalt);
 
   const buf = entropy.slice(0, bytes);
   const patq = ob.hex2patq(buf.toString('hex'));
