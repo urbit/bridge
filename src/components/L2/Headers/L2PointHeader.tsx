@@ -90,13 +90,13 @@ const L2PointHeader = ({
         {/* {point.isL1 && point.isL2Spawn && <Box className="l2-spawn">L2 Spawn</Box>} */}
       </Row>
       <Row>
-        <Row className="info" mr={3}>
+        <Row className="info">
           {renderInviteButton()}
           <Box className="history" onClick={goToHistory}>
             History
           </Box>
+          {points && <InviteConverter points={points} />}
         </Row>
-        {points && <InviteConverter points={points} />}
       </Row>
     </Row>
   );

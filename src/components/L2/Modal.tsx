@@ -7,6 +7,7 @@ export interface ModalProps {
   show: boolean;
   hide: () => void;
   hideClose?: boolean;
+  small?: boolean;
   children: React.ReactNode;
 }
 
@@ -14,6 +15,7 @@ export default function Modal({
   show,
   hide,
   hideClose = false,
+  small = false,
   children,
 }: ModalProps) {
   const dontHide = (e: MouseEvent) => {
@@ -25,7 +27,7 @@ export default function Modal({
   }
 
   return (
-    <Box className="modal" onClick={hide}>
+    <Box className={`modal${small ? ' modal-small' : ''}`} onClick={hide}>
       <Box className="content">
         {!hideClose && (
           <Box className="close" onClick={hide}>

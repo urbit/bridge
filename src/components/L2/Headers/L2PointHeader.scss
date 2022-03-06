@@ -31,14 +31,12 @@
     border-radius: $medium-border-radius;
     background-color: $washed-gray;
   }
-  
-  .info {
-    svg {
-      width: 14px;
-      height: 16px;
-    }
 
-    .invites, .history, .rollup-timer {
+  .info {
+    .invites,
+    .history,
+    .create-invites,
+    .rollup-timer {
       border-radius: $medium-border-radius;
 
       &:hover {
@@ -46,9 +44,15 @@
       }
     }
 
-    .invites, .history {
+    .invites,
+    .history,
+    .create-invites {
       background-color: $washed-gray;
       padding: 8px;
+    }
+
+    .create-invites {
+      margin-left: 4px;
     }
 
     .invites {

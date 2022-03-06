@@ -1,14 +1,15 @@
 import {
   Checkbox,
   Col,
-  H3,
   Row,
   Button as IndigoButton,
   Text,
+  Action,
 } from '@tlon/indigo-react';
 import { Button } from 'indigo-react';
 import Modal from './Modal';
 import { useCallback, useEffect, useState } from 'react';
+import { ReactComponent as InviteIcon } from 'assets/invite.svg';
 import Point from 'lib/types/Point';
 import useRoller from 'lib/useRoller';
 import BodyPane from './Window/BodyPane';
@@ -17,8 +18,8 @@ import {
   useInvites,
   useInviteStore,
 } from 'views/Invite/useInvites';
-import { GeneratingModal } from 'views/Invite/GeneratingModal';
 import { usePointCache } from 'store/pointCache';
+import { CreatingInvitesModal } from './CreatingInvitesModal';
 
 interface StarMap {
   [key: string]: {
@@ -60,8 +61,11 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
   const [generatingStatus, setGeneratingStatus] = useState<
     InviteGeneratingStatus
   >('initial');
+  const [error, setError] = useState('');
+  const [created, setCreated] = useState(0);
   const [currentPoint, setCurrentPoint] = useState<Point>();
   const currentJob = inviteJobs[currentPoint?.value || 0];
+  const signatureCount = selected.length * 3;
 
   useEffect(() => {
     if (!points) {
@@ -70,11 +74,13 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
 
     async function collect() {
       const pointMap: StarMap = {};
-      const stars = points.filter(point => point.isStar);
+      const stars = points.filter(point => point.isStar && point.isL2Spawn);
 
       for (const star of stars) {
         const spawns = await api.getSpawned(star.value);
-        const filteredPoints = points.filter(p => spawns.includes(p.value));
+        const filteredPoints = points.filter(
+          p => spawns.includes(p.value) && p.isL2Spawn
+        );
 
         if (filteredPoints.length !== 0) {
           pointMap[star.patp] = {
@@ -126,56 +132,65 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
 
     setGeneratingStatus('generating');
 
-    for (const { point, children } of Object.values(starMap)) {
-      debugger;
-      const filtered = children
-        .filter(p => selected.includes(p.patp))
-        .map(p => p.value);
+    try {
+      for (const { point, children } of Object.values(starMap)) {
+        debugger;
+        const filtered = children
+          .filter(p => selected.includes(p.patp))
+          .map(p => p.value);
 
-      if (filtered.length <= 0) {
-        continue;
+        if (filtered.length <= 0) {
+          continue;
+        }
+
+        setCurrentPoint(point);
+        await generateInviteCodes(point, filtered, false);
+        await getAndUpdatePoint(point.value);
+        setCreated(children.length);
       }
 
-      setCurrentPoint(point);
-      await generateInviteCodes(point, filtered, false);
-      await getAndUpdatePoint(point.value);
+      setGeneratingStatus('finished');
+    } catch (error) {
+      if (typeof error === 'object' && (error as Error)?.message) {
+        setError((error as Error).message);
+      } else if (typeof error === 'string') {
+        setError(error);
+      } else {
+        setError('Creating invites failed');
+      }
+      setGeneratingStatus('errored');
     }
-
-    getPendingTransactions();
-    syncControlledPoints();
-    setGeneratingStatus('finished');
   }, [
     generatingStatus,
     selected,
     starMap,
     generateInviteCodes,
     getAndUpdatePoint,
-    getPendingTransactions,
-    syncControlledPoints,
   ]);
+
+  const hasPlanets =
+    Object.entries(starMap).reduce((sum, [, star]) => {
+      return (sum += star.children.length);
+    }, 0) > 0;
+
+  if (!hasPlanets) {
+    return null;
+  }
 
   if (generatingStatus !== 'initial') {
     return (
-      <GeneratingModal
+      <CreatingInvitesModal
         status={generatingStatus}
-        current={currentJob?.generatingNum}
-        total={
-          generatingStatus === 'finished'
-            ? selected.length
-            : selected.filter(p => {
-                const children = starMap[currentPoint?.patp || '']?.children;
-                return children.map(c => c.patp).includes(p);
-              }).length
-        }
-        fromStar={currentPoint?.patp}
-        spawn={false}
+        current={created + currentJob?.generatingNum}
+        total={selected.length}
+        error={error}
         hide={() => {
           setGeneratingStatus('initial');
           setSelected([]);
           setShow(false);
-          if (generatingStatus !== 'errored') {
-            //pop();
-          }
+          setCreated(0);
+          getPendingTransactions();
+          syncControlledPoints();
         }}
       />
     );
@@ -185,51 +200,57 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
     <>
       {/*
         @ts-ignore */}
-      <Button solid center onClick={() => setShow(true)}>
-        Convert to Invites
+      <Button className="create-invites" center onClick={() => setShow(true)}>
+        Create Invites from Planets
       </Button>
-      <Modal show={show} hide={() => setShow(false)}>
+      <Modal small show={show} hide={() => setShow(false)}>
         <BodyPane p={0}>
-          <Col width="420px">
-            <H3 mb={2}>Convert Planet Spawns to Invites</H3>
-            <Text>
-              This allows you to convert a spawned planets into invites. After
-              this operation, invites will show up under the point they were
-              spawned from.
+          <Col width="368px">
+            <Row alignItems="center" mb={3}>
+              <InviteIcon />
+              <Text bold ml={2}>
+                Create Invites for Existing Planets
+              </Text>
+            </Row>
+            <Text mb={5}>
+              Select L2 planets you own to convert them back into invite links
+              under each star.{' '}
+              <Text color="red" lineHeight="24px">
+                Note: this will re-ticket the planets and render their existing
+                keys invalid.
+              </Text>
+            </Text>
+            <Text bold className={!!signatureCount ? '' : 'hidden'}>
+              {signatureCount} manual signatures will be required.
             </Text>
             <Col
               bg="washedGray"
               height="300px"
               mt={3}
-              p={2}
+              p={3}
               borderRadius={2}
               overflowY="auto">
               {Object.entries(starMap).map(([patp, { children }]) => (
                 <Col mb={4}>
                   <Row>
-                    <Text mb={2} fontSize={2}>
-                      Spawned by{' '}
-                      <Text bold fontSize={2}>
-                        {patp}
-                      </Text>
+                    <Text bold mb={2}>
+                      Owned by {patp}
                     </Text>
-                    <IndigoButton
-                      height="18px"
-                      px={2}
-                      fontSize={0}
+                    <Action
+                      backgroundColor="transparent"
                       ml="auto"
                       onClick={() => selectChildren(children)}>
                       {selectText(selected, children)}
-                    </IndigoButton>
+                    </Action>
                   </Row>
-                  {children.map(point => (
+                  {children.map((point, index) => (
                     <Row
                       alignItems="center"
                       justifyContent="space-between"
-                      ml={3}
-                      mb={2}
                       py={1}
-                      borderBottomWidth="1px"
+                      borderBottomWidth={
+                        index === children.length - 1 ? '0px' : '1px'
+                      }
                       borderBottomStyle="solid"
                       borderBottomColor="washedGray">
                       <Text>{point.patp}</Text>
@@ -241,8 +262,9 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
                   ))}
                 </Col>
               ))}
+              {}
             </Col>
-            <Row mt={4} justifyContent="end">
+            <Row mt={3} justifyContent="end">
               <IndigoButton
                 className="secondary"
                 onClick={() => setShow(false)}>
@@ -255,7 +277,7 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
                 ml={2}
                 onClick={convert}
                 disabled={selected.length === 0}>
-                Convert
+                Convert Selected
               </IndigoButton>
             </Row>
           </Col>

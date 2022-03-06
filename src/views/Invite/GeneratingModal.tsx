@@ -7,9 +7,7 @@ interface GeneratingModalProps {
   status: InviteGeneratingStatus;
   current: number;
   total: number;
-  fromStar?: string;
   error?: string;
-  spawn?: boolean;
   hide: () => void;
 }
 
@@ -19,8 +17,6 @@ export const GeneratingModal = ({
   total,
   hide,
   error,
-  fromStar,
-  spawn = true,
 }: GeneratingModalProps) => {
   const successfulInvites = current > 1 ? current - 1 : 0;
   return (
@@ -38,11 +34,10 @@ export const GeneratingModal = ({
                   Generating {current} of {total} Invites
                 </H3>
               </Row>
-              {fromStar && <Text ml={4}>from {fromStar}</Text>}
             </Col>
             <Text>
-              Each invite will require {spawn ? 'four' : 'three'} transactions
-              to be signed, unless your point is owned by a master ticket.
+              Each invite will require four transactions to be signed, unless
+              your point is owned by a master ticket.
             </Text>
           </>
         )}
