@@ -20,6 +20,8 @@ import {
 } from 'views/Invite/useInvites';
 import { usePointCache } from 'store/pointCache';
 import { CreatingInvitesModal } from './CreatingInvitesModal';
+import { useWallet } from 'store/wallet';
+import { WALLET_TYPES } from 'lib/constants';
 
 interface StarMap {
   [key: string]: {
@@ -52,6 +54,9 @@ function allChildrenSelected(selected: string[], childrenPatps: string[]) {
 
 export const InviteConverter = ({ points }: InviteConverterProps) => {
   const { syncControlledPoints }: any = usePointCache();
+  const { walletType }: any = useWallet();
+  const signatureFree =
+    walletType === WALLET_TYPES.TICKET || walletType === WALLET_TYPES.SHARDS;
   const { api, getPendingTransactions, getAndUpdatePoint } = useRoller();
   const { inviteJobs } = useInviteStore();
   const { generateInviteCodes } = useInvites();
@@ -134,7 +139,6 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
 
     try {
       for (const { point, children } of Object.values(starMap)) {
-        debugger;
         const filtered = children
           .filter(p => selected.includes(p.patp))
           .map(p => p.value);
@@ -201,7 +205,7 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
       {/*
         @ts-ignore */}
       <Button className="create-invites" center onClick={() => setShow(true)}>
-        Create Invites from Planets
+        Update Invites
       </Button>
       <Modal small show={show} hide={() => setShow(false)}>
         <BodyPane p={0}>
@@ -209,7 +213,7 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
             <Row alignItems="center" mb={3}>
               <InviteIcon />
               <Text bold ml={2}>
-                Create Invites for Existing Planets
+                Updates invites for planets
               </Text>
             </Row>
             <Text mb={5}>
@@ -220,9 +224,11 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
                 keys invalid.
               </Text>
             </Text>
-            <Text bold className={!!signatureCount ? '' : 'hidden'}>
-              {signatureCount} manual signatures will be required.
-            </Text>
+            {!signatureFree && (
+              <Text bold className={!!signatureCount ? '' : 'hidden'}>
+                {signatureCount} manual signatures will be required.
+              </Text>
+            )}
             <Col
               bg="washedGray"
               height="300px"

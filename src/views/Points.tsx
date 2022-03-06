@@ -34,6 +34,7 @@ import './Points.scss';
 import { StarReleaseButton } from './Points/StarReleaseButton';
 import { maybeGetResult } from 'lib/maybeGetResult';
 import { isGalaxy, isStar } from 'lib/utils/point';
+import { L2VulnAlert } from 'components/alerts/L2VulnAlert';
 
 export const isLocked = (details: any, contracts: any) =>
   details.owner === contracts.linearSR ||
@@ -270,6 +271,7 @@ export default function Points() {
           {abbreviateAddress(address)}
         </CopiableAddress>
       </NavHeader>
+      <L2VulnAlert />
       {incomingPoints.map(({ value }) => (
         <IncomingPoint
           key={value}

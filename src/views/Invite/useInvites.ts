@@ -255,7 +255,7 @@ export function useInvites() {
         );
 
         if (!spawn) {
-          performL2Reticket({
+          await performL2Reticket({
             point: planet,
             to: inviteWallet.ownership.keys.address,
             manager: inviteWallet.management.keys.address,

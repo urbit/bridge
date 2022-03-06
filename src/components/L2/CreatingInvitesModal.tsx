@@ -4,7 +4,7 @@ import { ReactComponent as InviteIcon } from 'assets/invite.svg';
 import { InviteGeneratingStatus } from '../../views/Invite/useInvites';
 import BodyPane from './Window/BodyPane';
 
-interface GeneratingModalProps {
+interface CreatingInvitesModalProps {
   status: InviteGeneratingStatus;
   current: number;
   total: number;
@@ -18,7 +18,7 @@ export const CreatingInvitesModal = ({
   total,
   hide,
   error,
-}: GeneratingModalProps) => {
+}: CreatingInvitesModalProps) => {
   const successfulInvites = current > 1 ? current - 1 : 0;
   return (
     <Modal
@@ -32,7 +32,7 @@ export const CreatingInvitesModal = ({
             <Row alignItems="center">
               <LoadingSpinner dark />
               <Text bold marginLeft={2}>
-                Creating Invite {current}/{total}...
+                Updating Invite {current}/{total}...
               </Text>
             </Row>
           )}
@@ -41,7 +41,7 @@ export const CreatingInvitesModal = ({
               <Row mb={3}>
                 <InviteIcon />
                 <Text bold ml={2}>
-                  All Invites Created
+                  All Invites Updated
                 </Text>
               </Row>
               <Text mb={3}>
@@ -58,7 +58,7 @@ export const CreatingInvitesModal = ({
           {status === 'errored' && (
             <>
               <H3 marginBottom={2}>
-                There was an error while creating your invites:
+                There was an error while updating your invites:
               </H3>
               {error && (
                 <Text color="red" mono marginBottom={3}>
