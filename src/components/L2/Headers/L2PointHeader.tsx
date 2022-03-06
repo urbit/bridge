@@ -11,17 +11,20 @@ import AccountsDropdown from '../Dropdowns/AccountsDropdown';
 import './L2PointHeader.scss';
 import LayerIndicator from '../LayerIndicator';
 import { useInviteStore } from 'views/Invite/useInvites';
-
+import { InviteConverter } from '../InviteConverter';
+import Point from 'lib/types/Point';
 export interface L2PointHeaderProps {
   hideHome?: boolean;
   hideInvites?: boolean;
   showMigrate?: boolean;
+  points?: Point[];
 }
 
 const L2PointHeader = ({
   hideHome = false,
   hideInvites = false,
   showMigrate = false,
+  points,
 }: L2PointHeaderProps) => {
   const { point, pointList } = useRollerStore();
   const { invites, inviteJobs } = useInviteStore();
@@ -86,11 +89,14 @@ const L2PointHeader = ({
         {/* uncomment for L2 spawn badge */}
         {/* {point.isL1 && point.isL2Spawn && <Box className="l2-spawn">L2 Spawn</Box>} */}
       </Row>
-      <Row className="info">
-        {renderInviteButton()}
-        <Box className="history" onClick={goToHistory}>
-          History
-        </Box>
+      <Row>
+        <Row className="info" mr={3}>
+          {renderInviteButton()}
+          <Box className="history" onClick={goToHistory}>
+            History
+          </Box>
+        </Row>
+        {points && <InviteConverter points={points} />}
       </Row>
     </Row>
   );

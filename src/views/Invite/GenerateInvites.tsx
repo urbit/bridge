@@ -20,12 +20,14 @@ import {
 import { DEFAULT_NUM_INVITES } from 'lib/constants';
 import { useTimerStore } from 'store/timerStore';
 import { useWallet } from 'store/wallet';
+import { UnspawnedPoints } from '@urbit/roller-api';
+import { getPendingSpawns } from 'lib/utils/roller';
 
 export const GenerateInvites = () => {
   const { pop } = useLocalRouter();
   const { walletType }: any = useWallet();
   const { point, nextQuotaTime } = useRollerStore();
-  const { getPendingTransactions, getAndUpdatePoint } = useRoller();
+  const { api, getPendingTransactions, getAndUpdatePoint } = useRoller();
   const { nextRoll } = useTimerStore();
   const { inviteJobs } = useInviteStore();
   const { generateInviteCodes } = useInvites();
@@ -38,7 +40,14 @@ export const GenerateInvites = () => {
   const createInvites = useCallback(async () => {
     setGeneratingStatus('generating');
     try {
-      await generateInviteCodes(numInvites);
+      let planets: UnspawnedPoints = await api.getUnspawned(point.value);
+      const pendingTxs = await api.getPendingByShip(point.value);
+      const pendingSpawns = getPendingSpawns(pendingTxs);
+      planets = planets
+        .filter((point: number) => !pendingSpawns.has(point))
+        .slice(0, numInvites);
+
+      await generateInviteCodes(point, planets);
       getPendingTransactions();
       getAndUpdatePoint(point.value);
       setGeneratingStatus('finished');
@@ -53,11 +62,12 @@ export const GenerateInvites = () => {
       setGeneratingStatus('errored');
     }
   }, [
-    generateInviteCodes,
+    api,
+    point,
     numInvites,
+    generateInviteCodes,
     getPendingTransactions,
     getAndUpdatePoint,
-    point,
     setGeneratingStatus,
   ]);
 

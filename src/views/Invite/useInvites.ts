@@ -1,4 +1,4 @@
-import { UnspawnedPoints } from '@urbit/roller-api';
+import { SpawnedPoints, UnspawnedPoints } from '@urbit/roller-api';
 import { POINT_DOMINIONS } from 'lib/constants';
 import { deriveNetworkSeedFromUrbitWallet } from 'lib/keys';
 import * as need from 'lib/need';
@@ -26,6 +26,7 @@ import { useWallet } from 'store/wallet';
 import { usePointCache } from 'store/pointCache';
 import create from 'zustand';
 import { generateCsvLine } from 'lib/utils/invite';
+import Point from 'lib/types/Point';
 
 const inviteTemplate = (
   planet: number,
@@ -97,7 +98,7 @@ export function useInvites() {
   const { web3, contracts }: any = useNetwork();
   const allPoints: any = usePointCache();
   const getDetails = allPoints?.getDetails;
-  const { api, ls } = useRoller();
+  const { api, ls, performL2Reticket } = useRoller();
   const { point, pointList, setPendingTransactions } = useRollerStore();
   const {
     invites,
@@ -209,15 +210,17 @@ export function useInvites() {
   ]);
 
   const generateInviteCodes = useCallback(
-    async (numInvites: number) => {
-      const _point = need.point(pointCursor);
+    async (
+      point: Point,
+      planets: SpawnedPoints | UnspawnedPoints,
+      spawn: boolean = true
+    ) => {
       const _contracts = contracts.getOrElse(null);
       const _web3 = web3.getOrElse(null);
       const _wallet = wallet.getOrElse(null);
       const _authToken = authToken.getOrElse(null);
-      const _details = getDetails(_point);
 
-      if (!_contracts || !_web3 || !_wallet || !_authToken || !_details) {
+      if (!_contracts || !_web3 || !_wallet || !_authToken) {
         // not using need because we want a custom error
         throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
       }
@@ -228,13 +231,6 @@ export function useInvites() {
       //     "Auth key Error: A management mnemonic can't create invite codes"
       //   );
       // }
-      let planets: UnspawnedPoints = await api.getUnspawned(_point);
-
-      const pendingTxs = await api.getPendingByShip(_point);
-
-      const pendingSpawns = getPendingSpawns(pendingTxs);
-
-      planets = planets.filter((point: number) => !pendingSpawns.has(point));
 
       const invites: Invite[] = [];
 
@@ -244,11 +240,11 @@ export function useInvites() {
         throw new Error("Error: Address doesn't match proxy");
 
       const nonce = await api.getNonce({
-        ship: _point,
+        ship: point.value,
         proxy,
       });
 
-      for (let i = 0; i < numInvites && planets[i]; i++) {
+      for (let i = 0; i < planets.length; i++) {
         updateJob(point.value, { generatingNum: i + 1 });
         const planet = planets[i];
         const nonceInc = i + nonce;
@@ -258,62 +254,72 @@ export function useInvites() {
           _authToken
         );
 
-        await submitL2Transaction({
-          api,
-          address: _wallet.address,
-          wallet: _wallet,
-          ship: _point,
-          proxy,
-          nonce: nonceInc,
-          pointToSpawn: planet,
-          type: 'spawn',
-          walletType,
-          web3: _web3,
-          connector,
-        });
+        if (!spawn) {
+          performL2Reticket({
+            point: planet,
+            to: inviteWallet.ownership.keys.address,
+            manager: inviteWallet.management.keys.address,
+            fromWallet: _wallet,
+            toWallet: inviteWallet,
+          });
+        } else {
+          await submitL2Transaction({
+            api,
+            address: _wallet.address,
+            wallet: _wallet,
+            ship: point.value,
+            proxy,
+            nonce: nonceInc,
+            pointToSpawn: planet,
+            type: 'spawn',
+            walletType,
+            web3: _web3,
+            connector,
+          });
 
-        const networkSeed = await deriveNetworkSeedFromUrbitWallet(
-          inviteWallet,
-          1
-        );
-        await submitL2Transaction({
-          api,
-          wallet: _wallet,
-          ship: planet,
-          proxy: 'own',
-          nonce: 0,
-          networkSeed,
-          type: 'configureKeys',
-          walletType,
-          web3: _web3,
-          connector,
-        });
+          const networkSeed = await deriveNetworkSeedFromUrbitWallet(
+            inviteWallet,
+            1
+          );
+          await submitL2Transaction({
+            api,
+            wallet: _wallet,
+            ship: planet,
+            proxy: 'own',
+            nonce: 0,
+            networkSeed,
+            type: 'configureKeys',
+            walletType,
+            web3: _web3,
+            connector,
+          });
 
-        await registerProxyAddress(
-          api,
-          _wallet,
-          planet,
-          'own',
-          'manage',
-          1,
-          inviteWallet.management.keys.address,
-          walletType,
-          _web3,
-          connector
-        );
+          await registerProxyAddress(
+            api,
+            _wallet,
+            planet,
+            'own',
+            'manage',
+            1,
+            inviteWallet.management.keys.address,
+            walletType,
+            _web3,
+            connector
+          );
 
-        await submitL2Transaction({
-          api,
-          wallet: _wallet,
-          ship: planet,
-          proxy: 'own',
-          type: 'transferPoint',
-          nonce: 2,
-          address: inviteWallet.ownership.keys.address,
-          walletType,
-          web3: _web3,
-          connector,
-        });
+          await submitL2Transaction({
+            api,
+            wallet: _wallet,
+            ship: planet,
+            proxy: 'own',
+            type: 'transferPoint',
+            nonce: 2,
+            address: inviteWallet.ownership.keys.address,
+            walletType,
+            web3: _web3,
+            connector,
+          });
+        }
 
         invites.push({
           hash: '',
@@ -344,6 +350,7 @@ export function useInvites() {
       ls,
       getInvites,
       updateJob,
+      performL2Reticket,
     ]
   );
 
