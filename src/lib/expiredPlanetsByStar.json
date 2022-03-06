@@ -1,0 +1,27 @@
+{
+  "~tomwet": {
+    "ownership": "0x7915e2909455658cc868af49a4cd77f926320e68",
+    "planets": [
+      {
+        "patp": "~podtug-davtyl",
+        "oldTicket": "~lachus-bartep-navsum-rinten"
+      },
+      {
+        "patp": "~hocdec-hosdev",
+        "oldTicket": "~rapdur-ponteg-nopweg-pardyt"
+      },
+      {
+        "patp": "~taswyn-montex",
+        "oldTicket": "~ponryc-firfur-livdyn-boslyt"
+      },
+      {
+        "patp": "~rosrus-tollyr",
+        "oldTicket": "~hilpet-tabryc-novnet-nilmur"
+      },
+      {
+        "patp": "~picrys-tardet",
+        "oldTicket": "~bidfyr-satlyn-pictec-walsug"
+      }
+    ]
+  }
+}
