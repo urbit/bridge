@@ -1,5 +1,5 @@
+import { stripSigPrefix } from 'form/formatters';
 import expiredPlanetsWithInviteCodes from './expiredPlanetsWithInviteCodes.json';
-import { deSiggedString } from './lib';
 
 export default function useIsExpired(
   patp: string | null,
@@ -8,10 +8,7 @@ export default function useIsExpired(
   let isExpired = false;
 
   if (patp !== null && ticket !== null) {
-    const ticketPatp = deSiggedString(ticket)?.concat(
-      '-',
-      deSiggedString(patp)
-    );
+    const ticketPatp = stripSigPrefix(ticket).concat('-', stripSigPrefix(patp));
 
     const expired = Object.keys(expiredPlanetsWithInviteCodes).includes(
       ticketPatp
