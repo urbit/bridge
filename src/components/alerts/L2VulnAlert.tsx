@@ -40,7 +40,7 @@ export const L2VulnAlert = () => {
           "Update Invites" button to rekey any L2 planet invites that were
           previously yet to be claimed.
         </Text>
-        <Anchor href="https://urbit.org" target="_blank">
+        <Anchor href="https://twitter.com/urbit" target="_blank">
           Learn More About This Issue
         </Anchor>
       </Col>
