@@ -14,6 +14,7 @@ import {
   ZOD,
 } from './constants';
 import Worker from 'worker';
+import { stripHexPrefix } from './utils/address';
 
 const worker = new Worker();
 
@@ -59,7 +60,8 @@ export const makeDeterministicTicket = (point, seed) => {
     Buffer.from(point.toString()),
     Buffer.from('invites'),
   ]);
-  const entropy = shas(Buffer.from(seed, 'hex'), pointSalt);
+  const normalizedSeed = stripHexPrefix(seed);
+  const entropy = shas(Buffer.from(normalizedSeed, 'hex'), pointSalt);
 
   const buf = entropy.slice(0, bytes);
   const patq = ob.hex2patq(buf.toString('hex'));
