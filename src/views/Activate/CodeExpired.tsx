@@ -29,7 +29,7 @@ export default function CodeExpired() {
             Please contact the entity you received it from.
           </p>
         </Box>
-        <a className="flex-col m4 w-full" href="https://urbit.org/">
+        <a className="flex-col m4 w-full" href="https://twitter.com/urbit">
           <Button
             className="m2"
             backgroundColor={'black'}
