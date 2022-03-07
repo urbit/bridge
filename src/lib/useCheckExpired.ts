@@ -1,21 +1,23 @@
-import expiredPlanetsByStar from './expiredPlanetsByStar.json';
+import expiredPlanetsWithInviteCodes from './expiredPlanetsWithInviteCodes.json';
+import { deSiggedString } from './lib';
 
-export default function useIsExpired(patp: string | null) {
+export default function useIsExpired(
+  patp: string | null,
+  ticket: string | null
+) {
   let isExpired = false;
-  let expiredPatps: string[] = [];
 
-  for (const [_, value] of Object.entries(expiredPlanetsByStar)) {
-    const { planets } = value;
+  if (patp !== null && ticket !== null) {
+    const ticketPatp = deSiggedString(ticket)?.concat(
+      '-',
+      deSiggedString(patp)
+    );
 
-    planets.forEach(planet => expiredPatps.push(planet.patp));
-  }
+    const expired = Object.keys(expiredPlanetsWithInviteCodes).includes(
+      ticketPatp
+    );
 
-  function patpInExpiredList(patp: string): boolean {
-    return expiredPatps.includes(patp);
-  }
-
-  if (patp !== null) {
-    isExpired = patpInExpiredList(patp);
+    isExpired = expired;
   }
 
   return {

@@ -70,6 +70,9 @@ const randomPatq = len => {
 const patpStringLength = byteLength =>
   byteLength * 3 + Math.ceil(byteLength / 2);
 
+const deSiggedString = siggedString =>
+  siggedString.startsWith('~') ? siggedString.slice(1) : siggedString;
+
 export {
   safeFromWei,
   safeToWei,
@@ -84,4 +87,5 @@ export {
   isValidGalaxy,
   randomPatq,
   patpStringLength,
+  deSiggedString,
 };
