@@ -7,7 +7,7 @@ import CodeExpired from './CodeExpired';
 import { useLocalRouter } from 'lib/LocalRouter';
 import useImpliedTicket from 'lib/useImpliedTicket';
 import useHasDisclaimed from 'lib/useHasDisclaimed';
-import useIsExpired from 'lib/useCheckExpired';
+import useIsExpiredInvite from 'lib/useIsExpiredInvite';
 
 import { ReactComponent as PlaceholderSigil } from 'assets/blank-planet-sigil.svg';
 import { FadeablePointPresenter as PointPresenter } from './PointPresenter';
@@ -37,7 +37,7 @@ export default function ActivateCode() {
     [impliedTicket, impliedPatp]
   );
 
-  const { isExpired } = useIsExpired(impliedPatp);
+  const { isExpired } = useIsExpiredInvite(impliedPatp, impliedTicket);
 
   return (
     <View inset hideBack>

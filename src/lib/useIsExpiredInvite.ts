@@ -1,7 +1,7 @@
 import { stripSigPrefix } from 'form/formatters';
 import expiredPlanetsWithInviteCodes from './expiredPlanetsWithInviteCodes.json';
 
-export default function useIsExpired(
+export default function useIsExpiredInvite(
   patp: string | null,
   ticket: string | null
 ) {
