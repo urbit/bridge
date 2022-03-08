@@ -168,7 +168,6 @@ export const composeValidator = (
   // that means our `validating` state flickers the UI and it looks pretty bad.
   // The solution is to conditionally return a promise only when necessary.
   return values => {
-    debugger;
     // ask for field-level errors
     const errorsOrPromise = fieldLevelValidator(values);
 

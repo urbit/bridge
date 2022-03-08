@@ -133,8 +133,6 @@ export default function Points() {
     [pointList, rejectedPoints]
   );
 
-  console.log(allPoints, pointList);
-
   // if we can only interact with a single point, jump to the point page.
   // if there are any pending transfers, incoming or outgoing, stay on this
   // page, because those can only be completed/cancelled here.
