@@ -17,7 +17,6 @@ import { timeout } from 'lib/timeout';
 import useRoller from 'lib/useRoller';
 
 import BridgeForm from 'form/BridgeForm';
-import Condition from 'form/Condition';
 import { TicketInput, PassphraseInput, PointInput } from 'form/Inputs';
 import {
   composeValidator,
@@ -53,35 +52,38 @@ export default function Ticket({ className, goHome }: TicketProps) {
   const [usePassphrase, setUsePassphrase] = useState(false);
   const [useShards, setUseShards] = useState(false);
 
-  const validateForm = useCallback((values, errors) => {
-    didWarn.current = false;
+  const validateForm = useCallback(
+    (values, errors) => {
+      didWarn.current = false;
 
-    if (errors.point) {
-      return errors;
-    }
+      if (errors.point) {
+        return errors;
+      }
 
-    if (values.useShards) {
-      if (errors.shard1 || errors.shard2 || errors.shard3) {
-        return errors;
+      if (useShards) {
+        if (errors.shard1 || errors.shard2 || errors.shard3) {
+          return errors;
+        }
+        const empty = ['shard1', 'shard2', 'shard3'].filter(s => !values[s]);
+        if (empty.length > 1) {
+          let errors: Record<string, string> = {};
+          empty.forEach(s => {
+            errors[s] = 'Please provide at least two out of three shards.';
+          });
+          return errors;
+        }
+      } else {
+        if (errors.ticket) {
+          return errors;
+        }
       }
-      const empty = ['shard1', 'shard2', 'shard3'].filter(s => !values[s]);
-      if (empty.length > 1) {
-        let errors: Record<string, string> = {};
-        empty.forEach(s => {
-          errors[s] = 'Please provide at least two out of three shards.';
-        });
-        return errors;
-      }
-    } else {
-      if (errors.ticket) {
-        return errors;
-      }
-    }
-  }, []);
+    },
+    [useShards]
+  );
 
   const onSubmit = useCallback(
     async values => {
-      const ticket = values.useShards
+      const ticket = useShards
         ? kg.combine(
             [values.shard1, values.shard2, values.shard3].map(v =>
               v === '' ? undefined : v
@@ -122,41 +124,37 @@ export default function Ticket({ className, goHome }: TicketProps) {
         console.error(error);
         return {
           [FORM_ERROR]: `Unable to derive wallet from ${
-            values.useShards ? 'shards' : 'ticket'
+            useShards ? 'shards' : 'ticket'
           }.`,
         };
       }
     },
-    [setPointCursor, setUrbitWallet, getPoints]
+    [setPointCursor, setUrbitWallet, getPoints, useShards]
   );
+
+  const emptyValidator = () => undefined;
 
   const validate = useMemo(
     () =>
       composeValidator(
         {
-          useAdvanced: buildCheckboxValidator(),
-          usePassphrase: buildCheckboxValidator(),
-          useShards: buildCheckboxValidator(),
           point: buildPointValidator(4),
-          ticket: buildPatqValidator(),
-          shard1: buildShardValidator(),
-          shard2: buildShardValidator(),
-          shard3: buildShardValidator(),
+          ticket: useShards ? emptyValidator : buildPatqValidator(),
+          shard1: useShards ? buildShardValidator() : emptyValidator,
+          shard2: useShards ? buildShardValidator() : emptyValidator,
+          shard3: useShards ? buildShardValidator() : emptyValidator,
           ticketHidden: buildCheckboxValidator(),
           passphrase: buildPassphraseValidator(),
         },
         validateForm
       ),
-    [validateForm]
+    [validateForm, useShards]
   );
 
   const initialValues = useMemo(
     () => ({
       point: impliedPoint || '',
-      usePasshrase: false,
-      useShards: false,
       ticketHidden: true,
-      useAdvanced: false,
     }),
     [impliedPoint]
   );
