@@ -54,7 +54,6 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
 
   // when the properties change, re-derive wallet and set global state
   const debouncedOnValues = debounce(({ valid, values }) => {
-    console.log('values');
     if (valid) {
       setWalletHdPath(values.hdpath);
       setAuthMnemonic(Just(values.mnemonic));
