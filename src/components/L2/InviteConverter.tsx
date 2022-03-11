@@ -177,10 +177,6 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
       return (sum += star.children.length);
     }, 0) > 0;
 
-  if (!hasPlanets) {
-    return null;
-  }
-
   if (generatingStatus !== 'initial') {
     return (
       <CreatingInvitesModal
@@ -235,7 +231,9 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
               mt={3}
               p={3}
               borderRadius={2}
-              overflowY="auto">
+              overflowY="auto"
+              alignItems={hasPlanets ? '' : 'center'}
+              justifyContent={hasPlanets ? '' : 'center'}>
               {Object.entries(starMap).map(([patp, { children }]) => (
                 <Col mb={4}>
                   <Row>
@@ -268,7 +266,7 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
                   ))}
                 </Col>
               ))}
-              {}
+              {!hasPlanets && <Text>No planets to update</Text>}
             </Col>
             <Row mt={3} justifyContent="end">
               <IndigoButton
