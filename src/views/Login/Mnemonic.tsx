@@ -6,7 +6,7 @@ import { Grid } from 'indigo-react';
 import { useWallet } from 'store/wallet';
 
 import { walletFromMnemonic } from 'lib/wallet';
-import { DEFAULT_HD_PATH, WALLET_TYPES } from 'lib/constants';
+import { DEFAULT_HD_PATH, ONE_SECOND, WALLET_TYPES } from 'lib/constants';
 import useLoginView from 'lib/useLoginView';
 import { MnemonicInput, HdPathInput, PassphraseInput } from 'form/Inputs';
 import {
@@ -25,6 +25,7 @@ import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 import AdvancedOptions from 'components/L2/Headers/AdvancedOptions';
 import { Row } from '@tlon/indigo-react';
+import { debounce } from 'lodash';
 
 interface MnemonicProps {
   className?: string;
@@ -52,26 +53,30 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
   }, [skipValidation]);
 
   // when the properties change, re-derive wallet and set global state
-  const onValues = useCallback(
-    ({ valid, values }) => {
-      if (valid) {
-        setWalletHdPath(values.hdpath);
-        setAuthMnemonic(Just(values.mnemonic));
-        setWallet(
-          walletFromMnemonic(
-            values.mnemonic,
-            values.hdpath,
-            values.passphrase,
-            skipValidation
-          )
-        );
-      } else {
-        setAuthMnemonic(Nothing());
-        setWallet(Nothing());
-      }
-    },
-    [setAuthMnemonic, setWallet, setWalletHdPath, skipValidation]
-  );
+  const debouncedOnValues = debounce(({ valid, values }) => {
+    if (valid) {
+      setWalletHdPath(values.hdpath);
+      setAuthMnemonic(Just(values.mnemonic));
+      setWallet(
+        walletFromMnemonic(
+          values.mnemonic,
+          values.hdpath,
+          values.passphrase,
+          skipValidation
+        )
+      );
+    } else {
+      setAuthMnemonic(Nothing());
+      setWallet(Nothing());
+    }
+  }, ONE_SECOND);
+
+  const onValues = useCallback(debouncedOnValues, [
+    setAuthMnemonic,
+    setWallet,
+    setWalletHdPath,
+    skipValidation,
+  ]);
 
   const initialValues = {
     hdpath: DEFAULT_HD_PATH,
