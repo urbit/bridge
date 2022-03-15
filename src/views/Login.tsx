@@ -29,11 +29,11 @@ export default function Login() {
           break;
         //
         case COMMANDS.BITCOIN:
-          push(names.BITCOIN_SIGN_TRANSACTION);
+          push(names.BITCOIN);
           break;
         //
         case COMMANDS.XPUB:
-          push(names.BITCOIN_XPUB);
+          push(names.BITCOIN);
           break;
         //
         default:
