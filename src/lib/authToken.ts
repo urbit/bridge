@@ -9,13 +9,13 @@ import { ledgerSignMessage } from './ledger';
 import { trezorSignMessage } from './trezor';
 import BridgeWallet from './types/BridgeWallet';
 import { Hash } from '@urbit/roller-api';
+import { keccak256 } from 'ethereumjs-util';
 
 const MESSAGE = 'Bridge Authentication Token';
 
-function signMessage(privateKey: Buffer) {
+function signMessage(privateKey: Buffer, hashFunction = keccak256) {
   const msg = '\x19Ethereum Signed Message:\n' + MESSAGE.length + MESSAGE;
-  // #ecdsaSign requires a 32-byte buffer, hence sha256
-  const hashed = crypto.sha256(Buffer.from(msg));
+  const hashed = hashFunction(Buffer.from(msg));
   const { signature } = ecdsaSign(Buffer.from(hashed), privateKey);
 
   // add key recovery parameter
@@ -103,6 +103,14 @@ const getWalletConnectAuthToken = ({
 
 const getDefaultAuthToken = ({ wallet }: DefaultAuthTokenArgs) => {
   const signature = signMessage(wallet.privateKey!);
+
+  const token = `0x${Buffer.from(signature).toString('hex')}`;
+
+  return token;
+};
+
+export const getSha256AuthToken = ({ wallet }: DefaultAuthTokenArgs) => {
+  const signature = signMessage(wallet.privateKey!, crypto.sha256);
 
   const token = `0x${Buffer.from(signature).toString('hex')}`;
 

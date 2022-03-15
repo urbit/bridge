@@ -10,12 +10,14 @@ import {
   keysMatchChain,
   deriveNetworkKeys,
   compileMultiKey,
+  deriveNetworkSeedFromAuthToken,
 } from './keys';
 import { stripSigPrefix } from 'form/formatters';
 import useRoller from './useRoller';
 import Point from './types/Point';
 import { toL1Details } from './utils/point';
 import { ETH_ZERO_ADDR } from './constants';
+import { getSha256AuthToken } from './authToken';
 
 interface useKeyfileGeneratorArgs {
   point?: Point;
@@ -24,7 +26,7 @@ interface useKeyfileGeneratorArgs {
 
 /**
  * The default Keyfile Generator. Can be used by itself, or composed with
- * other hooks (see `useActivationKeyfileGenerator` and 
+ * other hooks (see `useActivationKeyfileGenerator` and
  * `useSingleKeyfileGenerator`).
  *
  * @param point Point - (optional) the Point for which to generate keys
@@ -221,18 +223,21 @@ interface SingleKeyfileGeneratorArgs {
 export const useSingleKeyfileGenerator = ({
   seed,
 }: SingleKeyfileGeneratorArgs) => {
-  // use provided seed, or fallback to deriving from logged in wallet
   const { point } = useRollerStore();
+
   const { authMnemonic, authToken, urbitWallet, wallet }: any = useWallet();
-  const [seeds, setSeeds] = useState<string[]>([]);
+  const [defaultSeeds, setDefaultSeeds] = useState<string[]>([]);
+  const [fallbackSeeds, setFallbackSeeds] = useState<string[]>([]);
 
   const deriveSeeds = useCallback(async () => {
+    // When the user enters a manual non-determinstic seed
     if (seed) {
-      setSeeds([seed]);
+      setDefaultSeeds([seed]);
       return;
     }
 
-    const derivedSeed = await attemptNetworkSeedDerivation({
+    // First check if we can re-derive with the existing auth token.
+    const defaultDerivedSeed = await attemptNetworkSeedDerivation({
       urbitWallet,
       wallet,
       authMnemonic,
@@ -242,8 +247,32 @@ export const useSingleKeyfileGenerator = ({
       revision: point.keyRevisionNumber,
     });
 
-    if (Just.hasInstance(derivedSeed)) {
-      setSeeds([derivedSeed.value]);
+    if (Just.hasInstance(defaultDerivedSeed)) {
+      setDefaultSeeds([defaultDerivedSeed.value]);
+    }
+
+    /**
+     * Otherwise, we will need to try a different token derivation scheme.
+     *
+     * Due to a logical error with auth token derivation, keys set between May
+     * 2021 and March 2022 used `sha256` instead of the logically correct
+     * `keccak256`. To mitigate this for users who log back into Bridge to
+     * download their keyfile or copy their access code, we need to check for
+     * the existence by deriving with a fallback algorithm.
+     *
+     * See this issue for additional context:
+     * https://github.com/urbit/bridge/issues/549
+     */
+
+    const fallbackAuthToken = getSha256AuthToken({ wallet: wallet.value });
+    const fallbackDerivedSeed = deriveNetworkSeedFromAuthToken(
+      point.value,
+      fallbackAuthToken,
+      point.keyRevisionNumber
+    );
+
+    if (Just.hasInstance(fallbackDerivedSeed)) {
+      setFallbackSeeds([fallbackDerivedSeed.value]);
     }
   }, [authMnemonic, authToken, point, seed, urbitWallet, wallet]);
 
@@ -251,5 +280,18 @@ export const useSingleKeyfileGenerator = ({
     deriveSeeds();
   }, [deriveSeeds]);
 
-  return useKeyfileGenerator({ seeds });
+  const defaultBind = useKeyfileGenerator({ seeds: defaultSeeds });
+  const fallbackBind = useKeyfileGenerator({ seeds: fallbackSeeds });
+
+  const output = useMemo(() => {
+    return fallbackBind.keyfile
+      ? {
+          ...fallbackBind,
+        }
+      : {
+          ...defaultBind,
+        };
+  }, [defaultBind, fallbackBind]);
+
+  return output;
 };
