@@ -16,7 +16,7 @@ import { stripSigPrefix } from 'form/formatters';
 import useRoller from './useRoller';
 import Point from './types/Point';
 import { toL1Details } from './utils/point';
-import { ETH_ZERO_ADDR } from './constants';
+import { ETH_ZERO_ADDR, NONCUSTODIAL_WALLETS } from './constants';
 import { getSha256AuthToken } from './authToken';
 
 interface useKeyfileGeneratorArgs {
@@ -225,7 +225,13 @@ export const useSingleKeyfileGenerator = ({
 }: SingleKeyfileGeneratorArgs) => {
   const { point } = useRollerStore();
 
-  const { authMnemonic, authToken, urbitWallet, wallet }: any = useWallet();
+  const {
+    authMnemonic,
+    authToken,
+    urbitWallet,
+    wallet,
+    walletType,
+  }: any = useWallet();
   const [defaultSeeds, setDefaultSeeds] = useState<string[]>([]);
   const [fallbackSeeds, setFallbackSeeds] = useState<string[]>([]);
 
@@ -264,6 +270,11 @@ export const useSingleKeyfileGenerator = ({
      * https://github.com/urbit/bridge/issues/549
      */
 
+    if (NONCUSTODIAL_WALLETS.has(walletType)) {
+      console.log('cannot derive fallback token for non-custodial wallets');
+      return;
+    }
+
     const fallbackAuthToken = getSha256AuthToken({ wallet: wallet.value });
     const fallbackDerivedSeed = deriveNetworkSeedFromAuthToken(
       point.value,
@@ -274,7 +285,7 @@ export const useSingleKeyfileGenerator = ({
     if (Just.hasInstance(fallbackDerivedSeed)) {
       setFallbackSeeds([fallbackDerivedSeed.value]);
     }
-  }, [authMnemonic, authToken, point, seed, urbitWallet, wallet]);
+  }, [authMnemonic, authToken, point, seed, urbitWallet, wallet, walletType]);
 
   useEffect(() => {
     deriveSeeds();
