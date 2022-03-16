@@ -235,6 +235,15 @@ export const useSingleKeyfileGenerator = ({
   const [defaultSeeds, setDefaultSeeds] = useState<string[]>([]);
   const [fallbackSeeds, setFallbackSeeds] = useState<string[]>([]);
 
+  /**
+   * Generates seeds to re-derive keyfiles using both keccak256 and sha256.
+   *
+   * Attempts are made to re-derive the keyfiles with both algorithms, since
+   * we don't know which was used previously. This is determined downstream in
+   * the `useKeyfileGenerator` calls via `keysMatchChain`.
+   *
+   * See bridge/issues#549 for details.
+   */
   const deriveSeeds = useCallback(async () => {
     // When the user enters a manual non-determinstic seed
     if (seed) {
@@ -242,7 +251,7 @@ export const useSingleKeyfileGenerator = ({
       return;
     }
 
-    // First check if we can re-derive with the existing auth token.
+    // Derive the default seed (using keccak256)
     const defaultDerivedSeed = await attemptNetworkSeedDerivation({
       urbitWallet,
       wallet,
@@ -257,21 +266,10 @@ export const useSingleKeyfileGenerator = ({
       setDefaultSeeds([defaultDerivedSeed.value]);
     }
 
-    /**
-     * Otherwise, we will need to try a different token derivation scheme.
-     *
-     * Due to a logical error with auth token derivation, keys set between May
-     * 2021 and March 2022 used `sha256` instead of the logically correct
-     * `keccak256`. To mitigate this for users who log back into Bridge to
-     * download their keyfile or copy their access code, we need to check for
-     * the existence by deriving with a fallback algorithm.
-     *
-     * See this issue for additional context:
-     * https://github.com/urbit/bridge/issues/549
-     */
-
+    // Derive the fallback seed (using sha256), in case the keccak256 keyfile
+    // fails downstream (the useKeyfileGenerator calls below).
     if (NONCUSTODIAL_WALLETS.has(walletType)) {
-      console.log('cannot derive fallback token for non-custodial wallets');
+      console.log('fallback token not relevant for non-custodial wallets');
       return;
     }
 

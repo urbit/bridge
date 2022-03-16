@@ -109,6 +109,23 @@ const getDefaultAuthToken = ({ wallet }: DefaultAuthTokenArgs) => {
   return token;
 };
 
+/**
+ * Heads up, this is probably not the authToken derivation function you're
+ * looking for.
+ *
+ * Due to a logical error with auth token derivation, keys set between May
+ * 2021 and March 2022 used `sha256` instead of the logically correct
+ * `keccak256`. To mitigate this for users who log back into Bridge to
+ * download their keyfile or copy their access code, the keyfile generator
+ * will first try re-deriving with `keccak256`, then will fallback to `sha256`
+ * via this function.
+ *
+ * See this issue for additional context:
+ * https://github.com/urbit/bridge/issues/549
+ *
+ * @param wallet BIP32 wallet
+ * @returns string
+ */
 export const getSha256AuthToken = ({ wallet }: DefaultAuthTokenArgs) => {
   const signature = signMessage(wallet.privateKey!, crypto.sha256);
 
