@@ -41,6 +41,7 @@ import { useWalletConnect } from './useWalletConnect';
 import { PendingL1Txn } from './types/PendingL1Transaction';
 import { TRANSACTION_PROGRESS } from './reticket';
 import { useRollerOptions } from './useRollerOptions';
+import { useTimerStore } from 'store/timerStore';
 
 interface UpdateParams {
   point: number;
@@ -69,7 +70,6 @@ export default function useRoller() {
     point,
     points,
     nextQuotaTime,
-    setNextBatchTime,
     setNextQuotaTime,
     setPendingTransactions,
     setModalText,
@@ -78,6 +78,7 @@ export default function useRoller() {
     storePendingL1Txn,
     deletePendingL1Txn,
   } = useRollerStore();
+  const { setNextBatchTime } = useTimerStore();
   const [config, setConfig] = useState<Config | null>(null);
 
   const { options } = useRollerOptions();

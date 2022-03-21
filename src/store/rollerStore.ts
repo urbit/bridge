@@ -22,7 +22,6 @@ export const EMPTY_POINT = new Point({
 
 export interface RollerStore {
   loading: boolean;
-  nextBatchTime: number;
   nextQuotaTime: number;
   pendingTransactions: PendingTransaction[];
   point: Point;
@@ -34,7 +33,6 @@ export interface RollerStore {
   ethBalance: BN;
   setLoading: (loading: boolean) => void;
   setModalText: (modalText: string) => void;
-  setNextBatchTime: (nextBatchTime: number) => void;
   setNextQuotaTime: (nextQuotaTime: number) => void;
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) => void;
   setPoint: (point: number) => void;
@@ -47,7 +45,6 @@ export interface RollerStore {
 
 export const useRollerStore = create<RollerStore>(set => ({
   loading: false,
-  nextBatchTime: new Date().getTime() + HOUR,
   nextQuotaTime: new Date().getTime() + 24 * HOUR,
   pendingTransactions: [],
   point: EMPTY_POINT,
@@ -57,7 +54,6 @@ export const useRollerStore = create<RollerStore>(set => ({
   recentlyCompleted: 0,
   ethBalance: toBN(0),
   setLoading: (loading: boolean) => set(() => ({ loading })),
-  setNextBatchTime: (nextBatchTime: number) => set(() => ({ nextBatchTime })),
   setNextQuotaTime: (nextQuotaTime: number) => set(() => ({ nextQuotaTime })),
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) =>
     set(state => {
