@@ -79,8 +79,8 @@ export default function UrbitOSHome() {
           <Box className="info-modal-content">
             <div className="fw-bold mb5">Keyfile Unavailable</div>
             <div className="mb5">
-              Keys generated between 2021-05 and 2022-02 used a different
-              algorithm. Please login again with 'Use Legacy Keyfile' selected.
+              If you set networking keys with an older version of Bridge, try
+              logging in again with "Use Legacy Token" selected.
             </div>
           </Box>
         </Modal>
