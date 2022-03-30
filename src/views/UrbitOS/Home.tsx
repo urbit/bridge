@@ -7,6 +7,7 @@ import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 import { ReactComponent as KeyfileIcon } from 'assets/keyfile.svg';
+import { ReactComponent as InfoIcon } from 'assets/info.svg';
 
 import { useLocalRouter } from 'lib/LocalRouter';
 import { useSingleKeyfileGenerator } from 'lib/useKeyfileGenerator';
@@ -42,22 +43,57 @@ export default function UrbitOSHome() {
     names,
   ]);
 
-  const { code, download } = useSingleKeyfileGenerator({});
+  const { available, code, download, generating } = useSingleKeyfileGenerator(
+    {}
+  );
+  const keyfileAvailable = available && !generating;
+  const [showKeysUnavailableModal, setShowKeysUnavailableModal] = useState(
+    false
+  );
+
+  const headerButton = () => {
+    if (!hasSetNetworkKeys) {
+      return null;
+    }
+
+    if (generating) {
+      return <Box className="header-button keyfile">Generating...</Box>;
+    }
+
+    return keyfileAvailable ? (
+      <Button className="header-button keyfile" onClick={download}>
+        <KeyfileIcon />
+        Download Keyfile
+      </Button>
+    ) : (
+      <>
+        <Button
+          className="header-button keyfile-unavailable"
+          onClick={() => setShowKeysUnavailableModal(true)}>
+          <InfoIcon />
+          &nbsp;Keyfile Unavailable
+        </Button>
+        <Modal
+          show={showKeysUnavailableModal}
+          hide={() => setShowKeysUnavailableModal(false)}>
+          <Box className="info-modal-content">
+            <div className="fw-bold mb5">Keyfile Unavailable</div>
+            <div className="mb5">
+              If you set networking keys with an older version of Bridge, try
+              logging in again with "Use Legacy Token" selected.
+            </div>
+          </Box>
+        </Modal>
+      </>
+    );
+  };
 
   return (
     <Window className="os-home">
       <HeaderPane>
         <Row className="header-row">
           <h5>OS</h5>
-          {hasSetNetworkKeys && (
-            <Button
-              className="header-button keyfile"
-              disabled={!hasSetNetworkKeys}
-              onClick={download}>
-              <KeyfileIcon />
-              Download Keyfile
-            </Button>
-          )}
+          {headerButton()}
         </Row>
       </HeaderPane>
       <BodyPane>
