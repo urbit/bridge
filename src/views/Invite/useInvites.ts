@@ -13,12 +13,13 @@ import {
   submitL2Transaction,
   registerProxyAddress,
 } from 'lib/utils/roller';
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
 import { useRollerStore } from 'store/rollerStore';
 import {
   getStoredInvites,
+  removeStoredInvite,
   setStoredInvite,
   setStoredInvites,
 } from 'store/storage/roller';
@@ -170,21 +171,21 @@ export function useInvites() {
           const invite =
             storedInvite || (await generateInviteInfo(planet, _authToken));
 
-          // TODO: check if the invite point's owner still matches the deterministic wallet address
           const planetInfo = await api.getPoint(planet);
-          setStoredInvite(ls, invite);
-
+          // unclaimed point: if still owned by the deterministic invite wallet
           if (
             invite.owner.toLowerCase() ===
               planetInfo.ownership?.owner?.address &&
             planetInfo.dominion === POINT_DOMINIONS.L2
           ) {
+            setStoredInvite(ls, invite);
             addInvite(curPoint, invite);
             newInvites.push(invite);
-          }
-
-          if (storedInvite) {
-            setStoredInvite(ls, invite);
+          } else {
+            // The point has been claimed, remove if it's in the cache
+            if (storedInvite) {
+              removeStoredInvite(ls, planet);
+            }
           }
         }
 
@@ -225,14 +226,8 @@ export function useInvites() {
         throw new Error('Internal Error: Missing Contracts/Web3/Wallet');
       }
 
-      // TODO: remove when UI disables management proxy from spawning invites
-      // if (Just.hasInstance(authMnemonic)) {
-      //   throw new Error(
-      //     "Auth key Error: A management mnemonic can't create invite codes"
-      //   );
-      // }
-
       const invites: Invite[] = [];
+      const storedInvites = getStoredInvites(ls);
 
       const proxy = point.getSpawnProxy();
 
@@ -248,6 +243,13 @@ export function useInvites() {
         updateJob(point.value, { generatingNum: i + 1 });
         const planet = planets[i];
         const nonceInc = i + nonce;
+
+        // When reticketing a planet in a browser that previously generated
+        // the invite, we need to remove it from the cache.
+        const storedInvite = storedInvites[planet];
+        if (storedInvite) {
+          removeStoredInvite(ls, planet);
+        }
 
         const { ticket, inviteWallet } = await generateInviteWallet(
           planet,

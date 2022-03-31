@@ -34,6 +34,20 @@ export const setStoredInvite = (ls: SecureLS, newInvite: Invite) => {
   ls.set(INVITES_KEY, invites);
 };
 
+export const removeStoredInvite = (ls: SecureLS, key: number) => {
+  let invites: InviteTickets = {};
+  try {
+    invites = ls.get(INVITES_KEY) || {};
+  } catch (e) {}
+
+  if (key in invites) {
+    let { [key]: _, ...filtered } = invites;
+    invites = filtered;
+  }
+
+  ls.set(INVITES_KEY, invites);
+};
+
 export const clearInvitesStorage = () => localStorage.removeItem(INVITES_KEY);
 
 export const getHideMigrationMessage = () =>
