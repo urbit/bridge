@@ -35,7 +35,7 @@ Optionally, to validate your downloaded file's integrity, compare the lines in c
 
 1. `cd` into the `bridge-$version` directory
 2. Run `python3 -m http.server 5000 --bind 127.0.0.1`
-3. Navigate to http://localhost:5000 using a web browser to access Bridge (we recommend using Firefox or Chrome)
+3. Navigate to http://127.0.0.1:5000 using a web browser to access Bridge (we recommend using Firefox or Chrome)
 
 #### Ledger support
 
