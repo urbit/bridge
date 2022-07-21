@@ -93,4 +93,16 @@
       background-color: $washed-gray;
     }
   }
+
+  .l1-activation {
+    border: $light-gray-border;
+    padding: 12px 8px;
+    border-radius: $medium-border-radius;
+    font-size: 14px;
+    line-height: 18px;
+    margin-top: 16px;
+    font-family: $default-font;
+    text-align: center;
+  }
+
 }

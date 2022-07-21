@@ -192,6 +192,13 @@ export default function LoginSelector({
         <Grid.Item full className="activate" as={Button} onClick={goToActivate}>
           Activate a Planet
         </Grid.Item>
+        <Grid.Item full className="l1-activation" as={Text}>
+          BitBlockBoom attendee?{' '}
+          <a className="underline" href="https://bridge-sunset.urbit.org">
+            Activate
+          </a>{' '}
+          your L1 planet from invite card{' '}
+        </Grid.Item>
         <Grid.Item
           full
           className="unsupported-info"
