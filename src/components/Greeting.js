@@ -41,7 +41,7 @@ export default function ActivateDisclaimer({ point }) {
       <Grid.Item
         full
         as={LinkButton}
-        href="https://urbit.org/docs/getting-started/">
+        href="https://urbit.org/getting-started">
         <Text className={cn(TEXT_STYLE, 'block mb2')}>
           Boot Arvo, the Urbit OS
         </Text>
