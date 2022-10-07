@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import cn from 'classnames';
-import { Grid } from 'indigo-react';
+import { Flex, Grid } from 'indigo-react';
 import {
   Box,
   Button,
@@ -9,6 +9,7 @@ import {
   Row,
   Text,
   Image,
+  Checkbox,
 } from '@tlon/indigo-react';
 import Web3 from 'web3';
 import { Just } from 'folktale/maybe';
@@ -57,11 +58,19 @@ export default function LoginSelector({
   useLoginView(WALLET_TYPES.WALLET_CONNECT);
 
   const { push, names }: any = useHistory();
-  const { setWallet, setWalletType, setAuthToken }: any = useWallet();
+  const {
+    setWallet,
+    setWalletType,
+    setAuthToken,
+    skipLoginSigning,
+    setSkipLoginSigning,
+  }: any = useWallet();
   const { setMetamask }: any = useNetwork();
   const [showModal, setShowModal] = useState(false);
   // TODO: do we still need this? currently not being set
   const [metamaskSelected, setMetamaskSelected] = useState(false);
+
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const {
     address,
@@ -199,6 +208,33 @@ export default function LoginSelector({
           onClick={() => setShowModal(true)}>
           <Icon icon="Info" />I have a wallet type not supported here
         </Grid.Item>
+        <Grid.Item
+          className="advanced-options"
+          full
+          as={Text}
+          onClick={() => setShowAdvanced(!showAdvanced)}>
+          Advanced{' '}
+          <Icon
+            display="inline-block"
+            icon={showAdvanced ? 'ChevronNorth' : 'ChevronSouth'}
+            size="14px"
+            color={'black'}
+          />
+        </Grid.Item>
+        {showAdvanced ? (
+          <Grid.Item
+            full
+            as={Box}
+            onClick={() => setSkipLoginSigning(!skipLoginSigning)}>
+            <Box className="skip-signing">
+              <Checkbox
+                selected={skipLoginSigning}
+                onClick={() => setSkipLoginSigning(!skipLoginSigning)}
+              />
+              <Text>Skip Signing on Login</Text>
+            </Box>
+          </Grid.Item>
+        ) : null}
         <Modal show={showModal} hide={() => setShowModal(false)}>
           <Box className="info-modal-content">
             <div className="fw-bold mb5">Other Wallet Types</div>

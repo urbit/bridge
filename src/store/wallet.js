@@ -52,6 +52,8 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
   const [networkRevision, setNetworkRevision] = useState(Nothing());
 
   const [authToken, setAuthToken] = useState(Nothing());
+  // Allow users to skip signing the auth token on login
+  const [skipLoginSigning, setSkipLoginSigning] = useState(false);
 
   // See: https://github.com/urbit/bridge/issues/549#issuecomment-1048359617
   // This is used for legacy compatibility; this flow should eventually be
@@ -176,6 +178,8 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
     setAuthToken,
     useLegacyTokenSigning,
     setUseLegacyTokenSigning,
+    skipLoginSigning,
+    setSkipLoginSigning
   };
 }
 
