@@ -210,22 +210,25 @@ export default function useRoller() {
       field,
       l1Txn,
       intervalTime = TEN_SECONDS,
+      pointValue,
     }: UpdateParams) => {
+
+      point = point === undefined ? await initPoint(pointValue) : point;
+
       if (l1Txn) storePendingL1Txn(l1Txn);
 
       let interval: any;
       const check = async () => {
-        const updatedPoint = await initPoint(point);
         const changedField = !points[point]
           ? 'newPoint'
-          : updatedPoint.getChangedField(points[point], field);
+          : point.getChangedField(points[point], field);
 
         if (isDevelopment) {
-          console.log(`CHECKING FOR ${changedField} UPDATES:`, updatedPoint);
+          console.log(`CHECKING FOR ${changedField} UPDATES:`, point.patp);
         }
 
-        if (!updatedPoint.isPlaceholder && changedField) {
-          updatePoint(updatedPoint);
+        if (!point.isPlaceholder && changedField) {
+          updatePoint(point);
           if (interval) {
             clearInterval(interval);
           }
@@ -233,7 +236,7 @@ export default function useRoller() {
           if (l1Txn) deletePendingL1Txn(l1Txn);
           if (notify) {
             showNotification(
-              `${message || getUpdatedPointMessage(updatedPoint, changedField)}`
+              `${message || getUpdatedPointMessage(point, changedField)}`
             );
           }
         }

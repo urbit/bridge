@@ -119,7 +119,7 @@ export default function IssueChild() {
     if (pointToSpawn && destinationAddress) {
       setLoading(true);
       await spawnPoint(pointToSpawn, destinationAddress);
-      checkForUpdates({ point: pointToSpawn });
+      checkForUpdates({ pointValue: pointToSpawn });
       setPointToSpawn(null);
       setDestinationAddress(null);
       setL2SpawnSent(true);
@@ -140,7 +140,7 @@ export default function IssueChild() {
   useEffect(() => {
     if (completed && pointToSpawn) {
       checkForUpdates({
-        point: pointToSpawn,
+        pointValue: pointToSpawn,
         l1Txn: {
           id: `${pointToSpawn}`,
           point: point.value,

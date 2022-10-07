@@ -63,7 +63,7 @@ function ChangeSponsor({ onDone }: { onDone: Function }) {
       setLoading(true);
       await changeSponsor(newSponsor!);
       checkForUpdates({
-        point: point.value,
+        point: point,
         message: `${point.patp} has requested ${ob.patp(
           newSponsor
         )} as a sponsor`,
@@ -210,7 +210,7 @@ function CurrentEscape({ onDone }: { onDone: Function }) {
     setLoading(true);
     await cancelEscape();
     checkForUpdates({
-      point: point.value,
+      point: point,
       message: `${point.patp}'s sponsor change cancelled`,
     });
     setLoading(false);
