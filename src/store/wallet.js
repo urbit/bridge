@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
 import { includes } from 'lodash';
+import { randomHex } from 'web3-utils';
 
 import { walletFromMnemonic } from 'lib/wallet';
 import {
@@ -55,6 +56,10 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
   // Allow users to skip signing the auth token on login
   const [skipLoginSigning, setSkipLoginSigning] = useState(false);
 
+  const setFakeToken = () => {
+    setAuthToken(Just(randomHex(32)));
+  };
+
   // See: https://github.com/urbit/bridge/issues/549#issuecomment-1048359617
   // This is used for legacy compatibility; this flow should eventually be
   // be removed after ~1 year.
@@ -74,6 +79,11 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
 
       const _wallet = wallet.value;
       const _web3 = web3.value;
+      if (skipLoginSigning) {
+        setFakeToken();
+        return;
+      }
+
       const token = await getAuthToken({
         wallet: _wallet,
         walletType,
@@ -84,7 +94,15 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
 
       setAuthToken(Just(token));
     })();
-  }, [wallet, walletType, walletHdPath, web3, useLegacyTokenSigning]);
+  }, [
+    wallet,
+    walletType,
+    walletHdPath,
+    web3,
+    useLegacyTokenSigning,
+    setAuthToken,
+    skipLoginSigning,
+  ]);
 
   const setWalletType = useCallback(
     walletType => {
@@ -179,7 +197,8 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
     useLegacyTokenSigning,
     setUseLegacyTokenSigning,
     skipLoginSigning,
-    setSkipLoginSigning
+    setSkipLoginSigning,
+    setFakeToken,
   };
 }
 

@@ -30,7 +30,13 @@ type ConnectEvent = {
 };
 
 export const useWalletConnect = () => {
-  const { setWallet, setAuthToken, resetWallet }: any = useWallet();
+  const {
+    setWallet,
+    setAuthToken,
+    setFakeToken,
+    skipLoginSigning,
+    resetWallet,
+  }: any = useWallet();
   const [connector, setConnector] = useState<WalletConnect | null>(null);
   const [address, setAddress] = useState<string | null>(null);
   const [peerMeta, setPeerMeta] = useState<PeerMeta | null>(null);
@@ -81,6 +87,15 @@ export const useWalletConnect = () => {
       return;
     }
 
+    const wallet: WalletConnectWallet = {
+      address,
+    };
+    setWallet(Just(wallet));
+    if (skipLoginSigning) {
+      setFakeToken();
+      return;
+    }
+
     let authToken = Nothing();
     try {
       const token = await getAuthToken({
@@ -89,6 +104,7 @@ export const useWalletConnect = () => {
         walletType: WALLET_TYPES.WALLET_CONNECT,
       });
       authToken = Just(token);
+      setAuthToken(authToken);
     } catch (e) {
       if (e.message === 'METHOD_NOT_SUPPORTED') {
         console.warn(
@@ -99,13 +115,6 @@ export const useWalletConnect = () => {
         //TODO  should errors with this *really* prevent login?
       }
     }
-
-    const wallet: WalletConnectWallet = {
-      address,
-    };
-
-    setAuthToken(authToken);
-    setWallet(Just(wallet));
   };
 
   const isConnected = () => {

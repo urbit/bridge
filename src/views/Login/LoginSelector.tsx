@@ -62,6 +62,7 @@ export default function LoginSelector({
     setWallet,
     setWalletType,
     setAuthToken,
+    setFakeToken,
     skipLoginSigning,
     setSkipLoginSigning,
   }: any = useWallet();
@@ -105,6 +106,15 @@ export default function LoginSelector({
 
       const wallet = new MetamaskWallet(accounts[0]);
       const web3 = new Web3(window.ethereum);
+      setWallet(Just(wallet));
+      setWalletType(WALLET_TYPES.METAMASK);
+
+      if (skipLoginSigning) {
+        setFakeToken();
+        goHome();
+        return;
+      }
+
       const authToken = await getAuthToken({
         address: wallet.address,
         walletType: WALLET_TYPES.METAMASK,
@@ -112,8 +122,6 @@ export default function LoginSelector({
       });
 
       setAuthToken(Just(authToken));
-      setWallet(Just(wallet));
-      setWalletType(WALLET_TYPES.METAMASK);
 
       goHome();
     } catch (e) {
@@ -121,7 +129,15 @@ export default function LoginSelector({
       setMetamask(false);
       setMetamaskSelected(false);
     }
-  }, [setAuthToken, setWallet, setWalletType, setMetamask, goHome]);
+  }, [
+    setMetamask,
+    setWallet,
+    setWalletType,
+    skipLoginSigning,
+    setAuthToken,
+    goHome,
+    setFakeToken,
+  ]);
 
   const onSubmitWalletConnect = useCallback(async () => {
     try {

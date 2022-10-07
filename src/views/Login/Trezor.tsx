@@ -41,7 +41,13 @@ interface TrezorProps {
 export default function Trezor({ className, goHome }: TrezorProps) {
   useLoginView(WALLET_TYPES.TREZOR);
 
-  const { setWallet, setWalletHdPath, setAuthToken }: any = useWallet();
+  const {
+    setWallet,
+    setWalletHdPath,
+    setAuthToken,
+    setFakeToken,
+    skipLoginSigning,
+  }: any = useWallet();
 
   const validate = useMemo(
     () =>
@@ -81,6 +87,13 @@ export default function Trezor({ className, goHome }: TrezorProps) {
 
       const pub = Buffer.from(publicKeyConvert(publicKey, true));
       const hd = bip32.fromPublicKey(pub, chainCode);
+      setWallet(Just(hd));
+      setWalletHdPath(values.hdPath);
+
+      if (skipLoginSigning) {
+        setFakeToken();
+        return;
+      }
 
       const authToken = await getAuthToken({
         walletType: WALLET_TYPES.TREZOR,
@@ -88,10 +101,8 @@ export default function Trezor({ className, goHome }: TrezorProps) {
       });
 
       setAuthToken(Just(authToken));
-      setWallet(Just(hd));
-      setWalletHdPath(values.hdPath);
     },
-    [setAuthToken, setWallet, setWalletHdPath]
+    [setAuthToken, setFakeToken, setWallet, setWalletHdPath, skipLoginSigning]
   );
 
   const onValues = useCallback(({ valid, values, form }) => {
