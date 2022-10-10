@@ -44,7 +44,7 @@ import { useRollerOptions } from './useRollerOptions';
 import { useTimerStore } from 'store/timerStore';
 
 interface UpdateParams {
-  point: number;
+  point?: Point | number;
   message?: string;
   notify?: boolean;
   field?: PointField;
@@ -140,7 +140,7 @@ export default function useRoller() {
   }, [nextQuotaTime, point, setModalText]);
 
   const initPoint = useCallback(
-    async (point: string | number) => {
+    async (point: string | number): Promise<Point> => {
       const _wallet = wallet.getOrElse(null);
       const _contracts = contracts.getOrElse(null);
 
@@ -210,25 +210,25 @@ export default function useRoller() {
       field,
       l1Txn,
       intervalTime = TEN_SECONDS,
-      pointValue,
     }: UpdateParams) => {
 
-      point = point === undefined ? await initPoint(pointValue) : point;
+
+      const p = (typeof point === 'number' ? await initPoint(point) : point) as Point
 
       if (l1Txn) storePendingL1Txn(l1Txn);
 
       let interval: any;
       const check = async () => {
-        const changedField = !points[point]
+        const changedField = !points[p.value]
           ? 'newPoint'
-          : point.getChangedField(points[point], field);
+          : p.getChangedField(points[p.value], field);
 
         if (isDevelopment) {
-          console.log(`CHECKING FOR ${changedField} UPDATES:`, point.patp);
+          console.log(`CHECKING FOR ${changedField} UPDATES:`, p.patp);
         }
 
-        if (!point.isPlaceholder && changedField) {
-          updatePoint(point);
+        if (!p.isPlaceholder && changedField) {
+          updatePoint(p);
           if (interval) {
             clearInterval(interval);
           }
@@ -236,7 +236,7 @@ export default function useRoller() {
           if (l1Txn) deletePendingL1Txn(l1Txn);
           if (notify) {
             showNotification(
-              `${message || getUpdatedPointMessage(point, changedField)}`
+              `${message || getUpdatedPointMessage(p, changedField)}`
             );
           }
         }
