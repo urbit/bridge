@@ -52,7 +52,13 @@ interface LedgerProps {
 export default function Ledger({ className, goHome }: LedgerProps) {
   useLoginView(WALLET_TYPES.LEDGER);
 
-  const { setWallet, setWalletHdPath, setAuthToken }: any = useWallet();
+  const {
+    setWallet,
+    setWalletHdPath,
+    setAuthToken,
+    setFakeToken,
+    skipLoginSigning,
+  }: any = useWallet();
 
   const validate = useMemo(
     () =>
@@ -77,20 +83,24 @@ export default function Ledger({ className, goHome }: LedgerProps) {
         const chainCode = Buffer.from(info.chainCode!.toString(), 'hex');
         const pub = Buffer.from(publicKeyConvert(publicKey, true));
         const hd = bip32.fromPublicKey(pub, chainCode);
+        setWallet(Just(hd));
+        setWalletHdPath(addHdPrefix(values.hdpath));
+        if (skipLoginSigning) {
+          setFakeToken();
+          return;
+        }
+
         const authToken = await getAuthToken({
           walletType: WALLET_TYPES.LEDGER,
           walletHdPath: addHdPrefix(values.hdpath),
         });
-
         setAuthToken(Just(authToken));
-        setWallet(Just(hd));
-        setWalletHdPath(addHdPrefix(values.hdpath));
       } catch (error) {
         console.error(error);
         return { [FORM_ERROR]: error.message };
       }
     },
-    [setAuthToken, setWallet, setWalletHdPath]
+    [setAuthToken, setFakeToken, setWallet, setWalletHdPath, skipLoginSigning]
   );
 
   const onValues = useCallback(({ valid, values, form }) => {

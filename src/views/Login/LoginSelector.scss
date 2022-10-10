@@ -93,4 +93,28 @@
       background-color: $washed-gray;
     }
   }
+
+  .advanced-options {
+    margin-top: 16px;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .skip-signing {
+    margin-top: 16px;
+    display: flex;
+    flex-flow: row nowrap;
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    font-family: $default-font;
+
+    span {
+      margin-left: 10px;
+      width: 160px;
+      font-size: 14px;
+      line-height: 18px;
+    }
+  }
 }
