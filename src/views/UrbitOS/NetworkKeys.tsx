@@ -176,7 +176,7 @@ export default function UrbitOSNetworkKeys({
   useEffect(() => {
     if (completed) {
       checkForUpdates({
-        point: point.value,
+        point: point,
         message: `${point.patp}'s Network Keys have been set!`,
         l1Txn: {
           id: `${point.keyRevisionNumber}-network-keys-${point.value}`,
@@ -252,7 +252,7 @@ export default function UrbitOSNetworkKeys({
       // we could inspect if there's a changeKeys in the local list of pending txs,...
       //
       checkForUpdates({
-        point: point.value,
+        point: point,
         message: `${point.patp}'s Network Keys have been set!`,
         intervalTime: ONE_SECOND,
       });

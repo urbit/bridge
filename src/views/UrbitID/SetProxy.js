@@ -165,7 +165,7 @@ export default function SetProxy() {
       await setProxyAddress(getL2ProxyName(data.proxyType), newAddress);
 
       checkForUpdates({
-        point: point.value,
+        point: point,
         message: `${point.patp}'s ${humanProxyType} proxy has been set!`,
       });
 
@@ -191,7 +191,7 @@ export default function SetProxy() {
   useEffect(() => {
     if (completed) {
       checkForUpdates({
-        point: point.value,
+        point: point,
         message: `${point.patp}'s ${humanProxyType} proxy has been set!`,
         l1Txn: {
           id: `${newAddress}-${point.value}`,
