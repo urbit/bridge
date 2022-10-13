@@ -15,7 +15,7 @@
   },
   "proxy": "http://localhost:4000",
   "dependencies": {
-    "@ethereumjs/tx": "^3.3.0",
+    "@ethereumjs/tx": "^4.0.0",
     "@ledgerhq/hw-app-eth": "^6.5.0",
     "@ledgerhq/hw-transport-u2f": "^5.36.0-deprecated",
     "@metamask/detect-provider": "^1.2.0",
