@@ -33,6 +33,7 @@
     "@types/styled-components": "^5.1.10",
     "@types/styled-system": "^5.1.11",
     "@types/styled-system__css": "^5.0.15",
+    "@urbit/nockjs": "^0.0.1",
     "@urbit/roller-api": "^0.1.15",
     "@walletconnect/client": "^1.8.0",
     "@walletconnect/qrcode-modal": "^1.8.0",
