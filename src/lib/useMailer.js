@@ -3,7 +3,7 @@ import { useCallback, useRef } from 'react';
 import { hasReceived, sendMail } from './inviteMail';
 import { timeout } from './timeout';
 
-const STUB_MAILER = process.env.REACT_APP_STUB_MAILER === 'true';
+const STUB_MAILER = import.meta.env.VITE_STUB_MAILER === 'true';
 
 export default function useMailer() {
   const cache = useRef({});

@@ -85,7 +85,7 @@ function _useNetwork(initialNetworkType = null) {
           return;
         }
         case NETWORK_TYPES.ROPSTEN: {
-          const endpoint = `https://ropsten.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
+          const endpoint = `https://ropsten.infura.io/v3/${import.meta.env.VITE_INFURA_ENDPOINT}`;
 
           initWeb3(
             new Web3.providers.HttpProvider(endpoint),
@@ -94,7 +94,7 @@ function _useNetwork(initialNetworkType = null) {
           return;
         }
         case NETWORK_TYPES.MAINNET: {
-          const endpoint = `https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_ENDPOINT}`;
+          const endpoint = `https://mainnet.infura.io/v3/${import.meta.env.VITE_INFURA_ENDPOINT}`;
 
           initWeb3(
             new Web3.providers.HttpProvider(endpoint),

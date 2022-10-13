@@ -1,8 +1,8 @@
-var noun = require('../noun.js'),
-    test = require('tape'),
-    tchk = require('testcheck'),
-    gen  = tchk.gen,
-    BigInteger = require('jsbn').BigInteger;
+import noun from '../noun.js';
+import test from 'tape';
+import tchk from 'testcheck';
+import { BigInteger } from 'jsbn';
+var gen  = tchk.gen;
 
 function equals(t, got, expected, msg) {
   if ( got.equals(expected) ) {
@@ -35,7 +35,7 @@ function mkCellGen(g1) {
 var genCell = gen.nested(mkCellGen, genAtom),
     genNoun = gen.oneOf([genAtom, genCell]);
 
-module.exports = {
+export default {
   genAtom: genAtom,
   genCell: genCell,
   genNoun: genNoun,
@@ -80,7 +80,7 @@ function randomNoun(depth) {
 }
 */
 
-module.exports = {
+export default {
   equals: equals,
   genAtom: genAtom,
   genCell: genCell,

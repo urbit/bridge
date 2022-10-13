@@ -33,17 +33,17 @@ const INITIAL_NETWORK_TYPE = isRopsten
   : NETWORK_TYPES.MAINNET;
 
 // NB(shrugs): modify these variables to change the default local state.
-const SHOULD_STUB_LOCAL = process.env.REACT_APP_STUB_LOCAL === 'true';
+const SHOULD_STUB_LOCAL = import.meta.env.VITE_STUB_LOCAL === 'true';
 const IS_STUBBED = isDevelopment && SHOULD_STUB_LOCAL;
 
 const INITIAL_WALLET = IS_STUBBED
   ? walletFromMnemonic(
-      process.env.REACT_APP_DEV_MNEMONIC as string,
-      process.env.REACT_APP_HD_PATH as string
+      import.meta.env.VITE_DEV_MNEMONIC as string,
+      import.meta.env.VITE_HD_PATH as string
     )
   : undefined;
 const INITIAL_MNEMONIC = IS_STUBBED
-  ? Just(process.env.REACT_APP_DEV_MNEMONIC)
+  ? Just(import.meta.env.VITE_DEV_MNEMONIC)
   : Nothing();
 const INITIAL_POINT_CURSOR = IS_STUBBED ? Just(65792) : Nothing();
 

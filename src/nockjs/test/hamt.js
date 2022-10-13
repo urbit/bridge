@@ -1,8 +1,8 @@
-var nounT = require('./noun.js'),
-    test = require('tape'),
-    tchk = require('tape-check'),
-    check = tchk.check,
-    NounMap = require('../hamt.js').NounMap;
+import nounT from './noun.js';
+import test from 'tape';
+import tchk from 'tape-check';
+import { NounMap } from '../hamt.js';
+var check = tchk.check;
 
 var g = nounT.genNoun,
     m = new NounMap();

@@ -1,6 +1,5 @@
-var noun = require('./noun.js'),
-    Cell = noun.Cell,
-    zero = noun.Atom.yes;
+import noun from './noun.js';
+var Cell = noun.Cell, zero = noun.Atom.yes;
 
 function flop(a) {
 	var b = zero;
@@ -34,7 +33,7 @@ function forEach(n, f) {
   }
 }
 
-module.exports = {
+export default {
   flop: flop,
   forEach: forEach,
 };

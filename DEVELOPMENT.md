@@ -65,9 +65,9 @@ of having to re-authenticate whenever you make a change or refresh the page):
 
 - The `.env.development` file contains environment variables that you can
   provide to the application when it's running in development. You can access
-  them via `process.env.REACT_APP_<whatever>`.
+  them via `import.meta.env.VITE_<whatever>`.
 
-- Set `REACT_APP_STUB_LOCAL='true'` in `.env.development` to enabled stubbing of
+- Set `VITE_STUB_LOCAL='true'` in `.env.development` to enabled stubbing of
   certain methods throughout the app.
 
 - The top of the Bridge component in `src/Bridge.js` can be tweaked for setting

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useActivateFlow } from './ActivateFlow';
+import { useActivateFlow } from './useActivateFlow';
 
 const useFadeIn = () => {
   const { setIsIn }: any = useActivateFlow();

@@ -1,16 +1,7 @@
-var noun = require('./noun.js'),
-    NounMap = require('./hamt.js').NounMap,
-    list = require('./list.js'),
-    Noun = noun.Noun,
-    Atom = noun.Atom.Atom,
-    Cell = noun.Cell,
-    MEMO = noun.dwim("memo"),
-    SLOG = noun.dwim("slog"),
-    FAST = noun.dwim("fast"),
-    SPOT = noun.dwim("spot"),
-    MEAN = noun.dwim("mean"),
-    HUNK = noun.dwim("hunk"),
-    LOSE = noun.dwim("lose");
+import noun from './noun.js';
+import { NounMap } from './hamt.js';
+import list from './list.js';
+var Noun = noun.Noun, Atom = noun.Atom.Atom, Cell = noun.Cell, MEMO = noun.dwim("memo"), SLOG = noun.dwim("slog"), FAST = noun.dwim("fast"), SPOT = noun.dwim("spot"), MEAN = noun.dwim("mean"), HUNK = noun.dwim("hunk"), LOSE = noun.dwim("lose");
 
 function Statement() {
 }
@@ -721,6 +712,6 @@ Context.prototype.register = function(core, raw) {
   }
 };
 
-module.exports = {
+export default {
   Context: Context,
-}
+};

@@ -1,13 +1,8 @@
-var noun    = require('./noun.js'),
-    list    = require('./list.js'),
-    Cell    = noun.Cell,
-    bits    = require('./bits.js'),
-    zero    = noun.Atom.yes,
-    one     = noun.Atom.no,
-    i       = noun.Atom.fromInt,
-    two     = i(2),
-    three   = i(3),
-    NounMap = require('./hamt.js').NounMap;
+import noun from './noun.js';
+import list from './list.js';
+import bits from './bits.js';
+import NounMap from './hamt.js';
+var Cell    = noun.Cell, zero    = noun.Atom.yes, one     = noun.Atom.no, i       = noun.Atom.fromInt, two     = i(2), three   = i(3);
 
 function rub(a, b) {
 	var c, d, e, w, x, y, z, p, q, m;
@@ -160,7 +155,7 @@ function jam(n) {
   return bits.can(zero, q);
 }
 
-module.exports = {
+export default {
   cue: cue,
   mat: mat,
   jam: jam

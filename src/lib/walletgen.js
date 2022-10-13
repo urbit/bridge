@@ -2,6 +2,7 @@ import ob from 'urbit-ob';
 import kg from 'urbit-key-generation';
 import * as more from 'more-entropy';
 import { chunk, flatMap, zipWith } from 'lodash';
+import { wrap } from 'comlink';
 import { shas } from 'lib/networkCode';
 
 import {
@@ -13,10 +14,11 @@ import {
   PLANET_ENTROPY_BITS,
   ZOD,
 } from './constants';
-import Worker from 'worker';
 import { stripHexPrefix } from './utils/address';
 
-const worker = new Worker();
+const worker = wrap(
+  new Worker('../worker/worker.js', { type: 'module' })
+);
 
 const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8;
 

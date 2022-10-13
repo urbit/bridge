@@ -1,3 +1,4 @@
+// Allows us to use ES6 in migrations and tests.
 require('babel-register');
 require('babel-polyfill');
 
@@ -6,19 +7,13 @@ module.exports = {
     development: {
       host: 'localhost',
       port: 8545,
-      network_id: '*', // Any network (default: none)
       gas: 6000000,
-      skipDryRun: true,
+      network_id: '*', // Match any network id
     },
   },
-
-  // Set default mocha options here, use special reporters etc.
-  mocha: {},
-
-  // Configure your compilers
   compilers: {
     solc: {
-      version: '0.4.24',
+      version: 'pragma',
       optimizer: {
         enabled: true,
         runs: 200,
@@ -30,5 +25,8 @@ module.exports = {
       enabled: true,
       runs: 200,
     },
+  },
+  mocha: {
+    enableTimeouts: false,
   },
 };

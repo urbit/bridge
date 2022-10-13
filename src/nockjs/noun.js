@@ -1,4 +1,4 @@
-var BigInteger = require('jsbn').BigInteger;
+import { BigInteger } from 'jsbn';
 
 function Noun() {
   this._mug = 0;
@@ -352,7 +352,7 @@ Atom.prototype.valueOf = function() {
 		: this.number.toString();
 };
 
-module.exports = {
+export default {
 	dwim: dwim,
 	Noun: Noun,
 	Cell: Cell,

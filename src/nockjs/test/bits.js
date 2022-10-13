@@ -1,8 +1,8 @@
-var nounT = require('./noun.js'),
-    bits = require('../bits.js'),
-    test = require('tape'),
-    tchk = require('tape-check'),
-    check = tchk.check;
+import nounT from './noun.js';
+import bits from '../bits.js';
+import test from 'tape';
+import tchk from 'tape-check';
+var check = tchk.check;
 
 test('bytes', check({times: 10000}, nounT.genAtom, function (t, a) {
   t.plan(1);

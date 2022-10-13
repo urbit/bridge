@@ -6,7 +6,7 @@ import { FadeableMasterKey as MasterKey } from './MasterKey';
 import { Box, Icon } from '@tlon/indigo-react';
 import { FadeableActivateParagraph as ActivateParagraph } from './ActivateParagraph';
 import { FadeableActivateSteps as ActivateSteps } from './ActivateSteps';
-import { useActivateFlow } from './ActivateFlow';
+import { useActivateFlow } from './useActivateFlow';
 import { timeout } from 'lib/timeout';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { FadeableActivateButton as ActivateButton } from './ActivateButton';

@@ -3,7 +3,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import useLifecycle from 'lib/useLifecycle';
 
 import { Anchor, Box, Text } from '@tlon/indigo-react';
-import { useActivateFlow } from './ActivateFlow';
+import { useActivateFlow } from './useActivateFlow';
 import ActivateView from './ActivateView';
 import useRoller from 'lib/useRoller';
 import { FadeableActivateHeader as ActivateHeader } from './ActivateHeader';

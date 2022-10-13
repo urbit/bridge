@@ -1,10 +1,10 @@
-var serial     = require('../serial.js'),
-    noun       = require('../noun.js'),
-     n          = noun.dwim,
-    test       = require('tape'),
-    check      = require('tape-check').check,
-    nounT      = require('./noun.js'),
-    BigInteger = require('jsbn').BigInteger;
+import serial from '../serial.js';
+import noun from '../noun.js';
+import test from 'tape';
+import { check } from 'tape-check';
+import nounT from './noun.js';
+import { BigInteger } from 'jsbn';
+var n          = noun.dwim;
 
 test('examples', function(t) {
   t.plan(5);

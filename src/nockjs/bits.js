@@ -1,7 +1,6 @@
-var noun = require('./noun.js'),
-    BigInteger = require('jsbn').BigInteger,
-    zero = noun.Atom.yes,
-    one  = noun.Atom.no;
+import noun from './noun.js';
+import { BigInteger } from 'jsbn';
+var zero = noun.Atom.yes, one  = noun.Atom.no;
 
 // a is native, returns native
 function met(a, b) {
@@ -84,7 +83,7 @@ function bytesToWords(bytes) {
     words[i] = w;
   }
   return words;
-};
+}
 
 function wordsToBytes(words) {
   var buf = [];
@@ -101,7 +100,7 @@ function wordsToBytes(words) {
     buf.pop();
   }
   return buf;
-};
+}
 
 function bytesToAtom(bytes) {
   var byt, parts = [];
@@ -307,7 +306,7 @@ function can(a, b) {
   }
 }
 
-module.exports = {
+export default {
   met: met,
   cut: cut,
 	add: add,
