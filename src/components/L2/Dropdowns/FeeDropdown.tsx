@@ -8,13 +8,16 @@ import './FeeDropdown.scss';
 
 const PRICE_LABELS = ['Fast', 'Normal', 'Slow'];
 
-export interface GasPrice {
+export interface GasPriceData {
   price: number;
   wait: string;
+  maxFeePerGas: number;
+  maxPriorityFeePerGas: number;
+  suggestedBaseFeePerGas: number;
 }
 
 export const formatWait = (wait: number) => Math.round(wait * 100) / 100;
-export const formatDisplay = ({ price, wait }: GasPrice) =>
+export const formatDisplay = ({ price, wait }: GasPriceData) =>
   `${price} gwei (${wait} min)`;
 
 export default function FeeDropdown({
@@ -22,12 +25,16 @@ export default function FeeDropdown({
 }: {
   setGasPrice: (g: number) => void;
 }) {
-  const { suggestedGasPrices } = useGasPrice(DEFAULT_GAS_PRICE_GWEI);
+  const { suggestedGasPrices }: { suggestedGasPrices: {
+    fast: GasPriceData,
+    average: GasPriceData,
+    low: GasPriceData,
+  }} = useGasPrice(DEFAULT_GAS_PRICE_GWEI);
 
   const [open, setOpen] = useState(false);
   const [useCustom, setUseCustom] = useState(false);
   const [custom, setCustom] = useState<string | undefined>();
-  const [selected, setSelected] = useState<GasPrice>(
+  const [selected, setSelected] = useState<GasPriceData>(
     suggestedGasPrices.average
   );
 
@@ -51,7 +58,13 @@ export default function FeeDropdown({
       customWait = `< ${fast.wait}`;
     }
 
-    setSelected({ price: cleanedNum, wait: customWait });
+    setSelected({ 
+      price: cleanedNum,
+      wait: customWait,
+      maxFeePerGas: cleanedNum,
+      maxPriorityFeePerGas: cleanedNum,
+      suggestedBaseFeePerGas: cleanedNum
+    });
   };
 
   useEffect(() => {
@@ -59,7 +72,7 @@ export default function FeeDropdown({
   }, [suggestedGasPrices]);
 
   const selectPrice = useCallback(
-    (value: GasPrice) => () => {
+    (value: GasPriceData) => () => {
       setSelected(value);
       setGasPrice(value.price);
       setOpen(false);
@@ -97,7 +110,7 @@ export default function FeeDropdown({
       toggleOpen={() => setOpen(!open)}>
       <Box className="prices">
         {Object.values(suggestedGasPrices).map(
-          (value: GasPrice, ind: number) => (
+          (value: GasPriceData, ind: number) => (
             <Row
               className="price"
               onClick={selectPrice(value)}
