@@ -289,18 +289,6 @@ const sendTransactionsAndAwaitConfirm = async (
 
 const hexify = (val: string | Buffer) => addHexPrefix(val.toString('hex'));
 
-const getTxnInfo = async (web3: Web3, addr: string) => {
-  let nonce = await web3.eth.getTransactionCount(addr);
-  let chainId = await web3.eth.net.getId();
-  let gasPrice = await web3.eth.getGasPrice();
-
-  return {
-    nonce: nonce,
-    chainId: chainId,
-    gasPrice: safeFromWei(gasPrice, 'gwei'),
-  };
-};
-
 export {
   RETRY_OPTIONS,
   FakeSignResult,
@@ -310,6 +298,5 @@ export {
   sendTransactionsAndAwaitConfirm,
   sendAndAwaitAll,
   sendAndAwaitAllSerial,
-  getTxnInfo,
   hexify,
 };
