@@ -5,8 +5,6 @@ import { hexToBytes } from 'web3-utils';
 import WalletConnect from '@walletconnect/client';
 
 import { WALLET_TYPES } from './constants';
-import { ledgerSignMessage } from './ledger';
-import { trezorSignMessage } from './trezor';
 import BridgeWallet from './types/BridgeWallet';
 import { Hash } from '@urbit/roller-api';
 import { keccak256 } from 'ethereumjs-util';
@@ -47,13 +45,6 @@ type MetamaskAuthTokenArgs = {
   walletType: symbol;
 };
 
-type LedgerAuthTokenArgs = {
-  walletHdPath: string;
-  walletType: symbol;
-};
-
-type TrezorAuthTokenArgs = LedgerAuthTokenArgs;
-
 type WalletConnectAuthTokenArgs = {
   address: string;
   connector: WalletConnect;
@@ -68,8 +59,6 @@ type DefaultAuthTokenArgs = {
 
 type GetAuthTokenArgs =
   | MetamaskAuthTokenArgs
-  | LedgerAuthTokenArgs
-  | TrezorAuthTokenArgs
   | WalletConnectAuthTokenArgs
   | DefaultAuthTokenArgs;
 
@@ -87,14 +76,6 @@ const getMetamaskAuthToken = ({ address, web3 }: MetamaskAuthTokenArgs) => {
   } else {
     return web3.eth.personal.sign(MESSAGE, address, '');
   }
-};
-
-const getLedgerAuthToken = ({ walletHdPath }: LedgerAuthTokenArgs) => {
-  return ledgerSignMessage(MESSAGE, walletHdPath);
-};
-
-const getTrezorAuthToken = ({ walletHdPath }: TrezorAuthTokenArgs) => {
-  return trezorSignMessage(MESSAGE, walletHdPath);
 };
 
 const getWalletConnectAuthToken = ({
@@ -122,10 +103,6 @@ export const getAuthToken = async ({
   switch (walletType) {
     case WALLET_TYPES.METAMASK:
       return getMetamaskAuthToken(args as MetamaskAuthTokenArgs);
-    case WALLET_TYPES.LEDGER:
-      return getLedgerAuthToken(args as LedgerAuthTokenArgs);
-    case WALLET_TYPES.TREZOR:
-      return getTrezorAuthToken(args as TrezorAuthTokenArgs);
     case WALLET_TYPES.WALLET_CONNECT:
       return getWalletConnectAuthToken(args as WalletConnectAuthTokenArgs);
     default:
