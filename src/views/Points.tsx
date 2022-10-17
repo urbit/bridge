@@ -67,13 +67,6 @@ export default function Points() {
   const { wallet }: any = useWallet();
   const { pop, push, names }: any = useHistory();
   const { setPointCursor }: any = usePointCursor();
-  /**
-   * TODO: there is a race condition here; sometimes the pointCache is not 
-   * loaded by the time this view renders, which then causes a crash when
-   * attempting to destructure.
-   * 
-   * Same is also true for isEclipticOwner.
-  */
   const { controlledPoints, getDetails }: any = usePointCache();
   const { contracts }: any = useNetwork();
   const isEclipticOwner = useIsEclipticOwner();
