@@ -135,7 +135,7 @@ export default function useEthereumTransaction(
             txn: utx,
             nonce: nonce + i,
             chainId,
-            gasPrice: gasPrice.toFixed(0),
+            gasPriceData: gasPrice,
             gasLimit,
             txnSigner,
             txnSender,
@@ -181,7 +181,7 @@ export default function useEthereumTransaction(
       const rawTxs = signedTransactions.map(stx => hexify(stx.serialize()));
 
       const costGwei = toBN(gasLimit)
-        .mul(toBN(gasPrice))
+        .mul(toBN(gasPrice.price))
         .mul(toBN(rawTxs.length));
       const cost = safeToWei(costGwei, 'gwei');
       let usedTank = false;
@@ -229,7 +229,7 @@ export default function useEthereumTransaction(
             receipts.reduce(
               (acc, receipt) =>
                 toBN(receipt.gasUsed)
-                  .mul(toBN(gasPrice))
+                  .mul(toBN(gasPrice.price))
                   .add(acc),
               toBN(0)
             ),

@@ -42,8 +42,8 @@ export default function InlineEthereumTransaction({
   completed,
   reset,
   error,
-  gasPrice,
-  setGasPrice,
+  gasPrice, // Type: GasPriceData
+  setGasPrice, // Type: (g: GasPriceData) => void
   resetGasPrice,
   txHashes,
   nonce,
@@ -109,7 +109,7 @@ export default function InlineEthereumTransaction({
       safeFromWei(
         safeToWei(
           toBN(gasLimit)
-            .mul(toBN(gasPrice))
+            .mul(toBN(gasPrice.price))
             .mul(toBN(numTxs)),
           'gwei'
         ),

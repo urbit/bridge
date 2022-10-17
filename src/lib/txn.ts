@@ -1,20 +1,17 @@
-import Common, { Chain, Hardfork } from '@ethereumjs/common';
-import { JsonTx, Transaction } from '@ethereumjs/tx';
+import { Common, Chain, Hardfork } from '@ethereumjs/common';
+import { JsonTx, Transaction, FeeMarketEIP1559Transaction as EIP1559Transaction, TxOptions, TxData, FeeMarketEIP1559TxData as EIP1559TxData } from '@ethereumjs/tx';
 import { ITxData } from '@walletconnect/types';
-import { toHex } from 'web3-utils';
-import { safeFromWei, safeToWei } from './lib';
+import { toHex, toWei } from 'web3-utils';
 import retry from 'async-retry';
-
 import { NETWORK_TYPES } from './network';
-import { ledgerSignTransaction } from './ledger';
-import { trezorSignTransaction } from './trezor';
 import { walletConnectSignTransaction } from './WalletConnect';
 import { metamaskSignTransaction } from './metamask';
 import { addHexPrefix } from './utils/address';
-import { CHECK_BLOCK_EVERY_MS, WALLET_TYPES } from './constants';
+import { CHECK_BLOCK_EVERY_MS, EIP1559_TRANSACTION_TYPE, WALLET_TYPES } from './constants';
 import Web3 from 'web3';
-import { TransactionReceipt } from 'web3-core';
+import { TransactionConfig, TransactionReceipt } from 'web3-core';
 import BridgeWallet from './types/BridgeWallet';
+import { GasPriceData } from 'components/L2/Dropdowns/FeeDropdown';
 
 const RETRY_OPTIONS = {
   retries: 99999,
@@ -23,12 +20,12 @@ const RETRY_OPTIONS = {
   randomize: false,
 };
 
-type SignableTx = Transaction & {
+type SignableTx = (Transaction | EIP1559Transaction) & {
   nonce: string;
   chainId: string;
-  gasPrice: string;
-  gasLimit: string;
-  from: string;
+  gasPrice?: string; // TODO: is this still needed?
+  gasLimit: string; // TODO: is this still needed?
+  from?: string;
 };
 
 // catch-all type: Metamask passes an obj shaped like ITxData, WC passes JsonTx + from
@@ -39,13 +36,10 @@ export type FakeSignableTx =
 
 type TxSender = (txn: FakeSignableTx, web3: Web3) => Promise<string>; // Metamask requires Web3 (txhash)
 
-type SignedTx = {
-  serialize: () => string;
-};
-
-export type FakeSignedTx = SignedTx & {
+export type FakeSignedTx = {
   txn: FakeSignableTx;
   send: TxSender;
+  serialize: () => string;
 };
 
 const FakeSignResult = (txn: FakeSignableTx, send: TxSender): FakeSignedTx => {
@@ -61,107 +55,81 @@ const FakeSignResult = (txn: FakeSignableTx, send: TxSender): FakeSignedTx => {
 interface signTransactionProps {
   wallet: BridgeWallet;
   walletType: symbol;
-  walletHdPath: string;
+  walletHdPath: string; // TODO: is this still needed?
   networkType: symbol;
-  txn: Transaction;
+  txn: Transaction | EIP1559Transaction;
   nonce: number | string;
   chainId: number | string;
-  gasPrice: string;
-  gasLimit: string;
+  gasPriceData: GasPriceData;
+  gasLimit: number;
   txnSigner?: (args: ITxData) => Promise<string>;
   txnSender?: (args: ITxData) => Promise<string>;
+}
+
+const _web3 = () => {
+  const ENDPOINT = `https://mainnet.infura.io/v3/${import.meta.env.VITE_INFURA_ENDPOINT}`;
+  return new Web3(new Web3.providers.HttpProvider(ENDPOINT));
+}
+
+const estimateGasLimit = async (utx: TransactionConfig) => {
+  const web3 = _web3();
+  const estimate = await web3.eth.estimateGas(utx);
+  console.log(estimate);
+  return web3.utils.toBN(estimate).muln(120).divn(100); // 20% cushion
+}
+
+const getMaxFeePerGas = async () => {
+  const web3 = _web3();
+  const fee = await web3.eth.getGasPrice();
+  return (Number(fee) * 1.20).toFixed(0); // 20% cushion
 }
 
 const signTransaction = async ({
   wallet,
   walletType,
-  walletHdPath,
+  walletHdPath, // TODO
   networkType,
   txn,
   nonce, // number
   chainId, // number
-  gasPrice, // string, in gwei
-  gasLimit, // string | number
+  gasPriceData, // GasPriceData
+  gasLimit, // TODO: do we need the default values anymore? now that the estiamte is loaded dynamically
   txnSigner, // optionally inject a transaction signing function,
   txnSender, // and a sending function, for wallets that need these passed in.
 }: signTransactionProps) => {
-  // TODO: require these in txn object
-  nonce = toHex(nonce);
-  chainId = toHex(chainId);
-  gasPrice = toHex(safeToWei(gasPrice, 'gwei'));
-  gasLimit = toHex(gasLimit);
+  console.log('txn', txn);
   const from = wallet.address;
+  const estimate = await estimateGasLimit({...txn, from });
+  const maxFeePerGas = await getMaxFeePerGas();
 
-  const txParams = { nonce, chainId, gasPrice, gasLimit, from };
-
-  // NB (jtobin)
-  //
-  // Ledger does not seem to handle EIP-155 automatically.  When using a Ledger,
-  // if the block number is at least FORK_BLKNUM = 2675000, one needs to
-  // pre-set the ECDSA signature parameters with r = 0, s = 0, and v = chainId
-  // prior to signing.
-  //
-  // The easiest way to handle this is to just branch on the network, since
-  // mainnet and Ropsten have obviously passed FORK_BLKNUM.  This is somewhat
-  // awkward when dealing with offline transactions, since we might want to
-  // test them on a local network as well.
-  //
-  // The best thing to do is probably to add an 'advanced' tab to offline
-  // transaction generation where one can disable the defaulted-on EIP-155
-  // settings in this case.  This is pretty low-priority, but is a
-  // comprehensive solution.
-  //
-  // See:
-  //
-  // See https://github.com/LedgerHQ/ledgerjs/issues/43#issuecomment-366984725
-  //
-  // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
-
-  const eip155Params = {
-    r: '0x00',
-    s: '0x00',
-    v: chainId,
-  };
-
-  const defaultEip155Networks = [
-    NETWORK_TYPES.MAINNET,
-    NETWORK_TYPES.ROPSTEN,
-    NETWORK_TYPES.OFFLINE,
-  ];
-
-  const needEip155Params =
-    walletType === WALLET_TYPES.LEDGER &&
-    defaultEip155Networks.includes(networkType);
-
-  const signingParams = needEip155Params
-    ? Object.assign(txParams, eip155Params)
-    : txParams;
-
-  const utx: SignableTx = Object.assign(txn, signingParams);
-
-  const txConfig: any = { freeze: false };
-  //  we must specify the chain *either* in the Common object,
-  //  *or* eip155 style, but never both!
-  //
-  if (!needEip155Params) {
-    const chain =
-      networkType === NETWORK_TYPES.ROPSTEN ? Chain.Ropsten : Chain.Mainnet;
-    txConfig.common = new Common({
-      chain: chain,
-      hardfork: Hardfork.MuirGlacier,
-    });
+  const txParams: EIP1559TxData = {
+    data: toHex(txn.data),
+    to: toHex(txn.to),
+    gasLimit: toHex(estimate),
+    maxFeePerGas: toHex(maxFeePerGas),
+    maxPriorityFeePerGas: toHex(toWei(Math.round(gasPriceData.maxPriorityFeePerGas).toFixed(0), 'gwei')),
+    nonce: toHex(nonce),
+    chainId: toHex(chainId),
+    type: toHex(EIP1559_TRANSACTION_TYPE),
   }
 
-  let stx: Transaction | FakeSignedTx = Transaction.fromTxData(utx, txConfig);
+  const utx: SignableTx = Object.assign(txn, txParams);
+  
+  // TODO: Ropsten will sunset Q4 2022, need to replace w/ support for Goerli
+  const chain =
+      networkType === NETWORK_TYPES.ROPSTEN ? Chain.Ropsten : Chain.Mainnet;
 
-  //TODO should try-catch and display error message to user,
-  //     ie ledger's "pls enable contract data"
-  //     needs to maybe happen at call-site though
-  if (walletType === WALLET_TYPES.LEDGER) {
-    await ledgerSignTransaction(stx, walletHdPath);
-  } else if (walletType === WALLET_TYPES.TREZOR) {
-    await trezorSignTransaction(stx, walletHdPath);
-  } else if (walletType === WALLET_TYPES.METAMASK) {
+  const txConfig: TxOptions = {
+    freeze: false,
+    common: new Common({
+      chain,
+      hardfork: Hardfork.Merge,
+    })
+  };
+
+  let stx = EIP1559Transaction.fromTxData(txParams, txConfig) 
+
+  if (walletType === WALLET_TYPES.METAMASK) {
     return metamaskSignTransaction(utx);
   } else if (walletType === WALLET_TYPES.WALLET_CONNECT) {
     if (!(txnSender && txnSigner)) {
@@ -184,11 +152,12 @@ const signTransaction = async ({
 
 const sendSignedTransaction = (
   web3: Web3,
-  stx: Transaction | FakeSignedTx,
+  // TODO: do we still need legacy TX type?  elsewhere too
+  stx: Transaction | EIP1559Transaction | FakeSignedTx,
   doubtNonceError: boolean
 ): Promise<string> => {
   //  if we couldn't sign it, we depend on the given sender function
-  if (!(stx instanceof Transaction)) {
+  if (!(stx instanceof Transaction || stx instanceof EIP1559Transaction)) { // TODO
     if (doubtNonceError) {
       console.log('why doubting nonce error? tank unavailable without rawtx.');
     }
@@ -252,7 +221,7 @@ const waitForTransactionConfirm = (web3: Web3, txHash: string) => {
 // returns a Promise that resolves when all stxs have been sent & confirmed
 const sendAndAwaitAll = (
   web3: Web3,
-  stxs: Transaction[] | FakeSignedTx[],
+  stxs: Transaction[] | EIP1559Transaction[] | FakeSignedTx[],
   doubtNonceError: boolean
 ) => {
   return Promise.all(
@@ -265,7 +234,7 @@ const sendAndAwaitAll = (
 
 const sendAndAwaitAllSerial = (
   web3: Web3,
-  stxs: Array<Transaction> | Array<FakeSignedTx>,
+  stxs: Array<Transaction> | Array<EIP1559Transaction> | Array<FakeSignedTx>,
   doubtNonceError: boolean
 ) => {
   // tsc complains that stxs.reduce() is not callable
@@ -282,7 +251,7 @@ const sendAndAwaitAllSerial = (
 
 const sendTransactionsAndAwaitConfirm = async (
   web3: Web3,
-  signedTxs: Array<Transaction> | Array<FakeSignedTx>,
+  signedTxs: Array<Transaction> | Array<EIP1559Transaction> | Array<FakeSignedTx>,
   usedTank: boolean
 ) =>
   Promise.all(signedTxs.map(tx => sendSignedTransaction(web3, tx, usedTank)));

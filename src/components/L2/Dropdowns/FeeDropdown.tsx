@@ -5,13 +5,14 @@ import useGasPrice from 'lib/useGasPrice';
 
 import Dropdown from './Dropdown';
 import './FeeDropdown.scss';
+import { defaultGasValues } from 'lib/getSuggestedGasPrice';
 
 const PRICE_LABELS = ['Fast', 'Normal', 'Slow'];
 
 export interface GasPriceData {
   price: number;
   wait: string;
-  maxFeePerGas: number;
+  maxFeePerGas: string; // hex
   maxPriorityFeePerGas: number;
   suggestedBaseFeePerGas: number;
 }
@@ -23,7 +24,7 @@ export const formatDisplay = ({ price, wait }: GasPriceData) =>
 export default function FeeDropdown({
   setGasPrice,
 }: {
-  setGasPrice: (g: number) => void;
+  setGasPrice: (g: GasPriceData) => void;
 }) {
   const { suggestedGasPrices }: { suggestedGasPrices: {
     fast: GasPriceData,
@@ -42,7 +43,7 @@ export default function FeeDropdown({
     const cleanedValue = e.target.value.replace(/[^0-9]/g, '');
     const cleanedNum = Number(cleanedValue);
     setCustom(cleanedValue);
-    setGasPrice(cleanedNum);
+    setGasPrice(defaultGasValues(cleanedNum).average);
 
     let customWait = 'Unknown';
 
@@ -74,7 +75,7 @@ export default function FeeDropdown({
   const selectPrice = useCallback(
     (value: GasPriceData) => () => {
       setSelected(value);
-      setGasPrice(value.price);
+      setGasPrice(value);
       setOpen(false);
     },
     [setGasPrice, setSelected, setOpen]

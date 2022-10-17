@@ -17,16 +17,16 @@ export const metamaskSignTransaction = async (txn: FakeSignableTx) => {
 };
 
 const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
-  const { data, gasLimit, gasPrice, nonce, to, from } = txn;
-  if (!(data && gasLimit && gasPrice && nonce && to && from)) {
+  const { data, gasLimit, gasPrice, nonce, to, from } = txn; // TODO
+  if (!(data && gasLimit && gasPrice && nonce && to && from)) { // TODO
     throw new Error('Unable to send Metamask TX, something is missing');
   }
 
-  // web3-eth/TransactionConfig type
+  // https://docs.metamask.io/guide/sending-transactions.html#transaction-parameters
   const metamaskFormattedTxn = {
     data: data.toString(),
     gasLimit,
-    gasPrice,
+    gasPrice,  // TODO
     nonce: Number(nonce).toString(),
     to: to.toString(),
     from: toHex(from),
