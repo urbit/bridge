@@ -1,6 +1,7 @@
 import { Just, Nothing } from 'folktale/maybe';
 import Result from 'folktale/result';
 import React, { createContext, forwardRef, useContext } from 'react';
+import { noop } from 'lodash';
 
 import useDeepEqualReference from 'lib/useDeepEqualReference';
 import usePointStore from './lib/usePointStore';
@@ -17,12 +18,13 @@ const initialContext = {
   controlledPoints: Just(Result.Error('not yet loaded')),
   ecliptic: Nothing(),
   residents: Nothing(),
-  syncDetails:  () => [],
-  syncRekeyDate:  () => [],
-  syncControlledPoints:  () => [],
-  syncDates:  () => [],
-  syncResidents:  () => [],
-  syncExtras:  () => [],
+  syncDetails: noop,
+  syncEclipticOwner:noop,
+  syncRekeyDate: noop,
+  syncControlledPoints: noop,
+  syncDates: noop,
+  syncResidents: noop,
+  syncExtras: noop,
 }
 
 export const PointCacheContext = createContext(initialContext);
