@@ -18,6 +18,7 @@ const initialContext = {
   controlledPoints: Just(Result.Error('not yet loaded')),
   ecliptic: Nothing(),
   residents: Nothing(),
+  pointCursor: Nothing(),
   syncDetails: noop,
   syncEclipticOwner:noop,
   syncRekeyDate: noop,
