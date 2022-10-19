@@ -1,3 +1,4 @@
+import { FeeMarketEIP1559Transaction as EIP1559Transaction, JsonTx } from '@ethereumjs/tx';
 import Web3 from 'web3';
 import { toHex } from 'web3-utils';
 import { FakeSignableTx, FakeSignResult } from './txn';
@@ -12,24 +13,30 @@ export class MetamaskWallet {
 
 // Cheat a bit and pretend to sign transaction
 // Sign it actually when sending
-export const metamaskSignTransaction = async (txn: FakeSignableTx) => {
+export const metamaskSignTransaction = async (txn: EIP1559Transaction) => {
   return FakeSignResult(txn, metamaskSendTransaction);
 };
 
 const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
-  const { data, gasLimit, gasPrice, nonce, to, from } = txn; // TODO
-  if (!(data && gasLimit && gasPrice && nonce && to && from)) { // TODO
+  const accounts = await web3.eth.getAccounts();
+  if(accounts.length === 0) {
+    throw new Error('No accounts connected');
+  }
+  const from = accounts[0];
+  const { data, to, value, maxPriorityFeePerGas, maxFeePerGas } = txn.toJSON();
+  if (!(data && to && value && maxPriorityFeePerGas && maxFeePerGas && from)) { // TODO
     throw new Error('Unable to send Metamask TX, something is missing');
   }
 
   // https://docs.metamask.io/guide/sending-transactions.html#transaction-parameters
+  // https://github.com/brave/brave-wallet-docs/blob/b19d8884035b00fb21b7ea7628199fea17d5c6ee/docs/ethereum/use-cases/sending-transactions.md
   const metamaskFormattedTxn = {
-    data: data.toString(),
-    gasLimit,
-    gasPrice,  // TODO
-    nonce: Number(nonce).toString(),
-    to: to.toString(),
-    from: toHex(from),
+    from,
+    to,
+    value,
+    data,
+    maxPriorityFeePerGas,
+    maxFeePerGas
   };
 
   let txHash;
@@ -41,19 +48,12 @@ const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
     txHash = await window.ethereum.request({
       method: 'eth_sendTransaction',
       params: [metamaskFormattedTxn],
-      from: txn.from,
     });
   } else {
     //NOTE  since this gives us a receipt instead of just the hash of the
     //      signed tx, it makes us wait for confirmation outside of our own
     //      waitForTransactionConfirm. because of this the progress bar loses
     //      its progressiveness for metamask users.
-
-    // Per the web3 lib's Typescript declarations, sendTransaction
-    // expects a Transaction nonce of type number to be passed in.
-    // However, at runtime, Metamask throws an error indicating that 
-    // nonce should be a string.
-    //@ts-ignore
     let receipt = await web3.eth.sendTransaction(metamaskFormattedTxn);
     txHash = receipt.transactionHash;
   }

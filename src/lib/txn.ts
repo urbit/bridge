@@ -1,5 +1,5 @@
 import { Common, Chain, Hardfork } from '@ethereumjs/common';
-import { JsonTx, Transaction, FeeMarketEIP1559Transaction as EIP1559Transaction, TxOptions, TxData, FeeMarketEIP1559TxData as EIP1559TxData } from '@ethereumjs/tx';
+import { Transaction, FeeMarketEIP1559Transaction as EIP1559Transaction, TxOptions, TxData, FeeMarketEIP1559TxData as EIP1559TxData } from '@ethereumjs/tx';
 import { ITxData } from '@walletconnect/types';
 import { toHex, toWei } from 'web3-utils';
 import retry from 'async-retry';
@@ -20,21 +20,9 @@ const RETRY_OPTIONS = {
   randomize: false,
 };
 
-type SignableTx = (Transaction | EIP1559Transaction) & {
-  nonce: string;
-  chainId: string;
-  gasPrice?: string; // TODO: is this still needed?
-  gasLimit: string; // TODO: is this still needed?
-  from?: string;
-};
+export type FakeSignableTx = EIP1559Transaction;
 
-// catch-all type: Metamask passes an obj shaped like ITxData, WC passes JsonTx + from
-export type FakeSignableTx =
-  | ITxData
-  | (JsonTx & { from: string; to: string; gas: string })
-  | SignableTx;
-
-type TxSender = (txn: FakeSignableTx, web3: Web3) => Promise<string>; // Metamask requires Web3 (txhash)
+type TxSender = (txn: FakeSignableTx, web3: Web3) => Promise<string>;
 
 export type FakeSignedTx = {
   txn: FakeSignableTx;
@@ -57,7 +45,7 @@ interface signTransactionProps {
   walletType: symbol;
   walletHdPath: string; // TODO: is this still needed?
   networkType: symbol;
-  txn: Transaction | EIP1559Transaction;
+  txn: { data: string, to: string, value: number }
   nonce: number | string;
   chainId: number | string;
   gasPriceData: GasPriceData;
@@ -74,7 +62,6 @@ const _web3 = () => {
 const estimateGasLimit = async (utx: TransactionConfig) => {
   const web3 = _web3();
   const estimate = await web3.eth.estimateGas(utx);
-  console.log(estimate);
   return web3.utils.toBN(estimate).muln(120).divn(100); // 20% cushion
 }
 
@@ -89,7 +76,7 @@ const signTransaction = async ({
   walletType,
   walletHdPath, // TODO
   networkType,
-  txn,
+  txn,  // output of transactionBuilder in useEthereumTransaction
   nonce, // number
   chainId, // number
   gasPriceData, // GasPriceData
@@ -97,7 +84,6 @@ const signTransaction = async ({
   txnSigner, // optionally inject a transaction signing function,
   txnSender, // and a sending function, for wallets that need these passed in.
 }: signTransactionProps) => {
-  console.log('txn', txn);
   const from = wallet.address;
   const estimate = await estimateGasLimit({...txn, from });
   const maxFeePerGas = await getMaxFeePerGas();
@@ -112,8 +98,6 @@ const signTransaction = async ({
     chainId: toHex(chainId),
     type: toHex(EIP1559_TRANSACTION_TYPE),
   }
-
-  const utx: SignableTx = Object.assign(txn, txParams);
   
   // TODO: Ropsten will sunset Q4 2022, need to replace w/ support for Goerli
   const chain =
@@ -130,7 +114,7 @@ const signTransaction = async ({
   let stx = EIP1559Transaction.fromTxData(txParams, txConfig) 
 
   if (walletType === WALLET_TYPES.METAMASK) {
-    return metamaskSignTransaction(utx);
+    return metamaskSignTransaction(stx);
   } else if (walletType === WALLET_TYPES.WALLET_CONNECT) {
     if (!(txnSender && txnSigner)) {
       throw Error('WalletConnect TX signer unavailable');
@@ -152,12 +136,11 @@ const signTransaction = async ({
 
 const sendSignedTransaction = (
   web3: Web3,
-  // TODO: do we still need legacy TX type?  elsewhere too
-  stx: Transaction | EIP1559Transaction | FakeSignedTx,
+  stx: EIP1559Transaction | FakeSignedTx,
   doubtNonceError: boolean
 ): Promise<string> => {
   //  if we couldn't sign it, we depend on the given sender function
-  if (!(stx instanceof Transaction || stx instanceof EIP1559Transaction)) { // TODO
+  if (!(stx instanceof EIP1559Transaction)) { // TODO
     if (doubtNonceError) {
       console.log('why doubting nonce error? tank unavailable without rawtx.');
     }
@@ -221,7 +204,7 @@ const waitForTransactionConfirm = (web3: Web3, txHash: string) => {
 // returns a Promise that resolves when all stxs have been sent & confirmed
 const sendAndAwaitAll = (
   web3: Web3,
-  stxs: Transaction[] | EIP1559Transaction[] | FakeSignedTx[],
+  stxs: EIP1559Transaction[] | FakeSignedTx[],
   doubtNonceError: boolean
 ) => {
   return Promise.all(
@@ -234,13 +217,12 @@ const sendAndAwaitAll = (
 
 const sendAndAwaitAllSerial = (
   web3: Web3,
-  stxs: Array<Transaction> | Array<EIP1559Transaction> | Array<FakeSignedTx>,
+  stxs: EIP1559Transaction[] | FakeSignedTx[],
   doubtNonceError: boolean
 ) => {
-  // tsc complains that stxs.reduce() is not callable
-  //@ts-ignore
+  //@ts-expect-error tsc complains that stxs.reduce() is not callable
   return stxs.reduce(
-    (promise: Promise<TransactionReceipt[]>, stx: Transaction | FakeSignedTx) =>
+    (promise: Promise<TransactionReceipt[]>, stx: EIP1559Transaction | FakeSignedTx) =>
       promise.then(async (receipts = []) => {
         const txHash = await sendSignedTransaction(web3, stx, doubtNonceError);
         return [...receipts, await waitForTransactionConfirm(web3, txHash)];
@@ -251,7 +233,7 @@ const sendAndAwaitAllSerial = (
 
 const sendTransactionsAndAwaitConfirm = async (
   web3: Web3,
-  signedTxs: Array<Transaction> | Array<EIP1559Transaction> | Array<FakeSignedTx>,
+  signedTxs: EIP1559Transaction[] | FakeSignedTx[],
   usedTank: boolean
 ) =>
   Promise.all(signedTxs.map(tx => sendSignedTransaction(web3, tx, usedTank)));
