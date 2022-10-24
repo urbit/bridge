@@ -51,6 +51,11 @@
         border: 0;
       }
     </style>
+    <script type="module">
+      import { Buffer } from "buffer";
+      window.global = window;
+      window.Buffer = Buffer;
+    </script>
   </head>
   <body>
     <div id="root"></div>
