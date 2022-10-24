@@ -47,11 +47,15 @@ export default defineConfig({
         'worker',
       ].map(a => ({ find: a, replacement: resolve(__dirname, `src/${a}`)})),
     ],
-
   },
   worker: {
     plugins: [
       comlink()
     ]
+  },
+  define: {
+    // https://github.com/origamitower/folktale/issues/229
+    "process.env.FOLKTALE_DOCS": false,
+    "process.env.FOLKTALE_ASSERTIONS": false,
   },
 })
