@@ -16,8 +16,8 @@ import {
 } from './constants';
 import { stripHexPrefix } from './utils/address';
 
-const worker = wrap(
-  new Worker('../worker/worker.js', { type: 'module' })
+const WalletGenerator = wrap(
+  new Worker('src/worker/worker.ts', { type: 'module' })
 );
 
 const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8;
@@ -85,11 +85,14 @@ export const generateWallet = async (point, ticket, boot, revision = 0) => {
   // hangs, blocking UI updates so this cannot be done in the UI
   console.log('Generating Wallet for point address: ', point);
 
-  return new Promise(async resolve => {
+  return new Promise(async (resolve, reject) => {
     // Use a web worker to process the data
-    const processed = await worker.generateWallet(JSON.stringify(config));
-
-    resolve(processed);
+    try {
+      const processed = await WalletGenerator.generateWallet(JSON.stringify(config));
+      resolve(processed);
+    } catch (error) {
+      reject(error);
+    }
   });
 };
 

@@ -1,4 +1,4 @@
 import { expose } from "comlink";
-import { generateWallet } from './generateWalletWorker';
+import { WalletGenerator } from './WalletGenerator';
 
-expose(generateWallet);
+expose(WalletGenerator);

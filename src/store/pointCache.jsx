@@ -15,7 +15,7 @@ import usePointStore from './lib/usePointStore';
 const initialContext = {
   details: Nothing(),
   rekeyDates: Nothing(),
-  controlledPoints: Just(Result.Error('not yet loaded')),
+  controlledPoints: Nothing(),
   ecliptic: Nothing(),
   residents: Nothing(),
   pointCursor: Nothing(),
