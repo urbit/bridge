@@ -1,9 +1,10 @@
 import ob from 'urbit-ob';
 import kg from 'urbit-key-generation';
+// @ts-expect-error no types available for more-entropy
 import * as more from 'more-entropy';
 import { chunk, flatMap, zipWith } from 'lodash';
-import { wrap } from 'comlink';
 import { shas } from 'lib/networkCode';
+import { walletgenWorker } from 'worker/';
 
 import {
   MIN_STAR,
@@ -16,13 +17,9 @@ import {
 } from './constants';
 import { stripHexPrefix } from './utils/address';
 
-const WalletGenerator = wrap(
-  new Worker('src/worker/worker.ts', { type: 'module' })
-);
-
 const SEED_LENGTH_BYTES = SEED_ENTROPY_BITS / 8;
 
-const getTicketBitSize = point =>
+const getTicketBitSize = (point: number) =>
   point < MIN_STAR
     ? GALAXY_ENTROPY_BITS
     : point < MIN_PLANET
@@ -30,7 +27,7 @@ const getTicketBitSize = point =>
     : PLANET_ENTROPY_BITS;
 
 // returns a promise for a ticket string
-export const makeTicket = point => {
+export const makeTicket = (point: number): Promise<string> => {
   const bits = getTicketBitSize(point);
 
   const bytes = bits / 8;
@@ -39,7 +36,7 @@ export const makeTicket = point => {
 
   const gen = new more.Generator();
 
-  return new Promise((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     gen.generate(bits, result => {
       const chunked = chunk(result, 2);
       const desired = chunked.slice(0, bytes); // only take required entropy
@@ -53,7 +50,7 @@ export const makeTicket = point => {
   });
 };
 
-export const makeDeterministicTicket = (point, seed) => {
+export const makeDeterministicTicket = (point: number, seed: string) => {
   const bits = getTicketBitSize(point);
 
   const bytes = bits / 8;
@@ -71,7 +68,7 @@ export const makeDeterministicTicket = (point, seed) => {
 };
 
 // return a wallet object
-export const generateWallet = async (point, ticket, boot, revision = 0) => {
+export const generateWallet = async (point: number, ticket: string, boot: boolean, revision = 0) => {
   const config = {
     ticket: ticket,
     seedSize: SEED_LENGTH_BYTES,
@@ -88,7 +85,7 @@ export const generateWallet = async (point, ticket, boot, revision = 0) => {
   return new Promise(async (resolve, reject) => {
     // Use a web worker to process the data
     try {
-      const processed = await WalletGenerator.generateWallet(JSON.stringify(config));
+      const processed = await walletgenWorker.generate(JSON.stringify(config));
       resolve(processed);
     } catch (error) {
       reject(error);
@@ -96,23 +93,23 @@ export const generateWallet = async (point, ticket, boot, revision = 0) => {
   });
 };
 
-export const generateOwnershipWallet = async (ship, ticket) => {
+export const generateOwnershipWallet = async (ship: number, ticket: string) => {
   return kg.generateOwnershipWallet({ ship, ticket });
 };
 
 // temporary wallets need to be derivable from just the ticket,
 // so we always use ~zod as the wallet point.
-export const generateTemporaryOwnershipWallet = ticket =>
+export const generateTemporaryOwnershipWallet = (ticket: string) =>
   generateOwnershipWallet(ZOD, ticket);
 
-export const generateTemporaryTicketAndWallet = async point => {
+export const generateTemporaryTicketAndWallet = async (point: number) => {
   const ticket = await makeTicket(point);
   const owner = await generateOwnershipWallet(ZOD, ticket);
 
   return { ticket, owner };
 };
 
-export const generateTemporaryDeterministicWallet = async (point, seed) => {
+export const generateTemporaryDeterministicWallet = async (point: number, seed: string) => {
   const ticket = makeDeterministicTicket(point, seed);
   const owner = await generateOwnershipWallet(ZOD, ticket);
 

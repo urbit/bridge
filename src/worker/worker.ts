@@ -1,4 +1,9 @@
-import { expose } from "comlink";
-import { WalletGenerator } from './WalletGenerator';
+import { generateWallet } from 'urbit-key-generation';
 
-expose(WalletGenerator);
+export const generate = async (data: string): Promise<UrbitWallet> => {
+  // Process the data without stalling the UI
+  const config = JSON.parse(data);
+  const wallet = await generateWallet(config);
+
+  return wallet;
+};

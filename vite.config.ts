@@ -14,10 +14,9 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       https: true,
     },
-    plugins: [basicSsl(), comlink(), svgr(), react(),],
+    plugins: [comlink(), basicSsl(), svgr(), react(),],
     resolve: {
       alias: [
-        { find: 'buffer', replacement: 'buffer' },      
         { find: 'process', replacement: 'process/browser' },      
         { find: 'stream', replacement: 'stream-browserify' },      
         { find: 'https', replacement: 'agent-base' },      
@@ -36,15 +35,22 @@ export default defineConfig(({ mode }) => {
     },
     worker: {
       plugins: [
-        comlink()
-      ]
+        comlink(),
+        inject({ Buffer: ['buffer', 'Buffer'] }),
+      ],
     },
     build: Object.assign({
       outDir: 'build',
+      commonJsOptions: {
+        esmExternals: ['urbit-key-generation'],
+        include: ['urbit-key-generation'],
+        requireReturnsDefault: 'auto',
+      }
     },
       mode === 'development' ? { global: {} } : {}
     ),
     optimizeDeps: {
+      include: ['urbit-key-generation'],
       esbuildOptions: {
         define: {
           global: 'globalThis',
