@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import GlobalPolyFill from "@esbuild-plugins/node-globals-polyfill";
+import nodePolyfills from 'rollup-plugin-node-polyfills';
 import inject from '@rollup/plugin-inject'
 import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr';
@@ -36,17 +37,15 @@ export default defineConfig(({ mode }) => {
     worker: {
       plugins: [
         comlink(),
-        inject({ Buffer: ['buffer', 'Buffer'] }),
       ],
     },
-    build: Object.assign({
-      outDir: 'build',
-      commonJsOptions: {
-        esmExternals: ['urbit-key-generation'],
-        include: ['urbit-key-generation'],
-        requireReturnsDefault: 'auto',
-      }
-    },
+    build: Object.assign(
+      {
+        outDir: 'build',
+        rollupOptions: {
+          plugins: [nodePolyfills()],
+        },
+      },
       mode === 'development' ? { global: {} } : {}
     ),
     optimizeDeps: {
