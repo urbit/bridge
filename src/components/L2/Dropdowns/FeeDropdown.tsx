@@ -5,29 +5,37 @@ import useGasPrice from 'lib/useGasPrice';
 
 import Dropdown from './Dropdown';
 import './FeeDropdown.scss';
+import { defaultGasValues } from 'lib/getSuggestedGasPrice';
 
 const PRICE_LABELS = ['Fast', 'Normal', 'Slow'];
 
-export interface GasPrice {
+export interface GasPriceData {
   price: number;
   wait: string;
+  maxFeePerGas: string; // hex
+  maxPriorityFeePerGas: number;
+  suggestedBaseFeePerGas: number;
 }
 
 export const formatWait = (wait: number) => Math.round(wait * 100) / 100;
-export const formatDisplay = ({ price, wait }: GasPrice) =>
+export const formatDisplay = ({ price, wait }: GasPriceData) =>
   `${price} gwei (${wait} min)`;
 
 export default function FeeDropdown({
   setGasPrice,
 }: {
-  setGasPrice: (g: number) => void;
+  setGasPrice: (g: GasPriceData) => void;
 }) {
-  const { suggestedGasPrices } = useGasPrice(DEFAULT_GAS_PRICE_GWEI);
+  const { suggestedGasPrices }: { suggestedGasPrices: {
+    fast: GasPriceData,
+    average: GasPriceData,
+    low: GasPriceData,
+  }} = useGasPrice(DEFAULT_GAS_PRICE_GWEI);
 
   const [open, setOpen] = useState(false);
   const [useCustom, setUseCustom] = useState(false);
   const [custom, setCustom] = useState<string | undefined>();
-  const [selected, setSelected] = useState<GasPrice>(
+  const [selected, setSelected] = useState<GasPriceData>(
     suggestedGasPrices.average
   );
 
@@ -35,7 +43,7 @@ export default function FeeDropdown({
     const cleanedValue = e.target.value.replace(/[^0-9]/g, '');
     const cleanedNum = Number(cleanedValue);
     setCustom(cleanedValue);
-    setGasPrice(cleanedNum);
+    setGasPrice(defaultGasValues(cleanedNum).average);
 
     let customWait = 'Unknown';
 
@@ -51,7 +59,13 @@ export default function FeeDropdown({
       customWait = `< ${fast.wait}`;
     }
 
-    setSelected({ price: cleanedNum, wait: customWait });
+    setSelected({ 
+      price: cleanedNum,
+      wait: customWait,
+      maxFeePerGas: cleanedNum,
+      maxPriorityFeePerGas: cleanedNum,
+      suggestedBaseFeePerGas: cleanedNum
+    });
   };
 
   useEffect(() => {
@@ -59,9 +73,9 @@ export default function FeeDropdown({
   }, [suggestedGasPrices]);
 
   const selectPrice = useCallback(
-    (value: GasPrice) => () => {
+    (value: GasPriceData) => () => {
       setSelected(value);
-      setGasPrice(value.price);
+      setGasPrice(value);
       setOpen(false);
     },
     [setGasPrice, setSelected, setOpen]
@@ -97,7 +111,7 @@ export default function FeeDropdown({
       toggleOpen={() => setOpen(!open)}>
       <Box className="prices">
         {Object.values(suggestedGasPrices).map(
-          (value: GasPrice, ind: number) => (
+          (value: GasPriceData, ind: number) => (
             <Row
               className="price"
               onClick={selectPrice(value)}

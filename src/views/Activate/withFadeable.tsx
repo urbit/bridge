@@ -1,4 +1,4 @@
-import { useActivateFlow } from './ActivateFlow';
+import { useActivateFlow } from './useActivateFlow';
 import { CSSTransition } from 'react-transition-group';
 import { DEFAULT_FADE_TIMEOUT } from 'lib/constants';
 

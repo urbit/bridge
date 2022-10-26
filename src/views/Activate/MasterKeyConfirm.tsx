@@ -13,7 +13,7 @@ import { FadeableActivateSteps as ActivateSteps } from './ActivateSteps';
 import { isDevelopment } from 'lib/flags';
 import { ticketFromSegments, ticketToSegments } from 'form/formatters';
 import { timeout } from 'lib/timeout';
-import { useActivateFlow } from './ActivateFlow';
+import { useActivateFlow } from './useActivateFlow';
 import { useLocalRouter } from 'lib/LocalRouter';
 import { validateExactly } from 'lib/validators';
 import BridgeForm from 'form/BridgeForm';

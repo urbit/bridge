@@ -1,8 +1,7 @@
 import BN from 'bn.js';
 import { Just, Nothing } from 'folktale/maybe';
 
-import * as noun from '../nockjs/noun';
-import * as serial from '../nockjs/serial';
+import { noun, serial } from '@urbit/nockjs';
 import * as kg from 'urbit-key-generation';
 
 import { addHexPrefix, eqAddr } from './utils/address';

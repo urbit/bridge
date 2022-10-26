@@ -10,7 +10,7 @@ import { FadeableActivateParagraph as ActivateParagraph } from './ActivateParagr
 import { FadeableDangerBox as DangerBox } from './DangerBox';
 import { FadeableMasterKeyCopy as MasterKeyCopy } from './MasterKeyCopy';
 import { FadeableMasterKeyPresenter as MasterKeyPresenter } from './MasterKeyPresenter';
-import { useActivateFlow } from './ActivateFlow';
+import { useActivateFlow } from './useActivateFlow';
 import ActivateView from './ActivateView';
 import { useLocalRouter } from 'lib/LocalRouter';
 import PaperBuilder from 'components/PaperBuilder';

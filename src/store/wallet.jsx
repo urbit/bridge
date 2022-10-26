@@ -7,7 +7,7 @@ import React, {
   useEffect,
 } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { includes } from 'lodash';
+import { includes, noop } from 'lodash';
 import { randomHex } from 'web3-utils';
 
 import { walletFromMnemonic } from 'lib/wallet';
@@ -22,7 +22,39 @@ import { BRIDGE_ERROR } from 'lib/error';
 import { useNetwork } from 'store/network';
 import { publicToAddress } from 'lib/utils/address';
 
-export const WalletContext = createContext(null);
+const initialContext = {
+  //
+  walletType: Nothing(),
+  setWalletType: noop,
+  //
+  walletHdPath: '',
+  setWalletHdPath: noop,
+  //
+  wallet: Nothing(),
+  setWallet: noop,
+  //
+  urbitWallet: Nothing(),
+  setUrbitWallet: noop,
+  authMnemonic: Nothing(),
+  setAuthMnemonic: noop,
+  //
+  networkSeed: Nothing(),
+  setNetworkSeed: noop,
+  networkRevision: Nothing(),
+  setNetworkRevision: noop,
+  //
+  resetWallet: noop,
+  //
+  authToken: Nothing(),
+  setAuthToken: noop,
+  useLegacyTokenSigning: Nothing(),
+  setUseLegacyTokenSigning: noop,
+  skipLoginSigning: false,
+  setSkipLoginSigning: noop,
+  setFakeToken: noop,
+}
+
+export const WalletContext = createContext(initialContext);
 
 const DEFAULT_WALLET_TYPE = WALLET_TYPES.TICKET;
 

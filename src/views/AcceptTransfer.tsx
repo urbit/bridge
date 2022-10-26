@@ -53,6 +53,7 @@ function useAcceptTransfer() {
     ),
     useCallback(
       () => Promise.all([syncExtras(_point), syncControlledPoints()]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       [_point]
     ),
     GAS_LIMITS.TRANSFER

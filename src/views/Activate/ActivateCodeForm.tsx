@@ -18,7 +18,7 @@ import {
 import FormError from 'form/FormError';
 import { Grid } from 'indigo-react';
 import { useCallback, useMemo, useRef } from 'react';
-import { useActivateFlow } from './ActivateFlow';
+import { useActivateFlow } from './useActivateFlow';
 import WarningBox from 'components/WarningBox';
 import useRoller from 'lib/useRoller';
 import useImpliedTicket from 'lib/useImpliedTicket';

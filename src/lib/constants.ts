@@ -102,7 +102,7 @@ const NONCUSTODIAL_WALLETS = new Set([
 
 const ROLLER_HOSTS = {
   LOCAL: 'localhost',
-  ROPSTEN: 'roller-tmp.urbit.org',
+  GOERLI: 'roller-tmp.urbit.org',
   MAINNET: 'roller.urbit.org',
 };
 
@@ -224,10 +224,13 @@ const LOCKUP_TOOLTIP =
 // the initial network key revision is always 1
 const INITIAL_NETWORK_KEY_REVISION = 1;
 
+const EIP1559_TRANSACTION_TYPE = 2;
+
 export {
   CHECK_BLOCK_EVERY_MS,
   DEFAULT_GAS_PRICE_GWEI,
   DEFAULT_HD_PATH,
+  EIP1559_TRANSACTION_TYPE,
   ETH_ZERO_ADDR,
   ETH_ZERO_ADDR_SHORT,
   LINEAR_STAR_RELEASE,
