@@ -5,8 +5,8 @@ function useEtherscanDomain() {
   const { networkType } = useNetwork();
 
   switch (networkType) {
-    case NETWORK_TYPES.ROPSTEN:
-      return 'https://ropsten.etherscan.io';
+    case NETWORK_TYPES.GOERLI:
+      return 'https://goerli.etherscan.io';
     case NETWORK_TYPES.OFFLINE:
     case NETWORK_TYPES.MAINNET:
     case NETWORK_TYPES.LOCAL:

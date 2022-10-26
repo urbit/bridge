@@ -40,7 +40,7 @@ export const defaultGasValues = value => ({
 
 export default async function getSuggestedGasPrice(networkType) {
   switch (networkType) {
-    case NETWORK_TYPES.ROPSTEN:
+    case NETWORK_TYPES.GOERLI:
       return defaultGasValues(10);
     case NETWORK_TYPES.OFFLINE:
       return defaultGasValues(DEFAULT_GAS_PRICE_GWEI);

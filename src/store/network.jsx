@@ -84,12 +84,12 @@ function _useNetwork(initialNetworkType = null) {
           );
           return;
         }
-        case NETWORK_TYPES.ROPSTEN: {
-          const endpoint = `https://ropsten.infura.io/v3/${import.meta.env.VITE_INFURA_ENDPOINT}`;
+        case NETWORK_TYPES.GOERLI: {
+          const endpoint = `https://goerli.infura.io/v3/${import.meta.env.VITE_INFURA_ENDPOINT}`;
 
           initWeb3(
             new Web3.providers.HttpProvider(endpoint),
-            CONTRACT_ADDRESSES.ROPSTEN
+            CONTRACT_ADDRESSES.GOERLI
           );
           return;
         }

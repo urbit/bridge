@@ -2,10 +2,10 @@ import { version } from '../../package.json';
 
 // are we running bridge in a development build
 export const isDevelopment = import.meta.env.DEV === 'development';
-export const isRopsten = import.meta.env.VITE_ROPSTEN === 'true';
+export const isGoerli = import.meta.env.VITE_GOERLI === 'true';
 export const isMainnet = import.meta.env.VITE_MAINNET === 'true';
 export const versionLabel =
-  import.meta.env.VITE_BRIDGE_VERSION || `${version}${isRopsten ? 'r' : ''}`;
+  import.meta.env.VITE_BRIDGE_VERSION || `${version}${isGoerli ? 'g' : ''}`;
 export const providedRollerOptions = {
   host: import.meta.env.VITE_ROLLER_HOST,
   port: import.meta.env.VITE_ROLLER_PORT,

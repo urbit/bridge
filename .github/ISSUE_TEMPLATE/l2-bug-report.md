@@ -23,7 +23,7 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem. If possible, please also copy and paste any errors that appear in your browser's dev console. Here are [Chrome's docs](https://developers.google.com/web/tools/chrome-devtools/open) for using this feature.
 
 **Ethereum network:**
-Were you testing on Ropsten or mainnet?
+Were you testing on Goerli or mainnet?
 
 **Desktop (please complete the following information):**
  - OS: [e.g. MacOS 10.15.3]

@@ -99,9 +99,8 @@ const signTransaction = async ({
     type: toHex(EIP1559_TRANSACTION_TYPE),
   }
   
-  // TODO: Ropsten will sunset Q4 2022, need to replace w/ support for Goerli
   const chain =
-      networkType === NETWORK_TYPES.ROPSTEN ? Chain.Ropsten : Chain.Mainnet;
+      networkType === NETWORK_TYPES.GOERLI ? Chain.Goerli : Chain.Mainnet;
 
   const txConfig: TxOptions = {
     freeze: false,
