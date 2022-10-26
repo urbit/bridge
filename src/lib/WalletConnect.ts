@@ -31,7 +31,7 @@ const walletConnectSignTransaction = async ({
   try {
     signature = await txnSigner(wcFormattedTx);
   } catch (e) {
-    if (e.message === 'METHOD_NOT_SUPPORTED') {
+    if (e.message === 'METHOD_NOT_SUPPORTED' || e.message === '"eth_signTransaction" not implemented') {
       console.log('connected wc wallet does not support tx signing.');
       return FakeSignResult(
         wcFormattedTx,
