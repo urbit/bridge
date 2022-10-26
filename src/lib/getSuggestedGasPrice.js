@@ -38,70 +38,74 @@ export const defaultGasValues = value => ({
   },
 });
 
+const getGasForNetwork = async (providerUrl) => {
+  try {
+    const [etherscanGas, ethgasstationGas] = await Promise.all([
+      fetch(
+        `${providerUrl}/api` +
+          '?module=gastracker' +
+          '&action=gasoracle' +
+          '&apikey=CG52E4R96W56GIKUI4IJ8CH9EZIXPUW1W8',
+        {
+          method: 'GET',
+          cache: 'no-cache',
+        }
+      ),
+      fetch(
+        'https://ethgasstation.info/json/ethgasAPI.json',
+        {
+          method: 'GET',
+          cache: 'no-cache',
+        }
+      )
+    ]);
+
+    const [etherscanGasJson, ethgasstationGasJson] = await Promise.all([
+      etherscanGas.json(),
+      ethgasstationGas.json()
+    ])
+
+    const suggestedBaseFeePerGas = Number(etherscanGasJson.result.suggestBaseFee);
+
+    // Calculations derived from:
+    // https://www.blocknative.com/blog/eip-1559-fees
+    return {
+      fast: {
+        price: minGas(etherscanGasJson.result.FastGasPrice),
+        wait: formatWait(ethgasstationGasJson.fastWait),
+        maxFeePerGas: calculateMaxFee(suggestedBaseFeePerGas, etherscanGasJson.result.FastGasPrice - suggestedBaseFeePerGas),
+        maxPriorityFeePerGas: feeToInt((etherscanGasJson.result.FastGasPrice - suggestedBaseFeePerGas)),
+        suggestedBaseFeePerGas
+      },
+      average: {
+        price: minGas(etherscanGasJson.result.ProposeGasPrice),
+        wait: formatWait(ethgasstationGasJson.avgWait),
+        maxFeePerGas: calculateMaxFee(suggestedBaseFeePerGas, etherscanGasJson.result.ProposeGasPrice - suggestedBaseFeePerGas),
+        maxPriorityFeePerGas: feeToInt((etherscanGasJson.result.ProposeGasPrice - suggestedBaseFeePerGas)),
+        suggestedBaseFeePerGas
+      },
+      low: {
+        price: minGas(etherscanGasJson.result.SafeGasPrice),
+        wait: formatWait(ethgasstationGasJson.safeLowWait),
+        maxFeePerGas: calculateMaxFee(suggestedBaseFeePerGas, etherscanGasJson.result.SafeGasPrice - suggestedBaseFeePerGas),
+        maxPriorityFeePerGas: feeToInt((etherscanGasJson.result.SafeGasPrice - suggestedBaseFeePerGas)),
+        suggestedBaseFeePerGas
+      },
+    };
+  } catch (e) {
+    console.warn(e);
+    return defaultGasValues(DEFAULT_GAS_PRICE_GWEI);
+  }
+}
+
 export default async function getSuggestedGasPrice(networkType) {
   switch (networkType) {
     case NETWORK_TYPES.GOERLI:
-      return defaultGasValues(10);
+      return getGasForNetwork('https://api-goerli.etherscan.io')
     case NETWORK_TYPES.OFFLINE:
       return defaultGasValues(DEFAULT_GAS_PRICE_GWEI);
     case NETWORK_TYPES.LOCAL:
     default:
-      try {
-        const [etherscanGas, ethgasstationGas] = await Promise.all([
-          fetch(
-            'https://api.etherscan.io/api' +
-              '?module=gastracker' +
-              '&action=gasoracle' +
-              '&apikey=CG52E4R96W56GIKUI4IJ8CH9EZIXPUW1W8',
-            {
-              method: 'GET',
-              cache: 'no-cache',
-            }
-          ),
-          fetch(
-            'https://ethgasstation.info/json/ethgasAPI.json',
-            {
-              method: 'GET',
-              cache: 'no-cache',
-            }
-          )
-        ]);
-
-        const [etherscanGasJson, ethgasstationGasJson] = await Promise.all([
-          etherscanGas.json(),
-          ethgasstationGas.json()
-        ])
-
-        const suggestedBaseFeePerGas = Number(etherscanGasJson.result.suggestBaseFee);
-
-        // Calculations derived from:
-        // https://www.blocknative.com/blog/eip-1559-fees
-        return {
-          fast: {
-            price: minGas(etherscanGasJson.result.FastGasPrice),
-            wait: formatWait(ethgasstationGasJson.fastWait),
-            maxFeePerGas: calculateMaxFee(suggestedBaseFeePerGas, etherscanGasJson.result.FastGasPrice - suggestedBaseFeePerGas),
-            maxPriorityFeePerGas: feeToInt((etherscanGasJson.result.FastGasPrice - suggestedBaseFeePerGas)),
-            suggestedBaseFeePerGas
-          },
-          average: {
-            price: minGas(etherscanGasJson.result.ProposeGasPrice),
-            wait: formatWait(ethgasstationGasJson.avgWait),
-            maxFeePerGas: calculateMaxFee(suggestedBaseFeePerGas, etherscanGasJson.result.ProposeGasPrice - suggestedBaseFeePerGas),
-            maxPriorityFeePerGas: feeToInt((etherscanGasJson.result.ProposeGasPrice - suggestedBaseFeePerGas)),
-            suggestedBaseFeePerGas
-          },
-          low: {
-            price: minGas(etherscanGasJson.result.SafeGasPrice),
-            wait: formatWait(ethgasstationGasJson.safeLowWait),
-            maxFeePerGas: calculateMaxFee(suggestedBaseFeePerGas, etherscanGasJson.result.SafeGasPrice - suggestedBaseFeePerGas),
-            maxPriorityFeePerGas: feeToInt((etherscanGasJson.result.SafeGasPrice - suggestedBaseFeePerGas)),
-            suggestedBaseFeePerGas
-          },
-        };
-      } catch (e) {
-        console.warn(e);
-        return defaultGasValues(DEFAULT_GAS_PRICE_GWEI);
-      }
+      return getGasForNetwork('https://api.etherscan.io/');
   }
 }
