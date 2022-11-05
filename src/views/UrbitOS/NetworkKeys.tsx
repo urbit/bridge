@@ -53,6 +53,7 @@ function useSetKeys(
   setManualNetworkSeed: (seed: string) => void
 ) {
   const { urbitWallet, wallet, authMnemonic, authToken }: any = useWallet();
+  const { getAndUpdatePoint } = useRoller();
   const { point } = useRollerStore();
   const { syncDetails, syncRekeyDate }: any = usePointCache();
   const { contracts }: any = useNetwork();
@@ -126,7 +127,9 @@ function useSetKeys(
       [_contracts, point, buildNetworkSeed]
     ),
     useCallback(
-      () => Promise.all([syncDetails(point.value), syncRekeyDate(point.value)]),
+      () => Promise.all([getAndUpdatePoint(point.value),
+                         syncDetails(point.value),
+                         syncRekeyDate(point.value)]),
       [point, syncDetails, syncRekeyDate]
     ),
     GAS_LIMITS.CONFIGURE_KEYS
