@@ -47,13 +47,13 @@ import BodyPane from 'components/L2/Window/BodyPane';
 
 import './NetworkKeys.scss';
 import { L1TxnType } from 'lib/types/PendingL1Transaction';
+import { PointField } from 'lib/types/Point';
 
 function useSetKeys(
   manualNetworkSeed: string,
   setManualNetworkSeed: (seed: string) => void
 ) {
   const { urbitWallet, wallet, authMnemonic, authToken }: any = useWallet();
-  const { getAndUpdatePoint } = useRoller();
   const { point } = useRollerStore();
   const { syncDetails, syncRekeyDate }: any = usePointCache();
   const { contracts }: any = useNetwork();
@@ -127,9 +127,7 @@ function useSetKeys(
       [_contracts, point, buildNetworkSeed]
     ),
     useCallback(
-      () => Promise.all([getAndUpdatePoint(point.value),
-                         syncDetails(point.value),
-                         syncRekeyDate(point.value)]),
+      () => Promise.all([syncDetails(point.value), syncRekeyDate(point.value)]),
       [point, syncDetails, syncRekeyDate]
     ),
     GAS_LIMITS.CONFIGURE_KEYS
@@ -180,6 +178,7 @@ export default function UrbitOSNetworkKeys({
     if (completed) {
       checkForUpdates({
         point: point,
+        field: PointField.keyRevisionNumber,
         message: `${point.patp}'s Network Keys have been set!`,
         l1Txn: {
           id: `${point.keyRevisionNumber}-network-keys-${point.value}`,
