@@ -213,7 +213,8 @@ export default function useRoller() {
     }: UpdateParams) => {
 
 
-      const p = (typeof point === 'number' ? await initPoint(point) : point) as Point
+      const pVal = (typeof point === 'number' ? point : point.value);
+      const p = await initPoint(pVal);
 
       if (l1Txn) storePendingL1Txn(l1Txn);
 
