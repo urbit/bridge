@@ -44,7 +44,7 @@ function useCreateGalaxy() {
       [_contracts]
     ),
     useCallback(() => syncDates(galaxy), [galaxy, syncDates]),
-    GAS_LIMITS.DEFAULT
+    1_000_000
   );
 }
 

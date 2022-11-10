@@ -12,6 +12,7 @@ import Web3 from 'web3';
 import { TransactionConfig, TransactionReceipt } from 'web3-core';
 import BridgeWallet from './types/BridgeWallet';
 import { GasPriceData } from 'components/L2/Dropdowns/FeeDropdown';
+import {BN} from 'bn.js';
 
 const RETRY_OPTIONS = {
   retries: 99999,
@@ -67,8 +68,8 @@ const estimateGasLimit = async (utx: TransactionConfig) => {
 
 const getMaxFeePerGas = async () => {
   const web3 = _web3();
-  const fee = await web3.eth.getGasPrice();
-  return (Number(fee) * 1.20).toFixed(0); // 20% cushion
+  const bn = new BN(await web3.eth.getGasPrice());
+  return bn.muln(2).toString()
 }
 
 const signTransaction = async ({
@@ -80,7 +81,6 @@ const signTransaction = async ({
   nonce, // number
   chainId, // number
   gasPriceData, // GasPriceData
-  gasLimit, // TODO: do we need the default values anymore? now that the estiamte is loaded dynamically
   txnSigner, // optionally inject a transaction signing function,
   txnSender, // and a sending function, for wallets that need these passed in.
 }: signTransactionProps) => {
@@ -91,13 +91,14 @@ const signTransaction = async ({
   const txParams: EIP1559TxData = {
     data: toHex(txn.data),
     to: toHex(txn.to),
-    gasLimit: toHex(estimate),
+    gasLimit: toHex(2_000_000),
     maxFeePerGas: toHex(maxFeePerGas),
     maxPriorityFeePerGas: toHex(toWei(Math.round(gasPriceData.maxPriorityFeePerGas).toFixed(0), 'gwei')),
     nonce: toHex(nonce),
     chainId: toHex(chainId),
     type: toHex(EIP1559_TRANSACTION_TYPE),
   }
+  console.log(txParams);
   
   const chain =
       networkType === NETWORK_TYPES.GOERLI ? Chain.Goerli : Chain.Mainnet;
@@ -111,6 +112,7 @@ const signTransaction = async ({
   };
 
   let stx = EIP1559Transaction.fromTxData(txParams, txConfig) 
+  console.log(stx.toJSON());
 
   if (walletType === WALLET_TYPES.METAMASK) {
     return metamaskSignTransaction(stx);

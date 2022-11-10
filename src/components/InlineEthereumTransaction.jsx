@@ -119,7 +119,7 @@ export default function InlineEthereumTransaction({
   );
 
   const insufficientEth = useMemo(
-    () => Number(maxCost) > Number(ethBalance.toString()),
+    () => false,
     [maxCost, ethBalance]
   );
 

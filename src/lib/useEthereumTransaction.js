@@ -136,7 +136,6 @@ export default function useEthereumTransaction(
             nonce: nonce + i,
             chainId,
             gasPriceData: gasPrice,
-            gasLimit,
             txnSigner,
             txnSender,
           })
@@ -160,7 +159,6 @@ export default function useEthereumTransaction(
   }, [
     _wallet,
     chainId,
-    gasLimit,
     gasPrice,
     networkType,
     nonce,
@@ -187,7 +185,7 @@ export default function useEthereumTransaction(
       let usedTank = false;
       // if this ethereum transaction is being executed by a specific point
       // see if we can use the tank
-      if (Just.hasInstance(pointCursor)) {
+      /*if (Just.hasInstance(pointCursor)) {
         usedTank = await ensureFundsFor(
           _web3,
           pointCursor.value,
@@ -199,7 +197,7 @@ export default function useEthereumTransaction(
             setNeedFunds({ address, minBalance, balance }),
           () => setNeedFunds(undefined)
         );
-      }
+      }*/
 
       const txHashes = await signedTransactions.reduce(
         (acc, stx) =>

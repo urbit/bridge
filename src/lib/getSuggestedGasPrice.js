@@ -2,6 +2,8 @@ import { NETWORK_TYPES } from './network';
 import { DEFAULT_GAS_PRICE_GWEI, MAX_GAS_PRICE_GWEI } from './constants';
 import { formatWait } from 'components/L2/Dropdowns/FeeDropdown';
 import Web3 from 'web3';
+import _ from 'lodash';
+import {isGoerli} from './flags';
 
 // ethgasstation returns values in floating point, one order of magitude
 // more than gwei. see: https://docs.ethgasstation.info
@@ -10,7 +12,7 @@ const minGas = gas => Math.min(Math.ceil(gas), MAX_GAS_PRICE_GWEI);
 
 const feeToInt = (f) => f < 1 ? 1 : Math.round(f);
 
-const feeToWei = (fee) => Web3.utils.toHex(Web3.utils.toWei(String(fee), 'gwei' ))
+const feeToWei = (fee) => { if(_.isNaN(fee)) { debugger; } console.log(fee); return Web3.utils.toHex(Web3.utils.toWei(String(fee), 'gwei' )) };
 
 const calculateMaxFee = (baseFee, maxPriorityFee) => feeToWei(Math.round((2 * baseFee) + maxPriorityFee))
 
@@ -19,7 +21,7 @@ export const defaultGasValues = value => ({
     price: value,
     wait: '1',
     maxFeePerGas: value,
-    maxPriorityFeePerGas: 1,
+    maxPriorityFeePerGas: 2,
     suggestedBaseFeePerGas: value > 2 ? value -1 : 1,
   },
   average: {
@@ -40,6 +42,9 @@ export const defaultGasValues = value => ({
 
 const getGasForNetwork = async (providerUrl) => {
   try {
+    if (INITIAL_NETWORK_TYPE === NETWORK_TYPES.GOERLI) {
+      throw new Error('no goerli support');
+    }
     const [etherscanGas, ethgasstationGas] = await Promise.all([
       fetch(
         `${providerUrl}/api` +
@@ -65,11 +70,13 @@ const getGasForNetwork = async (providerUrl) => {
       ethgasstationGas.json()
     ])
 
+    console.log(etherscanGasJson, ethgasstationGasJson);
+
     const suggestedBaseFeePerGas = Number(etherscanGasJson.result.suggestBaseFee);
 
     // Calculations derived from:
     // https://www.blocknative.com/blog/eip-1559-fees
-    return {
+    const result = {
       fast: {
         price: minGas(etherscanGasJson.result.FastGasPrice),
         wait: formatWait(ethgasstationGasJson.fastWait),
@@ -92,6 +99,8 @@ const getGasForNetwork = async (providerUrl) => {
         suggestedBaseFeePerGas
       },
     };
+    console.log(result);
+    return result;
   } catch (e) {
     console.warn(e);
     return defaultGasValues(DEFAULT_GAS_PRICE_GWEI);

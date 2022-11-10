@@ -121,6 +121,7 @@
   },
   "scripts": {
     "preview:mainnet": "VITE_MAINNET=true vite preview --port 3000",
+    "start:goerli": "VITE_GOERLI=true vite",
     "start": "vite",
     "build": "VITE_MAINNET=true vite build",
     "build:goerli": "VITE_GOERLI=true vite build",
