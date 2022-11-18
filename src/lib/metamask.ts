@@ -18,8 +18,12 @@ export const metamaskSignTransaction = async (txn: EIP1559Transaction) => {
 };
 
 const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
+  /**
+   * Depending which version of Metamask is installed, there are different 
+   * approaches to get the `from` address.
+   */
   let from = null;
-  if(window.ethereum) {
+  if (window.ethereum) {
     from = window.ethereum.selectedAddress;
     if (!from) {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -30,6 +34,10 @@ const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
   } else {
     const accounts = await web3.eth.getAccounts();
     from = accounts[0] ?? null;
+  }
+
+  if (!from) {
+    throw new Error('No accounts connected');
   }
 
   const { data, to, value, maxPriorityFeePerGas, maxFeePerGas } = txn.toJSON();
