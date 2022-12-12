@@ -21,6 +21,7 @@ import { useNetwork } from 'store/network';
 import { WALLET_TYPES } from 'lib/constants';
 import { useWalletConnect } from 'lib/useWalletConnect';
 import { MetamaskWallet } from 'lib/metamask';
+import { expectedChainId } from 'lib/network';
 import useLoginView from 'lib/useLoginView';
 import { getAuthToken } from 'lib/authToken';
 
@@ -94,6 +95,20 @@ export default function LoginSelector({
           'Device does not have an Ethereum provider available (is Metamask or Brave Wallet installed?)'
         );
       }
+
+      /**
+       * Ensure wallet is connected to expected chain
+       */
+      if (window.ethereum.chainId !== expectedChainId() ) {
+        console.log(`unexpected chain: ${window.ethereum.chainId}`);
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: expectedChainId() }],
+        });
+        window.location.reload();
+        return;
+      }
+
       setMetamask(true);
       setMetamaskSelected(true);
 
