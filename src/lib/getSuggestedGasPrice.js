@@ -40,7 +40,7 @@ export const defaultGasValues = value => ({
 
 const getGasForNetwork = async (providerUrl) => {
   try {
-    const [etherscanGas, ethgasstationGas] = await Promise.all([
+    const [feeResponse, waitResponse] = await Promise.all([
       fetch(
         `${providerUrl}/api` +
           '?module=gastracker' +
@@ -52,7 +52,7 @@ const getGasForNetwork = async (providerUrl) => {
         }
       ),
       fetch(
-        'https://ethgasstation.info/json/ethgasAPI.json',
+        'https://ethereum-api.xyz/gas-prices',
         {
           method: 'GET',
           cache: 'no-cache',
@@ -60,35 +60,35 @@ const getGasForNetwork = async (providerUrl) => {
       )
     ]);
 
-    const [etherscanGasJson, ethgasstationGasJson] = await Promise.all([
-      etherscanGas.json(),
-      ethgasstationGas.json()
+    const [feeJson, waitJson] = await Promise.all([
+      feeResponse.json(),
+      waitResponse.json()
     ])
 
-    const suggestedBaseFeePerGas = Number(etherscanGasJson.result.suggestBaseFee);
+    const suggestedBaseFeePerGas = Number(feeJson.result.suggestBaseFee);
 
     // Calculations derived from:
     // https://www.blocknative.com/blog/eip-1559-fees
     return {
       fast: {
-        price: minGas(etherscanGasJson.result.FastGasPrice),
-        wait: formatWait(ethgasstationGasJson.fastWait),
-        maxFeePerGas: calculateMaxFee(suggestedBaseFeePerGas, etherscanGasJson.result.FastGasPrice - suggestedBaseFeePerGas),
-        maxPriorityFeePerGas: feeToInt((etherscanGasJson.result.FastGasPrice - suggestedBaseFeePerGas)),
+        price: minGas(feeJson.result.FastGasPrice),
+        wait: formatWait(waitJson.result.fast.time),
+        maxFeePerGas: calculateMaxFee(suggestedBaseFeePerGas, feeJson.result.FastGasPrice - suggestedBaseFeePerGas),
+        maxPriorityFeePerGas: feeToInt((feeJson.result.FastGasPrice - suggestedBaseFeePerGas)),
         suggestedBaseFeePerGas
       },
       average: {
-        price: minGas(etherscanGasJson.result.ProposeGasPrice),
-        wait: formatWait(ethgasstationGasJson.avgWait),
-        maxFeePerGas: calculateMaxFee(suggestedBaseFeePerGas, etherscanGasJson.result.ProposeGasPrice - suggestedBaseFeePerGas),
-        maxPriorityFeePerGas: feeToInt((etherscanGasJson.result.ProposeGasPrice - suggestedBaseFeePerGas)),
+        price: minGas(feeJson.result.ProposeGasPrice),
+        wait: formatWait(waitJson.result.average.time),
+        maxFeePerGas: calculateMaxFee(suggestedBaseFeePerGas, feeJson.result.ProposeGasPrice - suggestedBaseFeePerGas),
+        maxPriorityFeePerGas: feeToInt((feeJson.result.ProposeGasPrice - suggestedBaseFeePerGas)),
         suggestedBaseFeePerGas
       },
       low: {
-        price: minGas(etherscanGasJson.result.SafeGasPrice),
-        wait: formatWait(ethgasstationGasJson.safeLowWait),
-        maxFeePerGas: calculateMaxFee(suggestedBaseFeePerGas, etherscanGasJson.result.SafeGasPrice - suggestedBaseFeePerGas),
-        maxPriorityFeePerGas: feeToInt((etherscanGasJson.result.SafeGasPrice - suggestedBaseFeePerGas)),
+        price: minGas(feeJson.result.SafeGasPrice),
+        wait: formatWait(waitJson.result.slow.time),
+        maxFeePerGas: calculateMaxFee(suggestedBaseFeePerGas, feeJson.result.SafeGasPrice - suggestedBaseFeePerGas),
+        maxPriorityFeePerGas: feeToInt((feeJson.result.SafeGasPrice - suggestedBaseFeePerGas)),
         suggestedBaseFeePerGas
       },
     };
