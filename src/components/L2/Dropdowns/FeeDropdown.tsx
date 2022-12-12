@@ -17,7 +17,6 @@ export interface GasPriceData {
   suggestedBaseFeePerGas: number;
 }
 
-export const formatWait = (wait: number) => Math.round(wait * 100) / 100;
 export const formatDisplay = ({ price, wait }: GasPriceData) =>
   `${price} gwei (${wait} min)`;
 
