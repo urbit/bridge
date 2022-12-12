@@ -1,6 +1,5 @@
 import { NETWORK_TYPES } from './network';
 import { DEFAULT_GAS_PRICE_GWEI, MAX_GAS_PRICE_GWEI } from './constants';
-import { formatWait } from 'components/L2/Dropdowns/FeeDropdown';
 import Web3 from 'web3';
 
 // ethgasstation returns values in floating point, one order of magitude
@@ -13,6 +12,9 @@ const feeToInt = (f) => f < 1 ? 1 : Math.round(f);
 const feeToWei = (fee) => Web3.utils.toHex(Web3.utils.toWei(String(fee), 'gwei' ))
 
 const calculateMaxFee = (baseFee, maxPriorityFee) => feeToWei(Math.round((2 * baseFee) + maxPriorityFee))
+
+// Convert seconds to minutes prettily
+const formatWait = (wait) => Math.round((wait * 100) / 60) / 100;
 
 export const defaultGasValues = value => ({
   fast: {

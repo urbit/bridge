@@ -17,8 +17,6 @@ export interface GasPriceData {
   suggestedBaseFeePerGas: number;
 }
 
-// Convert seconds to minutes prettily
-export const formatWait = (wait: number) => Math.round((wait * 100) / 60) / 100;
 export const formatDisplay = ({ price, wait }: GasPriceData) =>
   `${price} gwei (${wait} min)`;
 
