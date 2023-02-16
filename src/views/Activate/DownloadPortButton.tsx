@@ -9,16 +9,12 @@ interface DownloadPortButtonProps {
 export const DownloadPortButton = ({ error }: DownloadPortButtonProps) => {
   const downloadButtonLabel = useMemo(() => {
     return isMacOs
-      ? 'To use it, download Port for Mac'
-      : isWindows
-      ? 'To use it, download Port for Windows'
-      : 'To use it, download Port for your OS';
+      ? 'Set up a cloud instance for your Urbit'
+      : 'Set up a cloud instance for your Urbit';
   }, []);
 
   const downloadUrl = useMemo(() => {
-    return isMacOs
-      ? `https://github.com/urbit/port/releases/latest/download/Port.dmg`
-      : 'https://github.com/urbit/port/releases/latest';
+      : 'https://urbit.org/getting-started/cloud-hosting';
   }, []);
 
   return (
