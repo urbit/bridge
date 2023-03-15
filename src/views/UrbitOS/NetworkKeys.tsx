@@ -47,6 +47,7 @@ import BodyPane from 'components/L2/Window/BodyPane';
 
 import './NetworkKeys.scss';
 import { L1TxnType } from 'lib/types/PendingL1Transaction';
+import { PointField } from 'lib/types/Point';
 
 function useSetKeys(
   manualNetworkSeed: string,
@@ -176,7 +177,8 @@ export default function UrbitOSNetworkKeys({
   useEffect(() => {
     if (completed) {
       checkForUpdates({
-        point: point.value,
+        point: point,
+        field: PointField.keyRevisionNumber,
         message: `${point.patp}'s Network Keys have been set!`,
         l1Txn: {
           id: `${point.keyRevisionNumber}-network-keys-${point.value}`,
@@ -252,7 +254,7 @@ export default function UrbitOSNetworkKeys({
       // we could inspect if there's a changeKeys in the local list of pending txs,...
       //
       checkForUpdates({
-        point: point.value,
+        point: point,
         message: `${point.patp}'s Network Keys have been set!`,
         intervalTime: ONE_SECOND,
       });

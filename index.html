@@ -7,8 +7,8 @@
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <meta name="theme-color" content="#fff" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="shortcut icon" href="/favicon.ico" />
 
     <meta
       name="description"
@@ -51,9 +51,15 @@
         border: 0;
       }
     </style>
+    <script type="module">
+      import { Buffer } from "buffer";
+      window.global = window;
+      window.Buffer = Buffer;
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
     <!-- Force load all fonts  -->
     <div
       aria-visibility="hidden"

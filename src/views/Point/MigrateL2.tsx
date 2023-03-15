@@ -135,7 +135,7 @@ export default function MigrateL2() {
         : `${selectedPoint.patp}'s spawn proxy has been set to Layer 2!`;
 
       checkForUpdates({
-        point: selectedPoint.value,
+        point: selectedPoint,
         message,
         notify: true,
         field: PointField.layer,

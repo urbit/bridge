@@ -38,10 +38,7 @@ export default function ActivateDisclaimer({ point }) {
         <Text className={cn(TEXT_STYLE, 'block mb2')}>Right now you can:</Text>
       </Grid.Item>
 
-      <Grid.Item
-        full
-        as={LinkButton}
-        href="https://urbit.org/docs/getting-started/">
+      <Grid.Item full as={LinkButton} href="https://urbit.org/getting-started">
         <Text className={cn(TEXT_STYLE, 'block mb2')}>
           Boot Arvo, the Urbit OS
         </Text>

@@ -1,5 +1,5 @@
 import { isAddress, toChecksumAddress } from 'web3-utils';
-import { pubToAddress } from 'ethereumjs-util';
+import { pubToAddress } from '@ethereumjs/util';
 import { ETH_ZERO_ADDR, ETH_ZERO_ADDR_SHORT } from 'lib/constants';
 
 export const stripHexPrefix = (hex: string) => {
@@ -30,5 +30,5 @@ export const eqAddr = (addr0: string, addr1: string) =>
     : toChecksumAddress(addr0) === toChecksumAddress(addr1);
 
 export const publicToAddress = (publicKey: Buffer): string => {
-  return '0x' + pubToAddress(Buffer.from(publicKey), true).toString('hex');
+  return '0x' + pubToAddress(publicKey, true).toString('hex');
 };

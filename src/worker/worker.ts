@@ -1,9 +1,9 @@
-import kg from 'urbit-key-generation';
+import { generateWallet } from 'urbit-key-generation';
 
-export async function generateWallet(data: string): Promise<UrbitWallet> {
+export const generate = async (data: string): Promise<UrbitWallet> => {
   // Process the data without stalling the UI
   const config = JSON.parse(data);
-  const wallet = await kg.generateWallet(config);
+  const wallet = await generateWallet(config);
 
   return wallet;
-}
+};

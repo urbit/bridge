@@ -1,4 +1,6 @@
-// eslint-disable-next-line
-import Worker from 'comlink-loader!./worker'; // inline loader
+import { Buffer } from 'buffer/';
+self.Buffer = Buffer;
 
-export default Worker;
+export const walletgenWorker = new ComlinkWorker<typeof import('./worker')>(
+  new URL('./worker.ts', import.meta.url)
+)

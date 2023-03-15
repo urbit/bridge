@@ -5,11 +5,11 @@ const CONTRACT_ADDRESSES = {
     linearSR: '0x03C3dC12BE658158D1d7F9e66E08ec4099c568e4',
     conditionalSR: '0x35EB3B102d9C1B69Ac1469C1B1FE1799850CD3EB',
   },
-  ROPSTEN: {
-    azimuth: '0x308ab6a6024cf198b57e008d0ac9ad0219886579',
-    delegatedSending: '0x3e8ca510354bc2fdbbd6150252d93105c9c27bbe',
-    linearSR: '0x1f8edd031ee414740aedb39b84fb8f2f66ca422f',
-    conditionalSR: '0x1f8edd031ee414740aedb39b84fb8f2f66ca422f',
+  GOERLI: {
+    azimuth: '0xbB61Fa683E4B910418E27b00a1438a936234df52',
+    delegatedSending: '0x3e8ca510354bc2fdbbd6150252d93105c9c27bbe', // TODO
+    linearSR: '0x1f8edd031ee414740aedb39b84fb8f2f66ca422f', // TODO
+    conditionalSR: '0x1f8edd031ee414740aedb39b84fb8f2f66ca422f', // TODO
   },
   MAINNET: {
     azimuth: '0x223c067f8cf28ae173ee5cafea60ca44c335fecb',

@@ -4,7 +4,7 @@ import useRouter from 'lib/useRouter';
 import { LocalRouterProvider } from 'lib/LocalRouter';
 import { useSyncDates } from 'lib/useSyncPoints';
 
-import { ActivateFlowProvider } from './Activate/ActivateFlow';
+import { ActivateFlowProvider } from './Activate/useActivateFlow';
 import useActivateFlowState from './Activate/useActivateFlowState';
 import ActivateCode from './Activate/ActivateCode';
 import ActivateMasterKey from './Activate/ActivateMasterKey';

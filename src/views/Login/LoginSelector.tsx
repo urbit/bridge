@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import cn from 'classnames';
-import { Grid } from 'indigo-react';
+import { Flex, Grid } from 'indigo-react';
 import {
   Box,
   Button,
@@ -9,6 +9,7 @@ import {
   Row,
   Text,
   Image,
+  Checkbox,
 } from '@tlon/indigo-react';
 import Web3 from 'web3';
 import { Just } from 'folktale/maybe';
@@ -20,6 +21,7 @@ import { useNetwork } from 'store/network';
 import { WALLET_TYPES } from 'lib/constants';
 import { useWalletConnect } from 'lib/useWalletConnect';
 import { MetamaskWallet } from 'lib/metamask';
+import { expectedChainId } from 'lib/network';
 import useLoginView from 'lib/useLoginView';
 import { getAuthToken } from 'lib/authToken';
 
@@ -57,11 +59,20 @@ export default function LoginSelector({
   useLoginView(WALLET_TYPES.WALLET_CONNECT);
 
   const { push, names }: any = useHistory();
-  const { setWallet, setWalletType, setAuthToken }: any = useWallet();
+  const {
+    setWallet,
+    setWalletType,
+    setAuthToken,
+    setFakeToken,
+    skipLoginSigning,
+    setSkipLoginSigning,
+  }: any = useWallet();
   const { setMetamask }: any = useNetwork();
   const [showModal, setShowModal] = useState(false);
   // TODO: do we still need this? currently not being set
   const [metamaskSelected, setMetamaskSelected] = useState(false);
+
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const {
     address,
@@ -84,6 +95,20 @@ export default function LoginSelector({
           'Device does not have an Ethereum provider available (is Metamask or Brave Wallet installed?)'
         );
       }
+
+      /**
+       * Ensure wallet is connected to expected chain
+       */
+      if (window.ethereum.chainId !== expectedChainId() ) {
+        console.log(`unexpected chain: ${window.ethereum.chainId}`);
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: expectedChainId() }],
+        });
+        window.location.reload();
+        return;
+      }
+
       setMetamask(true);
       setMetamaskSelected(true);
 
@@ -96,6 +121,15 @@ export default function LoginSelector({
 
       const wallet = new MetamaskWallet(accounts[0]);
       const web3 = new Web3(window.ethereum);
+      setWallet(Just(wallet));
+      setWalletType(WALLET_TYPES.METAMASK);
+
+      if (skipLoginSigning) {
+        setFakeToken();
+        goHome();
+        return;
+      }
+
       const authToken = await getAuthToken({
         address: wallet.address,
         walletType: WALLET_TYPES.METAMASK,
@@ -103,8 +137,6 @@ export default function LoginSelector({
       });
 
       setAuthToken(Just(authToken));
-      setWallet(Just(wallet));
-      setWalletType(WALLET_TYPES.METAMASK);
 
       goHome();
     } catch (e) {
@@ -112,7 +144,15 @@ export default function LoginSelector({
       setMetamask(false);
       setMetamaskSelected(false);
     }
-  }, [setAuthToken, setWallet, setWalletType, setMetamask, goHome]);
+  }, [
+    setMetamask,
+    setWallet,
+    setWalletType,
+    skipLoginSigning,
+    setAuthToken,
+    goHome,
+    setFakeToken,
+  ]);
 
   const onSubmitWalletConnect = useCallback(async () => {
     try {
@@ -206,6 +246,33 @@ export default function LoginSelector({
           onClick={() => setShowModal(true)}>
           <Icon icon="Info" />I have a wallet type not supported here
         </Grid.Item>
+        <Grid.Item
+          className="advanced-options"
+          full
+          as={Text}
+          onClick={() => setShowAdvanced(!showAdvanced)}>
+          Advanced{' '}
+          <Icon
+            display="inline-block"
+            icon={showAdvanced ? 'ChevronNorth' : 'ChevronSouth'}
+            size="14px"
+            color={'black'}
+          />
+        </Grid.Item>
+        {showAdvanced ? (
+          <Grid.Item
+            full
+            as={Box}
+            onClick={() => setSkipLoginSigning(!skipLoginSigning)}>
+            <Box className="skip-signing">
+              <Checkbox
+                selected={skipLoginSigning}
+                onClick={() => setSkipLoginSigning(!skipLoginSigning)}
+              />
+              <Text>Skip Signing on Login</Text>
+            </Box>
+          </Grid.Item>
+        ) : null}
         <Modal show={showModal} hide={() => setShowModal(false)}>
           <Box className="info-modal-content">
             <div className="fw-bold mb5">Other Wallet Types</div>

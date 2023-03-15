@@ -2,7 +2,7 @@ import { Options } from '@urbit/roller-api';
 import { useMemo } from 'react';
 import { ROLLER_HOSTS, ROLLER_PATH } from './constants';
 import { convertToInt } from './convertToInt';
-import { isMainnet, isRopsten, providedRollerOptions } from './flags';
+import { isMainnet, isGoerli, providedRollerOptions } from './flags';
 
 type TransportType =
   | 'websocket'
@@ -30,17 +30,17 @@ export const useRollerOptions = () => {
   const options: Options = useMemo(() => {
     const type =
       (providedType as TransportType | undefined) ||
-      (isMainnet || isRopsten ? 'https' : 'http');
+      (isMainnet || isGoerli ? 'https' : 'http');
     const host =
       providedHost ||
       (isMainnet
         ? ROLLER_HOSTS.MAINNET
-        : isRopsten
-        ? ROLLER_HOSTS.ROPSTEN
+        : isGoerli
+        ? ROLLER_HOSTS.GOERLI
         : ROLLER_HOSTS.LOCAL);
     const port =
       (providedPort && convertToInt(providedPort, 10)) ||
-      (isMainnet || isRopsten ? 443 : 8080);
+      (isMainnet || isGoerli ? 443 : 8080);
     const path = ROLLER_PATH;
 
     return {

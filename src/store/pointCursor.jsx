@@ -7,8 +7,14 @@ import React, {
 } from 'react';
 import { Nothing } from 'folktale/maybe';
 import { useRollerStore } from './rollerStore';
+import { noop } from 'lodash';
 
-export const PointCursorContext = createContext(null);
+const initialContext = {
+  pointCursor: Nothing(),
+  setPointCursor: noop,
+}
+
+export const PointCursorContext = createContext(initialContext);
 
 // pointCursor is Maybe<number>
 function _usePointCursor(initialPointCursor = Nothing()) {

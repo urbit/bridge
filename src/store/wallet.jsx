@@ -7,7 +7,8 @@ import React, {
   useEffect,
 } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
-import { includes } from 'lodash';
+import { includes, noop } from 'lodash';
+import { randomHex } from 'web3-utils';
 
 import { walletFromMnemonic } from 'lib/wallet';
 import {
@@ -21,7 +22,39 @@ import { BRIDGE_ERROR } from 'lib/error';
 import { useNetwork } from 'store/network';
 import { publicToAddress } from 'lib/utils/address';
 
-export const WalletContext = createContext(null);
+const initialContext = {
+  //
+  walletType: Nothing(),
+  setWalletType: noop,
+  //
+  walletHdPath: '',
+  setWalletHdPath: noop,
+  //
+  wallet: Nothing(),
+  setWallet: noop,
+  //
+  urbitWallet: Nothing(),
+  setUrbitWallet: noop,
+  authMnemonic: Nothing(),
+  setAuthMnemonic: noop,
+  //
+  networkSeed: Nothing(),
+  setNetworkSeed: noop,
+  networkRevision: Nothing(),
+  setNetworkRevision: noop,
+  //
+  resetWallet: noop,
+  //
+  authToken: Nothing(),
+  setAuthToken: noop,
+  useLegacyTokenSigning: Nothing(),
+  setUseLegacyTokenSigning: noop,
+  skipLoginSigning: false,
+  setSkipLoginSigning: noop,
+  setFakeToken: noop,
+}
+
+export const WalletContext = createContext(initialContext);
 
 const DEFAULT_WALLET_TYPE = WALLET_TYPES.TICKET;
 
@@ -52,6 +85,12 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
   const [networkRevision, setNetworkRevision] = useState(Nothing());
 
   const [authToken, setAuthToken] = useState(Nothing());
+  // Allow users to skip signing the auth token on login
+  const [skipLoginSigning, setSkipLoginSigning] = useState(false);
+
+  const setFakeToken = () => {
+    setAuthToken(Just(randomHex(32)));
+  };
 
   // See: https://github.com/urbit/bridge/issues/549#issuecomment-1048359617
   // This is used for legacy compatibility; this flow should eventually be
@@ -72,6 +111,11 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
 
       const _wallet = wallet.value;
       const _web3 = web3.value;
+      if (skipLoginSigning) {
+        setFakeToken();
+        return;
+      }
+
       const token = await getAuthToken({
         wallet: _wallet,
         walletType,
@@ -82,7 +126,15 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
 
       setAuthToken(Just(token));
     })();
-  }, [wallet, walletType, walletHdPath, web3, useLegacyTokenSigning]);
+  }, [
+    wallet,
+    walletType,
+    walletHdPath,
+    web3,
+    useLegacyTokenSigning,
+    setAuthToken,
+    skipLoginSigning,
+  ]);
 
   const setWalletType = useCallback(
     walletType => {
@@ -176,6 +228,9 @@ function _useWallet(initialWallet = Nothing(), initialMnemonic = Nothing()) {
     setAuthToken,
     useLegacyTokenSigning,
     setUseLegacyTokenSigning,
+    skipLoginSigning,
+    setSkipLoginSigning,
+    setFakeToken,
   };
 }
 

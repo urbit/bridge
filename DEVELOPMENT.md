@@ -65,9 +65,9 @@ of having to re-authenticate whenever you make a change or refresh the page):
 
 - The `.env.development` file contains environment variables that you can
   provide to the application when it's running in development. You can access
-  them via `process.env.REACT_APP_<whatever>`.
+  them via `import.meta.env.VITE_<whatever>`.
 
-- Set `REACT_APP_STUB_LOCAL='true'` in `.env.development` to enabled stubbing of
+- Set `VITE_STUB_LOCAL='true'` in `.env.development` to enabled stubbing of
   certain methods throughout the app.
 
 - The top of the Bridge component in `src/Bridge.js` can be tweaked for setting
@@ -119,9 +119,9 @@ Automated tests for critical user journeys are coming Soon™️. Until then, he
 
 "As a user, I can create a new invite"
 
-First, in `Bridge.js`, set the `INITIAL_NETWORK_TYPE` to Ropsten:
+First, in `Bridge.js`, set the `INITIAL_NETWORK_TYPE` to Goerli:
 ```js
-const INITIAL_NETWORK_TYPE = NETWORK_TYPES.ROPSTEN;
+const INITIAL_NETWORK_TYPE = NETWORK_TYPES.GOERLI;
 ```
 
 Then, in `tank.js`, set the port to `3011`:
@@ -142,7 +142,7 @@ const baseUrl = 'https://gas-tank.urbit.org:3011';
 3. Download the Passport file, then use the enclosed Master Ticket and ID to login to Bridge again
 ### Known Issues
 
-When testing the invite acceptance and login flow on Ropsten, some of the Azimuth API calls will fail (e.g., `getConditional`).
+When testing the invite acceptance and login flow on Goerli, some of the Azimuth API calls will fail (e.g., `getConditional`).
 
 ## Releases
 

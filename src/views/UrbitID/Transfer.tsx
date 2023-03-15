@@ -80,7 +80,7 @@ export default function AdminTransfer() {
     // Update this one
     if (completed) {
       checkForUpdates({
-        point: point.value,
+        point: point,
         message: `${point.patp}'s transfer proxy has been set!`,
         l1Txn: {
           id: `set-transfer-proxy-${point.value}`,
@@ -105,7 +105,7 @@ export default function AdminTransfer() {
       await setProxyAddress('transfer', owner);
       getPendingTransactions();
       checkForUpdates({
-        point: point.value,
+        point: point,
         message: `${point.patp}'s transfer proxy has been set!`,
       });
       pop();

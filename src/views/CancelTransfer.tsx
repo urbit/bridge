@@ -68,7 +68,7 @@ function AdminCancelTransfer() {
   useEffect(() => {
     if (completed) {
       checkForUpdates({
-        point: point.value,
+        point: point,
         message: `${point.patp} transfer cancelled`,
         l1Txn: {
           id: `cancel-${point.value}`,
@@ -89,7 +89,7 @@ function AdminCancelTransfer() {
   const cancelTransfer = useCallback(async () => {
     await setProxyAddress('transfer', ETH_ZERO_ADDR);
     await checkForUpdates({
-      point: point.value,
+      point: point,
       message: `${point.patp} transfer cancelled`,
     });
     goBack();

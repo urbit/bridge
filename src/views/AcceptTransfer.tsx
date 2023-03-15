@@ -53,7 +53,8 @@ function useAcceptTransfer() {
     ),
     useCallback(
       () => Promise.all([syncExtras(_point), syncControlledPoints()]),
-      [_point, syncControlledPoints, syncExtras]
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [_point]
     ),
     GAS_LIMITS.TRANSFER
   );
@@ -89,7 +90,7 @@ export default function AcceptTransfer() {
     // Update this one
     if (completed) {
       checkForUpdates({
-        point: point.value,
+        point: point,
         message: `${point.patp} has been transferred to you!`,
         l1Txn: {
           id: `accept-transfer-${point.value}`,
@@ -129,7 +130,7 @@ export default function AcceptTransfer() {
     transferring.current = true;
     await transferPoint(_address, reset);
     await checkForUpdates({
-      point: point.value,
+      point: point,
       message: `${point.patp} has been transferred to you!`,
     });
 

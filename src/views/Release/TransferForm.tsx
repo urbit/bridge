@@ -14,7 +14,7 @@ import { useStarReleaseCache } from 'store/starRelease';
 import { useWallet } from 'store/wallet';
 import { eqAddr, isZeroAddress } from 'lib/utils/address';
 import { useTransferLockup } from './useTransferLockup';
-import { isValidAddress } from 'ethereumjs-util';
+import { isValidAddress } from '@ethereumjs/util';
 import { getLockupKind } from 'lib/starRelease';
 
 interface TransferFormProps {

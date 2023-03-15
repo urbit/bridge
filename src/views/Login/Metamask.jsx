@@ -22,7 +22,13 @@ import Web3 from 'web3';
 
 export default function Metamask({ className, goHome }) {
   useLoginView(WALLET_TYPES.METAMASK);
-  const { setWallet, setWalletType, setAuthToken } = useWallet();
+  const {
+    setWallet,
+    setWalletType,
+    setAuthToken,
+    setFakeToken,
+    skipLoginSigning,
+  } = useWallet();
 
   const { setMetamask } = useNetwork();
 
@@ -37,8 +43,15 @@ export default function Metamask({ className, goHome }) {
         method: 'eth_requestAccounts',
       });
       const wallet = new MetamaskWallet(accounts.result[0]);
-
       const web3 = new Web3(window.ethereum);
+      setWallet(Just(wallet));
+      setWalletType(WALLET_TYPES.METAMASK);
+
+      if (skipLoginSigning) {
+        setFakeToken();
+        return;
+      }
+
       const authToken = await getAuthToken({
         address: wallet.address,
         walletType: WALLET_TYPES.METAMASK,
@@ -46,13 +59,18 @@ export default function Metamask({ className, goHome }) {
       });
 
       setAuthToken(Just(authToken));
-      setWallet(Just(wallet));
-      setWalletType(WALLET_TYPES.METAMASK);
     } catch (e) {
       console.error(e);
       return { [FORM_ERROR]: e.message };
     }
-  }, [setAuthToken, setWallet, setWalletType, setMetamask]);
+  }, [
+    setMetamask,
+    setWallet,
+    setWalletType,
+    skipLoginSigning,
+    setAuthToken,
+    setFakeToken,
+  ]);
 
   return (
     <Grid className={className}>
