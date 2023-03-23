@@ -12,7 +12,7 @@ import PointPresenter from './PointPresenter';
 import DangerBox from './DangerBox';
 import View from 'components/View';
 
-import { DownloadPortButton } from './DownloadPortButton';
+import ActivateButton from './ActivateButton';
 
 const MasterKeyTransfer = () => {
   const { performL2Reticket } = useRoller();
@@ -95,7 +95,13 @@ const MasterKeyTransfer = () => {
         flexWrap={'nowrap'}
         justifyContent={'space-between'}>
         {error && <DangerBox>{error.toString()}</DangerBox>}
-        <DownloadPortButton error={error} />
+        <ActivateButton
+          onClick={() => window.open('https://urbit.org/getting-started/cloud-hosting')}
+          className='pointer-hover'
+          disabled={error}
+          success={true}>
+          To use it, set up a cloud instance for your urbit
+        </ActivateButton>
         <Anchor
           href="https://urbit.org/getting-started/cli"
           marginTop={'20px'}
@@ -108,7 +114,7 @@ const MasterKeyTransfer = () => {
           textAlign={'center'}
           target={'_blank'}
           rel={'nofollow noopener'}>
-          or setup via command line
+          or get started locally via command line
         </Anchor>
         <p
           className="mb2 sans gray5"
