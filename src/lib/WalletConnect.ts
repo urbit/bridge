@@ -1,9 +1,13 @@
-import { ITxData } from '@walletconnect/types';
-import { JsonTx, Transaction, FeeMarketEIP1559Transaction as EIP1559Transaction } from '@ethereumjs/tx';
+import {
+  JsonTx,
+  Transaction,
+  FeeMarketEIP1559Transaction as EIP1559Transaction,
+} from '@ethereumjs/tx';
 import { stripHexPrefix } from './utils/address';
 import { FakeSignableTx, FakeSignResult } from './txn';
 import Web3 from 'web3';
 import { EIP1559_TRANSACTION_TYPE } from './constants';
+import { ITxData } from './types/ITxData';
 
 type SignWalletConnectTransactionArgs = {
   from: string;
@@ -31,9 +35,13 @@ const walletConnectSignTransaction = async ({
   try {
     signature = await txnSigner(wcFormattedTx);
   } catch (e) {
-    if (e.message === 'METHOD_NOT_SUPPORTED' || e.message === '"eth_signTransaction" not implemented') {
+    if (
+      e.message === 'METHOD_NOT_SUPPORTED' ||
+      e.message === '"eth_signTransaction" not implemented'
+    ) {
       console.log('connected wc wallet does not support tx signing.');
       return FakeSignResult(
+        //@ts-ignore
         wcFormattedTx,
         //@ts-ignore // TODO
         walletConnectSendTransaction(txnSender)

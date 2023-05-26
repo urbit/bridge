@@ -16,7 +16,9 @@ export default function useActivateFlowState() {
   // the Master Key (ticket) and downloads the passport / mnemonic,
   // it is for this wallet
   // type UrbitWallet
-  const [inviteMasterTicketWallet, setInviteMasterTicketWallet] = useState(Nothing());
+  const [inviteMasterTicketWallet, setInviteMasterTicketWallet] = useState(
+    Nothing()
+  );
   // The wallet generated deterministically during the invite creation flow;
   // it is re-generated when the user starts the Activate flow. It is used
   // to derive and confirm a shareable ticket that a user can activate a point with.

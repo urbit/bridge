@@ -99,7 +99,7 @@ export const InviteConverter = ({ points }: InviteConverterProps) => {
     }
 
     collect();
-  }, [points]);
+  }, [points, api]);
 
   const selectChildren = useCallback(
     (children: Point[]) => {

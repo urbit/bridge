@@ -68,7 +68,12 @@ export const makeDeterministicTicket = (point: number, seed: string) => {
 };
 
 // return a wallet object
-export const generateWallet = async (point: number, ticket: string, boot: boolean, revision = 0) => {
+export const generateWallet = async (
+  point: number,
+  ticket: string,
+  boot: boolean,
+  revision = 0
+) => {
   const config = {
     ticket: ticket,
     seedSize: SEED_LENGTH_BYTES,
@@ -109,7 +114,10 @@ export const generateTemporaryTicketAndWallet = async (point: number) => {
   return { ticket, owner };
 };
 
-export const generateTemporaryDeterministicWallet = async (point: number, seed: string) => {
+export const generateTemporaryDeterministicWallet = async (
+  point: number,
+  seed: string
+) => {
   const ticket = makeDeterministicTicket(point, seed);
   const owner = await generateOwnershipWallet(ZOD, ticket);
 

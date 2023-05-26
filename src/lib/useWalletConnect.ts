@@ -1,6 +1,7 @@
-import WalletConnect from '@walletconnect/client';
-import QRCodeModal from '@walletconnect/qrcode-modal';
-import { ITxData } from '@walletconnect/types';
+import { SignClient as Connector } from '@walletconnect/sign-client';
+import { SignClient } from '@walletconnect/sign-client/dist/types/client';
+import { Web3Modal } from '@web3modal/standalone';
+import { SessionTypes } from '@walletconnect/types';
 
 import { useEffect, useMemo, useState } from 'react';
 import { Just, Nothing } from 'folktale/maybe';
@@ -9,6 +10,9 @@ import { useWallet } from 'store/wallet';
 import { getAuthToken } from './authToken';
 import { WALLET_TYPES } from './constants';
 import WalletConnectWallet from './types/WalletConnectWallet';
+import { isGoerli } from './flags';
+import { ITxData } from './types/ITxData';
+import { mayCreateHexString } from './utils/hex';
 
 type PeerMeta = {
   description: string;
@@ -17,69 +21,132 @@ type PeerMeta = {
   url: string;
 };
 
-type ConnectEvent = {
-  event: 'connect';
-  params: [
-    {
-      accounts: string[];
-      chainId: number;
-      peerId: string;
-      peerMeta: PeerMeta;
-    }
-  ];
+type PersonalSign = {
+  message: string;
+  address: string;
+};
+
+const getChain = () => {
+  return isGoerli ? 'eip155:5' : 'eip155:1';
 };
 
 export const useWalletConnect = () => {
   const {
+    wallet,
     setWallet,
     setAuthToken,
     setFakeToken,
     skipLoginSigning,
     resetWallet,
   }: any = useWallet();
-  const [connector, setConnector] = useState<WalletConnect | null>(null);
+
+  const [connector, setConnector] = useState<SignClient | null>(null);
   const [address, setAddress] = useState<string | null>(null);
   const [peerMeta, setPeerMeta] = useState<PeerMeta | null>(null);
+  const [session, setSession] = useState<SessionTypes.Struct | null>(null);
+  const [modal, setModal] = useState<Web3Modal | null>(null);
 
-  const resetConnector = () => {
-    const newConnector = new WalletConnect({
-      bridge: 'https://bridge.walletconnect.org',
-      qrcodeModal: QRCodeModal,
+  const resetSession = () => {
+    setSession(null);
+    setAddress(null);
+    setPeerMeta(null);
+  };
+
+  const updateSession = (_session: SessionTypes.Struct) => {
+    setSession(_session);
+    setAddress(_session.namespaces.eip155.accounts[0].slice(9));
+    setPeerMeta(_session.peer.metadata);
+  };
+
+  const initConnector = async () => {
+    if (connector) return;
+
+    const newConnector = await Connector.init({
+      projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
     });
 
     setConnector(newConnector);
 
-    // restore state from cached connection
-    if (newConnector.accounts.length > 0) {
-      setAddress(newConnector.accounts[0]);
-    }
+    const newModal = new Web3Modal({
+      projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
+      standaloneChains: [getChain()],
+      walletConnectVersion: 2,
+    });
 
-    if (newConnector.peerMeta) {
-      setPeerMeta(newConnector.peerMeta);
+    setModal(newModal);
+
+    // restore state from cached connection
+    if (Just.hasInstance(wallet) && !session) {
+      const cached_sessions = [
+        ...newConnector.session.map,
+      ].map(([key, value]) => ({ key, value }));
+
+      var restored: SessionTypes.Struct | null = null;
+
+      // this will set restored to the last
+      // cached session with the same address
+      for (var key in cached_sessions) {
+        if (
+          cached_sessions[key].value.namespaces.eip155.accounts[0].slice(9) ===
+          wallet.value.address
+        ) {
+          restored = cached_sessions[key].value;
+        }
+      }
+
+      if (restored) {
+        updateSession(restored);
+      }
     }
   };
 
   // Init connector
   useEffect(() => {
-    resetConnector();
+    initConnector();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Behavior
   const connect = async () => {
-    if (!connector || connector.connected) {
-      return;
-    }
-
-    await connector.createSession();
-  };
-
-  const disconnect = async () => {
     if (!connector) {
       return;
     }
 
-    await connector.killSession();
+    const proposalNamespace = {
+      eip155: {
+        chains: [getChain()],
+        methods: [
+          'eth_sendTransaction',
+          'eth_signTransaction',
+          'personal_sign',
+        ],
+        events: ['connect', 'disconnect'],
+      },
+    };
+
+    const { uri, approval } = await connector.connect({
+      requiredNamespaces: proposalNamespace,
+    });
+
+    if (uri) {
+      modal?.openModal({ uri });
+      const session = await approval();
+      updateSession(session);
+      modal?.closeModal();
+    }
+  };
+
+  const disconnect = async () => {
+    if (!connector || !session) {
+      return;
+    }
+
+    await connector.disconnect({
+      topic: session.topic,
+      reason: { code: 6000, message: 'User disconnected' },
+    });
+
+    resetSession();
   };
 
   const authenticate = async () => {
@@ -91,20 +158,22 @@ export const useWalletConnect = () => {
       address,
     };
     setWallet(Just(wallet));
+
     if (skipLoginSigning) {
       setFakeToken();
       return;
     }
-
     let authToken = Nothing();
+
     try {
       const token = await getAuthToken({
-        address,
-        connector,
+        address: address,
         walletType: WALLET_TYPES.WALLET_CONNECT,
+        signPersonalMessage: signPersonalMessage,
       });
       authToken = Just(token);
       setAuthToken(authToken);
+      modal?.closeModal();
     } catch (e) {
       if (e.message === 'METHOD_NOT_SUPPORTED') {
         console.warn(
@@ -118,11 +187,11 @@ export const useWalletConnect = () => {
   };
 
   const isConnected = () => {
-    if (!connector) {
+    if (!connector || !session) {
       return false;
     }
 
-    return connector.connected;
+    return session?.acknowledged;
   };
 
   const peerIcon = useMemo(() => {
@@ -152,14 +221,23 @@ export const useWalletConnect = () => {
       }
 
       return connector
-        .signTransaction({
-          from,
-          to,
-          gas,
-          gasPrice,
-          value,
-          data,
-          nonce,
+        .request<string>({
+          topic: session?.topic!,
+          chainId: getChain(),
+          request: {
+            method: 'eth_signTransaction',
+            params: [
+              {
+                to,
+                from,
+                data: mayCreateHexString(data),
+                nonce: mayCreateHexString(nonce),
+                gasPrice: mayCreateHexString(gasPrice),
+                gasLimit: mayCreateHexString(gas),
+                value: mayCreateHexString(value),
+              },
+            ],
+          },
         })
         .then((signature: string) => resolve(signature))
         .catch((error: Error) => reject(error));
@@ -181,78 +259,66 @@ export const useWalletConnect = () => {
         return;
       }
 
-      //REVIEW  .then path untested
       return connector
-        .sendTransaction({
-          from,
-          to,
-          gas,
-          gasPrice,
-          value,
-          data,
-          nonce,
+        .request<string>({
+          topic: session?.topic!,
+          chainId: getChain(),
+          request: {
+            method: 'eth_sendTransaction',
+            params: [
+              {
+                to,
+                from,
+                data: mayCreateHexString(data),
+                nonce: mayCreateHexString(nonce),
+                gasPrice: mayCreateHexString(gasPrice),
+                gasLimit: mayCreateHexString(gas),
+                value: mayCreateHexString(value),
+              },
+            ],
+          },
         })
         .then((txHash: string) => resolve(txHash))
         .catch((error: Error) => reject(error));
     });
   };
 
-  // Event Handlers
-  const initConnectHandler = () => {
-    if (!connector) {
-      return;
-    }
-
-    connector.on('connect', async (error, payload: ConnectEvent) => {
-      if (error) {
-        throw error;
+  const signPersonalMessage = async ({ message, address }: PersonalSign) => {
+    return new Promise((resolve, reject) => {
+      if (!connector || !isConnected()) {
+        reject(new Error('No connected wallet available for signing'));
+        return;
       }
 
-      const address = payload.params[0].accounts[0];
-      setAddress(address);
-      setPeerMeta(payload.params[0].peerMeta);
+      return connector
+        .request({
+          topic: session?.topic!,
+          chainId: getChain(),
+          request: {
+            method: 'personal_sign',
+            params: [mayCreateHexString(message), address],
+          },
+        })
+        .then(result => {
+          resolve(result);
+        })
+        .catch((error: Error) => reject(error));
     });
   };
 
-  const initDisconnectHandler = () => {
-    if (!connector) {
-      return;
-    }
+  // Event handlers
 
-    connector.on('disconnect', (error, _payload) => {
-      if (error) {
-        throw error;
-      }
-
-      setAddress(null);
-      setPeerMeta(null);
-      resetWallet();
-    });
+  const onSessionDelete = () => {
+    setAddress(null);
+    setPeerMeta(null);
+    resetWallet();
   };
 
-  const initSessionUpdateHandler = () => {
-    if (!connector) {
-      return;
+  const onSessionUpdate = ({ topic, params }: any) => {
+    const _session = connector?.session.get(topic);
+    if (_session) {
+      updateSession(_session);
     }
-
-    connector.on('session_update', (error, payload) => {
-      if (error) {
-        throw error;
-      }
-
-      disconnect();
-    });
-  };
-
-  const initModalClosedHandler = () => {
-    if (!connector) {
-      return;
-    }
-
-    connector.on('modal_closed', () => {
-      resetWallet();
-      resetConnector();
-    });
   };
 
   // Init and clean up
@@ -260,18 +326,13 @@ export const useWalletConnect = () => {
     if (!connector) {
       return;
     }
-
-    initConnectHandler();
-    initDisconnectHandler();
-    initSessionUpdateHandler();
-    initModalClosedHandler();
+    connector.on('session_delete', onSessionDelete);
+    connector.on('session_update', onSessionUpdate);
 
     return () => {
       // Clean up listeners
-      connector.off('connect');
-      connector.off('disconnect');
-      connector.off('session_update');
-      connector.off('modal_closed');
+      connector.off('session_delete', onSessionDelete);
+      connector.off('session_update', onSessionUpdate);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connector]);
@@ -285,8 +346,9 @@ export const useWalletConnect = () => {
     isConnected,
     peerIcon,
     peerMeta,
-    resetConnector,
+    initConnector,
     signTransaction,
     sendTransaction,
+    signPersonalMessage,
   };
 };

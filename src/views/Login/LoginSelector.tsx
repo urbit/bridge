@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import cn from 'classnames';
-import { Flex, Grid } from 'indigo-react';
+import { Grid } from 'indigo-react';
 import {
   Box,
   Button,
@@ -99,7 +99,7 @@ export default function LoginSelector({
       /**
        * Ensure wallet is connected to expected chain
        */
-      if (window.ethereum.chainId !== expectedChainId() ) {
+      if (window.ethereum.chainId !== expectedChainId()) {
         console.log(`unexpected chain: ${window.ethereum.chainId}`);
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
@@ -167,7 +167,7 @@ export default function LoginSelector({
     if (value === NAMES.METAMASK) {
       selectMetamask();
     } else if (value === NAMES.WALLET_CONNECT) {
-      connect();
+      !isConnected() && connect();
     } else {
       setCurrentTab(value);
     }

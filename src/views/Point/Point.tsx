@@ -114,8 +114,9 @@ export default function Point() {
         <PendingTransaction
           layer={2}
           nextRoll={nextRoll}
-          title={`${spawnedPending} Planet${spawnedPending > 1 ? 's' : ''
-            } Spawned`}
+          title={`${spawnedPending} Planet${
+            spawnedPending > 1 ? 's' : ''
+          } Spawned`}
         />
       )}
       {!!otherPending.length &&

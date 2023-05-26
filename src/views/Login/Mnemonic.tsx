@@ -82,6 +82,7 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
     setWallet,
     setWalletHdPath,
     skipValidation,
+    debouncedOnValues,
   ]);
 
   const initialValues = {

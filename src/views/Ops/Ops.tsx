@@ -67,9 +67,10 @@ export const Ops = () => {
           </Row>
         </HeaderPane>
         <BodyPane>
-          <Row className={"between-row management" +
-            (point.canManage ? "" : " disabled")}
-          >
+          <Row
+            className={
+              'between-row management' + (point.canManage ? '' : ' disabled')
+            }>
             <Box>
               <Box className="section-title">Residents</Box>
               <Box className="subtitle">
@@ -77,15 +78,16 @@ export const Ops = () => {
                 for
               </Box>
             </Box>
-            <Button className="secondary"
-              onClick={point.canManage ? goResidents : undefined}
-            >
+            <Button
+              className="secondary"
+              onClick={point.canManage ? goResidents : undefined}>
               View
             </Button>
           </Row>
-          <Row className={"between-row management" +
-            (point.canManage ? "" : " disabled")}
-          >
+          <Row
+            className={
+              'between-row management' + (point.canManage ? '' : ' disabled')
+            }>
             <Box>
               <Box className="section-title">Requests</Box>
               <Box className="subtitle">
@@ -93,23 +95,25 @@ export const Ops = () => {
                 sponsorship
               </Box>
             </Box>
-            <Button className="secondary"
-              onClick={point.canManage ? goRequests : undefined}
-            >
+            <Button
+              className="secondary"
+              onClick={point.canManage ? goRequests : undefined}>
               View
             </Button>
           </Row>
           {point.isGalaxy && (
-            <Row className={"between-row management" +
-              (point.canVote ? "" : " disabled")}
-            >
-              <Box >
+            <Row
+              className={
+                'between-row management' + (point.canVote ? '' : ' disabled')
+              }>
+              <Box>
                 <Box className="section-title">Proposals</Box>
                 <Box className="subtitle">
                   View or vote on proposals in the Senate
                 </Box>
               </Box>
-              <Button className="secondary"
+              <Button
+                className="secondary"
                 onClick={point.canVote ? goSenate : undefined}>
                 View
               </Button>

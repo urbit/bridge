@@ -79,9 +79,9 @@ export default function UrbitIDHome() {
               {keysDownloaded
                 ? 'Downloaded!'
                 : paper.matchWith({
-                  Nothing: () => 'Printing and folding...',
-                  Just: (_: any) => 'Download Passport',
-                })}
+                    Nothing: () => 'Printing and folding...',
+                    Just: (_: any) => 'Download Passport',
+                  })}
             </Button>
           )}
         </Row>

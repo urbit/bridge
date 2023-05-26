@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import cn from 'classnames';
-import { Grid, H3, B, Text, CheckboxInput } from 'indigo-react';
+import { Grid, Text, CheckboxInput } from 'indigo-react';
 
 import useHasDisclaimed from 'lib/useHasDisclaimed';
 import { useLocalRouter } from 'lib/LocalRouter';

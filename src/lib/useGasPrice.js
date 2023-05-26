@@ -20,7 +20,9 @@ export default function useGasPrice(initialGasPrice = DEFAULT_GAS_PRICE_GWEI) {
   const [suggestedGasPrices, setSuggestedGasPrices] = useState(
     defaultGasValues(initialGasPrice)
   ); // fast, average, low. In gwei
-  const [gasPrice, setGasPrice] = useState(defaultGasValues(initialGasPrice).average); // GasPriceData
+  const [gasPrice, setGasPrice] = useState(
+    defaultGasValues(initialGasPrice).average
+  ); // GasPriceData
 
   const fetchPrices = useCallback(async () => {
     if (!mounted) {
@@ -33,13 +35,13 @@ export default function useGasPrice(initialGasPrice = DEFAULT_GAS_PRICE_GWEI) {
     // TODO: BN
     setSuggestedGasPrices(suggestedGasPrices);
     setGasPrice(suggestedGasPrices.average);
-  }, [mounted]);
+  }, [mounted, networkType]);
 
   useEffect(() => {
     setMounted(true);
     fetchPrices();
-    return () => (setMounted(false));
-  }, [mounted, networkType]);
+    return () => setMounted(false);
+  }, [mounted, networkType, fetchPrices]);
 
   const resetGasPrice = useCallback(
     () => setGasPrice(suggestedGasPrices.average),

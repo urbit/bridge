@@ -94,6 +94,11 @@ websocket. Do this by going to `about:config` and setting the
 Additionally you need to run with the `HTTPS` environment variable set to
 `true`. Note that `npm run pilot` will handle this automatically.
 
+##  WalletConnect
+
+To get WalletConnect working you need to set the `VITE_WALLET_CONNECT_PROJECT_ID` 
+environment variable with a project id that you can get at https://cloud.walletconnect.com/sign-in
+
 ## Testing
 
 Automated tests for critical user journeys are coming Soon™️. Until then, here are several manual test cases to consider when making changes. It's worth noting that what to test depends on what the changes are. These test cases have limited utility when you are making a small change on a single screen; however, they are certainly a good idea when touching critical pieces such as transaction sending or secrets derivation.
@@ -140,6 +145,7 @@ const baseUrl = 'https://gas-tank.urbit.org:3011';
 1. On the Bridge landing page, click the small "Activate" link
 2. Paste the Invite code from the previous test case, and click "Go"
 3. Download the Passport file, then use the enclosed Master Ticket and ID to login to Bridge again
+
 ### Known Issues
 
 When testing the invite acceptance and login flow on Goerli, some of the Azimuth API calls will fail (e.g., `getConditional`).

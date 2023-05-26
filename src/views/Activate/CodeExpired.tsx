@@ -1,5 +1,3 @@
-import View from 'components/View';
-
 import { Box, Button } from '@tlon/indigo-react';
 import { FadeableActivateHeader as ActivateHeader } from './ActivateHeader';
 import useFadeIn from './useFadeIn';

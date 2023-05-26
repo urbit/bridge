@@ -1,6 +1,5 @@
-import { FeeMarketEIP1559Transaction as EIP1559Transaction, JsonTx } from '@ethereumjs/tx';
+import { FeeMarketEIP1559Transaction as EIP1559Transaction } from '@ethereumjs/tx';
 import Web3 from 'web3';
-import { toHex } from 'web3-utils';
 import { FakeSignableTx, FakeSignResult } from './txn';
 
 export class MetamaskWallet {
@@ -19,14 +18,16 @@ export const metamaskSignTransaction = async (txn: EIP1559Transaction) => {
 
 const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
   /**
-   * Depending which version of Metamask is installed, there are different 
+   * Depending which version of Metamask is installed, there are different
    * approaches to get the `from` address.
    */
   let from = null;
   if (window.ethereum) {
     from = window.ethereum.selectedAddress;
     if (!from) {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts',
+      });
       from = accounts[0] ?? null;
     }
   } else if (window.web3) {
@@ -53,7 +54,7 @@ const metamaskSendTransaction = async (txn: FakeSignableTx, web3: Web3) => {
     value,
     data,
     maxPriorityFeePerGas,
-    maxFeePerGas
+    maxFeePerGas,
   };
 
   let txHash;

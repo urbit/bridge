@@ -24,7 +24,6 @@ import {
   setStoredInvites,
 } from 'store/storage/roller';
 import { useWallet } from 'store/wallet';
-import { usePointCache } from 'store/pointCache';
 import create from 'zustand';
 import { generateCsvLine } from 'lib/utils/invite';
 import Point from 'lib/types/Point';
@@ -94,11 +93,9 @@ export const useInviteStore = create<InviteStore>((set, get) => ({
 
 export function useInvites() {
   const { wallet, authToken, walletType }: any = useWallet();
-  const { connector } = useWalletConnect();
+  const { connector, isConnected, signPersonalMessage } = useWalletConnect();
   const { pointCursor }: any = usePointCursor();
   const { web3, contracts }: any = useNetwork();
-  const allPoints: any = usePointCache();
-  const getDetails = allPoints?.getDetails;
   const { api, ls, performL2Reticket } = useRoller();
   const { point, pointList, setPendingTransactions } = useRollerStore();
   const {
@@ -208,6 +205,7 @@ export function useInvites() {
     setInvites,
     setPendingTransactions,
     updateJob,
+    inviteJobs,
   ]);
 
   const generateInviteCodes = useCallback(
@@ -277,6 +275,8 @@ export function useInvites() {
             walletType,
             web3: _web3,
             connector,
+            signPersonalMessage,
+            isConnected,
           });
 
           const networkSeed = await deriveNetworkSeedFromUrbitWallet(
@@ -294,6 +294,8 @@ export function useInvites() {
             walletType,
             web3: _web3,
             connector,
+            signPersonalMessage,
+            isConnected,
           });
 
           await registerProxyAddress(
@@ -306,7 +308,9 @@ export function useInvites() {
             inviteWallet.management.keys.address,
             walletType,
             _web3,
-            connector
+            connector,
+            signPersonalMessage,
+            isConnected
           );
 
           await submitL2Transaction({
@@ -320,6 +324,8 @@ export function useInvites() {
             walletType,
             web3: _web3,
             connector,
+            signPersonalMessage,
+            isConnected,
           });
         }
 
@@ -342,13 +348,12 @@ export function useInvites() {
       api,
       authToken,
       connector,
+      isConnected,
+      signPersonalMessage,
       contracts,
-      pointCursor,
-      point,
       wallet,
       walletType,
       web3,
-      getDetails,
       ls,
       getInvites,
       updateJob,

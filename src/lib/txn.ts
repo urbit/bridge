@@ -1,17 +1,25 @@
 import { Common, Chain, Hardfork } from '@ethereumjs/common';
-import { Transaction, FeeMarketEIP1559Transaction as EIP1559Transaction, TxOptions, TxData, FeeMarketEIP1559TxData as EIP1559TxData } from '@ethereumjs/tx';
-import { ITxData } from '@walletconnect/types';
+import {
+  FeeMarketEIP1559Transaction as EIP1559Transaction,
+  TxOptions,
+  FeeMarketEIP1559TxData as EIP1559TxData,
+} from '@ethereumjs/tx';
 import { toHex, toWei } from 'web3-utils';
 import retry from 'async-retry';
 import { NETWORK_TYPES } from './network';
 import { walletConnectSignTransaction } from './WalletConnect';
 import { metamaskSignTransaction } from './metamask';
 import { addHexPrefix } from './utils/address';
-import { CHECK_BLOCK_EVERY_MS, EIP1559_TRANSACTION_TYPE, WALLET_TYPES } from './constants';
+import {
+  CHECK_BLOCK_EVERY_MS,
+  EIP1559_TRANSACTION_TYPE,
+  WALLET_TYPES,
+} from './constants';
 import Web3 from 'web3';
 import { TransactionConfig, TransactionReceipt } from 'web3-core';
 import BridgeWallet from './types/BridgeWallet';
 import { GasPriceData } from 'components/L2/Dropdowns/FeeDropdown';
+import { ITxData } from './types/ITxData';
 
 const RETRY_OPTIONS = {
   retries: 99999,
@@ -45,7 +53,7 @@ interface signTransactionProps {
   walletType: symbol;
   walletHdPath: string; // TODO: is this still needed?
   networkType: symbol;
-  txn: { data: string, to: string, value: number }
+  txn: { data: string; to: string; value: number };
   nonce: number | string;
   chainId: number | string;
   gasPriceData: GasPriceData;
@@ -55,28 +63,33 @@ interface signTransactionProps {
 }
 
 const _web3 = () => {
-  const ENDPOINT = `https://mainnet.infura.io/v3/${import.meta.env.VITE_INFURA_ENDPOINT}`;
+  const ENDPOINT = `https://mainnet.infura.io/v3/${
+    import.meta.env.VITE_INFURA_ENDPOINT
+  }`;
   return new Web3(new Web3.providers.HttpProvider(ENDPOINT));
-}
+};
 
 const estimateGasLimit = async (utx: TransactionConfig) => {
   const web3 = _web3();
   const estimate = await web3.eth.estimateGas(utx);
-  return web3.utils.toBN(estimate).muln(120).divn(100); // 20% cushion
-}
+  return web3.utils
+    .toBN(estimate)
+    .muln(120)
+    .divn(100); // 20% cushion
+};
 
 const getMaxFeePerGas = async () => {
   const web3 = _web3();
   const fee = await web3.eth.getGasPrice();
-  return (Number(fee) * 1.20).toFixed(0); // 20% cushion
-}
+  return (Number(fee) * 1.2).toFixed(0); // 20% cushion
+};
 
 const signTransaction = async ({
   wallet,
   walletType,
   walletHdPath, // TODO
   networkType,
-  txn,  // output of transactionBuilder in useEthereumTransaction
+  txn, // output of transactionBuilder in useEthereumTransaction
   nonce, // number
   chainId, // number
   gasPriceData, // GasPriceData
@@ -85,7 +98,7 @@ const signTransaction = async ({
   txnSender, // and a sending function, for wallets that need these passed in.
 }: signTransactionProps) => {
   const from = wallet.address;
-  const estimate = await estimateGasLimit({...txn, from });
+  const estimate = await estimateGasLimit({ ...txn, from });
   const maxFeePerGas = await getMaxFeePerGas();
 
   const txParams: EIP1559TxData = {
@@ -93,24 +106,26 @@ const signTransaction = async ({
     to: toHex(txn.to),
     gasLimit: toHex(estimate),
     maxFeePerGas: toHex(maxFeePerGas),
-    maxPriorityFeePerGas: toHex(toWei(Math.round(gasPriceData.maxPriorityFeePerGas).toFixed(0), 'gwei')),
+    maxPriorityFeePerGas: toHex(
+      toWei(Math.round(gasPriceData.maxPriorityFeePerGas).toFixed(0), 'gwei')
+    ),
     nonce: toHex(nonce),
     chainId: toHex(chainId),
     type: toHex(EIP1559_TRANSACTION_TYPE),
-  }
-  
+  };
+
   const chain =
-      networkType === NETWORK_TYPES.GOERLI ? Chain.Goerli : Chain.Mainnet;
+    networkType === NETWORK_TYPES.GOERLI ? Chain.Goerli : Chain.Mainnet;
 
   const txConfig: TxOptions = {
     freeze: false,
     common: new Common({
       chain,
       hardfork: Hardfork.Merge,
-    })
+    }),
   };
 
-  let stx = EIP1559Transaction.fromTxData(txParams, txConfig) 
+  let stx = EIP1559Transaction.fromTxData(txParams, txConfig);
 
   if (walletType === WALLET_TYPES.METAMASK) {
     return metamaskSignTransaction(stx);
@@ -139,7 +154,8 @@ const sendSignedTransaction = (
   doubtNonceError: boolean
 ): Promise<string> => {
   //  if we couldn't sign it, we depend on the given sender function
-  if (!(stx instanceof EIP1559Transaction)) { // TODO
+  if (!(stx instanceof EIP1559Transaction)) {
+    // TODO
     if (doubtNonceError) {
       console.log('why doubting nonce error? tank unavailable without rawtx.');
     }
@@ -221,7 +237,10 @@ const sendAndAwaitAllSerial = (
 ) => {
   //@ts-expect-error tsc complains that stxs.reduce() is not callable
   return stxs.reduce(
-    (promise: Promise<TransactionReceipt[]>, stx: EIP1559Transaction | FakeSignedTx) =>
+    (
+      promise: Promise<TransactionReceipt[]>,
+      stx: EIP1559Transaction | FakeSignedTx
+    ) =>
       promise.then(async (receipts = []) => {
         const txHash = await sendSignedTransaction(web3, stx, doubtNonceError);
         return [...receipts, await waitForTransactionConfirm(web3, txHash)];

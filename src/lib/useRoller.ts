@@ -12,7 +12,6 @@ import { useNetwork } from 'store/network';
 import { usePointCursor } from 'store/pointCursor';
 import { EMPTY_POINT, useRollerStore } from 'store/rollerStore';
 import { useWallet } from 'store/wallet';
-import { usePointCache } from 'store/pointCache';
 
 import { getUpdatedPointMessage, isPlanet, toL1Details } from './utils/point';
 import { convertToInt } from './convertToInt';
@@ -60,11 +59,9 @@ export default function useRoller() {
     urbitWallet,
     walletType,
   }: any = useWallet();
-  const { connector } = useWalletConnect();
+  const { connector, isConnected, signPersonalMessage } = useWalletConnect();
   const { pointCursor }: any = usePointCursor();
   const { web3, contracts }: any = useNetwork();
-  const allPoints: any = usePointCache();
-  const getDetails = allPoints?.getDetails;
 
   const {
     point,
@@ -211,9 +208,7 @@ export default function useRoller() {
       l1Txn,
       intervalTime = TEN_SECONDS,
     }: UpdateParams) => {
-
-
-      const pVal = (typeof point === 'number' ? point : point.value);
+      const pVal = typeof point === 'number' ? point : point.value;
       const p = await initPoint(pVal);
 
       if (l1Txn) storePendingL1Txn(l1Txn);
@@ -288,6 +283,8 @@ export default function useRoller() {
         walletType,
         web3: _web3,
         connector,
+        isConnected,
+        signPersonalMessage,
       });
     },
     [
@@ -301,6 +298,8 @@ export default function useRoller() {
       walletType,
       web3,
       quotaReached,
+      signPersonalMessage,
+      isConnected,
     ]
   );
 
@@ -310,14 +309,14 @@ export default function useRoller() {
         proxy === 'own'
           ? await api.getOwnedPoints(address)
           : proxy === 'manage'
-          ? await api.getManagerFor(address)
-          : proxy === 'vote'
-          ? await api.getVotingFor(address)
-          : proxy === 'transfer'
-          ? await api.getTransferringFor(address)
-          : proxy === 'spawn'
-          ? await api.getSpawningFor(address)
-          : [];
+            ? await api.getManagerFor(address)
+            : proxy === 'vote'
+              ? await api.getVotingFor(address)
+              : proxy === 'transfer'
+                ? await api.getTransferringFor(address)
+                : proxy === 'spawn'
+                  ? await api.getSpawningFor(address)
+                  : [];
 
       return points;
     },
@@ -366,14 +365,14 @@ export default function useRoller() {
       const networkSeed = customNetworkSeed
         ? customNetworkSeed
         : await attemptNetworkSeedDerivation({
-            urbitWallet,
-            wallet,
-            authMnemonic,
-            details: point,
-            authToken,
-            point: point.value,
-            revision: nextRevision,
-          });
+          urbitWallet,
+          wallet,
+          authMnemonic,
+          details: point,
+          authToken,
+          point: point.value,
+          revision: nextRevision,
+        });
       const txHash = await submitL2Transaction({
         api,
         wallet: _wallet,
@@ -385,6 +384,8 @@ export default function useRoller() {
         walletType,
         web3: _web3,
         connector,
+        isConnected,
+        signPersonalMessage,
         breach,
       });
 
@@ -400,8 +401,10 @@ export default function useRoller() {
       wallet,
       walletType,
       web3,
-      getDetails,
       quotaReached,
+      connector,
+      isConnected,
+      signPersonalMessage,
     ]
   );
 
@@ -419,7 +422,7 @@ export default function useRoller() {
     let nonce = await api.getNonce({ ship: point, proxy });
     const progress = onUpdate
       ? (state: number) => onUpdate({ type: 'progress', state })
-      : () => {};
+      : () => { };
 
     let requests = [];
 
@@ -442,6 +445,8 @@ export default function useRoller() {
       type: 'configureKeys',
       web3: _web3,
       connector,
+      signPersonalMessage,
+      isConnected,
     });
     nonce = nonce + 1;
     requests.push(configureKeysRequest);
@@ -458,7 +463,9 @@ export default function useRoller() {
       manager,
       walletType,
       _web3,
-      connector
+      connector,
+      signPersonalMessage,
+      isConnected
     );
     nonce = nonce + 1;
     requests.push(registerMgmtRequest);
@@ -476,7 +483,9 @@ export default function useRoller() {
         toWallet?.spawn?.keys?.address || to,
         walletType,
         _web3,
-        connector
+        connector,
+        signPersonalMessage,
+        isConnected
       );
       nonce = nonce + 1;
       requests.push(registerSpawnRequest);
@@ -495,6 +504,8 @@ export default function useRoller() {
       walletType,
       web3: _web3,
       connector,
+      signPersonalMessage,
+      isConnected,
     });
     requests.push(transferTxRequest);
 
@@ -510,7 +521,6 @@ export default function useRoller() {
       if (quotaReached()) {
         return;
       }
-
       const _wallet = wallet.getOrElse(null);
       const _web3 = web3.getOrElse(null);
 
@@ -523,14 +533,12 @@ export default function useRoller() {
         // not using need because we want a custom error
         throw new Error('Internal Error: Invalid point');
       }
-
       const proxy = point.getAddressProxy(proxyType);
 
       if (proxy === undefined)
         throw new Error("Error: Address doesn't match expected proxy");
 
       const nonce = await api.getNonce({ ship: point.value, proxy });
-
       const txHash = await registerProxyAddress(
         api,
         _wallet,
@@ -541,12 +549,23 @@ export default function useRoller() {
         address,
         walletType,
         _web3,
-        connector
+        connector,
+        signPersonalMessage,
+        isConnected
       );
-
       return api.getPendingTx(txHash);
     },
-    [api, connector, point, wallet, web3, walletType, quotaReached]
+    [
+      api,
+      connector,
+      signPersonalMessage,
+      isConnected,
+      point,
+      wallet,
+      web3,
+      walletType,
+      quotaReached,
+    ]
   );
 
   const changeSponsorship = useCallback(
@@ -582,11 +601,23 @@ export default function useRoller() {
         walletType,
         web3: _web3,
         connector,
+        signPersonalMessage,
+        isConnected,
       });
 
       return api.getPendingTx(txHash);
     },
-    [api, point, wallet, walletType, web3, connector, quotaReached]
+    [
+      api,
+      point,
+      wallet,
+      walletType,
+      web3,
+      connector,
+      quotaReached,
+      isConnected,
+      signPersonalMessage,
+    ]
   );
 
   const transferPoint = useCallback(
@@ -622,12 +653,25 @@ export default function useRoller() {
         walletType,
         web3: _web3,
         connector,
+        signPersonalMessage,
+        isConnected,
         reset,
       });
 
       return api.getPendingTx(txHash);
     },
-    [api, connector, point, pointCursor, wallet, web3, walletType, quotaReached]
+    [
+      api,
+      connector,
+      point,
+      pointCursor,
+      wallet,
+      web3,
+      walletType,
+      quotaReached,
+      isConnected,
+      signPersonalMessage,
+    ]
   );
 
   const sendL2Transaction = useCallback(
@@ -651,10 +695,22 @@ export default function useRoller() {
         walletType,
         web3: _web3,
         connector,
+        signPersonalMessage,
+        isConnected,
         ship: point.value,
       });
     },
-    [api, connector, point, wallet, web3, walletType, quotaReached]
+    [
+      api,
+      connector,
+      point,
+      wallet,
+      web3,
+      walletType,
+      quotaReached,
+      isConnected,
+      signPersonalMessage,
+    ]
   );
 
   const changeSponsor = useCallback(

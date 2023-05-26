@@ -24,7 +24,7 @@ interface useKeyfileGeneratorArgs {
 
 /**
  * The default Keyfile Generator. Can be used by itself, or composed with
- * other hooks (see `useActivationKeyfileGenerator` and 
+ * other hooks (see `useActivationKeyfileGenerator` and
  * `useSingleKeyfileGenerator`).
  *
  * @param point Point - (optional) the Point for which to generate keys
