@@ -311,9 +311,9 @@ export default function UrbitOSNetworkKeys({
 
   const waitMessage = () => (
     <Text as="p" textAlign={'center'}>
-      <strong>Important:</strong> you will need to wait until the next L2 batch
-      is submitted to the roller to boot your ship. If you do not wait, then you
-      will not be able to boot your ship.
+      <strong>Important:</strong> it may take minutes to hours for the
+      keys to become usable. Please be patient, trying to use the new keys
+      during this period may result in an invalid keys error.
     </Text>
   );
 
@@ -332,7 +332,7 @@ export default function UrbitOSNetworkKeys({
             <Box className="flex-col h-full justify-center">
               <Icon icon="Download" className="download" />
               {breach ? bootMessage() : resetMessage()}
-              {breach && point.isL2 ? waitMessage() : null}
+              {point.isL2 ? waitMessage() : null}
             </Box>
             {point.isL2 ? (
               <Grid.Item
