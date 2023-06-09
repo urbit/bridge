@@ -1,5 +1,9 @@
-import { isMainnet } from "./flags";
-import { ETHEREUM_GOERLI_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID,  } from './constants';
+import { isDevelopment, isGoerli, isMainnet } from './flags';
+import {
+  ETHEREUM_GOERLI_CHAIN_ID,
+  ETHEREUM_LOCAL_CHAIN_ID,
+  ETHEREUM_MAINNET_CHAIN_ID,
+} from './constants';
 
 const NETWORK_TYPES = {
   OFFLINE: Symbol('OFFLINE'),
@@ -31,7 +35,16 @@ const chainIdToNetworkType = chainId => {
 };
 
 const expectedChainId = () => {
-  return isMainnet ? ETHEREUM_MAINNET_CHAIN_ID : ETHEREUM_GOERLI_CHAIN_ID;
-}
+  return isGoerli
+    ? ETHEREUM_GOERLI_CHAIN_ID
+    : isDevelopment && !isMainnet
+    ? ETHEREUM_LOCAL_CHAIN_ID
+    : ETHEREUM_MAINNET_CHAIN_ID;
+};
 
-export { NETWORK_TYPES, expectedChainId, renderNetworkType, chainIdToNetworkType };
+export {
+  NETWORK_TYPES,
+  expectedChainId,
+  renderNetworkType,
+  chainIdToNetworkType,
+};

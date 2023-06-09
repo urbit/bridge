@@ -1,7 +1,7 @@
 import { version } from '../../package.json';
 
 // are we running bridge in a development build
-export const isDevelopment = import.meta.env.DEV === 'development';
+export const isDevelopment = import.meta.env.DEV === true;
 export const isGoerli = import.meta.env.VITE_GOERLI === 'true';
 export const isMainnet = import.meta.env.VITE_MAINNET === 'true';
 export const versionLabel =
