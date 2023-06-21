@@ -82,7 +82,7 @@ export default function Point() {
     loadL2Info();
   }, [point]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { isParent, canManage, isSpawnProxy } = point;
+  const { isParent, canManage, canVote, canSpawn } = point;
 
   const goUrbitOS = useCallback(() => {
     if (hideMessage) setSeenMissingKeys(hideMessage);
@@ -114,9 +114,8 @@ export default function Point() {
         <PendingTransaction
           layer={2}
           nextRoll={nextRoll}
-          title={`${spawnedPending} Planet${
-            spawnedPending > 1 ? 's' : ''
-          } Spawned`}
+          title={`${spawnedPending} Planet${spawnedPending > 1 ? 's' : ''
+            } Spawned`}
         />
       )}
       {!!otherPending.length &&
@@ -163,14 +162,14 @@ export default function Point() {
             />
           </Grid.Item>
         )}
-        {(canManage || isSpawnProxy) && (
+        {(canManage || canSpawn || canVote) && (
           <Grid.Item full as={Flex} justify="between">
             <Card
               title="ID"
               subtitle="Master Key, Passport, Proxy Addresses, etc"
               icon={(<Icon icon="User" />) as any}
               onClick={goUrbitID}
-              disabled={!(canManage || isSpawnProxy)}
+              disabled={!(canManage || canSpawn || canVote)}
             />
           </Grid.Item>
         )}
