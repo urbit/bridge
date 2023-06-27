@@ -174,6 +174,7 @@ Start a local fake ship from the master branch in the [urbit repo](https://githu
 > |mount /=base=
 > :azimuth %resub
 > :azimuth|watch 'http://0.0.0.0:8545' %local
+> :azimuth &azimuth-poke [%kick ~]
 > |rein %base [& %roller] [& %roller-rpc] [& %azimuth-rpc]
 > :roller|local
 > :roller|setkey '58d62eb79797502bc0f66cd3e7a49d00287bff53a2734b799ef09cb746340ed0'
