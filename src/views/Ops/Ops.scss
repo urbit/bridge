@@ -1,7 +1,14 @@
 .id-ops {
   .between-row {
-    .section-title, .subtitle {
+
+    .section-title,
+    .subtitle {
       font-size: 14px;
     }
+  }
+
+  .disabled {
+    opacity: 0.5;
+    pointer-events: none;
   }
 }

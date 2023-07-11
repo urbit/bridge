@@ -77,7 +77,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
     point.value >= 0 ? point.patp : currentAddress.slice(0, 6);
 
   const displayedPoints = useMemo(
-    () => pointList.filter(({ ownManageSpawn }) => ownManageSpawn),
+    () => pointList.filter(({ ownManageSpawnVote }) => ownManageSpawnVote),
     [pointList]
   );
 
