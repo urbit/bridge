@@ -123,7 +123,7 @@ export default class Point {
   showInvites: boolean;
   isDefault: boolean;
   isPlaceholder: boolean;
-  ownManageSpawn: boolean;
+  ownManageSpawnVote: boolean;
   shouldDisplay: boolean;
   isOutgoing: boolean;
   permissionLevel: PermissionLevel;
@@ -206,11 +206,11 @@ export default class Point {
     this.showInvites = this.canManage || this.canSpawn;
     this.isDefault = value === -1;
     this.isPlaceholder = isPlaceholder;
-    this.ownManageSpawn =
+    this.ownManageSpawnVote =
       !this.isPlaceholder &&
       !this.isDefault &&
-      (this.isOwner || this.isSpawnProxy || this.isManagementProxy);
-    this.shouldDisplay = this.ownManageSpawn || this.isTransferProxy;
+      (this.isOwner || this.isSpawnProxy || this.isManagementProxy || this.isVotingProxy);
+    this.shouldDisplay = this.ownManageSpawnVote || this.isTransferProxy;
     this.isOutgoing =
       this.isTransferProxySet &&
       !this.isTransferProxy &&

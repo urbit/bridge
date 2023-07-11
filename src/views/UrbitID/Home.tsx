@@ -56,7 +56,6 @@ export default function UrbitIDHome() {
   const goResetKeys = useCallback(() => push(names.RESET_KEYS), [push, names]);
 
   const isMasterTicket = Just.hasInstance(urbitWallet);
-  const { isOwner, canManage } = point;
   const networkRevision = convertToInt(point.keyRevisionNumber, 10);
 
   const goSetProxy = useCallback(
@@ -75,20 +74,20 @@ export default function UrbitIDHome() {
       <HeaderPane>
         <Row className="header-row">
           <h5>ID</h5>
-          {isMasterTicket && (
+          {isMasterTicket && point.isOwner && (
             <Button onClick={downloadKeys} className="header-button">
               {keysDownloaded
                 ? 'Downloaded!'
                 : paper.matchWith({
-                    Nothing: () => 'Printing and folding...',
-                    Just: (_: any) => 'Download Passport',
-                  })}
+                  Nothing: () => 'Printing and folding...',
+                  Just: (_: any) => 'Download Passport',
+                })}
             </Button>
           )}
         </Row>
       </HeaderPane>
       <BodyPane>
-        {isOwner && (
+        {point.isOwner && (
           <Row className="between-row owner">
             <Box>
               <Box>Ownership Address</Box>
@@ -105,7 +104,7 @@ export default function UrbitIDHome() {
           </Row>
         )}
 
-        {canManage && (
+        {point.canManage && (
           <Row className="between-row management">
             <Box>
               <Box>Management Address</Box>
@@ -131,7 +130,7 @@ export default function UrbitIDHome() {
           </Row>
         )}
 
-        {point.isParent && (
+        {point.canSpawn && (
           <Row className="between-row management">
             <Box>
               <Box>Spawn Proxy Address</Box>
@@ -156,7 +155,7 @@ export default function UrbitIDHome() {
           </Row>
         )}
 
-        {isOwner && (
+        {point.isOwner && (
           <Row className="between-row management">
             <WithTooltip content={MASTER_TICKET_TOOLTIP}>
               <Box>
@@ -193,7 +192,7 @@ export default function UrbitIDHome() {
           <Icon className="arrow-button" icon="ArrowEast" />
         </Row>
 
-        {point.isGalaxy && (
+        {point.canVote && (
           <Row className="between-row management">
             <Box>
               <Box>Edit Voting Key</Box>
