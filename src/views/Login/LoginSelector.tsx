@@ -99,7 +99,7 @@ export default function LoginSelector({
       /**
        * Ensure wallet is connected to expected chain
        */
-      if (window.ethereum.chainId !== expectedChainId() ) {
+      if (window.ethereum.chainId !== expectedChainId()) {
         console.log(`unexpected chain: ${window.ethereum.chainId}`);
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',

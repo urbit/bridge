@@ -63,7 +63,8 @@ module.exports = async function(deployer) {
     '0x0000000000000000000000000000000000000000',
     azimuth.address,
     polls.address,
-    claims.address
+    claims.address,
+    '0x0000000000000000000000000000000000000000' // treasury
   );
 
   // configure contract ownership
