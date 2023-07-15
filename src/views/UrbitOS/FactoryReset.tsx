@@ -11,6 +11,7 @@ import { ONE_SECOND } from 'lib/constants';
 import DownloadKeyfileButton from 'components/DownloadKeyfileButton';
 import InlineEthereumTransaction from 'components/InlineEthereumTransaction';
 import NoticeBox from 'components/NoticeBox';
+import WarningBox from 'components/WarningBox';
 
 import { HexInput } from 'form/Inputs';
 import {
@@ -24,12 +25,12 @@ import Window from 'components/L2/Window/Window';
 import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 
-import './NetworkKeys.scss';
+import './FactoryReset.scss';
 import { L1TxnType } from 'lib/types/PendingL1Transaction';
 import { PointField } from 'lib/types/Point';
 import { useSetNetworkKeys } from 'lib/usetSetNetworkKeys';
 
-export default function UrbitOSNetworkKeys({
+export default function UrbitOSFactoryReset({
   manualNetworkSeed,
   setManualNetworkSeed,
 }: {
@@ -45,9 +46,6 @@ export default function UrbitOSNetworkKeys({
   } = useRoller();
   const [useCustomSeed, setUseCustomSeed] = useState(false);
   const [l2Completed, setL2Completed] = useState(false);
-
-  const hasKeys = point.networkKeysSet;
-
   const {
     construct,
     unconstruct,
@@ -97,9 +95,10 @@ export default function UrbitOSNetworkKeys({
 
   const onValues = useCallback(
     ({ valid, values, form }) => {
+      console.log(valid);
       if (valid) {
         const networkSeed = useCustomSeed ? values.networkSeed : undefined;
-        construct(networkSeed, false);
+        construct(networkSeed, true);
         setManualNetworkSeed(networkSeed);
       } else {
         unconstruct();
@@ -116,8 +115,9 @@ export default function UrbitOSNetworkKeys({
   const setNetworkKeys = useCallback(async () => {
     setLoading(true);
     try {
+      console.log('breaching');
       await configureNetworkKeys({
-        breach: false,
+        breach: true,
         customNetworkSeed: manualNetworkSeed,
       });
       // TODO: just use the tx hash instead?
@@ -153,31 +153,24 @@ export default function UrbitOSNetworkKeys({
 
   const viewTitle = completed
     ? 'Network Keys have been set'
-    : hasKeys
-    ? 'Set Network Keys'
-    : 'Initiate Network Keys';
+    : 'Factory Reset (Breach)';
 
-  const resetMessage = () => (
-    <>
-      <Text as="p" textAlign={'center'}>
-        Copy the contents of the Network Key file and run
-      </Text>
-      <Text
-        as="code"
-        mono
-        bg={'washedGray'}
-        padding={2}
-        borderRadius={2}
-        textAlign={'center'}>
-        |rekey 'keyfile_contents'
-      </Text>
-      <Text as="p" textAlign={'center'}>
-        using the dojo on your running ship.
-      </Text>
-    </>
+  const bootMessage = () => (
+    <Text as="p" textAlign={'center'}>
+      Download your new Network Key to boot your ship. Be sure to delete your
+      old pier before booting with this new key.
+    </Text>
   );
 
-  const buttonText = `${hasKeys ? 'Reset' : 'Set'} Network Keys`;
+  const waitMessage = () => (
+    <Text as="p" textAlign={'center'}>
+      <strong>Important:</strong> you will need to wait until the next L2 batch
+      is submitted to the roller to boot your ship. If you do not wait, then you
+      will not be able to boot your ship.
+    </Text>
+  );
+
+  const buttonText = 'Factory Reset (Breach)';
 
   const isComplete = completed || l2Completed;
 
@@ -191,7 +184,8 @@ export default function UrbitOSNetworkKeys({
           <Box className="flex-col col justify-between h-full">
             <Box className="flex-col h-full justify-center">
               <Icon icon="Download" className="download" />
-              {resetMessage()}
+              {bootMessage()}
+              {point.isL2 ? waitMessage() : null}
             </Box>
             {point.isL2 ? (
               <Grid.Item
@@ -257,25 +251,30 @@ export default function UrbitOSNetworkKeys({
                   </Box>
                 )}
 
-                {point.isL2 ? (
-                  <Grid.Item
-                    as={Button}
-                    full
-                    className=""
-                    center
-                    solid
-                    onClick={setNetworkKeys}>
-                    {buttonText}
-                  </Grid.Item>
-                ) : (
-                  <Grid.Item
-                    full
-                    as={InlineEthereumTransaction}
-                    {...bind}
-                    label={buttonText}
-                    onReturn={() => pop()}
-                  />
-                )}
+                <Grid.Item>
+                  <WarningBox className="mb2 center">
+                    Beware, this erases all of your ship's data.
+                  </WarningBox>
+                  {point.isL2 ? (
+                    <Grid.Item
+                      as={Button}
+                      full
+                      className=""
+                      center
+                      solid
+                      onClick={setNetworkKeys}>
+                      {buttonText}
+                    </Grid.Item>
+                  ) : (
+                    <Grid.Item
+                      full
+                      as={InlineEthereumTransaction}
+                      {...bind}
+                      label={buttonText}
+                      onReturn={() => pop()}
+                    />
+                  )}
+                </Grid.Item>
               </Box>
             )}
           </BridgeForm>

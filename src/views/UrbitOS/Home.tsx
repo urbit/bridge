@@ -38,6 +38,11 @@ export default function UrbitOSHome() {
     push,
   ]);
 
+  const goFactoryReset = useCallback(() => push(names.FACTORY_RESET), [
+    names,
+    push,
+  ]);
+
   const goChangeSponsor = useCallback(() => push(names.CHANGE_SPONSOR), [
     push,
     names,
@@ -115,6 +120,19 @@ export default function UrbitOSHome() {
             </Row>
           </Row>
         )}
+
+        {!!code && (
+          <Row className="between-row management">
+            <Box>
+              <Box>Access Key</Box>
+              <Box className="subtitle">Your passkey to login to Landscape</Box>
+            </Box>
+            <Row>
+              <CopiableWithTooltip text={code} className="copy-button" />
+            </Row>
+          </Row>
+        )}
+
         <Row className="between-row management">
           <Box>
             <Box>Network Keys</Box>
@@ -129,7 +147,7 @@ export default function UrbitOSHome() {
             <Button
               className={hasSetNetworkKeys ? 'secondary' : 'primary'}
               onClick={goNetworkKeys}>
-              {hasSetNetworkKeys ? 'Reset' : 'Initialize'}
+              {hasSetNetworkKeys ? 'Reset Keys' : 'Initialize'}
             </Button>
             {hasSetNetworkKeys && (
               <Button className="secondary" onClick={toggleShowKeys}>
@@ -139,15 +157,18 @@ export default function UrbitOSHome() {
           </Row>
         </Row>
 
-        {!!code && (
+        {!!hasSetNetworkKeys && (
           <Row className="between-row management">
             <Box>
-              <Box>Access Key</Box>
-              <Box className="subtitle">Your passkey to login to Landscape</Box>
+              <Box>Factory Reset</Box>
+              <Box className="subtitle maxwidth">
+                Use if your ship is corrupted, you lost your files, or you want
+                to erase your data
+              </Box>
             </Box>
-            <Row>
-              <CopiableWithTooltip text={code} className="copy-button" />
-            </Row>
+            <Button className={'secondary warning'} onClick={goFactoryReset}>
+              Breach
+            </Button>
           </Row>
         )}
       </BodyPane>
