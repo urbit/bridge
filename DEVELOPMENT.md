@@ -2,13 +2,7 @@
 
 ## Install / Build
 
-Clone the repo, and use a simple `npm install`. You can then use a `npm run build` to create an optimised static build (serve it with e.g. [serve](http://npmjs.com/package/serve), or with python as described above).
-
-## General notes
-
-For development, use `npm run pilot` to get going after a `npm install`. This
-will boot up a [Ganache](https://github.com/trufflesuite/ganache-cli) node in the background, deploy the Azimuth contracts to
-it, and fire up a local webserver. Bridge will be served on `localhost:3000`.
+Clone the repo and `npm install`.
 
 Note that one of our dependencies itself depends on a library called
 `handle-thing` which breaks under the Ledger support requirements (see below)
@@ -17,11 +11,52 @@ on node 11.1.0, so make sure you're using some other node version.
 You can use [nvm](https://github.com/creationix/nvm), for example, and do:
 
 ```
-$ nvm install 14.17.0
-$ nvm use v14.17.0
+$ nvm use
 ```
 
-before running `npm run pilot`.
+You can then use a `npm run build` to create an optimised static build (serve it with e.g. [serve](http://npmjs.com/package/serve), or with python as described above).
+
+## General notes
+
+For development over your local network, follow the instructions in the "L2 Local Environment." You can then run `npm run pilot` to boot up a
+[Ganache](https://github.com/trufflesuite/ganache-cli) node in the background, deploy the Azimuth contracts to
+it, and fire up a local webserver. Bridge will be served on `localhost:3000`. You may also run `npm run pilot-l2` or other
+scripts in `package.json` to run Bridge with different test configurations.
+
+## Local Development
+
+To work with the L2 aggregator locally, set up the local environment like so:
+
+Clone the [urbit repo](https://github.com/urbit/urbit) and [Install Urbit](https://urbit.org/getting-started/cli) by downloading the correct urbit binary for your operating system.
+
+To start a local fake ship for development purposes, run the following commands in the urbit repo:
+
+```sh
+/path/to/urbit-binary -F zod -B ./bin/solid.pill -A ./pkg/arvo -c zod --http-port 8080
+```
+
+Once your fake ship is finished initializing, run the following commands in the dojo:
+
+```dojo
+:: Run these in the dojo:
+::
+> |mount /=base=
+> :azimuth %resub
+> :azimuth|watch 'http://0.0.0.0:8545' %local
+> :azimuth &azimuth-poke [%kick ~]
+> |rein %base [& %roller] [& %roller-rpc] [& %azimuth-rpc]
+> :roller|local
+> :roller|setkey '58d62eb79797502bc0f66cd3e7a49d00287bff53a2734b799ef09cb746340ed0'
+> :roller|quota 9.999
+> |cors-approve 'https://127.0.0.1:3000'
+:: Once L2 txs have been sent via Bridge, this will manually commit and batch them, avoiding waiting for the timer
+::
+> :roller|commit
+```
+
+Now you may run `npm run pilot` to connect to your aggregator.
+
+You may also run `npm run pilot-l2` to preloaded your local blockchain with L1 and L2 points owned by the address 0x6DEfFb0caFDB11D175F123F6891AA64F01c24F7d
 
 ## Useful accounts
 
@@ -105,7 +140,7 @@ Automated tests for critical user journeys are coming Soon™️. Until then, he
 1. Click the 'Mnemonic, Metamask, Hardware Wallet ...' Button, then click 'Mnemonic (BIP 39)'
 2. Paste the mnemonic above (in 'Useful Accounts') into the text area, then click 'Login'
 3. Confirm that you are able to view the Points list view. Since no points have been created yet, you should see the following message:
-> No points to display. This wallet is not the owner or proxy for any points.
+   > No points to display. This wallet is not the owner or proxy for any points.
 
 ### Planet Creation
 
@@ -120,11 +155,13 @@ Automated tests for critical user journeys are coming Soon™️. Until then, he
 "As a user, I can create a new invite"
 
 First, in `Bridge.js`, set the `INITIAL_NETWORK_TYPE` to Goerli:
+
 ```js
 const INITIAL_NETWORK_TYPE = NETWORK_TYPES.GOERLI;
 ```
 
 Then, in `tank.js`, set the port to `3011`:
+
 ```js
 const baseUrl = 'https://gas-tank.urbit.org:3011';
 ```
@@ -140,6 +177,7 @@ const baseUrl = 'https://gas-tank.urbit.org:3011';
 1. On the Bridge landing page, click the small "Activate" link
 2. Paste the Invite code from the previous test case, and click "Go"
 3. Download the Passport file, then use the enclosed Master Ticket and ID to login to Bridge again
+
 ### Known Issues
 
 When testing the invite acceptance and login flow on Goerli, some of the Azimuth API calls will fail (e.g., `getConditional`).
@@ -151,36 +189,3 @@ To generate a release `bridge-$VERSION.zip` file, use a simple `npm run release`
 This will pack the build directory together with the README, `bridge-https.py`
 script, and also generate a set of checksums for the build directory. You can
 verify the checksums on e.g. MacOS via `shasum -c checksums.txt`.
-
-## L2 Local Environment
-
-To work with the L2 aggregator locally, set up the local environment like so:
-
-```sh
-# Start Bridge with local blockchain preloaded with L1 and L2 points, all owned by the address 0x6DEfFb0caFDB11D175F123F6891AA64F01c24F7d
-
-npm run pilot-l2
-```
-
-Start a local fake ship from the master branch in the [urbit repo](https://github.com/urbit/urbit)
-
-```sh
-/path/to/urbit -F zod -B ./bin/solid.pill -A ./pkg/arvo -c zod --http-port 8080
-```
-
-```dojo
-:: Run these in the dojo:
-::
-> |mount /=base=
-> :azimuth %resub
-> :azimuth|watch 'http://0.0.0.0:8545' %local
-> :azimuth &azimuth-poke [%kick ~]
-> |rein %base [& %roller] [& %roller-rpc] [& %azimuth-rpc]
-> :roller|local
-> :roller|setkey '58d62eb79797502bc0f66cd3e7a49d00287bff53a2734b799ef09cb746340ed0'
-> :roller|quota 9.999
-> |cors-approve 'https://127.0.0.1:3000'
-:: Once L2 txs have been sent via Bridge, this will manually commit and batch them, avoiding waiting for the timer
-::
-> :roller|commit
-```
