@@ -18,10 +18,7 @@ You can then use a `npm run build` to create an optimised static build (serve it
 
 ## General notes
 
-For development over your local network, follow the instructions in the "L2 Local Environment." You can then run `npm run pilot` to boot up a
-[Ganache](https://github.com/trufflesuite/ganache-cli) node in the background, deploy the Azimuth contracts to
-it, and fire up a local webserver. Bridge will be served on `localhost:3000`. You may also run `npm run pilot-l2` or other
-scripts in `package.json` to run Bridge with different test configurations.
+For development over your local network, follow the instructions in the "L2 Local Environment." `npm run pilot` will boot up a [Ganache](https://github.com/trufflesuite/ganache-cli) node in the background, deploy the Azimuth contracts to it, and fire up a local webserver. Bridge will be served on `localhost:3000`. You may also run `npm run pilot-l2` or other scripts in `package.json` to run Bridge with different test configurations.
 
 ## Local Development
 
