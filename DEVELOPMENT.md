@@ -27,9 +27,11 @@ scripts in `package.json` to run Bridge with different test configurations.
 
 To work with the L2 aggregator locally, set up the local environment like so:
 
-Clone the [urbit repo](https://github.com/urbit/urbit) and [Install Urbit](https://urbit.org/getting-started/cli) by downloading the correct urbit binary for your operating system.
+Run `npm run pilot-l2` to preload your local blockchain with L1 and L2 points owned by the address `0x6DEfFb0caFDB11D175F123F6891AA64F01c24F7d`
 
-To start a local fake ship for development purposes, run the following commands in the urbit repo:
+Clone the [urbit repo](https://github.com/urbit/urbit) and [Install Urbit](https://urbit.org/getting-started/cli#2-install-urbit) by downloading the correct urbit binary for your operating system.
+
+Start a local fake ship for development purposes by running the following commands in the urbit repo:
 
 ```sh
 /path/to/urbit-binary -F zod -B ./bin/solid.pill -A ./pkg/arvo -c zod --http-port 8080
@@ -48,15 +50,11 @@ Once your fake ship is finished initializing, run the following commands in the 
 > :roller|local
 > :roller|setkey '58d62eb79797502bc0f66cd3e7a49d00287bff53a2734b799ef09cb746340ed0'
 > :roller|quota 9.999
-> |cors-approve 'https://127.0.0.1:3000'
+> |cors-approve 'https://localhost:3000'
 :: Once L2 txs have been sent via Bridge, this will manually commit and batch them, avoiding waiting for the timer
 ::
 > :roller|commit
 ```
-
-Now you may run `npm run pilot` to connect to your aggregator.
-
-You may also run `npm run pilot-l2` to preloaded your local blockchain with L1 and L2 points owned by the address 0x6DEfFb0caFDB11D175F123F6891AA64F01c24F7d
 
 ## Useful accounts
 
@@ -189,3 +187,13 @@ To generate a release `bridge-$VERSION.zip` file, use a simple `npm run release`
 This will pack the build directory together with the README, `bridge-https.py`
 script, and also generate a set of checksums for the build directory. You can
 verify the checksums on e.g. MacOS via `shasum -c checksums.txt`.
+
+## Troubleshooting
+
+1. Error deploying contracts using `npm run pilot` or similar:
+
+```sh
+Error: Could not find openzeppelin-solidity/contracts/ownership/Ownable.sol from any sources;
+```
+
+Solution: Delete the `build` folder and try again.
