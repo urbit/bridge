@@ -96,8 +96,10 @@ const MasterKeyTransfer = () => {
         justifyContent={'space-between'}>
         {error && <DangerBox>{error.toString()}</DangerBox>}
         <ActivateButton
-          onClick={() => window.open('https://urbit.org/getting-started/cloud-hosting')}
-          className='pointer-hover'
+          onClick={() =>
+            window.open('https://urbit.org/getting-started/cloud-hosting')
+          }
+          className="pointer-hover"
           disabled={error}
           success={true}>
           To use it, set up a cloud instance for your urbit

@@ -25,11 +25,15 @@ export default function FeeDropdown({
 }: {
   setGasPrice: (g: GasPriceData) => void;
 }) {
-  const { suggestedGasPrices }: { suggestedGasPrices: {
-    fast: GasPriceData,
-    average: GasPriceData,
-    low: GasPriceData,
-  }} = useGasPrice(DEFAULT_GAS_PRICE_GWEI);
+  const {
+    suggestedGasPrices,
+  }: {
+    suggestedGasPrices: {
+      fast: GasPriceData;
+      average: GasPriceData;
+      low: GasPriceData;
+    };
+  } = useGasPrice(DEFAULT_GAS_PRICE_GWEI);
 
   const [open, setOpen] = useState(false);
   const [useCustom, setUseCustom] = useState(false);
@@ -58,12 +62,12 @@ export default function FeeDropdown({
       customWait = `< ${fast.wait}`;
     }
 
-    setSelected({ 
+    setSelected({
       price: cleanedNum,
       wait: customWait,
       maxFeePerGas: cleanedNum,
       maxPriorityFeePerGas: cleanedNum,
-      suggestedBaseFeePerGas: cleanedNum
+      suggestedBaseFeePerGas: cleanedNum,
     });
   };
 

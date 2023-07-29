@@ -11,8 +11,8 @@ import RollerRPCAPI, {
   Spawn,
   TransferPoint,
 } from '@urbit/roller-api';
-import WalletConnect from '@walletconnect/client';
 import BridgeWallet from './BridgeWallet';
+import { SignClient as WalletConnect } from '@walletconnect/sign-client/dist/types/client';
 
 export type TransactionType =
   | 'transferPoint'
@@ -45,6 +45,8 @@ export interface L2TransactionArgs extends SendL2Params {
   walletType: symbol;
   web3: any;
   connector: WalletConnect | null;
+  isConnected: Function;
+  signPersonalMessage: Function;
 }
 
 export interface TransactionData {

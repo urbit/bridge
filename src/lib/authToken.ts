@@ -2,7 +2,6 @@ import { crypto } from 'bitcoinjs-lib';
 import { ecdsaSign } from 'secp256k1';
 import Web3 from 'web3';
 import { hexToBytes } from 'web3-utils';
-import WalletConnect from '@walletconnect/client';
 import { hashPersonalMessage } from '@ethereumjs/util';
 import { WALLET_TYPES } from './constants';
 import BridgeWallet from './types/BridgeWallet';
@@ -14,10 +13,10 @@ function signMessage(privateKey: Buffer, useLegacyTokenSigning = false) {
   const msg = '\x19Ethereum Signed Message:\n' + MESSAGE.length + MESSAGE;
   const hashed = useLegacyTokenSigning
     ? crypto.sha256(Buffer.from(msg))
-    : hashPersonalMessage(Buffer.from(MESSAGE)) // msg prefix is handled by lib
+    : hashPersonalMessage(Buffer.from(MESSAGE)); // msg prefix is handled by lib
 
   const hashAry = new Uint8Array(hashed.buffer);
-  const { signature, recid: _recid } = ecdsaSign(hashAry, privateKey);
+  const { signature } = ecdsaSign(hashAry, privateKey);
 
   // add key recovery parameter
   const ethSignature = new Uint8Array(65);
@@ -56,7 +55,7 @@ type MetamaskAuthTokenArgs = {
 
 type WalletConnectAuthTokenArgs = {
   address: string;
-  connector: WalletConnect;
+  signPersonalMessage: Function;
   walletType: symbol;
 };
 
@@ -87,11 +86,11 @@ const getMetamaskAuthToken = ({ address, web3 }: MetamaskAuthTokenArgs) => {
   }
 };
 
-const getWalletConnectAuthToken = ({
+const getWalletConnectAuthToken = async ({
   address,
-  connector,
+  signPersonalMessage,
 }: WalletConnectAuthTokenArgs) => {
-  return connector.signPersonalMessage([MESSAGE, address]);
+  return await signPersonalMessage({ message: MESSAGE, address: address });
 };
 
 const getDefaultAuthToken = ({

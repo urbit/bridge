@@ -1,7 +1,6 @@
 import { EthAddress, Ship } from '@urbit/roller-api';
 import { useCallback } from 'react';
 import Web3 from 'web3';
-import { ITxData } from '@walletconnect/types';
 import { INITIAL_NETWORK_KEY_REVISION } from './constants';
 import { reticketPointBetweenWallets } from './reticket';
 import BridgeWallet from './types/BridgeWallet';
@@ -10,6 +9,7 @@ import useRoller from './useRoller';
 import { registerProxyAddress } from './utils/roller';
 import { useWallet } from 'store/wallet';
 import { useWalletConnect } from './useWalletConnect';
+import { ITxData } from './types/ITxData';
 
 interface ReticketL2SpawnParams {
   fromWallet: BridgeWallet;
@@ -58,7 +58,7 @@ interface ReticketL2SpawnParams {
 export const useReticketL2Spawn = () => {
   const { api } = useRoller();
   const { walletType }: any = useWallet();
-  const { connector } = useWalletConnect();
+  const { connector, signPersonalMessage, isConnected } = useWalletConnect();
 
   const performL2SpawnReticket = useCallback(
     async ({
@@ -122,10 +122,12 @@ export const useReticketL2Spawn = () => {
         walletType,
         web3,
         connector,
+        isConnected,
+        signPersonalMessage,
         true
       );
     },
-    [api, connector, walletType]
+    [api, connector, walletType, isConnected, signPersonalMessage]
   );
 
   return {

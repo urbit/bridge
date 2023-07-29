@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import cn from 'classnames';
-import { Flex, Grid } from 'indigo-react';
+import { Grid } from 'indigo-react';
 import {
   Box,
   Button,
@@ -167,7 +167,7 @@ export default function LoginSelector({
     if (value === NAMES.METAMASK) {
       selectMetamask();
     } else if (value === NAMES.WALLET_CONNECT) {
-      connect();
+      !isConnected() && connect();
     } else {
       setCurrentTab(value);
     }

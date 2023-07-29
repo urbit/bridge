@@ -209,7 +209,10 @@ export default class Point {
     this.ownManageSpawnVote =
       !this.isPlaceholder &&
       !this.isDefault &&
-      (this.isOwner || this.isSpawnProxy || this.isManagementProxy || this.isVotingProxy);
+      (this.isOwner ||
+        this.isSpawnProxy ||
+        this.isManagementProxy ||
+        this.isVotingProxy);
     this.shouldDisplay = this.ownManageSpawnVote || this.isTransferProxy;
     this.isOutgoing =
       this.isTransferProxySet &&

@@ -1,6 +1,6 @@
 import { Just, Nothing } from 'folktale/maybe';
 import { randomHex } from 'web3-utils';
-import WalletConnect from '@walletconnect/client';
+import { SignClient as WalletConnect } from '@walletconnect/sign-client/dist/types/client';
 import RollerRPCAPI, {
   Proxy,
   Signature,
@@ -62,7 +62,9 @@ export const generateHashAndSign = async (
   data: any,
   walletType: symbol,
   web3: any,
-  connector: WalletConnect | null
+  connector: WalletConnect | null,
+  isConnected: Function,
+  signPersonalMessage: Function
 ) => {
   if (walletType === WALLET_TYPES.METAMASK) {
     const hash = await api.prepareForSigning(nonce, from, type, data);
@@ -81,12 +83,14 @@ export const generateHashAndSign = async (
 
     return sig;
   } else if (walletType === WALLET_TYPES.WALLET_CONNECT) {
-    if (!connector || !connector.connected) {
+    if (!connector || !isConnected()) {
       throw new Error('Awaiting WalletConnect connection...');
     }
-
     const hash = await api.prepareForSigning(nonce, from, type, data);
-    const sig = await connector.signPersonalMessage([hash, wallet.address]);
+    const sig = await signPersonalMessage({
+      message: hash,
+      address: wallet.address,
+    });
     return sig;
   } else {
     const hash = await api.getUnsignedTx(nonce, from, type, data);
@@ -105,6 +109,8 @@ export const configureKeys = async (
   walletType: symbol,
   web3: any,
   connector: WalletConnect | null,
+  isConnected: Function,
+  signPersonalMessage: Function,
   breach?: boolean,
   force: boolean = false
 ) => {
@@ -141,7 +147,9 @@ export const configureKeys = async (
     data,
     walletType,
     web3,
-    connector
+    connector,
+    signPersonalMessage,
+    isConnected
   );
   return api.configureKeys(sig, force, from, wallet.address, data);
 };
@@ -156,6 +164,8 @@ export const transferPointRequest = async (
   walletType: symbol,
   web3: any,
   connector: WalletConnect | null,
+  isConnected: Function,
+  signPersonalMessage: Function,
   reset?: boolean,
   force: boolean = false
 ) => {
@@ -178,7 +188,9 @@ export const transferPointRequest = async (
     data,
     walletType,
     web3,
-    connector
+    connector,
+    signPersonalMessage,
+    isConnected
   );
 
   return api.transferPoint(sig, force, from, wallet.address, data);
@@ -229,6 +241,8 @@ export const registerProxyAddress = async (
   walletType: symbol,
   web3: any,
   connector: WalletConnect | null,
+  isConnected: Function,
+  signPersonalMessage: Function,
   force?: boolean
 ) => {
   const from = {
@@ -246,9 +260,10 @@ export const registerProxyAddress = async (
     data,
     walletType,
     web3,
-    connector
+    connector,
+    signPersonalMessage,
+    isConnected
   );
-
   return setProxy(
     api,
     proxyAddressType,
@@ -343,6 +358,8 @@ export const submitL2Transaction = async (args: L2TransactionArgs) => {
     walletType,
     web3,
     connector,
+    isConnected,
+    signPersonalMessage,
   } = args;
 
   const from = { ship, proxy };
@@ -357,7 +374,9 @@ export const submitL2Transaction = async (args: L2TransactionArgs) => {
     data,
     walletType,
     web3,
-    connector
+    connector,
+    isConnected,
+    signPersonalMessage
   );
 
   return method(sig, false, from, wallet.address, data);

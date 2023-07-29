@@ -52,7 +52,7 @@ const initialContext = {
   skipLoginSigning: false,
   setSkipLoginSigning: noop,
   setFakeToken: noop,
-}
+};
 
 export const WalletContext = createContext(initialContext);
 

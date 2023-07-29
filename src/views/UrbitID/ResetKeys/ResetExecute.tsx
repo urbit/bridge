@@ -77,6 +77,7 @@ export default function ResetExecute({
     signTransaction: wcSign,
     sendTransaction: wcSend,
     connector,
+    isConnected,
   } = useWalletConnect();
   const { performL2SpawnReticket } = useReticketL2Spawn();
 
@@ -130,7 +131,7 @@ export default function ResetExecute({
     // due to react shenanigans we may need to wait for the connector
     if (
       walletType === WALLET_TYPES.WALLET_CONNECT &&
-      (!connector || !connector.connected)
+      (!connector || isConnected())
     ) {
       setGeneralError(new Error('Awaiting WalletConnect connection...'));
       return;
@@ -214,6 +215,7 @@ export default function ResetExecute({
     walletType,
     wcSend,
     wcSign,
+    isConnected,
     web3,
   ]);
 

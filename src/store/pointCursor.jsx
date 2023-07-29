@@ -12,7 +12,7 @@ import { noop } from 'lodash';
 const initialContext = {
   pointCursor: Nothing(),
   setPointCursor: noop,
-}
+};
 
 export const PointCursorContext = createContext(initialContext);
 

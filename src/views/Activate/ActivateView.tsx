@@ -1,5 +1,5 @@
 import { Box } from '@tlon/indigo-react';
-import { Grid, Text } from 'indigo-react';
+import { Grid } from 'indigo-react';
 import HeaderButton from 'components/L2/Headers/HeaderButton';
 import { useHistory } from 'store/history';
 import Window from 'components/L2/Window/Window';

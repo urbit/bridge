@@ -23,11 +23,7 @@ const MasterKeyCopy = ({ text, className }: MasterKeyCopyProps) => {
         alignItems={'center'}
         cursor={'pointer'}
         padding={'10px 15px'}>
-        <Icon
-          color={color}
-          icon={icon as 'Checkmark' | 'Copy'}
-          size="16px"
-        />
+        <Icon color={color} icon={icon as 'Checkmark' | 'Copy'} size="16px" />
         <Text color={color} fontSize={'14px'} ml="4px" fontFamily={'Inter'}>
           {label}
         </Text>
