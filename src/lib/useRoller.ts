@@ -139,9 +139,8 @@ export default function useRoller() {
   const initPoint = useCallback(
     async (point: string | number): Promise<Point> => {
       const _wallet = wallet.getOrElse(null);
-      const _contracts = contracts.getOrElse(null);
 
-      if (!_wallet || !_contracts) {
+      if (!_wallet) {
         return EMPTY_POINT;
       }
 
@@ -152,9 +151,7 @@ export default function useRoller() {
         const l2Quota = isL2 ? await api.getRemainingQuota(pointNum) : 0;
         const l2Allowance = isL2 ? await api.getAllowance(pointNum) : 0;
 
-        const details = isL2Spawn(rawDetails?.dominion)
-          ? toL1Details(rawDetails)
-          : await azimuth.azimuth.getPoint(_contracts, point);
+        const details = toL1Details(rawDetails);
 
         return new Point({
           value: pointNum,
@@ -309,14 +306,14 @@ export default function useRoller() {
         proxy === 'own'
           ? await api.getOwnedPoints(address)
           : proxy === 'manage'
-            ? await api.getManagerFor(address)
-            : proxy === 'vote'
-              ? await api.getVotingFor(address)
-              : proxy === 'transfer'
-                ? await api.getTransferringFor(address)
-                : proxy === 'spawn'
-                  ? await api.getSpawningFor(address)
-                  : [];
+          ? await api.getManagerFor(address)
+          : proxy === 'vote'
+          ? await api.getVotingFor(address)
+          : proxy === 'transfer'
+          ? await api.getTransferringFor(address)
+          : proxy === 'spawn'
+          ? await api.getSpawningFor(address)
+          : [];
 
       return points;
     },
@@ -365,14 +362,14 @@ export default function useRoller() {
       const networkSeed = customNetworkSeed
         ? customNetworkSeed
         : await attemptNetworkSeedDerivation({
-          urbitWallet,
-          wallet,
-          authMnemonic,
-          details: point,
-          authToken,
-          point: point.value,
-          revision: nextRevision,
-        });
+            urbitWallet,
+            wallet,
+            authMnemonic,
+            details: point,
+            authToken,
+            point: point.value,
+            revision: nextRevision,
+          });
       const txHash = await submitL2Transaction({
         api,
         wallet: _wallet,
@@ -422,7 +419,7 @@ export default function useRoller() {
     let nonce = await api.getNonce({ ship: point, proxy });
     const progress = onUpdate
       ? (state: number) => onUpdate({ type: 'progress', state })
-      : () => { };
+      : () => {};
 
     let requests = [];
 
