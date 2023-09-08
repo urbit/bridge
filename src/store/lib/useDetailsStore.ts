@@ -33,18 +33,10 @@ export default function useDetailsStore() {
 
   const syncDetails = useCallback(
     async point => {
-      const _contracts = contracts.getOrElse(null);
-      if (!_contracts) {
-        return;
-      }
-
       // fetch point details
       try {
-        const l2Point = await api.getPoint(point);
-        const details =
-          l2Point && (l2Point.dominion === 'l2' || l2Point.dominion === 'spawn')
-            ? toL1Details(l2Point)
-            : await azimuth.azimuth.getPoint(_contracts, point);
+        const _point = await api.getPoint(point);
+        const details = toL1Details(_point);
         addToDetails({
           [point]: details,
         });
@@ -53,7 +45,13 @@ export default function useDetailsStore() {
           console.warn(error);
         }
 
+        // Try getting the details from L1
         try {
+          const _contracts = contracts.getOrElse(null);
+          if (!_contracts) {
+            return;
+          }
+
           const details = await azimuth.azimuth.getPoint(_contracts, point);
           addToDetails({
             [point]: details,
