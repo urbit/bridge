@@ -11,17 +11,20 @@ import L2BackHeader from 'components/L2/Headers/L2BackHeader';
 import UrbitOSHome from '../UrbitOS/Home';
 import UrbitOSNetworkKeys from '../UrbitOS/NetworkKeys.tsx';
 import UrbitOSChangeSponsor from '../UrbitOS/ChangeSponsor.tsx';
+import UrbitOSFactoryReset from '../UrbitOS/FactoryReset.tsx';
 
 const NAMES = {
   HOME: 'HOME',
   CHANGE_SPONSOR: 'CHANGE_SPONSOR',
   NETWORKING_KEYS: 'NETWORKING_KEYS',
+  FACTORY_RESET: 'FACTORY_RESET',
 };
 
 const VIEWS = {
   [NAMES.HOME]: UrbitOSHome,
   [NAMES.CHANGE_SPONSOR]: UrbitOSChangeSponsor,
   [NAMES.NETWORKING_KEYS]: UrbitOSNetworkKeys,
+  [NAMES.FACTORY_RESET]: UrbitOSFactoryReset,
 };
 
 export default function UrbitOS() {
