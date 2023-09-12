@@ -172,6 +172,7 @@ export async function reticketPointBetweenWallets({
       gasLimit: txs[i].gas,
       txnSigner,
       txnSender,
+      web3,
     });
     txPairs.push({
       raw: hexify(stx.serialize()),
@@ -242,6 +243,7 @@ export async function reticketPointBetweenWallets({
         gasPriceData,
         gasLimit,
         nonce: inviteNonce,
+        web3,
       });
       sendSignedTransaction(web3, stx);
 
@@ -272,6 +274,7 @@ export async function reticketPointBetweenWallets({
         gasPriceData,
         gasLimit,
         nonce: inviteNonce,
+        web3,
       });
       sendSignedTransaction(web3, stx);
     } catch (err) {

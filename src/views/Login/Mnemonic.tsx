@@ -25,7 +25,6 @@ import HeaderPane from 'components/L2/Window/HeaderPane';
 import BodyPane from 'components/L2/Window/BodyPane';
 import AdvancedOptions from 'components/L2/Headers/AdvancedOptions';
 import { Row } from '@tlon/indigo-react';
-import { debounce } from 'lodash';
 
 interface MnemonicProps {
   className?: string;
@@ -34,6 +33,19 @@ interface MnemonicProps {
 
 export default function Mnemonic({ className, goHome }: MnemonicProps) {
   useLoginView(WALLET_TYPES.MNEMONIC);
+
+  const onSubmit = (values, valid) => {
+    setWalletHdPath(values.hdpath);
+    setAuthMnemonic(Just(values.mnemonic));
+    setWallet(
+      walletFromMnemonic(
+        values.mnemonic,
+        values.hdpath,
+        values.passphrase,
+        skipValidation
+      )
+    );
+  };
 
   const {
     setWallet,
@@ -57,33 +69,6 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
       hdpath: buildHdPathValidator(),
     });
   }, [skipValidation]);
-
-  // when the properties change, re-derive wallet and set global state
-  const debouncedOnValues = debounce(({ valid, values }) => {
-    if (valid) {
-      setWalletHdPath(values.hdpath);
-      setAuthMnemonic(Just(values.mnemonic));
-      setWallet(
-        walletFromMnemonic(
-          values.mnemonic,
-          values.hdpath,
-          values.passphrase,
-          skipValidation
-        )
-      );
-    } else {
-      setAuthMnemonic(Nothing());
-      setWallet(Nothing());
-    }
-  }, ONE_SECOND);
-
-  const onValues = useCallback(debouncedOnValues, [
-    setAuthMnemonic,
-    setWallet,
-    setWalletHdPath,
-    skipValidation,
-    debouncedOnValues,
-  ]);
 
   const initialValues = {
     hdpath: DEFAULT_HD_PATH,
@@ -123,7 +108,7 @@ export default function Mnemonic({ className, goHome }: MnemonicProps) {
         <Grid className={cn(className, 'input-form')}>
           <BridgeForm
             validate={validate}
-            onValues={onValues}
+            onSubmit={onSubmit}
             afterSubmit={goHome}
             initialValues={initialValues}>
             {({ handleSubmit }: any) => (

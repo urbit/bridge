@@ -27,20 +27,6 @@ function _useNetwork(initialNetworkType = null) {
 
   useEffect(() => {
     (async () => {
-      const provider = await detectEthereumProvider();
-      if (provider) {
-        try {
-          setMetamask(true);
-          setNetworkType(chainIdToNetworkType(window.ethereum.chainId));
-        } catch (e) {
-          console.log('Metamask denied');
-        }
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
       // given a web3 provider and contract addresses,
       // build the web3 and contracts objects
       const initWeb3 = async (provider, contractAddresses) => {

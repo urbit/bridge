@@ -18,7 +18,7 @@ import { useHistory } from 'store/history';
 import { useWallet } from 'store/wallet';
 import { useNetwork } from 'store/network';
 
-import { WALLET_TYPES } from 'lib/constants';
+import { WALLET_TYPES, ETHEREUM_LOCAL_CHAIN_ID } from 'lib/constants';
 import { useWalletConnect } from 'lib/useWalletConnect';
 import { MetamaskWallet } from 'lib/metamask';
 import { expectedChainId } from 'lib/network';
@@ -101,6 +101,17 @@ export default function LoginSelector({
        */
       if (window.ethereum.chainId !== expectedChainId()) {
         console.log(`unexpected chain: ${window.ethereum.chainId}`);
+
+        if (expectedChainId() === ETHEREUM_LOCAL_CHAIN_ID) {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{chainId: ETHEREUM_LOCAL_CHAIN_ID,
+                      chainName: "Ganache",
+                      rpcUrls: ["http://127.0.0.1:8545"]
+            }]
+          });
+        }
+
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: expectedChainId() }],

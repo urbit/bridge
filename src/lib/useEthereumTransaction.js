@@ -139,6 +139,7 @@ export default function useEthereumTransaction(
             gasLimit,
             txnSigner,
             txnSender,
+            web3: _web3,
           })
         )
       );
@@ -281,13 +282,12 @@ export default function useEthereumTransaction(
         setError(undefined);
         const [nonce, chainId] = await Promise.all([
           _web3.eth.getTransactionCount(_wallet.address),
-          _web3.eth.net.getId(),
+          _web3.eth.getChainId(),
         ]);
 
         if (!mounted) {
           return;
         }
-
         setNonce(nonce);
         setChainId(chainId);
       } catch (error) {
