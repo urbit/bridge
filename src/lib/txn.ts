@@ -60,17 +60,10 @@ interface signTransactionProps {
   gasLimit: number;
   txnSigner?: (args: ITxData) => Promise<string>;
   txnSender?: (args: ITxData) => Promise<string>;
+  web3: Web3;
 }
 
-const _web3 = () => {
-  const ENDPOINT = `https://mainnet.infura.io/v3/${
-    import.meta.env.VITE_INFURA_ENDPOINT
-  }`;
-  return new Web3(new Web3.providers.HttpProvider(ENDPOINT));
-};
-
-const estimateGasLimit = async (utx: TransactionConfig) => {
-  const web3 = _web3();
+const estimateGasLimit = async (utx: TransactionConfig, web3: Web3) => {
   const estimate = await web3.eth.estimateGas(utx);
   return web3.utils
     .toBN(estimate)
@@ -78,8 +71,7 @@ const estimateGasLimit = async (utx: TransactionConfig) => {
     .divn(100); // 20% cushion
 };
 
-const getMaxFeePerGas = async () => {
-  const web3 = _web3();
+const getMaxFeePerGas = async (web3: Web3) => {
   const fee = await web3.eth.getGasPrice();
   return (Number(fee) * 1.2).toFixed(0); // 20% cushion
 };
@@ -96,10 +88,11 @@ const signTransaction = async ({
   gasLimit, // TODO: do we need the default values anymore? now that the estiamte is loaded dynamically
   txnSigner, // optionally inject a transaction signing function,
   txnSender, // and a sending function, for wallets that need these passed in.
+  web3,
 }: signTransactionProps) => {
   const from = wallet.address;
-  const estimate = await estimateGasLimit({ ...txn, from });
-  const maxFeePerGas = await getMaxFeePerGas();
+  const estimate = await estimateGasLimit({ ...txn, from }, web3);
+  const maxFeePerGas = await getMaxFeePerGas(web3);
 
   const txParams: EIP1559TxData = {
     data: toHex(txn.data),
@@ -115,14 +108,22 @@ const signTransaction = async ({
   };
 
   const chain =
-    networkType === NETWORK_TYPES.GOERLI ? Chain.Goerli : Chain.Mainnet;
+    (networkType === NETWORK_TYPES.GOERLI) ||
+    (networkType === NETWORK_TYPES.LOCAL) ? Chain.Goerli : Chain.Mainnet;
+
+  const common = new Common({
+    chain,
+    hardfork: Hardfork.Merge,
+  });
+
+  if (networkType === NETWORK_TYPES.LOCAL) {
+    common._chainParams.chainId = 1337;
+    common._chainParams.name = "ganache";
+  }
 
   const txConfig: TxOptions = {
     freeze: false,
-    common: new Common({
-      chain,
-      hardfork: Hardfork.Merge,
-    }),
+    common: common,
   };
 
   let stx = EIP1559Transaction.fromTxData(txParams, txConfig);

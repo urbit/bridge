@@ -145,35 +145,35 @@ export default function useRoller() {
       }
 
       const pointNum = Number(point);
+      const rawDetails = await api.getPoint(pointNum);
+      const isL2 = isL2Spawn(rawDetails?.dominion);
+
       try {
-        const rawDetails = await api.getPoint(pointNum);
-        const isL2 = isL2Spawn(rawDetails?.dominion);
-        const l2Quota = isL2 ? await api.getRemainingQuota(pointNum) : 0;
-        const l2Allowance = isL2 ? await api.getAllowance(pointNum) : 0;
+        if (isL2) {
+          const l2Quota = isL2 ? await api.getRemainingQuota(pointNum) : 0;
+          const l2Allowance = isL2 ? await api.getAllowance(pointNum) : 0;
 
-        const details = toL1Details(rawDetails);
+          const details = toL1Details(rawDetails);
 
-        return new Point({
-          value: pointNum,
-          details,
-          address: _wallet.address,
-          l2Quota,
-          l2Allowance,
-        });
-      } catch (e) {
-        console.warn(e);
-
-        // Try getting the details from L1
-        try {
-          const _contracts = need.contracts(contracts);
-          const details = await azimuth.azimuth.getPoint(_contracts, point);
           return new Point({
             value: pointNum,
             details,
             address: _wallet.address,
+            l2Quota,
+            l2Allowance,
           });
-        } catch (e) {
-          console.warn(e);
+        }
+
+        const _contracts = need.contracts(contracts);
+        const details = await azimuth.azimuth.getPoint(_contracts, point);
+        return new Point({
+          value: pointNum,
+          details,
+          address: _wallet.address,
+        });
+
+      } catch (e) {
+        console.warn(e);
           // Just return a placeholder Point
           const details: L1Point = toL1Details();
           return new Point({
@@ -182,7 +182,7 @@ export default function useRoller() {
             address: _wallet.address,
             isPlaceholder: true,
           });
-        }
+
       }
     },
     [api, wallet, contracts]

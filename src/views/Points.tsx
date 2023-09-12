@@ -65,6 +65,7 @@ function ActionButtons({ actions = [] }: ActionButtonProps) {
 
 export default function Points() {
   const { wallet }: any = useWallet();
+  const { web3 }: any = useNetwork();
   const { pop, push, names }: any = useHistory();
   const { setPointCursor }: any = usePointCursor();
   const { controlledPoints, getDetails }: any = usePointCache();
@@ -74,11 +75,27 @@ export default function Points() {
     rejectedPoints,
     addRejectedPoint,
   ] = useRejectedIncomingPointTransfers();
-  const { pointList } = useRollerStore();
+  const { pointList, setEthBalance } = useRollerStore();
   const {
     syncStarReleaseDetails,
     starReleaseDetails,
   }: any = useStarReleaseCache();
+
+  useEffect(() => {
+    const getEthBalance = async () => {
+      const _web3 = web3.getOrElse(null);
+      const _wallet = wallet.getOrElse(null);
+
+      if (_web3 && _wallet) {
+        const newBalance = _web3.utils.fromWei(
+          await _web3.eth.getBalance(_wallet.address)
+        );
+        setEthBalance(newBalance);
+      }
+    };
+
+    getEthBalance();
+  }, [setEthBalance, wallet, web3]);
 
   const outgoingPoints = useMemo(
     () => pointList.filter(({ isOutgoing }) => isOutgoing),
