@@ -148,12 +148,12 @@ export default function useRoller() {
       const rawDetails = await api.getPoint(pointNum);
       const isL2 = isL2Spawn(rawDetails?.dominion);
 
+      const details = toL1Details(rawDetails);
+
       try {
         if (isL2) {
           const l2Quota = isL2 ? await api.getRemainingQuota(pointNum) : 0;
           const l2Allowance = isL2 ? await api.getAllowance(pointNum) : 0;
-
-          const details = toL1Details(rawDetails);
 
           return new Point({
             value: pointNum,
@@ -165,23 +165,26 @@ export default function useRoller() {
         }
 
         const _contracts = need.contracts(contracts);
-        const details = await azimuth.azimuth.getPoint(_contracts, point);
+        const l1Details = await azimuth.azimuth.getPoint(_contracts, point);
+
+        L1Details.owner = details.owner;
+
         return new Point({
           value: pointNum,
-          details,
+          details: l1Details,
           address: _wallet.address,
         });
 
       } catch (e) {
         console.warn(e);
           // Just return a placeholder Point
-          const details: L1Point = toL1Details();
-          return new Point({
-            value: pointNum,
-            details,
-            address: _wallet.address,
-            isPlaceholder: true,
-          });
+        const details: L1Point = toL1Details();
+        return new Point({
+          value: pointNum,
+          details,
+          address: _wallet.address,
+          isPlaceholder: true,
+        });
 
       }
     },
