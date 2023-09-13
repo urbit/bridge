@@ -167,7 +167,7 @@ export default function useRoller() {
         const _contracts = need.contracts(contracts);
         const l1Details = await azimuth.azimuth.getPoint(_contracts, point);
 
-        L1Details.owner = details.owner;
+        l1Details.owner = details.owner;
 
         return new Point({
           value: pointNum,
