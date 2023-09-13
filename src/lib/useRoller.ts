@@ -167,17 +167,18 @@ export default function useRoller() {
         const _contracts = need.contracts(contracts);
         const l1Details = await azimuth.azimuth.getPoint(_contracts, point);
 
-        l1Details.owner = details.owner;
+        l1Details.sponsor = details.sponsor;
+        l1Details.escapeRequested = details.escapeRequested;
+        l1Details.escapeRequestedTo = details.escapeRequestedTo;
 
         return new Point({
           value: pointNum,
           details: l1Details,
           address: _wallet.address,
         });
-
       } catch (e) {
         console.warn(e);
-          // Just return a placeholder Point
+        // Just return a placeholder Point
         const details: L1Point = toL1Details();
         return new Point({
           value: pointNum,
@@ -185,7 +186,6 @@ export default function useRoller() {
           address: _wallet.address,
           isPlaceholder: true,
         });
-
       }
     },
     [api, wallet, contracts]
