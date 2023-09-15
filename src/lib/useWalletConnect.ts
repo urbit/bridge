@@ -220,6 +220,12 @@ export const useWalletConnect = () => {
         return;
       }
 
+      // Ledger Live needs to use fakeSign instead since it sends the txn upon signing
+      if (peerMeta?.name === 'Ledger Wallet') {
+        reject(new Error('METHOD_NOT_SUPPORTED'));
+        return;
+      }
+
       return connector
         .request<string>({
           topic: session?.topic!,
