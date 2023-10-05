@@ -20,7 +20,7 @@ export const EMPTY_POINT = new Point({
   address: '',
 });
 
-export interface RollerStore {
+export interface RollerState {
   loading: boolean;
   nextQuotaTime: number;
   pendingTransactions: PendingTransaction[];
@@ -31,6 +31,9 @@ export interface RollerStore {
   modalText?: string;
   recentlyCompleted: number;
   ethBalance: BN;
+}
+
+export interface RollerActions {
   setLoading: (loading: boolean) => void;
   setModalText: (modalText: string) => void;
   setNextQuotaTime: (nextQuotaTime: number) => void;
@@ -41,9 +44,10 @@ export interface RollerStore {
   storePendingL1Txn: (txn: PendingL1Txn) => void;
   deletePendingL1Txn: (txn: PendingL1Txn) => void;
   setEthBalance: (ethBalance: BN) => void;
+  resetStore: () => void;
 }
 
-export const useRollerStore = create<RollerStore>(set => ({
+const initialRollerState: RollerState = {
   loading: false,
   nextQuotaTime: new Date().getTime() + 24 * HOUR,
   pendingTransactions: [],
@@ -53,6 +57,10 @@ export const useRollerStore = create<RollerStore>(set => ({
   pendingL1ByPoint: {},
   recentlyCompleted: 0,
   ethBalance: toBN(0),
+};
+
+export const useRollerStore = create<RollerState & RollerActions>(set => ({
+  ...initialRollerState,
   setLoading: (loading: boolean) => set(() => ({ loading })),
   setNextQuotaTime: (nextQuotaTime: number) => set(() => ({ nextQuotaTime })),
   setPendingTransactions: (pendingTransactions: PendingTransaction[]) =>
@@ -92,4 +100,7 @@ export const useRollerStore = create<RollerStore>(set => ({
       return { pendingL1ByPoint: newPending };
     }),
   setEthBalance: (ethBalance: BN) => set(() => ({ ethBalance })),
+  resetStore: () => {
+    set(initialRollerState);
+  },
 }));
