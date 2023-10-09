@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Icon, Row, Box } from '@tlon/indigo-react';
 import { Just } from 'folktale/maybe';
-
 import LayerIndicator from 'components/L2/LayerIndicator';
 import CopiableAddressWrap from 'components/copiable/CopiableAddressWrap';
 import { TooltipPosition } from 'components/WithTooltip';
@@ -26,7 +25,7 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
   const walletInfo: any = useWallet();
   const { push, popTo, names, reset }: any = useHistory();
   const { setPointCursor }: any = usePointCursor();
-  const { point, pointList } = useRollerStore();
+  const { point, pointList, resetStore } = useRollerStore();
 
   const canBitcoin = Just.hasInstance(walletInfo.urbitWallet);
 
@@ -65,7 +64,8 @@ const AccountsDropdown = ({ showMigrate = false }: AccountsDropdownProps) => {
 
   const onLogout = () => {
     clearInvitesStorage();
-    reset();
+    reset(); // router
+    resetStore();
   };
 
   const hasL1Points = Boolean(pointList.find(({ layer }) => layer === 1));
