@@ -11,6 +11,8 @@ const feeToInt = f => (f < 1 ? 1 : Math.round(f));
 
 const feeToWei = fee => Web3.utils.toHex(Web3.utils.toWei(String(fee), 'gwei'));
 
+const weiToGwei = wei => Math.ceil(wei / 1_000_000_000);
+
 const calculateMaxFee = (baseFee, maxPriorityFee) =>
   feeToWei(Math.round(2 * baseFee + maxPriorityFee));
 
@@ -43,68 +45,32 @@ export const defaultGasValues = value => ({
 
 const getGasForNetwork = async providerUrl => {
   try {
-    const [feeResponse, waitResponse] = await Promise.all([
-      fetch(
-        `${providerUrl}/api` +
-          '?module=gastracker' +
-          '&action=gasoracle' +
-          '&apikey=CG52E4R96W56GIKUI4IJ8CH9EZIXPUW1W8',
-        {
-          method: 'GET',
-          cache: 'no-cache',
-        }
-      ),
-      fetch('https://ethereum-api.xyz/gas-prices', {
-        method: 'GET',
+    const feeResponse = await fetch(
+      providerUrl,
+      {
+        method: 'get',
         cache: 'no-cache',
-      }),
-    ]);
-
-    const [feeJson, waitJson] = await Promise.all([
-      feeResponse.json(),
-      waitResponse.json(),
-    ]);
-
-    const suggestedBaseFeePerGas = Number(feeJson.result.suggestBaseFee);
+      }
+    );
+    const feeJson = await feeResponse.json();
 
     // Calculations derived from:
     // https://www.blocknative.com/blog/eip-1559-fees
     return {
       fast: {
-        price: minGas(feeJson.result.FastGasPrice),
-        wait: formatWait(waitJson.result.fast.time),
-        maxFeePerGas: calculateMaxFee(
-          suggestedBaseFeePerGas,
-          feeJson.result.FastGasPrice - suggestedBaseFeePerGas
-        ),
-        maxPriorityFeePerGas: feeToInt(
-          feeJson.result.FastGasPrice - suggestedBaseFeePerGas
-        ),
-        suggestedBaseFeePerGas,
+        price: minGas(weiToGwei(feeJson.data.rapid)),
+        wait: formatWait(15),
+        maxFeePerGas: weiToGwei(feeJson.data.rapid)
       },
       average: {
-        price: minGas(feeJson.result.ProposeGasPrice),
-        wait: formatWait(waitJson.result.average.time),
-        maxFeePerGas: calculateMaxFee(
-          suggestedBaseFeePerGas,
-          feeJson.result.ProposeGasPrice - suggestedBaseFeePerGas
-        ),
-        maxPriorityFeePerGas: feeToInt(
-          feeJson.result.ProposeGasPrice - suggestedBaseFeePerGas
-        ),
-        suggestedBaseFeePerGas,
+        price: minGas(weiToGwei(feeJson.data.fast)),
+        wait: formatWait(60),
+        maxFeePerGas: weiToGwei(feeJson.data.fast)
       },
       low: {
-        price: minGas(feeJson.result.SafeGasPrice),
-        wait: formatWait(waitJson.result.slow.time),
-        maxFeePerGas: calculateMaxFee(
-          suggestedBaseFeePerGas,
-          feeJson.result.SafeGasPrice - suggestedBaseFeePerGas
-        ),
-        maxPriorityFeePerGas: feeToInt(
-          feeJson.result.SafeGasPrice - suggestedBaseFeePerGas
-        ),
-        suggestedBaseFeePerGas,
+        price: minGas(weiToGwei(feeJson.data.standard)),
+        wait: formatWait(180),
+        maxFeePerGas: weiToGwei(feeJson.data.standard)
       },
     };
   } catch (e) {
@@ -116,11 +82,11 @@ const getGasForNetwork = async providerUrl => {
 export default async function getSuggestedGasPrice(networkType) {
   switch (networkType) {
     case NETWORK_TYPES.GOERLI:
-      return getGasForNetwork('https://api-goerli.etherscan.io');
+      return getGasForNetwork('https://beaconcha.in/api/v1/execution/gasnow');
     case NETWORK_TYPES.OFFLINE:
       return defaultGasValues(DEFAULT_GAS_PRICE_GWEI);
     case NETWORK_TYPES.LOCAL:
     default:
-      return getGasForNetwork('https://api.etherscan.io/');
+      return getGasForNetwork('https://beaconcha.in/api/v1/execution/gasnow');
   }
 }
