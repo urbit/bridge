@@ -14,13 +14,6 @@ import { isGoerli } from './flags';
 import { ITxData } from './types/ITxData';
 import { mayCreateHexString } from './utils/hex';
 
-type PeerMeta = {
-  description: string;
-  icons?: string[];
-  name: string;
-  url: string;
-};
-
 type PersonalSign = {
   message: string;
   address: string;
@@ -42,20 +35,17 @@ export const useWalletConnect = () => {
 
   const [connector, setConnector] = useState<SignClient | null>(null);
   const [address, setAddress] = useState<string | null>(null);
-  const [peerMeta, setPeerMeta] = useState<PeerMeta | null>(null);
   const [session, setSession] = useState<SessionTypes.Struct | null>(null);
   const [modal, setModal] = useState<Web3Modal | null>(null);
 
   const resetSession = () => {
     setSession(null);
     setAddress(null);
-    setPeerMeta(null);
   };
 
   const updateSession = (_session: SessionTypes.Struct) => {
     setSession(_session);
     setAddress(_session.namespaces.eip155.accounts[0].slice(9));
-    setPeerMeta(_session.peer.metadata);
   };
 
   const initConnector = async () => {
@@ -195,15 +185,17 @@ export const useWalletConnect = () => {
   };
 
   const peerIcon = useMemo(() => {
-    if (!peerMeta?.icons) {
+    if (!session?.peer?.metadata?.icons) {
       return null;
     }
 
     // Some peers return a list of empty string(s) :)
-    const iconCandidates = peerMeta.icons.filter(pm => pm !== '');
+    const iconCandidates = session?.peer?.metadata?.icons.filter(
+      pm => pm !== ''
+    );
 
     return iconCandidates.length > 0 ? iconCandidates[0] : null;
-  }, [peerMeta]);
+  }, [session]);
 
   const signTransaction = async ({
     from,
@@ -221,7 +213,7 @@ export const useWalletConnect = () => {
       }
 
       // Ledger Live needs to use fakeSign instead since it sends the txn upon signing
-      if (peerMeta?.name === 'Ledger Wallet') {
+      if (session?.peer?.metadata?.name === 'Ledger Wallet') {
         reject(new Error('METHOD_NOT_SUPPORTED'));
         return;
       }
@@ -315,8 +307,7 @@ export const useWalletConnect = () => {
   // Event handlers
 
   const onSessionDelete = () => {
-    setAddress(null);
-    setPeerMeta(null);
+    resetSession();
     resetWallet();
   };
 
@@ -348,10 +339,10 @@ export const useWalletConnect = () => {
     authenticate,
     connect,
     connector,
+    session,
     disconnect,
     isConnected,
     peerIcon,
-    peerMeta,
     initConnector,
     signTransaction,
     sendTransaction,
