@@ -305,9 +305,8 @@ export default function MigrateL2() {
                 <Box className="icon">$</Box>
               </Box>
               <Box className="info-message">
-                A migration is expensive, but a one-time fee. The estimated
-                price is <span className="bold">$120</span>. Transaction fees
-                will be subsidized on Layer 2.
+                There is a one-time gas fee associated with the migration
+                process. Transaction fees will be subsidized on Layer 2.
               </Box>
             </Row>
             <Row className="info-row">
@@ -316,8 +315,8 @@ export default function MigrateL2() {
               </Box>
               {/* <HistoryIcon className="icon" /> */}
               <Box className="info-message">
-                All transactions will now be pushed at the end of the day. A
-                timer will show when the next push is.
+                All transactions are pushed hourly. A timer will show when the
+                next push is.
               </Box>
             </Row>
           </Box>
