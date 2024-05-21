@@ -96,6 +96,7 @@ function useKeyfileGenerator({ point, seeds }: useKeyfileGeneratorArgs) {
     setKeyfile(
       compileMultiKey(
         resolvedPoint.value,
+        resolvedPoint.continuityNumber,
         pairs.map((pair, k) => {
           return { revision: networkRevision + k, pair };
         })
