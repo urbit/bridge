@@ -88,11 +88,11 @@ const signTransaction = async ({
   const from = wallet.address;
   const estimate = await estimateGasLimit({ ...txn, from }, web3);
 
-  let block = await web3.eth.getBlock('pending');
+  let block =
+    (await web3.eth.getBlock('pending')) || (await web3.eth.getBlock('latest'));
 
-  // in case pending block doesn't return anything
-  if (!block || !block.baseFeePerGas) {
-    block = await web3.eth.getBlock('latest');
+  if (!block?.baseFeePerGas) {
+    throw new Error('Unable to fetch baseFeePerGas from the network');
   }
 
   const baseFeeWei = block.baseFeePerGas;
