@@ -71,11 +71,6 @@ const estimateGasLimit = async (utx: TransactionConfig, web3: Web3) => {
     .divn(100); // 20% cushion
 };
 
-const getMaxFeePerGas = async (web3: Web3) => {
-  const fee = await web3.eth.getGasPrice();
-  return (Number(fee) * 1.2).toFixed(0); // 20% cushion
-};
-
 const signTransaction = async ({
   wallet,
   walletType,
@@ -92,24 +87,41 @@ const signTransaction = async ({
 }: signTransactionProps) => {
   const from = wallet.address;
   const estimate = await estimateGasLimit({ ...txn, from }, web3);
-  const maxFeePerGas = await getMaxFeePerGas(web3);
+
+  let block =
+    (await web3.eth.getBlock('pending')) || (await web3.eth.getBlock('latest'));
+
+  if (!block?.baseFeePerGas) {
+    throw new Error('Unable to fetch baseFeePerGas from the network');
+  }
+
+  const baseFeeWei = block.baseFeePerGas;
+
+  // from user dropdown
+  const maxPriorityFeePerGas = toWei(
+    String(Math.round(gasPriceData.maxPriorityFeePerGas)),
+    'gwei'
+  );
+
+  const maxFeePerGas = Math.floor(
+    (Number(baseFeeWei) + Number(maxPriorityFeePerGas)) * 1.2 // 20% cushion
+  );
 
   const txParams: EIP1559TxData = {
     data: toHex(txn.data),
     to: toHex(txn.to),
     gasLimit: toHex(estimate),
     maxFeePerGas: toHex(maxFeePerGas),
-    maxPriorityFeePerGas: toHex(
-      toWei(Math.round(gasPriceData.maxPriorityFeePerGas).toFixed(0), 'gwei')
-    ),
+    maxPriorityFeePerGas: toHex(maxPriorityFeePerGas),
     nonce: toHex(nonce),
     chainId: toHex(chainId),
     type: toHex(EIP1559_TRANSACTION_TYPE),
   };
 
   const chain =
-    (networkType === NETWORK_TYPES.GOERLI) ||
-    (networkType === NETWORK_TYPES.LOCAL) ? Chain.Goerli : Chain.Mainnet;
+    networkType === NETWORK_TYPES.GOERLI || networkType === NETWORK_TYPES.LOCAL
+      ? Chain.Goerli
+      : Chain.Mainnet;
 
   const common = new Common({
     chain,
@@ -118,7 +130,7 @@ const signTransaction = async ({
 
   if (networkType === NETWORK_TYPES.LOCAL) {
     common._chainParams.chainId = 1337;
-    common._chainParams.name = "ganache";
+    common._chainParams.name = 'ganache';
   }
 
   const txConfig: TxOptions = {
