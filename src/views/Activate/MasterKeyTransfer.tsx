@@ -97,7 +97,7 @@ const MasterKeyTransfer = () => {
         {error && <DangerBox>{error.toString()}</DangerBox>}
         <ActivateButton
           onClick={() =>
-            window.open('https://urbit.org/getting-started/cloud-hosting')
+            window.open('https://docs.urbit.org/manual/getting-started/self-hosted/cloud-hosting')
           }
           className="pointer-hover"
           disabled={error}
@@ -105,7 +105,7 @@ const MasterKeyTransfer = () => {
           To use it, set up a cloud instance for your urbit
         </ActivateButton>
         <Anchor
-          href="https://urbit.org/getting-started/cli"
+          href="https://docs.urbit.org/manual/getting-started/self-hosted/cli"
           marginTop={'20px'}
           marginBottom={'10px'}
           underline={false}
