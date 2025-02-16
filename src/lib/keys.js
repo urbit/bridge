@@ -83,10 +83,11 @@ export const compileNetworkKey = (pair, point, revision) => {
 
 /**
  * @param {number} point
+ * @param {number} continuityNumber
  * @param {array<{revision: number, pair: object}>} keys
  * @return {string}
  */
-export const compileMultiKey = (point, keys) => {
+export const compileMultiKey = (point, continuityNumber, keys) => {
   const kyz = keys.map(k => {
     const bnsec = new BN(createRing(k.pair), 'hex');
     return noun.dwim(
@@ -97,8 +98,9 @@ export const compileMultiKey = (point, keys) => {
   kyz.push(noun.Atom.fromInt(0));
 
   const fed = noun.dwim(
-    noun.dwim(noun.Atom.fromInt(1), noun.Atom.fromInt(0)), // version
+    noun.dwim(noun.Atom.fromInt(2), noun.Atom.fromInt(0)), // version
     noun.Atom.fromInt(point), // ship
+    noun.Atom.fromInt(continuityNumber),
     noun.dwim(kyz) // keys
   );
 
