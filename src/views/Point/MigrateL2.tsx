@@ -282,7 +282,7 @@ export default function MigrateL2() {
             className="bold"
             target="_blank"
             rel="noreferrer"
-            href="https://docs.urbit.org/manual/id/layer-2-for-planets">
+            href="https://docs.urbit.org/user-manual/id/layer-2-for-planets">
             Learn More
           </a>
         </Box>
