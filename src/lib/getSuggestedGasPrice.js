@@ -54,10 +54,11 @@ const getGasForNetwork = async providerUrl => {
         }
       ),
       fetch(
-        `${providerUrl}/api` +
+        `${providerUrl}/v2/api` +
           '?module=gastracker' +
           '&action=gasoracle' +
-          '&apikey=CG52E4R96W56GIKUI4IJ8CH9EZIXPUW1W8',
+          '&apikey=CG52E4R96W56GIKUI4IJ8CH9EZIXPUW1W8' +
+          '&chainid=1',
         {
           method: 'GET',
           cache: 'no-cache',
