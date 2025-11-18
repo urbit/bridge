@@ -34,6 +34,7 @@ it's a good place to get started. On the testnet, it's the address:
 
 You can authenticate as it using the following mnemonic:
 
+TODO: THIS SEED FAILS ON RECOVERY KEY SIGN IN with error: `"code":7979,"data":{}}`
 ```
 benefit crew supreme gesture quantum web media hazard theory mercy wing kitten
 ```
@@ -207,7 +208,7 @@ Start a local fake ship from the master branch in the [urbit repo](https://githu
 > :roller|local
 > :roller|setkey '58d62eb79797502bc0f66cd3e7a49d00287bff53a2734b799ef09cb746340ed0'
 > :roller|quota 9.999
-> |cors-approve 'https://127.0.0.1:3000'
+> |eyre/cors/approve 'https://127.0.0.1:3000'
 :: Once L2 txs have been sent via Bridge, this will manually commit and batch them, avoiding waiting for the timer
 ::
 > :roller|commit
