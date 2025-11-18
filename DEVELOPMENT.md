@@ -80,19 +80,41 @@ of having to re-authenticate whenever you make a change or refresh the page):
 
 ## HTTPS
 
-For development, you can enable HTTPS on localhost without a certificate for
-Chrome by pasting the following into the URL bar:
+For development, Bridge will not run unless you access localhost via HTTPS. To do this, you will want to set up a self-signed cert using `mkcert`:
 
+1. Install `mkcert`:
 ```
-chrome://flags/#allow-insecure-localhost
+# on MacOS using homebrew
+brew install mkcert
+
+# on Linux using apt # TODO Confirm functionality
+sudo apt install libnss3-tools
+wget -O mkcert https://github.com/FiloSottile/mkcert/releases/latest/download/mkcert-v*-linux-amd64
+chmod +x mkcert
+sudo mv mkcert /usr/local/bin/
 ```
 
-In Firefox, you may need to allow connecting to the unsecured local node
-websocket. Do this by going to `about:config` and setting the
-`network.websocket.allowInsecureFromHTTPS` flag to `true`.
+2. Create certificate authority:
+```
+# install local cert authority
+mkcert -install
+```
 
-Additionally you need to run with the `HTTPS` environment variable set to
-`true`. Note that `npm run pilot` will handle this automatically.
+3. Generate localhost Cert:
+```
+# Navigate to your bridge project directory
+cd /path/to/urbit/bridge
+
+# Generate certificate for localhost
+mkcert localhost 127.0.0.1 ::1
+```
+
+This creates two files:
+- `localhost+2.pem` (certificate)
+- `localhost+2-key.pem` (private key)
+
+
+Note: as of 3.3.0, Bridge is deprecating explicit support for Firefox. Privacy focused users are recommended to use Brave Browser.
 
 ##  WalletConnect
 

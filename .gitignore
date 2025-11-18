@@ -28,3 +28,4 @@ bridge*.tar.gz
 checksums.txt
 
 *.pem
+localhost+2*

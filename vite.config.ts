@@ -1,26 +1,52 @@
 import { defineConfig } from 'vite'
-import GlobalPolyFill from "@esbuild-plugins/node-globals-polyfill";
-import nodePolyfills from 'rollup-plugin-node-polyfills';
-import inject from '@rollup/plugin-inject'
 import react from '@vitejs/plugin-react'
-import svgr from 'vite-plugin-svgr';
-import { comlink } from 'vite-plugin-comlink'
-import { resolve } from 'path';
+import comlink from 'vite-plugin-comlink'
 import basicSsl from '@vitejs/plugin-basic-ssl'
+import svgr from 'vite-plugin-svgr'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import GlobalPolyFill from '@esbuild-plugins/node-globals-polyfill'
+import inject from '@rollup/plugin-inject'
+import fs from 'fs'
+import path from 'path'
+import { resolve } from 'path'
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+  // Try to use mkcert certificates first
+  const certPath = path.resolve(__dirname, 'localhost+2.pem')
+  const keyPath = path.resolve(__dirname, 'localhost+2-key.pem')
+
+  let httpsConfig
+  let useBasicSsl = false
+
+  if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+    console.log('✓ Using mkcert certificates')
+    httpsConfig = {
+      key: fs.readFileSync(keyPath),
+      cert: fs.readFileSync(certPath),
+    }
+  } else {
+    console.log('⚠ mkcert certificates not found, using basicSsl')
+    console.log('  Run: mkcert localhost 127.0.0.1 ::1')
+    httpsConfig = true
+    useBasicSsl = true
+  }
+
   return {
     server: {
       port: 3000,
-      https: true,
+      https: httpsConfig,
     },
-    plugins: [comlink(), basicSsl(), svgr(), react(),],
+    plugins: [
+      comlink(),
+      ...(useBasicSsl ? [basicSsl()] : []),
+      svgr(),
+      react(),
+    ],
     resolve: {
       alias: [
-        { find: 'process', replacement: 'process/browser' },      
-        { find: 'stream', replacement: 'stream-browserify' },      
-        { find: 'https', replacement: 'agent-base' },      
+        { find: 'process', replacement: 'process/browser' },
+        { find: 'stream', replacement: 'stream-browserify' },
+        { find: 'https', replacement: 'agent-base' },
         ...[
           'assets',
           'components',
@@ -31,7 +57,7 @@ export default defineConfig(({ mode }) => {
           'style',
           'views',
           'worker',
-        ].map(a => ({ find: a, replacement: resolve(__dirname, `src/${a}`)})),
+        ].map(a => ({ find: a, replacement: resolve(__dirname, `src/${a}`) })),
       ],
     },
     worker: {
@@ -56,10 +82,10 @@ export default defineConfig(({ mode }) => {
         },
         plugins: [
           GlobalPolyFill({
-              process: true,
-              buffer: true,
+            process: true,
+            buffer: true,
           }),
-      ],
+        ],
       },
     },
     define: Object.assign({

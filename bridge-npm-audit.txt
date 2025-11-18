@@ -1,0 +1,697 @@
+# npm audit report
+
+@babel/helpers  <7.26.10
+Severity: moderate
+Babel has inefficient RegExp complexity in generated code with .replace when transpiling named capturing groups - https://github.com/advisories/GHSA-968p-4wvh-cqc8
+fix available via `npm audit fix`
+node_modules/@babel/helpers
+
+@babel/runtime-corejs3  <7.26.10
+Severity: moderate
+Babel has inefficient RegExp complexity in generated code with .replace when transpiling named capturing groups - https://github.com/advisories/GHSA-968p-4wvh-cqc8
+fix available via `npm audit fix`
+node_modules/@babel/runtime-corejs3
+
+@babel/traverse  <7.23.2
+Severity: critical
+Babel vulnerable to arbitrary code execution when compiling specifically crafted malicious code - https://github.com/advisories/GHSA-67hx-6x53-jw92
+fix available via `npm audit fix`
+node_modules/@babel/traverse
+
+ajv  <6.12.3
+Severity: moderate
+Prototype Pollution in Ajv - https://github.com/advisories/GHSA-v88g-cgmw-v5xw
+fix available via `npm audit fix --force`
+Will install serve@14.2.5, which is a breaking change
+node_modules/serve/node_modules/ajv
+  serve  5.0.4 - 14.2.4
+  Depends on vulnerable versions of ajv
+  Depends on vulnerable versions of boxen
+  Depends on vulnerable versions of clipboardy
+  Depends on vulnerable versions of compression
+  Depends on vulnerable versions of serve-handler
+  node_modules/serve
+
+ansi-regex  3.0.0
+Severity: high
+Inefficient Regular Expression Complexity in chalk/ansi-regex - https://github.com/advisories/GHSA-93q8-gq69-wqmw
+fix available via `npm audit fix`
+node_modules/ansi-align/node_modules/ansi-regex
+node_modules/boxen/node_modules/ansi-regex
+node_modules/widest-line/node_modules/ansi-regex
+
+axios  1.0.0 - 1.11.0
+Severity: high
+Axios Cross-Site Request Forgery Vulnerability - https://github.com/advisories/GHSA-wf5p-g6vw-rhxx
+Server-Side Request Forgery in axios - https://github.com/advisories/GHSA-8hc4-vh64-cxmj
+axios Requests Vulnerable To Possible SSRF and Credential Leakage via Absolute URL - https://github.com/advisories/GHSA-jr5f-v2jv-69x6
+Axios is vulnerable to DoS attack through lack of data size check - https://github.com/advisories/GHSA-4hjh-wcwx-xvwj
+fix available via `npm audit fix --force`
+Will install truffle@5.5.7, which is a breaking change
+node_modules/axios
+  @truffle/dashboard-message-bus-client  >=0.1.10
+  Depends on vulnerable versions of axios
+  node_modules/@truffle/dashboard-message-bus-client
+    @truffle/events  >=0.1.21
+    Depends on vulnerable versions of @truffle/dashboard-message-bus-client
+    node_modules/@truffle/events
+      @truffle/config  *
+      Depends on vulnerable versions of @truffle/events
+      Depends on vulnerable versions of @truffle/provider
+      node_modules/@truffle/config
+        @truffle/db  >=2.0.13
+        Depends on vulnerable versions of @truffle/config
+        node_modules/@truffle/db
+          @truffle/db-loader  >=0.2.13
+          Depends on vulnerable versions of @truffle/db
+          node_modules/@truffle/db-loader
+          truffle  5.1.9-nodeLTS.0 || 5.1.14-alphaTez.0 - 5.1.14-truffleLogger.0 || >=5.1.66
+          Depends on vulnerable versions of @truffle/db
+          Depends on vulnerable versions of @truffle/db-loader
+          Depends on vulnerable versions of @truffle/debugger
+          Depends on vulnerable versions of ganache
+          Depends on vulnerable versions of mocha
+          node_modules/truffle
+
+babel-traverse  *
+Severity: critical
+Babel vulnerable to arbitrary code execution when compiling specifically crafted malicious code - https://github.com/advisories/GHSA-67hx-6x53-jw92
+fix available via `npm audit fix --force`
+Will install azimuth-js@0.15.0, which is a breaking change
+node_modules/babel-traverse
+  babel-core  5.8.20 - 7.0.0-beta.3
+  Depends on vulnerable versions of babel-helpers
+  Depends on vulnerable versions of babel-register
+  Depends on vulnerable versions of babel-template
+  Depends on vulnerable versions of babel-traverse
+  Depends on vulnerable versions of json5
+  node_modules/babel-core
+    babel-register  *
+    Depends on vulnerable versions of babel-core
+    node_modules/babel-register
+      azimuth-solidity  *
+      Depends on vulnerable versions of babel-register
+      node_modules/azimuth-solidity
+        azimuth-js  *
+        Depends on vulnerable versions of azimuth-solidity
+        Depends on vulnerable versions of web3
+        node_modules/azimuth-js
+  babel-template  *
+  Depends on vulnerable versions of babel-traverse
+  node_modules/babel-template
+    babel-helpers  *
+    Depends on vulnerable versions of babel-template
+    node_modules/babel-helpers
+
+base-x  <=3.0.10
+Severity: high
+Homograph attack allows Unicode lookalike characters to bypass validation. - https://github.com/advisories/GHSA-xq7p-g2vc-g82p
+fix available via `npm audit fix`
+node_modules/base-x
+
+brace-expansion  1.0.0 - 1.1.11
+brace-expansion Regular Expression Denial of Service vulnerability - https://github.com/advisories/GHSA-v6h2-p8h4-qcjw
+fix available via `npm audit fix`
+node_modules/brace-expansion
+node_modules/ganache/node_modules/brace-expansion
+node_modules/truffle/node_modules/ganache/node_modules/brace-expansion
+
+braces  <3.0.3
+Severity: high
+Uncontrolled resource consumption in braces - https://github.com/advisories/GHSA-grv7-fg5c-xmjg
+fix available via `npm audit fix`
+node_modules/braces
+node_modules/ganache/node_modules/braces
+node_modules/truffle/node_modules/ganache/node_modules/braces
+
+browserify-sign  2.6.0 - 4.2.1
+Severity: high
+browserify-sign upper bound check issue in `dsaVerify` leads to a signature forgery attack - https://github.com/advisories/GHSA-x9w5-v3q2-3rhw
+fix available via `npm audit fix`
+node_modules/browserify-sign
+node_modules/ganache/node_modules/browserify-sign
+node_modules/truffle/node_modules/ganache/node_modules/browserify-sign
+
+cipher-base  <=1.0.4
+Severity: critical
+cipher-base is missing type checks, leading to hash rewind and passing on crafted data - https://github.com/advisories/GHSA-cpq7-6gpm-g9rc
+fix available via `npm audit fix`
+node_modules/cipher-base
+node_modules/ganache/node_modules/cipher-base
+node_modules/truffle/node_modules/ganache/node_modules/cipher-base
+
+cross-spawn  <6.0.6 || >=7.0.0 <7.0.5
+Severity: high
+Regular Expression Denial of Service (ReDoS) in cross-spawn - https://github.com/advisories/GHSA-3xgq-45jj-v275
+Regular Expression Denial of Service (ReDoS) in cross-spawn - https://github.com/advisories/GHSA-3xgq-45jj-v275
+fix available via `npm audit fix --force`
+Will install serve@14.2.5, which is a breaking change
+node_modules/clipboardy/node_modules/cross-spawn
+node_modules/cross-spawn
+node_modules/eslint/node_modules/cross-spawn
+node_modules/ganache/node_modules/cross-spawn
+node_modules/term-size/node_modules/cross-spawn
+node_modules/truffle/node_modules/ganache/node_modules/cross-spawn
+  execa  0.5.0 - 0.9.0
+  Depends on vulnerable versions of cross-spawn
+  node_modules/clipboardy/node_modules/execa
+  node_modules/term-size/node_modules/execa
+    clipboardy  <=1.2.3
+    Depends on vulnerable versions of execa
+    node_modules/clipboardy
+    term-size  1.0.0 - 1.2.0
+    Depends on vulnerable versions of execa
+    node_modules/term-size
+      boxen  1.2.0 - 3.2.0
+      Depends on vulnerable versions of term-size
+      node_modules/boxen
+
+crypto-js  <4.2.0
+Severity: critical
+crypto-js PBKDF2 1,000 times weaker than specified in 1993 and 1.3M times weaker than current standard - https://github.com/advisories/GHSA-xwcq-pm8m-c4vf
+fix available via `npm audit fix --force`
+Will install secure-ls@2.0.0, which is a breaking change
+node_modules/crypto-js
+  secure-ls  <=1.2.6
+  Depends on vulnerable versions of crypto-js
+  node_modules/secure-ls
+
+ejs  <=3.1.9
+Severity: critical
+ejs template injection vulnerability - https://github.com/advisories/GHSA-phwq-j96m-2c2q
+ejs lacks certain pollution protection - https://github.com/advisories/GHSA-ghr5-ch3p-vcr6
+fix available via `npm audit fix`
+node_modules/source-map-explorer/node_modules/ejs
+
+elliptic  <=6.6.0
+Severity: critical
+Elliptic's verify function omits uniqueness validation - https://github.com/advisories/GHSA-434g-2637-qmqr
+Elliptic's private key extraction in ECDSA upon signing a malformed input (e.g. a string) - https://github.com/advisories/GHSA-vjh7-7g9h-fjfh
+Valid ECDSA signatures erroneously rejected in Elliptic - https://github.com/advisories/GHSA-fc9h-whq2-v747
+Elliptic's EDDSA missing signature length check - https://github.com/advisories/GHSA-f7q4-pwc6-w24p
+Elliptic's ECDSA missing check for whether leading bit of r and s is zero - https://github.com/advisories/GHSA-977x-g7h5-7qgw
+Elliptic allows BER-encoded signatures - https://github.com/advisories/GHSA-49q7-c7j4-3p7m
+fix available via `npm audit fix --force`
+Will install truffle@5.5.7, which is a breaking change
+node_modules/elliptic
+node_modules/ganache/node_modules/elliptic
+node_modules/truffle/node_modules/ganache/node_modules/elliptic
+  ethers  3.0.0 - 4.0.49
+  Depends on vulnerable versions of elliptic
+  node_modules/@truffle/interface-adapter/node_modules/ethers
+    @truffle/interface-adapter  *
+    Depends on vulnerable versions of ethers
+    Depends on vulnerable versions of web3
+    node_modules/@truffle/interface-adapter
+      @truffle/provider  *
+      Depends on vulnerable versions of @truffle/interface-adapter
+      Depends on vulnerable versions of web3
+      node_modules/@truffle/provider
+
+esbuild  <=0.24.2
+Severity: moderate
+esbuild enables any website to send any requests to the development server and read the response - https://github.com/advisories/GHSA-67mh-4wv8-2f99
+fix available via `npm audit fix --force`
+Will install vite@3.2.11, which is outside the stated dependency range
+node_modules/esbuild
+  vite  <=6.1.6
+  Depends on vulnerable versions of esbuild
+  Depends on vulnerable versions of rollup
+  node_modules/vite
+
+fast-redact  *
+fast-redact vulnerable to prototype pollution - https://github.com/advisories/GHSA-ffrw-9mx8-89p8
+fix available via `npm audit fix`
+node_modules/fast-redact
+  pino  5.0.0-rc.1 - 9.11.0
+  Depends on vulnerable versions of fast-redact
+  node_modules/pino
+    @walletconnect/logger  <=2.1.3
+    Depends on vulnerable versions of pino
+    node_modules/@walletconnect/logger
+      @walletconnect/core  2.0.0-2.0.0-beta.102 - 2.22.2
+      Depends on vulnerable versions of @walletconnect/logger
+      Depends on vulnerable versions of @walletconnect/types
+      Depends on vulnerable versions of @walletconnect/utils
+      node_modules/@walletconnect/sign-client/node_modules/@walletconnect/core
+      @walletconnect/sign-client  <=2.22.2
+      Depends on vulnerable versions of @walletconnect/core
+      Depends on vulnerable versions of @walletconnect/logger
+      Depends on vulnerable versions of @walletconnect/types
+      Depends on vulnerable versions of @walletconnect/utils
+      node_modules/@walletconnect/sign-client
+      @walletconnect/types  2.1.2-eaa4818c - 2.22.2
+      Depends on vulnerable versions of @walletconnect/logger
+      node_modules/@walletconnect/types
+        @walletconnect/utils  2.1.2-eaa4818c - 2.22.2
+        Depends on vulnerable versions of @walletconnect/types
+        node_modules/@walletconnect/sign-client/node_modules/@walletconnect/utils
+
+form-data  <2.5.4
+Severity: critical
+form-data uses unsafe random function in form-data for choosing boundary - https://github.com/advisories/GHSA-fjxv-7rqg-78g4
+fix available via `npm audit fix`
+node_modules/form-data
+  request  *
+  Depends on vulnerable versions of form-data
+  Depends on vulnerable versions of tough-cookie
+  node_modules/request
+    jsdom  0.1.20 || 0.2.0 - 16.5.3
+    Depends on vulnerable versions of request
+    Depends on vulnerable versions of tough-cookie
+    node_modules/jsdom
+    servify  *
+    Depends on vulnerable versions of request
+    node_modules/servify
+      eth-lib  <=0.1.29
+      Depends on vulnerable versions of servify
+      Depends on vulnerable versions of ws
+      node_modules/eth-lib
+        swarm-js  >=0.1.36
+        Depends on vulnerable versions of eth-lib
+        Depends on vulnerable versions of tar
+        node_modules/swarm-js
+          web3-bzz  *
+          Depends on vulnerable versions of swarm-js
+          node_modules/@truffle/debugger/node_modules/web3-bzz
+          node_modules/@truffle/interface-adapter/node_modules/web3-bzz
+          node_modules/@truffle/provider/node_modules/web3-bzz
+          node_modules/web3-bzz
+
+get-func-name  <2.0.1
+Severity: high
+Chaijs/get-func-name vulnerable to ReDoS - https://github.com/advisories/GHSA-4q6p-r6v2-jvc5
+fix available via `npm audit fix`
+node_modules/get-func-name
+
+js-yaml  <3.14.2 || >=4.0.0 <4.1.1
+Severity: moderate
+js-yaml has prototype pollution in merge (<<) - https://github.com/advisories/GHSA-mh29-5h37-fv8m
+js-yaml has prototype pollution in merge (<<) - https://github.com/advisories/GHSA-mh29-5h37-fv8m
+fix available via `npm audit fix --force`
+Will install truffle@5.5.7, which is a breaking change
+node_modules/@eslint/eslintrc/node_modules/js-yaml
+node_modules/eslint/node_modules/js-yaml
+node_modules/ganache/node_modules/js-yaml
+node_modules/js-yaml
+node_modules/mocha/node_modules/js-yaml
+node_modules/truffle/node_modules/ganache/node_modules/js-yaml
+  mocha  5.1.0 - 10.5.2
+  Depends on vulnerable versions of js-yaml
+  Depends on vulnerable versions of minimatch
+  Depends on vulnerable versions of nanoid
+  Depends on vulnerable versions of serialize-javascript
+  node_modules/ganache/node_modules/mocha
+  node_modules/mocha
+  node_modules/truffle/node_modules/ganache/node_modules/mocha
+
+json-schema  <0.4.0
+Severity: critical
+json-schema is vulnerable to Prototype Pollution - https://github.com/advisories/GHSA-896r-f27r-55mw
+fix available via `npm audit fix`
+node_modules/json-schema
+  jsprim  0.3.0 - 1.4.1 || 2.0.0 - 2.0.1
+  Depends on vulnerable versions of json-schema
+  node_modules/jsprim
+
+json5  <1.0.2 || >=2.0.0 <2.2.2
+Severity: high
+Prototype Pollution in JSON5 via Parse Method - https://github.com/advisories/GHSA-9c47-m6qq-7p4h
+Prototype Pollution in JSON5 via Parse Method - https://github.com/advisories/GHSA-9c47-m6qq-7p4h
+fix available via `npm audit fix --force`
+Will install azimuth-js@0.15.0, which is a breaking change
+node_modules/@babel/core/node_modules/json5
+node_modules/ganache/node_modules/json5
+node_modules/json5
+node_modules/truffle/node_modules/ganache/node_modules/json5
+node_modules/vite-plugin-comlink/node_modules/json5
+  vite-plugin-comlink  3.0.3 - 3.0.5
+  Depends on vulnerable versions of json5
+  node_modules/vite-plugin-comlink
+
+jszip  <3.8.0
+Severity: moderate
+JSZip contains Path Traversal via loadAsync - https://github.com/advisories/GHSA-36fh-84j7-cv5h
+fix available via `npm audit fix`
+node_modules/jszip
+
+markdown-to-jsx  <7.4.0
+Severity: moderate
+Cross site scripting in markdown-to-jsx - https://github.com/advisories/GHSA-4wx3-54gh-9fr9
+fix available via `npm audit fix`
+node_modules/markdown-to-jsx
+
+micromatch  <4.0.8
+Severity: moderate
+Regular Expression Denial of Service (ReDoS) in micromatch - https://github.com/advisories/GHSA-952p-6rrq-rcjv
+fix available via `npm audit fix`
+node_modules/ganache/node_modules/micromatch
+node_modules/micromatch
+node_modules/truffle/node_modules/ganache/node_modules/micromatch
+
+minimatch  <3.0.5
+Severity: high
+minimatch ReDoS vulnerability - https://github.com/advisories/GHSA-f8q6-p94x-37v3
+fix available via `npm audit fix --force`
+Will install truffle@5.5.7, which is a breaking change
+node_modules/ganache/node_modules/minimatch
+node_modules/minimatch
+node_modules/truffle/node_modules/ganache/node_modules/minimatch
+  serve-handler  <=6.1.5
+  Depends on vulnerable versions of minimatch
+  Depends on vulnerable versions of path-to-regexp
+  node_modules/serve-handler
+
+nanoid  <=3.3.7
+Severity: moderate
+Predictable results in nanoid generation when given non-integer values - https://github.com/advisories/GHSA-mwcw-c2x4-8c55
+Exposure of Sensitive Information to an Unauthorized Actor in nanoid - https://github.com/advisories/GHSA-qrpm-p2h7-hrv2
+fix available via `npm audit fix --force`
+Will install truffle@5.5.7, which is a breaking change
+node_modules/ganache/node_modules/nanoid
+node_modules/nanoid
+node_modules/truffle/node_modules/ganache/node_modules/nanoid
+node_modules/vite/node_modules/nanoid
+
+on-headers  <1.1.0
+on-headers is vulnerable to http response header manipulation - https://github.com/advisories/GHSA-76c9-3jph-rj3q
+fix available via `npm audit fix --force`
+Will install serve@14.2.5, which is a breaking change
+node_modules/on-headers
+  compression  1.0.3 - 1.8.0
+  Depends on vulnerable versions of on-headers
+  node_modules/serve/node_modules/compression
+
+path-to-regexp  2.0.0 - 3.2.0
+Severity: high
+path-to-regexp outputs backtracking regular expressions - https://github.com/advisories/GHSA-9wv6-86v2-598j
+fix available via `npm audit fix --force`
+Will install serve@14.2.5, which is a breaking change
+node_modules/serve-handler/node_modules/path-to-regexp
+
+pbkdf2  <=3.1.2
+Severity: critical
+pbkdf2 silently disregards Uint8Array input, returning static keys - https://github.com/advisories/GHSA-v62p-rq8g-8h59
+pbkdf2 returns predictable uninitialized/zero-filled memory for non-normalized or unimplemented algos - https://github.com/advisories/GHSA-h7cp-r72f-jxh6
+fix available via `npm audit fix`
+node_modules/ganache/node_modules/pbkdf2
+node_modules/pbkdf2
+node_modules/truffle/node_modules/ganache/node_modules/pbkdf2
+
+postcss  <8.4.31
+Severity: moderate
+PostCSS line return parsing error - https://github.com/advisories/GHSA-7fh5-64p2-3v2j
+fix available via `npm audit fix`
+node_modules/vite/node_modules/postcss
+
+qs  6.5.0 - 6.5.2
+Severity: high
+qs vulnerable to Prototype Pollution - https://github.com/advisories/GHSA-hrpp-h998-j3pp
+fix available via `npm audit fix`
+node_modules/request/node_modules/qs
+
+
+rollup  <2.79.2
+Severity: high
+DOM Clobbering Gadget found in rollup bundled scripts that leads to XSS - https://github.com/advisories/GHSA-gcx4-mw62-g8wm
+fix available via `npm audit fix --force`
+Will install vite@3.2.11, which is outside the stated dependency range
+node_modules/vite/node_modules/rollup
+
+secp256k1  <=3.8.0 || 4.0.0 - 4.0.3
+Severity: high
+secp256k1-node allows private key extraction over ECDH - https://github.com/advisories/GHSA-584q-6j8j-r5pm
+secp256k1-node allows private key extraction over ECDH - https://github.com/advisories/GHSA-584q-6j8j-r5pm
+fix available via `npm audit fix --force`
+Will install ganache@6.4.5, which is a breaking change
+node_modules/ganache/node_modules/secp256k1
+node_modules/secp256k1
+node_modules/truffle/node_modules/ganache/node_modules/secp256k1
+node_modules/urbit-key-generation/node_modules/secp256k1
+  ganache  <=3.0.0-internal.16 || >=7.0.0-alpha.0
+  Depends on vulnerable versions of @trufflesuite/uws-js-unofficial
+  Depends on vulnerable versions of secp256k1
+  node_modules/ganache
+  node_modules/truffle/node_modules/ganache
+  keythereum  1.2.0
+  Depends on vulnerable versions of secp256k1
+  node_modules/keythereum
+
+semver  <=5.7.1 || 6.0.0 - 6.3.0 || 7.0.0 - 7.5.1
+Severity: high
+semver vulnerable to Regular Expression Denial of Service - https://github.com/advisories/GHSA-c2qf-rxjj-qqgw
+semver vulnerable to Regular Expression Denial of Service - https://github.com/advisories/GHSA-c2qf-rxjj-qqgw
+semver vulnerable to Regular Expression Denial of Service - https://github.com/advisories/GHSA-c2qf-rxjj-qqgw
+fix available via `npm audit fix`
+node_modules/@babel/core/node_modules/semver
+node_modules/cross-spawn/node_modules/semver
+node_modules/ganache/node_modules/semver
+node_modules/normalize-package-data/node_modules/semver
+node_modules/truffle/node_modules/ganache/node_modules/semver
+  @microsoft/api-extractor  7.9.1 - 7.36.2
+  Depends on vulnerable versions of @microsoft/api-extractor-model
+  Depends on vulnerable versions of @rushstack/node-core-library
+  Depends on vulnerable versions of semver
+  node_modules/ganache/node_modules/@microsoft/api-extractor
+  node_modules/truffle/node_modules/ganache/node_modules/@microsoft/api-extractor
+  @rushstack/node-core-library  3.25.0 - 3.59.5
+  Depends on vulnerable versions of semver
+  node_modules/ganache/node_modules/@rushstack/node-core-library
+  node_modules/truffle/node_modules/ganache/node_modules/@rushstack/node-core-library
+    @microsoft/api-extractor-model  7.8.12 - 7.27.4
+    Depends on vulnerable versions of @rushstack/node-core-library
+    node_modules/ganache/node_modules/@microsoft/api-extractor-model
+    node_modules/truffle/node_modules/ganache/node_modules/@microsoft/api-extractor-model
+
+serialize-javascript  6.0.0 - 6.0.1
+Severity: moderate
+Cross-site Scripting (XSS) in serialize-javascript - https://github.com/advisories/GHSA-76p7-773f-r4q5
+fix available via `npm audit fix --force`
+Will install truffle@5.5.7, which is a breaking change
+node_modules/ganache/node_modules/serialize-javascript
+node_modules/serialize-javascript
+node_modules/truffle/node_modules/ganache/node_modules/serialize-javascript
+
+sha.js  <=2.4.11
+Severity: critical
+sha.js is missing type checks leading to hash rewind and passing on crafted data - https://github.com/advisories/GHSA-95m3-7q98-8xr5
+fix available via `npm audit fix`
+node_modules/ganache/node_modules/sha.js
+node_modules/sha.js
+node_modules/truffle/node_modules/ganache/node_modules/sha.js
+
+shell-quote  1.6.3 - 1.7.2
+Severity: critical
+Improper Neutralization of Special Elements used in a Command in Shell-quote - https://github.com/advisories/GHSA-g4rg-993r-mgx7
+fix available via `npm audit fix`
+node_modules/shell-quote
+
+tar  <6.2.1
+Severity: moderate
+Denial of service while parsing a tar file due to lack of folders count validation - https://github.com/advisories/GHSA-f5x3-32g6-xq36
+fix available via `npm audit fix`
+node_modules/tar
+
+tiny-secp256k1  <=1.1.6
+Severity: high
+tiny-secp256k1 allows for verify() bypass when running in bundled environment - https://github.com/advisories/GHSA-5vhg-9xg4-cv9m
+tiny-secp256k1 vulnerable to private key extraction when signing a malicious JSON-stringifyable message in bundled environment - https://github.com/advisories/GHSA-7mc2-6phr-23xc
+fix available via `npm audit fix`
+node_modules/tiny-secp256k1
+
+tough-cookie  <4.1.3
+Severity: moderate
+tough-cookie Prototype Pollution vulnerability - https://github.com/advisories/GHSA-72xf-g2v4-qvf3
+fix available via `npm audit fix`
+node_modules/tough-cookie
+
+validator  <13.15.20
+Severity: moderate
+validator.js has a URL validation bypass vulnerability in its isURL function - https://github.com/advisories/GHSA-9965-vmph-33xx
+fix available via `npm audit fix`
+node_modules/ganache/node_modules/validator
+node_modules/truffle/node_modules/ganache/node_modules/validator
+
+
+web3-core-method  <=2.0.0-alpha.1
+web3-core-method is vulnerable to prototype pollution - https://github.com/advisories/GHSA-2j4c-9qqq-896r
+Depends on vulnerable versions of web3-core-subscriptions
+fix available via `npm audit fix --force`
+Will install web3-core@4.7.1, which is a breaking change
+node_modules/@truffle/debugger/node_modules/web3-core-method
+node_modules/@truffle/interface-adapter/node_modules/web3-core-method
+node_modules/@truffle/provider/node_modules/web3-core-method
+node_modules/web3-core-method
+  web3-core  <=2.0.0-alpha.1
+  Depends on vulnerable versions of web3-core-method
+  Depends on vulnerable versions of web3-core-method
+  node_modules/@truffle/debugger/node_modules/web3-core
+  node_modules/@truffle/interface-adapter/node_modules/web3-core
+  node_modules/@truffle/provider/node_modules/web3-core
+  node_modules/web3-core
+    web3-eth-ens  <=2.0.0-alpha.1
+    Depends on vulnerable versions of web3-core
+    Depends on vulnerable versions of web3-core
+    Depends on vulnerable versions of web3-eth-contract
+    Depends on vulnerable versions of web3-eth-contract
+    node_modules/@truffle/debugger/node_modules/web3-eth-ens
+    node_modules/@truffle/interface-adapter/node_modules/web3-eth-ens
+    node_modules/@truffle/provider/node_modules/web3-eth-ens
+    node_modules/web3-eth-ens
+    web3-eth-personal  <=2.0.0-alpha.1 || 4.0.9-dev.408125.0
+    Depends on vulnerable versions of web3-core
+    Depends on vulnerable versions of web3-core
+    Depends on vulnerable versions of web3-core-method
+    Depends on vulnerable versions of web3-core-method
+    Depends on vulnerable versions of web3-net
+    Depends on vulnerable versions of web3-net
+    node_modules/@truffle/debugger/node_modules/web3-eth-personal
+    node_modules/@truffle/interface-adapter/node_modules/web3-eth-personal
+    node_modules/@truffle/provider/node_modules/web3-eth-personal
+    node_modules/web3-eth-personal
+    web3-net  1.2.0 - 2.0.0-alpha.1 || 4.0.8-dev.408125.0
+    Depends on vulnerable versions of web3-core
+    Depends on vulnerable versions of web3-core
+    Depends on vulnerable versions of web3-core-method
+    Depends on vulnerable versions of web3-core-method
+    node_modules/@truffle/debugger/node_modules/web3-net
+    node_modules/@truffle/interface-adapter/node_modules/web3-net
+    node_modules/@truffle/provider/node_modules/web3-net
+    node_modules/web3-net
+      web3  1.0.0-beta.1 - 3.0.0-rc.0
+      Depends on vulnerable versions of web3-bzz
+      Depends on vulnerable versions of web3-core
+      Depends on vulnerable versions of web3-core
+      Depends on vulnerable versions of web3-eth
+      Depends on vulnerable versions of web3-eth
+      Depends on vulnerable versions of web3-eth-personal
+      Depends on vulnerable versions of web3-eth-personal
+      Depends on vulnerable versions of web3-net
+      Depends on vulnerable versions of web3-net
+      Depends on vulnerable versions of web3-shh
+      Depends on vulnerable versions of web3-shh
+      node_modules/@truffle/debugger/node_modules/web3
+      node_modules/@truffle/interface-adapter/node_modules/web3
+      node_modules/@truffle/provider/node_modules/web3
+      node_modules/web3
+        @truffle/debugger  *
+        Depends on vulnerable versions of @ensdomains/ensjs
+        Depends on vulnerable versions of web3
+        node_modules/@truffle/debugger
+      web3-eth  <=2.0.0-alpha.1
+      Depends on vulnerable versions of web3-core
+      Depends on vulnerable versions of web3-core
+      Depends on vulnerable versions of web3-core-method
+      Depends on vulnerable versions of web3-core-method
+      Depends on vulnerable versions of web3-core-subscriptions
+      Depends on vulnerable versions of web3-eth-accounts
+      Depends on vulnerable versions of web3-eth-accounts
+      Depends on vulnerable versions of web3-eth-contract
+      Depends on vulnerable versions of web3-eth-contract
+      Depends on vulnerable versions of web3-eth-ens
+      Depends on vulnerable versions of web3-eth-ens
+      Depends on vulnerable versions of web3-eth-personal
+      Depends on vulnerable versions of web3-eth-personal
+      Depends on vulnerable versions of web3-net
+      Depends on vulnerable versions of web3-net
+      node_modules/@truffle/debugger/node_modules/web3-eth
+      node_modules/@truffle/interface-adapter/node_modules/web3-eth
+      node_modules/@truffle/provider/node_modules/web3-eth
+      node_modules/web3-eth
+      web3-shh  *
+      Depends on vulnerable versions of web3-core
+      Depends on vulnerable versions of web3-core
+      Depends on vulnerable versions of web3-core-method
+      Depends on vulnerable versions of web3-core-method
+      Depends on vulnerable versions of web3-core-subscriptions
+      Depends on vulnerable versions of web3-net
+      Depends on vulnerable versions of web3-net
+      node_modules/@truffle/debugger/node_modules/web3-shh
+      node_modules/@truffle/interface-adapter/node_modules/web3-shh
+      node_modules/@truffle/provider/node_modules/web3-shh
+      node_modules/web3-shh
+  web3-eth-accounts  <=2.0.0-alpha.1
+  Depends on vulnerable versions of web3-core
+  Depends on vulnerable versions of web3-core
+  Depends on vulnerable versions of web3-core-method
+  Depends on vulnerable versions of web3-core-method
+  node_modules/@truffle/debugger/node_modules/web3-eth-accounts
+  node_modules/@truffle/interface-adapter/node_modules/web3-eth-accounts
+  node_modules/@truffle/provider/node_modules/web3-eth-accounts
+  node_modules/web3-eth-accounts
+  web3-eth-contract  <=2.0.0-alpha.1
+  Depends on vulnerable versions of web3-core
+  Depends on vulnerable versions of web3-core
+  Depends on vulnerable versions of web3-core-method
+  Depends on vulnerable versions of web3-core-method
+  Depends on vulnerable versions of web3-core-subscriptions
+  node_modules/@truffle/debugger/node_modules/web3-eth-contract
+  node_modules/@truffle/interface-adapter/node_modules/web3-eth-contract
+  node_modules/@truffle/provider/node_modules/web3-eth-contract
+  node_modules/web3-eth-contract
+
+web3-core-subscriptions  <=2.0.0-alpha.1
+web3-core-subscriptions has a Prototype Pollution vulnerability - https://github.com/advisories/GHSA-hhf6-3xpg-pggx
+fix available via `npm audit fix --force`
+Will install web3-core@4.7.1, which is a breaking change
+node_modules/@truffle/debugger/node_modules/web3-core-subscriptions
+node_modules/@truffle/interface-adapter/node_modules/web3-core-subscriptions
+node_modules/@truffle/provider/node_modules/web3-core-subscriptions
+node_modules/web3-core-subscriptions
+
+webpack  5.0.0-alpha.0 - 5.93.0
+Severity: critical
+Cross-realm object access in Webpack 5 - https://github.com/advisories/GHSA-hc6q-2mpp-qw7j
+Webpack's AutoPublicPathRuntimeModule has a DOM Clobbering Gadget that leads to XSS - https://github.com/advisories/GHSA-4vvj-4cpr-p986
+fix available via `npm audit fix`
+node_modules/ganache/node_modules/webpack
+node_modules/truffle/node_modules/ganache/node_modules/webpack
+
+word-wrap  <1.2.4
+Severity: moderate
+word-wrap vulnerable to Regular Expression Denial of Service - https://github.com/advisories/GHSA-j8xg-fqg3-53r7
+fix available via `npm audit fix`
+node_modules/word-wrap
+
+ws  2.1.0 - 5.2.3 || 7.0.0 - 7.5.9 || 8.0.0 - 8.17.0
+Severity: high
+ws affected by a DoS when handling a request with many HTTP headers - https://github.com/advisories/GHSA-3h5v-q93c-6h6q
+ws affected by a DoS when handling a request with many HTTP headers - https://github.com/advisories/GHSA-3h5v-q93c-6h6q
+ws affected by a DoS when handling a request with many HTTP headers - https://github.com/advisories/GHSA-3h5v-q93c-6h6q
+fix available via `npm audit fix --force`
+Will install ganache@6.4.5, which is a breaking change
+node_modules/eth-lib/node_modules/ws
+node_modules/ganache/node_modules/@trufflesuite/uws-js-unofficial/node_modules/ws
+node_modules/truffle/node_modules/ganache/node_modules/@trufflesuite/uws-js-unofficial/node_modules/ws
+node_modules/ws
+  @trufflesuite/uws-js-unofficial  *
+  Depends on vulnerable versions of ws
+  node_modules/ganache/node_modules/@trufflesuite/uws-js-unofficial
+  node_modules/truffle/node_modules/ganache/node_modules/@trufflesuite/uws-js-unofficial
+
+yargs-parser  <=5.0.0
+Severity: moderate
+yargs-parser Vulnerable to Prototype Pollution - https://github.com/advisories/GHSA-p9pc-299p-vxgp
+fix available via `npm audit fix --force`
+Will install truffle@5.5.7, which is a breaking change
+node_modules/solc/node_modules/yargs-parser
+  yargs  4.0.0-alpha1 - 7.0.0-alpha.3 || 7.1.1
+  Depends on vulnerable versions of yargs-parser
+  node_modules/solc/node_modules/yargs
+    solc  0.3.6 - 0.4.26
+    Depends on vulnerable versions of yargs
+    node_modules/solc
+      @ensdomains/ens  *
+      Depends on vulnerable versions of solc
+      node_modules/@ensdomains/ens
+        @ensdomains/ensjs  <=2.1.0
+        Depends on vulnerable versions of @ensdomains/ens
+        node_modules/@ensdomains/ensjs
+
+108 vulnerabilities (23 low, 25 moderate, 42 high, 18 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
