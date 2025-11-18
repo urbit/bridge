@@ -8,7 +8,7 @@
   },
   "main": "src/index.js",
   "private": true,
-  "author": "Tlon",
+  "author": "The Urbit Foundation",
   "license": "MIT",
   "engines": {
     "node": "16.18.0"
