@@ -105,9 +105,15 @@ export default function LoginSelector({
         if (expectedChainId() === ETHEREUM_LOCAL_CHAIN_ID) {
           await window.ethereum.request({
             method: "wallet_addEthereumChain",
-            params: [{chainId: ETHEREUM_LOCAL_CHAIN_ID,
-                      chainName: "Ganache",
-                      rpcUrls: ["http://127.0.0.1:8545"]
+            params: [{
+              chainId: ETHEREUM_LOCAL_CHAIN_ID,
+              chainName: "Ganache",
+              rpcUrls: ["http://127.0.0.1:8545"],
+              nativeCurrency: {
+                name: "Ether",
+                symbol: "ETH",
+                decimals: 18
+              }
             }]
           });
         }
