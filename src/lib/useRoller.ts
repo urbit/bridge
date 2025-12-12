@@ -145,16 +145,17 @@ export default function useRoller() {
       }
 
       const pointNum = Number(point);
-      const rawDetails = await api.getPoint(pointNum);
-      const isL2 = isL2Spawn(rawDetails?.dominion);
-
-      const details = toL1Details(rawDetails);
 
       try {
-        if (isL2) {
-          const l2Quota = isL2 ? await api.getRemainingQuota(pointNum) : 0;
-          const l2Allowance = isL2 ? await api.getAllowance(pointNum) : 0;
+        // Try fetching from the roller
+        const rawDetails = await api.getPoint(pointNum); // this fails for newly spawned L1 point until roller updates
+        const details = toL1Details(rawDetails);
+        const isL2 = isL2Spawn(rawDetails?.dominion);
 
+        if (isL2) {
+          // Scenario 1: L2 point exists in roller state - use roller data
+          const l2Quota = await api.getRemainingQuota(pointNum);
+          const l2Allowance = await api.getAllowance(pointNum);
           return new Point({
             value: pointNum,
             details,
@@ -162,30 +163,48 @@ export default function useRoller() {
             l2Quota,
             l2Allowance,
           });
+        } else {
+          // Scenario 2: L1 point exists in roller state - use combination of chain and roller data
+          const _contracts = need.contracts(contracts);
+          const l1Details = await azimuth.azimuth.getPoint(
+            _contracts,
+            pointNum
+          );
+          // Override with roller data for accuracy, L1 data here could be stale
+          l1Details.sponsor = details.sponsor;
+          l1Details.escapeRequested = details.escapeRequested;
+          l1Details.escapeRequestedTo = details.escapeRequestedTo;
+          return new Point({
+            value: pointNum,
+            details: l1Details,
+            address: _wallet.address,
+          });
         }
-
-        const _contracts = need.contracts(contracts);
-        const l1Details = await azimuth.azimuth.getPoint(_contracts, point);
-
-        l1Details.sponsor = details.sponsor;
-        l1Details.escapeRequested = details.escapeRequested;
-        l1Details.escapeRequestedTo = details.escapeRequestedTo;
-
-        return new Point({
-          value: pointNum,
-          details: l1Details,
-          address: _wallet.address,
-        });
       } catch (e) {
-        console.warn(e);
-        // Just return a placeholder Point
-        const details: L1Point = toL1Details();
-        return new Point({
-          value: pointNum,
-          details,
-          address: _wallet.address,
-          isPlaceholder: true,
-        });
+        // roller failed to fetch point
+        try {
+          // Scenario 3: Newly spawned L1 point - not in roller state yet, use chain data only
+          const _contracts = need.contracts(contracts);
+          const l1Details = await azimuth.azimuth.getPoint(
+            _contracts,
+            pointNum
+          );
+          return new Point({
+            value: pointNum,
+            details: l1Details,
+            address: _wallet.address,
+          });
+        } catch (e2) {
+          // Scenario 4: Some other issue, point doesn’t exist on chain or in roller state. Just return placeholder.
+          console.warn('Failed to fetch point data:', e2);
+          const details: L1Point = toL1Details();
+          return new Point({
+            value: pointNum,
+            details,
+            address: _wallet.address,
+            isPlaceholder: true,
+          });
+        }
       }
     },
     [api, wallet, contracts]
@@ -309,14 +328,14 @@ export default function useRoller() {
         proxy === 'own'
           ? await api.getOwnedPoints(address)
           : proxy === 'manage'
-          ? await api.getManagerFor(address)
-          : proxy === 'vote'
-          ? await api.getVotingFor(address)
-          : proxy === 'transfer'
-          ? await api.getTransferringFor(address)
-          : proxy === 'spawn'
-          ? await api.getSpawningFor(address)
-          : [];
+            ? await api.getManagerFor(address)
+            : proxy === 'vote'
+              ? await api.getVotingFor(address)
+              : proxy === 'transfer'
+                ? await api.getTransferringFor(address)
+                : proxy === 'spawn'
+                  ? await api.getSpawningFor(address)
+                  : [];
 
       return points;
     },
@@ -365,14 +384,14 @@ export default function useRoller() {
       const networkSeed = customNetworkSeed
         ? customNetworkSeed
         : await attemptNetworkSeedDerivation({
-            urbitWallet,
-            wallet,
-            authMnemonic,
-            details: point,
-            authToken,
-            point: point.value,
-            revision: nextRevision,
-          });
+          urbitWallet,
+          wallet,
+          authMnemonic,
+          details: point,
+          authToken,
+          point: point.value,
+          revision: nextRevision,
+        });
       const txHash = await submitL2Transaction({
         api,
         wallet: _wallet,
@@ -422,7 +441,7 @@ export default function useRoller() {
     let nonce = await api.getNonce({ ship: point, proxy });
     const progress = onUpdate
       ? (state: number) => onUpdate({ type: 'progress', state })
-      : () => {};
+      : () => { };
 
     let requests = [];
 
