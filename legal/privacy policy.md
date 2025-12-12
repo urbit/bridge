@@ -1,7 +1,7 @@
 
-Effective date: June 01, 2018
+Effective date: December 11, 2025
 
-Tlon Corporation ("us", "we", or "our") operates the website and the Urbit mobile application (the "Service").
+The Urbit Foundation in cooperation with Tlon Corporation, ("us", "we", or "our") operate the bridge.urbit.org website (the "Service").
 
 This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data.
 
@@ -11,7 +11,7 @@ We use your data to provide and improve the Service. By using the Service, you a
 
 **Service**
 
-Service means the website and the Urbit mobile application operated by Tlon Corporation
+Service means the bridge.urbit.org website.
 
 **Personal Data**
 
@@ -81,7 +81,7 @@ Security Cookies. We use Security Cookies for security purposes.
 
 **Use of Data**
 
-Tlon Corporation uses the collected data for various purposes:
+We use the collected data for various purposes:
 
 - To provide and maintain our Service
 
@@ -99,13 +99,13 @@ Tlon Corporation uses the collected data for various purposes:
 
 - Legal Basis for Processing Personal Data Under General Data Protection Regulation (GDPR)
 
-If you are from the European Economic Area (EEA), Tlon Corporation legal basis for collecting and using the personal information described in this Privacy Policy depends on the Personal Data we collect and the specific context in which we collect it.
+If you are from the European Economic Area (EEA), our legal basis for collecting and using the personal information described in this Privacy Policy depends on the Personal Data we collect and the specific context in which we collect it.
 
-**Tlon Corporation may process your Personal Data because:**
+**Tlon Corporation and The Urbit Foundation may process your Personal Data because:**
 
 - We need to perform a contract with you
 
-- You have given us permission to do so
+- You have given us permission to do so as a part of using The Service,
 
 - The processing is in our legitimate interests and it's not overridden by your rights
 
@@ -113,9 +113,9 @@ If you are from the European Economic Area (EEA), Tlon Corporation legal basis f
 
 - Retention of Data
 
-Tlon Corporation will retain your Personal Data only for as long as is necessary for the purposes set out in this Privacy Policy. We will retain and use your Personal Data to the extent necessary to comply with our legal obligations (for example, if we are required to retain your data to comply with applicable laws), resolve disputes, and enforce our legal agreements and policies.
+We will retain your Personal Data only for as long as is necessary for the purposes set out in this Privacy Policy. We will retain and use your Personal Data to the extent necessary to comply with our legal obligations (for example, if we are required to retain your data to comply with applicable laws), resolve disputes, and enforce our legal agreements and policies.
 
-Tlon Corporation will also retain Usage Data for internal analysis purposes. Usage Data is generally retained for a shorter period of time, except when this data is used to strengthen the security or to improve the functionality of our Service, or we are legally obligated to retain this data for longer time periods.
+We will also retain Usage Data for internal analysis purposes. Usage Data is generally retained for a shorter period of time, except when this data is used to strengthen the security or to improve the functionality of our Service, or we are legally obligated to retain this data for longer time periods.
 
 **Transfer of Data**
 
@@ -131,7 +131,7 @@ Tlon Corporation will take all steps reasonably necessary to ensure that your da
 
 Legal Requirements
 
-Tlon Corporation may disclose your Personal Data in the good faith belief that such action is necessary to:
+We may disclose your Personal Data in the good faith belief that such action is necessary to:
 
 - To comply with a legal obligation
 
@@ -207,4 +207,4 @@ You are advised to review this Privacy Policy periodically for any changes. Chan
 
 If you have any questions about this Privacy Policy, please contact us:
 
-By email: support@urbit.org
+By email: support@urbit.org & support@tlon.io
