@@ -85,11 +85,11 @@ const useMigrate = () => {
         setSelectedPoint(selectedPoint);
         return transfer || isPlanet(selectedPoint)
           ? ecliptic.transferPoint(
-              _contracts,
-              selectedPoint,
-              DUMMY_L2_ADDRESS,
-              false
-            )
+            _contracts,
+            selectedPoint,
+            DUMMY_L2_ADDRESS,
+            false
+          )
           : ecliptic.setSpawnProxy(_contracts, selectedPoint, DUMMY_L2_ADDRESS);
       },
       [_contracts]
@@ -245,10 +245,25 @@ export default function MigrateL2() {
             )}
             {isStar && (
               <Box className="mt4">
-                Transferring this point will allow you to conduct all
-                transactions on Layer 2. Setting the spawn proxy of a star to
-                Layer 2 will allow you to create planet invites for free, but
-                will require you to do all other transactions on Layer 1.
+                <div className="bold">Transferring ship</div>
+                Allows you to conduct all
+                transactions subsidized on Layer 2, with the tradeoff
+                of lost visibility to the Ethereum network.
+
+                <br></br>
+                <br></br>
+                <div className="bold">Set spawn proxy</div>
+                Moves spawning functionality to Layer 2
+                enabling subsizided planet creation
+                while retaining visibility to the Ethereum network.
+                <br></br>
+                <a
+                  className="bold underline"
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://docs.urbit.org/user-manual/id/l2-star">
+                  Learn More about the L2 for stars↗
+                </a>
               </Box>
             )}
             {isGalaxy && (
@@ -256,15 +271,17 @@ export default function MigrateL2() {
                 Setting the spawn proxy of this galaxy to Layer 2 will allow you
                 to spawn stars on Layer 2 for free, but will still require you
                 to do all other transactions on Layer 1.
+                <br></br>
+                <br></br>
+                <div className="bold">MIGRATING YOUR GALAXY'S SPAWN PROXY IS NOT RECOMMENDED, AND IS IRREVERSIBLE.</div>
               </Box>
             )}
           </Box>
           <Grid.Item
             full
             as={InlineEthereumTransaction}
-            label={`${
-              transfer ? 'Transfer ship' : 'Set spawn proxy'
-            } to Layer 2`}
+            label={`${transfer ? 'Transfer ship' : 'Set spawn proxy'
+              } to Layer 2`}
             {...bind}
             onReturn={() => pop()}
           />
@@ -275,16 +292,8 @@ export default function MigrateL2() {
     return (
       <Box className="content">
         <Box className="message">
-          You are about to migrate a node from Layer 1 to Layer 2. This will
-          make transactions faster and cheaper. Here are some things you should
-          know.{' '}
-          <a
-            className="bold"
-            target="_blank"
-            rel="noreferrer"
-            href="https://docs.urbit.org/user-manual/id/layer-2-for-planets">
-            Learn More
-          </a>
+          You are about to migrate an Urbit ID from Layer 1 Ethereum to the Layer 2 rollup. This will
+          make transactions cheaper. Here are some things you should know.{' '}
         </Box>
         {!hideInfo && (
           <Box className="info-list">
@@ -305,9 +314,9 @@ export default function MigrateL2() {
                 <Box className="icon">$</Box>
               </Box>
               <Box className="info-message">
-                A migration is expensive, but a one-time fee. The estimated
-                price is <span className="bold">$120</span>. Transaction fees
-                will be subsidized on Layer 2.
+                Migration incurs a one-time fee. The estimated
+                price is generally less than <span className="bold">$10</span>. Transaction fees
+                are subsidized by Tlon on Layer 2, making them effectively free.
               </Box>
             </Row>
             <Row className="info-row">
@@ -316,10 +325,17 @@ export default function MigrateL2() {
               </Box>
               {/* <HistoryIcon className="icon" /> */}
               <Box className="info-message">
-                All transactions will now be pushed at the end of the day. A
+                Subsidized Layer 2 transactions are batched, generally hourly. A
                 timer will show when the next push is.
               </Box>
             </Row>
+            <a
+              className="bold underline"
+              target="_blank"
+              rel="noreferrer"
+              href="https://docs.urbit.org/user-manual/id/layer-2-for-planets">
+              Learn More↗
+            </a>
           </Box>
         )}
         {!hideInfo && (
