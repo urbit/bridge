@@ -92,9 +92,6 @@ const L2PointHeader = ({
       <Row>
         <Row className="info">
           {renderInviteButton()}
-          <Box className="history" onClick={goToHistory}>
-            History
-          </Box>
           {points && <InviteConverter points={points} />}
         </Row>
       </Row>
