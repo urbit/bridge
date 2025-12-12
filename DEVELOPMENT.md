@@ -200,15 +200,17 @@ Start a local fake ship from the master branch in the [urbit repo](https://githu
 :: Run these in the dojo:
 ::
 > |mount /=base=
-> :azimuth %resub
+> |nuke %azimuth
+> |rein %base [%.y %azimuth]
 > :azimuth|watch 'http://0.0.0.0:8545' %local
+> :azimuth %resub
 > :azimuth &azimuth-poke [%kick ~]
 > |rein %base [& %roller] [& %roller-rpc] [& %azimuth-rpc]
 > :roller|local
 > :roller|setkey '58d62eb79797502bc0f66cd3e7a49d00287bff53a2734b799ef09cb746340ed0'
 > :roller|quota 9.999
-> |eyre/cors/approve 'https://127.0.0.1:3000'
 :: If you run into issues, also add 'https://localhost:3000' the the eyre CORS approvals
+> |eyre/cors/approve 'https://127.0.0.1:3000'
 ::
 :: Once L2 txs have been sent via Bridge, this will manually commit and batch them, avoiding waiting for the timer
 ::
