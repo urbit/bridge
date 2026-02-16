@@ -60,6 +60,22 @@ export default function ActivateView({
             </Box>
           </BodyPane>
         </Window>
+        <div className="activation-qualifier">
+          <div className="activation-note"> Planet activation codes will give you a self-custody <a className="linkout" href="https://docs.urbit.org/user-manual/id/layer-2-for-planets">Layer 2 Urbit 'planet'↗</a> and a Master Ticket wallet.
+          </div>
+          <div className="activation-note">
+            This is a legacy feature not actively maintained in Bridge, if you run into issues we recommend you either: <br></br>
+            <ol>
+              <li>
+                <a className="linkout" href="https://join.tlon.io/0v3.r87kb.fjpft.3k7b5.pbsr5.5em17">Claim a free Layer 2 planet from Tlon↗</a>
+              </li>
+              <br></br>
+              <li>
+                <a className="linkout" href="https://docs.urbit.org/user-manual/id/get-id#l1-planet-markets">Buy a Layer 1 identity on Ethereum↗</a>
+              </li>
+            </ol>
+          </div>
+        </div>
       </Grid.Item>
     </Grid>
   );

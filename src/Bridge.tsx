@@ -20,6 +20,9 @@ import light from '@tlon/indigo-light';
 
 import WithErrorBoundary from 'components/WithErrorBoundary';
 import GlobalErrorBoundary from 'components/GlobalErrorBoundary';
+import { useBrowser } from 'lib/useBrowser';
+import { BrowserWarning } from 'components/BrowserWarning';
+
 import Modal from 'components/L2/Modal';
 import { useRollerStore } from 'store/rollerStore';
 import { Box } from '@tlon/indigo-react';
@@ -29,8 +32,8 @@ import { useRollerPoller } from 'lib/useRollerPoller';
 const INITIAL_NETWORK_TYPE = isGoerli
   ? NETWORK_TYPES.GOERLI
   : isDevelopment && !isMainnet
-  ? NETWORK_TYPES.LOCAL
-  : NETWORK_TYPES.MAINNET;
+    ? NETWORK_TYPES.LOCAL
+    : NETWORK_TYPES.MAINNET;
 
 // NB(shrugs): modify these variables to change the default local state.
 const SHOULD_STUB_LOCAL = import.meta.env.VITE_STUB_LOCAL === 'true';
@@ -38,9 +41,9 @@ const IS_STUBBED = isDevelopment && SHOULD_STUB_LOCAL;
 
 const INITIAL_WALLET = IS_STUBBED
   ? walletFromMnemonic(
-      import.meta.env.VITE_DEV_MNEMONIC as string,
-      import.meta.env.VITE_HD_PATH as string
-    )
+    import.meta.env.VITE_DEV_MNEMONIC as string,
+    import.meta.env.VITE_HD_PATH as string
+  )
   : undefined;
 const INITIAL_MNEMONIC = IS_STUBBED
   ? Just(import.meta.env.VITE_DEV_MNEMONIC)
@@ -82,6 +85,9 @@ function Bridge() {
   const initialRoutes = useInitialRoutes();
   const { loading, modalText, setModalText } = useRollerStore();
 
+  const browser = useBrowser();
+  const showBrowserWarning = browser && !browser.isChromium;
+
   //  full reload if the user changes their selected network in Metamask
   //
   useEffect(() => {
@@ -103,6 +109,7 @@ function Bridge() {
         initialWallet={INITIAL_WALLET}
         initialMnemonic={INITIAL_MNEMONIC}
         initialPointCursor={INITIAL_POINT_CURSOR}>
+        <BrowserWarning show={!!showBrowserWarning} />
         <IndigoApp>
           <ThemeProvider theme={light}>
             <Router />

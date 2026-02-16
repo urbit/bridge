@@ -279,8 +279,8 @@ export default function UrbitOSNetworkKeys({
   const viewTitle = completed
     ? 'Network Keys have been set'
     : hasKeys
-    ? 'Set Network Keys'
-    : 'Initiate Network Keys';
+      ? 'Set Network Keys'
+      : 'Initiate Network Keys';
 
   const bootMessage = () => (
     <Text as="p" textAlign={'center'}>
@@ -311,9 +311,19 @@ export default function UrbitOSNetworkKeys({
 
   const waitMessage = () => (
     <Text as="p" textAlign={'center'}>
-      <strong>Important:</strong> it may take minutes to hours for the
-      keys to become usable. Please be patient, trying to use the new keys
-      during this period may result in an invalid keys error.
+      <strong>Important:</strong> It may take minutes to hours for the
+      keys to become usable as they propogate across the network.
+      Please be patient, trying to use the new keys
+      during this period may result in an{' '}
+      <
+        Text as="code"
+        mono
+        bg={'washedGray'}
+        padding={1}
+        borderRadius={1}
+        textAlign={'center'}>
+        invalid keys</Text>
+      {' '}error.
     </Text>
   );
 

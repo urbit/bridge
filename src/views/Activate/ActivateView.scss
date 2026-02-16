@@ -1,3 +1,34 @@
 .activate-view {
   min-height: 440px;
 }
+
+.activation-qualifier {
+  /* Container appearance */
+  margin-top: 1rem;
+  // color: #000000;                 /* default text colour */
+  padding: 1rem;               /* some inner space */
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.02);
+  font-family: 'Inter';
+  background: #fff4e5;
+  color: #663c00;
+  border: 1px solid #ffb74d;
+}
+
+/* Each note inside the container */
+.activation-qualifier .activation-note {
+  margin-bottom: 1rem;         /* space between notes */
+}
+
+/* Remove the bottom margin from the last note */
+.activation-qualifier .activation-note:last-child {
+  margin-bottom: 0;
+}
+
+/* Link styling – only for links that have the .linkout class */
+.activation-qualifier a.linkout {
+  color: #663c00;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
