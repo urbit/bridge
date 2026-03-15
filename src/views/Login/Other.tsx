@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { Icon } from '@tlon/indigo-react';
 
-import Metamask from './Metamask';
 import Ticket from './Ticket';
 import Mnemonic from './Mnemonic';
-import WalletConnect from './WalletConnect';
 import LoginSelector from './LoginSelector';
 import { ReactComponent as MetamaskIcon } from 'assets/metamask.svg';
 import { ReactComponent as WalletConnectIcon } from 'assets/wallet-connect.svg';
@@ -17,9 +15,7 @@ export const NAMES = {
 };
 
 const VIEWS = {
-  [NAMES.METAMASK]: Metamask,
   [NAMES.MNEMONIC]: Mnemonic,
-  [NAMES.WALLET_CONNECT]: WalletConnect,
   [NAMES.MASTER_TICKET]: Ticket,
 };
 

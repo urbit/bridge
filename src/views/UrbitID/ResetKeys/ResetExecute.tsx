@@ -77,7 +77,7 @@ export default function ResetExecute({
     signTransaction: wcSign,
     sendTransaction: wcSend,
     connector,
-    isConnected,
+    session,
   } = useWalletConnect();
   const { performL2SpawnReticket } = useReticketL2Spawn();
 
@@ -128,17 +128,6 @@ export default function ResetExecute({
   );
 
   const performReticket = useCallback(async () => {
-    // due to react shenanigans we may need to wait for the connector
-    if (
-      walletType === WALLET_TYPES.WALLET_CONNECT &&
-      (!connector || isConnected())
-    ) {
-      setGeneralError(new Error('Awaiting WalletConnect connection...'));
-      return;
-    }
-
-    setGeneralError(undefined);
-
     const l2point = await api.getPoint(point);
     const details = need.details(getDetails(point));
     const networkRevision = convertToInt(details.keyRevisionNumber, 10);
@@ -200,7 +189,6 @@ export default function ResetExecute({
     }
   }, [
     api,
-    connector,
     contracts,
     getDetails,
     handleUpdate,
@@ -215,20 +203,31 @@ export default function ResetExecute({
     walletType,
     wcSend,
     wcSign,
-    isConnected,
     web3,
   ]);
 
+  // For WalletConnect
   useEffect(() => {
-    if (!connector) {
-      return;
+    if (walletType === WALLET_TYPES.WALLET_CONNECT) {
+      if (connector && session?.acknowledged) {
+        setGeneralError(undefined);
+        performReticket();
+      } else {
+        setGeneralError(new Error('Awaiting WalletConnect connection...'));
+      }
     }
 
-    performReticket();
-    // We want to perform the reticket only once, after the WalletConnect
-    // connector has finished instantiating and setting up a websocket
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connector]);
+  }, [connector, session, walletType]);
+
+  // For non-WalletConnect wallets
+  useEffect(() => {
+    if (walletType && walletType !== WALLET_TYPES.WALLET_CONNECT) {
+      performReticket();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletType]);
 
   const renderAdditionalInfo = () => {
     if (generalError) {
