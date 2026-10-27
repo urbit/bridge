@@ -1,7 +1,7 @@
 import { crypto } from 'bitcoinjs-lib';
 import { ecdsaSign } from 'secp256k1';
 import Web3 from 'web3';
-import { hexToBytes } from 'web3-utils';
+import { hexToBytes, utf8ToHex } from 'web3-utils';
 import { hashPersonalMessage } from '@ethereumjs/util';
 import { WALLET_TYPES } from './constants';
 import BridgeWallet from './types/BridgeWallet';
@@ -76,10 +76,11 @@ const getMetamaskAuthToken = ({ address, web3 }: MetamaskAuthTokenArgs) => {
     //      but web3.eth.personal.sign hits it semi-reliably?
     //      no idea what's going on, we should figure it out,
     //      but we apply this bandaid to hopefully stop the bleeding.
+    //NOTE  personal_sign expects hex-encoded data; signing the hex of
+    //      MESSAGE yields the same signature as the other wallet types
     return window.ethereum.request({
       method: 'personal_sign',
-      params: [MESSAGE, address],
-      from: address,
+      params: [utf8ToHex(MESSAGE), address],
     });
   } else {
     return web3.eth.personal.sign(MESSAGE, address, '');
