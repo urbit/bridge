@@ -99,7 +99,7 @@ const signTransaction = async ({
 
   // from user dropdown
   const maxPriorityFeePerGas = toWei(
-    String(Math.round(gasPriceData.maxPriorityFeePerGas)),
+    Number(gasPriceData.maxPriorityFeePerGas).toFixed(9),
     'gwei'
   );
 

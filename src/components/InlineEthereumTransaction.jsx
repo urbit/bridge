@@ -13,7 +13,7 @@ import { toBN } from 'web3-utils';
 
 import { useExploreTxUrls } from 'lib/explorer';
 import { hexify } from 'lib/txn';
-import { safeFromWei, safeToWei } from 'lib/lib';
+import { safeFromWei, gweiToWei } from 'lib/lib';
 
 import { composeValidator, buildCheckboxValidator } from 'form/validators';
 import BridgeForm from 'form/BridgeForm';
@@ -107,12 +107,9 @@ export default function InlineEthereumTransaction({
   const maxCost = useMemo(
     () =>
       safeFromWei(
-        safeToWei(
-          toBN(gasLimit)
-            .mul(toBN(gasPrice.price))
-            .mul(toBN(numTxs)),
-          'gwei'
-        ),
+        toBN(gasLimit)
+          .mul(gweiToWei(gasPrice.price))
+          .mul(toBN(numTxs)),
         'ether'
       ),
     [gasLimit, gasPrice, numTxs]

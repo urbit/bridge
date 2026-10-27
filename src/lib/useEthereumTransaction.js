@@ -23,7 +23,7 @@ import { ensureFundsFor } from 'lib/tank';
 import useDeepEqualReference from 'lib/useDeepEqualReference';
 import useGasPrice from 'lib/useGasPrice';
 import { timeout } from 'lib/timeout';
-import { safeToWei, safeFromWei } from 'lib/lib';
+import { safeFromWei, gweiToWei } from 'lib/lib';
 import { useWalletConnect } from './useWalletConnect';
 import { Transaction } from '@ethereumjs/tx';
 
@@ -181,10 +181,9 @@ export default function useEthereumTransaction(
 
       const rawTxs = signedTransactions.map(stx => hexify(stx.serialize()));
 
-      const costGwei = toBN(gasLimit)
-        .mul(toBN(gasPrice.price))
+      const cost = toBN(gasLimit)
+        .mul(gweiToWei(gasPrice.price))
         .mul(toBN(rawTxs.length));
-      const cost = safeToWei(costGwei, 'gwei');
       let usedTank = false;
       // if this ethereum transaction is being executed by a specific point
       // see if we can use the tank
@@ -226,15 +225,12 @@ export default function useEthereumTransaction(
 
       setFinalCost(
         safeFromWei(
-          safeToWei(
-            receipts.reduce(
-              (acc, receipt) =>
-                toBN(receipt.gasUsed)
-                  .mul(toBN(gasPrice.price))
-                  .add(acc),
-              toBN(0)
-            ),
-            'gwei'
+          receipts.reduce(
+            (acc, receipt) =>
+              toBN(receipt.gasUsed)
+                .mul(gweiToWei(gasPrice.price))
+                .add(acc),
+            toBN(0)
           ),
           'ether'
         )

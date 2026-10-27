@@ -43,7 +43,10 @@ export default function FeeDropdown({
   );
 
   const handleCustom = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const cleanedValue = e.target.value.replace(/[^0-9]/g, '');
+    // Allow digits and a single decimal point
+    const cleanedValue = e.target.value
+      .replace(/[^0-9.]/g, '')
+      .replace(/(\..*)\./g, '$1');
     const cleanedNum = Number(cleanedValue);
     setCustom(cleanedValue);
     setGasPrice(defaultGasValues(cleanedNum).average);

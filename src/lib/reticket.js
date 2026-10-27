@@ -16,7 +16,7 @@ import {
 import getSuggestedGasPrice from './getSuggestedGasPrice';
 import { GAS_LIMITS, INITIAL_NETWORK_KEY_REVISION } from './constants';
 import { toBN } from 'web3-utils';
-import { safeToWei } from './lib';
+import { gweiToWei } from './lib';
 import { isGalaxy, isPlanet } from './utils/point';
 
 export const TRANSACTION_PROGRESS = {
@@ -146,10 +146,9 @@ export async function reticketPointBetweenWallets({
 
   progress(TRANSACTION_PROGRESS.SIGNING);
 
-  const gasPriceData = (await getSuggestedGasPrice(networkType)).average;
-  const gasPriceGwei = gasPriceData.price.toFixed();
+  const gasPriceData = (await getSuggestedGasPrice(networkType, web3)).average;
   const chainId = await web3.eth.net.getId();
-  const gasPriceWeiBN = toBN(safeToWei(gasPriceGwei, 'gwei'));
+  const gasPriceWeiBN = gweiToWei(gasPriceData.price);
   let inviteNonce = await web3.eth.getTransactionCount(fromWallet.address);
   const totalCost = txs.reduce(
     (acc, tx) => acc.add(gasPriceWeiBN.mul(toBN(tx.gas))),

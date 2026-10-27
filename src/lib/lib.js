@@ -26,6 +26,9 @@ const safeToWei = (num, source) => {
   }
 };
 
+// Converts a (possibly fractional) gwei amount to a wei BN
+const gweiToWei = gwei => toBN(toWei(Number(gwei).toFixed(9), 'gwei'));
+
 const compose = (...fs) =>
   fs.reduceRight(
     (pF, nF) => (...args) => nF(pF(...args)),
@@ -73,6 +76,7 @@ const patpStringLength = byteLength =>
 export {
   safeFromWei,
   safeToWei,
+  gweiToWei,
   compose,
   allFalse,
   isLast,
